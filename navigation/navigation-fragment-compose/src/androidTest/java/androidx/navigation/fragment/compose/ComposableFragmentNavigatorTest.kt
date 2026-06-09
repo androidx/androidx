@@ -16,10 +16,14 @@
 
 package androidx.navigation.fragment.compose
 
+import android.os.Bundle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.compose.test.R
 import androidx.navigation.fragment.compose.test.TestActivity
@@ -60,6 +64,44 @@ class ComposableFragmentNavigatorTest {
         assertWithMessage("Inflated Destination should point to FragmentNavigator")
             .that(startDestination.navigatorName)
             .isEqualTo("fragment")
+    }
+
+    @Test
+    fun navigateWithArgsOverride() {
+        val navController =
+            testRule.runOnUiThread {
+                val controller =
+                    NavController(testRule.activity).apply {
+                        navigatorProvider +=
+                            FragmentNavigator(
+                                testRule.activity,
+                                testRule.activity.supportFragmentManager,
+                                R.id.fragment_container,
+                            )
+                        navigatorProvider += ComposableFragmentNavigator(navigatorProvider)
+                    }
+                Navigation.setViewNavController(
+                    testRule.activity.findViewById(R.id.fragment_container),
+                    controller,
+                )
+                controller
+            }
+
+        testRule.runOnUiThread {
+            val args =
+                Bundle().apply {
+                    putString(
+                        ComposableFragment.FULLY_QUALIFIED_NAME,
+                        "androidx.navigation.fragment.compose.ComposableFragmentNavigatorTestKt\$NavigatorContent_Malicious",
+                    )
+                }
+            navController.setGraph(R.navigation.nav_simple)
+            navController.navigate(R.id.start_fragment, args)
+        }
+
+        testRule.waitForIdle()
+
+        testRule.onNodeWithText("ComposableFragmentNavigator").assertIsDisplayed()
     }
 }
 
