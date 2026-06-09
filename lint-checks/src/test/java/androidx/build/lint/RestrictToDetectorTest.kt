@@ -870,7 +870,8 @@ class RestrictToDetectorTest :
         var libDir3: File? = null
         val factory: () -> com.android.tools.lint.checks.infrastructure.TestLintClient = {
             object : com.android.tools.lint.checks.infrastructure.TestLintClient() {
-                override fun registerProject(dir: File, project: Project) {
+                override fun getProject(dir: File, referenceDir: File): Project {
+                    val project = super.getProject(dir, referenceDir)
                     if (project.name == "lib1") {
                         libDir1 = dir
                     } else if (project.name == "lib2") {
@@ -878,7 +879,7 @@ class RestrictToDetectorTest :
                     } else if (project.name == "lib3") {
                         libDir3 = dir
                     }
-                    super.registerProject(dir, project)
+                    return project
                 }
             }
         }
