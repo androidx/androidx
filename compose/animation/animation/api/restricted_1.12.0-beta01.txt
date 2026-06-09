@@ -239,6 +239,7 @@ package androidx.compose.animation {
   @androidx.compose.runtime.Stable public interface SharedTransitionScope extends androidx.compose.ui.layout.LookaheadScope {
     method public androidx.compose.animation.SharedTransitionScope.OverlayClip OverlayClip(androidx.compose.ui.graphics.Shape clipShape);
     method public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig();
+    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig(boolean permitTransformDuringDeferredTransition);
     method @InaccessibleFromKotlin public boolean isTransitionActive();
     method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key);
     method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key, androidx.compose.animation.SharedTransitionScope.SharedContentConfig config);
@@ -290,9 +291,11 @@ package androidx.compose.animation {
   public static interface SharedTransitionScope.SharedContentConfig {
     method @KotlinOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect targetBoundsBeforeRemoval, androidx.compose.ui.geometry.Size sharedTransitionLayoutSize);
     method @BytecodeOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval-cSwnlzA(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect, long);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi public default boolean getPermitTransformDuringDeferredTransition();
     method @InaccessibleFromKotlin public default boolean getShouldKeepEnabledForOngoingAnimation();
     method @InaccessibleFromKotlin public default boolean isEnabled(androidx.compose.animation.SharedTransitionScope.SharedContentState);
     property public default boolean androidx.compose.animation.SharedTransitionScope.SharedContentState.isEnabled;
+    property @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi public default boolean permitTransformDuringDeferredTransition;
     property public default boolean shouldKeepEnabledForOngoingAnimation;
   }
 

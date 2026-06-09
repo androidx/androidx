@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalDeferredTransitionApi::class)
+
 package androidx.compose.animation
 
 import androidx.annotation.VisibleForTesting
@@ -27,6 +29,8 @@ import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
+import androidx.compose.animation.core.DeferredTransition
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
@@ -975,6 +979,19 @@ public interface SharedTransitionScope : LookaheadScope {
             get() = true
 
         /**
+         * [permitTransformDuringDeferredTransition] defines whether the shared element should take
+         * part in the manual transformations applied to its container during the deferred phase of
+         * a [DeferredTransition]. If true, the element visually transforms with its container until
+         * the transition switches to the automatic phase. This makes it look like it remains
+         * visually attached to its parent container. If false, it remains statically detached in
+         * its start position during the deferred phase.
+         */
+        @ExperimentalDeferredTransitionApi
+        @get:Suppress("GetterSetterNames")
+        public val permitTransformDuringDeferredTransition: Boolean
+            get() = true
+
+        /**
          * [alternativeTargetBoundsInTransitionScopeAfterRemoval] returns an alternative target
          * bounds for when the target shared element is disposed amid animation (e.g., scrolled out
          * of the viewport and subsequently disposed).
@@ -1011,6 +1028,35 @@ public interface SharedTransitionScope : LookaheadScope {
      */
     public fun SharedContentConfig(): SharedContentConfig {
         return CachedSharedContentConfig
+    }
+
+    /**
+     * [SharedContentConfig] is a factory method that returns an [SharedContentConfig] object with
+     * default implementations for all the functions and properties defined in the
+     * [SharedContentConfig] interface. More specifically, the returned
+     * [SharedTransitionScope.SharedContentConfig] enables shared elements and bounds, and keeps
+     * them enabled while the animation is in-flight. It also sets the
+     * [SharedContentConfig.alternativeTargetBoundsInTransitionScopeAfterRemoval] to null, ensuring
+     * the shared element transition is canceled immediately if the incoming shared element is
+     * removed during the animation.
+     *
+     * @param permitTransformDuringDeferredTransition defines whether the shared element should take
+     *   part in the manual transformations applied to its container during the deferred phase of a
+     *   [DeferredTransition]. This makes it look like it remains visually attached to its parent
+     *   container.
+     * @see SharedContentConfig
+     */
+    @ExperimentalDeferredTransitionApi
+    public fun SharedContentConfig(
+        permitTransformDuringDeferredTransition: Boolean
+    ): SharedContentConfig {
+        if (permitTransformDuringDeferredTransition) {
+            return CachedSharedContentConfig
+        }
+        return object : SharedContentConfig {
+            override val permitTransformDuringDeferredTransition: Boolean
+                get() = permitTransformDuringDeferredTransition
+        }
     }
 }
 
@@ -1228,7 +1274,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     // Called from the observation in SharedTransitionScopeRootModifierNode
     internal val observeAnimatingBlock: () -> Unit = {
-        sharedElementsIterator.any { element -> element.isAnimating() }
+        // During a deferred phase, automatic animation is held back (isAnimating = false), but
+        // elements are manually transformed by the gesture (isMutating = true). Keeping the
+        // transition active maintains the state machine tracking (target data, bounds) required
+        // for a seamless handoff, and correctly managing overlay rendering.
+        sharedElementsIterator.any { element -> element.isAnimating() || element.isMutating() }
     }
 
     @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
@@ -1241,8 +1291,10 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                 isActive ||
                     (
                     // Note: This should evaluate to true for animating shared elements that lost
-                    // its match (e.g.ActiveMatchRemovedDuringTransition)
-                    element.foundMatch && element.isAnimating())
+                    // its match (e.g.ActiveMatchRemovedDuringTransition).
+                    // We check `isMutating()` to keep the transition active during a deferred phase
+                    // so the state machine preserves target data/bounds for handoff.
+                    element.foundMatch && (element.isAnimating() || element.isMutating()))
         }
         if (isActive != isTransitionActive) {
             isTransitionActive = isActive

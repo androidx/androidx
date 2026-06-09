@@ -63,6 +63,9 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     fun isAnimating(): Boolean = enabledEntries.fastAny { it.boundsAnimation.isRunning }
 
+    fun isMutating(): Boolean =
+        enabledEntries.fastAny { it.activeMutableTransformState?.isMutating == true }
+
     private val momentumAnimation = Animatable(Offset.Zero, Offset.VectorConverter)
 
     internal fun updateMatch() {
