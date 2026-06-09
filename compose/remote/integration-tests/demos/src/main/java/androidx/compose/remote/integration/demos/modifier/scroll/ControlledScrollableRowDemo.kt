@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.modifier.scroll
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.scrollBy
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -36,6 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
@@ -56,6 +58,8 @@ fun ControlledScrollableRowDemo() {
 @RemoteComposable
 private fun ControlledScrollableRowDemoContent() {
     val scrollState = rememberRemoteScrollState()
+    val useLargeScroll = rememberMutableRemoteBoolean(true)
+    val scrollDelta = useLargeScroll.select(10000f.rf, 1000f.rf)
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteRow(
             modifier = RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().weight(1f.rf)
@@ -64,14 +68,16 @@ private fun ControlledScrollableRowDemoContent() {
         }
         RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
             RemoteText("Scroll".rs, color = Color.Black.rc)
-            Button(
-                onClick = valueChange(scrollState.positionState, scrollState.positionState - 1000f)
-            ) {
+            Button(onClick = valueChange(useLargeScroll, !useLargeScroll)) {
+                RemoteText(
+                    useLargeScroll.select("Mode: 10000".rs, "Mode: 1000".rs),
+                    color = Color.Black.rc,
+                )
+            }
+            Button(onClick = scrollState.scrollBy(-scrollDelta)) {
                 RemoteText("< -".rs, color = Color.Black.rc)
             }
-            Button(
-                onClick = valueChange(scrollState.positionState, scrollState.positionState + 10000f)
-            ) {
+            Button(onClick = scrollState.scrollBy(scrollDelta)) {
                 RemoteText("--- >".rs, color = Color.Black.rc)
             }
         }
