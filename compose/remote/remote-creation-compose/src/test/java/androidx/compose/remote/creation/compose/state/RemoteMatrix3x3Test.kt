@@ -193,6 +193,37 @@ class RemoteMatrix3x3Test {
             )
     }
 
+    @Test
+    fun toDebugString_identity() {
+        val identity = RemoteMatrix3x3.createIdentity()
+        assertThat(identity.toDebugString()).isEqualTo("identity()")
+    }
+
+    @Test
+    fun toDebugString_transformations() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val translate = RemoteMatrix3x3.createTranslateXy(x, y)
+        assertThat(translate.toDebugString()).isEqualTo("translate(user:x, user:y)")
+
+        val rotate = RemoteMatrix3x3.createRotate(x)
+        assertThat(rotate.toDebugString()).isEqualTo("rotate(user:x)")
+    }
+
+    @Test
+    fun toDebugString_multiplication() {
+        val identity = RemoteMatrix3x3.createIdentity()
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val translate = RemoteMatrix3x3.createTranslateXy(x, y)
+        val rotate = RemoteMatrix3x3.createRotate(x)
+
+        val combined = translate * rotate
+        assertThat(combined.toDebugString()).isEqualTo("translate(user:x, user:y) * rotate(user:x)")
+        assertThat((combined * identity).toDebugString())
+            .isEqualTo("translate(user:x, user:y) * rotate(user:x) * identity()")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

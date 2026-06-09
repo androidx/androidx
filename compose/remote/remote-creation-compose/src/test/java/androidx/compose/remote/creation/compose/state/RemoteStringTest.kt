@@ -1015,4 +1015,32 @@ class RemoteStringTest {
                 op.apply(context)
             }
         }
+
+    @Test
+    fun toDebugString_concatenation() {
+        val s = RemoteString.createNamedRemoteString("s", "hi")
+        val expr = s + RemoteString(" there")
+        assertThat(expr.toDebugString()).isEqualTo("""user:s + " there"""")
+    }
+
+    @Test
+    fun toDebugString_select() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 1f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 2f)
+        val sel = selectIfLt(x, y, RemoteString("A"), RemoteString("B"))
+        assertThat(sel.toDebugString()).isEqualTo("""user:x < user:y ? "A" : "B"""")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val strExpr = continuousSecFloat.toRemoteString()
+        assertThat(strExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteString()")
+    }
+
+    @Test
+    fun toDebugString_constant() {
+        val rs = RemoteString("hello")
+        assertThat(rs.toDebugString()).isEqualTo("\"hello\"")
+    }
 }

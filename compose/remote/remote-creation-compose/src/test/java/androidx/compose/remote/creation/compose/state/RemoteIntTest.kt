@@ -834,4 +834,49 @@ class RemoteIntTest {
                 op.apply(context)
             }
         }
+
+    @Test
+    fun toDebugString_arithmetic() {
+        val x = RemoteInt.createNamedRemoteInt("x", 0)
+        val expr = -x * 3 + 2
+        assertThat(expr.toDebugString()).isEqualTo("-user:x * 3 + 2")
+    }
+
+    @Test
+    fun toDebugString_conversions() {
+        val x = RemoteInt.createNamedRemoteInt("x", 0)
+        assertThat(x.toRemoteString().toDebugString())
+            .isEqualTo("user:x.toRemoteFloat().toRemoteString()")
+        assertThat(x.toRemoteFloat().toDebugString()).isEqualTo("user:x.toRemoteFloat()")
+    }
+
+    @Test
+    fun toDebugString_nestedConditional() {
+        val x = RemoteInt.createNamedRemoteInt("x", 0)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+        val nestedSelect =
+            x.isEqualTo(0.ri).select(100.ri, y.isEqualTo(20.ri).select(200.ri, 300.ri))
+        assertThat(nestedSelect.toDebugString())
+            .isEqualTo("user:x == 0 ? 100 : (user:y == 20 ? 200 : 300)")
+    }
+
+    @Test
+    fun toDebugString_bitwiseAnd() {
+        val i = RemoteInt.createNamedRemoteInt("i", 10)
+        val expr = i and RemoteInt(0)
+        assertThat(expr.toDebugString()).isEqualTo("user:i and 0")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val intExpr = continuousSecFloat.toRemoteInt()
+        assertThat(intExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt()")
+    }
+
+    @Test
+    fun toDebugString_constant() {
+        val ri = RemoteInt(42)
+        assertThat(ri.toDebugString()).isEqualTo("42")
+    }
 }

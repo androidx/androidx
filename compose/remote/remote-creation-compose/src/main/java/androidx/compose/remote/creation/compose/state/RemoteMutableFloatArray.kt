@@ -31,7 +31,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteMutableFloatArray
 /** Constructs a [RemoteMutableFloatArray] with [size] elements which are initialized to 0 */
-constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteStateInstanceKey()) {
+constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteStateArrayKey(size)) {
 
     public override val constantValueOrNull: List<RemoteFloat>? = null
 
@@ -47,9 +47,18 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
         }
     private var generation = 0
 
-    internal enum class OperationKey {
-        Create,
-        Get,
+    internal enum class OperationKey : DebuggableOperation {
+        Create {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "mutableFloatArrayOf(${args.joinToDebugString()})"
+        },
+        Get {
+            override val precedence: Int
+                get() = 100
+
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                args.formatArrayAccess(precedence)
+        },
     }
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {

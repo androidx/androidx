@@ -62,24 +62,28 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     BaseRemoteState<Float>(cacheKey) {
     internal abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
 
-    internal enum class OperationKey(public val opCode: Float) {
+    internal enum class OperationKey(
+        public val opCode: Float,
+        override val precedence: Int = 100,
+        public val symbol: String? = null,
+    ) : DebuggableOperation {
         ToRemoteInt(Float.NaN),
         ToRemoteString(Float.NaN),
-        UnaryMinus(AnimatedFloatExpression.MUL),
-        Plus(AnimatedFloatExpression.ADD),
-        Minus(AnimatedFloatExpression.SUB),
-        Times(AnimatedFloatExpression.MUL),
-        Div(AnimatedFloatExpression.DIV),
-        Rem(AnimatedFloatExpression.MOD),
+        UnaryMinus(AnimatedFloatExpression.MUL, 4),
+        Plus(AnimatedFloatExpression.ADD, 2, "+"),
+        Minus(AnimatedFloatExpression.SUB, 2, "-"),
+        Times(AnimatedFloatExpression.MUL, 3, "*"),
+        Div(AnimatedFloatExpression.DIV, 3, "/"),
+        Rem(AnimatedFloatExpression.MOD, 3, "%"),
         Min(AnimatedFloatExpression.MIN),
         Max(AnimatedFloatExpression.MAX),
         Abs(AnimatedFloatExpression.ABS),
         Clamp(AnimatedFloatExpression.CLAMP),
         Reference(Float.NaN),
-        SelectIfLT(AnimatedFloatExpression.IFELSE),
-        SelectIfLE(AnimatedFloatExpression.IFELSE),
-        SelectIfGT(AnimatedFloatExpression.IFELSE),
-        SelectIfGE(AnimatedFloatExpression.IFELSE),
+        SelectIfLT(AnimatedFloatExpression.IFELSE, 0),
+        SelectIfLE(AnimatedFloatExpression.IFELSE, 0),
+        SelectIfGT(AnimatedFloatExpression.IFELSE, 0),
+        SelectIfGE(AnimatedFloatExpression.IFELSE, 0),
         ComparisonOp(AnimatedFloatExpression.IFELSE),
         Mad(AnimatedFloatExpression.MAD),
         Lerp(AnimatedFloatExpression.LERP),
@@ -114,16 +118,45 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         DayOfWeekForReference(Float.NaN),
         YearForReference(Float.NaN),
         ToInt(Float.NaN),
-        CompareEQ(Float.NaN),
-        CompareNE(Float.NaN),
-        CompareLT(Float.NaN),
-        CompareLE(Float.NaN),
-        CompareGT(Float.NaN),
-        CompareGE(Float.NaN),
-        Anim(Float.NaN),
-        Cubic(AnimatedFloatExpression.CUBIC),
-        Spline(AnimatedFloatExpression.A_SPLINE),
-        SplineLoop(AnimatedFloatExpression.A_SPLINE_LOOP),
+        CompareEQ(Float.NaN, 1, "=="),
+        CompareNE(Float.NaN, 1, "!="),
+        CompareLT(Float.NaN, 1, "<"),
+        CompareLE(Float.NaN, 1, "<="),
+        CompareGT(Float.NaN, 1, ">"),
+        CompareGE(Float.NaN, 1, ">="),
+        Anim(Float.NaN) {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "animate(${args[0].toDebugString()})"
+        },
+        Cubic(AnimatedFloatExpression.CUBIC) {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "cubicEasing(${args.joinToDebugString()})"
+        },
+        Spline(AnimatedFloatExpression.A_SPLINE) {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "evalSpline(${args.joinToDebugString()})"
+        },
+        SplineLoop(AnimatedFloatExpression.A_SPLINE_LOOP) {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "evalSpline(${args.joinToDebugString()}, loop=true)"
+        };
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            if (symbol != null && args.size == 2) {
+                return args.formatOp(symbol, precedence)
+            }
+            return when (this) {
+                UnaryMinus -> "-${args[0].toOperandString(precedence)}"
+                ToRemoteInt,
+                ToInt -> "${args[0].toOperandString(precedence)}.toRemoteInt()"
+                ToRemoteString -> formatToRemoteString(args, precedence)
+                SelectIfLT -> args.formatSelect("<")
+                SelectIfLE -> args.formatSelect("<=")
+                SelectIfGT -> args.formatSelect(">")
+                SelectIfGE -> args.formatSelect(">=")
+                else -> formatCamelCaseFunction(args)
+            }
+        }
     }
 
     internal fun arrayForCreationState(creationState: RemoteComposeCreationState): FloatArray {
@@ -690,6 +723,43 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     public infix fun ge(other: RemoteFloat): RemoteBoolean = isGreaterThanOrEqual(other)
 
     public companion object {
+        internal fun formatAnimationType(type: Int): String =
+            when (type) {
+                CUBIC_STANDARD -> "CUBIC_STANDARD"
+                CUBIC_ACCELERATE -> "CUBIC_ACCELERATE"
+                CUBIC_DECELERATE -> "CUBIC_DECELERATE"
+                CUBIC_LINEAR -> "CUBIC_LINEAR"
+                CUBIC_ANTICIPATE -> "CUBIC_ANTICIPATE"
+                CUBIC_OVERSHOOT -> "CUBIC_OVERSHOOT"
+                CUBIC_CUSTOM -> "CUBIC_CUSTOM"
+                SPLINE_CUSTOM -> "SPLINE_CUSTOM"
+                EASE_OUT_BOUNCE -> "EASE_OUT_BOUNCE"
+                EASE_OUT_ELASTIC -> "EASE_OUT_ELASTIC"
+                else -> type.toString()
+            }
+
+        internal fun formatToRemoteString(
+            args: List<RemoteStateCacheKey>,
+            precedence: Int,
+        ): String {
+            if (args.size < 4) {
+                return "${args[0].toOperandString(precedence)}.toRemoteString()"
+            }
+            val str = args[1].toDebugString()
+            // Check if options match DefaultDecimalFormat (before=255, after=3|0, flags=533)
+            val isDefault =
+                str == "255" &&
+                    (args[2].toDebugString() == "3" || args[2].toDebugString() == "0") &&
+                    args[3].toDebugString() == "533"
+            return if (isDefault) {
+                "${args[0].toOperandString(precedence)}.toRemoteString()"
+            } else {
+                val obj = args[0].toOperandString(precedence)
+                val params = args.joinToDebugString(startIndex = 1)
+                "$obj.toRemoteString($params)"
+            }
+        }
+
         internal val DefaultDecimalFormat = android.icu.text.DecimalFormat()
 
         private fun isConstant(v: Float): Boolean {
@@ -1425,10 +1495,10 @@ public fun monthOfYearForReference(referenceEpochMillis: RemoteLong): RemoteFloa
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
+    val opKey = OperationKey.DayOfWeekForReference
     return RemoteFloatExpression(
         constantValueOrNull = null,
-        cacheKey =
-            RemoteOperationCacheKey.create(OperationKey.DayOfWeekForReference, referenceEpochMillis),
+        cacheKey = RemoteOperationCacheKey.create(opKey, referenceEpochMillis),
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(

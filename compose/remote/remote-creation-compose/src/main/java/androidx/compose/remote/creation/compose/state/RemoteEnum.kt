@@ -36,11 +36,14 @@ public open class RemoteEnum<T : Enum<T>>(
     internal val enumEntries: EnumEntries<T>,
 ) : BaseRemoteState<T>(RemoteStateInstanceKey()) {
     override val cacheKey: RemoteStateCacheKey
-        get() = intValue.cacheKey
+        get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
 
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: T?
         get() = intValue.constantValueOrNull?.let { enumEntries[it] }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toDebugString(): String = constantValueOrNull?.name ?: super.toDebugString()
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val asEncoded: RemoteInt
@@ -50,8 +53,15 @@ public open class RemoteEnum<T : Enum<T>>(
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
-    internal enum class OperationKey {
-        ToString
+    internal enum class OperationKey : DebuggableOperation {
+        ToString;
+
+        override val precedence: Int
+            get() = 100
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            return "${args[0].toOperandString(precedence)}.toRemoteString()"
+        }
     }
 
     /**
@@ -68,7 +78,7 @@ public open class RemoteEnum<T : Enum<T>>(
      * Converts this [RemoteEnum] to its underlying [RemoteInt] representation, using the Enum
      * ordinal.
      *
-     * @return The [RemoteInt] that holds the enum\'s value.
+     * @return The [RemoteInt] that holds the enum's value.
      */
     public val ordinal: RemoteInt
         get() = intValue

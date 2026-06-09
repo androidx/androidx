@@ -216,6 +216,20 @@ class RemoteMutableFloatArrayTest {
         assertThat(resultAfterDynamicSet.hasConstantValue).isFalse()
     }
 
+    @Test
+    fun toDebugString_stateArray() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        assertThat(remoteFloatArray.toDebugString()).isEqualTo("mutableFloatArray(size=4)")
+    }
+
+    @Test
+    fun toDebugString_indexing() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        val dynIdx = RemoteInt.createNamedRemoteInt("i", 1)
+        val result = remoteFloatArray[dynIdx]
+        assertThat(result.toDebugString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
+    }
+
     private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =
         CoreDocument().apply {
             val buffer = cs.document.buffer

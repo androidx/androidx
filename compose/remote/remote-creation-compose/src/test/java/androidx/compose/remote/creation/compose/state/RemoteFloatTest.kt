@@ -24,6 +24,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.RemoteContext.ID_CONTINUOUS_SEC
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -1415,4 +1416,89 @@ class RemoteFloatTest {
                 op.apply(context)
             }
         }
+
+    @Test
+    fun toDebugString_constant() {
+        val c = RemoteFloat(45.5f)
+        assertThat(c.toDebugString()).isEqualTo("45.5")
+    }
+
+    @Test
+    fun toDebugString_variables() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        assertThat(x.toDebugString()).isEqualTo("user:x")
+
+        val contSec = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        assertThat(contSec.toDebugString()).isEqualTo("context:continuous_sec")
+
+        val densityVal = RemoteFloat(RemoteContext.FLOAT_DENSITY)
+        assertThat(densityVal.toDebugString()).isEqualTo("context:density")
+
+        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC).toDebugString())
+            .isEqualTo("context:time_in_sec")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_MIN).toDebugString())
+            .isEqualTo("context:time_in_min")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_HR).toDebugString())
+            .isEqualTo("context:time_in_hr")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_CALENDAR_MONTH).toDebugString())
+            .isEqualTo("context:calendar_month")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_WEEK_DAY).toDebugString())
+            .isEqualTo("context:week_day")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_DAY_OF_MONTH).toDebugString())
+            .isEqualTo("context:day_of_month")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_DAY_OF_YEAR).toDebugString())
+            .isEqualTo("context:day_of_year")
+        assertThat(RemoteFloat(RemoteContext.FLOAT_YEAR).toDebugString()).isEqualTo("context:year")
+        assertThat(RemoteFloat(asNan(999)).toDebugString()).isEqualTo("context:#999")
+    }
+
+    @Test
+    fun toDebugString_function_abs() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        assertThat(abs(-x).toDebugString()).isEqualTo("abs(-user:x)")
+    }
+
+    @Test
+    fun toDebugString_arithmetic_compound() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val c = RemoteFloat(45.5f)
+        val expr = (x + c) * abs(-x)
+        assertThat(expr.toDebugString()).isEqualTo("(user:x + 45.5) * abs(-user:x)")
+    }
+
+    @Test
+    fun toDebugString_arithmetic_associativityWrapping() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val c = RemoteFloat(45.5f)
+        val assocExpr = x - (c + x)
+        assertThat(assocExpr.toDebugString()).isEqualTo("user:x - (user:x + 45.5)")
+    }
+
+    @Test
+    fun toDebugString_function_timeOfReferenceInSeconds() {
+        val timeRef = timeOfReferenceInSeconds(RemoteLong(1000L))
+        assertThat(timeRef.toDebugString()).isEqualTo("timeOfReferenceInSeconds(1000)")
+    }
+
+    @Test
+    fun toDebugString_typeConversions() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        assertThat(x.toRemoteString().toDebugString()).isEqualTo("user:x.toRemoteString()")
+        assertThat(x.toRemoteInt().toDebugString()).isEqualTo("user:x.toRemoteInt()")
+    }
+
+    @Test
+    fun toDebugString_customFormatting_options() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val customFormatted = x.toRemoteStringOptions(before = 10, after = 2, flags = 5)
+        assertThat(customFormatted.toDebugString()).isEqualTo("user:x.toRemoteString(10, 2, 5)")
+    }
+
+    @Test
+    fun toDebugString_customFormatting_singleArgFallback() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val singleArgKey =
+            RemoteOperationCacheKey.create(RemoteFloat.OperationKey.ToRemoteString, x)
+        assertThat(singleArgKey.toDebugString()).isEqualTo("user:x.toRemoteString()")
+    }
 }

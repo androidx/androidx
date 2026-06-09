@@ -202,4 +202,23 @@ class RemoteDpTest {
         assertThat(dp1.cacheKey).isNotNull()
         assertThat(dp1.cacheKey).isEqualTo(dp2.cacheKey)
     }
+
+    @Test
+    fun toDebugString_constant() {
+        val dp = 10.5f.rdp
+        assertThat(dp.toDebugString()).isEqualTo("10.5.dp")
+    }
+
+    @Test
+    fun toDebugString_toDp() {
+        val dpExpr = RemoteFloat.createNamedRemoteFloat("pxVal", 0f).toRemoteDp()
+        assertThat(dpExpr.toDebugString()).isEqualTo("user:pxVal.toDp()")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val dpExpr = continuousSecFloat.toRemoteDp()
+        assertThat(dpExpr.toDebugString()).isEqualTo("context:continuous_sec.toDp()")
+    }
 }

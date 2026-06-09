@@ -76,6 +76,24 @@ class RemoteFloatArrayTest {
         assertThat(context.getFloat(resultId)).isEqualTo(2f)
     }
 
+    @Test
+    fun toDebugString_creation() {
+        val remoteFloatArray = RemoteFloatArray(listOf(1.rf, 2.rf, 3.rf))
+        assertThat(remoteFloatArray.toDebugString()).isEqualTo("arrayOf(1.0, 2.0, 3.0)")
+    }
+
+    @Test
+    fun toDebugString_indexing() {
+        val remoteFloatArray = RemoteFloatArray(listOf(1.rf, 2.rf, 3.rf))
+        val idx = RemoteFloat.createNamedRemoteFloat("idx", 1f)
+        val result = remoteFloatArray[idx]
+        assertThat(result.toDebugString()).isEqualTo("arrayOf(1.0, 2.0, 3.0)[user:idx]")
+
+        val intIdx = RemoteInt.createNamedRemoteInt("i", 1)
+        assertThat(remoteFloatArray[intIdx].toDebugString())
+            .isEqualTo("arrayOf(1.0, 2.0, 3.0)[user:i]")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

@@ -41,9 +41,18 @@ internal constructor(
         } ?: RemoteStateInstanceKey(),
     )
 
-    internal enum class OperationKey {
-        Create,
-        Get,
+    internal enum class OperationKey : DebuggableOperation {
+        Create {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "arrayOf(${args.joinToDebugString()})"
+        },
+        Get {
+            override val precedence: Int
+                get() = 100
+
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                args.formatArrayAccess(precedence)
+        },
     }
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
