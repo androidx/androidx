@@ -3142,7 +3142,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         // dispatchHoverEvent only runs if touch exploration is enabled)
         val delegateHandled =
             composeAccessibilityDelegate.dispatchHoverEvent(event) &&
-                ComposeUiFlags.isExploreByTouchHoverHandled
+                AndroidComposeUiFlags.isExploreByTouchHoverHandled
 
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {

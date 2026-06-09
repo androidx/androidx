@@ -72,12 +72,14 @@ package androidx.compose.ui {
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class AndroidComposeUiFlags {
     property public boolean isAlwaysScrollDuringScrollCaptureEnabled;
+    property public boolean isExploreByTouchHoverHandled;
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isInteractionSoundEffectsEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
+    field public static boolean isExploreByTouchHoverHandled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isInteractionSoundEffectsEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
@@ -157,7 +159,6 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isClearNestedScrollCoroutineScopeFixEnabled;
-    property public boolean isExploreByTouchHoverHandled;
     property public boolean isFocusRestorationEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
@@ -169,7 +170,6 @@ package androidx.compose.ui {
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isClearNestedScrollCoroutineScopeFixEnabled;
-    field public static boolean isExploreByTouchHoverHandled;
     field public static boolean isFocusRestorationEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
