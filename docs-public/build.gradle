@@ -19,7 +19,6 @@ dependencies {
     docs("androidx.appcompat:appcompat:1.8.0-alpha01")
     docs("androidx.appcompat:appcompat-resources:1.8.0-alpha01")
     docs("androidx.appfunctions:appfunctions:1.0.0-alpha09")
-    docs("androidx.appfunctions:appfunctions-service:1.0.0-alpha09")
     stubs(project(":appfunctions:appfunctions-stubs"))
     docs("androidx.appfunctions:appfunctions-testing:1.0.0-alpha09")
     docs("androidx.appsearch:appsearch:1.2.0-alpha01")

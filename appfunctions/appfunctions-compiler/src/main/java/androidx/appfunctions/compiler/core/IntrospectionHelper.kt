@@ -25,9 +25,7 @@ object IntrospectionHelper {
     const val APP_FUNCTIONS_AGGREGATED_DEPS_PACKAGE_NAME = "appfunctions_aggregated_deps"
     const val SERIALIZABLE_PROXY_PACKAGE_NAME = "androidx.appfunctions.internal.serializableproxies"
     const val APP_FUNCTIONS_INTERNAL_PACKAGE_NAME = "androidx.appfunctions.internal"
-    const val APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME = "androidx.appfunctions.service.internal"
     private const val APP_FUNCTIONS_PACKAGE_NAME = "androidx.appfunctions"
-    private const val APP_FUNCTIONS_SERVICE_PACKAGE_NAME = "androidx.appfunctions.service"
     private const val APP_FUNCTIONS_METADATA_PACKAGE_NAME = "androidx.appfunctions.metadata"
 
     // Annotation classes
@@ -46,8 +44,7 @@ object IntrospectionHelper {
     }
 
     object AppFunctionAnnotation {
-        val CLASS_NAME = ClassName(APP_FUNCTIONS_SERVICE_PACKAGE_NAME, "AppFunction")
-        val CLASS_NAME_BASE = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunction")
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunction")
         const val PROPERTY_IS_ENABLED = "isEnabled"
         const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
@@ -187,8 +184,6 @@ object IntrospectionHelper {
 
     object ConfigurableAppFunctionFactoryClass {
         val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME, "ConfigurableAppFunctionFactory")
-        val CLASS_NAME_BASE =
             ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "ConfigurableAppFunctionFactory")
 
         object CreateEnclosingClassMethod {
@@ -244,9 +239,7 @@ object IntrospectionHelper {
     }
 
     object AppFunctionInvokerClass {
-        val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME, "AppFunctionInvoker")
-        val CLASS_NAME_BASE = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionInvoker")
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionInvoker")
         const val SUPPORTED_FUNCTION_IDS_PROPERTY_NAME = "supportedFunctionIds"
 
         object UnsafeInvokeMethod {
@@ -344,8 +337,6 @@ object IntrospectionHelper {
 
     object AggregatedAppFunctionInvokerClass {
         val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME, "AggregatedAppFunctionInvoker")
-        val CLASS_NAME_BASE =
             ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AggregatedAppFunctionInvoker")
 
         const val PROPERTY_INVOKERS_NAME = "invokers"

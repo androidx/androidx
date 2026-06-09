@@ -18,7 +18,6 @@ dependencies {
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appfunctions:appfunctions"))
-    docs(project(":appfunctions:appfunctions-service"))
     stubs(project(":appfunctions:appfunctions-stubs"))
     docs(project(":appfunctions:appfunctions-testing"))
     docs(project(":appsearch:appsearch"))

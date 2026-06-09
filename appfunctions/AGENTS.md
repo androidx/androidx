@@ -22,7 +22,6 @@ For target apps, this library simplifies implementation using KSP code generatio
 ## Subprojects
 
 - `appfunctions`: Runtime library included by both Callers and Target apps. It provides the APIs Callers use to discover and invoke functions, along with the core classes shared between callers and target apps.
-- `appfunctions-service`: Additional runtime library required exclusively by target apps. It contains APIs consumed only by target apps, as well as the logic to route execution requests to the developer's annotated functions.
 - `appfunctions-compiler`: annotation processor / code generation.
 - `appfunctions-testing`: Public testing helpers for AppFunctions.
 - `appfunctions-stubs`: compile-only stubs for the AppFunctions SDK Extension, which is a way we backported AppFunction APIs to reviously released API levels. This module should be frozen.
