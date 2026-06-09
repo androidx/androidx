@@ -208,22 +208,40 @@ internal class FrameBufferImpl(
         it === frameReference
     }
 
-    override fun peekFirstReference(): FrameReference? =
+    override fun peekFirstReference(predicate: ((FrameReference) -> Boolean)?): FrameReference? =
         synchronized(lock) {
             if (closed) return null
-            frameQueue.firstOrNull()?.frameReference
+            val entry =
+                if (predicate == null) {
+                    frameQueue.firstOrNull()
+                } else {
+                    frameQueue.firstOrNull { predicate(it.frameReference) }
+                }
+            entry?.frameReference
         }
 
-    override fun peekLastReference(): FrameReference? =
+    override fun peekLastReference(predicate: ((FrameReference) -> Boolean)?): FrameReference? =
         synchronized(lock) {
             if (closed) return null
-            frameQueue.lastOrNull()?.frameReference
+            val entry =
+                if (predicate == null) {
+                    frameQueue.lastOrNull()
+                } else {
+                    frameQueue.lastOrNull { predicate(it.frameReference) }
+                }
+            entry?.frameReference
         }
 
-    override fun peekAllReferences(): List<FrameReference> =
+    override fun peekAllReferences(
+        predicate: ((FrameReference) -> Boolean)?
+    ): List<FrameReference> =
         synchronized(lock) {
             if (closed) return emptyList()
-            frameQueue.map { it.frameReference }
+            if (predicate == null) {
+                frameQueue.map { it.frameReference }
+            } else {
+                frameQueue.mapNotNull { it.frameReference.takeIf(predicate) }
+            }
         }
 
     fun trimAll() {

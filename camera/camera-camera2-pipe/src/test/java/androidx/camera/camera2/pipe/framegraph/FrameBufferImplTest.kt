@@ -864,6 +864,34 @@ class FrameBufferImplTest {
         }
 
     @Test
+    fun peekFirstReference_withPredicate_returnsFirstMatchingFrame_doesNotChangeSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 2L }
+            val peeked = frameBuffer.peekFirstReference(filter)
+            assertThat(peeked!!.frameNumber).isEqualTo(frameRef2.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(2)
+        }
+
+    @Test
+    fun peekFirstReference_withPredicate_noMatches_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == -1L }
+            val peeked = frameBuffer.peekFirstReference(filter)
+            assertThat(peeked).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
     fun peekLastReference_emptyBuffer_returnsNull() =
         testScope.runTest { assertThat(frameBuffer.peekLastReference()).isNull() }
 
@@ -899,6 +927,34 @@ class FrameBufferImplTest {
             advanceUntilIdle()
 
             assertThat(frameBuffer.peekLastReference()).isNull()
+        }
+
+    @Test
+    fun peekLastReference_withPredicate_returnsLastMatchingFrame_doesNotChangeSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 1L }
+            val peeked = frameBuffer.peekLastReference(filter)
+            assertThat(peeked!!.frameNumber).isEqualTo(frameRef1.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(2)
+        }
+
+    @Test
+    fun peekLastReference_withPredicate_noMatches_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == -1L }
+            val peeked = frameBuffer.peekLastReference(filter)
+            assertThat(peeked).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
         }
 
     @Test
@@ -939,6 +995,38 @@ class FrameBufferImplTest {
             advanceUntilIdle()
 
             assertThat(frameBuffer.peekAllReferences()).isEmpty()
+        }
+
+    @Test
+    fun peekAllReferences_withPredicate_returnsMatchingFrames_doesNotChangeSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameRef3 = createTestFrame(3)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameBuffer.onFrameStarted(frameRef3)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value % 2 == 1L }
+            val peeked = frameBuffer.peekAllReferences(filter)
+            assertThat(peeked.map { it.frameNumber })
+                .containsExactly(frameRef1.frameNumber, frameRef3.frameNumber)
+                .inOrder()
+            assertThat(frameBuffer.size.value).isEqualTo(3)
+        }
+
+    @Test
+    fun peekAllReferences_withPredicate_noMatches_returnsEmptyList() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == -1L }
+            val peeked = frameBuffer.peekAllReferences(filter)
+            assertThat(peeked).isEmpty()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
         }
 
     @Test
