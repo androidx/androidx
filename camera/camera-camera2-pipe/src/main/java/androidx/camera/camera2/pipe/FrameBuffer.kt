@@ -164,20 +164,37 @@ public interface FrameBuffer : AutoCloseable {
     /**
      * The first FrameReference in the buffer, or null if the buffer is empty. No frames or
      * references are removed by this call.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the first entry is returned.
+     * @return the first [FrameReference] in the buffer that matches the [predicate] filter, or null
+     *   if the buffer is empty or no entry matches the filter.
      */
-    public fun peekFirstReference(): FrameReference?
+    public fun peekFirstReference(predicate: ((FrameReference) -> Boolean)? = null): FrameReference?
 
     /**
      * The last FrameReference in the buffer, or null if the buffer is empty. No frame references
      * are removed by this call.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the last entry is returned.
+     * @return the last [FrameReference] in the buffer that matches the [predicate] filter, or null
+     *   if the buffer is empty or no entry matches the filter.
      */
-    public fun peekLastReference(): FrameReference?
+    public fun peekLastReference(predicate: ((FrameReference) -> Boolean)? = null): FrameReference?
 
     /**
      * All the FrameReference(s) in the buffer, or empty if the buffer is empty. No frames
      * references are removed by this call.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   all entries are returned.
+     *     @return A list of [FrameReference]s that match the [predicate] filter, or an empty list
+     *       if the buffer is empty or no entry matches the filter.
      */
-    public fun peekAllReferences(): List<FrameReference>
+    public fun peekAllReferences(
+        predicate: ((FrameReference) -> Boolean)? = null
+    ): List<FrameReference>
 
     /**
      * Closes this FrameBuffer and releases all the resources it holds. After this method has been
