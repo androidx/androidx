@@ -19,8 +19,8 @@ package androidx.pdf.annotation.draftstate
 import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.AnnotationHandleIdGenerator
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 
 class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
     private val drafts = mutableMapOf<Int, MutableMap<String, PdfAnnotation>>()

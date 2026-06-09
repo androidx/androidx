@@ -20,12 +20,15 @@ import android.graphics.pdf.component.HighlightAnnotation as AospHighlightAnnota
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
-import androidx.pdf.annotation.models.HighlightAnnotation
+import androidx.pdf.annotation.models.HighlightAnnotation as ParcelableHighlightAnnotation
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class HighlightAnnotationConverter :
-    Converter<HighlightAnnotation, AospHighlightAnnotation> {
-    override fun convert(from: HighlightAnnotation, vararg args: Any): AospHighlightAnnotation {
+    Converter<ParcelableHighlightAnnotation, AospHighlightAnnotation> {
+    override fun convert(
+        from: ParcelableHighlightAnnotation,
+        vararg args: Any,
+    ): AospHighlightAnnotation {
         return AospHighlightAnnotation(from.bounds).apply { color = from.color }
     }
 }

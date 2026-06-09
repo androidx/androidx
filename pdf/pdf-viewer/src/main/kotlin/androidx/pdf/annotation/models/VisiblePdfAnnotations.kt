@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.models
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 /**
  * An immutable, value-based representation of all keyed annotations in a document, organized by

@@ -22,20 +22,22 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument
 import androidx.pdf.adapter.PdfDocumentRenderer
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.models.KeyedPdfObject as ParcelableKeyedPdfObject
 import androidx.pdf.utils.toPdfObject
 
 /** Implementation of [PageObjectsProvider] that fetches objects for a specific page. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class PageObjectsProviderImpl(private val documentRenderer: PdfDocumentRenderer) :
     PageObjectsProvider {
-    override fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
+    override fun getPageObjects(pageNum: Int, types: Long): List<ParcelableKeyedPdfObject> {
         return documentRenderer.withPage(pageNum) { page ->
             page.getPageObjects().mapNotNull { pair ->
                 val id = pair.first
                 val pageObject = pair.second
                 if (pageObject.matchesTypes(types)) {
-                    pageObject.toPdfObject()?.let { KeyedPdfObject(key = id.toString(), it) }
+                    pageObject.toPdfObject()?.let {
+                        ParcelableKeyedPdfObject(key = id.toString(), it)
+                    }
                 } else {
                     null
                 }

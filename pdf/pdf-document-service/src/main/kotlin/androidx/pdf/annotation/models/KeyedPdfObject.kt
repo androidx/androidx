@@ -19,7 +19,6 @@ package androidx.pdf.annotation.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 
 /**
  * Associates a [PdfObject] with a unique key.
@@ -27,9 +26,8 @@ import androidx.annotation.RestrictTo
  * @param key The unique string identifier for the object.
  * @param pdfObject The [PdfObject] object.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
-public class KeyedPdfObject(public val key: String, public val pdfObject: PdfObject) : Parcelable {
+internal class KeyedPdfObject(val key: String, val pdfObject: PdfObject) : Parcelable {
     override fun equals(other: Any?): Boolean {
         return (other is KeyedPdfObject) && other.key == key && other.pdfObject == pdfObject
     }
@@ -47,10 +45,10 @@ public class KeyedPdfObject(public val key: String, public val pdfObject: PdfObj
         pdfObject.writeToParcel(parcel, flags)
     }
 
-    public companion object {
+    companion object {
 
         @JvmField
-        public val CREATOR: Parcelable.Creator<KeyedPdfObject> =
+        val CREATOR: Parcelable.Creator<KeyedPdfObject> =
             object : Parcelable.Creator<KeyedPdfObject> {
                 override fun createFromParcel(parcel: Parcel): KeyedPdfObject {
                     val key =

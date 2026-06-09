@@ -28,9 +28,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.bitmapSize
-import androidx.pdf.annotation.models.toImageSelection
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.bitmapSize
+import androidx.pdf.annotation.content.toImageSelection
 import androidx.pdf.centerPoint
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageContent

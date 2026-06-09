@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.pdf.annotation.models
+package androidx.pdf.annotation.content
 
 import android.graphics.RectF
-import android.os.Parcel
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
+import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,25 +29,22 @@ import org.robolectric.RobolectricTestRunner
 class StampAnnotationTest {
 
     @Test
-    fun createStampAnnotation_parcellingUnparcelingFromPdfAnnotationParcel() {
+    fun equals_sameValues_returnsTrue() {
+        val stamp1 = getSampleStampAnnotation()
+        val stamp2 = getSampleStampAnnotation()
 
-        val expectedStampAnnotation = getSampleStampAnnotation()
+        assertThat(stamp1).isEqualTo(stamp2)
+        assertEquals(stamp1.hashCode(), stamp2.hashCode())
+    }
 
-        // Parcel the expected StampAnnotation object.
-        val parcel = Parcel.obtain()
-        expectedStampAnnotation.writeToParcel(parcel, 0)
-        // Reset parcel data position for reading.
-        parcel.setDataPosition(0)
+    @Test
+    fun equals_differentValues_returnsFalse() {
+        val stamp = getSampleStampAnnotation(pageNum = 1)
 
-        // Unparcel the object using PdfAnnotation.CREATOR
-        val actualAnnotation = PdfAnnotation.CREATOR.createFromParcel(parcel)
-        assert(actualAnnotation is StampAnnotation)
-
-        // Assert that the unparceled annotation's properties match the original.
-        if (actualAnnotation is StampAnnotation) {
-            assertStampAnnotationEquals(expectedStampAnnotation, actualAnnotation)
-        }
-        parcel.recycle()
+        // Different pageNum
+        assert(stamp != getSampleStampAnnotation(pageNum = 2))
+        // Different bounds
+        assert(stamp != getSampleStampAnnotation(pageNum = 1, bounds = RectF(0f, 0f, 50f, 50f)))
     }
 
     companion object {
@@ -66,7 +63,7 @@ class StampAnnotationTest {
             )
         }
 
-        internal fun getSampleStampAnnotation(
+        fun getSampleStampAnnotation(
             pageNum: Int = 0,
             bounds: RectF = RectF(0f, 0f, 100f, 100f),
         ): StampAnnotation {

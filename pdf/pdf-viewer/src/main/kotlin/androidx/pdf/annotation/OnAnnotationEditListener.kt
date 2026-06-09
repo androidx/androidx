@@ -17,7 +17,7 @@
 package androidx.pdf.annotation
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 
 /** Callback interface for events related to the creation and modification of annotations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

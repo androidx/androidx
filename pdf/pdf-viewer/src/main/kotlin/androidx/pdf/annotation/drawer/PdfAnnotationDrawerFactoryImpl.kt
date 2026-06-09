@@ -16,9 +16,9 @@
 
 package androidx.pdf.annotation.drawer
 
-import androidx.pdf.annotation.models.HighlightAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.HighlightAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
+import androidx.pdf.annotation.content.StampAnnotation
 
 /** Factory to create [PdfAnnotationDrawer] */
 internal class PdfAnnotationDrawerFactoryImpl(

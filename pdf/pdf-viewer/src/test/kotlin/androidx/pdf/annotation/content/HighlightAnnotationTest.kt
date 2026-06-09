@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.pdf.annotation.models
+package androidx.pdf.annotation.content
 
 import android.graphics.Color
 import android.graphics.RectF
-import android.os.Parcel
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,41 +49,5 @@ class HighlightAnnotationTest {
         assertThat(highlight).isNotEqualTo(HighlightAnnotation(1, bounds2, Color.YELLOW))
         // Different color
         assertThat(highlight).isNotEqualTo(HighlightAnnotation(1, bounds1, Color.BLUE))
-    }
-
-    @Test
-    fun parcelable_writeRead_preservesData() {
-        val bounds = listOf(RectF(10.5f, 20.5f, 30.5f, 40.5f), RectF(50f, 60f, 70f, 80f))
-        val original = HighlightAnnotation(pageNum = 5, bounds = bounds, color = Color.CYAN)
-
-        val parcel = Parcel.obtain()
-        try {
-            // Write to parcel
-            original.writeHighlightAnnotationToParcel(parcel, 0)
-
-            // Reset parcel for reading
-            parcel.setDataPosition(0)
-
-            // Read from parcel using CREATOR
-            val createdFromParcel = HighlightAnnotation.CREATOR.createFromParcel(parcel)
-
-            assertThat(createdFromParcel.pageNum).isEqualTo(original.pageNum)
-            assertThat(createdFromParcel.color).isEqualTo(original.color)
-            assertThat(createdFromParcel.bounds).hasSize(original.bounds.size)
-
-            for (i in original.bounds.indices) {
-                val originalRect = original.bounds[i]
-                val parcelledRect = createdFromParcel.bounds[i]
-                assertThat(parcelledRect.left).isEqualTo(originalRect.left)
-                assertThat(parcelledRect.top).isEqualTo(originalRect.top)
-                assertThat(parcelledRect.right).isEqualTo(originalRect.right)
-                assertThat(parcelledRect.bottom).isEqualTo(originalRect.bottom)
-            }
-
-            // Final equality check
-            assertThat(createdFromParcel).isEqualTo(original)
-        } finally {
-            parcel.recycle()
-        }
     }
 }

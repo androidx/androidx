@@ -21,12 +21,13 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.adapter.PdfDocumentRenderer
 import androidx.pdf.annotation.converters.PdfAnnotationConvertersFactory
+import androidx.pdf.annotation.models.KeyedPdfAnnotation as ParcelableKeyedPdfAnnotation
 
 /** Implementation of [PageAnnotationsProvider] that fetches annotations for a specific page. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class PageAnnotationsProviderImpl(private val documentRenderer: PdfDocumentRenderer) :
     PageAnnotationsProvider {
-    override fun getPageAnnotations(pageNum: Int): List<KeyedPdfAnnotation> {
+    override fun getPageAnnotations(pageNum: Int): List<ParcelableKeyedPdfAnnotation> {
         return documentRenderer.withPage(pageNum) { page ->
             val pageAnnotations = page.getPageAnnotations()
             val result =
@@ -37,7 +38,7 @@ internal class PageAnnotationsProviderImpl(private val documentRenderer: PdfDocu
                         PdfAnnotationConvertersFactory.create<PdfAnnotation>(aospAnnotation)
                     val jetpackAnnotation = converter.convert(aospAnnotation, pageNum)
 
-                    KeyedPdfAnnotation(key = aospId, jetpackAnnotation)
+                    ParcelableKeyedPdfAnnotation(key = aospId, jetpackAnnotation)
                 }
             return@withPage result
         } ?: emptyList()

@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation.drawer
 
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.PdfObject
 
 /**
  * Fake implementation for [PdfObjectDrawerFactory] for testing purposes. It returns instances of

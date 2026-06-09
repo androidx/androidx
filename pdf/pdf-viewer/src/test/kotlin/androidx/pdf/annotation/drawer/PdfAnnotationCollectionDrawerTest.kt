@@ -20,8 +20,8 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.util.SparseArray
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
 import org.junit.Before

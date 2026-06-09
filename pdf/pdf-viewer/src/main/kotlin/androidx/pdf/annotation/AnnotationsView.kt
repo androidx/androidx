@@ -30,13 +30,14 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Highlight
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.drawer.DefaultPdfObjectDrawerFactoryImpl
 import androidx.pdf.annotation.drawer.PdfAnnotationDrawerFactory
 import androidx.pdf.annotation.drawer.PdfAnnotationDrawerFactoryImpl
 import androidx.pdf.annotation.drawer.PdfDocumentAnnotationsDrawerImpl
 import androidx.pdf.annotation.drawer.PdfObjectDrawerFactory
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
-import androidx.pdf.annotation.models.PdfAnnotation
 
 /**
  * A custom Android [ViewGroup] responsible for drawing a collection of annotations onto a Canvas.

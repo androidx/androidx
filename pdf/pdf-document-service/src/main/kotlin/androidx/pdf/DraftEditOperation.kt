@@ -18,19 +18,17 @@ package androidx.pdf
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.models.PdfAnnotation as ParcelablePdfAnnotation
 
 internal const val TAG_INSERT = 1
 internal const val TAG_UPDATE = 2
 internal const val TAG_REMOVE = 3
 
 /** Represents a single edit operation on a PDF document's annotations. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface DraftEditOperation : Parcelable {
+internal interface DraftEditOperation : Parcelable {
 
     /** Returns the page number of the operation. */
-    public fun getPage(): Int {
+    fun getPage(): Int {
         return when (this) {
             is InsertDraftEditOperation -> this.annotation.pageNum
             is UpdateDraftEditOperation -> this.annotation.pageNum
@@ -39,9 +37,9 @@ public interface DraftEditOperation : Parcelable {
         }
     }
 
-    public companion object {
+    companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<DraftEditOperation> =
+        val CREATOR: Parcelable.Creator<DraftEditOperation> =
             object : Parcelable.Creator<DraftEditOperation> {
                 override fun createFromParcel(parcel: Parcel): DraftEditOperation {
                     return when (val tag = parcel.readInt()) {
@@ -63,10 +61,10 @@ public interface DraftEditOperation : Parcelable {
 /**
  * Represents an operation to insert a new annotation into the PDF document.
  *
- * @property annotation The [PdfAnnotation] object to be inserted.
+ * @property annotation The [ParcelablePdfAnnotation] object to be inserted.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class InsertDraftEditOperation(public val annotation: PdfAnnotation) : DraftEditOperation {
+internal class InsertDraftEditOperation(val annotation: ParcelablePdfAnnotation) :
+    DraftEditOperation {
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is InsertDraftEditOperation) return false
@@ -86,9 +84,9 @@ public class InsertDraftEditOperation(public val annotation: PdfAnnotation) : Dr
 
     override fun describeContents(): Int = 0
 
-    public companion object CREATOR : Parcelable.Creator<InsertDraftEditOperation> {
+    companion object CREATOR : Parcelable.Creator<InsertDraftEditOperation> {
         override fun createFromParcel(parcel: Parcel): InsertDraftEditOperation {
-            val annotation = PdfAnnotation.CREATOR.createFromParcel(parcel)!!
+            val annotation = ParcelablePdfAnnotation.CREATOR.createFromParcel(parcel)!!
             return InsertDraftEditOperation(annotation)
         }
 
@@ -102,10 +100,10 @@ public class InsertDraftEditOperation(public val annotation: PdfAnnotation) : Dr
  * Represents an operation to update an existing annotation in the PDF document.
  *
  * @property id The unique identifier of the annotation to be updated.
- * @property annotation The new [PdfAnnotation] data that will replace the existing annotation.
+ * @property annotation The new [ParcelablePdfAnnotation] data that will replace the existing
+ *   annotation.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class UpdateDraftEditOperation(public val id: String, public val annotation: PdfAnnotation) :
+internal class UpdateDraftEditOperation(val id: String, val annotation: ParcelablePdfAnnotation) :
     DraftEditOperation {
 
     override fun equals(other: Any?): Boolean {
@@ -131,10 +129,10 @@ public class UpdateDraftEditOperation(public val id: String, public val annotati
 
     override fun describeContents(): Int = 0
 
-    public companion object CREATOR : Parcelable.Creator<UpdateDraftEditOperation> {
+    companion object CREATOR : Parcelable.Creator<UpdateDraftEditOperation> {
         override fun createFromParcel(parcel: Parcel): UpdateDraftEditOperation {
             val id = parcel.readString() ?: ""
-            val annotation = PdfAnnotation.CREATOR.createFromParcel(parcel)!!
+            val annotation = ParcelablePdfAnnotation.CREATOR.createFromParcel(parcel)!!
             return UpdateDraftEditOperation(id, annotation)
         }
 
@@ -150,9 +148,7 @@ public class UpdateDraftEditOperation(public val id: String, public val annotati
  * @property id The unique identifier of the annotation to be removed.
  * @property pageNum The page number where the annotation is located.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoveDraftEditOperation(public val id: String, public val pageNum: Int) :
-    DraftEditOperation {
+internal class RemoveDraftEditOperation(val id: String, val pageNum: Int) : DraftEditOperation {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -177,7 +173,7 @@ public class RemoveDraftEditOperation(public val id: String, public val pageNum:
 
     override fun describeContents(): Int = 0
 
-    public companion object CREATOR : Parcelable.Creator<RemoveDraftEditOperation> {
+    companion object CREATOR : Parcelable.Creator<RemoveDraftEditOperation> {
         override fun createFromParcel(parcel: Parcel): RemoveDraftEditOperation {
             val id = parcel.readString() ?: ""
             val pageNum = parcel.readInt()

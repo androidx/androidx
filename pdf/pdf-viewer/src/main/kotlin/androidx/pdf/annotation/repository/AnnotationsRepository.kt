@@ -18,7 +18,7 @@ package androidx.pdf.annotation.repository
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 /** The single source of truth for fetching persisted annotation data. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

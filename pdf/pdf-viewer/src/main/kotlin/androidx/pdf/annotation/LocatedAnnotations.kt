@@ -17,6 +17,7 @@
 package androidx.pdf.annotation
 
 import androidx.annotation.RestrictTo
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 /**
  * Represents the result of a successful hit test on PDF annotations.

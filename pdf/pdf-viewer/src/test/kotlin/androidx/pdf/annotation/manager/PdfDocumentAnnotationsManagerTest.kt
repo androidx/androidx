@@ -17,9 +17,9 @@
 package androidx.pdf.annotation.manager
 
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.TestPdfAnnotation
 import androidx.pdf.annotation.draftstate.FakeAnnotationEditsDraftState
-import androidx.pdf.annotation.models.TestPdfAnnotation
 import androidx.pdf.annotation.operations.FakeAnnotationOperationsTracker
 import androidx.pdf.annotation.operations.KeyedAnnotationOperation
 import androidx.pdf.annotation.registry.FakeAnnotationHandleRegistry

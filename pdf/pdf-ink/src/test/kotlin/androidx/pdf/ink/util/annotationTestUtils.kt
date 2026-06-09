@@ -15,7 +15,7 @@
  */
 
 import android.graphics.RectF
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import kotlin.math.max
 import kotlin.math.min
 

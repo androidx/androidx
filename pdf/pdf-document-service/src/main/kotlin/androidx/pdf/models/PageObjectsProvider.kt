@@ -16,7 +16,7 @@
 
 package androidx.pdf.models
 
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.models.KeyedPdfObject as ParcelableKeyedPdfObject
 
 /** Interface for providing objects on a specific page of a PDF document. */
 internal interface PageObjectsProvider {
@@ -25,7 +25,7 @@ internal interface PageObjectsProvider {
      *
      * @param pageNum The 0-indexed page number.
      * @param types The types of objects to retrieve as a bitmask.
-     * @return A list of [KeyedPdfObject] objects.
+     * @return A list of [ParcelableKeyedPdfObject] objects.
      */
-    fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject>
+    fun getPageObjects(pageNum: Int, types: Long): List<ParcelableKeyedPdfObject>
 }

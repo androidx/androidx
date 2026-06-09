@@ -42,17 +42,17 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
      * and processes each batch individually. The results from each batch are then combined into a
      * single list of success IDs.
      *
-     * @param editsDraft The [EditsDraft] containing the operations to be applied.
+     * @param parcelableOperations List of [DraftEditOperation] containing the operations to be
+     *   applied.
      * @param onBatchedEditsApplied callback method invoked when a batch is applied.
      * @return A list of unique identifiers for the successfully applied edits.
      * @throws PdfEditApplyException if there is an error in applying the edits. The exception
      *   contains details about which operations succeeded before the failure.
      */
     fun process(
-        editsDraft: EditsDraft,
+        parcelableOperations: List<DraftEditOperation>,
         onBatchedEditsApplied: (List<AppliedEdit>) -> Unit,
-    ): List<String> =
-        processInBatches(operations = editsDraft.getOperationsSortedByPage(), onBatchedEditsApplied)
+    ): List<String> = processInBatches(parcelableOperations, onBatchedEditsApplied)
 
     private fun processInBatches(
         operations: List<DraftEditOperation>,
@@ -61,10 +61,10 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
         val annotationIds = mutableListOf<String>()
         if (operations.isEmpty()) return annotationIds
 
-        val batchedOperations = operations.unflatten(MAX_BATCH_SIZE_IN_BYTES)
+        val batchedParcelableOperations = operations.unflatten(MAX_BATCH_SIZE_IN_BYTES)
 
         var processedCount = 0
-        batchedOperations.forEach { batch ->
+        batchedParcelableOperations.forEach { batch ->
             when (val result = remoteDocument.applyDraftEdits(batch)) {
                 is DraftEditResult.Success -> {
                     annotationIds += result.ids
@@ -91,6 +91,7 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
                 }
             }
         }
+
         return annotationIds
     }
 
@@ -110,9 +111,7 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
          * @return A `List<List<T>>` where each inner list represents a batch.
          */
         fun <T : Parcelable> List<T>.unflatten(maxSizeInBytes: Int): List<List<T>> {
-            if (isEmpty()) {
-                return emptyList()
-            }
+            if (isEmpty()) return emptyList()
 
             val batches = mutableListOf<List<T>>()
             var currentBatch = mutableListOf<T>()
@@ -120,11 +119,8 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
 
             for (item in this) {
                 val itemSize = item.parcelSizeInBytes()
-
                 // Ignore items that are individually larger than the max size.
-                if (itemSize > maxSizeInBytes) {
-                    continue
-                }
+                if (itemSize > maxSizeInBytes) continue
 
                 // If adding the new item would exceed the max size,
                 // finalize the current batch and start a new one.
@@ -133,15 +129,11 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
                     currentBatch = mutableListOf()
                     currentBatchSize = 0
                 }
-
                 currentBatch.add(item)
                 currentBatchSize += itemSize
             }
-
             // Add the last batch if it has any items.
-            if (currentBatch.isNotEmpty()) {
-                batches.add(currentBatch)
-            }
+            if (currentBatch.isNotEmpty()) batches.add(currentBatch)
 
             return batches
         }
@@ -167,7 +159,7 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
      * @param pageNum page number of the edit.
      * @param editId id of the edit.
      */
-    internal class AppliedEdit(public val pageNum: Int, public val editId: String) {
+    internal class AppliedEdit(val pageNum: Int, val editId: String) {
         override fun equals(other: Any?): Boolean {
             return other != null &&
                 other is AppliedEdit &&

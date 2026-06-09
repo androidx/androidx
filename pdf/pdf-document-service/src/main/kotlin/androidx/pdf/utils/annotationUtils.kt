@@ -17,7 +17,6 @@
 package androidx.pdf.utils
 
 import android.graphics.Path
-import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
 
 /** Tolerance level for path approximation. */
@@ -47,8 +46,7 @@ internal fun List<PathInput>.getPathFromPathInputs(): Path {
  * @return A list of [PathInput] constructed from the path object. Returns an empty list if the path
  *   is empty.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public fun Path.getPathInputsFromPath(): List<PathInput> {
+internal fun Path.getPathInputsFromPath(): List<PathInput> {
 
     val pathInputs = mutableListOf<PathInput>()
 

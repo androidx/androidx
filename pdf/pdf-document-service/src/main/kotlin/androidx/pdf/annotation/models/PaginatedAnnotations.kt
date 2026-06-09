@@ -19,22 +19,21 @@ package androidx.pdf.annotation.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.KeyedPdfAnnotation as ParcelableKeyedPdfAnnotation
 
 /**
  * Represents a paginated batch of PDF annotations.
  *
- * @property annotations The list of [KeyedPdfAnnotation] objects for the current page or batch.
+ * @property annotations The list of [ParcelableKeyedPdfAnnotation] objects for the current page or
+ *   batch.
  * @property currentBatchIndex The 0-based index of the current batch of annotations.
  * @property totalBatchCount The total number of batches available.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
-public class PaginatedAnnotations(
-    public val annotations: List<KeyedPdfAnnotation>,
-    public val currentBatchIndex: Int,
-    public val totalBatchCount: Int,
+internal class PaginatedAnnotations(
+    val annotations: List<ParcelableKeyedPdfAnnotation>,
+    val currentBatchIndex: Int,
+    val totalBatchCount: Int,
 ) : Parcelable {
     override fun describeContents(): Int = 0
 
@@ -44,13 +43,14 @@ public class PaginatedAnnotations(
         dest.writeInt(totalBatchCount)
     }
 
-    public companion object {
+    companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<PaginatedAnnotations> =
+        val CREATOR: Parcelable.Creator<PaginatedAnnotations> =
             object : Parcelable.Creator<PaginatedAnnotations> {
                 override fun createFromParcel(parcel: Parcel): PaginatedAnnotations {
                     val annotations =
-                        parcel.createTypedArrayList(KeyedPdfAnnotation.CREATOR) ?: emptyList()
+                        parcel.createTypedArrayList(ParcelableKeyedPdfAnnotation.CREATOR)
+                            ?: emptyList()
                     val currentBatchIndex = parcel.readInt()
                     val totalBatchCount = parcel.readInt()
                     return PaginatedAnnotations(annotations, currentBatchIndex, totalBatchCount)

@@ -19,11 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.core.os.ParcelCompat
-import androidx.pdf.Dimension
-import androidx.pdf.PdfRect
-import androidx.pdf.selection.model.ImageSelection
 
 /**
  * Represents an image object within a PDF document.
@@ -31,8 +27,17 @@ import androidx.pdf.selection.model.ImageSelection
  * @property bitmap The [Bitmap] data of the image.
  * @property bounds The rectangular boundaries of its position and size on the PDF page.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF) : PdfObject {
+internal class ImagePdfObject(val bitmap: Bitmap, val bounds: RectF) : PdfObject {
+
+    internal constructor(
+        parcel: Parcel
+    ) : this(
+        bounds =
+            RectF(parcel.readFloat(), parcel.readFloat(), parcel.readFloat(), parcel.readFloat()),
+        bitmap =
+            ParcelCompat.readParcelable(parcel, Bitmap::class.java.classLoader, Bitmap::class.java)
+                ?: throw IllegalArgumentException("bitmap cannot be null"),
+    )
 
     init {
         require(bitmap.width > 0 && bitmap.height > 0) {
@@ -42,8 +47,8 @@ public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF)
     }
 
     /** Flattens this object in to a Parcel. */
-    public override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(TYPE)
         dest.writeFloat(bounds.left)
         dest.writeFloat(bounds.top)
         dest.writeFloat(bounds.right)
@@ -51,24 +56,18 @@ public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF)
         dest.writeParcelable(bitmap, flags)
     }
 
-    public companion object {
+    override fun describeContents(): Int = 0
+
+    companion object {
+        /** Constant representing an image PDF object type. */
+        internal const val TYPE: Int = 2
+
         @JvmField
-        public val CREATOR: Parcelable.Creator<ImagePdfObject> =
+        val CREATOR: Parcelable.Creator<ImagePdfObject> =
             object : Parcelable.Creator<ImagePdfObject> {
                 override fun createFromParcel(parcel: Parcel): ImagePdfObject {
-                    val left = parcel.readFloat()
-                    val top = parcel.readFloat()
-                    val right = parcel.readFloat()
-                    val bottom = parcel.readFloat()
-                    val bitmap: Bitmap? =
-                        ParcelCompat.readParcelable(
-                            parcel,
-                            Bitmap::class.java.classLoader,
-                            Bitmap::class.java,
-                        )
-                    if (bitmap != null)
-                        return ImagePdfObject(bitmap, RectF(left, top, right, bottom))
-                    throw IllegalArgumentException("bitmap cannot be null")
+                    val type = parcel.readInt()
+                    return ImagePdfObject(parcel)
                 }
 
                 override fun newArray(size: Int): Array<ImagePdfObject?> {
@@ -77,13 +76,3 @@ public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF)
             }
     }
 }
-
-internal fun ImagePdfObject.toImageSelection(pageNum: Int) =
-    ImageSelection(
-        bitmap,
-        PdfRect(pageNum, this.bounds.left, this.bounds.top, this.bounds.right, this.bounds.bottom),
-    )
-
-/** The intrinsic dimensions of this object's bitmap in pixels. */
-internal val ImagePdfObject.bitmapSize: Dimension
-    get() = Dimension(bitmap.width, bitmap.height)

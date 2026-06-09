@@ -22,14 +22,14 @@ import android.graphics.pdf.component.StampAnnotation as AospStampAnnotation
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
-import androidx.pdf.annotation.models.HighlightAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.models.HighlightAnnotation as ParcelableHighlightAnnotation
+import androidx.pdf.annotation.models.PdfAnnotation as ParcelablePdfAnnotation
+import androidx.pdf.annotation.models.StampAnnotation as ParcelableStampAnnotation
 
 /**
  * Responsible for creating [Converter] instances that can transform specific subtypes of
- * [PdfAnnotation] into their corresponding AOSP framework [AospPdfAnnotation] representations and
- * vice-versa.
+ * [ParcelablePdfAnnotation] into their corresponding AOSP framework [AospPdfAnnotation]
+ * representations and vice-versa.
  */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal object PdfAnnotationConvertersFactory {
@@ -43,20 +43,22 @@ internal object PdfAnnotationConvertersFactory {
     private val highlightAnnotationConverter = HighlightAnnotationConverter()
 
     /**
-     * Creates and returns a [Converter] for the given [PdfAnnotation].
+     * Creates and returns a [Converter] for the given [ParcelablePdfAnnotation].
      *
-     * @param F The specific subtype of [PdfAnnotation] for which to create a converter.
-     * @param annot The [PdfAnnotation] instance for which a converter is needed.
+     * @param F The specific subtype of [ParcelablePdfAnnotation] for which to create a converter.
+     * @param annot The [ParcelablePdfAnnotation] instance for which a converter is needed.
      * @return A [Converter] capable of converting the input [annot] to an [AospPdfAnnotation].
      * @throws UnsupportedOperationException if a converter for the provided [annot] type is not
      *   supported.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <F : PdfAnnotation> create(annot: PdfAnnotation): Converter<F, AospPdfAnnotation> {
+    fun <F : ParcelablePdfAnnotation> create(
+        annot: ParcelablePdfAnnotation
+    ): Converter<F, AospPdfAnnotation> {
         val value =
             when (annot) {
-                is StampAnnotation -> stampAnnotationConverter
-                is HighlightAnnotation -> highlightAnnotationConverter
+                is ParcelableStampAnnotation -> stampAnnotationConverter
+                is ParcelableHighlightAnnotation -> highlightAnnotationConverter
                 else ->
                     throw UnsupportedOperationException(
                         "PdfAnnotation :: ${annot.javaClass.simpleName} is not supported!"
@@ -70,12 +72,15 @@ internal object PdfAnnotationConvertersFactory {
      *
      * @param F The specific subtype of [AospPdfAnnotation] for which to create a converter.
      * @param annot The [AospPdfAnnotation] instance for which a converter is needed.
-     * @return A [Converter] capable of converting the input [annot] to an [PdfAnnotation].
+     * @return A [Converter] capable of converting the input [annot] to an
+     *   [ParcelablePdfAnnotation].
      * @throws UnsupportedOperationException if a converter for the provided [annot] type is not
      *   supported.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <F : AospPdfAnnotation> create(annot: AospPdfAnnotation): Converter<F, PdfAnnotation> {
+    fun <F : AospPdfAnnotation> create(
+        annot: AospPdfAnnotation
+    ): Converter<F, ParcelablePdfAnnotation> {
         val value =
             when (annot) {
                 is AospStampAnnotation -> aospStampAnnotationConverter
@@ -87,6 +92,6 @@ internal object PdfAnnotationConvertersFactory {
                         "PdfAnnotation :: ${annot.javaClass.simpleName} is not supported!"
                     )
             }
-        return value as Converter<F, PdfAnnotation>
+        return value as Converter<F, ParcelablePdfAnnotation>
     }
 }

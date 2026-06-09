@@ -18,8 +18,8 @@ package androidx.pdf.annotation.draftstate
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.EditsDraft
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 
 /** Responsible for managing the draft edits of annotations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

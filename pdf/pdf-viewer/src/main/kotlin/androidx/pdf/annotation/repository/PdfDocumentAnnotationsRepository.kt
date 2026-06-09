@@ -20,7 +20,7 @@ import android.os.RemoteException
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import java.util.Collections
 import kotlin.math.abs

@@ -18,9 +18,9 @@ package androidx.pdf
 
 import android.graphics.Bitmap
 import android.graphics.RectF
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.KeyedPdfObject
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.KeyedPdfObject
+import androidx.pdf.annotation.content.PathPdfObject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

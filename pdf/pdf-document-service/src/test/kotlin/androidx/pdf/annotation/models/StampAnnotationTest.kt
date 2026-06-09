@@ -1,0 +1,122 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.pdf.annotation.models
+
+import android.graphics.RectF
+import android.os.Parcel
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+class StampAnnotationTest {
+
+    @Test
+    fun createStampAnnotation_parcellingUnparcelingFromPdfAnnotationParcel() {
+
+        val expectedStampAnnotation = getSampleStampAnnotation()
+
+        // Parcel the expected StampAnnotation object.
+        val parcel = Parcel.obtain()
+        expectedStampAnnotation.writeToParcel(parcel, 0)
+        // Reset parcel data position for reading.
+        parcel.setDataPosition(0)
+
+        // Unparcel the object using PdfAnnotation.CREATOR
+        val actualAnnotation = PdfAnnotation.CREATOR.createFromParcel(parcel)
+        assertThat(actualAnnotation).isInstanceOf(StampAnnotation::class.java)
+
+        // Assert that the unparceled annotation's properties match the original.
+        if (actualAnnotation is StampAnnotation) {
+            assertStampAnnotationEquals(expectedStampAnnotation, actualAnnotation)
+        }
+        parcel.recycle()
+    }
+
+    @Test
+    fun equals_sameValues_returnsTrue() {
+        val stamp1 = getSampleStampAnnotation()
+        val stamp2 = getSampleStampAnnotation()
+
+        assertThat(stamp1).isEqualTo(stamp2)
+        assertThat(stamp1.hashCode()).isEqualTo(stamp2.hashCode())
+    }
+
+    @Test
+    fun equals_differentValues_returnsFalse() {
+        val stamp = getSampleStampAnnotation(pageNum = 1)
+
+        // Different pageNum
+        assertThat(stamp).isNotEqualTo(getSampleStampAnnotation(pageNum = 2))
+        // Different bounds
+        assertThat(stamp)
+            .isNotEqualTo(getSampleStampAnnotation(pageNum = 1, bounds = RectF(0f, 0f, 50f, 50f)))
+    }
+
+    companion object {
+        private fun getPathObject(): PathPdfObject {
+            return PathPdfObject(
+                brushColor = 255,
+                brushWidth = 10f,
+                inputs =
+                    listOf(
+                        PathPdfObject.PathInput(10f, 10f, PathPdfObject.PathInput.MOVE_TO),
+                        PathPdfObject.PathInput(20f, 20f, PathPdfObject.PathInput.LINE_TO),
+                        PathPdfObject.PathInput(30f, 30f, PathPdfObject.PathInput.LINE_TO),
+                        PathPdfObject.PathInput(40f, 40f, PathPdfObject.PathInput.LINE_TO),
+                        PathPdfObject.PathInput(50f, 50f, PathPdfObject.PathInput.LINE_TO),
+                    ),
+            )
+        }
+
+        internal fun getSampleStampAnnotation(
+            pageNum: Int = 0,
+            bounds: RectF = RectF(0f, 0f, 100f, 100f),
+        ): StampAnnotation {
+            return StampAnnotation(pageNum, bounds, listOf(getPathObject()))
+        }
+
+        internal fun assertStampAnnotationEquals(
+            expectedAnnotation: StampAnnotation,
+            actualAnnotation: StampAnnotation,
+        ) {
+            assertThat(actualAnnotation.bounds).isEqualTo(expectedAnnotation.bounds)
+            assertThat(actualAnnotation.pageNum).isEqualTo(expectedAnnotation.pageNum)
+            // Assert that the list of PdfObjects within the annotation is the same
+            assertThat(actualAnnotation.pdfObjects).hasSize(expectedAnnotation.pdfObjects.size)
+            for (i in expectedAnnotation.pdfObjects.indices) {
+                val actualPathPdfObject = actualAnnotation.pdfObjects[i] as PathPdfObject
+                val expectedPathPdfObject = expectedAnnotation.pdfObjects[i] as PathPdfObject
+                assertThat(actualPathPdfObject.brushColor)
+                    .isEqualTo(expectedPathPdfObject.brushColor)
+                assertThat(actualPathPdfObject.brushWidth)
+                    .isEqualTo(expectedPathPdfObject.brushWidth)
+                // Assert that the list of PathInputs within the PathPdfObject is the same
+                assertThat(actualPathPdfObject.inputs).hasSize(expectedPathPdfObject.inputs.size)
+                for (j in actualPathPdfObject.inputs.indices) {
+                    val actualPathInput = actualPathPdfObject.inputs[j]
+                    val expectedPathInput = expectedPathPdfObject.inputs[j]
+                    assertThat(actualPathInput.x).isEqualTo(expectedPathInput.x)
+                    assertThat(actualPathInput.y).isEqualTo(expectedPathInput.y)
+                    assertThat(actualPathInput.command).isEqualTo(expectedPathInput.command)
+                }
+            }
+        }
+    }
+}

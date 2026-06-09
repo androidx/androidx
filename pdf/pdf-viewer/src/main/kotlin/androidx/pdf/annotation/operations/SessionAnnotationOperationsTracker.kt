@@ -19,8 +19,8 @@ package androidx.pdf.annotation.operations
 import androidx.pdf.EditsDraft
 import androidx.pdf.MutableEditsDraft
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.decomposeAnnotationId
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.registry.AnnotationHandleRegistry
 import java.util.Collections
 

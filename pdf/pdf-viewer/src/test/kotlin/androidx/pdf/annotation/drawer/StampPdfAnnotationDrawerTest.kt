@@ -19,10 +19,9 @@ package androidx.pdf.annotation.drawer
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.RectF
-import androidx.core.graphics.transform
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfObject
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PdfObject
+import androidx.pdf.annotation.content.StampAnnotation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

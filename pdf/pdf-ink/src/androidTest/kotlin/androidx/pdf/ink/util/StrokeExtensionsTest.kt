@@ -27,7 +27,7 @@ import androidx.ink.brush.color.toArgb
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

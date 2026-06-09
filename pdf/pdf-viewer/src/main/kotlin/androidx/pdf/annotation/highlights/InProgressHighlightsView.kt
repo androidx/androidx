@@ -32,12 +32,12 @@ import androidx.pdf.annotation.OnAnnotationEditListener
 import androidx.pdf.annotation.OnGestureClaimListener
 import androidx.pdf.annotation.PageInfoProvider
 import androidx.pdf.annotation.TextBoundsProvider
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.highlights.models.HighlightState
 import androidx.pdf.annotation.highlights.models.InProgressHighlightId
 import androidx.pdf.annotation.highlights.utils.computeBoundingBox
 import androidx.pdf.annotation.highlights.utils.createTextBoundsRequestFailedException
 import androidx.pdf.annotation.highlights.utils.toPathPdfObjects
-import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

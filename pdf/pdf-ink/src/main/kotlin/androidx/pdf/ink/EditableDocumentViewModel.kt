@@ -34,10 +34,10 @@ import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.PdfAnnotationsEditor
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
 import androidx.pdf.annotation.manager.PdfAnnotationsManager
 import androidx.pdf.annotation.models.AnnotationsDisplayState
-import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.state.AnnotationDrawingMode

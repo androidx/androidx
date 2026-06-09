@@ -18,7 +18,11 @@ package androidx.pdf
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.DraftEditOperation
+import androidx.pdf.annotation.content.InsertDraftEditOperation
+import androidx.pdf.annotation.content.PdfAnnotation
+import androidx.pdf.annotation.content.RemoveDraftEditOperation
+import androidx.pdf.annotation.content.UpdateDraftEditOperation
 
 /** A mutable builder for creating a sequence of draft edit operations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

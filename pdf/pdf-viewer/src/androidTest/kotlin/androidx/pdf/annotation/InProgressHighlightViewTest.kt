@@ -27,9 +27,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
 import androidx.pdf.annotation.highlights.models.InProgressHighlightId
-import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.view.FakePdfDocument

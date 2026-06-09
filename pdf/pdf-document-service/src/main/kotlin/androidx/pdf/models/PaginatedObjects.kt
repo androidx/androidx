@@ -19,18 +19,18 @@ package androidx.pdf.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.models.KeyedPdfObject as ParcelableKeyedPdfObject
 
 /**
- * Represents a batch of [KeyedPdfObject] objects along with pagination information.
+ * Represents a batch of [ParcelableKeyedPdfObject] objects along with pagination information.
  *
- * @param objects The list of [KeyedPdfObject] objects in this batch.
+ * @param objects The list of [ParcelableKeyedPdfObject] objects in this batch.
  * @param currentBatchIndex The 0-based index of this batch.
  * @param totalBatchCount The total number of batches available for the request.
  */
 @SuppressLint("BanParcelableUsage")
 internal class PaginatedObjects(
-    val objects: List<KeyedPdfObject>,
+    val objects: List<ParcelableKeyedPdfObject>,
     val currentBatchIndex: Int,
     val totalBatchCount: Int,
 ) : Parcelable {
@@ -49,7 +49,8 @@ internal class PaginatedObjects(
         val CREATOR: Parcelable.Creator<PaginatedObjects> =
             object : Parcelable.Creator<PaginatedObjects> {
                 override fun createFromParcel(parcel: Parcel): PaginatedObjects {
-                    val objects = parcel.createTypedArrayList(KeyedPdfObject.CREATOR) ?: emptyList()
+                    val objects =
+                        parcel.createTypedArrayList(ParcelableKeyedPdfObject.CREATOR) ?: emptyList()
                     val currentBatchIndex = parcel.readInt()
                     val totalBatchCount = parcel.readInt()
                     return PaginatedObjects(objects, currentBatchIndex, totalBatchCount)

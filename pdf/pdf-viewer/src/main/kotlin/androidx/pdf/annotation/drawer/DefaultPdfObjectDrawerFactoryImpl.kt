@@ -16,8 +16,8 @@
 
 package androidx.pdf.annotation.drawer
 
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PdfObject
 
 /** Default implementation of [PdfObjectDrawerFactory]. */
 internal object DefaultPdfObjectDrawerFactoryImpl : PdfObjectDrawerFactory {

@@ -17,8 +17,8 @@
 package androidx.pdf.annotation.manager
 
 import androidx.pdf.EditsDraft
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import java.util.UUID
 
 class FakePdfAnnotationsManager : PdfAnnotationsManager {

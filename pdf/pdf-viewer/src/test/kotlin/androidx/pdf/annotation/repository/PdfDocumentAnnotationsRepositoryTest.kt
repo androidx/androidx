@@ -20,8 +20,8 @@ import android.graphics.Point
 import android.os.DeadObjectException
 import android.os.RemoteException
 import androidx.pdf.FakePdfDocument
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.TestPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.TestPdfAnnotation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

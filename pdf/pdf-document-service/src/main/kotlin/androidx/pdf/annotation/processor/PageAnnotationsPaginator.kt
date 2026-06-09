@@ -18,9 +18,9 @@ package androidx.pdf.annotation.processor
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.PageAnnotationsProvider
-import androidx.pdf.annotation.models.PaginatedAnnotations
+import androidx.pdf.annotation.models.KeyedPdfAnnotation as ParcelableKeyedAnnotation
+import androidx.pdf.annotation.models.PaginatedAnnotations as ParcelablePaginatedAnnotations
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.unflatten
 
 /**
@@ -35,25 +35,26 @@ internal class PageAnnotationsPaginator(
     private val annotationsProvider: PageAnnotationsProvider,
 ) {
 
-    private val allAnnotationBatches: List<List<KeyedPdfAnnotation>> by lazy {
+    private val allAnnotationBatches: List<List<ParcelableKeyedAnnotation>> by lazy {
         annotationsProvider
             .getPageAnnotations(pageNum)
             .unflatten(BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)
     }
 
-    fun getPageAnnotations(nextBatchIndex: Int = 0): PaginatedAnnotations? {
+    fun getPageAnnotations(nextBatchIndex: Int = 0): ParcelablePaginatedAnnotations? {
+
         return try {
             val batches = allAnnotationBatches
             if (batches.isEmpty() || nextBatchIndex >= batches.size) {
                 null
             } else {
-                PaginatedAnnotations(
+                ParcelablePaginatedAnnotations(
                     annotations = batches[nextBatchIndex],
                     currentBatchIndex = nextBatchIndex,
                     totalBatchCount = batches.size,
                 )
             }
-        } catch (_: Exception) {
+        } catch (_: Exception) { // TODO: b/489469136 Remove swallowing all exceptions
             null
         }
     }
