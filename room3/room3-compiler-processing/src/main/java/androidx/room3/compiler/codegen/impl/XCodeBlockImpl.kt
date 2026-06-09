@@ -47,9 +47,12 @@ internal class XCodeBlockImpl(
             name: String,
             typeName: XTypeName,
             isMutable: Boolean,
+            isAssignExprStmt: Boolean,
             assignExpr: XCodeBlock?,
         ) = apply {
-            delegates.forEach { it.addLocalVariable(name, typeName, isMutable, assignExpr) }
+            delegates.forEach {
+                it.addLocalVariable(name, typeName, isMutable, isAssignExprStmt, assignExpr)
+            }
         }
 
         override fun beginControlFlow(controlFlow: String, vararg args: Any?) = apply {

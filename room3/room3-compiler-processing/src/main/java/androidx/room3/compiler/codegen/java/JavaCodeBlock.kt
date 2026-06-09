@@ -59,13 +59,20 @@ internal class JavaCodeBlock(override val actual: JCodeBlock) : JavaSpec<JCodeBl
             name: String,
             typeName: XTypeName,
             isMutable: Boolean,
+            isAssignExprStmt: Boolean,
             assignExpr: XCodeBlock?,
         ) = apply {
             val finalKeyword = if (isMutable) "" else "final "
-            if (assignExpr != null) {
-                addStatement("$finalKeyword%T %L = %L", typeName, name, assignExpr)
+            val (format, formatArgs) =
+                if (assignExpr != null) {
+                    "$finalKeyword%T %L = %L" to arrayOf(typeName, name, assignExpr)
+                } else {
+                    "$finalKeyword%T %L" to arrayOf(typeName, name)
+                }
+            if (isAssignExprStmt) {
+                addStatement(format, *formatArgs)
             } else {
-                addStatement("$finalKeyword%T %L", typeName, name)
+                add(format, *formatArgs)
             }
         }
 

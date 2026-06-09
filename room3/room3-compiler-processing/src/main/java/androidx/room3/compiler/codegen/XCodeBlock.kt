@@ -56,6 +56,16 @@ interface XCodeBlock {
             typeName: XTypeName,
             isMutable: Boolean = false,
             assignExpr: XCodeBlock? = null,
+        ): Builder {
+            return addLocalVariable(name, typeName, isMutable, true, assignExpr)
+        }
+
+        fun addLocalVariable(
+            name: String,
+            typeName: XTypeName,
+            isMutable: Boolean = false,
+            isAssignExprStmt: Boolean = true,
+            assignExpr: XCodeBlock? = null,
         ): Builder
 
         fun beginControlFlow(controlFlow: String, vararg args: Any?): Builder
