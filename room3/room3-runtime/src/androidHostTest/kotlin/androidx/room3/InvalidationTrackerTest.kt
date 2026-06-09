@@ -78,7 +78,7 @@ class InvalidationTrackerTest {
                     allowDestructiveMigrationOnDowngrade = false,
                     migrationNotRequiredFrom = null,
                     prepackagedDatabaseCallback = null,
-                    typeConverters = emptyList(),
+                    columnTypeConverters = emptyList(),
                     daoReturnTypeConverters = emptyList(),
                     autoMigrationSpecs = emptyList(),
                     allowDestructiveMigrationForAllTables = false,

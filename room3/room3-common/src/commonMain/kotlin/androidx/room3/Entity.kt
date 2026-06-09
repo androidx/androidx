@@ -34,7 +34,7 @@ package androidx.room3
  *
  * The persisted properties types define the column type affinity of the mapping SQLite table.
  * Supported types are primitives, [String], [ByteArray] and enums. Additional types can be
- * supported via [TypeConverter] functions.
+ * supported via [ColumnTypeConverter] functions.
  *
  * Example:
  * ```

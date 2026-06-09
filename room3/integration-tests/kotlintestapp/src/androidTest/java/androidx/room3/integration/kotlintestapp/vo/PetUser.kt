@@ -16,14 +16,14 @@
 package androidx.room3.integration.kotlintestapp.vo
 
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
-import androidx.room3.TypeConverters
 import androidx.room3.integration.kotlintestapp.TestDatabase
 import java.util.Date
 
 @Entity
-@TypeConverters(TestDatabase.Converters::class)
+@ColumnTypeConverters(TestDatabase.Converters::class)
 class PetUser {
     @PrimaryKey var id = 0
     var name: String? = null

@@ -20,10 +20,10 @@ import androidx.kruth.assertThat
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.runKspTest
-import androidx.room3.processor.CustomConverterProcessor
+import androidx.room3.processor.CustomColumnConverterProcessor
+import androidx.room3.solver.types.ColumnTypeConverter
 import androidx.room3.solver.types.CompositeTypeConverter
-import androidx.room3.solver.types.CustomTypeConverterWrapper
-import androidx.room3.solver.types.TypeConverter
+import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.testing.context
 import androidx.room3.vo.BuiltInConverterFlags
 import org.junit.Test
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TypeConverterStoreTest {
+class ColumnTypeConverterStoreTest {
     @Test
     fun multiStepTypeConverters() {
         val source =
@@ -49,17 +49,17 @@ class TypeConverterStoreTest {
                 interface JumpType_2
                 interface JumpType_3
                 class MyConverters {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun t1_jump1(inp : Type1): JumpType_1 = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun jump1_t2_Sub(inp : JumpType_1): Type2_Sub = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun jump1_t2(inp : JumpType_1): Type2 = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun t1_super_jump2(inp : Type1_Super): JumpType_2 = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun jump2_jump3(inp : JumpType_2): JumpType_3 = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun jump2_Type2_Sub(inp : JumpType_3): Type2_Sub = TODO()
                 }
                 """
@@ -67,20 +67,21 @@ class TypeConverterStoreTest {
             )
         runKspTest(sources = listOf(source)) { invocation ->
             val convertersElm = invocation.processingEnv.requireTypeElement("MyConverters")
-            val converters = CustomConverterProcessor(invocation.context, convertersElm).process()
+            val converters =
+                CustomColumnConverterProcessor(invocation.context, convertersElm).process()
             val store =
                 TypeAdapterStore.create(
                         invocation.context,
                         BuiltInConverterFlags.DEFAULT,
-                        converters.map(::CustomTypeConverterWrapper),
+                        converters.map(::CustomColumnTypeConverterWrapper),
                     )
-                    .typeConverterStore
+                    .columnTypeConverterStore
 
             fun findConverter(from: String, to: String): String? {
                 val input = invocation.processingEnv.requireType(from)
                 val output = invocation.processingEnv.requireType(to)
                 return store
-                    .findTypeConverter(input = input, output = output)
+                    .findColumnTypeConverter(input = input, output = output)
                     ?.also {
                         // validate that it makes sense to ensure test is correct
                         assertThat(output.isAssignableFrom(it.to)).isTrue()
@@ -105,7 +106,7 @@ class TypeConverterStoreTest {
         }
     }
 
-    private fun TypeConverter.toSignature(): String {
+    private fun ColumnTypeConverter.toSignature(): String {
         return when (this) {
             is CompositeTypeConverter -> "${conv1.toSignature()} : ${conv2.toSignature()}"
             else ->

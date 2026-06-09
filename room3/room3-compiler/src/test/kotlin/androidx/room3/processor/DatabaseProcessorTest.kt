@@ -134,7 +134,7 @@ class DatabaseProcessorTest {
                     @Query("SELECT * FROM user where uid = :uid")
                     public User loadOne(int uid);
 
-                    @TypeConverters(Converter.class)
+                    @ColumnTypeConverters(Converter.class)
                     @Query("SELECT * FROM user where uid = :uid")
                     public User loadWithConverter(int uid);
 
@@ -144,12 +144,12 @@ class DatabaseProcessorTest {
                     @Query("SELECT * FROM user")
                     public java.util.List<DataClass> loadAllDataClasses();
 
-                    @TypeConverters(Converter.class)
+                    @ColumnTypeConverters(Converter.class)
                     @Query("SELECT * FROM user where uid = :uid")
                     public DataClass loadDataClassWithConverter(int uid);
 
                     public static class Converter {
-                        @TypeConverter
+                        @ColumnTypeConverter
                         public static java.util.Date foo(Long input) {return null;}
                     }
 
@@ -912,12 +912,12 @@ class DatabaseProcessorTest {
                         @Query("SELECT * FROM user where uid = :uid")
                         public User loadOne(int uid);
 
-                        @TypeConverters(Converter.class)
+                        @ColumnTypeConverters(Converter.class)
                         @Query("SELECT * FROM user where uid = :uid")
                         public User loadWithConverter(int uid);
                     }
                     public static class Converter {
-                        @TypeConverter
+                        @ColumnTypeConverter
                         public static java.util.Date foo(Long input) {return null;}
                     }
                 }

@@ -20,8 +20,9 @@ import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.processing.XType
 import androidx.room3.solver.CodeGenScope
 
-/** A [TypeConverter] that has only 1 statement (e.g. foo ? bar : baz). */
-abstract class SingleStatementTypeConverter(from: XType, to: XType) : TypeConverter(from, to) {
+/** A [ColumnTypeConverter] that has only 1 statement (e.g. foo ? bar : baz). */
+abstract class SingleStatementTypeConverter(from: XType, to: XType) :
+    ColumnTypeConverter(from, to) {
     final override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder.addStatement("%L = %L", outputVarName, buildStatement(inputVarName, scope))
     }

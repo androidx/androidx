@@ -32,19 +32,19 @@ import androidx.room3.ext.RoomTypeNames.STRING_UTIL
 import androidx.room3.ext.implementsEqualsAndHashcode
 import androidx.room3.parser.SQLTypeAffinity
 import androidx.room3.processor.Context
-import androidx.room3.processor.CustomConverterProcessor
+import androidx.room3.processor.CustomColumnConverterProcessor
 import androidx.room3.processor.ProcessorErrors
 import androidx.room3.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room3.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room3.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room3.solver.types.ColumnTypeAdapter
+import androidx.room3.solver.types.ColumnTypeConverter
 import androidx.room3.solver.types.CompositeAdapter
-import androidx.room3.solver.types.CustomTypeConverterWrapper
+import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.solver.types.EnumColumnTypeAdapter
 import androidx.room3.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room3.solver.types.SingleStatementTypeConverter
 import androidx.room3.solver.types.StringColumnTypeAdapter
-import androidx.room3.solver.types.TypeConverter
 import androidx.room3.solver.types.UuidColumnTypeAdapter
 import androidx.room3.solver.types.ValueClassConverterWrapper
 import androidx.room3.testing.context
@@ -79,7 +79,7 @@ class TypeAdapterStoreTest {
                         GREEN
                     }
                     public class ColorTypeConverter {
-                        @TypeConverter
+                        @ColumnTypeConverter
                         public Color fromIntToColorEnum(int colorInt) {
                             if (colorInt == 1) {
                                 return Color.RED;
@@ -99,7 +99,7 @@ class TypeAdapterStoreTest {
                 package foo.bar;
                 import androidx.room3.*;
                 @Entity
-                @TypeConverters(EmptyClass.ColorTypeConverter.class)
+                @ColumnTypeConverters(EmptyClass.ColorTypeConverter.class)
                 public class EntityWithOneWayEnum {
                     public enum Color {
                         RED,
@@ -115,7 +115,7 @@ class TypeAdapterStoreTest {
             val typeElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.EntityWithOneWayEnum")
             val context = Context(invocation.processingEnv)
-            CustomConverterProcessor.Companion.findConverters(context, typeElement)
+            CustomColumnConverterProcessor.Companion.findConverters(context, typeElement)
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC)
             }
@@ -431,11 +431,11 @@ class TypeAdapterStoreTest {
                     this.x = x;
                     this.y = y;
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 public static Point fromBoolean(boolean val) {
                     return val ? new Point(1, 1) : new Point(0, 0);
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 public static boolean toBoolean(Point point) {
                     return point.x > 0;
                 }
@@ -445,12 +445,12 @@ class TypeAdapterStoreTest {
         runKspTest(sources = listOf(point)) { invocation ->
             val context = Context(invocation.processingEnv)
             val converters =
-                CustomConverterProcessor(
+                CustomColumnConverterProcessor(
                         context = context,
                         element = invocation.processingEnv.requireTypeElement("foo.bar.Point"),
                     )
                     .process()
-                    .map(::CustomTypeConverterWrapper)
+                    .map(::CustomColumnTypeConverterWrapper)
             val store = TypeAdapterStore.create(context, BuiltInConverterFlags.DEFAULT, converters)
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(pointType, null, skipDefaultConverter = false)
@@ -565,12 +565,12 @@ class TypeAdapterStoreTest {
                 )
 
             val converter =
-                store.typeConverterStore.findTypeConverter(
+                store.columnTypeConverterStore.findColumnTypeConverter(
                     binders[0].from,
                     invocation.context.processingEnv.requireType(CommonTypeNames.STRING),
                 )
             assertThat(converter).isNotNull()
-            assertThat(store.typeConverterStore.reverse(converter!!)).isEqualTo(binders[1])
+            assertThat(store.columnTypeConverterStore.reverse(converter!!)).isEqualTo(binders[1])
         }
     }
 
@@ -592,12 +592,12 @@ class TypeAdapterStoreTest {
             assertThat(stmtBinder, notNullValue())
 
             val converter =
-                store.typeConverterStore.findTypeConverter(
+                store.columnTypeConverterStore.findColumnTypeConverter(
                     binders[0].from,
                     invocation.context.processingEnv.requireType(CommonTypeNames.STRING),
                 )
             assertThat(converter, notNullValue())
-            assertThat(store.typeConverterStore.reverse(converter!!), nullValue())
+            assertThat(store.columnTypeConverterStore.reverse(converter!!), nullValue())
         }
     }
 
@@ -653,9 +653,9 @@ class TypeAdapterStoreTest {
                 typealias MyClassNullableAlias = MyClass?
 
                 object MyConverters {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun myClassToString(myClass : MyClass): String = TODO()
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun nullableMyClassToString(myClass : MyClass?): String? = TODO()
                 }
                 class Subject {
@@ -674,12 +674,12 @@ class TypeAdapterStoreTest {
             )
         runKspTest(sources = listOf(source)) { invocation ->
             val converters =
-                CustomConverterProcessor(
+                CustomColumnConverterProcessor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement("MyConverters"),
                     )
                     .process()
-                    .map(::CustomTypeConverterWrapper)
+                    .map(::CustomColumnTypeConverterWrapper)
             val typeAdapterStore =
                 TypeAdapterStore.create(
                     context = invocation.context,
@@ -703,7 +703,8 @@ class TypeAdapterStoreTest {
                             is CompositeAdapter -> {
                                 when (val converter = binder.intoStatementConverter) {
                                     null -> "composite null"
-                                    is CustomTypeConverterWrapper -> converter.custom.function.name
+                                    is CustomColumnTypeConverterWrapper ->
+                                        converter.custom.function.name
                                     else -> "composite unknown"
                                 }
                             }
@@ -892,7 +893,9 @@ class TypeAdapterStoreTest {
         }
     }
 
-    private fun createIntListToStringBinders(invocation: XTestInvocation): List<TypeConverter> {
+    private fun createIntListToStringBinders(
+        invocation: XTestInvocation
+    ): List<ColumnTypeConverter> {
         val intType = invocation.processingEnv.requireType(Integer::class)
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
@@ -920,7 +923,7 @@ class TypeAdapterStoreTest {
         return listOf(intListConverter, stringToIntListConverter)
     }
 
-    private fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
+    private fun dateTypeConverters(env: XProcessingEnv): List<ColumnTypeConverter> {
         val tDate = env.requireType("java.util.Date").makeNullable()
         val tLong = env.requireType("java.lang.Long").makeNullable()
         return listOf(

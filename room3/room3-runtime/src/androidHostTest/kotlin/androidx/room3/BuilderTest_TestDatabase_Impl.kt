@@ -44,7 +44,7 @@ internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
         return emptySet()
     }
 
-    override fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+    override fun getRequiredColumnTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
         return emptyMap()
     }
 }

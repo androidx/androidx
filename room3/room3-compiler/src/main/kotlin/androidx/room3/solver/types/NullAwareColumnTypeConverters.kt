@@ -26,8 +26,8 @@ import androidx.room3.solver.CodeGenScope
  * A type converter that checks if the input is null and returns null instead of calling the
  * [delegate].
  */
-class NullSafeTypeConverter(val delegate: TypeConverter) :
-    TypeConverter(
+class NullSafeTypeConverter(val delegate: ColumnTypeConverter) :
+    ColumnTypeConverter(
         from = delegate.from.makeNullable(),
         to = delegate.to.makeNullable(),
         cost = delegate.cost + Cost.NULL_SAFE,
@@ -49,9 +49,9 @@ class NullSafeTypeConverter(val delegate: TypeConverter) :
     }
 }
 
-/** A [TypeConverter] that checks the value is `non-null` and throws if it is null. */
+/** A [ColumnTypeConverter] that checks the value is `non-null` and throws if it is null. */
 class RequireNotNullTypeConverter(from: XType) :
-    TypeConverter(from = from, to = from.makeNonNullable(), cost = Cost.REQUIRE_NOT_NULL) {
+    ColumnTypeConverter(from = from, to = from.makeNonNullable(), cost = Cost.REQUIRE_NOT_NULL) {
     init {
         check(from.nullability != XNullability.NONNULL) {
             "No reason to null check a non-null input"

@@ -16,7 +16,7 @@
 
 package androidx.room3.solver.types
 
-import androidx.room3.ProvidedTypeConverter
+import androidx.room3.ProvidedColumnTypeConverter
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.codegen.XCodeBlock
@@ -27,14 +27,14 @@ import androidx.room3.compiler.codegen.compat.XConverters.applyToJavaPoet
 import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.decapitalize
 import androidx.room3.solver.CodeGenScope
-import androidx.room3.vo.CustomTypeConverter
+import androidx.room3.vo.CustomColumnTypeConverter
 import androidx.room3.writer.DaoWriter
 import androidx.room3.writer.TypeWriter
 import java.util.Locale
 import javax.lang.model.element.Modifier
 
-/** Wraps a type converter specified by the developer and forwards calls to it. */
-class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
+/** Wraps a column type converter specified by the developer and forwards calls to it. */
+class CustomColumnTypeConverterWrapper(val custom: CustomColumnTypeConverter) :
     SingleStatementTypeConverter(custom.from, custom.to) {
     override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
         return if (custom.isEnclosingClassKotlinObject) {
@@ -45,21 +45,26 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             if (custom.isProvidedConverter) {
                 XCodeBlock.of(
                     "%N().%L(%L)",
-                    providedTypeConverter(scope),
+                    providedColumnTypeConverter(scope),
                     custom.function.name,
                     inputVarName,
                 )
             } else {
-                XCodeBlock.of("%N.%L(%L)", typeConverter(scope), custom.function.name, inputVarName)
+                XCodeBlock.of(
+                    "%N.%L(%L)",
+                    columnTypeConverter(scope),
+                    custom.function.name,
+                    inputVarName,
+                )
             }
         }
     }
 
-    private fun providedTypeConverter(scope: CodeGenScope): XFunSpec {
+    private fun providedColumnTypeConverter(scope: CodeGenScope): XFunSpec {
         val fieldTypeName = KotlinTypeNames.LAZY.parametrizedBy(custom.className)
         val baseName = custom.className.simpleNames.last().decapitalize(Locale.US)
         val converterClassName = custom.className
-        scope.writer.addRequiredTypeConverter(converterClassName)
+        scope.writer.addRequiredColumnTypeConverter(converterClassName)
         val converterField =
             scope.writer.getOrCreateProperty(
                 object : TypeWriter.SharedPropertySpec(baseName, fieldTypeName) {
@@ -78,7 +83,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                                     .apply {
                                         beginControlFlow("lazy")
                                         addStatement(
-                                            "checkNotNull(%L.getTypeConverter(%L))",
+                                            "checkNotNull(%L.getColumnTypeConverter(%L))",
                                             DaoWriter.DB_PROPERTY_NAME,
                                             XCodeBlock.ofKotlinClassLiteral(custom.className),
                                         )
@@ -117,7 +122,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
         return scope.writer.getOrCreateFunction(funSpec)
     }
 
-    private fun typeConverter(scope: CodeGenScope): XPropertySpec {
+    private fun columnTypeConverter(scope: CodeGenScope): XPropertySpec {
         val baseName = custom.className.simpleNames.last().decapitalize(Locale.US)
         val propertySpec =
             object : TypeWriter.SharedPropertySpec(baseName, custom.className) {
@@ -133,10 +138,10 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
     }
 }
 
-fun TypeWriter.addRequiredTypeConverter(className: XClassName) {
-    this[ProvidedTypeConverter::class] = getRequiredTypeConverters() + setOf(className)
+fun TypeWriter.addRequiredColumnTypeConverter(className: XClassName) {
+    this[ProvidedColumnTypeConverter::class] = getRequiredColumnTypeConverters() + setOf(className)
 }
 
-fun TypeWriter.getRequiredTypeConverters(): Set<XClassName> {
-    return this.get<Set<XClassName>>(ProvidedTypeConverter::class) ?: emptySet()
+fun TypeWriter.getRequiredColumnTypeConverters(): Set<XClassName> {
+    return this.get<Set<XClassName>>(ProvidedColumnTypeConverter::class) ?: emptySet()
 }

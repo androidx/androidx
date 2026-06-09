@@ -1171,7 +1171,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooConverter::class)
+                @ColumnTypeConverters(FooConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Int,
@@ -1181,9 +1181,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 data class Foo(val data: String)
 
                 class FooConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromString(data: String): Foo = Foo(data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toString(foo: Foo): String = foo.data
                 }
                 """
@@ -1213,7 +1213,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooConverter::class)
+                @ColumnTypeConverters(FooConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Int,
@@ -1223,9 +1223,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 data class Foo(val data: String)
 
                 object FooConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromString(data: String): Foo = Foo(data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toString(foo: Foo): String = foo.data
                 }
                 """
@@ -1255,7 +1255,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooConverter::class)
+                @ColumnTypeConverters(FooConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Foo,
@@ -1271,22 +1271,22 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.java(
                 "FooConverter",
                 """
-                import androidx.room3.TypeConverter;
+                import androidx.room3.ColumnTypeConverter;
 
                 public class FooConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static Foo fromLong(Long num) {
                         return new Foo(num);
                     }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static Long toLong(Foo foo) {
                         return foo.getNum();
                     }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static Bar fromString(String data) {
                         return new Bar(data);
                     }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static String toString(Bar bar) {
                         return bar.getData();
                     }
@@ -1318,7 +1318,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooConverter::class)
+                @ColumnTypeConverters(FooConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Int,
@@ -1327,11 +1327,11 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 data class Foo(val data: String)
 
-                @ProvidedTypeConverter
+                @ProvidedColumnTypeConverter
                 class FooConverter(val default: String) {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromString(data: String?): Foo = Foo(data ?: default)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toString(foo: Foo): String = foo.data
                 }
                 """
@@ -1361,7 +1361,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooBarConverter::class)
+                @ColumnTypeConverters(FooBarConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Int,
@@ -1372,14 +1372,14 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 data class Bar(val data: String)
 
                 object FooBarConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromString(data: String): Foo = Foo(data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toString(foo: Foo): String = foo.data
 
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromFoo(foo: Foo): Bar = Bar(foo.data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toFoo(bar: Bar): Foo = Foo(bar.data)
                 }
                 """
@@ -1409,7 +1409,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooBarConverter::class)
+                @ColumnTypeConverters(FooBarConverter::class)
                 data class MyEntity(
                     @PrimaryKey
                     val pk: Int,
@@ -1421,14 +1421,14 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 data class Bar(val data: String)
 
                 object FooBarConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromString(data: String?): Foo? = data?.let { Foo(it) }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toString(foo: Foo?): String? = foo?.data
 
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromFoo(foo: Foo): Bar = Bar(foo.data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toFoo(bar: Bar): Foo = Foo(bar.data)
                 }
                 """
@@ -1458,7 +1458,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 }
 
                 @Entity
-                @TypeConverters(FooConverter::class)
+                @ColumnTypeConverters(FooConverter::class)
                 @ConsistentCopyVisibility
                 internal data class MyEntity internal constructor(
                     @PrimaryKey
@@ -1469,9 +1469,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 internal data class Foo(internal val data: String)
 
                 internal class FooConverter internal constructor() {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     internal fun fromString(data: String): Foo = Foo(data)
-                    @TypeConverter
+                    @ColumnTypeConverter
                     internal fun toString(foo: Foo): String = foo.data
                 }
                 """

@@ -16,25 +16,25 @@
 
 package androidx.room3.androidx.room3.integration.kotlintestapp.vo
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 
 object SchrodingerConverter {
-    @TypeConverter
+    @ColumnTypeConverter
     fun schrodingerToCat(schrodinger: Schrodinger): Cat {
         return Cat(CatStatus(schrodinger.experiment.isCatAlive))
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun catToIsCatAlive(cat: Cat): String {
         return cat.catStatus.isCatAlive
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun isCatAliveToCat(isCatAlive: String): Cat {
         return Cat(CatStatus(isCatAlive))
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun catToSchrodinger(cat: Cat): Schrodinger {
         return Schrodinger(Experiment(cat.catStatus.isCatAlive))
     }

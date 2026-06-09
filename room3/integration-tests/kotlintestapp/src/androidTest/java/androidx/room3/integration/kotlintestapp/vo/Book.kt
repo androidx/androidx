@@ -17,11 +17,11 @@
 package androidx.room3.integration.kotlintestapp.vo
 
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
 import androidx.room3.RoomWarnings
-import androidx.room3.TypeConverters
 
 @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
 @Entity(
@@ -39,6 +39,8 @@ data class Book(
     @PrimaryKey val bookId: String,
     val title: String,
     val bookPublisherId: String,
-    @ColumnInfo(defaultValue = "0") @field:TypeConverters(Lang::class) val languages: Set<Lang>,
+    @ColumnInfo(defaultValue = "0")
+    @field:ColumnTypeConverters(Lang::class)
+    val languages: Set<Lang>,
     @ColumnInfo(defaultValue = "0") val salesCnt: Int,
 )

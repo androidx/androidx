@@ -16,9 +16,9 @@
 
 package androidx.room3.solver
 
-import androidx.room3.BuiltInTypeConverters
-import androidx.room3.BuiltInTypeConverters.State.DISABLED
-import androidx.room3.BuiltInTypeConverters.State.ENABLED
+import androidx.room3.BuiltInColumnTypeConverters
+import androidx.room3.BuiltInColumnTypeConverters.State.DISABLED
+import androidx.room3.BuiltInColumnTypeConverters.State.ENABLED
 import androidx.room3.Database
 import androidx.room3.DatabaseProcessingStep
 import androidx.room3.compiler.processing.util.Source
@@ -196,23 +196,25 @@ class BuiltInConverterFlagsTest {
     }
 
     private fun createTypeConvertersCode(
-        enums: BuiltInTypeConverters.State? = null,
-        uuid: BuiltInTypeConverters.State? = null,
-        byteBuffer: BuiltInTypeConverters.State? = null,
+        enums: BuiltInColumnTypeConverters.State? = null,
+        uuid: BuiltInColumnTypeConverters.State? = null,
+        byteBuffer: BuiltInColumnTypeConverters.State? = null,
     ): String {
         val builtIns =
             listOfNotNull(
-                    enums?.let { "enums = BuiltInTypeConverters.State.${enums.name}" },
-                    uuid?.let { "uuid = BuiltInTypeConverters.State.${uuid.name}" },
+                    enums?.let { "enums = BuiltInColumnTypeConverters.State.${enums.name}" },
+                    uuid?.let { "uuid = BuiltInColumnTypeConverters.State.${uuid.name}" },
                     byteBuffer?.let {
-                        "byteBuffer = BuiltInTypeConverters.State.${byteBuffer.name}"
+                        "byteBuffer = BuiltInColumnTypeConverters.State.${byteBuffer.name}"
                     },
                 )
                 .joinToString(",")
         return if (builtIns.isBlank()) {
             ""
         } else {
-            "@TypeConverters(" + "builtInTypeConverters = BuiltInTypeConverters($builtIns)" + ")"
+            "@ColumnTypeConverters(" +
+                "builtInColumnTypeConverters = BuiltInColumnTypeConverters($builtIns)" +
+                ")"
         }
     }
 }

@@ -17,6 +17,8 @@ package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
@@ -25,8 +27,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,12 +48,12 @@ class DefaultValueTest {
         private val FORMAT =
             SimpleDateFormat("yyyy-MM-dd kk:mm:ss").apply { timeZone = TimeZone.getTimeZone("UTC") }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toTimestamp(date: Date): String {
             return FORMAT.format(date)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromTimestamp(timestamp: String): Date {
             return try {
                 FORMAT.parse(timestamp)
@@ -64,7 +64,7 @@ class DefaultValueTest {
     }
 
     @Entity
-    @TypeConverters(TimestampConverter::class)
+    @ColumnTypeConverters(TimestampConverter::class)
     data class Sample(
         @PrimaryKey val id: Long,
         val name: String,

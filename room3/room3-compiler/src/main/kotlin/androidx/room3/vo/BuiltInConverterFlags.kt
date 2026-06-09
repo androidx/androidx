@@ -16,12 +16,12 @@
 
 package androidx.room3.vo
 
-import androidx.room3.BuiltInTypeConverters
+import androidx.room3.BuiltInColumnTypeConverters
 
 data class BuiltInConverterFlags(
-    val enums: BuiltInTypeConverters.State,
-    val uuid: BuiltInTypeConverters.State,
-    val byteBuffer: BuiltInTypeConverters.State,
+    val enums: BuiltInColumnTypeConverters.State,
+    val uuid: BuiltInColumnTypeConverters.State,
+    val byteBuffer: BuiltInColumnTypeConverters.State,
 ) {
 
     /**
@@ -38,20 +38,21 @@ data class BuiltInConverterFlags(
     companion object {
         val DEFAULT =
             BuiltInConverterFlags(
-                enums = BuiltInTypeConverters.State.INHERITED,
-                uuid = BuiltInTypeConverters.State.INHERITED,
-                byteBuffer = BuiltInTypeConverters.State.INHERITED,
+                enums = BuiltInColumnTypeConverters.State.INHERITED,
+                uuid = BuiltInColumnTypeConverters.State.INHERITED,
+                byteBuffer = BuiltInColumnTypeConverters.State.INHERITED,
             )
     }
 }
 
-fun BuiltInTypeConverters.State.isEnabled() = this != BuiltInTypeConverters.State.DISABLED
+fun BuiltInColumnTypeConverters.State.isEnabled() =
+    this != BuiltInColumnTypeConverters.State.DISABLED
 
-private operator fun BuiltInTypeConverters.State.plus(
-    other: BuiltInTypeConverters.State
-): BuiltInTypeConverters.State {
+private operator fun BuiltInColumnTypeConverters.State.plus(
+    other: BuiltInColumnTypeConverters.State
+): BuiltInColumnTypeConverters.State {
     return when (other) {
-        BuiltInTypeConverters.State.INHERITED -> this
+        BuiltInColumnTypeConverters.State.INHERITED -> this
         else -> other
     }
 }

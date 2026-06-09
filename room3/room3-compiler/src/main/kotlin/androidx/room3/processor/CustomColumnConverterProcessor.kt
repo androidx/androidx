@@ -16,10 +16,10 @@
 
 package androidx.room3.processor
 
-import androidx.room3.BuiltInTypeConverters
-import androidx.room3.ProvidedTypeConverter
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
+import androidx.room3.BuiltInColumnTypeConverters
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.ProvidedColumnTypeConverter
 import androidx.room3.compiler.codegen.asClassName
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XMethodElement
@@ -33,24 +33,24 @@ import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CON
 import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PARAM
 import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
-import androidx.room3.solver.types.CustomTypeConverterWrapper
+import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.vo.BuiltInConverterFlags
-import androidx.room3.vo.CustomTypeConverter
+import androidx.room3.vo.CustomColumnTypeConverter
 
-/** Processes classes that are referenced in TypeConverters annotations. */
-class CustomConverterProcessor(val context: Context, val element: XTypeElement) {
+/** Processes classes that are referenced in ColumnTypeConverters annotations. */
+class CustomColumnConverterProcessor(val context: Context, val element: XTypeElement) {
     companion object {
         private fun XType.isInvalidReturnType() = isError() || isVoid() || isNone()
 
         fun findConverters(context: Context, element: XElement): ProcessResult {
-            if (!element.hasAnnotation(TypeConverters::class)) {
+            if (!element.hasAnnotation(ColumnTypeConverters::class)) {
                 return ProcessResult.EMPTY
             }
             if (!element.validate()) {
                 context.reportMissingTypeReference(element.toString())
                 return ProcessResult.EMPTY
             }
-            val annotation = element.requireAnnotation(TypeConverters::class.asClassName())
+            val annotation = element.requireAnnotation(ColumnTypeConverters::class.asClassName())
             val classes = annotation.getAsTypeList("value").mapTo(LinkedHashSet()) { it }
             val typeElementToWrappers =
                 classes
@@ -69,20 +69,21 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                         }
                     }
                     .associateWith {
-                        CustomConverterProcessor(context, it)
+                        CustomColumnConverterProcessor(context, it)
                             .process()
-                            .map(::CustomTypeConverterWrapper)
+                            .map(::CustomColumnTypeConverterWrapper)
                     }
             reportDuplicates(
                 context,
                 typeElementToWrappers.values.flatMap { wrappers -> wrappers.map { it.custom } },
             )
             val builtInStates =
-                annotation["builtInTypeConverters"]?.asAnnotation()?.let { builtInAnnotation ->
+                annotation["builtInColumnTypeConverters"]?.asAnnotation()?.let { builtInAnnotation
+                    ->
                     fun getState(name: String) =
                         builtInAnnotation[name]?.asEnum()?.name?.let {
-                            BuiltInTypeConverters.State.valueOf(it)
-                        } ?: BuiltInTypeConverters.State.INHERITED
+                            BuiltInColumnTypeConverters.State.valueOf(it)
+                        } ?: BuiltInColumnTypeConverters.State.INHERITED
                     BuiltInConverterFlags(
                         enums = getState("enums"),
                         uuid = getState("uuid"),
@@ -95,7 +96,10 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             )
         }
 
-        private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
+        private fun reportDuplicates(
+            context: Context,
+            converters: List<CustomColumnTypeConverter>,
+        ) {
             converters
                 .groupBy { it.from.asTypeName() to it.to.asTypeName() }
                 .filterValues { it.size > 1 }
@@ -125,14 +129,14 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
     }
 
-    fun process(): List<CustomTypeConverter> {
+    fun process(): List<CustomColumnTypeConverter> {
         if (!element.validate()) {
             context.reportMissingTypeReference(element.qualifiedName)
         }
         val functions = element.getAllMethods()
         val converterFunctions =
-            functions.filter { it.hasAnnotation(TypeConverter::class) }.toList()
-        val isProvidedConverter = element.hasAnnotation(ProvidedTypeConverter::class)
+            functions.filter { it.hasAnnotation(ColumnTypeConverter::class) }.toList()
+        val isProvidedConverter = element.hasAnnotation(ProvidedColumnTypeConverter::class)
         context.checker.check(converterFunctions.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterFunctions.all { it.isStatic() }
         val constructors = element.getConstructors()
@@ -167,7 +171,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         functionElement: XMethodElement,
         isContainerKotlinObject: Boolean,
         isProvidedConverter: Boolean,
-    ): CustomTypeConverter? {
+    ): CustomColumnTypeConverter? {
         val asMember = functionElement.asMemberOf(container.type)
         val returnType = asMember.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
@@ -188,7 +192,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
         val param = params.map { it.asMemberOf(container.type) }.first()
         context.checker.notUnbound(param, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
-        return CustomTypeConverter(
+        return CustomColumnTypeConverter(
             enclosingClass = container,
             isEnclosingClassKotlinObject = isContainerKotlinObject,
             function = functionElement,
@@ -200,7 +204,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
 
     /** Order of classes is important hence they are a LinkedHashSet not a set. */
     data class ProcessResult(
-        private val typeElementToWrappers: Map<XTypeElement, List<CustomTypeConverterWrapper>>,
+        private val typeElementToWrappers:
+            Map<XTypeElement, List<CustomColumnTypeConverterWrapper>>,
         val builtInConverterFlags: BuiltInConverterFlags,
     ) {
         companion object {
@@ -214,11 +219,11 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         val classes: Set<XTypeElement>
             get() = typeElementToWrappers.keys
 
-        val converters: List<CustomTypeConverterWrapper>
+        val converters: List<CustomColumnTypeConverterWrapper>
             get() = typeElementToWrappers.flatMap { it.value }
 
         operator fun plus(other: ProcessResult): ProcessResult {
-            val newMap = LinkedHashMap<XTypeElement, List<CustomTypeConverterWrapper>>()
+            val newMap = LinkedHashMap<XTypeElement, List<CustomColumnTypeConverterWrapper>>()
             newMap.putAll(typeElementToWrappers)
             other.typeElementToWrappers.forEach { (typeElement, converters) ->
                 if (!newMap.contains(typeElement)) {

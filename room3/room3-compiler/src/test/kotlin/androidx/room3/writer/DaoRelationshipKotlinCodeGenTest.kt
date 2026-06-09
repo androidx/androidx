@@ -542,9 +542,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
                 // To validate ByteBuffer converter is forced
-                @TypeConverters(
-                    builtInTypeConverters = BuiltInTypeConverters(
-                        byteBuffer = BuiltInTypeConverters.State.DISABLED
+                @ColumnTypeConverters(
+                    builtInColumnTypeConverters = BuiltInColumnTypeConverters(
+                        byteBuffer = BuiltInColumnTypeConverters.State.DISABLED
                     )
                 )
                 interface MyDao {

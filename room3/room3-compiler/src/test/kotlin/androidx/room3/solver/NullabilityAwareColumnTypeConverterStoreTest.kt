@@ -26,10 +26,10 @@ import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
 import androidx.room3.compiler.processing.util.runKspTest
 import androidx.room3.compiler.processing.util.runProcessorTest
-import androidx.room3.processor.CustomConverterProcessor
+import androidx.room3.processor.CustomColumnConverterProcessor
 import androidx.room3.processor.DaoProcessor
-import androidx.room3.solver.types.CustomTypeConverterWrapper
-import androidx.room3.solver.types.TypeConverter
+import androidx.room3.solver.types.ColumnTypeConverter
+import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.testing.context
 import androidx.room3.vo.BuiltInConverterFlags
 import androidx.room3.writer.DaoWriter
@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class NullabilityAwareTypeConverterStoreTest {
+class NullabilityAwareColumnTypeConverterStoreTest {
     @get:Rule val tmpFolder = TemporaryFolder()
     val kotlinSource =
         Source.kotlin(
@@ -50,31 +50,31 @@ class NullabilityAwareTypeConverterStoreTest {
             import androidx.room3.*
             class MyClass
             class NonNullConverters {
-                @TypeConverter
+                @ColumnTypeConverter
                 fun myClassToString(myClass: MyClass): String {
                     TODO()
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 fun stringToMyClass(input: String): MyClass {
                     TODO()
                 }
             }
             class MyNullableReceivingConverters {
-                @TypeConverter
+                @ColumnTypeConverter
                 fun nullableMyClassToNonNullString(myClass: MyClass?): String {
                     TODO()
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 fun nullableStringToNonNullMyClass(input: String?): MyClass {
                     TODO()
                 }
             }
             class MyFullyNullableConverters {
-                @TypeConverter
+                @ColumnTypeConverter
                 fun nullableMyClassToNullableString(myClass: MyClass?): String? {
                     TODO()
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 fun nullableStringToNullableMyClass(input: String?): MyClass? {
                     TODO()
                 }
@@ -86,13 +86,13 @@ class NullabilityAwareTypeConverterStoreTest {
         Source.java(
             "MyPlatformConverters",
             """
-            import androidx.room3.TypeConverter;
+            import androidx.room3.ColumnTypeConverter;
             public class MyPlatformConverters {
-                @TypeConverter
+                @ColumnTypeConverter
                 public static MyClass boxedIntegerToPlatformMyClass(Integer input) {
                     throw new UnsupportedOperationException();
                 }
-                @TypeConverter
+                @ColumnTypeConverter
                 public static Integer platformMyClassToBoxedInteger(MyClass input) {
                     throw new UnsupportedOperationException();
                 }
@@ -101,23 +101,23 @@ class NullabilityAwareTypeConverterStoreTest {
                 .trimIndent(),
         )
 
-    private fun XTestInvocation.createStore(vararg converters: String): TypeConverterStore {
+    private fun XTestInvocation.createStore(vararg converters: String): ColumnTypeConverterStore {
         val allConverters =
             converters
                 .flatMap {
-                    CustomConverterProcessor(
+                    CustomColumnConverterProcessor(
                             context = context,
                             element = processingEnv.requireTypeElement(it),
                         )
                         .process()
                 }
-                .map(::CustomTypeConverterWrapper)
+                .map(::CustomColumnTypeConverterWrapper)
         return TypeAdapterStore.create(
                 context = context,
                 builtInConverterFlags = BuiltInConverterFlags.DEFAULT,
                 allConverters,
             )
-            .typeConverterStore
+            .columnTypeConverterStore
     }
 
     @Test
@@ -320,7 +320,7 @@ class NullabilityAwareTypeConverterStoreTest {
                 """
                 import androidx.room3.*;
                 import java.util.*;
-                @TypeConverters({TestConverters.class})
+                @ColumnTypeConverters({TestConverters.class})
                 @Entity
                 public class User {
                     @PrimaryKey
@@ -339,7 +339,7 @@ class NullabilityAwareTypeConverterStoreTest {
                 import java.util.HashSet;
                 import java.util.Set;
                 class TestConverters {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static Set<Day> decomposeDays(int flags) {
                         Set<Day> result = new HashSet<>();
                         for (Day day : Day.values()) {
@@ -350,7 +350,7 @@ class NullabilityAwareTypeConverterStoreTest {
                         return result;
                     }
 
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static int composeDays(Set<Day> days) {
                         int result = 0;
                         for (Day day : days) {
@@ -424,7 +424,8 @@ class NullabilityAwareTypeConverterStoreTest {
 
     @Test
     fun checkSyntheticConverters() {
-        class MockTypeConverter(from: XType, to: XType) : TypeConverter(from = from, to = to) {
+        class MockTypeConverter(from: XType, to: XType) :
+            ColumnTypeConverter(from = from, to = to) {
             override fun doConvert(
                 inputVarName: String,
                 outputVarName: String,
@@ -436,9 +437,9 @@ class NullabilityAwareTypeConverterStoreTest {
             val int = invocation.processingEnv.requireType(Int::class).makeNonNullable()
             val long = invocation.processingEnv.requireType(Long::class).makeNonNullable()
             val number = invocation.processingEnv.requireType(Number::class).makeNonNullable()
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string.makeNullable(), to = int.makeNullable())
                         ),
@@ -446,25 +447,25 @@ class NullabilityAwareTypeConverterStoreTest {
                 )
                 .let { store ->
                     // nullable converter, don't duplicate anything
-                    assertThat(store.typeConverters).hasSize(1)
+                    assertThat(store.columnTypeConverters).hasSize(1)
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters = listOf(MockTypeConverter(from = string, to = int)),
+                    columnTypeConverters = listOf(MockTypeConverter(from = string, to = int)),
                     knownColumnTypes = emptyList(),
                 )
                 .let { store ->
                     if (invocation.isKsp) {
                         // add a null wrapper version
-                        assertThat(store.typeConverters).hasSize(2)
+                        assertThat(store.columnTypeConverters).hasSize(2)
                     } else {
                         // do not duplicate unless we run in KSP
-                        assertThat(store.typeConverters).hasSize(1)
+                        assertThat(store.columnTypeConverters).hasSize(1)
                     }
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string, to = int),
                             MockTypeConverter(from = string.makeNullable(), to = int),
@@ -473,11 +474,11 @@ class NullabilityAwareTypeConverterStoreTest {
                 )
                 .let { store ->
                     // don't duplicate, we already have a null receiving version
-                    assertThat(store.typeConverters).hasSize(2)
+                    assertThat(store.columnTypeConverters).hasSize(2)
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string, to = int),
                             MockTypeConverter(from = string.makeNullable(), to = int.makeNullable()),
@@ -486,11 +487,11 @@ class NullabilityAwareTypeConverterStoreTest {
                 )
                 .let { store ->
                     // don't duplicate, we already have a null receiving version
-                    assertThat(store.typeConverters).hasSize(2)
+                    assertThat(store.columnTypeConverters).hasSize(2)
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string, to = int),
                             MockTypeConverter(from = string, to = long),
@@ -502,15 +503,15 @@ class NullabilityAwareTypeConverterStoreTest {
                     // don't duplicate, we already have a null receiving version
                     if (invocation.isKsp) {
                         // duplicate the long receiving one
-                        assertThat(store.typeConverters).hasSize(4)
+                        assertThat(store.columnTypeConverters).hasSize(4)
                     } else {
                         // don't duplicate in javac
-                        assertThat(store.typeConverters).hasSize(3)
+                        assertThat(store.columnTypeConverters).hasSize(3)
                     }
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string, to = number),
                             MockTypeConverter(from = string.makeNullable(), to = int),
@@ -519,11 +520,11 @@ class NullabilityAwareTypeConverterStoreTest {
                 )
                 .let { store ->
                     // don't duplicate string number converter since we have string? to int
-                    assertThat(store.typeConverters).hasSize(2)
+                    assertThat(store.columnTypeConverters).hasSize(2)
                 }
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                     context = invocation.context,
-                    typeConverters =
+                    columnTypeConverters =
                         listOf(
                             MockTypeConverter(from = string, to = number.makeNullable()),
                             MockTypeConverter(from = string.makeNullable(), to = int),
@@ -532,7 +533,7 @@ class NullabilityAwareTypeConverterStoreTest {
                 )
                 .let { store ->
                     // don't duplicate string number converter since we have string? to int
-                    assertThat(store.typeConverters).hasSize(2)
+                    assertThat(store.columnTypeConverters).hasSize(2)
                 }
         }
     }
@@ -546,9 +547,9 @@ class NullabilityAwareTypeConverterStoreTest {
                 """
                 import androidx.room3.*
                 object MyByteArrayConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun toByteArray(input:String): ByteArray { TODO() }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun fromByteArray(input:ByteArray): String { TODO() }
                 }
                 class Subject(val arr:ByteArray)
@@ -616,13 +617,13 @@ class NullabilityAwareTypeConverterStoreTest {
                 class TypeA
                 class TypeB
                 object MyConverters {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun nullableStringToTypeA(input: String?): TypeA { TODO() }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun nullableTypeAToString(input: TypeA): String { TODO() }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun nullableTypeBToNullableString(input: TypeB?): String? { TODO() }
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun nullableStringToNullableTypeB(input: String?): TypeB? { TODO() }
                 }
                 """
@@ -633,11 +634,14 @@ class NullabilityAwareTypeConverterStoreTest {
             val aType = invocation.processingEnv.requireType("TypeA")
             val bType = invocation.processingEnv.requireType("TypeB")
             val stringType = invocation.processingEnv.requireType("java.lang.String")
-            assertThat(store.findTypeConverter(aType, bType)?.toSignature()).isNull()
-            assertThat(store.findTypeConverter(bType, aType)?.toSignature()).isNull()
+            assertThat(store.findColumnTypeConverter(aType, bType)?.toSignature()).isNull()
+            assertThat(store.findColumnTypeConverter(bType, aType)?.toSignature()).isNull()
             assertThat(
                     store
-                        .findTypeConverter(input = bType.makeNonNullable(), output = stringType)
+                        .findColumnTypeConverter(
+                            input = bType.makeNonNullable(),
+                            output = stringType,
+                        )
                         ?.toSignature()
                 )
                 .isEqualTo(
@@ -661,23 +665,23 @@ class NullabilityAwareTypeConverterStoreTest {
                     AWESOME,
                     SUPER_DUPER_AWESOME,
                 }
-                @TypeConverters(
+                @ColumnTypeConverters(
                     TimeConverter::class,
                     AwesomenessConverter::class,
                 )
                 class TimeConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun instantToValue(value: Instant?): String? { TODO() }
 
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun valueToInstant(value: String?): Instant? { TODO() }
                 }
 
                 class AwesomenessConverter {
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun awesomenessToValue(value: Awesomeness): String { TODO() }
 
-                    @TypeConverter
+                    @ColumnTypeConverter
                     fun valueToAwesomeness(value: String?): Awesomeness { TODO() }
                 }
                 """
@@ -688,7 +692,9 @@ class NullabilityAwareTypeConverterStoreTest {
             val instantType = invocation.processingEnv.requireType("java.time.Instant")
             val stringType = invocation.processingEnv.requireType("java.lang.String")
             assertThat(
-                    store.findTypeConverter(input = instantType, output = stringType)?.toSignature()
+                    store
+                        .findColumnTypeConverter(input = instantType, output = stringType)
+                        ?.toSignature()
                 )
                 .isEqualTo("(Instant! as Instant?) / instantToValue / checkNotNull(String?)")
         }
@@ -719,13 +725,13 @@ class NullabilityAwareTypeConverterStoreTest {
         val result = StringBuilder()
         runKspTest(sources = listOf(kotlinSource, javaSource)) { invocation ->
             val store = invocation.createStore(*selectedConverters.toTypedArray())
-            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
+            assertThat(store).isInstanceOf<NullAwareColumnTypeConverterStore>()
 
             result.appendLine(invocation.processingEnv.backend.name)
             fromToPairs.forEach { (fromTypeName, toTypeName) ->
                 val fromType = invocation.processingEnv.requireType(fromTypeName)
                 val toType = invocation.processingEnv.requireType(toTypeName)
-                val converter = store.findTypeConverter(input = fromType, output = toType)
+                val converter = store.findColumnTypeConverter(input = fromType, output = toType)
                 result.apply {
                     append(fromType.toSignature())
                     append(" to ")
@@ -743,7 +749,7 @@ class NullabilityAwareTypeConverterStoreTest {
         val result = StringBuilder()
         runKspTest(sources = listOf(kotlinSource, javaSource)) { invocation ->
             val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
+            assertThat(store).isInstanceOf<NullAwareColumnTypeConverterStore>()
             val myClassTypeElement = invocation.processingEnv.requireTypeElement("MyClass")
 
             result.appendLine(invocation.processingEnv.backend.name)

@@ -17,26 +17,26 @@ open annotation class androidx.room3/AutoMigration : kotlin/Annotation { // andr
         final fun <get-to>(): kotlin/Int // androidx.room3/AutoMigration.to.<get-to>|<get-to>(){}[0]
 }
 
-open annotation class androidx.room3/BuiltInTypeConverters : kotlin/Annotation { // androidx.room3/BuiltInTypeConverters|null[0]
-    constructor <init>(androidx.room3/BuiltInTypeConverters.State = ..., androidx.room3/BuiltInTypeConverters.State = ..., androidx.room3/BuiltInTypeConverters.State = ...) // androidx.room3/BuiltInTypeConverters.<init>|<init>(androidx.room3.BuiltInTypeConverters.State;androidx.room3.BuiltInTypeConverters.State;androidx.room3.BuiltInTypeConverters.State){}[0]
+open annotation class androidx.room3/BuiltInColumnTypeConverters : kotlin/Annotation { // androidx.room3/BuiltInColumnTypeConverters|null[0]
+    constructor <init>(androidx.room3/BuiltInColumnTypeConverters.State = ..., androidx.room3/BuiltInColumnTypeConverters.State = ..., androidx.room3/BuiltInColumnTypeConverters.State = ...) // androidx.room3/BuiltInColumnTypeConverters.<init>|<init>(androidx.room3.BuiltInColumnTypeConverters.State;androidx.room3.BuiltInColumnTypeConverters.State;androidx.room3.BuiltInColumnTypeConverters.State){}[0]
 
-    final val byteBuffer // androidx.room3/BuiltInTypeConverters.byteBuffer|{}byteBuffer[0]
-        final fun <get-byteBuffer>(): androidx.room3/BuiltInTypeConverters.State // androidx.room3/BuiltInTypeConverters.byteBuffer.<get-byteBuffer>|<get-byteBuffer>(){}[0]
-    final val enums // androidx.room3/BuiltInTypeConverters.enums|{}enums[0]
-        final fun <get-enums>(): androidx.room3/BuiltInTypeConverters.State // androidx.room3/BuiltInTypeConverters.enums.<get-enums>|<get-enums>(){}[0]
-    final val uuid // androidx.room3/BuiltInTypeConverters.uuid|{}uuid[0]
-        final fun <get-uuid>(): androidx.room3/BuiltInTypeConverters.State // androidx.room3/BuiltInTypeConverters.uuid.<get-uuid>|<get-uuid>(){}[0]
+    final val byteBuffer // androidx.room3/BuiltInColumnTypeConverters.byteBuffer|{}byteBuffer[0]
+        final fun <get-byteBuffer>(): androidx.room3/BuiltInColumnTypeConverters.State // androidx.room3/BuiltInColumnTypeConverters.byteBuffer.<get-byteBuffer>|<get-byteBuffer>(){}[0]
+    final val enums // androidx.room3/BuiltInColumnTypeConverters.enums|{}enums[0]
+        final fun <get-enums>(): androidx.room3/BuiltInColumnTypeConverters.State // androidx.room3/BuiltInColumnTypeConverters.enums.<get-enums>|<get-enums>(){}[0]
+    final val uuid // androidx.room3/BuiltInColumnTypeConverters.uuid|{}uuid[0]
+        final fun <get-uuid>(): androidx.room3/BuiltInColumnTypeConverters.State // androidx.room3/BuiltInColumnTypeConverters.uuid.<get-uuid>|<get-uuid>(){}[0]
 
-    final enum class State : kotlin/Enum<androidx.room3/BuiltInTypeConverters.State> { // androidx.room3/BuiltInTypeConverters.State|null[0]
-        enum entry DISABLED // androidx.room3/BuiltInTypeConverters.State.DISABLED|null[0]
-        enum entry ENABLED // androidx.room3/BuiltInTypeConverters.State.ENABLED|null[0]
-        enum entry INHERITED // androidx.room3/BuiltInTypeConverters.State.INHERITED|null[0]
+    final enum class State : kotlin/Enum<androidx.room3/BuiltInColumnTypeConverters.State> { // androidx.room3/BuiltInColumnTypeConverters.State|null[0]
+        enum entry DISABLED // androidx.room3/BuiltInColumnTypeConverters.State.DISABLED|null[0]
+        enum entry ENABLED // androidx.room3/BuiltInColumnTypeConverters.State.ENABLED|null[0]
+        enum entry INHERITED // androidx.room3/BuiltInColumnTypeConverters.State.INHERITED|null[0]
 
-        final val entries // androidx.room3/BuiltInTypeConverters.State.entries|#static{}entries[0]
-            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room3/BuiltInTypeConverters.State> // androidx.room3/BuiltInTypeConverters.State.entries.<get-entries>|<get-entries>#static(){}[0]
+        final val entries // androidx.room3/BuiltInColumnTypeConverters.State.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room3/BuiltInColumnTypeConverters.State> // androidx.room3/BuiltInColumnTypeConverters.State.entries.<get-entries>|<get-entries>#static(){}[0]
 
-        final fun valueOf(kotlin/String): androidx.room3/BuiltInTypeConverters.State // androidx.room3/BuiltInTypeConverters.State.valueOf|valueOf#static(kotlin.String){}[0]
-        final fun values(): kotlin/Array<androidx.room3/BuiltInTypeConverters.State> // androidx.room3/BuiltInTypeConverters.State.values|values#static(){}[0]
+        final fun valueOf(kotlin/String): androidx.room3/BuiltInColumnTypeConverters.State // androidx.room3/BuiltInColumnTypeConverters.State.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<androidx.room3/BuiltInColumnTypeConverters.State> // androidx.room3/BuiltInColumnTypeConverters.State.values|values#static(){}[0]
     }
 }
 
@@ -90,6 +90,19 @@ open annotation class androidx.room3/ColumnInfo : kotlin/Annotation { // android
         final const val VALUE_UNSPECIFIED // androidx.room3/ColumnInfo.Companion.VALUE_UNSPECIFIED|{}VALUE_UNSPECIFIED[0]
             final fun <get-VALUE_UNSPECIFIED>(): kotlin/String // androidx.room3/ColumnInfo.Companion.VALUE_UNSPECIFIED.<get-VALUE_UNSPECIFIED>|<get-VALUE_UNSPECIFIED>(){}[0]
     }
+}
+
+open annotation class androidx.room3/ColumnTypeConverter : kotlin/Annotation { // androidx.room3/ColumnTypeConverter|null[0]
+    constructor <init>() // androidx.room3/ColumnTypeConverter.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.room3/ColumnTypeConverters : kotlin/Annotation { // androidx.room3/ColumnTypeConverters|null[0]
+    constructor <init>(kotlin/Array<out kotlin.reflect/KClass<*>>... = ..., androidx.room3/BuiltInColumnTypeConverters = ...) // androidx.room3/ColumnTypeConverters.<init>|<init>(kotlin.Array<out|kotlin.reflect.KClass<*>>...;androidx.room3.BuiltInColumnTypeConverters){}[0]
+
+    final val builtInColumnTypeConverters // androidx.room3/ColumnTypeConverters.builtInColumnTypeConverters|{}builtInColumnTypeConverters[0]
+        final fun <get-builtInColumnTypeConverters>(): androidx.room3/BuiltInColumnTypeConverters // androidx.room3/ColumnTypeConverters.builtInColumnTypeConverters.<get-builtInColumnTypeConverters>|<get-builtInColumnTypeConverters>(){}[0]
+    final val value // androidx.room3/ColumnTypeConverters.value|{}value[0]
+        final fun <get-value>(): kotlin/Array<out kotlin.reflect/KClass<*>> // androidx.room3/ColumnTypeConverters.value.<get-value>|<get-value>(){}[0]
 }
 
 open annotation class androidx.room3/ConstructedBy : kotlin/Annotation { // androidx.room3/ConstructedBy|null[0]
@@ -379,12 +392,12 @@ open annotation class androidx.room3/ProvidedAutoMigrationSpec : kotlin/Annotati
     constructor <init>() // androidx.room3/ProvidedAutoMigrationSpec.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.room3/ProvidedDaoReturnTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedDaoReturnTypeConverter|null[0]
-    constructor <init>() // androidx.room3/ProvidedDaoReturnTypeConverter.<init>|<init>(){}[0]
+open annotation class androidx.room3/ProvidedColumnTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedColumnTypeConverter|null[0]
+    constructor <init>() // androidx.room3/ProvidedColumnTypeConverter.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.room3/ProvidedTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedTypeConverter|null[0]
-    constructor <init>() // androidx.room3/ProvidedTypeConverter.<init>|<init>(){}[0]
+open annotation class androidx.room3/ProvidedDaoReturnTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedDaoReturnTypeConverter|null[0]
+    constructor <init>() // androidx.room3/ProvidedDaoReturnTypeConverter.<init>|<init>(){}[0]
 }
 
 open annotation class androidx.room3/Query : kotlin/Annotation { // androidx.room3/Query|null[0]
@@ -446,19 +459,6 @@ open annotation class androidx.room3/SkipQueryVerification : kotlin/Annotation {
 
 open annotation class androidx.room3/Transaction : kotlin/Annotation { // androidx.room3/Transaction|null[0]
     constructor <init>() // androidx.room3/Transaction.<init>|<init>(){}[0]
-}
-
-open annotation class androidx.room3/TypeConverter : kotlin/Annotation { // androidx.room3/TypeConverter|null[0]
-    constructor <init>() // androidx.room3/TypeConverter.<init>|<init>(){}[0]
-}
-
-open annotation class androidx.room3/TypeConverters : kotlin/Annotation { // androidx.room3/TypeConverters|null[0]
-    constructor <init>(kotlin/Array<out kotlin.reflect/KClass<*>>... = ..., androidx.room3/BuiltInTypeConverters = ...) // androidx.room3/TypeConverters.<init>|<init>(kotlin.Array<out|kotlin.reflect.KClass<*>>...;androidx.room3.BuiltInTypeConverters){}[0]
-
-    final val builtInTypeConverters // androidx.room3/TypeConverters.builtInTypeConverters|{}builtInTypeConverters[0]
-        final fun <get-builtInTypeConverters>(): androidx.room3/BuiltInTypeConverters // androidx.room3/TypeConverters.builtInTypeConverters.<get-builtInTypeConverters>|<get-builtInTypeConverters>(){}[0]
-    final val value // androidx.room3/TypeConverters.value|{}value[0]
-        final fun <get-value>(): kotlin/Array<out kotlin.reflect/KClass<*>> // androidx.room3/TypeConverters.value.<get-value>|<get-value>(){}[0]
 }
 
 open annotation class androidx.room3/Update : kotlin/Annotation { // androidx.room3/Update|null[0]

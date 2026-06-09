@@ -104,6 +104,7 @@ import androidx.room3.solver.types.ByteArrayColumnTypeAdapter
 import androidx.room3.solver.types.ByteArrayWrapperColumnTypeAdapter
 import androidx.room3.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room3.solver.types.ColumnTypeAdapter
+import androidx.room3.solver.types.ColumnTypeConverter
 import androidx.room3.solver.types.CompositeAdapter
 import androidx.room3.solver.types.DaoReturnTypeConverter
 import androidx.room3.solver.types.EnumColumnTypeAdapter
@@ -112,7 +113,6 @@ import androidx.room3.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room3.solver.types.StatementValueBinder
 import androidx.room3.solver.types.StatementValueReader
 import androidx.room3.solver.types.StringColumnTypeAdapter
-import androidx.room3.solver.types.TypeConverter
 import androidx.room3.solver.types.UnsignedIntegerColumnTypeAdapter
 import androidx.room3.solver.types.UuidColumnTypeAdapter
 import androidx.room3.solver.types.ValueClassConverterWrapper
@@ -135,7 +135,7 @@ private constructor(
     val context: Context,
     /** first type adapter has the highest priority */
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
-    @get:VisibleForTesting internal val typeConverterStore: TypeConverterStore,
+    @get:VisibleForTesting internal val columnTypeConverterStore: ColumnTypeConverterStore,
     private val builtInConverterFlags: BuiltInConverterFlags,
     private val daoReturnTypeConverters: List<DaoReturnTypeConverter>,
 ) {
@@ -145,7 +145,7 @@ private constructor(
             return TypeAdapterStore(
                 context = context,
                 columnTypeAdapters = store.columnTypeAdapters,
-                typeConverterStore = store.typeConverterStore,
+                columnTypeConverterStore = store.columnTypeConverterStore,
                 builtInConverterFlags = store.builtInConverterFlags,
                 daoReturnTypeConverters = store.daoReturnTypeConverters,
             )
@@ -157,11 +157,11 @@ private constructor(
             vararg extras: Any,
         ): TypeAdapterStore {
             val adapters = arrayListOf<ColumnTypeAdapter>()
-            val converters = arrayListOf<TypeConverter>()
+            val converters = arrayListOf<ColumnTypeConverter>()
             val daoReturnTypeConverters = arrayListOf<DaoReturnTypeConverter>()
             fun addAny(extra: Any?) {
                 when (extra) {
-                    is TypeConverter -> converters.add(extra)
+                    is ColumnTypeConverter -> converters.add(extra)
                     is ColumnTypeAdapter -> adapters.add(extra)
                     is List<*> -> extra.forEach(::addAny)
                     is DaoReturnTypeConverter -> daoReturnTypeConverters.add(extra)
@@ -170,7 +170,7 @@ private constructor(
             }
 
             extras.forEach(::addAny)
-            fun addTypeConverter(converter: TypeConverter) {
+            fun addColumnTypeConverter(converter: ColumnTypeConverter) {
                 converters.add(converter)
             }
 
@@ -189,18 +189,19 @@ private constructor(
                 .forEach(::addColumnAdapter)
             UnsignedIntegerColumnTypeAdapter.createUnsignedAdapters(context.processingEnv)
                 .forEach(::addColumnAdapter)
-            PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
+            PrimitiveBooleanToIntConverter.create(context.processingEnv)
+                .forEach(::addColumnTypeConverter)
             // null aware converter is able to automatically null wrap converters so we don't
             // need this as long as we are running in KSP
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
-                .forEach(::addTypeConverter)
+                .forEach(::addColumnTypeConverter)
             return TypeAdapterStore(
                 context = context,
                 columnTypeAdapters = adapters,
-                typeConverterStore =
-                    TypeConverterStore.create(
+                columnTypeConverterStore =
+                    ColumnTypeConverterStore.create(
                         context = context,
-                        typeConverters = converters,
+                        columnTypeConverters = converters,
                         knownColumnTypes = adapters.map { it.out },
                     ),
                 builtInConverterFlags = builtInConverterFlags,
@@ -306,7 +307,7 @@ private constructor(
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
             val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
             val binder =
-                typeConverterStore.findConverterIntoStatement(
+                columnTypeConverterStore.findConverterIntoStatement(
                     input = input,
                     columnTypes = targetTypes,
                 ) ?: return null
@@ -343,7 +344,7 @@ private constructor(
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
             val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
             val converter =
-                typeConverterStore.findConverterFromStatement(
+                columnTypeConverterStore.findConverterFromStatement(
                     columnTypes = targetTypes,
                     output = output,
                 ) ?: return null
@@ -389,14 +390,14 @@ private constructor(
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
             val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
             val intoStatement =
-                typeConverterStore.findConverterIntoStatement(
+                columnTypeConverterStore.findConverterIntoStatement(
                     input = out,
                     columnTypes = targetTypes,
                 ) ?: return null
             // ok found a converter, try the reverse now
             val fromStmt =
-                typeConverterStore.reverse(intoStatement)
-                    ?: typeConverterStore.findTypeConverter(intoStatement.to, out)
+                columnTypeConverterStore.reverse(intoStatement)
+                    ?: columnTypeConverterStore.findColumnTypeConverter(intoStatement.to, out)
                     ?: return null
             return CompositeAdapter(
                 out,

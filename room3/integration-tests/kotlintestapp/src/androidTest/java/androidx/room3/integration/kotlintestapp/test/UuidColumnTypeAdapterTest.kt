@@ -17,6 +17,8 @@ package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
@@ -25,8 +27,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -261,7 +261,7 @@ class UuidColumnTypeAdapterTest {
         version = 1,
         exportSchema = false,
     )
-    @TypeConverters(FromByteConverter::class)
+    @ColumnTypeConverters(FromByteConverter::class)
     internal abstract class ToUUIDConverterDatabase : ConverterDb()
 
     // Database with two way converter of UUID <--> byte[] supplied
@@ -270,7 +270,7 @@ class UuidColumnTypeAdapterTest {
         version = 1,
         exportSchema = false,
     )
-    @TypeConverters(TwoWayConverter::class)
+    @ColumnTypeConverters(TwoWayConverter::class)
     internal abstract class TwoWayConverterDatabase : ConverterDb()
 
     // Database with two way converter of UUID <--> String supplied
@@ -279,11 +279,11 @@ class UuidColumnTypeAdapterTest {
         version = 1,
         exportSchema = false,
     )
-    @TypeConverters(TwoWayStringConverter::class)
+    @ColumnTypeConverters(TwoWayStringConverter::class)
     internal abstract class TwoWayStringConverterDatabase : ConverterDb()
 
     class FromByteConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromByte(bytes: ByteArray): UUID {
             val bb = ByteBuffer.wrap(bytes)
             return UUID(bb.long, Long.MIN_VALUE)
@@ -291,13 +291,13 @@ class UuidColumnTypeAdapterTest {
     }
 
     class TwoWayConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromByte(bytes: ByteArray): UUID {
             val bb = ByteBuffer.wrap(bytes)
             return UUID(bb.long, Long.MAX_VALUE)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toByte(uuid: UUID): ByteArray {
             val bb = ByteBuffer.wrap(ByteArray(16))
             bb.putLong(uuid.leastSignificantBits)
@@ -307,13 +307,13 @@ class UuidColumnTypeAdapterTest {
     }
 
     class TwoWayStringConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromString(text: String): UUID {
             val newText = text.replaceFirst('6', '2')
             return UUID.fromString(newText)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toString(uuid: UUID): String {
             val text = uuid.toString()
             return text.replaceFirst('8', '5')

@@ -18,18 +18,18 @@ package androidx.room3.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
-import androidx.room3.ProvidedTypeConverter
+import androidx.room3.ProvidedColumnTypeConverter
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.room3.integration.multiplatformtestapp.test.BaseTypeConverterTest.TestDatabase
 import androidx.room3.util.getQualifiedName
 import kotlin.test.Test
@@ -40,7 +40,7 @@ abstract class BaseTypeConverterTest {
 
     @Test
     fun entityWithConverter() = runTest {
-        val database = getDatabaseBuilder().addTypeConverter(BarConverter()).build()
+        val database = getDatabaseBuilder().addColumnTypeConverter(BarConverter()).build()
         val entity = TestEntity(1, Foo(1979), Bar("Mujer Boricua"))
         database.getDao().insertItem(entity)
         assertThat(database.getDao().getItem(1)).isEqualTo(entity)
@@ -49,7 +49,7 @@ abstract class BaseTypeConverterTest {
 
     @Test
     fun entityWithSubclassedConverter() = runTest {
-        val database = getDatabaseBuilder().addTypeConverter(SubBarConverter()).build()
+        val database = getDatabaseBuilder().addColumnTypeConverter(SubBarConverter()).build()
         val entity = TestEntity(1, Foo(2018), Bar("Estamos Bien"))
         database.getDao().insertItem(entity)
         assertThat(database.getDao().getItem(1)).isEqualTo(entity)
@@ -61,7 +61,7 @@ abstract class BaseTypeConverterTest {
         assertThrows<IllegalArgumentException> { getDatabaseBuilder().build() }
             .hasMessageThat()
             .isEqualTo(
-                "A required type converter (" +
+                "A required column type converter (" +
                     "${BarConverter::class.getQualifiedName()}) for " +
                     "${TestDao::class.getQualifiedName()} is " +
                     "missing in the database configuration."
@@ -72,16 +72,16 @@ abstract class BaseTypeConverterTest {
     fun extraTypeConverter() {
         assertThrows<IllegalArgumentException> {
                 getDatabaseBuilder()
-                    .addTypeConverter(BarConverter())
-                    .addTypeConverter(FooConverter)
+                    .addColumnTypeConverter(BarConverter())
+                    .addColumnTypeConverter(FooConverter)
                     .build()
             }
             .hasMessageThat()
-            .startsWith("Unexpected type converter")
+            .startsWith("Unexpected column type converter")
     }
 
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
-    @TypeConverters(FooConverter::class, BarConverter::class)
+    @ColumnTypeConverters(FooConverter::class, BarConverter::class)
     @ConstructedBy(BaseTypeConverterTest_TestDatabaseConstructor::class)
     abstract class TestDatabase : RoomDatabase() {
         abstract fun getDao(): TestDao
@@ -101,16 +101,16 @@ abstract class BaseTypeConverterTest {
     data class Bar(val text: String)
 
     object FooConverter {
-        @TypeConverter fun toFoo(number: Int): Foo = Foo(number)
+        @ColumnTypeConverter fun toFoo(number: Int): Foo = Foo(number)
 
-        @TypeConverter fun fromFoo(foo: Foo): Int = foo.number
+        @ColumnTypeConverter fun fromFoo(foo: Foo): Int = foo.number
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     open class BarConverter {
-        @TypeConverter fun toBar(text: String): Bar = Bar(text)
+        @ColumnTypeConverter fun toBar(text: String): Bar = Bar(text)
 
-        @TypeConverter fun fromBar(bar: Bar): String = bar.text
+        @ColumnTypeConverter fun fromBar(bar: Bar): String = bar.text
     }
 
     class SubBarConverter : BarConverter()

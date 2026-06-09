@@ -17,13 +17,12 @@
 package androidx.room3
 
 /**
- * Marks a class containing [TypeConverter] functions that will be provided to Room at runtime.
+ * Marks a class containing [ColumnTypeConverter] functions provided to Room at runtime.
  *
- * An instance of a class annotated with this annotation has to be provided to the Room database
- * using [androidx.room3.RoomDatabase.Builder.addTypeConverter]. If Room uses the annotated type
- * converter class, it will verify that it is provided in the builder and if not, it will throw an
- * exception.
+ * Pass an instance of the annotated class to
+ * [androidx.room3.RoomDatabase.Builder.addColumnTypeConverter]. Room verifies that the converter is
+ * provided in the builder and throws an exception if missing.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-public annotation class ProvidedTypeConverter
+public annotation class ProvidedColumnTypeConverter

@@ -19,8 +19,8 @@ package androidx.room3.solver.types
 import androidx.room3.solver.CodeGenScope
 
 /** combines 2 type converters */
-class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter) :
-    TypeConverter(from = conv1.from, to = conv2.to, cost = conv1.cost + conv2.cost) {
+class CompositeTypeConverter(val conv1: ColumnTypeConverter, val conv2: ColumnTypeConverter) :
+    ColumnTypeConverter(from = conv1.from, to = conv2.to, cost = conv1.cost + conv2.cost) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         val conv1Output = conv1.convert(inputVarName, scope)
         conv2.convert(inputVarName = conv1Output, outputVarName = outputVarName, scope = scope)

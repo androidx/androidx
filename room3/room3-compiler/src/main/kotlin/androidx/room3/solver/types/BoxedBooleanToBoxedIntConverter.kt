@@ -23,7 +23,7 @@ import androidx.room3.solver.CodeGenScope
 
 /** int to boolean adapter. */
 object BoxedBooleanToBoxedIntConverter {
-    fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
+    fun create(processingEnvironment: XProcessingEnv): List<ColumnTypeConverter> {
         val tBoolean = processingEnvironment.requireType(XTypeName.BOXED_BOOLEAN).makeNullable()
         val tInt = processingEnvironment.requireType(XTypeName.BOXED_INT).makeNullable()
         return listOf(

@@ -18,32 +18,32 @@ package androidx.room3.solver
 
 import androidx.room3.compiler.processing.XType
 import androidx.room3.processor.Context
+import androidx.room3.solver.types.ColumnTypeConverter
 import androidx.room3.solver.types.CompositeTypeConverter
 import androidx.room3.solver.types.NoOpConverter
 import androidx.room3.solver.types.RequireNotNullTypeConverter
-import androidx.room3.solver.types.TypeConverter
 import androidx.room3.solver.types.UpCastTypeConverter
 
-interface TypeConverterStore {
-    val typeConverters: List<TypeConverter>
+interface ColumnTypeConverterStore {
+    val columnTypeConverters: List<ColumnTypeConverter>
 
     /**
-     * Finds a [TypeConverter] (might be composite) that can convert the given [input] type into one
-     * of the given [columnTypes]. If [columnTypes] is not specified, targets all
+     * Finds a [ColumnTypeConverter] (might be composite) that can convert the given [input] type
+     * into one of the given [columnTypes]. If [columnTypes] is not specified, targets all
      * `knownColumnTypes`.
      */
-    fun findConverterIntoStatement(input: XType, columnTypes: List<XType>?): TypeConverter?
+    fun findConverterIntoStatement(input: XType, columnTypes: List<XType>?): ColumnTypeConverter?
 
     /**
-     * Finds a [TypeConverter] (might be composite) that can convert the given [columnTypes] into
-     * the [output] type. If [columnTypes] is not specified, uses all `knownColumnTypes`.
+     * Finds a [ColumnTypeConverter] (might be composite) that can convert the given [columnTypes]
+     * into the [output] type. If [columnTypes] is not specified, uses all `knownColumnTypes`.
      */
-    fun findConverterFromStatement(columnTypes: List<XType>?, output: XType): TypeConverter?
+    fun findConverterFromStatement(columnTypes: List<XType>?, output: XType): ColumnTypeConverter?
 
-    /** Finds a [TypeConverter] from [input] to [output]. */
-    fun findTypeConverter(input: XType, output: XType): TypeConverter?
+    /** Finds a [ColumnTypeConverter] from [input] to [output]. */
+    fun findColumnTypeConverter(input: XType, output: XType): ColumnTypeConverter?
 
-    fun reverse(converter: TypeConverter): TypeConverter? {
+    fun reverse(converter: ColumnTypeConverter): ColumnTypeConverter? {
         return when (converter) {
             is NoOpConverter -> converter
             is CompositeTypeConverter -> {
@@ -55,7 +55,7 @@ interface TypeConverterStore {
             is RequireNotNullTypeConverter ->
                 UpCastTypeConverter(upCastFrom = converter.to, upCastTo = converter.from)
             else -> {
-                typeConverters.firstOrNull {
+                columnTypeConverters.firstOrNull {
                     it.from.isSameType(converter.to) && it.to.isSameType(converter.from)
                 }
             }
@@ -65,19 +65,19 @@ interface TypeConverterStore {
     companion object {
         /**
          * @param context Processing context
-         * @param typeConverters Available TypeConverters, ordered by priority when they have the
-         *   same cost.
+         * @param columnTypeConverters Available ColumnTypeConverters, ordered by priority when they
+         *   have the same cost.
          * @param knownColumnTypes List of types that can be saved into db/read from without a
          *   converter.
          */
         fun create(
             context: Context,
-            typeConverters: List<TypeConverter>,
+            columnTypeConverters: List<ColumnTypeConverter>,
             knownColumnTypes: List<XType>,
         ) =
-            NullAwareTypeConverterStore(
+            NullAwareColumnTypeConverterStore(
                 context = context,
-                typeConverters = typeConverters,
+                columnTypeConverters = columnTypeConverters,
                 knownColumnTypes = knownColumnTypes,
             )
     }

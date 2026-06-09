@@ -19,11 +19,11 @@ package androidx.room3.solver
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.types.ColumnTypeConverter
 import androidx.room3.solver.types.CompositeTypeConverter
-import androidx.room3.solver.types.CustomTypeConverterWrapper
+import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.solver.types.NullSafeTypeConverter
 import androidx.room3.solver.types.RequireNotNullTypeConverter
-import androidx.room3.solver.types.TypeConverter
 import androidx.room3.solver.types.UpCastTypeConverter
 
 // Shared signatures for objects that make testing more readable
@@ -37,10 +37,10 @@ private fun XNullability.toSignature() =
 fun XType.toSignature() =
     (asTypeName().toString(CodeLanguage.JAVA) + nullability.toSignature()).substringAfterLast(".")
 
-fun TypeConverter.toSignature(): String {
+fun ColumnTypeConverter.toSignature(): String {
     return when (this) {
         is CompositeTypeConverter -> "${conv1.toSignature()} / ${conv2.toSignature()}"
-        is CustomTypeConverterWrapper -> this.custom.function.name
+        is CustomColumnTypeConverterWrapper -> this.custom.function.name
         is NullSafeTypeConverter ->
             "(${this.from.toSignature()} == null " + "? null : ${this.delegate.toSignature()})"
         is RequireNotNullTypeConverter -> "checkNotNull(${from.toSignature()})"

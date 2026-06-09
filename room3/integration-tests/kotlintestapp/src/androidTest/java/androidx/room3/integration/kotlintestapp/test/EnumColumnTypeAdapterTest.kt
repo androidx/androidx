@@ -18,6 +18,8 @@ package androidx.room3.integration.kotlintestapp.test
 
 import android.content.Context
 import androidx.kruth.assertThat
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
@@ -25,8 +27,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -84,7 +84,7 @@ class EnumColumnTypeAdapterTest {
     }
 
     class ColorTypeConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromIntToColorEnum(colorInt: Int): Color {
             return if (colorInt == 1) {
                 Color.RED
@@ -109,7 +109,7 @@ class EnumColumnTypeAdapterTest {
         version = 1,
         exportSchema = false,
     )
-    @TypeConverters(ColorTypeConverter::class)
+    @ColumnTypeConverters(ColorTypeConverter::class)
     abstract class EnumColumnTypeAdapterDatabase : RoomDatabase() {
         abstract fun dao(): SampleDao
 

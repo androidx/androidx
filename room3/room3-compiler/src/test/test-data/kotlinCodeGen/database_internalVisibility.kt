@@ -65,12 +65,12 @@ internal class MyDatabase_Impl : MyDatabase() {
         val _existingMyEntity: TableInfo = read(connection, "MyEntity")
         if (!_infoMyEntity.equals(_existingMyEntity)) {
           return RoomOpenDelegate.ValidationResult(false, """
-                  |MyEntity(MyEntity).
-                  | Expected:
-                  |""".trimMargin() + _infoMyEntity + """
-                  |
-                  | Found:
-                  |""".trimMargin() + _existingMyEntity)
+              |MyEntity(MyEntity).
+              | Expected:
+              |""".trimMargin() + _infoMyEntity + """
+              |
+              | Found:
+              |""".trimMargin() + _existingMyEntity)
         }
         return RoomOpenDelegate.ValidationResult(true, null)
       }
@@ -88,10 +88,10 @@ internal class MyDatabase_Impl : MyDatabase() {
     performClear(this, false, "MyEntity")
   }
 
-  protected override fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
-    val _typeConvertersMap: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()
-    _typeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredConverters())
-    return _typeConvertersMap
+  protected override fun getRequiredColumnTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+    val _columnTypeConvertersMap: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()
+    _columnTypeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredColumnConverters())
+    return _columnTypeConvertersMap
   }
 
   protected override fun getRequiredDaoReturnTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {

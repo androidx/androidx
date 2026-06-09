@@ -17,6 +17,8 @@ package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Embedded
@@ -28,8 +30,6 @@ import androidx.room3.Relation
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.Transaction
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.room3.integration.kotlintestapp.dao.RobotsDao
 import androidx.room3.integration.kotlintestapp.vo.Hivemind
 import androidx.room3.integration.kotlintestapp.vo.Robot
@@ -144,7 +144,7 @@ class PoKoTest {
         version = 1,
         exportSchema = false,
     )
-    @TypeConverters(DateConverter::class, UUIDConverter::class)
+    @ColumnTypeConverters(DateConverter::class, UUIDConverter::class)
     abstract class PokoDatabase : RoomDatabase() {
         abstract fun dao(): SampleDao
 
@@ -152,13 +152,13 @@ class PoKoTest {
     }
 
     object DateConverter {
-        @TypeConverter fun toDate(d: Long) = Date(d)
+        @ColumnTypeConverter fun toDate(d: Long) = Date(d)
 
-        @TypeConverter fun fromDate(d: Date) = d.time
+        @ColumnTypeConverter fun fromDate(d: Date) = d.time
     }
 
     object UUIDConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun asUuid(bytes: ByteArray): UUID {
             val bb = ByteBuffer.wrap(bytes)
             val firstLong = bb.long
@@ -166,7 +166,7 @@ class PoKoTest {
             return UUID(firstLong, secondLong)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun asBytes(uuid: UUID): ByteArray {
             val bb = ByteBuffer.wrap(ByteArray(16))
             bb.putLong(uuid.mostSignificantBits)

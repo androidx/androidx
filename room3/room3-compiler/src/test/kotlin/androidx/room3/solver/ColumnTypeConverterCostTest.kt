@@ -17,10 +17,10 @@
 package androidx.room3.solver
 
 import androidx.kruth.assertThat
-import androidx.room3.solver.types.TypeConverter.Cost
+import androidx.room3.solver.types.ColumnTypeConverter.Cost
 import org.junit.Test
 
-class TypeConverterCostTest {
+class ColumnTypeConverterCostTest {
     @Test
     fun sections() {
         val cost = Cost(upCasts = 7, nullSafeWrapper = 3, converters = 1, requireNotNull = 2)

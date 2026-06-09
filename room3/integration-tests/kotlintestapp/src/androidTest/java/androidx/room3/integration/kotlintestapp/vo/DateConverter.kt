@@ -16,26 +16,27 @@
 
 package androidx.room3.integration.kotlintestapp.vo
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import java.util.Date
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 object DateConverter {
-    @TypeConverter
+    @ColumnTypeConverter
     fun toDate(timestamp: Long?): Date? {
         return if (timestamp == null) null else Date(timestamp)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toTimestamp(date: Date?): Long? {
         return date?.time
     }
 
-    @TypeConverter fun durationToLong(duration: Duration?): Long? = duration?.inWholeMilliseconds
+    @ColumnTypeConverter
+    fun durationToLong(duration: Duration?): Long? = duration?.inWholeMilliseconds
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun durationFromLong(milliseconds: Long?): Duration? =
         milliseconds?.toDuration(DurationUnit.MILLISECONDS)
 }

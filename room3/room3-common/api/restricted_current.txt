@@ -17,20 +17,20 @@ package androidx.room3 {
     property public abstract int to;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface BuiltInTypeConverters {
-    ctor @KotlinOnly public BuiltInTypeConverters(optional androidx.room3.BuiltInTypeConverters.State enums, optional androidx.room3.BuiltInTypeConverters.State uuid, optional androidx.room3.BuiltInTypeConverters.State byteBuffer);
-    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInTypeConverters.State byteBuffer() default androidx.room3.BuiltInTypeConverters.State.INHERITED;
-    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInTypeConverters.State enums() default androidx.room3.BuiltInTypeConverters.State.INHERITED;
-    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInTypeConverters.State uuid() default androidx.room3.BuiltInTypeConverters.State.INHERITED;
-    property public abstract androidx.room3.BuiltInTypeConverters.State byteBuffer;
-    property public abstract androidx.room3.BuiltInTypeConverters.State enums;
-    property public abstract androidx.room3.BuiltInTypeConverters.State uuid;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface BuiltInColumnTypeConverters {
+    ctor @KotlinOnly public BuiltInColumnTypeConverters(optional androidx.room3.BuiltInColumnTypeConverters.State enums, optional androidx.room3.BuiltInColumnTypeConverters.State uuid, optional androidx.room3.BuiltInColumnTypeConverters.State byteBuffer);
+    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInColumnTypeConverters.State byteBuffer() default androidx.room3.BuiltInColumnTypeConverters.State.INHERITED;
+    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInColumnTypeConverters.State enums() default androidx.room3.BuiltInColumnTypeConverters.State.INHERITED;
+    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInColumnTypeConverters.State uuid() default androidx.room3.BuiltInColumnTypeConverters.State.INHERITED;
+    property public abstract androidx.room3.BuiltInColumnTypeConverters.State byteBuffer;
+    property public abstract androidx.room3.BuiltInColumnTypeConverters.State enums;
+    property public abstract androidx.room3.BuiltInColumnTypeConverters.State uuid;
   }
 
-  public enum BuiltInTypeConverters.State {
-    enum_constant public static final androidx.room3.BuiltInTypeConverters.State DISABLED;
-    enum_constant public static final androidx.room3.BuiltInTypeConverters.State ENABLED;
-    enum_constant public static final androidx.room3.BuiltInTypeConverters.State INHERITED;
+  public enum BuiltInColumnTypeConverters.State {
+    enum_constant public static final androidx.room3.BuiltInColumnTypeConverters.State DISABLED;
+    enum_constant public static final androidx.room3.BuiltInColumnTypeConverters.State ENABLED;
+    enum_constant public static final androidx.room3.BuiltInColumnTypeConverters.State INHERITED;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ColumnInfo {
@@ -94,6 +94,17 @@ package androidx.room3 {
   }
 
   @IntDef({androidx.room3.ColumnInfo.UNDEFINED, androidx.room3.ColumnInfo.TEXT, androidx.room3.ColumnInfo.INTEGER, androidx.room3.ColumnInfo.REAL, androidx.room3.ColumnInfo.BLOB}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.SQLiteTypeAffinity {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ColumnTypeConverter {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CLASS}) public @interface ColumnTypeConverters {
+    ctor @KotlinOnly public ColumnTypeConverters(optional kotlin.reflect.KClass<? extends java.lang.Object?>... value, optional androidx.room3.BuiltInColumnTypeConverters builtInColumnTypeConverters);
+    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInColumnTypeConverters builtInColumnTypeConverters() default androidx.room3.BuiltInColumnTypeConverters();
+    method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?>[] value() default {};
+    property public abstract androidx.room3.BuiltInColumnTypeConverters builtInColumnTypeConverters;
+    property public abstract kotlin.reflect.KClass<? extends java.lang.Object?>[] value;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ConstructedBy {
@@ -408,10 +419,10 @@ package androidx.room3 {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedAutoMigrationSpec {
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedDaoReturnTypeConverter {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedColumnTypeConverter {
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedTypeConverter {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedDaoReturnTypeConverter {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface Query {
@@ -536,17 +547,6 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Transaction {
-  }
-
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface TypeConverter {
-  }
-
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CLASS}) public @interface TypeConverters {
-    ctor @KotlinOnly public TypeConverters(optional kotlin.reflect.KClass<? extends java.lang.Object?>... value, optional androidx.room3.BuiltInTypeConverters builtInTypeConverters);
-    method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInTypeConverters builtInTypeConverters() default androidx.room3.BuiltInTypeConverters();
-    method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?>[] value() default {};
-    property public abstract androidx.room3.BuiltInTypeConverters builtInTypeConverters;
-    property public abstract kotlin.reflect.KClass<? extends java.lang.Object?>[] value;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Update {

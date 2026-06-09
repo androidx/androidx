@@ -93,8 +93,8 @@ object RoomAnnotationTypeNames {
     val DAO = XClassName.get(ROOM_PACKAGE, "Dao")
     val DATABASE = XClassName.get(ROOM_PACKAGE, "Database")
     val PRIMARY_KEY = XClassName.get(ROOM_PACKAGE, "PrimaryKey")
-    val TYPE_CONVERTERS = XClassName.get(ROOM_PACKAGE, "TypeConverters")
-    val TYPE_CONVERTER = XClassName.get(ROOM_PACKAGE, "TypeConverter")
+    val COLUMN_TYPE_CONVERTERS = XClassName.get(ROOM_PACKAGE, "ColumnTypeConverters")
+    val COLUMN_TYPE_CONVERTER = XClassName.get(ROOM_PACKAGE, "ColumnTypeConverter")
     val ENTITY = XClassName.get(ROOM_PACKAGE, "Entity")
 }
 

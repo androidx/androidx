@@ -28,7 +28,7 @@ import androidx.room3.solver.CodeGenScope
  * the query. Not having this would require us to special case handle String, String[], List<String>
  * etc.
  */
-class NoOpConverter(type: XType) : TypeConverter(type, type) {
+class NoOpConverter(type: XType) : ColumnTypeConverter(type, type) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder.addStatement("%L = %L", outputVarName, inputVarName)
     }

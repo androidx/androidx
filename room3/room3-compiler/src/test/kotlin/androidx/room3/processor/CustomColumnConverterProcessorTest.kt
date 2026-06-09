@@ -46,7 +46,7 @@ import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CON
 import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room3.testing.context
-import androidx.room3.vo.CustomTypeConverter
+import androidx.room3.vo.CustomColumnTypeConverter
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
@@ -54,7 +54,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class CustomConverterProcessorTest {
+class CustomColumnConverterProcessorTest {
 
     companion object {
         val CONVERTER = XClassName.get("foo.bar", "MyConverter")
@@ -65,7 +65,7 @@ class CustomConverterProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room3.*;
-                @TypeConverters(foo.bar.MyConverter.class)
+                @ColumnTypeConverters(foo.bar.MyConverter.class)
                 public class Container {}
                 """,
             )
@@ -179,11 +179,11 @@ class CustomConverterProcessorTest {
                 CONVERTER_NAME,
                 """
                 package ${CONVERTER.packageName};
-                import androidx.room3.TypeConverter;
+                import androidx.room3.ColumnTypeConverter;
 
                 public class ${CONVERTER.simpleNames.first()} {
                     public ${CONVERTER.simpleNames.first()}(int x) {}
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public int x(short y) {return 0;}
                 }
                 """,
@@ -202,11 +202,11 @@ class CustomConverterProcessorTest {
                 CONVERTER_NAME,
                 """
                 package ${CONVERTER.packageName};
-                import androidx.room3.TypeConverter;
+                import androidx.room3.ColumnTypeConverter;
 
                 public class ${CONVERTER.simpleNames.first()} {
                     public ${CONVERTER.simpleNames.first()}(int x) {}
-                    @TypeConverter
+                    @ColumnTypeConverter
                     public static int x(short y) {return 0;}
                 }
                 """,
@@ -225,11 +225,11 @@ class CustomConverterProcessorTest {
                 CONVERTER_NAME,
                 """
                 package ${CONVERTER.packageName};
-                import androidx.room3.TypeConverter;
+                import androidx.room3.ColumnTypeConverter;
 
                 public class ${CONVERTER.simpleNames.first()} {
-                    @TypeConverter static int x(short y) {return 0;}
-                    @TypeConverter private static int y(boolean y) {return 0;}
+                    @ColumnTypeConverter static int x(short y) {return 0;}
+                    @ColumnTypeConverter private static int y(boolean y) {return 0;}
                 }
                 """,
             )
@@ -269,7 +269,7 @@ class CustomConverterProcessorTest {
             val element =
                 invocation.processingEnv.requireTypeElement(extendingClassName.canonicalName)
             val converter =
-                CustomConverterProcessor(invocation.context, element).process().firstOrNull()
+                CustomColumnConverterProcessor(invocation.context, element).process().firstOrNull()
             assertThat(converter?.fromTypeName)
                 .isEqualTo(MUTABLE_LIST.parametrizedBy(STRING.copy(nullable = true)))
             assertThat(converter?.toTypeName)
@@ -295,7 +295,9 @@ class CustomConverterProcessorTest {
                 .isEqualTo(XTypeName.BOXED_SHORT.copy(nullable = true))
             assertThat(converter?.toTypeName).isEqualTo(XTypeName.BOXED_CHAR.copy(nullable = true))
             invocation.assertCompilationResult {
-                hasErrorContaining("Multiple @TypeConverter functions define the same conversion.")
+                hasErrorContaining(
+                    "Multiple @ColumnTypeConverter functions define the same conversion."
+                )
             }
         }
     }
@@ -309,15 +311,15 @@ class CustomConverterProcessorTest {
         package ${CONVERTER.packageName}
         import androidx.room3.*
         class ${CONVERTER.simpleNames.first()} {
-            @TypeConverter
+            @ColumnTypeConverter
             fun nonNulls(input: Int): String {
                 TODO()
             }
-            @TypeConverter
+            @ColumnTypeConverter
             fun nullableInput(input: Int?): String {
                 TODO()
             }
-            @TypeConverter
+            @ColumnTypeConverter
             fun nullableOutput(input: Int): String? {
                 TODO()
             }
@@ -344,13 +346,13 @@ class CustomConverterProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room3.*;
-                @TypeConverters(int.class)
+                @ColumnTypeConverters(int.class)
                 public class Container {}
                 """,
             )
         runKspTest(listOf(source)) { invocation ->
             val result =
-                CustomConverterProcessor.findConverters(
+                CustomColumnConverterProcessor.findConverters(
                     invocation.context,
                     invocation.processingEnv.requireTypeElement("foo.bar.Container"),
                 )
@@ -404,15 +406,15 @@ class CustomConverterProcessorTest {
                     .use { output ->
                         output.write(
                             """
-                            import androidx.room3.TypeConverter;
+                            import androidx.room3.ColumnTypeConverter;
 
                             public class GeneratedTypeConverter {
-                                @TypeConverter
+                                @ColumnTypeConverter
                                 public TestId toId(long id) {
                                     return new TestId();
                                 }
                                 
-                                @TypeConverter
+                                @ColumnTypeConverter
                                 public long fromId(TestId id) {
                                     return 1;
                                 }
@@ -435,13 +437,13 @@ class CustomConverterProcessorTest {
                     .use { output ->
                         output.write(
                             """
-                            import androidx.room3.TypeConverter
+                            import androidx.room3.ColumnTypeConverter
 
                             class GeneratedTypeConverter {
-                                @TypeConverter
+                                @ColumnTypeConverter
                                 fun toId(id: Long): TestId = TestId()
                                 
-                                @TypeConverter
+                                @ColumnTypeConverter
                                 fun fromId(id: TestId): Long = 1L
                             }
                             """
@@ -481,7 +483,7 @@ class CustomConverterProcessorTest {
                 }
 
                 @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
-                @TypeConverters(GeneratedTypeConverter::class)
+                @ColumnTypeConverters(GeneratedTypeConverter::class)
                 abstract class MyDatabase : RoomDatabase() {
                     abstract fun getDao(): MyDao
                 }
@@ -511,7 +513,9 @@ class CustomConverterProcessorTest {
                     fun buildMethod(name: String) =
                         XFunSpec.builder(name, VisibilityModifier.PUBLIC)
                             .addAnnotation(
-                                XAnnotationSpec.builder(RoomAnnotationTypeNames.TYPE_CONVERTER)
+                                XAnnotationSpec.builder(
+                                        RoomAnnotationTypeNames.COLUMN_TYPE_CONVERTER
+                                    )
                                     .build()
                             )
                             .returns(to)
@@ -537,11 +541,11 @@ class CustomConverterProcessorTest {
 
     private fun singleClass(
         vararg sources: Source,
-        handler: (CustomTypeConverter?, XTestInvocation) -> Unit,
+        handler: (CustomColumnTypeConverter?, XTestInvocation) -> Unit,
     ) {
         runKspTest(sources = sources.toList() + CONTAINER) { invocation ->
             val processed =
-                CustomConverterProcessor.findConverters(
+                CustomColumnConverterProcessor.findConverters(
                     invocation.context,
                     invocation.processingEnv.requireTypeElement("foo.bar.Container"),
                 )

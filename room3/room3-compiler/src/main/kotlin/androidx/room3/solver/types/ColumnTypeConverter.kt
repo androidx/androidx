@@ -20,7 +20,11 @@ import androidx.room3.compiler.processing.XType
 import androidx.room3.solver.CodeGenScope
 
 /** A code generator that can convert from 1 type to another */
-abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Cost.CONVERTER) {
+abstract class ColumnTypeConverter(
+    val from: XType,
+    val to: XType,
+    val cost: Cost = Cost.CONVERTER,
+) {
     /**
      * Should generate the code that will covert [inputVarName] of type [from] to [outputVarName] of
      * type [to]. This function *should not* declare the [outputVarName] as it is already declared

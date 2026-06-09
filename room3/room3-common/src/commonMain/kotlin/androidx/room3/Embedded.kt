@@ -59,9 +59,9 @@ package androidx.room3
  * properties of the embedded (and its sub properties) are `null` then the embedded property will be
  * set to `null`. Otherwise, it is constructed.
  *
- * Note that even if you have [TypeConverter]s that converts a `null` column into a `non-null`value,
- * if all columns of the embedded property are null, the [TypeConverter] will never be used and the
- * embedded property will not be constructed.
+ * Note that even if you have [ColumnTypeConverter]s that converts a `null` column into a
+ * `non-null`value, if all columns of the embedded property are null, the [ColumnTypeConverter] will
+ * never be used and the embedded property will not be constructed.
  *
  * This behavior only applies to nullable embedded properties and can be overridden by making the
  * property non-null.

@@ -26,8 +26,8 @@ import androidx.room3.solver.CodeGenScope
 class CompositeAdapter(
     out: XType,
     val columnTypeAdapter: ColumnTypeAdapter,
-    val intoStatementConverter: TypeConverter?,
-    val fromCursorConverter: TypeConverter?,
+    val intoStatementConverter: ColumnTypeConverter?,
+    val fromCursorConverter: ColumnTypeConverter?,
 ) : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
     override fun readFromStatement(
         outVarName: String,

@@ -18,6 +18,7 @@ package androidx.room3.integration.kotlintestapp.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Delete
@@ -28,7 +29,6 @@ import androidx.room3.Relation
 import androidx.room3.RoomRawQuery
 import androidx.room3.RoomWarnings
 import androidx.room3.Transaction
-import androidx.room3.TypeConverters
 import androidx.room3.Update
 import androidx.room3.Upsert
 import androidx.room3.integration.kotlintestapp.vo.AnswerConverter
@@ -69,7 +69,7 @@ import kotlinx.coroutines.flow.Flow
     EitherDaoReturnTypeConverter::class,
     TracingDaoReturnTypeConverter::class,
 )
-@TypeConverters(DateConverter::class, AnswerConverter::class)
+@ColumnTypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
 
     @Insert fun addPublishers(vararg publishers: Publisher): List<Long>
@@ -328,7 +328,7 @@ interface BooksDao {
     fun updateBookTitle(bookId: String, title: String?)
 
     @Query("SELECT * FROM book WHERE languages & :langs != 0 ORDER BY bookId ASC")
-    @TypeConverters(Lang::class)
+    @ColumnTypeConverters(Lang::class)
     fun findByLanguages(langs: Set<Lang>): List<Book>
 
     // see: b/78199923 just a compilation test to ensure we can generate proper code.
