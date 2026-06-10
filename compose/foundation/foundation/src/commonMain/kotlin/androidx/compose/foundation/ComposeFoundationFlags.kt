@@ -218,6 +218,14 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isDraggableVelocityTrackerFixEnabled: Boolean = true
+
+    /**
+     * This flag controls whether it's possible to start selecting (via the mouse) text in a
+     * [androidx.compose.foundation.text.selection.SelectionContainer] by dragging from the areas
+     * between the text selectables.
+     */
+    // TODO: Remove this flag once it has soaked (b/521973612)
+    @field:Suppress("MutableBareField") @JvmField var isMouseSelectionBetweenTextEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
