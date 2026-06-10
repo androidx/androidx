@@ -61,6 +61,8 @@ internal data class WorkMetricsSpec(
             runAttemptCount = runAttemptCount,
             explicitRetryCount = explicitRetryCount,
             stopReasonCounts = stopReasonCounts,
+            workerDurationMillis = workerDurationMillis,
+            totalRuntimeMillis = totalRuntimeMillis,
         )
     }
 }

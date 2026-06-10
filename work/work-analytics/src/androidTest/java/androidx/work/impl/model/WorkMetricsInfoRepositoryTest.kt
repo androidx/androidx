@@ -323,6 +323,8 @@ class WorkMetricsInfoRepositoryTest {
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
         assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
     }
 
     @Test
@@ -346,6 +348,8 @@ class WorkMetricsInfoRepositoryTest {
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.FAILED, result.state)
         assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
     }
 
     @Test
@@ -368,6 +372,8 @@ class WorkMetricsInfoRepositoryTest {
 
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, result.state)
+        assertEquals(0L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
     }
 
     @Test
@@ -637,6 +643,8 @@ class WorkMetricsInfoRepositoryTest {
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.FAILED, result.state)
         assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
     }
 
     @Test
@@ -697,6 +705,54 @@ class WorkMetricsInfoRepositoryTest {
         assertEquals(1, results.size)
         assertEquals(workId, results[0].workSpecId)
         assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
+    fun cumulativeRuntime_multipleExecutions() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        // 1. Enqueue
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+
+        // 2. First run (stopped)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1))
+        testClock.currentTime = 4000L
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        // 3. Second run (explicit retry result)
+        testClock.currentTime = 5000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 2))
+        testClock.currentTime = 7000L
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        // 4. Third run (succeeds)
+        testClock.currentTime = 9000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 3))
+        testClock.currentTime = 10000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
+        assertEquals(10000L, result.finishTimeMillis)
+        // workerDurationMillis = last execution attempt (10000 - 9000 = 1000L)
+        assertEquals(1000L, result.workerDurationMillis)
+        // totalRuntimeMillis = (4000 - 3000) + (7000 - 5000) + (10000 - 9000) = 1000 + 2000 + 1000
+        // = 4000L
+        assertEquals(4000L, result.totalRuntimeMillis)
     }
 
     private fun WorkInfo.copy(

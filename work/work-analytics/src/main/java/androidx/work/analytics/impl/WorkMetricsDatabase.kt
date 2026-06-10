@@ -24,7 +24,7 @@ import androidx.work.analytics.impl.model.WorkMetricsSpec
 import androidx.work.analytics.impl.model.WorkMetricsSpecDao
 
 /** Internal database for storing historical work execution analytics. */
-@Database(entities = [WorkMetricsSpec::class], version = 1, exportSchema = false)
+@Database(entities = [WorkMetricsSpec::class], version = 2, exportSchema = false)
 @TypeConverters(WorkMetricsInfoTypeConverters::class)
 internal abstract class WorkMetricsDatabase : RoomDatabase() {
     /** Returns the DAO for [WorkMetricsSpec]. */
