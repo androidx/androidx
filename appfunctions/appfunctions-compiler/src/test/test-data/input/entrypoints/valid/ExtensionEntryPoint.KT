@@ -20,7 +20,7 @@ import androidx.appfunctions.ExtensionsAppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunction
 
-@AppFunctionServiceEntryPoint("MyExtensionService", "my_extension_service.xml")
+@AppFunctionServiceEntryPoint("MyExtensionService", "my_extension_service")
 abstract class ExtensionEntryPoint: ExtensionsAppFunctionService() {
     /**
      * simple function.

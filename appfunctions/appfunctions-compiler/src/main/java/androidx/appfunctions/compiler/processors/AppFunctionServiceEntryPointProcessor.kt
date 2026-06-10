@@ -18,10 +18,12 @@ package androidx.appfunctions.compiler.processors
 
 import androidx.annotation.VisibleForTesting
 import androidx.appfunctions.compiler.AppFunctionCompiler
+import androidx.appfunctions.compiler.AppFunctionCompilerOptions
 import androidx.appfunctions.compiler.core.AnnotatedAppFunction
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionServiceEntryPoint
 import androidx.appfunctions.compiler.core.AppFunctionInventoryCodeBuilder
+import androidx.appfunctions.compiler.core.AppFunctionLegacySchemaXmlGenerator
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.AppFunctionXmlGenerator
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS
@@ -81,6 +83,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  * ```
  */
 class AppFunctionServiceEntryPointProcessor(
+    private val options: AppFunctionCompilerOptions,
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) : SymbolProcessor {
@@ -123,6 +126,13 @@ class AppFunctionServiceEntryPointProcessor(
             packageName = XML_PACKAGE_NAME,
             fileName = serviceEntryPoint.appFunctionXmlFileName,
         )
+        if (options.generateV1Xml) {
+            val legacyGenerator = AppFunctionLegacySchemaXmlGenerator(codeGenerator, logger)
+            legacyGenerator.generateLegacyIndexXml(
+                serviceEntryPoint = serviceEntryPoint,
+                resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+            )
+        }
     }
 
     private fun generateAppFunctionService(
@@ -283,6 +293,7 @@ class AppFunctionServiceEntryPointProcessor(
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
             return AppFunctionServiceEntryPointProcessor(
+                AppFunctionCompilerOptions.from(environment.options),
                 environment.codeGenerator,
                 environment.logger,
             )

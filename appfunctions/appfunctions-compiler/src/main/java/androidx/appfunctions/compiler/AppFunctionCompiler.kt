@@ -106,7 +106,11 @@ class AppFunctionCompiler(
             val schemaInventoryProcessor =
                 AppFunctionSchemaInventoryProcessor(environment.codeGenerator, options)
             val entryPointProcessor =
-                AppFunctionServiceEntryPointProcessor(environment.codeGenerator, environment.logger)
+                AppFunctionServiceEntryPointProcessor(
+                    options,
+                    environment.codeGenerator,
+                    environment.logger,
+                )
             return AppFunctionCompiler(
                 listOf(
                     functionRegistryProcessor,
