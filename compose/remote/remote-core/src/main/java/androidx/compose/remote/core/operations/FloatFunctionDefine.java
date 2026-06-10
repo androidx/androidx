@@ -45,6 +45,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     private static final String CLASS_NAME = "FunctionDefine";
     private final int mId;
     private final int @NonNull [] mFloatVarId;
+    private boolean mCurrentlyExecuting  = false;
     @NonNull private ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
@@ -162,6 +163,10 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
      * @param context the current RemoteContext
      */
     public void execute(@NonNull RemoteContext context) {
+        if (mCurrentlyExecuting) {
+            throw new RuntimeException("Recursion not allowed");
+        }
+        mCurrentlyExecuting = true;
         for (Operation op : mList) {
             if (op instanceof VariableSupport) {
                 ((VariableSupport) op).updateVariables(context);
@@ -169,6 +174,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
 
             context.incrementOpCount();
             op.apply(context);
+            mCurrentlyExecuting = false;
         }
     }
 }

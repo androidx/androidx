@@ -139,6 +139,19 @@ public class SpringStopEngine {
         mStopThreshold = stopThreshold;
         mBoundaryMode = boundaryMode;
         mLastTime = 0;
+        if (!Float.isFinite(mStopThreshold)) {
+            throw new RuntimeException("StopThreshold cannot be a NaN");
+        }
+        if (!Float.isFinite(stiffness)) {
+            throw new RuntimeException("stiffness cannot be a NaN");
+        }
+        if (stiffness <= 0) {
+            throw new RuntimeException("stiffness cannot be a Negative");
+        }
+        if (stopThreshold <= 0) {
+            throw new RuntimeException("StopThreshold cannot be a Negative");
+        }
+
     }
 
     /**
@@ -217,6 +230,7 @@ public class SpringStopEngine {
         double c = mDamping;
         // Estimate how many time we should over sample based on the frequency and current sampling
         int overSample = (int) (1 + 9 / (Math.sqrt(mStiffness / mMass) * dt * 4));
+        overSample = Math.min(overSample, 1000); // Clamp to 1000
         dt /= overSample;
 
         for (int i = 0; i < overSample; i++) {

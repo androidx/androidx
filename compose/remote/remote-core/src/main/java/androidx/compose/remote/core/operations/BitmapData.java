@@ -291,7 +291,8 @@ public class BitmapData extends Operation
         if (width < 1
                 || height < 1
                 || height > Limits.MAX_IMAGE_DIMENSION
-                || width > Limits.MAX_IMAGE_DIMENSION) {
+                || width > Limits.MAX_IMAGE_DIMENSION
+                || width * height > Limits.MAX_BITMAP_MEMORY) {
             throw new RuntimeException("Dimension of image is invalid " + width + "x" + height);
         }
         // This can be reading a JPEG, GIF, PNG or RAW image. Make sure the size is reasonable.
