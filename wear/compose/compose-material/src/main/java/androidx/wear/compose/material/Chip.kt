@@ -68,10 +68,9 @@ import androidx.wear.compose.materialcore.ImageWithScrimPainter
  * Is used as the container for more opinionated [Chip] components that take specific content such
  * as icons and labels.
  *
- * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
- * of [Typography.button] style. The [Chip] can have an icon or image horizontally parallel to the
- * two lines of text. With localisation and/or large font sizes, the [Chip] height adjusts to
- * accommodate the contents.
+ * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of
+ * text. The [Chip] can have an icon or image horizontally parallel to the two lines of text. With
+ * localisation and/or large font sizes, the [Chip] height adjusts to accommodate the contents.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -138,10 +137,9 @@ public fun Chip(
  * Is used as the container for more opinionated [Chip] components that take specific content such
  * as icons and labels.
  *
- * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
- * of [Typography.button] style. The [Chip] can have an icon or image horizontally parallel to the
- * two lines of text. With localisation and/or large font sizes, the [Chip] height adjusts to
- * accommodate the contents.
+ * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of
+ * text. The [Chip] can have an icon or image horizontally parallel to the two lines of text. With
+ * localisation and/or large font sizes, the [Chip] height adjusts to accommodate the contents.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -207,10 +205,10 @@ public fun Chip(
  * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
- * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
- * of [Typography.button] style. If no secondary label is provided then the label can be two lines
- * of text. The label and secondary label should be consistently aligned. With localisation and/or
- * large font sizes, the [Chip] height adjusts to accommodate the contents.
+ * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of
+ * text. If no secondary label is provided then the label can be two lines of text. The label and
+ * secondary label should be consistently aligned. With localisation and/or large font sizes, the
+ * [Chip] height adjusts to accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -293,10 +291,10 @@ public fun Chip(
  * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
- * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
- * of [Typography.button] style. If no secondary label is provided then the label can be two lines
- * of text. The label and secondary label should be consistently aligned. With localisation and/or
- * large font sizes, the [Chip] height adjusts to accommodate the contents.
+ * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of
+ * text. If no secondary label is provided then the label can be two lines of text. The label and
+ * secondary label should be consistently aligned. With localisation and/or large font sizes, the
+ * [Chip] height adjusts to accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -385,9 +383,9 @@ public fun Chip(
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [OutlinedChip] is Stadium shaped and has a max height designed to take no more than two lines
- * of text of [Typography.button] style. If no secondary label is provided then the label can be two
- * lines of text. The label and secondary label should be consistently aligned. With localisation
- * and/or large font sizes, the [OutlinedChip] height adjusts to accommodate the contents.
+ * of text. If no secondary label is provided then the label can be two lines of text. The label and
+ * secondary label should be consistently aligned. With localisation and/or large font sizes, the
+ * [OutlinedChip] height adjusts to accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -463,10 +461,9 @@ public fun OutlinedChip(
  * Both the icon and label are optional however it is expected that at least one will be provided.
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
- * of text of [Typography.caption1] style and/or one icon. The default max height is
- * [ChipDefaults.CompactChipHeight]. This includes a visible chip height of 32.dp and 8.dp of
- * padding above and below the chip in order to meet accessibility guidelines that request a minimum
- * of 48.dp height and width of tappable area.
+ * of text and/or one icon. The default max height is [ChipDefaults.CompactChipHeight]. This
+ * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
+ * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -560,10 +557,9 @@ public fun CompactChip(
  * Both the icon and label are optional however it is expected that at least one will be provided.
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
- * of text of [Typography.caption1] style and/or one icon. The default max height is
- * [ChipDefaults.CompactChipHeight]. This includes a visible chip height of 32.dp and 8.dp of
- * padding above and below the chip in order to meet accessibility guidelines that request a minimum
- * of 48.dp height and width of tappable area.
+ * of text and/or one icon. The default max height is [ChipDefaults.CompactChipHeight]. This
+ * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
+ * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -690,10 +686,9 @@ public fun CompactChip(
  * provided.
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
- * of text of [Typography.caption1] style and/or one icon. The default max height is
- * [ChipDefaults.CompactChipHeight]. This includes a visible chip height of 32.dp and 8.dp of
- * padding above and below the chip in order to meet accessibility guidelines that request a minimum
- * of 48.dp height and width of tappable area.
+ * of text and/or one icon. The default max height is [ChipDefaults.CompactChipHeight]. This
+ * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
+ * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.

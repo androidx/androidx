@@ -58,9 +58,8 @@ import androidx.compose.ui.unit.dp
  * label slots in the middle and a slot for the toggle control at the end.
  *
  * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than two lines
- * of text of [Typography.button] style. With localisation and/or large font sizes, the [ToggleChip]
- * height adjusts to accommodate the contents. The label and secondary label should be consistently
- * aligned.
+ * of text. With localisation and/or large font sizes, the [ToggleChip] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [ToggleChipColors] can be obtained from [ToggleChipDefaults], e.g.
  * [ToggleChipDefaults.toggleChipColors].
@@ -184,9 +183,8 @@ public fun ToggleChip(
  * will have a visual effect applied to provide a "divider" between the two tappable areas.
  *
  * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than two
- * lines of text of [Typography.button] style. With localisation and/or large font sizes, the
- * [SplitToggleChip] height adjusts to accommodate the contents. The label and secondary label
- * should be consistently aligned.
+ * lines of text. With localisation and/or large font sizes, the [SplitToggleChip] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [SplitToggleChipColors] can be obtained from [ToggleChipDefaults], e.g.
  * [ToggleChipDefaults.splitToggleChipColors].
