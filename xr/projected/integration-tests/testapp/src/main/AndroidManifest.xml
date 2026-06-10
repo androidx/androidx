@@ -27,12 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.xr.projected.testapp.componentpermissions.PermissionsComponentActivity"
-            android:exported="true"
-            android:label="Component Permission Activity"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
-        <activity
             android:name="androidx.xr.projected.testapp.permissions.PermissionsActivity"
             android:exported="true"
             android:label="Permission Activity"

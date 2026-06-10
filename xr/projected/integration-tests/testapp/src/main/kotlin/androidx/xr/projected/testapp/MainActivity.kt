@@ -42,7 +42,6 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.testapp.audio.AudioActivity
 import androidx.xr.projected.testapp.battery.BatteryActivity
 import androidx.xr.projected.testapp.camera.CameraActivity
-import androidx.xr.projected.testapp.componentpermissions.PermissionsComponentActivity
 import androidx.xr.projected.testapp.controller.DisplayControllerActivity
 import androidx.xr.projected.testapp.input.ProjectedInputActivity
 import androidx.xr.projected.testapp.permissions.PermissionsActivity
@@ -141,7 +140,6 @@ class MainActivity : ComponentActivity() {
         val PROJECTED_ACTIVITY_MAP: Map<String, Class<*>> =
             mapOf(
                 "Permission" to PermissionsActivity::class.java,
-                "Component Permission" to PermissionsComponentActivity::class.java,
                 "Input" to ProjectedInputActivity::class.java,
             )
     }
