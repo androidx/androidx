@@ -4002,6 +4002,73 @@ class NavControllerTest {
             }
         }
     }
+
+    @Test
+    fun testHandleDeepLinkFromExternal_ignored() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                val originalIntent =
+                    Intent().apply {
+                        putExtra(NavController.KEY_DEEP_LINK_IDS, intArrayOf(R.id.second_test))
+                        putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://com.external.app"))
+                    }
+                this.intent = originalIntent
+
+                val navController = navController
+                navController.setGraph(R.navigation.nav_simple)
+
+                val handled = navController.handleDeepLink(originalIntent)
+
+                assertThat(handled).isFalse()
+                assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+            }
+        }
+    }
+
+    @Test
+    fun testHandleDeepLinkFromExternal_spoofedReferrer_ignored() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                val originalIntent =
+                    Intent().apply {
+                        putExtra(NavController.KEY_DEEP_LINK_IDS, intArrayOf(R.id.second_test))
+                        putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://$packageName"))
+                    }
+                this.intent = originalIntent
+
+                val navController = navController
+                navController.setGraph(R.navigation.nav_simple)
+
+                val handled = navController.handleDeepLink(originalIntent)
+
+                assertThat(handled).isFalse()
+                assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+            }
+        }
+    }
+
+    @Test
+    fun testHandleDeepLinkFromSelf_accepted() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                val navController = navController
+                navController.setGraph(R.navigation.nav_simple)
+
+                val taskStackBuilder =
+                    navController
+                        .createDeepLink()
+                        .setDestination(R.id.second_test)
+                        .createTaskStackBuilder()
+                val originalIntent = taskStackBuilder.editIntentAt(0)!!
+                this.intent = originalIntent
+
+                val handled = navController.handleDeepLink(originalIntent)
+
+                assertThat(handled).isTrue()
+                assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
+            }
+        }
+    }
 }
 
 class TestActivity : ComponentActivity() {
