@@ -348,14 +348,14 @@ object Arguments {
                 .getBenchmarkArgument("measureRepeatedOnMainThread.throwOnDeadline")
                 ?.toBoolean() ?: true
 
-        requireAot = arguments.getBenchmarkArgument("requireAot")?.toBoolean() ?: false
+        requireAot = arguments.getBenchmarkArgument("requireAot")?.toBoolean() ?: true
         requireJitDisabledIfRooted =
             arguments.getBenchmarkArgument("requireJitDisabledIfRooted")?.toBoolean() ?: false
         requireLockedClocks =
             arguments.getBenchmarkArgument("requireLockedClocks")?.toBoolean() ?: false
 
         throwOnMainThreadMeasureRepeated =
-            arguments.getBenchmarkArgument("throwOnMainThreadMeasureRepeated")?.toBoolean() ?: false
+            arguments.getBenchmarkArgument("throwOnMainThreadMeasureRepeated")?.toBoolean() ?: true
 
         killExistingPerfettoRecordings =
             arguments.getBenchmarkArgument("killExistingPerfettoRecordings")?.toBoolean()

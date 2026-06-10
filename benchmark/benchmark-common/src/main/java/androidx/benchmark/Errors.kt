@@ -224,8 +224,11 @@ object Errors {
             warningString +=
                 """
                 |WARNING: Benchmark running without full AOT compilation.
-                |    Benchmarks should be speed compiled to reduce noise. This is enabled by default
-                |    in the benchmark plugin. Observed compilation state = $compilationMode.
+                |    Benchmarks should be `speed` compiled to reduce noise. This is enabled by
+                |    default in the benchmark plugin (on AGP 8.4+, where it's supported).
+                |    Observed compilation state = $compilationMode.
+                |    In other contexts, use:
+                |        adb shell cmd package compile -m speed -f ${context.packageName}
             """
                     .trimMarginWrapNewlines()
         }
