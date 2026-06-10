@@ -28,7 +28,7 @@ import androidx.tracing.wire.TraceSink
  * Initializes [TraceDriver] process wide using `androidx.startup`.
  *
  * To customize the [AbstractTraceDriver] instance to use, your [android.app.Application] subtype
- * should implement [AbstractTraceDriver.Factory].
+ * should implement [TraceDriver.Factory].
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class ConnectedProfilerTracingInitializer : Initializer<TraceDriver> {
