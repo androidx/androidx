@@ -1706,10 +1706,18 @@ import java.util.concurrent.Executor;
             }
 
             if (routeToSelect == null) {
+                List<String> mr2RouteIds = new ArrayList<>();
+                for (MediaRouter.RouteInfo routeInfo : getRoutes()) {
+                    if (routeInfo.getProviderInstance() == mMr2Provider) {
+                        mr2RouteIds.add(routeInfo.getDescriptorId());
+                    }
+                }
                 Log.w(
                         TAG,
                         "onSelectRoute: The target RouteInfo is not found for descriptorId="
-                                + routeDescriptorId);
+                                + routeDescriptorId
+                                + ". Available ids="
+                                + mr2RouteIds);
                 return;
             }
 
