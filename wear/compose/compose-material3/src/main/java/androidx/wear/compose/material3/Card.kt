@@ -291,9 +291,9 @@ public fun Card(
  *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
- *   aligned text of [Typography.labelSmall]
+ *   aligned text
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
- *   start aligned text of [Typography.titleMedium]
+ *   start aligned text
  * @param modifier Modifier to be applied to the card
  * @param onLongClick Called when this card is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
@@ -317,7 +317,7 @@ public fun Card(
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  *   [Image] associated with the application.
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- *   short piece of end aligned text of [Typography.labelSmall].
+ *   short piece of end aligned text
  * @param content The main slot for a content of this card
  */
 @Composable

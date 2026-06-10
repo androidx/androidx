@@ -72,9 +72,8 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * labels.
  *
  * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
- * text of [Typography.labelMedium] style. With localisation and/or large font sizes, the text can
- * extend to a maximum of 3 lines in which case, the [Button] height adjusts to accommodate the
- * contents.
+ * text. With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in
+ * which case, the [Button] height adjusts to accommodate the contents.
  *
  * [Button] takes the [ButtonDefaults.buttonColors] color scheme by default, with colored
  * background, contrasting content color and no border. This is a high-emphasis button for the
@@ -166,9 +165,8 @@ public fun Button(
  * drawn on top of the container image, ensuring that any content above the background is legible.
  *
  * The [Button] is Stadium-shaped by default and has a max height designed to take no more than two
- * lines of text of [Typography.labelMedium] style. With localisation and/or large font sizes, the
- * text can extend to a maximum of 3 lines in which case, the [Button] height adjusts to accommodate
- * the contents.
+ * lines of text. With localisation and/or large font sizes, the text can extend to a maximum of 3
+ * lines in which case, the [Button] height adjusts to accommodate the contents.
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
@@ -251,10 +249,10 @@ public fun Button(
  * such as icons and labels.
  *
  * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
- * more than two lines of text of [Typography.labelMedium] style. With localisation and/or large
- * font sizes, the text can extend to a maximum of 3 lines in which case, the [FilledTonalButton]
- * height adjusts to accommodate the contents. The [FilledTonalButton] can have an icon or image
- * horizontally parallel to the two lines of text.
+ * more than two lines of text. With localisation and/or large font sizes, the text can extend to a
+ * maximum of 3 lines in which case, the [FilledTonalButton] height adjusts to accommodate the
+ * contents. The [FilledTonalButton] can have an icon or image horizontally parallel to the two
+ * lines of text.
  *
  * [FilledTonalButton] takes the [ButtonDefaults.filledTonalButtonColors] color scheme by default,
  * with muted background, contrasting content color and no border. This is a medium-emphasis button
@@ -339,10 +337,10 @@ public fun FilledTonalButton(
  * icons and labels.
  *
  * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
- * than two lines of text of [Typography.labelMedium] style. With localisation and/or large font
- * sizes, the text can extend to a maximum of 3 lines in which case, the [OutlinedButton] height
- * adjusts to accommodate the contents. The [OutlinedButton] can have an icon or image horizontally
- * parallel to the two lines of text.
+ * than two lines of text. With localisation and/or large font sizes, the text can extend to a
+ * maximum of 3 lines in which case, the [OutlinedButton] height adjusts to accommodate the
+ * contents. The [OutlinedButton] can have an icon or image horizontally parallel to the two lines
+ * of text.
  *
  * [OutlinedButton] takes the [ButtonDefaults.outlinedButtonColors] color scheme by default, with a
  * transparent background and a thin border. This is a medium-emphasis button for important,
@@ -426,10 +424,9 @@ public fun OutlinedButton(
  * icons and labels.
  *
  * The [ChildButton] is stadium-shaped by default and its standard height is designed to take 2
- * lines of text of [Typography.labelMedium] style. With localisation and/or large font sizes, the
- * text can extend to a maximum of 3 lines in which case, the [ChildButton] height adjusts to
- * accommodate the contents. The [ChildButton] can have an icon or image horizontally parallel to
- * the two lines of text.
+ * lines of text. With localisation and/or large font sizes, the text can extend to a maximum of 3
+ * lines in which case, the [ChildButton] height adjusts to accommodate the contents. The
+ * [ChildButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [ChildButton] takes the [ButtonDefaults.childButtonColors] color scheme by default, with a
  * transparent background and no border. This is a low-emphasis button for optional or supplementary
@@ -513,9 +510,9 @@ public fun ChildButton(
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
- * text of [Typography.labelMedium] style - either a two-line label or both a single line label and
- * a secondary label. With localisation and/or large font sizes, the [Button] height adjusts to
- * accommodate the contents. The label and secondary label should be consistently aligned.
+ * text - either a two-line label or both a single line label and a secondary label. With
+ * localisation and/or large font sizes, the [Button] height adjusts to accommodate the contents.
+ * The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -663,9 +660,9 @@ public fun Button(
  * legible.
  *
  * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
- * text of [Typography.labelMedium] style - either a two-line label or both a single line label and
- * a secondary label. With localisation and/or large font sizes, the [Button] height adjusts to
- * accommodate the contents. The label and secondary label should be consistently aligned.
+ * text - either a two-line label or both a single line label and a secondary label. With
+ * localisation and/or large font sizes, the [Button] height adjusts to accommodate the contents.
+ * The label and secondary label should be consistently aligned.
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
@@ -782,10 +779,9 @@ public fun Button(
  * the icon, if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [FilledTonalButton] is stadium-shaped by default and its standard height is designed to take
- * 2 lines of text of [Typography.labelMedium] style - either a two-line label or both a single line
- * label and a secondary label. With localisation and/or large font sizes, the [FilledTonalButton]
- * height adjusts to accommodate the contents. The label and secondary label should be consistently
- * aligned.
+ * 2 lines of text - either a two-line label or both a single line label and a secondary label. With
+ * localisation and/or large font sizes, the [FilledTonalButton] height adjusts to accommodate the
+ * contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -912,10 +908,9 @@ public fun FilledTonalButton(
  * icon, if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [OutlinedButton] is stadium-shaped by default and its standard height is designed to take 2
- * lines of text of [Typography.labelMedium] style - either a two-line label or both a single line
- * label and a secondary label. With localisation and/or large font sizes, the [OutlinedButton]
- * height adjusts to accommodate the contents. The label and secondary label should be consistently
- * aligned.
+ * lines of text - either a two-line label or both a single line label and a secondary label. With
+ * localisation and/or large font sizes, the [OutlinedButton] height adjusts to accommodate the
+ * contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -1037,10 +1032,9 @@ public fun OutlinedButton(
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [ChildButton] is stadium-shaped by default and its standard height is designed to take 2
- * lines of text of [Typography.labelMedium] style - either a two-line label or both a single line
- * label and a secondary label. With localisation and/or large font sizes, the [ChildButton] height
- * adjusts to accommodate the contents. The label and secondary label should be consistently
- * aligned.
+ * lines of text - either a two-line label or both a single line label and a secondary label. With
+ * localisation and/or large font sizes, the [ChildButton] height adjusts to accommodate the
+ * contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
