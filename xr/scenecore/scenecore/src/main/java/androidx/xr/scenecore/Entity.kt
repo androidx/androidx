@@ -317,7 +317,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
                 _children.clear()
                 list
             }
-        childrenToDetach.forEach { it.parent = null }
+        childrenToDetach.forEach { it.disposeInternal() }
 
         _rtEntity?.let {
             cleanupAction.rtEntityRef.set(null)
@@ -401,7 +401,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
     )
     public fun dispose() {
         if (!isDisposed) {
-            parent = null
+            disposeInternal()
         }
     }
 

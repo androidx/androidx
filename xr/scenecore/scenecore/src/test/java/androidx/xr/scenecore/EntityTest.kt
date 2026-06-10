@@ -206,15 +206,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_callsRuntimeEntityImplSetParent() {
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -250,7 +250,7 @@ class EntityTest {
         assertThat(panelEntity.rtEntity.parent).isNull()
         assertThat(surfaceEntity.rtEntity.parent).isNull()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
         panelEntity =
             PanelEntity.create(
@@ -265,15 +265,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_getPoseInParentSpace() {
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -312,15 +312,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_getPoseInActivitySpace() {
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -702,13 +702,13 @@ class EntityTest {
 
     @Test
     fun allEntityDispose_callsRuntimeEntityImplDispose() {
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
         assertThat(gltfModelEntity.isDisposed).isTrue()
         assertThat(panelEntity.isDisposed).isTrue()
@@ -955,25 +955,25 @@ class EntityTest {
 
         assertThat(panelEntity.addComponent(component)).isTrue()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
         assertThat(component.onDetached).isEqualTo(1)
 
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
         assertThat(component.onDetached).isEqualTo(2)
 
         assertThat(anchorSpace.addComponent(component)).isTrue()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
         assertThat(component.onDetached).isEqualTo(3)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
         assertThat(component.onDetached).isEqualTo(4)
     }
@@ -1216,19 +1216,19 @@ class EntityTest {
 
     @Test
     fun anyEntity_useAfterDisposeRaisesDisposedException() {
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        activitySpace.disposeInternal()
+        activitySpace.dispose()
 
         assertFailsWith<Entity.DisposedException> { surfaceEntity.stereoMode }
         assertFailsWith<Entity.DisposedException> { panelEntity.sizeInPixels }
@@ -1249,33 +1249,48 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeTwiceDoesNotCrash() {
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        activitySpace.disposeInternal()
+        activitySpace.dispose()
 
-        activitySpace.disposeInternal()
+        activitySpace.dispose()
+    }
+
+    @Test
+    fun allEntity_dispose_disposesChildrenRecursively() {
+        val parent = Entity.create(session)
+        val child1 = Entity.create(session, parent = parent)
+        val child2 = Entity.create(session, parent = parent)
+        val grandchild = Entity.create(session, parent = child1)
+
+        parent.dispose()
+
+        assertThat(parent.isDisposed).isTrue()
+        assertThat(child1.isDisposed).isTrue()
+        assertThat(child2.isDisposed).isTrue()
+        assertThat(grandchild.isDisposed).isTrue()
     }
 
     @Test
@@ -1314,19 +1329,19 @@ class EntityTest {
 
     @Test
     fun isDisposed_trueAfterDispose() {
-        panelEntity.disposeInternal()
+        panelEntity.dispose()
 
-        surfaceEntity.disposeInternal()
+        surfaceEntity.dispose()
 
-        anchorSpace.disposeInternal()
+        anchorSpace.dispose()
 
-        entity.disposeInternal()
+        entity.dispose()
 
-        activityPanelEntity.disposeInternal()
+        activityPanelEntity.dispose()
 
-        gltfModelEntity.disposeInternal()
+        gltfModelEntity.dispose()
 
-        activitySpace.disposeInternal()
+        activitySpace.dispose()
 
         assertThat(panelEntity.isDisposed).isTrue()
         assertThat(surfaceEntity.isDisposed).isTrue()
@@ -1756,11 +1771,11 @@ class EntityTest {
 
         assertThat(entity.isDisposed).isFalse()
 
-        entity.disposeInternal()
+        entity.dispose()
         assertThat(entity.isDisposed).isTrue()
 
         // Calling again should not throw
-        entity.disposeInternal()
+        entity.dispose()
         assertThat(entity.isDisposed).isTrue()
     }
 
@@ -1787,14 +1802,16 @@ class EntityTest {
     }
 
     @Test
-    fun dispose_setsParentToNull() {
+    fun dispose_removesFromParentAndDisposes() {
         val parentEntity = Entity.create(session, "parent")
         val childEntity = Entity.create(session, "child", parent = parentEntity)
 
         assertThat(childEntity.parent).isEqualTo(parentEntity)
+        assertThat(parentEntity.children).contains(childEntity)
 
         childEntity.dispose()
 
-        assertThat(childEntity.parent).isNull()
+        assertThat(childEntity.isDisposed).isTrue()
+        assertThat(parentEntity.children).doesNotContain(childEntity)
     }
 }
