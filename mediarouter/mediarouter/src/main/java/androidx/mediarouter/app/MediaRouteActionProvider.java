@@ -21,14 +21,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ActionProvider;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The media route action provider displays a {@link MediaRouteButton media route button}
@@ -157,8 +158,7 @@ public class MediaRouteActionProvider extends ActionProvider {
      *
      * @return The selector, never null.
      */
-    @NonNull
-    public MediaRouteSelector getRouteSelector() {
+    public @NonNull MediaRouteSelector getRouteSelector() {
         return mSelector;
     }
 
@@ -221,8 +221,7 @@ public class MediaRouteActionProvider extends ActionProvider {
      *
      * @return The dialog factory, never null.
      */
-    @NonNull
-    public MediaRouteDialogFactory getDialogFactory() {
+    public @NonNull MediaRouteDialogFactory getDialogFactory() {
         return mDialogFactory;
     }
 
@@ -249,8 +248,7 @@ public class MediaRouteActionProvider extends ActionProvider {
     /**
      * Gets the associated media route button, or null if it has not yet been created.
      */
-    @Nullable
-    public MediaRouteButton getMediaRouteButton() {
+    public @Nullable MediaRouteButton getMediaRouteButton() {
         return mButton;
     }
 
@@ -260,14 +258,12 @@ public class MediaRouteActionProvider extends ActionProvider {
      * Subclasses may override this method to customize the button.
      * </p>
      */
-    @NonNull
-    public MediaRouteButton onCreateMediaRouteButton() {
+    public @NonNull MediaRouteButton onCreateMediaRouteButton() {
         return new MediaRouteButton(getContext());
     }
 
     @Override
-    @NonNull
-    public View onCreateActionView() {
+    public @NonNull View onCreateActionView() {
         if (mButton != null) {
             Log.e(TAG, "onCreateActionView: this ActionProvider is already associated " +
                     "with a menu item. Don't reuse MediaRouteActionProvider instances! " +

@@ -23,11 +23,12 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 import androidx.mediarouter.media.MediaRouteSelector;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Media route controller dialog fragment.
@@ -58,8 +59,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @return The selector, never null.
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public MediaRouteSelector getRouteSelector() {
+    public @NonNull MediaRouteSelector getRouteSelector() {
         ensureRouteSelector();
         return mSelector;
     }
@@ -125,8 +125,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Called when the cast dialog is being created.
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(
+    public @NonNull MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(
             @NonNull Context context) {
         return new MediaRouteDynamicControllerDialog(context);
     }
@@ -137,15 +136,13 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Subclasses may override this method to customize the dialog.
      * </p>
      */
-    @NonNull
-    public MediaRouteControllerDialog onCreateControllerDialog(
+    public @NonNull MediaRouteControllerDialog onCreateControllerDialog(
             @NonNull Context context, @Nullable Bundle savedInstanceState) {
         return new MediaRouteControllerDialog(context);
     }
 
     @Override
-    @NonNull
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public @NonNull Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (mUseDynamicGroup) {
             mDialog = onCreateDynamicControllerDialog(getContext());
             ((MediaRouteDynamicControllerDialog) mDialog).setRouteSelector(mSelector);

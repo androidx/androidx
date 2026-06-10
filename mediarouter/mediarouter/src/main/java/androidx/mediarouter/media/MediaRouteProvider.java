@@ -27,11 +27,12 @@ import android.os.Message;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -116,24 +117,21 @@ public abstract class MediaRouteProvider {
     /**
      * Gets the context of the media route provider.
      */
-    @NonNull
-    public final Context getContext() {
+    public final @NonNull Context getContext() {
         return mContext;
     }
 
     /**
      * Gets the provider's handler which is associated with the main thread.
      */
-    @NonNull
-    public final Handler getHandler() {
+    public final @NonNull Handler getHandler() {
         return mHandler;
     }
 
     /**
      * Gets some metadata about the provider's implementation.
      */
-    @NonNull
-    public final ProviderMetadata getMetadata() {
+    public final @NonNull ProviderMetadata getMetadata() {
         return mMetadata;
     }
 
@@ -155,8 +153,7 @@ public abstract class MediaRouteProvider {
      *
      * @see #onDiscoveryRequestChanged
      */
-    @Nullable
-    public final MediaRouteDiscoveryRequest getDiscoveryRequest() {
+    public final @Nullable MediaRouteDiscoveryRequest getDiscoveryRequest() {
         return mDiscoveryRequest;
     }
 
@@ -229,8 +226,7 @@ public abstract class MediaRouteProvider {
      *
      * @see Callback#onDescriptorChanged
      */
-    @Nullable
-    public final MediaRouteProviderDescriptor getDescriptor() {
+    public final @Nullable MediaRouteProviderDescriptor getDescriptor() {
         return mDescriptor;
     }
 
@@ -274,8 +270,7 @@ public abstract class MediaRouteProvider {
      * @param routeControllerOptions the parameters to be used to create the route controller.
      * @return {@link RouteController}. Returns null if there is no such route.
      */
-    @Nullable
-    public RouteController onCreateRouteController(
+    public @Nullable RouteController onCreateRouteController(
             @NonNull String routeId, @NonNull RouteControllerOptions routeControllerOptions) {
         return onCreateRouteController(routeId);
     }
@@ -290,8 +285,7 @@ public abstract class MediaRouteProvider {
      * @return The route controller. Returns null if there is no such route or if the route cannot
      *     be controlled using the route controller interface.
      */
-    @Nullable
-    public RouteController onCreateRouteController(@NonNull String routeId) {
+    public @Nullable RouteController onCreateRouteController(@NonNull String routeId) {
         if (routeId == null) {
             throw new IllegalArgumentException("routeId cannot be null");
         }
@@ -312,8 +306,7 @@ public abstract class MediaRouteProvider {
      * cannot be controlled using the route controller interface.
      */
     @RestrictTo(LIBRARY)
-    @Nullable
-    public RouteController onCreateRouteController(@NonNull String routeId,
+    public @Nullable RouteController onCreateRouteController(@NonNull String routeId,
             @NonNull String routeGroupId) {
         if (routeId == null) {
             throw new IllegalArgumentException("routeId cannot be null");
@@ -335,8 +328,7 @@ public abstract class MediaRouteProvider {
      * @return {@link DynamicGroupRouteController}. Returns null if there is no such route or if the
      *     route cannot be controlled using the {@link DynamicGroupRouteController} interface.
      */
-    @Nullable
-    public DynamicGroupRouteController onCreateDynamicGroupRouteController(
+    public @Nullable DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId,
             @NonNull RouteControllerOptions routeControllerOptions) {
         return onCreateDynamicGroupRouteController(initialMemberRouteId);
@@ -355,8 +347,7 @@ public abstract class MediaRouteProvider {
      * @return {@link DynamicGroupRouteController}. Returns null if there is no such route or if the
      *     route cannot be controlled using the {@link DynamicGroupRouteController} interface.
      */
-    @Nullable
-    public DynamicGroupRouteController onCreateDynamicGroupRouteController(
+    public @Nullable DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId) {
         if (initialMemberRouteId == null) {
             throw new IllegalArgumentException("initialMemberRouteId cannot be null.");
@@ -383,22 +374,19 @@ public abstract class MediaRouteProvider {
         /**
          * Gets the provider's package name.
          */
-        @NonNull
-        public String getPackageName() {
+        public @NonNull String getPackageName() {
             return mComponentName.getPackageName();
         }
 
         /**
          * Gets the provider's component name.
          */
-        @NonNull
-        public ComponentName getComponentName() {
+        public @NonNull ComponentName getComponentName() {
             return mComponentName;
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "ProviderMetadata{ componentName="
                     + mComponentName.flattenToShortString() + " }";
         }
@@ -522,8 +510,7 @@ public abstract class MediaRouteProvider {
          * It is provided by {@link MediaRouteProvider}.
          * e.g. "Add a device."
          */
-        @Nullable
-        public String getGroupableSelectionTitle() {
+        public @Nullable String getGroupableSelectionTitle() {
             return null;
         }
 
@@ -533,8 +520,7 @@ public abstract class MediaRouteProvider {
          * {@link MediaRouteProvider}.
          * e.g. "Play on group."
          */
-        @Nullable
-        public String getTransferableSectionTitle() {
+        public @Nullable String getTransferableSectionTitle() {
             return null;
         }
 
@@ -766,8 +752,7 @@ public abstract class MediaRouteProvider {
             /**
              * Gets this route's {@link MediaRouteDescriptor}. i.e. which route this info is for.
              */
-            @NonNull
-            public MediaRouteDescriptor getRouteDescriptor() {
+            public @NonNull MediaRouteDescriptor getRouteDescriptor() {
                 return mMediaRouteDescriptor;
             }
 
@@ -877,8 +862,7 @@ public abstract class MediaRouteProvider {
                 /**
                  * Sets the selection state of this route within the associated dynamic group route.
                  */
-                @NonNull
-                public Builder setSelectionState(@SelectionState int state) {
+                public @NonNull Builder setSelectionState(@SelectionState int state) {
                     mSelectionState = state;
                     return this;
                 }
@@ -886,8 +870,7 @@ public abstract class MediaRouteProvider {
                 /**
                  * Sets if this route can be unselected.
                  */
-                @NonNull
-                public Builder setIsUnselectable(boolean value) {
+                public @NonNull Builder setIsUnselectable(boolean value) {
                     mIsUnselectable = value;
                     return this;
                 }
@@ -896,8 +879,7 @@ public abstract class MediaRouteProvider {
                  * Sets if this route can be a selected as a member of the associated dynamic
                  * group route.
                  */
-                @NonNull
-                public Builder setIsGroupable(boolean value) {
+                public @NonNull Builder setIsGroupable(boolean value) {
                     mIsGroupable = value;
                     return this;
                 }
@@ -905,8 +887,7 @@ public abstract class MediaRouteProvider {
                 /**
                  * Sets if the associated dynamic group route can be transferred to this route.
                  */
-                @NonNull
-                public Builder setIsTransferable(boolean value) {
+                public @NonNull Builder setIsTransferable(boolean value) {
                     mIsTransferable = value;
                     return this;
                 }
@@ -914,8 +895,7 @@ public abstract class MediaRouteProvider {
                 /**
                  * Builds the {@link DynamicRouteDescriptor}.
                  */
-                @NonNull
-                public DynamicRouteDescriptor build() {
+                public @NonNull DynamicRouteDescriptor build() {
                     return new DynamicRouteDescriptor(
                             mRouteDescriptor, mSelectionState, mIsUnselectable, mIsGroupable,
                             mIsTransferable);
@@ -937,13 +917,11 @@ public abstract class MediaRouteProvider {
         }
 
         /** Returns the contents of this object represented as a bundle. */
-        /* package */ @NonNull
-        Bundle asBundle() {
+        /* package */ @NonNull Bundle asBundle() {
             return mBundle;
         }
 
-        @NonNull
-        public Bundle getControlHints() {
+        public @NonNull Bundle getControlHints() {
             // The controlHints is passed by the application for creating the route controller, or
             // {@code null} if the client has not provided control hints. The controlHints may be
             // provided by {@link android.media.MediaRouter2.OnGetControllerHintsListener}.
@@ -952,8 +930,7 @@ public abstract class MediaRouteProvider {
         }
 
         /** Returns the package name of the client requesting the route controller creation. */
-        @NonNull
-        public String getClientPackageName() {
+        public @NonNull String getClientPackageName() {
             return mBundle.getString(KEY_CLIENT_PACKAGE_NAME, EMPTY_CLIENT_PACKAGE_NAME);
         }
 
@@ -978,22 +955,19 @@ public abstract class MediaRouteProvider {
             }
 
             /** Sets controlHints passed by the client application. */
-            @NonNull
-            public Builder setControlHints(@Nullable Bundle controlHints) {
+            public @NonNull Builder setControlHints(@Nullable Bundle controlHints) {
                 mBundle.putParcelable(KEY_CONTROL_HINTS, controlHints);
                 return this;
             }
 
             /** Sets the client package name for creating the route controller. */
-            @NonNull
-            public Builder setClientPackageName(@NonNull String clientPackageName) {
+            public @NonNull Builder setClientPackageName(@NonNull String clientPackageName) {
                 mBundle.putString(KEY_CLIENT_PACKAGE_NAME, clientPackageName);
                 return this;
             }
 
             /** Builds the {@link RouteControllerOptions}. */
-            @NonNull
-            public RouteControllerOptions build() {
+            public @NonNull RouteControllerOptions build() {
                 return new RouteControllerOptions(mBundle);
             }
         }

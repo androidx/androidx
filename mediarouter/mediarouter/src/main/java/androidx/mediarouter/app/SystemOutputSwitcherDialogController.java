@@ -28,8 +28,9 @@ import android.media.MediaRouter2;
 import android.os.Build;
 import android.provider.Settings;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 

@@ -19,7 +19,7 @@ package androidx.mediarouter.media;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -49,14 +49,12 @@ public final class SuggestedDeviceInfo {
     }
 
     /** Returns the id of the suggested device. */
-    @NonNull
-    public String getRouteId() {
+    public @NonNull String getRouteId() {
         return mRouteId;
     }
 
     /** Returns the display name of the suggested device. */
-    @NonNull
-    public String getDeviceDisplayName() {
+    public @NonNull String getDeviceDisplayName() {
         return mDeviceDisplayName;
     }
 
@@ -68,8 +66,7 @@ public final class SuggestedDeviceInfo {
     /**
      * Returns the {@link Bundle} of the suggested device set via {@link Builder#setExtras(Bundle)}.
      */
-    @NonNull
-    public Bundle getExtras() {
+    public @NonNull Bundle getExtras() {
         return mExtras;
     }
 
@@ -110,8 +107,7 @@ public final class SuggestedDeviceInfo {
          * Creates a new SuggestedDeviceInfo. The device display name, route ID, and type must be
          * set. The extras cannot be null, but default to an empty {@link Bundle}.
          */
-        @NonNull
-        public SuggestedDeviceInfo build() {
+        public @NonNull SuggestedDeviceInfo build() {
             return new SuggestedDeviceInfo(this);
         }
 
@@ -125,8 +121,7 @@ public final class SuggestedDeviceInfo {
          *
          * @throws NullPointerException if the extras are null.
          */
-        @NonNull
-        public Builder setExtras(@NonNull Bundle extras) {
+        public @NonNull Builder setExtras(@NonNull Bundle extras) {
             mExtras = Objects.requireNonNull(extras, "Extras must not be null");
             return this;
         }

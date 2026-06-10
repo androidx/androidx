@@ -36,7 +36,6 @@ import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.StubMediaRoute2ProviderService.StubMediaRoute2Provider.StubDynamicGroupRouteController;
 import androidx.mediarouter.testing.MediaRouterTestHelper;
@@ -46,6 +45,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
