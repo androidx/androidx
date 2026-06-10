@@ -38,11 +38,13 @@ import androidx.core.content.res.use
 
 /**
  * A widget that provides a session-based precise location permission button. It either draws the
- * button remotely rendered by System on supported platforms on and after
- * `Build.VERSION_CODES.CINNAMON_BUN`, or falls back to a locally rendered button on older
- * platforms. On older platforms, the button click delegates to
- * [LocationButtonListener.onRequestPermissions], allowing the app to handle the click (e.g., by
- * requesting permissions or performing actions).
+ * button remotely rendered by the system on [Build.VERSION_CODES.CINNAMON_BUN] and above platforms,
+ * or falls back to a locally rendered button on platforms before
+ * [Build.VERSION_CODES.CINNAMON_BUN].
+ *
+ * On platforms before [Build.VERSION_CODES.CINNAMON_BUN], the button click delegates to
+ * [OnRequestPermissionsListener], allowing the app to handle the click (e.g., by requesting
+ * permissions or showing UI to explain why the permission is needed).
  */
 public class LocationButton
 @JvmOverloads
@@ -69,18 +71,23 @@ constructor(
 
     /**
      * Locally rendered location button, this button provides an alternate to remote location button
-     * on older platforms. Clicking on this button will trigger existing permission request dialog.
+     * on platforms before [Build.VERSION_CODES.CINNAMON_BUN]. Clicking on this button will trigger
+     * regular permission request flow.
      *
      * This button is also used in measuring the width for remote location button to help implement
      * wrap_content for SurfaceView.
      */
     internal val localButtonView: LocalLocationButton
 
-    /** Location button provider helper for API 37+ remote rendering */
+    /**
+     * Location button provider helper for remote rendering on [Build.VERSION_CODES.CINNAMON_BUN]
+     * and above
+     */
     internal var remoteDelegate: RemoteLocationButtonDelegate? = null
 
-    /** Client callback for location button events, provided by apps. */
-    internal var locationButtonListener: LocationButtonListener? = null
+    internal var onPermissionResultListener: OnPermissionResultListener? = null
+    internal var onRequestPermissionsListener: OnRequestPermissionsListener? = null
+    internal var onErrorListener: OnErrorListener? = null
 
     /**
      * The [Activity] that hosts this button.
@@ -137,7 +144,9 @@ constructor(
 
         localButtonView = LocalLocationButton(context)
         if (!isRemoteButtonSupported) {
-            localButtonView.setOnClickListener { locationButtonListener?.onRequestPermissions() }
+            localButtonView.setOnClickListener {
+                onRequestPermissionsListener?.onRequestPermissions()
+            }
         }
         addView(localButtonView)
 
@@ -246,13 +255,35 @@ constructor(
     }
 
     /**
-     * Sets the listener to receive permission results and session error events.
+     * Sets the listener to receive permission results.
      *
-     * @param client The [LocationButtonListener] that will handle callbacks, or null to clear a
+     * @param listener The [OnPermissionResultListener] that will handle callbacks, or null to clear
+     *   a previously set listener.
+     */
+    public fun setOnPermissionResultListener(listener: OnPermissionResultListener?) {
+        this.onPermissionResultListener = listener
+    }
+
+    /**
+     * Sets the listener to handle permission requests on platforms before
+     * [Build.VERSION_CODES.CINNAMON_BUN].
+     *
+     * @param listener The [OnRequestPermissionsListener] that will handle callbacks, or null to
+     *   clear a previously set listener.
+     */
+    public fun setOnRequestPermissionsListener(listener: OnRequestPermissionsListener?) {
+        this.onRequestPermissionsListener = listener
+    }
+
+    /**
+     * Sets the listener to receive remote session errors on [Build.VERSION_CODES.CINNAMON_BUN] and
+     * above platforms.
+     *
+     * @param listener The [OnErrorListener] that will handle callbacks, or null to clear a
      *   previously set listener.
      */
-    public fun setLocationButtonListener(client: LocationButtonListener?) {
-        this.locationButtonListener = client
+    public fun setOnErrorListener(listener: OnErrorListener?) {
+        this.onErrorListener = listener
     }
 
     private fun applyStyleAttributes(attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
@@ -598,34 +629,34 @@ constructor(
     }
 }
 
-/** Callbacks for location button events triggered by user interaction. */
-public interface LocationButtonListener {
+/** Callback for location button permission result. */
+public fun interface OnPermissionResultListener {
     /**
-     * Triggered when the user interacts with the button and a permission decision is made. This
-     * callback is only invoked on platforms on and after `Build.VERSION_CODES.CINNAMON_BUN`
-     * supporting remote rendering, after the system-managed permission flow completes.
+     * Triggered after the user interacts with the system rendered location button and makes a
+     * decision.
      *
      * @param isGranted True if the precise location permission was granted, false otherwise.
      */
     public fun onPermissionResult(isGranted: Boolean)
+}
 
+/**
+ * Callback to handle permission requests on platforms before [Build.VERSION_CODES.CINNAMON_BUN].
+ */
+public fun interface OnRequestPermissionsListener {
+    /**
+     * Developers can override this to handle the location button click (e.g., by requesting
+     * permissions or showing UI to explain why the permission is needed).
+     */
+    public fun onRequestPermissions()
+}
+
+/** Callback for remote session errors on [Build.VERSION_CODES.CINNAMON_BUN] and above platforms. */
+public fun interface OnErrorListener {
     /**
      * Triggered when a critical error occurs while establishing or maintaining the remote session.
-     * This callback is only invoked on platforms on and after `Build.VERSION_CODES.CINNAMON_BUN`
-     * supporting remote rendering. Apps typically do not need to handle this, as the library
-     * automatically falls back to local rendering on failure.
      *
      * @param throwable The underlying exception that caused the session failure.
      */
-    public fun onSessionError(throwable: Throwable) {}
-
-    /**
-     * Triggered when the button is clicked on platforms before `Build.VERSION_CODES.CINNAMON_BUN`
-     * that do not support remote rendering.
-     *
-     * Developers should implement this to handle the button click. They should check if the
-     * required permissions are already granted; if so, they can proceed with the location-based
-     * action, otherwise they should request the permissions.
-     */
-    public fun onRequestPermissions()
+    public fun onError(throwable: Throwable)
 }

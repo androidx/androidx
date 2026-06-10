@@ -12,7 +12,9 @@ package androidx.core.locationbutton {
     method public void setCompositionOrder(int order);
     method public void setCornerRadius(float radius);
     method public void setIconTint(int color);
-    method public void setLocationButtonListener(androidx.core.locationbutton.LocationButtonListener? client);
+    method public void setOnErrorListener(androidx.core.locationbutton.OnErrorListener? listener);
+    method public void setOnPermissionResultListener(androidx.core.locationbutton.OnPermissionResultListener? listener);
+    method public void setOnRequestPermissionsListener(androidx.core.locationbutton.OnRequestPermissionsListener? listener);
     method @InaccessibleFromKotlin public void setParentActivity(android.app.Activity?);
     method public void setPressedCornerRadius(float radius);
     method public void setStrokeColor(int color);
@@ -42,10 +44,16 @@ package androidx.core.locationbutton {
     method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static void setLocationButtonProvider(androidx.core.locationbutton.LocationButton, android.app.permissionui.LocationButtonProvider? provider);
   }
 
-  public interface LocationButtonListener {
+  public fun interface OnErrorListener {
+    method public void onError(Throwable throwable);
+  }
+
+  public fun interface OnPermissionResultListener {
     method public void onPermissionResult(boolean isGranted);
+  }
+
+  public fun interface OnRequestPermissionsListener {
     method public void onRequestPermissions();
-    method public default void onSessionError(Throwable throwable);
   }
 
 }
