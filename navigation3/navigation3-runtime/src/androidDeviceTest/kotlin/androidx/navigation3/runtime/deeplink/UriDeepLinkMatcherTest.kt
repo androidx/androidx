@@ -33,16 +33,30 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
-    fun matchRequest_schemeHttpHttpsMatch() {
+    fun matchRequest_schemeHttp() {
         val pattern1 = DeepLinkUri("http://example.com/path")
         val matcher1 = UriDeepLinkMatcher(pattern1, serializer<TestDefaultArgKey>())
         val request1 = DeepLinkRequest.fromUriString("https://example.com/path")
         assertThat(matcher1.match(request1)).isNotNull()
 
-        val pattern2 = DeepLinkUri("https://example.com/path")
+        val pattern2 = DeepLinkUri("http://example.com/path")
         val matcher2 = UriDeepLinkMatcher(pattern2, serializer<TestDefaultArgKey>())
         val request2 = DeepLinkRequest.fromUriString("http://example.com/path")
         assertThat(matcher2.match(request2)).isNotNull()
+    }
+
+    @Test
+    fun matchRequest_schemeHttps() {
+        val pattern1 = DeepLinkUri("https://example.com/path")
+        val matcher1 = UriDeepLinkMatcher(pattern1, serializer<TestDefaultArgKey>())
+        val request1 = DeepLinkRequest.fromUriString("https://example.com/path")
+        assertThat(matcher1.match(request1)).isNotNull()
+
+        // strictly enforce https
+        val pattern2 = DeepLinkUri("https://example.com/path")
+        val matcher2 = UriDeepLinkMatcher(pattern2, serializer<TestDefaultArgKey>())
+        val request2 = DeepLinkRequest.fromUriString("http://example.com/path")
+        assertThat(matcher2.match(request2)).isNull()
     }
 
     @Test

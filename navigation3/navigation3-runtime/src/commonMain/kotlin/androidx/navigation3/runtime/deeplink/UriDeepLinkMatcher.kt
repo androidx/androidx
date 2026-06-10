@@ -30,6 +30,7 @@ private val FILL_IN_PATTERN = Regex("\\{(.+?)\\}")
 private const val PLACEHOLDER_CONTENT_PATTERN = "([\\s\\S]+?)?"
 private val PATH_REGEX = Regex("([^/]*?|)")
 private const val DEFAULT_SCHEME_PATTERN = "http[s]?://"
+private const val STRICT_SCHEME_PATTERN = "https://"
 
 /**
  * Represents a deep link that can be deep linked into when matched with a [DeepLinkRequest]
@@ -338,7 +339,8 @@ internal object UriPatternParser {
         val scheme = uriPattern.getScheme()
         when {
             scheme == null -> uriRegex.append(DEFAULT_SCHEME_PATTERN)
-            scheme.startsWith("http", true) -> uriRegex.append(DEFAULT_SCHEME_PATTERN)
+            scheme.equals("https", true) -> uriRegex.append(STRICT_SCHEME_PATTERN)
+            scheme.equals("http", true) -> uriRegex.append(DEFAULT_SCHEME_PATTERN)
             else -> uriRegex.append(Regex.escape(scheme)).append("://")
         }
         // parse authority
