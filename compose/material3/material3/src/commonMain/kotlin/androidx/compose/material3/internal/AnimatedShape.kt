@@ -17,221 +17,156 @@
 package androidx.compose.material3.internal
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterOpticallyCoefficient
 import androidx.compose.material3.ShapeWithHorizontalCenterOptically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Interpolatable
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
+/**
+ * A state class that manages the animation between different [CornerBasedShape]s.
+ *
+ * This class encapsulates the [Animatable] that drives the progress of the morphing animation, as
+ * well as the start and target shapes. It handles smoothly reversing the animation if the target
+ * shape changes back to the start shape before the animation finishes. It also caches the evaluated
+ * corner sizes for optical offset adjustments.
+ *
+ * @param initialShape the initial [CornerBasedShape] to start the state with
+ * @param spec the [FiniteAnimationSpec] used for the morphing animation
+ */
 @Stable
 internal class AnimatedShapeState(
-    val shape: RoundedCornerShape,
+    initialShape: CornerBasedShape,
     val spec: FiniteAnimationSpec<Float>,
 ) {
-    var size: Size = Size.Zero
-    var density: Density = Density(0f, 0f)
+    var startShape: CornerBasedShape = initialShape
+    var targetShape: CornerBasedShape = initialShape
+    val progress = Animatable(1f)
 
-    private var topStart: Animatable<Float, AnimationVector1D>? = null
+    private var cachedProgress: Float = -1f
+    private var cachedMorphedShape: CornerBasedShape? = null
 
-    private var topEnd: Animatable<Float, AnimationVector1D>? = null
+    /**
+     * Returns the interpolated shape based on [progress], caching the result to avoid allocations.
+     *
+     * This memoization avoids redundant calculations and allocations when querying the morphed
+     * shape multiple times during the same frame (e.g., in layout and draw phases).
+     *
+     * @return the interpolated [CornerBasedShape]
+     */
+    fun getMorphedShape(): CornerBasedShape {
+        val currentProgress = progress.value
+        val cached = cachedMorphedShape
 
-    private var bottomStart: Animatable<Float, AnimationVector1D>? = null
+        if (currentProgress == cachedProgress && cached != null) {
+            return cached
+        }
 
-    private var bottomEnd: Animatable<Float, AnimationVector1D>? = null
-
-    fun topStart(size: Size = this.size, density: Density = this.density): Float {
-        return (topStart ?: Animatable(shape.topStart.toPx(size, density)).also { topStart = it })
-            .value
+        val morphed =
+            Interpolatable.lerp(startShape, targetShape, currentProgress) as CornerBasedShape
+        cachedProgress = currentProgress
+        cachedMorphedShape = morphed
+        return morphed
     }
 
-    fun topEnd(size: Size = this.size, density: Density = this.density): Float {
-        return (topEnd ?: Animatable(shape.topEnd.toPx(size, density)).also { topEnd = it }).value
-    }
+    suspend fun animateToShape(newTarget: CornerBasedShape) {
+        if (targetShape == newTarget) return
 
-    fun bottomStart(size: Size = this.size, density: Density = this.density): Float {
-        return (bottomStart
-                ?: Animatable(shape.bottomStart.toPx(size, density)).also { bottomStart = it })
-            .value
-    }
+        if (newTarget == startShape) {
+            // The user reversed their action before the animation finished.
+            // To preserve a smooth momentum, we flip the progress and reverse the velocity.
+            startShape = targetShape
+            targetShape = newTarget
+            cachedMorphedShape = null
 
-    fun bottomEnd(size: Size = this.size, density: Density = this.density): Float {
-        return (bottomEnd
-                ?: Animatable(shape.bottomEnd.toPx(size, density)).also { bottomEnd = it })
-            .value
-    }
+            val p = progress.value
+            val v = progress.velocity
 
-    suspend fun animateToShape(shape: CornerBasedShape) = coroutineScope {
-        launch { topStart?.animateTo(shape.topStart.toPx(size, density), spec) }
-        launch { topEnd?.animateTo(shape.topEnd.toPx(size, density), spec) }
-        launch { bottomStart?.animateTo(shape.bottomStart.toPx(size, density), spec) }
-        launch { bottomEnd?.animateTo(shape.bottomEnd.toPx(size, density), spec) }
+            progress.snapTo(1f - p)
+            progress.animateTo(1f, spec, initialVelocity = -v)
+        } else {
+            // A new target. We must freeze the currently visible shape so we can morph gracefully
+            // towards the new one.
+            val currentProgress = progress.value
+            val capturedStart = startShape
+            val capturedTarget = targetShape
+
+            // Check if we are at the exact boundaries to prevent deep nesting of
+            // interpolated shapes which could otherwise lead to a StackOverflowError if
+            // the shape is toggled repeatedly.
+            startShape =
+                when (currentProgress) {
+                    1f -> capturedTarget
+                    0f -> capturedStart
+                    else -> {
+                        Interpolatable.lerp(capturedStart, capturedTarget, currentProgress)
+                            as CornerBasedShape
+                    }
+                }
+
+            targetShape = newTarget
+            cachedMorphedShape = null
+            progress.snapTo(0f)
+            progress.animateTo(1f, spec)
+        }
     }
 }
 
 @Composable
-private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
-    val density = LocalDensity.current
-    state.density = density
-
-    return remember(density, state) {
+internal fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
+    return remember(state) {
         object : ShapeWithHorizontalCenterOptically {
-            var clampedRange by mutableStateOf(0f..1f)
-
-            override fun offset(): Float {
-                val topStart = state.topStart().coerceIn(clampedRange)
-                val topEnd = state.topEnd().coerceIn(clampedRange)
-                val bottomStart = state.bottomStart().coerceIn(clampedRange)
-                val bottomEnd = state.bottomEnd().coerceIn(clampedRange)
-                val avgStart = (topStart + bottomStart) / 2
-                val avgEnd = (topEnd + bottomEnd) / 2
-                return CenterOpticallyCoefficient * (avgStart - avgEnd)
-            }
-
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
                 density: Density,
             ): Outline {
-                state.size = size
+                // Returns the cached shape or allocates a new one if progress advanced
+                val morphedShape = state.getMorphedShape()
 
-                clampedRange = 0f..size.height / 2
-                return state.shape
-                    .copy(
-                        topStart = CornerSize(state.topStart().coerceIn(clampedRange)),
-                        topEnd = CornerSize(state.topEnd().coerceIn(clampedRange)),
-                        bottomStart = CornerSize(state.bottomStart().coerceIn(clampedRange)),
-                        bottomEnd = CornerSize(state.bottomEnd().coerceIn(clampedRange)),
-                    )
-                    .createOutline(size, layoutDirection, density)
+                // Delegate outline creation to the morphed shape
+                return morphedShape.createOutline(size, layoutDirection, density)
+            }
+
+            override fun offset(size: Size, density: Density): Float {
+                val range = 0f..(size.height / 2f)
+                val morphedShape = state.getMorphedShape()
+
+                val tsVal = morphedShape.topStart.toPx(size, density).coerceIn(range)
+                val teVal = morphedShape.topEnd.toPx(size, density).coerceIn(range)
+                val bsVal = morphedShape.bottomStart.toPx(size, density).coerceIn(range)
+                val beVal = morphedShape.bottomEnd.toPx(size, density).coerceIn(range)
+
+                return CenterOpticallyCoefficient *
+                    (((tsVal + bsVal) / 2f) - ((teVal + beVal) / 2f))
             }
         }
     }
 }
 
-@Composable
-internal fun rememberAnimatedShape(
-    currentShape: RoundedCornerShape,
-    animationSpec: FiniteAnimationSpec<Float>,
-): Shape {
-    val state =
-        remember(animationSpec) { AnimatedShapeState(shape = currentShape, spec = animationSpec) }
-
-    val channel = remember { Channel<RoundedCornerShape>(Channel.CONFLATED) }
-
-    SideEffect { channel.trySend(currentShape) }
-    LaunchedEffect(state, channel) {
-        for (target in channel) {
-            val newTarget = channel.tryReceive().getOrNull() ?: target
-            launch { state.animateToShape(newTarget) }
-        }
-    }
-
-    return rememberAnimatedShape(state)
-}
-
-@Stable
-internal class AnimatedCornerBasedShapeState(
-    val shape: CornerBasedShape,
-    val spec: FiniteAnimationSpec<Float>,
-) {
-    var size: Size = Size.Zero
-    var density: Density = Density(0f, 0f)
-
-    private var topStart: Animatable<Float, AnimationVector1D>? = null
-
-    private var topEnd: Animatable<Float, AnimationVector1D>? = null
-
-    private var bottomStart: Animatable<Float, AnimationVector1D>? = null
-
-    private var bottomEnd: Animatable<Float, AnimationVector1D>? = null
-
-    fun topStart(size: Size = this.size, density: Density = this.density): Float {
-        return (topStart ?: Animatable(shape.topStart.toPx(size, density)).also { topStart = it })
-            .value
-    }
-
-    fun topEnd(size: Size = this.size, density: Density = this.density): Float {
-        return (topEnd ?: Animatable(shape.topEnd.toPx(size, density)).also { topEnd = it }).value
-    }
-
-    fun bottomStart(size: Size = this.size, density: Density = this.density): Float {
-        return (bottomStart
-                ?: Animatable(shape.bottomStart.toPx(size, density)).also { bottomStart = it })
-            .value
-    }
-
-    fun bottomEnd(size: Size = this.size, density: Density = this.density): Float {
-        return (bottomEnd
-                ?: Animatable(shape.bottomEnd.toPx(size, density)).also { bottomEnd = it })
-            .value
-    }
-
-    suspend fun animateToShape(shape: CornerBasedShape) = coroutineScope {
-        launch { topStart?.animateTo(shape.topStart.toPx(size, density), spec) }
-        launch { topEnd?.animateTo(shape.topEnd.toPx(size, density), spec) }
-        launch { bottomStart?.animateTo(shape.bottomStart.toPx(size, density), spec) }
-        launch { bottomEnd?.animateTo(shape.bottomEnd.toPx(size, density), spec) }
-    }
-}
-
-@Composable
-private fun rememberAnimatedShape(state: AnimatedCornerBasedShapeState): Shape {
-    val density = LocalDensity.current
-    state.density = density
-
-    return remember(density, state) {
-        object : ShapeWithHorizontalCenterOptically {
-            var clampedRange by mutableStateOf(0f..1f)
-
-            override fun offset(): Float {
-                val topStart = state.topStart().coerceIn(clampedRange)
-                val topEnd = state.topEnd().coerceIn(clampedRange)
-                val bottomStart = state.bottomStart().coerceIn(clampedRange)
-                val bottomEnd = state.bottomEnd().coerceIn(clampedRange)
-                val avgStart = (topStart + bottomStart) / 2
-                val avgEnd = (topEnd + bottomEnd) / 2
-                return CenterOpticallyCoefficient * (avgStart - avgEnd)
-            }
-
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density,
-            ): Outline {
-                state.size = size
-
-                clampedRange = 0f..size.height / 2
-                return RoundedCornerShape(
-                        topStart = state.topStart().coerceIn(clampedRange),
-                        topEnd = state.topEnd().coerceIn(clampedRange),
-                        bottomStart = state.bottomStart().coerceIn(clampedRange),
-                        bottomEnd = state.bottomEnd().coerceIn(clampedRange),
-                    )
-                    .createOutline(size, layoutDirection, density)
-            }
-        }
-    }
-}
-
+/**
+ * Resolves and remembers a [Shape] that smoothly morphs between different [CornerBasedShape]s.
+ *
+ * Note that this animation utility is designed specifically for animating the corner sizes of the
+ * same shape family (e.g., from a [androidx.compose.foundation.shape.RoundedCornerShape] to another
+ * [androidx.compose.foundation.shape.RoundedCornerShape]). If the provided shapes belong to
+ * different families (e.g., from a [androidx.compose.foundation.shape.CutCornerShape] to a
+ * [androidx.compose.foundation.shape.RoundedCornerShape]), no smooth interpolation will occur, and
+ * the shape will immediately snap to the target shape.
+ *
+ * @param currentShape the current [CornerBasedShape] to display or morph to
+ * @param animationSpec the [FiniteAnimationSpec] to use for the morphing animation
+ * @return a [Shape] that smoothly animates the corner radii
+ */
 @Composable
 internal fun rememberAnimatedShape(
     currentShape: CornerBasedShape,
@@ -239,18 +174,10 @@ internal fun rememberAnimatedShape(
 ): Shape {
     val state =
         remember(animationSpec) {
-            AnimatedCornerBasedShapeState(shape = currentShape, spec = animationSpec)
+            AnimatedShapeState(initialShape = currentShape, spec = animationSpec)
         }
 
-    val channel = remember { Channel<CornerBasedShape>(Channel.CONFLATED) }
-
-    SideEffect { channel.trySend(currentShape) }
-    LaunchedEffect(state, channel) {
-        for (target in channel) {
-            val newTarget = channel.tryReceive().getOrNull() ?: target
-            launch { state.animateToShape(newTarget) }
-        }
-    }
+    LaunchedEffect(currentShape, state) { state.animateToShape(currentShape) }
 
     return rememberAnimatedShape(state)
 }
