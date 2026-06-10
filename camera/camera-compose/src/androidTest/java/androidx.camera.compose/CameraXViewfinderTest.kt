@@ -40,14 +40,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pinch
 import androidx.concurrent.futures.await
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
@@ -76,6 +81,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -418,6 +424,98 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         composeTest.waitUntil(timeoutMillis = 10000) {
             currentStreamState.get() == Preview.STREAM_STATE_IDLE
         }
+    }
+
+    @Test
+    fun cameraxViewfinder_tapToFocus_triggersCallback() = runViewfinderTest {
+        var isTapped = false
+        var tappedOffset = Offset.Zero
+        composeTest.setContent {
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    isTapToFocusEnabled = true,
+                    onTapToFocus = { offset, _ ->
+                        isTapped = true
+                        tappedOffset = offset
+                    },
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        startCamera()
+        surfaceRequests.filterNotNull().first()
+        composeTest.awaitIdle()
+
+        composeTest.onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG).performTouchInput {
+            click(Offset(100f, 100f))
+        }
+
+        composeTest.awaitIdle()
+        assertThat(isTapped).isTrue()
+        assertThat(tappedOffset).isEqualTo(Offset(100f, 100f))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun cameraxViewfinder_pinchToZoom_triggersCallback() = runViewfinderTest {
+        var latestZoomRatio = 1f
+        composeTest.setContent {
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    isPinchToZoomEnabled = true,
+                    onZoomRatioChanged = { ratio -> latestZoomRatio = ratio },
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        val camera = startCamera()
+        Assume.assumeTrue(
+            camera.cameraInfo.zoomState.value!!.maxZoomRatio >
+                camera.cameraInfo.zoomState.value!!.minZoomRatio
+        )
+        surfaceRequests.filterNotNull().first()
+        composeTest.awaitIdle()
+
+        composeTest.onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG).performTouchInput {
+            pinch(
+                start0 = Offset(centerX - 10f, centerY),
+                end0 = Offset(centerX - 50f, centerY),
+                start1 = Offset(centerX + 10f, centerY),
+                end1 = Offset(centerX + 50f, centerY),
+            )
+        }
+
+        composeTest.awaitIdle()
+        assertThat(latestZoomRatio).isGreaterThan(1f)
+    }
+
+    @Test
+    fun cameraxViewfinder_screenFlashReady_triggersCallback() = runViewfinderTest {
+        var isScreenFlashReady = false
+        composeTest.setContent {
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            val context = LocalContext.current
+            val window = (context as? android.app.Activity)?.window
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    onScreenFlashReady = { isScreenFlashReady = true },
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        startCamera()
+        surfaceRequests.filterNotNull().first()
+        composeTest.awaitIdle()
+
+        assertThat(isScreenFlashReady).isTrue()
     }
 
     companion object {

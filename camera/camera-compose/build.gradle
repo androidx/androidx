@@ -30,14 +30,16 @@ plugins {
 
 dependencies {
     api(project(":camera:camera-core"))
-    api("androidx.compose.ui:ui:1.7.8")
+    api("androidx.compose.ui:ui:1.11.2")
+    implementation("androidx.compose.foundation:foundation:1.11.2")
     // TODO(b/357895362): Switch to pinned dependencies when stable is released
     api(project(":camera:viewfinder:viewfinder-compose"))
     api(project(":camera:viewfinder:viewfinder-core"))
-    implementation("androidx.compose.foundation:foundation-layout:1.6.1")
-    implementation("androidx.compose.runtime:runtime:1.7.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.11.2")
+    implementation("androidx.compose.runtime:runtime:1.11.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesGuava)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
