@@ -419,6 +419,31 @@ package androidx.pdf.models {
 
 }
 
+package androidx.pdf.ocr {
+
+  public interface OcrProvider extends java.io.Closeable {
+    method public void close();
+    method public suspend Object? recognizeText(android.graphics.Bitmap image, kotlin.coroutines.Continuation<? super androidx.pdf.ocr.OcrResult?>);
+  }
+
+  public interface OcrResult {
+    method public androidx.pdf.ocr.OcrText getAllText();
+    method @WorkerThread public java.util.List<java.util.List<android.graphics.Rect>> getSearchBounds(String searchTerm, optional boolean ignoreCase);
+    method @BytecodeOnly @WorkerThread public static java.util.List! getSearchBounds$default(androidx.pdf.ocr.OcrResult!, String!, boolean, int, Object!);
+    method public androidx.pdf.ocr.OcrText getText(int startX, int startY, int endX, int endY);
+    method public androidx.pdf.ocr.OcrText? getWordAt(int x, int y);
+  }
+
+  public final class OcrText {
+    ctor public OcrText(String text, java.util.List<android.graphics.Rect> bounds);
+    method @InaccessibleFromKotlin public java.util.List<android.graphics.Rect> getBounds();
+    method @InaccessibleFromKotlin public String getText();
+    property public java.util.List<android.graphics.Rect> bounds;
+    property public String text;
+  }
+
+}
+
 package androidx.pdf.selection {
 
   public abstract class ContextMenuComponent {
@@ -578,6 +603,7 @@ package androidx.pdf.view {
     method public final void setLinkClickListener(androidx.pdf.view.PdfView.LinkClickListener? listener);
     method @InaccessibleFromKotlin public final void setMaxZoom(@FloatRange(from=0.5, to=25.0) float);
     method @InaccessibleFromKotlin public final void setMinZoom(@FloatRange(from=0.5, to=25.0) float);
+    method public final void setOcrProvider(androidx.pdf.ocr.OcrProvider? ocrProvider);
     method @InaccessibleFromKotlin public final void setPagesPerRow(int);
     method @InaccessibleFromKotlin public final void setPdfDocument(androidx.pdf.PdfDocument?);
     method @InaccessibleFromKotlin public final void setVerticalAlignment(int);

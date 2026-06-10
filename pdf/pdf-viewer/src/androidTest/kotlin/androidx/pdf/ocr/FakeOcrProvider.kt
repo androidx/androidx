@@ -17,7 +17,6 @@
 package androidx.pdf.ocr
 
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.Rect
 import kotlin.math.pow
 
@@ -31,14 +30,14 @@ class FakeOcrResult(
     private val characters: List<OcrText> = emptyList(),
     private val words: List<OcrText> = emptyList(),
 ) : OcrResult {
-    override suspend fun getAllText(): OcrText =
+    override fun getAllText(): OcrText =
         OcrText(words.joinToString(" ") { it.text }, words.flatMap { it.bounds })
 
-    override suspend fun getText(startPoint: Point, endPoint: Point): OcrText {
+    override fun getText(startX: Int, startY: Int, endX: Int, endY: Int): OcrText {
         if (characters.isEmpty()) return OcrText("", emptyList())
 
-        val startIndex = findClosestCharacterIndex(startPoint)
-        val endIndex = findClosestCharacterIndex(endPoint)
+        val startIndex = findClosestCharacterIndex(startX, startY)
+        val endIndex = findClosestCharacterIndex(endX, endY)
 
         val range = if (startIndex <= endIndex) startIndex..endIndex else endIndex..startIndex
         val selectedChars = characters.slice(range)
@@ -49,25 +48,19 @@ class FakeOcrResult(
         )
     }
 
-    override suspend fun getWordAt(point: Point): OcrText? {
-        return words.find { word -> word.bounds.any { it.contains(point.x, point.y) } }
+    override fun getWordAt(x: Int, y: Int): OcrText? {
+        return words.find { word -> word.bounds.any { it.contains(x, y) } }
     }
 
-    override suspend fun getSearchBounds(
-        searchTerm: String,
-        ignoreCase: Boolean,
-    ): List<List<Rect>> {
-        return words
-            .filter { it.text.contains(searchTerm, ignoreCase = ignoreCase) }
-            .map { it.bounds }
+    override fun getSearchBounds(searchTerm: String, ignoreCase: Boolean): List<List<Rect>> {
+        return words.filter { it.text.contains(searchTerm, ignoreCase) }.map { it.bounds }
     }
 
-    private fun findClosestCharacterIndex(point: Point): Int {
+    private fun findClosestCharacterIndex(x: Int, y: Int): Int {
         return characters.indices.minByOrNull { i ->
             val bounds = characters[i].bounds.first()
             val distSq =
-                (bounds.centerX() - point.x).toFloat().pow(2) +
-                    (bounds.centerY() - point.y).toFloat().pow(2)
+                (bounds.centerX() - x).toFloat().pow(2) + (bounds.centerY() - y).toFloat().pow(2)
             distSq
         } ?: 0
     }

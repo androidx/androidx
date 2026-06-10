@@ -36,34 +36,35 @@ public data class OcrContext(
 )
 
 /** Gets all recognized text in the image in PDF coordinates. */
-internal suspend fun OcrContext.getAllText(): TextSelection {
+internal fun OcrContext.getAllText(): TextSelection {
     val ocrAllText = ocrResult.getAllText()
     return TextSelection(ocrAllText.text, mapOcrTextToPdfBounds(ocrAllText))
 }
 
 /** Searches for occurrences of the [query] and returns their bounding boxes in PDF coordinates. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public suspend fun OcrContext.search(query: String, ignoreCase: Boolean = true): List<List<RectF>> {
+public fun OcrContext.search(query: String, ignoreCase: Boolean = true): List<List<RectF>> {
     return ocrResult.getSearchBounds(query, ignoreCase).map { match ->
         match.map { ocrRect -> ocrRect.toPdfRect(pageNum, imageRect, bitmapSize).toRectF() }
     }
 }
 
 /** Gets text between two [PdfPoint]s on the page. */
-internal suspend fun OcrContext.getText(startPoint: PdfPoint, endPoint: PdfPoint): TextSelection {
+internal fun OcrContext.getText(startPoint: PdfPoint, endPoint: PdfPoint): TextSelection {
     val startImagePoint = startPoint.toImagePoint(imageRect, bitmapSize)
     val endImagePoint = endPoint.toImagePoint(imageRect, bitmapSize)
 
-    val ocrText = ocrResult.getText(startImagePoint, endImagePoint)
+    val ocrText =
+        ocrResult.getText(startImagePoint.x, startImagePoint.y, endImagePoint.x, endImagePoint.y)
     return TextSelection(ocrText.text, mapOcrTextToPdfBounds(ocrText))
 }
 
 /** Returns the word and its bounding boxes at the specified coordinate. */
-internal suspend fun OcrContext.getWordAt(point: PdfPoint): TextSelection? {
+internal fun OcrContext.getWordAt(point: PdfPoint): TextSelection? {
     if (!imageRect.contains(point.x, point.y)) return null
     val imagePoint = point.toImagePoint(imageRect, bitmapSize)
 
-    val ocrText = ocrResult.getWordAt(imagePoint) ?: return null
+    val ocrText = ocrResult.getWordAt(imagePoint.x, imagePoint.y) ?: return null
     return TextSelection(ocrText.text, mapOcrTextToPdfBounds(ocrText))
 }
 

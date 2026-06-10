@@ -37,6 +37,7 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.R
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.models.FormEditInfo
+import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.view.PdfView
 import kotlin.random.Random
@@ -50,6 +51,7 @@ import kotlin.random.Random
  * @param isFormFillingEnabled boolean flag to enable / disable the form-filling feature surface.
  * @param isImageSelectionEnabled boolean flag to enable / disable the image-selection feature
  *   surface.
+ * @param ocrProvider an [OcrProvider] instance to be used for text recognition in image PDF content
  * @param minZoom the minimum zoom / scaling factor that can be applied to the PDF viewer
  * @param maxZoom the maximum zoom / scaling factor that can be applied to the PDF viewer
  * @param verticalAlignment the alignment of the top page within the view
@@ -78,6 +80,7 @@ public fun PdfViewer(
     modifier: Modifier = Modifier,
     isFormFillingEnabled: Boolean = false,
     isImageSelectionEnabled: Boolean = false,
+    ocrProvider: OcrProvider? = null,
     minZoom: Float = PdfView.MIN_PERMISSIBLE_ZOOM,
     maxZoom: Float = PdfView.MAX_PERMISSIBLE_ZOOM,
     verticalAlignment: Int = PdfView.VERTICAL_ALIGNMENT_CENTER,
@@ -172,6 +175,7 @@ public fun PdfViewer(
             view.horizontalPageSpacing = horizontalPageSpacingPx
             view.verticalPageSpacing = verticalPageSpacingPx
             view.isImageSelectionEnabled = isImageSelectionEnabled
+            view.setOcrProvider(ocrProvider)
         },
     )
 }

@@ -310,7 +310,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      *
      * @param ocrProvider the [OcrProvider] to use for text recognition
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setOcrProvider(ocrProvider: OcrProvider?) {
         checkMainThread()
         if (this@PdfView.ocrProvider == ocrProvider) return
