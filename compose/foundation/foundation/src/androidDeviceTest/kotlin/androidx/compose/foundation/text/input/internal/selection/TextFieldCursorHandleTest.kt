@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TouchInputModeManager
 import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -48,8 +49,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -276,6 +280,31 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performClick()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+    }
+
+    @Test
+    fun cursorHandle_notVisibleInKeyboardInputMode() {
+        val inputModeManager =
+            object : InputModeManager {
+                override val inputMode = InputMode.Keyboard
+
+                override fun requestInputMode(inputMode: InputMode): Boolean = false
+            }
+
+        state = TextFieldState()
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalInputModeManager provides inputModeManager) {
+                BasicTextField(
+                    state,
+                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                    modifier = Modifier.testTag(TAG),
+                )
+            }
+        }
+
+        focusAndWait()
+
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
     }
 
@@ -1017,12 +1046,14 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     fun cursorHandle_disappears_whenInputConnectionSetSelection() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(100.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(100.dp),
+                    )
+                }
             }
         }
 
@@ -1042,12 +1073,14 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     fun cursorHandle_disappears_whenInputConnectionSendKeyEvent() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(300.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(300.dp),
+                    )
+                }
             }
         }
 
