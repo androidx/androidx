@@ -249,6 +249,93 @@ fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.colors(),
     layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
+    TimePickerImpl(state, modifier, colors, layoutType)
+}
+
+/**
+ * [Material Design time picker](https://m3.material.io/components/time-pickers/overview)
+ *
+ * Time pickers help users select and set a specific time.
+ *
+ * Rich time pickers have a more prominent layout and are suitable for larger screens or situations
+ * where the time picker is the main focus of the UI.
+ *
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
+ *   picker in different states.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ *   time picker in different states. See [TimePickerDefaults.richColors].
+ * @param layoutType, the different [TimePickerLayoutType] supported by this time picker, it will
+ *   change the position and sizing of different components of the timepicker.
+ */
+@Composable
+fun TimePicker(
+    state: TimePickerState,
+    shapes: TimePickerShapes,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.richColors(),
+    layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
+) {
+    TimePickerImpl(state, modifier, colors, layoutType, shapes)
+}
+
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows a time input that allows the user to enter the time via two text fields, one for minutes
+ * and one for hours Subscribe to updates through [TimePickerState]
+ *
+ * @sample androidx.compose.material3.samples.TimeInputSample
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ *   time input in different states. See [TimePickerDefaults.colors].
+ */
+@Composable
+fun TimeInput(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+) {
+    TimeInputImpl(modifier, colors, state)
+}
+
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows a rich time input that allows the user to enter the time via two text fields, one for
+ * minutes and one for hours Subscribe to updates through [TimePickerState]
+ *
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
+ *   input in different states.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ *   time input in different states. See [TimePickerDefaults.richColors].
+ */
+@Composable
+fun TimeInput(
+    state: TimePickerState,
+    shapes: TimePickerShapes,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.richColors(),
+) {
+    TimeInputImpl(modifier, colors, state, shapes)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun TimePickerImpl(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+    layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
+    shapes: TimePickerShapes? = null,
+) {
     val a11yServicesEnabled by rememberAccessibilityServiceState()
     val isKeyboardMode = LocalInputModeManager.current.inputMode == InputMode.Keyboard
     val autoSwitch = !a11yServicesEnabled && !isKeyboardMode
@@ -271,6 +358,7 @@ fun TimePicker(
             modifier = modifier,
             colors = colors,
             autoSwitchToMinute = autoSwitch,
+            shapes = shapes,
         )
     } else {
         HorizontalTimePicker(
@@ -278,56 +366,9 @@ fun TimePicker(
             modifier = modifier,
             colors = colors,
             autoSwitchToMinute = autoSwitch,
+            shapes = shapes,
         )
     }
-}
-
-/**
- * Time pickers help users select and set a specific time.
- *
- * Shows a time input that allows the user to enter the time via two text fields, one for minutes
- * and one for hours Subscribe to updates through [TimePickerState]
- *
- * @sample androidx.compose.material3.samples.TimeInputSample
- * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
- *   and [TimePickerState.minute], and set the initial time for this picker.
- * @param modifier the [Modifier] to be applied to this time input
- * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
- *   time input in different states. See [TimePickerDefaults.colors].
- */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun TimeInput(
-    state: TimePickerState,
-    modifier: Modifier = Modifier,
-    colors: TimePickerColors = TimePickerDefaults.colors(),
-) {
-    TimeInputImpl(modifier, colors, state)
-}
-
-/**
- * Time pickers help users select and set a specific time.
- *
- * Shows a rich time input that allows the user to enter the time via two text fields, one for
- * minutes and one for hours Subscribe to updates through [TimePickerState]
- *
- * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
- *   and [TimePickerState.minute], and set the initial time for this picker.
- * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
- *   input in different states.
- * @param modifier the [Modifier] to be applied to this time input
- * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
- *   time input in different states. See [TimePickerDefaults.colors].
- */
-@Composable
-@ExperimentalMaterial3ExpressiveApi
-fun TimeInput(
-    state: TimePickerState,
-    shapes: TimePickerShapes,
-    modifier: Modifier = Modifier,
-    colors: TimePickerColors = TimePickerDefaults.colors(),
-) {
-    TimeInputImpl(modifier, colors, state, shapes)
 }
 
 /** Contains the default values used by [TimePicker] */
@@ -399,6 +440,71 @@ object TimePickerDefaults {
             timeSelectorUnselectedContentColor = timeSelectorUnselectedContentColor,
         )
 
+    /** Default colors used by a rich [TimePicker] in different states */
+    @Composable fun richColors() = MaterialTheme.colorScheme.defaultRichTimePickerColors
+
+    /**
+     * Default colors used by a rich [TimePicker] in different states
+     *
+     * @param clockDialColor The color of the clock dial.
+     * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they are
+     *   selected or overlapping with the selector
+     * @param clockDialUnselectedContentColor the color of the numbers of the clock dial when they
+     *   are unselected
+     * @param selectorColor The color of the clock dial selector.
+     * @param containerColor The container color of the time picker.
+     * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle.
+     * @param periodSelectorSelectedContainerColor the color used for the selected container of the
+     *   AM/PM toggle
+     * @param periodSelectorUnselectedContainerColor the color used for the unselected container of
+     *   the AM/PM toggle
+     * @param periodSelectorSelectedContentColor color used for the selected content of the AM/PM
+     *   toggle
+     * @param periodSelectorUnselectedContentColor color used for the unselected content of the
+     *   AM/PM toggle
+     * @param timeSelectorSelectedContainerColor color used for the selected container of the
+     *   display buttons to switch between hour and minutes
+     * @param timeSelectorUnselectedContainerColor color used for the unselected container of the
+     *   display buttons to switch between hour and minutes
+     * @param timeSelectorSelectedContentColor color used for the selected content of the display
+     *   buttons to switch between hour and minutes
+     * @param timeSelectorUnselectedContentColor color used for the unselected content of the
+     *   display buttons to switch between hour and minutes
+     */
+    @Composable
+    fun richColors(
+        clockDialColor: Color = Color.Unspecified,
+        clockDialSelectedContentColor: Color = Color.Unspecified,
+        clockDialUnselectedContentColor: Color = Color.Unspecified,
+        selectorColor: Color = Color.Unspecified,
+        containerColor: Color = Color.Unspecified,
+        periodSelectorBorderColor: Color = Color.Unspecified,
+        periodSelectorSelectedContainerColor: Color = Color.Unspecified,
+        periodSelectorUnselectedContainerColor: Color = Color.Unspecified,
+        periodSelectorSelectedContentColor: Color = Color.Unspecified,
+        periodSelectorUnselectedContentColor: Color = Color.Unspecified,
+        timeSelectorSelectedContainerColor: Color = Color.Unspecified,
+        timeSelectorUnselectedContainerColor: Color = Color.Unspecified,
+        timeSelectorSelectedContentColor: Color = Color.Unspecified,
+        timeSelectorUnselectedContentColor: Color = Color.Unspecified,
+    ) =
+        MaterialTheme.colorScheme.defaultRichTimePickerColors.copy(
+            clockDialColor = clockDialColor,
+            clockDialSelectedContentColor = clockDialSelectedContentColor,
+            clockDialUnselectedContentColor = clockDialUnselectedContentColor,
+            selectorColor = selectorColor,
+            containerColor = containerColor,
+            periodSelectorBorderColor = periodSelectorBorderColor,
+            periodSelectorSelectedContainerColor = periodSelectorSelectedContainerColor,
+            periodSelectorUnselectedContainerColor = periodSelectorUnselectedContainerColor,
+            periodSelectorSelectedContentColor = periodSelectorSelectedContentColor,
+            periodSelectorUnselectedContentColor = periodSelectorUnselectedContentColor,
+            timeSelectorSelectedContainerColor = timeSelectorSelectedContainerColor,
+            timeSelectorUnselectedContainerColor = timeSelectorUnselectedContainerColor,
+            timeSelectorSelectedContentColor = timeSelectorSelectedContentColor,
+            timeSelectorUnselectedContentColor = timeSelectorUnselectedContentColor,
+        )
+
     internal val ColorScheme.defaultTimePickerColors: TimePickerColors
         get() {
             return defaultTimePickerColorsCached
@@ -442,15 +548,43 @@ object TimePickerDefaults {
                     .also { defaultTimePickerColorsCached = it }
         }
 
+    internal val ColorScheme.defaultRichTimePickerColors: TimePickerColors
+        get() {
+            return defaultRichTimePickerColorsCached
+                ?: TimePickerColors(
+                        clockDialColor = fromToken(ColorSchemeKeyTokens.SurfaceContainerLowest),
+                        clockDialSelectedContentColor = fromToken(ClockDialSelectedLabelTextColor),
+                        clockDialUnselectedContentColor =
+                            fromToken(ClockDialUnselectedLabelTextColor),
+                        selectorColor = fromToken(ClockDialSelectorHandleContainerColor),
+                        containerColor = fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                        periodSelectorBorderColor = fromToken(PeriodSelectorOutlineColor),
+                        periodSelectorSelectedContainerColor =
+                            fromToken(ColorSchemeKeyTokens.PrimaryContainer),
+                        periodSelectorUnselectedContainerColor =
+                            fromToken(ColorSchemeKeyTokens.SurfaceContainerLowest),
+                        periodSelectorSelectedContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnPrimaryContainer),
+                        periodSelectorUnselectedContentColor =
+                            fromToken(PeriodSelectorUnselectedLabelTextColor),
+                        timeSelectorSelectedContainerColor =
+                            fromToken(ColorSchemeKeyTokens.SurfaceContainerLowest),
+                        timeSelectorUnselectedContainerColor =
+                            fromToken(ColorSchemeKeyTokens.SurfaceContainerLowest),
+                        timeSelectorSelectedContentColor = fromToken(ColorSchemeKeyTokens.Primary),
+                        timeSelectorUnselectedContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface),
+                    )
+                    .also { defaultRichTimePickerColorsCached = it }
+        }
+
     /** Default layout type, uses the screen dimensions to choose an appropriate layout. */
     @ReadOnlyComposable
     @Composable
     fun layoutType(): TimePickerLayoutType = defaultTimePickerLayoutType
 
     /** Default shapes used by a [TimePicker] */
-    @Composable
-    @ExperimentalMaterial3ExpressiveApi
-    fun shapes() = MaterialTheme.shapes.defaultTimePickerShapes
+    @Composable fun shapes() = MaterialTheme.shapes.defaultTimePickerShapes
 
     /**
      * Default shapes used by a [TimePicker]
@@ -459,7 +593,6 @@ object TimePickerDefaults {
      * @param periodSelectorShape the shape used for the AM/PM toggle.
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun shapes(
         timeFieldShape: Shape? = null,
         periodSelectorShape: Shape? = null,
@@ -469,7 +602,6 @@ object TimePickerDefaults {
             periodSelectorShape = periodSelectorShape,
         )
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultTimePickerShapes: TimePickerShapes
         get() {
             return defaultTimePickerShapesCached
@@ -487,7 +619,6 @@ object TimePickerDefaults {
  * @property timeFieldShape is the shape used for the time fields.
  * @property periodSelectorShape is the shape used for the AM/PM toggle.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class TimePickerShapes(val timeFieldShape: Shape, val periodSelectorShape: Shape) {
     /** Returns a copy of this TimePickerShapes, optionally overriding some of the values. */
@@ -1175,12 +1306,13 @@ internal fun VerticalTimePicker(
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
     autoSwitchToMinute: Boolean,
+    shapes: TimePickerShapes? = null,
 ) {
     Column(
         modifier = modifier.semantics { isTraversalGroup = true },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        VerticalClockDisplay(state = state, colors = colors)
+        VerticalClockDisplay(state = state, colors = colors, shapes = shapes)
         Spacer(modifier = Modifier.height(ClockDisplayBottomMargin))
         ClockFace(
             modifier = Modifier.size(ClockDialContainerSize),
@@ -1198,12 +1330,13 @@ internal fun HorizontalTimePicker(
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
     autoSwitchToMinute: Boolean,
+    shapes: TimePickerShapes? = null,
 ) {
     Row(
         modifier = modifier.semantics { isTraversalGroup = true },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        HorizontalClockDisplay(state, colors)
+        HorizontalClockDisplay(state, colors, shapes)
         Spacer(modifier = Modifier.width(ClockDisplayBottomMargin))
         ClockFace(
             modifier = Modifier.then(ClockFaceSizeModifier()),
@@ -1214,7 +1347,6 @@ internal fun HorizontalTimePicker(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TimeInputImpl(
     modifier: Modifier,
@@ -1371,11 +1503,14 @@ private fun TimeInputImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun HorizontalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
+private fun HorizontalClockDisplay(
+    state: TimePickerState,
+    colors: TimePickerColors,
+    shapes: TimePickerShapes? = null,
+) {
     Column(verticalArrangement = Arrangement.Center) {
-        ClockDisplayNumbers(state, colors)
+        ClockDisplayNumbers(state, colors, shapes)
         if (!state.is24hour) {
             Box(modifier = Modifier.padding(top = PeriodTogglePaddingLarge)) {
                 HorizontalPeriodToggle(
@@ -1386,21 +1521,25 @@ private fun HorizontalClockDisplay(state: TimePickerState, colors: TimePickerCol
                         ),
                     state = state,
                     colors = colors,
+                    shapes = shapes,
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun VerticalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
+private fun VerticalClockDisplay(
+    state: TimePickerState,
+    colors: TimePickerColors,
+    shapes: TimePickerShapes? = null,
+) {
     val startPadding =
         if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
         else PeriodTogglePaddingOld
 
     Row(horizontalArrangement = Arrangement.Center) {
-        ClockDisplayNumbers(state, colors)
+        ClockDisplayNumbers(state, colors, shapes)
         if (!state.is24hour) {
             Box(modifier = Modifier.padding(start = startPadding)) {
                 VerticalPeriodToggle(
@@ -1411,15 +1550,19 @@ private fun VerticalClockDisplay(state: TimePickerState, colors: TimePickerColor
                         ),
                     state = state,
                     colors = colors,
+                    shapes = shapes,
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors) {
+private fun ClockDisplayNumbers(
+    state: TimePickerState,
+    colors: TimePickerColors,
+    shapes: TimePickerShapes? = null,
+) {
     val scope = rememberCoroutineScope()
 
     val onActivate: () -> Unit = {
@@ -1452,6 +1595,7 @@ private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors
                 selection = TimePickerSelectionMode.Hour,
                 colors = colors,
                 isValid = true,
+                shapes = shapes,
                 onSelectorActivated = onActivate,
             )
             DisplaySeparator(
@@ -1480,13 +1624,13 @@ private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors
                 selection = TimePickerSelectionMode.Minute,
                 colors = colors,
                 isValid = true,
+                shapes = shapes,
                 onSelectorActivated = onActivate,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HorizontalPeriodToggle(
     modifier: Modifier,
@@ -1494,7 +1638,7 @@ private fun HorizontalPeriodToggle(
     colors: TimePickerColors,
     shapes: TimePickerShapes? = null,
 ) {
-    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes != null
     val measurePolicy =
         if (useUpdatedToggle) {
             MeasurePolicy { measurables, constraints ->
@@ -1551,10 +1695,10 @@ private fun HorizontalPeriodToggle(
         measurePolicy = measurePolicy,
         startShape = shape.start(),
         endShape = shape.end(),
+        shapes = shapes,
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VerticalPeriodToggle(
     modifier: Modifier,
@@ -1562,7 +1706,7 @@ private fun VerticalPeriodToggle(
     colors: TimePickerColors,
     shapes: TimePickerShapes? = null,
 ) {
-    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes != null
     val measurePolicy =
         if (useUpdatedToggle) {
             MeasurePolicy { measurables, constraints ->
@@ -1622,10 +1766,10 @@ private fun VerticalPeriodToggle(
         measurePolicy = measurePolicy,
         startShape = shape.top(),
         endShape = shape.bottom(),
+        shapes = shapes,
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PeriodToggleImpl(
     modifier: Modifier,
@@ -1634,10 +1778,11 @@ private fun PeriodToggleImpl(
     measurePolicy: MeasurePolicy,
     startShape: Shape,
     endShape: Shape,
+    shapes: TimePickerShapes? = null,
 ) {
     val style = PeriodSelectorLabelTextFont.value
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
-    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes != null
 
     Layout(
         modifier =
@@ -1679,6 +1824,7 @@ private fun PeriodToggleImpl(
                         }
                     },
                     colors = colors,
+                    shapes = shapes,
                 ) {
                     Text(
                         // If checked (AM is active), copy the style with Bold weight
@@ -1695,6 +1841,7 @@ private fun PeriodToggleImpl(
                         }
                     },
                     colors = colors,
+                    shapes = shapes,
                 ) {
                     Text(
                         // If checked (PM is active), copy the style with Bold weight
@@ -1738,16 +1885,16 @@ private fun PeriodToggleImpl(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ToggleItem(
     checked: Boolean,
     onClick: () -> Unit,
     colors: TimePickerColors,
     shape: Shape = CircleShape,
+    shapes: TimePickerShapes? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes != null
     if (useUpdatedToggle) {
         val toggleButtonColors =
             ToggleButtonDefaults.toggleButtonColors(
@@ -1814,7 +1961,7 @@ private fun DisplaySeparator(modifier: Modifier) {
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TimeSelector(
     modifier: Modifier,
     value: Int,
@@ -2511,7 +2658,7 @@ private fun SupportingText(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimePickerTextField(
     modifier: Modifier,
