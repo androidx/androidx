@@ -16,11 +16,13 @@
 
 package androidx.core.locationbutton
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
@@ -30,10 +32,14 @@ import android.util.Log
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResultRegistryOwner
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.use
 
 /**
@@ -43,8 +49,9 @@ import androidx.core.content.res.use
  * [Build.VERSION_CODES.CINNAMON_BUN].
  *
  * On platforms before [Build.VERSION_CODES.CINNAMON_BUN], the button click delegates to
- * [OnRequestPermissionsListener], allowing the app to handle the click (e.g., by requesting
- * permissions or showing UI to explain why the permission is needed).
+ * [OnRequestPermissionsListener] if provided, allowing the app to handle the click manually (e.g.,
+ * by requesting permissions or displaying rationale). If no custom listener is provided, the
+ * library automatically requests location permissions.
  */
 public class LocationButton
 @JvmOverloads
@@ -89,6 +96,8 @@ constructor(
     internal var onRequestPermissionsListener: OnRequestPermissionsListener? = null
     internal var onErrorListener: OnErrorListener? = null
 
+    internal var activityResultLauncher: ActivityResultLauncher<Array<String>>? = null
+
     /**
      * The [Activity] that hosts this button.
      *
@@ -98,18 +107,32 @@ constructor(
      */
     public var parentActivity: Activity? = null
         set(value) {
+            if (!isAttachedToWindow) {
+                field = value
+                return
+            }
+
             val oldActivity = findActivityOrNull()
             field = value
             val newActivity = findActivityOrNull()
 
-            if (isAttachedToWindow && isRemoteButtonSupported) {
-                if (newActivity != oldActivity) {
-                    if (isRemoteSessionActive) {
-                        closeSession()
-                    }
-                    if (newActivity != null) {
-                        openSession()
-                    }
+            if (oldActivity == newActivity) {
+                return
+            }
+
+            if (isRemoteButtonSupported) {
+                if (isRemoteSessionActive) {
+                    closeSession()
+                }
+                if (newActivity != null) {
+                    openSession()
+                }
+            } else {
+                if (newActivity != null) {
+                    registerForPermissionResult()
+                } else {
+                    activityResultLauncher?.unregister()
+                    activityResultLauncher = null
                 }
             }
         }
@@ -145,7 +168,12 @@ constructor(
         localButtonView = LocalLocationButton(context)
         if (!isRemoteButtonSupported) {
             localButtonView.setOnClickListener {
-                onRequestPermissionsListener?.onRequestPermissions()
+                val requestListener = onRequestPermissionsListener
+                if (requestListener != null) {
+                    requestListener.onRequestPermissions()
+                } else {
+                    handleDefaultPermissionRequest()
+                }
             }
         }
         addView(localButtonView)
@@ -165,6 +193,8 @@ constructor(
         super.onAttachedToWindow()
         if (isRemoteButtonSupported) {
             openSession()
+        } else {
+            registerForPermissionResult()
         }
     }
 
@@ -172,6 +202,8 @@ constructor(
         super.onDetachedFromWindow()
         removeCallbacks(openSessionRunnable)
         closeSession()
+        activityResultLauncher?.unregister()
+        activityResultLauncher = null
     }
 
     private fun openSession() {
@@ -180,6 +212,23 @@ constructor(
 
     private fun closeSession() {
         remoteDelegate?.closeSession(surfaceView)
+    }
+
+    private fun registerForPermissionResult() {
+        activityResultLauncher?.unregister()
+        activityResultLauncher = null
+        val activity = findActivityOrNull() ?: return
+
+        if (activity is ActivityResultRegistryOwner && id != View.NO_ID) {
+            activityResultLauncher =
+                activity.activityResultRegistry.register(
+                    "androidx.core.locationbutton.PERMISSION_REQUEST_KEY_$id",
+                    ActivityResultContracts.RequestMultiplePermissions(),
+                ) { results ->
+                    val granted = results[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+                    onPermissionResultListener?.onPermissionResult(granted)
+                }
+        }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -257,22 +306,33 @@ constructor(
     /**
      * Sets the listener to receive permission results.
      *
+     * **Note:** On platforms before [Build.VERSION_CODES.CINNAMON_BUN], if you rely on the default
+     * permission request flow (i.e. you do not provide a custom [OnRequestPermissionsListener]),
+     * the hosting [Activity] must implement [androidx.activity.result.ActivityResultRegistryOwner]
+     * and the [LocationButton] must have an `android:id` to deliver the permission result to this
+     * listener.
+     *
      * @param listener The [OnPermissionResultListener] that will handle callbacks, or null to clear
      *   a previously set listener.
      */
     public fun setOnPermissionResultListener(listener: OnPermissionResultListener?) {
-        this.onPermissionResultListener = listener
+        onPermissionResultListener = listener
     }
 
     /**
      * Sets the listener to handle permission requests on platforms before
      * [Build.VERSION_CODES.CINNAMON_BUN].
      *
+     * Provide this listener if you want to customize the permission request flow (e.g. to show
+     * rationale) or if the hosting [Activity] does not implement
+     * [androidx.activity.result.ActivityResultRegistryOwner] on platforms before
+     * [Build.VERSION_CODES.CINNAMON_BUN].
+     *
      * @param listener The [OnRequestPermissionsListener] that will handle callbacks, or null to
      *   clear a previously set listener.
      */
     public fun setOnRequestPermissionsListener(listener: OnRequestPermissionsListener?) {
-        this.onRequestPermissionsListener = listener
+        onRequestPermissionsListener = listener
     }
 
     /**
@@ -283,7 +343,7 @@ constructor(
      *   previously set listener.
      */
     public fun setOnErrorListener(listener: OnErrorListener?) {
-        this.onErrorListener = listener
+        onErrorListener = listener
     }
 
     private fun applyStyleAttributes(attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
@@ -518,6 +578,29 @@ constructor(
             context = context.baseContext
         }
         return null
+    }
+
+    private fun handleDefaultPermissionRequest() {
+        val launcher =
+            checkNotNull(activityResultLauncher) {
+                "Activity should support ActivityResultRegistry and LocationButton should have an `android:id`."
+            }
+
+        val hasFineLocation =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+
+        if (hasFineLocation) {
+            onPermissionResultListener?.onPermissionResult(true)
+            return
+        }
+
+        val permissions =
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+        launcher.launch(permissions)
     }
 
     // enforce restrictions on adding child views to this ViewGroup

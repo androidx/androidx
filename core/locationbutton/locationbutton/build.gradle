@@ -25,6 +25,7 @@ plugins {
 dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation(project(":lifecycle:lifecycle-runtime"))
 
     androidTestImplementation(project(":core:locationbutton:locationbutton-testing"))
     androidTestImplementation(libs.truth)

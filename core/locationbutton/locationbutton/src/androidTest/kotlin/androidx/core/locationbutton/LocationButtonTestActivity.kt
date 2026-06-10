@@ -16,14 +16,14 @@
 
 package androidx.core.locationbutton
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
 /**
  * A basic test [Activity] that applies an AppCompat theme to provide necessary attributes like
  * colorOnPrimary for custom views.
  */
-public class LocationButtonTestActivity : Activity() {
+public class LocationButtonTestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
