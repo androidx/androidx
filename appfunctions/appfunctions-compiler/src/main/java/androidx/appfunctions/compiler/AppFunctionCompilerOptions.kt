@@ -30,6 +30,11 @@ private constructor(
     val generateMetadataFromSchema: Boolean,
     /** The location where the app functions XML file should be generated. */
     val appFunctionsXmlLocation: String?,
+    /**
+     * Indicates whether the compiler should generate the v1 XML for AppFunctionServiceEntryPoint or
+     * not.
+     */
+    val generateV1Xml: Boolean,
 ) {
     companion object {
         private const val AGGREGATE_APP_FUNCTIONS_OPTION_KEY = "appfunctions:aggregateAppFunctions"
@@ -39,11 +44,14 @@ private constructor(
 
         private const val APP_FUNCTIONS_XML_LOCATION_KEY = "appfunctions:appFunctionsXmlLocation"
 
+        private const val GENERATE_V1_XML = "appfunctions:generateV1Xml"
+
         fun from(options: Map<String, String>): AppFunctionCompilerOptions {
             return AppFunctionCompilerOptions(
                 aggregateAppFunctions = getAggregateAppFunctionsOption(options),
                 generateMetadataFromSchema = getGenerateMetadataFromSchemaOption(options),
                 appFunctionsXmlLocation = options[APP_FUNCTIONS_XML_LOCATION_KEY],
+                generateV1Xml = getGenerateV1XmlOption(options),
             )
         }
 
@@ -68,6 +76,20 @@ private constructor(
                 throw ProcessingException(
                     message =
                         "Compiler option appfunctions:generateMetadataFromSchema should be either " +
+                            "`true` or `false`",
+                    symbol = null,
+                    throwable = e,
+                )
+            }
+        }
+
+        private fun getGenerateV1XmlOption(options: Map<String, String>): Boolean {
+            return try {
+                options[GENERATE_V1_XML]?.toBooleanStrict() ?: false
+            } catch (e: Exception) {
+                throw ProcessingException(
+                    message =
+                        "Compiler option appfunctions:generateLegacySchemaXml should be either " +
                             "`true` or `false`",
                     symbol = null,
                     throwable = e,

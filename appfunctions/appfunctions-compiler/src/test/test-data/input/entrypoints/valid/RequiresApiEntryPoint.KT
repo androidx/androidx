@@ -6,7 +6,7 @@ import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunction
 
 @RequiresApi(34)
-@AppFunctionServiceEntryPoint("MyRequiresApiService", "my_requires_api_service.xml")
+@AppFunctionServiceEntryPoint("MyRequiresApiService", "my_requires_api_service")
 abstract class RequiresApiEntryPoint: AppFunctionService() {
     @AppFunction
     internal fun simpleFunction(int: Int, string: String): String {

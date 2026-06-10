@@ -18,6 +18,7 @@ package androidx.appfunctions.compiler.processors
 
 import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.testings.CompilationTestHelper
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import org.junit.Before
 import org.junit.Test
@@ -59,6 +60,26 @@ class AppFunctionServiceEntryPointCompilerTest {
             expectGeneratedResourceFileName = "my_simple_service.xml",
             goldenFileName = "entrypoints/my_simple_service.xml",
         )
+        val legacySchemaXmlFile =
+            report.generatedResourceFiles.singleOrNull { resourceFile ->
+                resourceFile.resource.relativePath.contains("my_simple_service-v1.xml")
+            }
+        assertThat(legacySchemaXmlFile).isNull()
+    }
+
+    @Test
+    fun testAppFunctionEntryPoint_generatesV1Xml() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/SimpleEntryPoint.KT"),
+                processorOptions = mapOf("appfunctions:generateV1Xml" to "true"),
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_simple_service-v1.xml",
+            goldenFileName = "entrypoints/my_simple_service-v1.xml",
+        )
     }
 
     @Test
@@ -84,6 +105,11 @@ class AppFunctionServiceEntryPointCompilerTest {
             expectGeneratedResourceFileName = "my_extension_service.xml",
             goldenFileName = "entrypoints/my_extension_service.xml",
         )
+        val legacySchemaXmlFile =
+            report.generatedResourceFiles.singleOrNull { resourceFile ->
+                resourceFile.resource.relativePath.contains("my_extension_service-v1.xml")
+            }
+        assertThat(legacySchemaXmlFile).isNull()
     }
 
     @Test
