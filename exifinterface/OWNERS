@@ -1,2 +1,11 @@
 # Bug component: 461278
-file: ../media/OWNERS
+bachinger@google.com
+ibaker@google.com
+jbibik@google.com
+michaelkatz@google.com
+rohks@google.com
+tianyifeng@google.com
+tonihei@google.com
+
+# Escalations only:
+andrewlewis@google.com #{LAST_RESORT_SUGGESTION}
