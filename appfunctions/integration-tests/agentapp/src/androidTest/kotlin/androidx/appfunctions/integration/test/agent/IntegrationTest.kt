@@ -177,7 +177,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_returnsAllAppFunction_withDynamicIndexer() = doBlocking {
+    fun observeAllAppFunctions_returnsAllAppFunction_withDynamicIndexer() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
@@ -196,7 +196,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_returnEnumValues_withDynamicIndexer() = doBlocking {
+    fun observeAllAppFunctions_returnEnumValues_withDynamicIndexer() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
@@ -230,7 +230,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_returnEnumValuesFromLibraryModule_withDynamicIndexer() = doBlocking {
+    fun observeAllAppFunctions_returnEnumValuesFromLibraryModule_withDynamicIndexer() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
@@ -260,7 +260,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_populatesFunctionDescriptions_withDynamicIndexer() = doBlocking {
+    fun observeAllAppFunctions_populatesFunctionDescriptions_withDynamicIndexer() = doBlocking {
         val expectedAppFunctionDescriptions =
             mapOf(
                 "androidx.appfunctions.integration.testapp.TestFunctions#add" to
@@ -318,7 +318,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_populatesSerializableDescriptions_withDynamicIndexer() = doBlocking {
+    fun observeAllAppFunctions_populatesSerializableDescriptions_withDynamicIndexer() = doBlocking {
         val expectedSerializableDescriptions =
             mapOf(
                 "androidx.appfunction.integration.test.sharedschema.Note" to
@@ -374,7 +374,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun searchAllAppFunctions_returnsAllSchemaAppFunction_withLegacyIndexer() = doBlocking {
+    fun observeAllAppFunctions_returnsAllSchemaAppFunction_withLegacyIndexer() = doBlocking {
         assumeFalse(isDynamicIndexerAvailable(targetContext))
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 

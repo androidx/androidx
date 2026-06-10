@@ -149,7 +149,7 @@ internal class AppSearchAppFunctionReader(
     }
 
     @OptIn(FlowPreview::class)
-    override fun searchAppFunctions(
+    override fun searchAppFunctionsPackageMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>> {
         if (searchFunctionSpec.packageNames?.isEmpty() == true) {
@@ -160,7 +160,7 @@ internal class AppSearchAppFunctionReader(
             val session = createSearchSession(context)
 
             // Perform initial search immediately
-            send(performSearch(session, searchFunctionSpec))
+            send(performSearchAppFunctionPackageMetadata(session, searchFunctionSpec))
 
             val appSearchChannelObserver = AppSearchChannelObserver()
             // Register the observer callback
@@ -176,7 +176,7 @@ internal class AppSearchAppFunctionReader(
                 appSearchChannelObserver.observe().debounce(OBSERVER_DEBOUNCE_MILLIS).collect {
                     // TODO(b/403264749): Check if we can skip the running a full search again by
                     // caching the results.
-                    send(performSearch(session, searchFunctionSpec))
+                    send(performSearchAppFunctionPackageMetadata(session, searchFunctionSpec))
                 }
             }
 
@@ -187,6 +187,23 @@ internal class AppSearchAppFunctionReader(
                 session.unregisterObserverCallback(SYSTEM_PACKAGE_NAME, appSearchChannelObserver)
                 session.close()
             }
+        }
+    }
+
+    override suspend fun searchAppFunctionsMetadata(
+        searchFunctionSpec: AppFunctionSearchSpec
+    ): List<AppFunctionMetadata> {
+        if (
+            searchFunctionSpec.packageNames?.isEmpty() == true ||
+                searchFunctionSpec.functionNames?.isEmpty() == true
+        ) {
+            return emptyList()
+        }
+        val session = createSearchSession(context)
+        try {
+            return performSearchAppFunctionMetadata(session, searchFunctionSpec)
+        } finally {
+            session.close()
         }
     }
 
@@ -222,13 +239,33 @@ internal class AppSearchAppFunctionReader(
             )
             .build()
 
-    private suspend fun performSearch(
+    private suspend fun performSearchAppFunctionPackageMetadata(
         session: GlobalSearchSession,
         searchFunctionSpec: AppFunctionSearchSpec,
     ): List<AppFunctionPackageMetadata> {
+        return performSearchAppFunctionMetadata(session, searchFunctionSpec)
+            .groupBy { it.packageName }
+            .map { (packageName, appFunctions) ->
+                AppFunctionPackageMetadata(packageName, appFunctions)
+            }
+    }
+
+    private suspend fun performSearchAppFunctionMetadata(
+        session: GlobalSearchSession,
+        searchFunctionSpec: AppFunctionSearchSpec,
+    ): List<AppFunctionMetadata> {
+        val runtimeSearchSpec =
+            SearchSpec.Builder()
+                .addFilterNamespaces(APP_FUNCTIONS_RUNTIME_NAMESPACE)
+                .addFilterDocumentClasses(AppFunctionRuntimeMetadata::class.java)
+                .addFilterPackageNames(SYSTEM_PACKAGE_NAME)
+                .setVerbatimSearchEnabled(true)
+                // TODO(b/521273565): Use SearchSpec#addFilterDocumentIds once stable.
+                .build()
+
         val joinSpec =
             JoinSpec.Builder(AppFunctionRuntimeMetadata.STATIC_METADATA_JOIN_PROPERTY)
-                .setNestedSearch("", RUNTIME_SEARCH_SPEC)
+                .setNestedSearch("", runtimeSearchSpec)
                 .build()
 
         val staticMetadataSearchSpecWithJoin =
@@ -251,6 +288,12 @@ internal class AppSearchAppFunctionReader(
                 staticMetadataSearchSpecWithJoin,
             )
             .consumeAll { searchResult ->
+                if (searchFunctionSpec.functionNames != null) {
+                    val appFunctionName = extractAppFunctionName(searchResult)
+                    if (!searchFunctionSpec.functionNames.contains(appFunctionName)) {
+                        return@consumeAll null
+                    }
+                }
                 try {
                     convertSearchResultToAppFunctionMetadata(
                         searchResult,
@@ -267,10 +310,6 @@ internal class AppSearchAppFunctionReader(
                 }
             }
             .filterNotNull()
-            .groupBy { it.packageName }
-            .map { (packageName, appFunctions) ->
-                AppFunctionPackageMetadata(packageName, appFunctions)
-            }
     }
 
     private suspend fun searchTopLevelComponent(
@@ -373,9 +412,8 @@ internal class AppSearchAppFunctionReader(
     ): AppFunctionMetadata? {
         // This is different from document id which for uniqueness is computed as packageName + "/"
         // + functionId.
-        val functionId = checkNotNull(searchResult.genericDocument.getPropertyString("functionId"))
-        val packageName =
-            checkNotNull(searchResult.genericDocument.getPropertyString("packageName"))
+        val appFunctionName = extractAppFunctionName(searchResult)
+        val packageName = appFunctionName.packageName
 
         val staticMetadataDocument =
             safeCastToDocumentClass<AppFunctionMetadataDocument>(searchResult.genericDocument)
@@ -406,7 +444,7 @@ internal class AppSearchAppFunctionReader(
         val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
 
         return AppFunctionMetadata(
-            name = AppFunctionName(packageName, functionId),
+            name = appFunctionName,
             schema = schemaMetadata,
             parameters = parameterMetadata,
             response = responseMetadata,
@@ -416,6 +454,9 @@ internal class AppSearchAppFunctionReader(
             isEnabled = computeEffectivelyEnabled(staticMetadataDocument, runtimeMetadataDocument),
         )
     }
+
+    private fun extractAppFunctionName(searchResult: SearchResult): AppFunctionName =
+        AppFunctionName.fromQualifiedId(searchResult.genericDocument.id)
 
     private fun computeEffectivelyEnabled(
         staticMetadata: AppFunctionMetadataDocument,
@@ -530,13 +571,5 @@ internal class AppSearchAppFunctionReader(
         const val APP_FUNCTIONS_RUNTIME_DATABASE_NAME = "appfunctions-db"
 
         val OBSERVER_DEBOUNCE_MILLIS = 1.seconds
-
-        val RUNTIME_SEARCH_SPEC =
-            SearchSpec.Builder()
-                .addFilterNamespaces(APP_FUNCTIONS_RUNTIME_NAMESPACE)
-                .addFilterDocumentClasses(AppFunctionRuntimeMetadata::class.java)
-                .addFilterPackageNames(SYSTEM_PACKAGE_NAME)
-                .setVerbatimSearchEnabled(true)
-                .build()
     }
 }

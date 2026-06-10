@@ -17,25 +17,25 @@
 package androidx.appfunctions
 
 import androidx.appfunctions.metadata.AppFunctionMetadataDocument
+import androidx.appfunctions.metadata.AppFunctionName
 
 /**
  * Defines the specifications for filtering and searching app function snapshots.
  *
- * @property packageNames A set of package names to filter functions by. Only functions belonging to
- *   these packages will be considered. Defaults to null, which means this field is ignored when
- *   filtering.
+ * A search will be performed using a logical AND operation across all provided criteria.
+ *
+ * @property packageNames The set of package names to filter by, or null if this filter is skipped.
  *
  *   The calling app can only search metadata for functions in packages that it is allowed to query
  *   via [android.content.pm.PackageManager.canPackageQuery]. If a package is not queryable by the
  *   calling app, its functions' metadata will not be visible.
  *
- * @property schemaCategory The category of the function's schema. Defaults to null, which means
- *   this field is ignored when filtering.
- * @property schemaName The name of the function's schema. Defaults to null, which means this field
- *   is ignored when filtering.
- * @property minSchemaVersion The minimum version of the function's schema. Functions with a schema
- *   version equal to or greater than this value will be included when filtering. Defaults to 0,
- *   which means this field is ignored when filtering. This value cannot be negative.
+ * @property schemaCategory The schema category to filter by, or null if this filter is skipped.
+ * @property schemaName The schema name to filter by, or null if this filter is skipped.
+ * @property minSchemaVersion The minimum schema version to filter by, or 0 if this filter is
+ *   skipped.
+ * @property functionNames The set of [AppFunctionName] to filter by, or null if this filter is
+ *   skipped.
  * @constructor Creates a new instance of [AppFunctionSearchSpec].
  */
 public class AppFunctionSearchSpec
@@ -50,10 +50,22 @@ constructor(
     public val schemaCategory: String? = null,
     public val schemaName: String? = null,
     public val minSchemaVersion: Int = 0,
+    @get:Suppress(
+        // Null value is used to specify that the value was not set by the caller to be consistent
+        // with other string fields.
+        "NullableCollection"
+    )
+    public val functionNames: Set<AppFunctionName>? = null,
 ) {
     init {
         require(minSchemaVersion >= 0) {
             "The minimum schema version must be a non-negative integer."
+        }
+        require(packageNames == null || packageNames.isNotEmpty()) {
+            "Cannot filter by empty set of package names."
+        }
+        require(functionNames == null || functionNames.isNotEmpty()) {
+            "Cannot filter by empty set of function names."
         }
     }
 

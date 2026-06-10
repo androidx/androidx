@@ -276,15 +276,6 @@ class AppFunctionManagerTest {
         }
 
     @Test
-    fun observeAppFunctions_emptyPackagesListInSearchSpec_noResults() =
-        runBlocking<Unit> {
-            val searchFunctionSpec = AppFunctionSearchSpec(packageNames = emptySet())
-
-            assertThat(mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first())
-                .isEmpty()
-        }
-
-    @Test
     fun observeAppFunctions_emptySchemaNameInSearchSpec_noResults() =
         runBlocking<Unit> {
             val searchFunctionSpec = AppFunctionSearchSpec(schemaName = "")

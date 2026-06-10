@@ -27,16 +27,27 @@ import kotlinx.coroutines.flow.Flow
 public interface AppFunctionReader {
 
     /**
-     * Searches for app functions based on the provided search specification.
+     * Searches for app function packages based on the provided search specification.
      *
      * @param searchFunctionSpec The search specification, which includes filters for searching
      *   matching documents.
      * @return A flow emitting a list of app function package metadata matching the search criteria.
      * @see androidx.appfunctions.AppFunctionSearchSpec
      */
-    public fun searchAppFunctions(
+    public fun searchAppFunctionsPackageMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>>
+
+    /**
+     * Searches for app functions based on the provided search specification.
+     *
+     * @param searchFunctionSpec The search specification, which includes filters for searching
+     *   matching documents.
+     * @return A list of app function metadata matching the search criteria.
+     */
+    public suspend fun searchAppFunctionsMetadata(
+        searchFunctionSpec: AppFunctionSearchSpec
+    ): List<AppFunctionMetadata>
 
     /**
      * Returns the [AppFunctionMetadata] of the given app function.

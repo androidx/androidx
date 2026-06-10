@@ -201,7 +201,29 @@ public constructor(
     public fun observeAppFunctions(
         searchSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>> {
-        return appFunctionReader.searchAppFunctions(searchSpec)
+        return appFunctionReader.searchAppFunctionsPackageMetadata(searchSpec)
+    }
+
+    /**
+     * Searches app function [AppFunctionMetadata]s.
+     *
+     * Note that the state is not guaranteed to be the latest, as metadata can change between
+     * request and execute times when apps are updated.
+     *
+     * The calling app can search for:
+     * - Functions in its own package (no permission required).
+     * - When holding the [android.Manifest.permission.EXECUTE_APP_FUNCTIONS] permission - functions
+     *   in other packages that the calling app is allowed to query via
+     *   [android.content.pm.PackageManager.canPackageQuery].
+     *
+     * @param searchSpec The spec of app functions to search for.
+     * @return The list of search results.
+     */
+    @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
+    public suspend fun searchAppFunctions(
+        searchSpec: AppFunctionSearchSpec
+    ): List<AppFunctionMetadata> {
+        return appFunctionReader.searchAppFunctionsMetadata(searchSpec)
     }
 
     @IntDef(

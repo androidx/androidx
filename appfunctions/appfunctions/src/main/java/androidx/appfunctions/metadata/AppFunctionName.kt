@@ -45,4 +45,16 @@ constructor(
     override fun toString(): String {
         return "AppFunctionName(packageName='$packageName', functionIdentifier='$functionIdentifier')"
     }
+
+    internal companion object {
+        internal fun fromQualifiedId(qualifiedFunctionId: String): AppFunctionName {
+            val parts = qualifiedFunctionId.split('/', limit = 2)
+
+            require(parts.size == 2 && parts[1].isNotEmpty()) {
+                "Incorrect app function id format."
+            }
+
+            return AppFunctionName(parts[0], parts[1])
+        }
+    }
 }
