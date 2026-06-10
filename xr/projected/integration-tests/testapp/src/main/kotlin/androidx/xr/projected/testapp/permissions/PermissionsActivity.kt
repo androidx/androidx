@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.projected.testapp.permissions
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.xr.projected.ProjectedActivityCompat
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
-import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
- * A sample activity that uses the [ProjectedPermissionsResultContract] API from a non-Jetpack
- * Android Activity. This activity needs to be run on a Projected device.
+ * A sample activity that uses the [ProjectedActivityCompat] API to request runtime permissions.
+ * This activity needs to be run on a Projected device.
  */
 @OptIn(ExperimentalProjectedApi::class)
 class PermissionsActivity : Activity() {
-
-    private val projectedPermissionsResultContract = ProjectedPermissionsResultContract()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,31 +40,62 @@ class PermissionsActivity : Activity() {
     }
 
     private fun requestPermissions() {
-        val data =
-            ProjectedPermissionsRequestParams(
-                listOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO,
-                ),
-                "Some good rationale.",
+        val permissions =
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
             )
-        intent = projectedPermissionsResultContract.createIntent(this, listOf(data))
-        startActivityForResult(intent, PERMISSION_REQUEST_CODE)
+
+        val deniedPermissions =
+            permissions.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+
+        if (deniedPermissions.isEmpty()) {
+            Log.i(TAG, "All permissions already granted")
+            return
+        }
+
+        if (deniedPermissions.any { shouldShowRequestPermissionRationale(it) }) {
+            Log.i(TAG, "Should show rationale for $deniedPermissions")
+        }
+
+        CoroutineScope(Dispatchers.Default).launch {
+            ProjectedActivityCompat.requestPermissions(
+                this@PermissionsActivity,
+                deniedPermissions.toTypedArray(),
+                PERMISSION_REQUEST_CODE,
+            )
+        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
-            val results = projectedPermissionsResultContract.parseResult(resultCode, data)
-            for ((permission, isGranted) in results) {
-                Log.i(TAG, "onActivityResult: $permission: $isGranted")
+            var allGranted = true
+            for (i in permissions.indices) {
+                val isGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED
+                if (!isGranted) {
+                    allGranted = false
+                }
+                Log.i(TAG, "onRequestPermissionsResult: ${permissions[i]}: $isGranted")
             }
-            Log.i(TAG, "onActivityResult: all results received")
+            Log.i(TAG, "onRequestPermissionsResult: all results received")
+
+            val message =
+                if (allGranted) {
+                    "All permissions granted"
+                } else {
+                    "Some permissions denied"
+                }
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 
     private companion object {
-        const val TAG = "SampleActivity"
+        const val TAG = "PermissionsActivity"
         const val PERMISSION_REQUEST_CODE = 1234
     }
 }
