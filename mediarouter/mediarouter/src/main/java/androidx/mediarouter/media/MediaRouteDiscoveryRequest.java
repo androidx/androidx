@@ -17,9 +17,10 @@ package androidx.mediarouter.media;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Describes the kinds of routes that the media router would like to discover
@@ -84,8 +85,7 @@ public final class MediaRouteDiscoveryRequest {
     /**
      * Gets the route selector that specifies the kinds of routes to discover.
      */
-    @NonNull
-    public MediaRouteSelector getSelector() {
+    public @NonNull MediaRouteSelector getSelector() {
         ensureSelector();
         return mSelector;
     }
@@ -141,9 +141,8 @@ public final class MediaRouteDiscoveryRequest {
                 ^ (shouldScanWithScreenOff() ? 1 : 0);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "DiscoveryRequest{ selector=" + getSelector()
                 + ", activeScan=" + isActiveScan()
                 + ", isValid=" + isValid()
@@ -156,8 +155,7 @@ public final class MediaRouteDiscoveryRequest {
      *
      * @return The contents of the object represented as a bundle.
      */
-    @NonNull
-    public Bundle asBundle() {
+    public @NonNull Bundle asBundle() {
         return mBundle;
     }
 
@@ -167,8 +165,7 @@ public final class MediaRouteDiscoveryRequest {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    @Nullable
-    public static MediaRouteDiscoveryRequest fromBundle(@Nullable Bundle bundle) {
+    public static @Nullable MediaRouteDiscoveryRequest fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaRouteDiscoveryRequest(bundle) : null;
     }
 }

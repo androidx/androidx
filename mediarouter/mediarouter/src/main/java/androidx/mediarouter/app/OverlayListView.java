@@ -24,8 +24,8 @@ import android.util.AttributeSet;
 import android.view.animation.Interpolator;
 import android.widget.ListView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -130,8 +130,7 @@ final class OverlayListView extends ListView {
          *
          * @return BitmapDrawable that this object has.
          */
-        @Nullable
-        public BitmapDrawable getBitmapDrawable() {
+        public @Nullable BitmapDrawable getBitmapDrawable() {
             return mBitmap;
         }
 
@@ -152,8 +151,7 @@ final class OverlayListView extends ListView {
          * @param endAlpha Ending alpha value for the animation.
          * @return This OverlayObject to allow for chaining of calls.
          */
-        @NonNull
-        public OverlayObject setAlphaAnimation(float startAlpha, float endAlpha) {
+        public @NonNull OverlayObject setAlphaAnimation(float startAlpha, float endAlpha) {
             mStartAlpha = startAlpha;
             mEndAlpha = endAlpha;
             return this;
@@ -165,8 +163,7 @@ final class OverlayListView extends ListView {
          * @param deltaY Distance to move in pixels.
          * @return This OverlayObject to allow for chaining of calls.
          */
-        @NonNull
-        public OverlayObject setTranslateYAnimation(int deltaY) {
+        public @NonNull OverlayObject setTranslateYAnimation(int deltaY) {
             mDeltaY = deltaY;
             return this;
         }
@@ -177,8 +174,7 @@ final class OverlayListView extends ListView {
          * @param duration Duration in milliseconds
          * @return This OverlayObject to allow for chaining of calls.
          */
-        @NonNull
-        public OverlayObject setDuration(long duration) {
+        public @NonNull OverlayObject setDuration(long duration) {
             mDuration = duration;
             return this;
         }
@@ -189,8 +185,7 @@ final class OverlayListView extends ListView {
          * @param interpolator The interpolator which defines the acceleration curve
          * @return This OverlayObject to allow for chaining of calls.
          */
-        @NonNull
-        public OverlayObject setInterpolator(@Nullable Interpolator interpolator) {
+        public @NonNull OverlayObject setInterpolator(@Nullable Interpolator interpolator) {
             mInterpolator = interpolator;
             return this;
         }
@@ -201,8 +196,8 @@ final class OverlayListView extends ListView {
          * @param listener the animation end listener to be notified.
          * @return This OverlayObject to allow for chaining of calls.
          */
-        @NonNull
-        public OverlayObject setAnimationEndListener(@Nullable OnAnimationEndListener listener) {
+        public @NonNull OverlayObject setAnimationEndListener(
+                @Nullable OnAnimationEndListener listener) {
             mListener = listener;
             return this;
         }

@@ -77,8 +77,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
@@ -90,6 +88,9 @@ import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 import androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -252,12 +253,10 @@ public abstract class MediaRouteProviderService extends Service {
      * @return The media route provider offered by this service, or null if
      * this service has decided not to offer a media route provider.
      */
-    @Nullable
-    public abstract MediaRouteProvider onCreateMediaRouteProvider();
+    public abstract @Nullable MediaRouteProvider onCreateMediaRouteProvider();
 
     @Override
-    @Nullable
-    public IBinder onBind(@NonNull Intent intent) {
+    public @Nullable IBinder onBind(@NonNull Intent intent) {
         return mImpl.onBind(intent);
     }
 
@@ -276,8 +275,7 @@ public abstract class MediaRouteProviderService extends Service {
      *
      * @see #onCreateMediaRouteProvider()
      */
-    @Nullable
-    public MediaRouteProvider getMediaRouteProvider() {
+    public @Nullable MediaRouteProvider getMediaRouteProvider() {
         return mProvider;
     }
 
@@ -380,8 +378,7 @@ public abstract class MediaRouteProviderService extends Service {
          *
          * @return The package name of the client
          */
-        @NonNull
-        public String getPackageName() {
+        public @NonNull String getPackageName() {
             return packageName;
         }
 
@@ -394,8 +391,7 @@ public abstract class MediaRouteProviderService extends Service {
             }
 
             /** Builds and returns the {@link ClientInfo} object. */
-            @NonNull
-            public ClientInfo build() {
+            public @NonNull ClientInfo build() {
                 return new ClientInfo(packageName);
             }
         }
@@ -606,8 +602,7 @@ public abstract class MediaRouteProviderService extends Service {
         MediaRouteDiscoveryRequest mCompositeDiscoveryRequest;
         MediaRouteDiscoveryRequest mBaseDiscoveryRequest;
         long mBaseDiscoveryRequestTimestamp;
-        @Nullable
-        private final Map<Consumer<List<ClientInfo>>, Executor> mClientInfoListeners =
+        private final @Nullable Map<Consumer<List<ClientInfo>>, Executor> mClientInfoListeners =
                 new HashMap<>();
         private final Object mClientInfoListenersLock = new Object();
         private final MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper =
@@ -1230,9 +1225,8 @@ public abstract class MediaRouteProviderService extends Service {
                         .obtainMessage(PRIVATE_MSG_CLIENT_DIED, mMessenger).sendToTarget();
             }
 
-            @NonNull
             @Override
-            public String toString() {
+            public @NonNull String toString() {
                 return getClientId(mMessenger);
             }
 

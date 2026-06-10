@@ -48,8 +48,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.mediarouter.media.MediaRouteProviderService.ClientInfo;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -58,6 +56,8 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ServiceTestRule;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -835,8 +835,7 @@ public class MediaRouteProviderServiceTest {
         }
 
         @Override
-        @Nullable
-        public RouteController onCreateRouteController(
+        public @Nullable RouteController onCreateRouteController(
                 @NonNull String routeId, @NonNull RouteControllerOptions routeControllerOptions) {
             sRouteControllerOptions = routeControllerOptions;
             sRouteCreationCountDownLatch.countDown();
@@ -844,8 +843,7 @@ public class MediaRouteProviderServiceTest {
         }
 
         @Override
-        @Nullable
-        public DynamicGroupRouteController onCreateDynamicGroupRouteController(
+        public @Nullable DynamicGroupRouteController onCreateDynamicGroupRouteController(
                 @NonNull String initialMemberRouteId,
                 @NonNull RouteControllerOptions routeControllerOptions) {
             sRouteControllerOptions = routeControllerOptions;

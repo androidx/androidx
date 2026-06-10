@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * The media route dialog factory is responsible for creating the media route
@@ -41,8 +41,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The default media route dialog factory, never null.
      */
-    @NonNull
-    public static MediaRouteDialogFactory getDefault() {
+    public static @NonNull MediaRouteDialogFactory getDefault() {
         return sDefault;
     }
 
@@ -54,8 +53,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The media route chooser dialog fragment, must not be null.
      */
-    @NonNull
-    public MediaRouteChooserDialogFragment onCreateChooserDialogFragment() {
+    public @NonNull MediaRouteChooserDialogFragment onCreateChooserDialogFragment() {
         return new MediaRouteChooserDialogFragment();
     }
 
@@ -67,8 +65,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The media route controller dialog fragment, must not be null.
      */
-    @NonNull
-    public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
+    public @NonNull MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
         return new MediaRouteControllerDialogFragment();
     }
 }

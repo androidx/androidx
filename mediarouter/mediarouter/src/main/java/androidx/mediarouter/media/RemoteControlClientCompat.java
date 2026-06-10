@@ -19,8 +19,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 
@@ -76,8 +76,7 @@ abstract class RemoteControlClientCompat {
         public int volumeHandling = MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
         public int playbackStream = AudioManager.STREAM_MUSIC;
         public int playbackType = MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE;
-        @Nullable
-        public String volumeControlId;
+        public @Nullable String volumeControlId;
     }
 
     /**
@@ -158,7 +157,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeUpdateRequest(@NonNull android.media.MediaRouter.RouteInfo route,
+            public void onVolumeUpdateRequest(android.media.MediaRouter.@NonNull RouteInfo route,
                     int direction) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
@@ -167,7 +166,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeSetRequest(@NonNull android.media.MediaRouter.RouteInfo route,
+            public void onVolumeSetRequest(android.media.MediaRouter.@NonNull RouteInfo route,
                     int volume) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {

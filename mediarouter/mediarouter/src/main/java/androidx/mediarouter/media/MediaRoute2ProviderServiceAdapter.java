@@ -45,8 +45,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
@@ -55,6 +53,9 @@ import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 import androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions;
 import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30;
 import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30.ClientRecord;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -837,8 +838,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(mRequestId, mSessionInfo);
         }
 
-        @Nullable
-        private RouteController getOrCreateRouteController(
+        private @Nullable RouteController getOrCreateRouteController(
                 String routeId,
                 String routeGroupId,
                 RouteControllerOptions routeControllerOptions) {

@@ -26,12 +26,12 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +58,7 @@ public class RegisteredMediaRouteProviderWatcherTest {
                     @Override
                     public void releaseProviderController(
                             @NonNull RegisteredMediaRouteProvider provider,
-                            @NonNull MediaRouteProvider.RouteController controller) {}
+                            MediaRouteProvider.@NonNull RouteController controller) {}
                 };
 
         getInstrumentation()

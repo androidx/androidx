@@ -21,10 +21,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -153,9 +154,8 @@ public final class StubDynamicMediaRouteProviderService extends MediaRouteProvid
             return newController;
         }
 
-        @Nullable
         @Override
-        public DynamicGroupRouteController onCreateDynamicGroupRouteController(
+        public @Nullable DynamicGroupRouteController onCreateDynamicGroupRouteController(
                 @NonNull String initialMemberRouteId,
                 @NonNull RouteControllerOptions routeControllerOptions) {
             Log.i(
@@ -345,7 +345,7 @@ public final class StubDynamicMediaRouteProviderService extends MediaRouteProvid
 
             @Override
             public boolean onControlRequest(
-                    @NonNull Intent intent, @Nullable MediaRouter.ControlRequestCallback callback) {
+                    @NonNull Intent intent, MediaRouter.@Nullable ControlRequestCallback callback) {
                 if (callback != null) {
                     callback.onResult(SEND_CONTROL_REQUEST_RESULT);
                 }
