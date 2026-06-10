@@ -478,6 +478,9 @@ public class Header extends Operation implements RemoteComposeOperation {
             }
             majorVersion &= 0xFFFF;
             int len = stream.readInt();
+            if (len < 0 || len > Limits.MAX_TABLE_SIZE) {
+                throw new IOException("Invalid table size " + len);
+            }
             short[] types = new short[len];
             Object[] values = new Object[len];
             readMap(stream, types, values);
@@ -518,6 +521,9 @@ public class Header extends Operation implements RemoteComposeOperation {
                     break;
                 case DATA_TYPE_STRING:
                     int slen = stream.readInt();
+                    if (slen < 0 || slen > Limits.MAX_STRING_SIZE) {
+                        throw new IOException("String length exceeds limit: " + slen);
+                    }
                     byte[] data = new byte[slen];
                     stream.readFully(data);
                     values[i] = new String(data);
@@ -598,7 +604,7 @@ public class Header extends Operation implements RemoteComposeOperation {
         } else {
             majorVersion &= 0xFFFF;
             int length = buffer.readInt();
-            if (length > Limits.MAX_TABLE_SIZE) {
+            if (length < 0 || length > Limits.MAX_TABLE_SIZE) {
                 throw new RuntimeException("Invalid table size " + length);
             }
             short[] types = new short[length];
@@ -651,6 +657,9 @@ public class Header extends Operation implements RemoteComposeOperation {
         }
         majorVersion &= 0xFFFF;
         int len = buffer.readInt();
+        if (len < 0 || len > Limits.MAX_TABLE_SIZE) {
+            throw new IOException("Invalid table size " + len);
+        }
         short[] types = new short[len];
         Object[] values = new Object[len];
         readMap(buffer, types, values);
@@ -685,7 +694,7 @@ public class Header extends Operation implements RemoteComposeOperation {
                     values[i] = buffer.readLong();
                     break;
                 case DATA_TYPE_STRING:
-                    values[i] = buffer.readUTF8();
+                    values[i] = buffer.readUTF8(Limits.MAX_STRING_SIZE);
                     break;
             }
         }
