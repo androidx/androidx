@@ -83,7 +83,7 @@ internal constructor(
         ): DeepLinkRequest = DeepLinkRequest(DeepLinkUri(uri), mimeType, action)
 
         /**
-         * Creates a [DeepLinkRequest with an action.
+         * Creates a [DeepLinkRequest] with an action.
          *
          * @param uri The URI for the deep link.
          * @param mimeType The mime type for the deep link.
