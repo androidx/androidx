@@ -29,6 +29,7 @@ import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.StereoMode
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +49,15 @@ class FakeImpressApiImplTest {
     fun setUp() {
         fakeImpressApi = FakeImpressApiImpl()
         resourceManager = Mockito.mock(BindingsResourceManager::class.java)
+    }
+
+    @After
+    fun tearDown() {
+        // This will force the ImpressAPI to release everything between testcases.
+        // Specifically we want to be sure that it tears down Surfaces, since in a normal
+        // application this happens as a result of JXR lifecycle management which isn't
+        // covered in these tests.
+        fakeImpressApi.disposeAllResources()
     }
 
     @Test
