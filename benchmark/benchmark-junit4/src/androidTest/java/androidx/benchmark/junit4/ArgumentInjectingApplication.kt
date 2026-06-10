@@ -49,7 +49,8 @@ class ArgumentInjectingApplication : Application() {
                 // can run with low-battery or on an emulator, and code coverage enabled.
                 putString(
                     "androidx.benchmark.suppressErrors",
-                    "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED,ENG-BUILD",
+                    "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,NOT-AOT-COMPILED,UNLOCKED," +
+                        "ENG-BUILD",
                 )
             }
     }
