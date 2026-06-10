@@ -237,8 +237,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     @OptIn(ExperimentalUnitApi::class)
     @Suppress("RedundantNullableReturnType")  // https://youtrack.jetbrains.com/issue/KT-31094
     override fun getMinimumSize(): Dimension? {
-        val size = if (isMinimumSizeSet) super.getMinimumSize() else UnspecifiedDimension()
-        return size.actualize()
+        return super.getMinimumSize().actualize()
     }
 
     /**
@@ -275,8 +274,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     @OptIn(ExperimentalUnitApi::class)
     @Suppress("RedundantNullableReturnType")  // https://youtrack.jetbrains.com/issue/KT-31094
     override fun getMaximumSize(): Dimension? {
-        val size = if (isMaximumSizeSet) super.getMaximumSize() else UnspecifiedDimension()
-        return size.actualize()
+        return super.getMaximumSize().actualize()
     }
 
     override fun setBackground(bg: Color?) {
