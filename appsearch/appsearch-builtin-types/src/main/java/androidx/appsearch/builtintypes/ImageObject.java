@@ -52,20 +52,18 @@ public class ImageObject extends Thing {
     @Document.BytesProperty
     private final byte @Nullable [] mBytes;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    ImageObject(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            @NonNull List<Keyword> keywords,
-            @Nullable String sha256, @Nullable String thumbnailSha256, byte @Nullable [] bytes) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mKeywords = checkNotNull(keywords);
-        mSha256 = sha256;
-        mThumbnailSha256 = thumbnailSha256;
-        mBytes = bytes;
+    /**
+     * Constructor for {@link ImageObject}.
+     *
+     * @param builder The builder to construct the {@link ImageObject} from.
+     */
+    @ExperimentalAppSearchApi
+    public ImageObject(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mKeywords = new ArrayList<>(builder.mKeywords);
+        mSha256 = builder.mSha256;
+        mThumbnailSha256 = builder.mThumbnailSha256;
+        mBytes = builder.mBytes;
     }
 
     /**
@@ -121,7 +119,9 @@ public class ImageObject extends Thing {
     /**
      * Builder for {@link ImageObject}.
      */
-    public static final class Builder extends BuilderImpl<Builder> {
+    @Document.BuilderProducer
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for an empty {@link Builder}.
          *
@@ -142,16 +142,24 @@ public class ImageObject extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<Self extends BuilderImpl<Self>> extends Thing.BuilderImpl<Self> {
-        protected final @NonNull List<Keyword> mKeywords;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private final @NonNull List<Keyword> mKeywords;
 
-        protected @Nullable String mSha256;
+        private @Nullable String mSha256;
 
-        protected @Nullable String mThumbnailSha256;
+        private @Nullable String mThumbnailSha256;
 
-        protected byte @Nullable [] mBytes;
+        private byte @Nullable [] mBytes;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link ImageObject.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
             mKeywords = new ArrayList<>();
             mSha256 = null;
@@ -159,8 +167,13 @@ public class ImageObject extends Thing {
             mBytes = null;
         }
 
-        BuilderImpl(@NonNull ImageObject copyFrom) {
-            super(new Thing.Builder(checkNotNull(copyFrom)).build());
+        /**
+         * Constructor for {@link ImageObject.BuilderBase} with all the existing values.
+         *
+         * @param copyFrom The existing {@link ImageObject} to copy values from.
+         */
+        public BuilderBase(@NonNull ImageObject copyFrom) {
+            super(checkNotNull(copyFrom));
             mKeywords = new ArrayList<>(copyFrom.getKeywords());
             mSha256 = copyFrom.getSha256();
             mThumbnailSha256 = copyFrom.getThumbnailSha256();
@@ -169,10 +182,7 @@ public class ImageObject extends Thing {
 
         @Override
         public @NonNull ImageObject build() {
-            return new ImageObject(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions, new ArrayList<>(mKeywords), mSha256, mThumbnailSha256,
-                    mBytes);
+            return new ImageObject(this);
         }
 
         /**
@@ -180,51 +190,51 @@ public class ImageObject extends Thing {
          */
         // Atypical overloads in the Builder to model union types.
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        public @NonNull Self addKeyword(@NonNull String text) {
+        public @NonNull T addKeyword(@NonNull String text) {
             mKeywords.add(new Keyword(checkNotNull(text)));
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Appends the {@link Keyword}.
          */
-        public @NonNull Self addKeyword(@NonNull Keyword keyword) {
+        public @NonNull T addKeyword(@NonNull Keyword keyword) {
             mKeywords.add(checkNotNull(keyword));
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Appends all the {@code values}.
          */
-        public @NonNull Self addKeywords(@NonNull Iterable<Keyword> values) {
+        public @NonNull T addKeywords(@NonNull Iterable<Keyword> values) {
             for (Keyword value : checkNotNull(values)) {
                 mKeywords.add(checkNotNull(value));
             }
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Sets the {@code sha256}.
          */
-        public @NonNull Self setSha256(@Nullable String text) {
+        public @NonNull T setSha256(@Nullable String text) {
             mSha256 = text;
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Sets the {@code sha256} of the thumbnail of this image of video.
          */
-        public @NonNull Self setThumbnailSha256(@Nullable String text) {
+        public @NonNull T setThumbnailSha256(@Nullable String text) {
             mThumbnailSha256 = text;
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Sets the byte representation of this image or video.
          */
-        public @NonNull Self setBytes(byte @Nullable [] bytes) {
+        public @NonNull T setBytes(byte @Nullable [] bytes) {
             mBytes = bytes;
-            return (Self) this;
+            return (T) this;
         }
     }
 }

@@ -136,8 +136,9 @@ public class Person extends Thing {
     @Document.LongProperty
     final List<Long> mAdditionalNameTypes;
 
-    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-    final List<String> mAdditionalNames;
+    @Document.StringProperty(name = "additionalNames", indexingType =
+            StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    final List<String> mAdditionalNamesList;
 
     @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final List<String> mAffiliations;
@@ -150,52 +151,35 @@ public class Person extends Thing {
 
     private final List<AdditionalName> mTypedAdditionalNames;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Person(@NonNull String namespace,
-            @NonNull String id,
-            int documentScore,
-            long creationTimestampMillis,
-            long documentTtlMillis,
-            @Nullable String name,
-            @Nullable List<String> alternateNames,
-            @Nullable String description,
-            @Nullable String image,
-            @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            @Nullable String givenName,
-            @Nullable String middleName,
-            @Nullable String familyName,
-            @Nullable String externalUri,
-            @Nullable String imageUri,
-            boolean isImportant,
-            boolean isBot,
-            @NonNull List<String> notes,
-            @AdditionalName.NameType @NonNull List<Long> additionalNameTypes,
-            @NonNull List<String> additionalNames,
-            @NonNull List<String> affiliations,
-            @NonNull List<String> relations,
-            @NonNull List<ContactPoint> contactPoints) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mGivenName = givenName;
-        mMiddleName = middleName;
-        mFamilyName = familyName;
-        mExternalUri = externalUri;
-        mImageUri = imageUri;
-        mIsImportant = isImportant;
-        mIsBot = isBot;
-        mNotes = Collections.unmodifiableList(notes);
-        mAdditionalNameTypes = Collections.unmodifiableList(additionalNameTypes);
-        mAdditionalNames = Collections.unmodifiableList(additionalNames);
-        mAffiliations = Collections.unmodifiableList(affiliations);
-        mRelations = Collections.unmodifiableList(relations);
-        mContactPoints = Collections.unmodifiableList(contactPoints);
+    /**
+     * Constructor for {@link Person}.
+     *
+     * @param builder The builder to construct the {@link Person} from.
+     */
+    @ExperimentalAppSearchApi
+    public Person(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mGivenName = builder.mGivenName;
+        mMiddleName = builder.mMiddleName;
+        mFamilyName = builder.mFamilyName;
+        mExternalUri = builder.mExternalUri != null ? builder.mExternalUri.toString() : null;
+        mImageUri = builder.mImageUri != null ? builder.mImageUri.toString() : null;
+        mIsImportant = builder.mIsImportant;
+        mIsBot = builder.mIsBot;
+        mNotes = Collections.unmodifiableList(new ArrayList<>(builder.mNotes));
+        mAdditionalNameTypes = Collections.unmodifiableList(
+                new ArrayList<>(builder.mAdditionalNameTypes));
+        mAdditionalNamesList = Collections.unmodifiableList(
+                new ArrayList<>(builder.mAdditionalNamesList));
+        mAffiliations = Collections.unmodifiableList(new ArrayList<>(builder.mAffiliations));
+        mRelations = Collections.unmodifiableList(new ArrayList<>(builder.mRelations));
+        mContactPoints = Collections.unmodifiableList(new ArrayList<>(builder.mContactPoints));
 
         // For the additionalNames to to returned in the getter.
         List<AdditionalName> names = new ArrayList<>(mAdditionalNameTypes.size());
         for (int i = 0; i < mAdditionalNameTypes.size(); ++i) {
             names.add(new AdditionalName(mAdditionalNameTypes.get(i).intValue(),
-                    mAdditionalNames.get(i)));
+                    mAdditionalNamesList.get(i)));
         }
         mTypedAdditionalNames = Collections.unmodifiableList(names);
     }
@@ -273,7 +257,7 @@ public class Person extends Thing {
      * type information for the additional names.
      */
     public @NonNull List<String> getAdditionalNames() {
-        return mAdditionalNames;
+        return mAdditionalNamesList;
     }
 
     /**
@@ -313,7 +297,9 @@ public class Person extends Thing {
     }
 
     /** Builder class for {@link Person}. */
-    public static final class Builder extends BuilderImpl<Builder> {
+    @Document.BuilderProducer
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link Person.Builder}.
          *
@@ -334,37 +320,64 @@ public class Person extends Thing {
         public Builder(@NonNull Person person) {
             super(person);
         }
+
+        @Override
+        @ExperimentalAppSearchApi
+        @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.SUBCLASSES})
+        public @NonNull Builder setAdditionalNamesList(@NonNull List<String> additionalNamesList) {
+            return super.setAdditionalNamesList(additionalNamesList);
+        }
+
+        @Override
+        @ExperimentalAppSearchApi
+        @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.SUBCLASSES})
+        public @NonNull Builder setAdditionalNameTypes(@NonNull List<Long> additionalNameTypes) {
+            return super.setAdditionalNameTypes(additionalNameTypes);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected String mGivenName;
-        protected String mMiddleName;
-        protected String mFamilyName;
-        protected Uri mExternalUri;
-        protected Uri mImageUri;
-        protected boolean mIsImportant;
-        protected boolean mIsBot;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private String mGivenName;
+        private String mMiddleName;
+        private String mFamilyName;
+        private Uri mExternalUri;
+        private Uri mImageUri;
+        private boolean mIsImportant;
+        private boolean mIsBot;
         // Make sure the lists are not null.
-        protected List<String> mNotes = Collections.emptyList();
+        private List<String> mNotes = Collections.emptyList();
         @AdditionalName.NameType
-        protected List<Long> mAdditionalNameTypes = Collections.emptyList();
-        protected List<String> mAdditionalNames = Collections.emptyList();
-        protected List<String> mAffiliations = Collections.emptyList();
-        protected List<String> mRelations = Collections.emptyList();
-        protected List<ContactPoint> mContactPoints = Collections.emptyList();
+        private List<Long> mAdditionalNameTypes = Collections.emptyList();
+        private List<String> mAdditionalNamesList = Collections.emptyList();
+        private List<String> mAffiliations = Collections.emptyList();
+        private List<String> mRelations = Collections.emptyList();
+        private List<ContactPoint> mContactPoints = Collections.emptyList();
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String name) {
+        /**
+         * Constructor for {@link Person.BuilderBase}.
+         *
+         * @param namespace Namespace for the {@link Person} Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the {@link Person} Document. See
+         *                  {@link Document.Id}.
+         * @param name      The searchable full name of this {@link Person}. E.g. "Larry Page", or
+         *                  "Page, Larry".
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id, @NonNull String name) {
             super(namespace, id);
-            mName = Preconditions.checkNotNull(name);
+            setName(Preconditions.checkNotNull(name));
         }
 
-        BuilderImpl(@NonNull Person person) {
-            super(new Thing.Builder(person).build());
-            mDocumentScore = person.getDocumentScore();
-            mCreationTimestampMillis =
-                    person.getCreationTimestampMillis();
-            mDocumentTtlMillis = person.getDocumentTtlMillis();
+        /**
+         * Constructor for {@link Person.BuilderBase} with all the existing values of an
+         * {@link Person}.
+         *
+         * @param person The existing {@link Person} to copy values from.
+         */
+        public BuilderBase(@NonNull Person person) {
+            super(person);
             mGivenName = person.getGivenName();
             mMiddleName = person.getMiddleName();
             mFamilyName = person.getFamilyName();
@@ -419,9 +432,36 @@ public class Person extends Thing {
             return (T) this;
         }
 
+        /**
+         * Sets the external {@link Uri} from a {@link String} representation for this
+         * {@link Person}. A {@link Uri} can be any of the following:
+         * <ul>
+         * <li>A {@link android.provider.ContactsContract.Contacts#CONTENT_LOOKUP_URI}.
+         * <li>A {@code mailto:} schema*
+         * <li>A {@code tel:} schema*
+         * </ul>
+         * <p>For mailto: and tel: URI schemes, it is recommended that the path
+         * portion refers to a valid contact in the Contacts Provider.
+         */
+        @ExperimentalAppSearchApi
+        public @NonNull T setExternalUri(@NonNull String externalUri) {
+            mExternalUri = Uri.parse(Preconditions.checkNotNull(externalUri));
+            return (T) this;
+        }
+
         /** Sets the {@link Uri} of the profile image for the {@link Person}. */
         public @NonNull T setImageUri(@NonNull Uri imageUri) {
             mImageUri = Preconditions.checkNotNull(imageUri);
+            return (T) this;
+        }
+
+        /**
+         * Sets the {@link Uri} of the profile image from a {@link String} representation for
+         * the {@link Person}.
+         */
+        @ExperimentalAppSearchApi
+        public @NonNull T setImageUri(@NonNull String imageUri) {
+            mImageUri = Uri.parse(Preconditions.checkNotNull(imageUri));
             return (T) this;
         }
 
@@ -431,8 +471,22 @@ public class Person extends Thing {
             return (T) this;
         }
 
+        /** Sets whether this {@link Person} is important. */
+        @ExperimentalAppSearchApi
+        public @NonNull T setIsImportant(boolean isImportant) {
+            mIsImportant = isImportant;
+            return (T) this;
+        }
+
         /** Sets whether this {@link Person} is a bot. */
         public @NonNull T setBot(boolean isBot) {
+            mIsBot = isBot;
+            return (T) this;
+        }
+
+        /** Sets whether this {@link Person} is a bot. */
+        @ExperimentalAppSearchApi
+        public @NonNull T setIsBot(boolean isBot) {
             mIsBot = isBot;
             return (T) this;
         }
@@ -452,15 +506,49 @@ public class Person extends Thing {
             Preconditions.checkNotNull(additionalNames);
             int size = additionalNames.size();
             mAdditionalNameTypes = new ArrayList<>(size);
-            mAdditionalNames = new ArrayList<>(size);
+            mAdditionalNamesList = new ArrayList<>(size);
             for (int i = 0; i < additionalNames.size(); ++i) {
                 long type = Preconditions.checkArgumentInRange(additionalNames.get(i).getType(),
                         AdditionalName.TYPE_UNKNOWN,
                         AdditionalName.TYPE_PHONETIC_NAME,
                         "type");
                 mAdditionalNameTypes.add(type);
-                mAdditionalNames.add(additionalNames.get(i).getValue());
+                mAdditionalNamesList.add(additionalNames.get(i).getValue());
             }
+            return (T) this;
+        }
+
+        /**
+         * Sets a list of additional names for that {@link Person}.
+         *
+         * <p>This should only be called by the AppSearch compiler. All other usages should go
+         * through {@link #setAdditionalNames(List)}.
+         */
+        @ExperimentalAppSearchApi
+        @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.SUBCLASSES})
+        public @NonNull T setAdditionalNamesList(@NonNull List<String> additionalNamesList) {
+            Preconditions.checkNotNull(additionalNamesList);
+            mAdditionalNamesList = new ArrayList<>(additionalNamesList);
+            return (T) this;
+        }
+
+        /**
+         * Sets a list of additional name types for that {@link Person}.
+         *
+         * <p>This should only be called by the AppSearch compiler. All other usages should go
+         * through {@link #setAdditionalNames(List)}.
+         */
+        @ExperimentalAppSearchApi
+        @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.SUBCLASSES})
+        public @NonNull T setAdditionalNameTypes(@NonNull List<Long> additionalNameTypes) {
+            Preconditions.checkNotNull(additionalNameTypes);
+            for (int i = 0; i < additionalNameTypes.size(); ++i) {
+                Preconditions.checkArgumentInRange(additionalNameTypes.get(i),
+                        AdditionalName.TYPE_UNKNOWN,
+                        AdditionalName.TYPE_PHONETIC_NAME,
+                        "type");
+            }
+            mAdditionalNameTypes = new ArrayList<>(additionalNameTypes);
             return (T) this;
         }
 
@@ -492,34 +580,8 @@ public class Person extends Thing {
         /** Builds the {@link Person}. */
         @Override
         public @NonNull Person build() {
-            Preconditions.checkState(mAdditionalNameTypes.size() == mAdditionalNames.size());
-            return new Person(
-                    /*namespace=*/ mNamespace,
-                    /*id=*/ mId,
-                    /*documentScore=*/mDocumentScore,
-                    /*creationTimestampMillis=*/ mCreationTimestampMillis,
-                    /*documentTtlMillis=*/ mDocumentTtlMillis,
-                    /*name=*/ mName,
-                    /*alternateNames=*/ mAlternateNames,
-                    /*description=*/ mDescription,
-                    /*image=*/ mImage,
-                    /*url=*/ mUrl,
-                    /*potentialActions=*/ mPotentialActions,
-                    /*givenName=*/ mGivenName,
-                    /*middleName=*/ mMiddleName,
-                    /*familyName=*/ mFamilyName,
-                    /*externalUri=*/ mExternalUri != null
-                    ? mExternalUri.toString() : null,
-                    /*imageUri=*/ mImageUri != null
-                    ? mImageUri.toString() : null,
-                    /*isImportant=*/ mIsImportant,
-                    /*isBot=*/ mIsBot,
-                    /*notes=*/ new ArrayList<>(mNotes),
-                    /*additionalNameTypes=*/ new ArrayList<>(mAdditionalNameTypes),
-                    /*additionalNames=*/ new ArrayList<>(mAdditionalNames),
-                    /*affiliations=*/ new ArrayList<>(mAffiliations),
-                    /*relations=*/ new ArrayList<>(mRelations),
-                    /*contactPoints=*/ new ArrayList<>(mContactPoints));
+            Preconditions.checkState(mAdditionalNameTypes.size() == mAdditionalNamesList.size());
+            return new Person(this);
         }
     }
 }

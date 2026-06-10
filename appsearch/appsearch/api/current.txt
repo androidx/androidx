@@ -1235,6 +1235,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
   }
 
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ClickAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class ClickAction extends androidx.appsearch.usagereporting.TakenAction {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public ClickAction(androidx.appsearch.usagereporting.ClickAction.BuilderBase<? extends java.lang.Object!>);
     method public String? getQuery();
     method public String? getReferencedQualifiedId();
     method public int getResultRankGlobal();
@@ -1242,73 +1243,100 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
     method public long getTimeStayOnResultMillis();
   }
 
-  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class ClickAction.Builder {
+  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class ClickAction.Builder extends androidx.appsearch.usagereporting.ClickAction.BuilderBase<androidx.appsearch.usagereporting.ClickAction.Builder!> {
     ctor public ClickAction.Builder(androidx.appsearch.usagereporting.ClickAction);
     ctor public ClickAction.Builder(String, String, long);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ClickAction.BuilderBase<T extends androidx.appsearch.usagereporting.ClickAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
+    ctor public ClickAction.BuilderBase(androidx.appsearch.usagereporting.ClickAction);
+    ctor public ClickAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.ClickAction build();
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setQuery(String?);
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setReferencedQualifiedId(String?);
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setResultRankGlobal(int);
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setResultRankInBlock(int);
-    method public androidx.appsearch.usagereporting.ClickAction.Builder setTimeStayOnResultMillis(long);
+    method public T setQuery(String?);
+    method public T setReferencedQualifiedId(String?);
+    method public T setResultRankGlobal(int);
+    method public T setResultRankInBlock(int);
+    method public T setTimeStayOnResultMillis(long);
   }
 
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:DismissAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class DismissAction extends androidx.appsearch.usagereporting.TakenAction {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public DismissAction(androidx.appsearch.usagereporting.DismissAction.BuilderBase<? extends java.lang.Object!>);
     method public String? getQuery();
     method public String? getReferencedQualifiedId();
     method public int getResultRankGlobal();
     method public int getResultRankInBlock();
   }
 
-  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class DismissAction.Builder {
+  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class DismissAction.Builder extends androidx.appsearch.usagereporting.DismissAction.BuilderBase<androidx.appsearch.usagereporting.DismissAction.Builder!> {
     ctor public DismissAction.Builder(androidx.appsearch.usagereporting.DismissAction);
     ctor public DismissAction.Builder(String, String, long);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class DismissAction.BuilderBase<T extends androidx.appsearch.usagereporting.DismissAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
+    ctor public DismissAction.BuilderBase(androidx.appsearch.usagereporting.DismissAction);
+    ctor public DismissAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.DismissAction build();
-    method public androidx.appsearch.usagereporting.DismissAction.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.usagereporting.DismissAction.Builder setQuery(String?);
-    method public androidx.appsearch.usagereporting.DismissAction.Builder setReferencedQualifiedId(String?);
-    method public androidx.appsearch.usagereporting.DismissAction.Builder setResultRankGlobal(int);
-    method public androidx.appsearch.usagereporting.DismissAction.Builder setResultRankInBlock(int);
+    method public T setQuery(String?);
+    method public T setReferencedQualifiedId(String?);
+    method public T setResultRankGlobal(int);
+    method public T setResultRankInBlock(int);
   }
 
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ImpressionAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class ImpressionAction extends androidx.appsearch.usagereporting.TakenAction {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public ImpressionAction(androidx.appsearch.usagereporting.ImpressionAction.BuilderBase<? extends java.lang.Object!>);
     method public String? getQuery();
     method public String? getReferencedQualifiedId();
     method public int getResultRankGlobal();
     method public int getResultRankInBlock();
   }
 
-  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class ImpressionAction.Builder {
+  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class ImpressionAction.Builder extends androidx.appsearch.usagereporting.ImpressionAction.BuilderBase<androidx.appsearch.usagereporting.ImpressionAction.Builder!> {
     ctor public ImpressionAction.Builder(androidx.appsearch.usagereporting.ImpressionAction);
     ctor public ImpressionAction.Builder(String, String, long);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ImpressionAction.BuilderBase<T extends androidx.appsearch.usagereporting.ImpressionAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
+    ctor public ImpressionAction.BuilderBase(androidx.appsearch.usagereporting.ImpressionAction);
+    ctor public ImpressionAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.ImpressionAction build();
-    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setQuery(String?);
-    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setReferencedQualifiedId(String?);
-    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setResultRankGlobal(int);
-    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setResultRankInBlock(int);
+    method public T setQuery(String?);
+    method public T setReferencedQualifiedId(String?);
+    method public T setResultRankGlobal(int);
+    method public T setResultRankInBlock(int);
   }
 
   @SuppressCompatibility @androidx.appsearch.annotation.Document(name="builtin:SearchAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class SearchAction extends androidx.appsearch.usagereporting.TakenAction {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SearchAction(androidx.appsearch.usagereporting.SearchAction.BuilderBase<? extends java.lang.Object!>);
     method public int getFetchedResultCount();
     method public String? getQuery();
   }
 
-  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class SearchAction.Builder {
+  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class SearchAction.Builder extends androidx.appsearch.usagereporting.SearchAction.BuilderBase<androidx.appsearch.usagereporting.SearchAction.Builder!> {
     ctor public SearchAction.Builder(androidx.appsearch.usagereporting.SearchAction);
     ctor public SearchAction.Builder(String, String, long);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class SearchAction.BuilderBase<T extends androidx.appsearch.usagereporting.SearchAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
+    ctor public SearchAction.BuilderBase(androidx.appsearch.usagereporting.SearchAction);
+    ctor public SearchAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.SearchAction build();
-    method public androidx.appsearch.usagereporting.SearchAction.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.usagereporting.SearchAction.Builder setFetchedResultCount(int);
-    method public androidx.appsearch.usagereporting.SearchAction.Builder setQuery(String?);
+    method public T setFetchedResultCount(int);
+    method public T setQuery(String?);
   }
 
   @SuppressCompatibility @androidx.appsearch.annotation.Document(name="builtin:TakenAction") @androidx.appsearch.app.ExperimentalAppSearchApi public abstract class TakenAction {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public TakenAction(androidx.appsearch.usagereporting.TakenAction.BuilderBase<? extends java.lang.Object!>);
     method public long getActionTimestampMillis();
     method public long getDocumentTtlMillis();
     method public String getId();
     method public String getNamespace();
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class TakenAction.BuilderBase<T extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T>> {
+    ctor public TakenAction.BuilderBase(androidx.appsearch.usagereporting.TakenAction);
+    ctor public TakenAction.BuilderBase(String, String, long, int);
+    method public androidx.appsearch.usagereporting.TakenAction build();
+    method public T setDocumentTtlMillis(long);
   }
 
 }

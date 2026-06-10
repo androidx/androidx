@@ -72,34 +72,35 @@ public class Thing {
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private final List<PotentialAction> mPotentialActions;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Thing(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @Nullable List<PotentialAction> potentialActions) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
-        mName = name;
+    /**
+     * Constructor for {@link Thing}.
+     *
+     * @param builder The builder to construct the {@link Thing} from.
+     */
+    @ExperimentalAppSearchApi
+    public Thing(@NonNull BuilderBase<?> builder) {
+        mNamespace = Preconditions.checkNotNull(builder.mNamespace);
+        mId = Preconditions.checkNotNull(builder.mId);
+        mDocumentScore = builder.mDocumentScore;
+        mCreationTimestampMillis = builder.mCreationTimestampMillis;
+        mDocumentTtlMillis = builder.mDocumentTtlMillis;
+        mName = builder.mName;
         // If an old schema does not define the alternateNames field, AppSearch may attempt to
         // pass in null when converting its GenericDocument to the java class.
-        if (alternateNames == null) {
+        if (builder.mAlternateNames == null) {
             mAlternateNames = Collections.emptyList();
         } else {
-            mAlternateNames = Collections.unmodifiableList(alternateNames);
+            mAlternateNames = Collections.unmodifiableList(builder.mAlternateNames);
         }
-        mDescription = description;
-        mImage = image;
-        mUrl = url;
+        mDescription = builder.mDescription;
+        mImage = builder.mImage;
+        mUrl = builder.mUrl;
         // AppSearch may pass null if old schema lacks the potentialActions field during
         // GenericDocument to Java class conversion.
-        if (potentialActions == null) {
+        if (builder.mPotentialActions == null) {
             mPotentialActions = Collections.emptyList();
         } else {
-            mPotentialActions = Collections.unmodifiableList(potentialActions);
+            mPotentialActions = Collections.unmodifiableList(builder.mPotentialActions);
         }
     }
 
@@ -174,7 +175,8 @@ public class Thing {
 
     /** Builder for {@link Thing}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /** Constructs {@link Thing.Builder} with given {@code namespace} and {@code id} */
         public Builder(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
@@ -187,24 +189,30 @@ public class Thing {
     }
 
     @SuppressWarnings("unchecked")
-    // TODO: currently this can only be extends by classes in this package. Make this publicly
-    //  extensible.
-    static class BuilderImpl<T extends BuilderImpl<T>> {
-        protected final String mNamespace;
-        protected final String mId;
-        protected int mDocumentScore;
-        protected long mCreationTimestampMillis;
-        protected long mDocumentTtlMillis;
-        protected String mName;
-        protected List<String> mAlternateNames = new ArrayList<>();
-        protected String mDescription;
-        protected String mImage;
-        protected String mUrl;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> {
+        private final String mNamespace;
+        private final String mId;
+        private int mDocumentScore;
+        private long mCreationTimestampMillis;
+        private long mDocumentTtlMillis;
+        private String mName;
+        private List<String> mAlternateNames = new ArrayList<>();
+        private String mDescription;
+        private String mImage;
+        private String mUrl;
         @OptIn(markerClass = ExperimentalAppSearchApi.class)
-        protected List<PotentialAction> mPotentialActions = new ArrayList<>();
+        private List<PotentialAction> mPotentialActions = new ArrayList<>();
         private boolean mBuilt = false;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link Thing.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             mNamespace = Preconditions.checkNotNull(namespace);
             mId = Preconditions.checkNotNull(id);
 
@@ -213,8 +221,13 @@ public class Thing {
             mCreationTimestampMillis = -1;
         }
 
+        /**
+         * Constructor for {@link Thing.BuilderBase} from existing values in given {@link Thing}.
+         *
+         * @param thing The existing {@link Thing} to copy values from.
+         */
         @OptIn(markerClass = ExperimentalAppSearchApi.class)
-        BuilderImpl(@NonNull Thing thing) {
+        public BuilderBase(@NonNull Thing thing) {
             this(thing.getNamespace(), thing.getId());
             mDocumentScore = thing.getDocumentScore();
             mCreationTimestampMillis = thing.getCreationTimestampMillis();
@@ -380,7 +393,7 @@ public class Thing {
         /**
          * If built, make a copy of previous data for every field so that the builder can be reused.
          */
-        private void resetIfBuilt() {
+        protected void resetIfBuilt() {
             if (mBuilt) {
                 mAlternateNames = new ArrayList<>(mAlternateNames);
                 mPotentialActions = new ArrayList<>(mPotentialActions);
@@ -391,9 +404,7 @@ public class Thing {
         /** Builds a {@link Thing} object. */
         public @NonNull Thing build() {
             mBuilt = true;
-            return new Thing(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions);
+            return new Thing(this);
         }
     }
 }

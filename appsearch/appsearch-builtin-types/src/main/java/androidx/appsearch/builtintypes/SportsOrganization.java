@@ -27,8 +27,6 @@ import androidx.core.util.Preconditions;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * AppSearch document representing a {@link SportsOrganization} entity.
  */
@@ -41,21 +39,16 @@ public class SportsOrganization extends Organization {
     @Document.LongProperty(serializer = ColorAsLongSerializer.class)
     private @Nullable Color mAccentColor;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    SportsOrganization(
-        @NonNull String namespace, @NonNull String id, int documentScore,
-        long creationTimestampMillis, long documentTtlMillis,
-        @Nullable String name, @Nullable List<String> alternateNames,
-        @Nullable String description, @Nullable String image,
-        @Nullable String url, @NonNull List<PotentialAction> potentialActions,
-        @Nullable ImageObject logo,
-        @NonNull String sport,
-        @Nullable Color accentColor) {
-        super(namespace, id, documentScore, creationTimestampMillis,
-            documentTtlMillis, name, alternateNames, description, image, url,
-            potentialActions, logo);
-        this.mSport = sport;
-        this.mAccentColor = accentColor;
+    /**
+     * Constructor for {@link SportsOrganization}.
+     *
+     * @param builder The builder to construct the {@link SportsOrganization} from.
+     */
+    @ExperimentalAppSearchApi
+    public SportsOrganization(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        this.mSport = builder.mSport;
+        this.mAccentColor = builder.mAccentColor;
     }
 
     /**
@@ -74,7 +67,8 @@ public class SportsOrganization extends Organization {
     }
 
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /**
          * Constructor for {@link SportsOrganization.Builder}.
@@ -100,18 +94,33 @@ public class SportsOrganization extends Organization {
      * Builder for {@link SportsOrganization}.
      */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Organization.BuilderImpl<T> {
-        protected @NonNull String mSport;
-        protected @Nullable Color mAccentColor;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends
+            Organization.BuilderBase<T> {
+        private final @NonNull String mSport;
+        private @Nullable Color mAccentColor;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        /**
+         * Constructor for {@link SportsOrganization.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id The unique identifier for the Document.
+         * @param sport The sport of the sports organization.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
             @NonNull String sport) {
             super(namespace, id);
             mSport = Preconditions.checkNotNull(sport);
         }
 
-        BuilderImpl(@NonNull SportsOrganization sportsOrganization) {
-            super(new Organization.Builder(sportsOrganization).build());
+        /**
+         * Constructor for {@link SportsOrganization.BuilderBase} with all the existing values.
+         *
+         * @param sportsOrganization The existing {@link SportsOrganization} to copy values from.
+         */
+        public BuilderBase(@NonNull SportsOrganization sportsOrganization) {
+            super(sportsOrganization);
             mSport = sportsOrganization.getSport();
             mAccentColor = sportsOrganization.getAccentColor();
         }
@@ -129,21 +138,7 @@ public class SportsOrganization extends Organization {
 
         @Override
         public @NonNull SportsOrganization build() {
-            return new SportsOrganization(
-                mNamespace,
-                mId,
-                mDocumentScore,
-                mCreationTimestampMillis,
-                mDocumentTtlMillis,
-                mName,
-                mAlternateNames,
-                mDescription,
-                mImage,
-                mUrl,
-                mPotentialActions,
-                mLogo,
-                mSport,
-                mAccentColor);
+            return new SportsOrganization(this);
         }
       }
 }

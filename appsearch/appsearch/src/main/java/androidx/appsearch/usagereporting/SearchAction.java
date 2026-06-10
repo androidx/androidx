@@ -50,7 +50,13 @@ public class SearchAction extends TakenAction {
     @Document.LongProperty
     private final int mFetchedResultCount;
 
-    SearchAction(@NonNull BuilderImpl<? extends BuilderImpl<?>> builder) {
+    /**
+     * Constructs a {@link SearchAction} from a {@link BuilderBase}.
+     *
+     * @param builder The builder to construct the {@link SearchAction} from.
+     */
+    @ExperimentalAppSearchApi
+    public SearchAction(@NonNull BuilderBase<?> builder) {
         super(builder);
         mQuery = builder.mQuery;
         mFetchedResultCount = builder.mFetchedResultCount;
@@ -73,7 +79,7 @@ public class SearchAction extends TakenAction {
 
     /** Builder for {@link SearchAction}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link SearchAction.Builder}.
          *
@@ -111,13 +117,16 @@ public class SearchAction extends TakenAction {
         }
     }
 
+    /** Builder for {@link SearchAction}. */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends TakenAction.BuilderImpl<T> {
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends
+            TakenAction.BuilderBase<T> {
         private String mQuery;
         private int mFetchedResultCount;
 
         /**
-         * Constructs {@link BuilderImpl} with given {@code namespace}, {@code id},
+         * Constructs {@link SearchAction.BuilderBase} with given {@code namespace}, {@code id},
          * {@code actionTimestampMillis} and {@code actionType}.
          *
          * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
@@ -127,7 +136,7 @@ public class SearchAction extends TakenAction {
          * @param actionType            Action type enum for the Document. See
          *                              {@link TakenAction.ActionType}.
          */
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
                 long actionTimestampMillis, @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
 
@@ -137,9 +146,9 @@ public class SearchAction extends TakenAction {
         }
 
         /**
-         * Constructor for {@link BuilderImpl} with all the existing values.
+         * Constructor for {@link SearchAction.BuilderBase} with all the existing values.
          */
-        BuilderImpl(@NonNull SearchAction searchAction) {
+        public BuilderBase(@NonNull SearchAction searchAction) {
             super(Preconditions.checkNotNull(searchAction));
 
             mQuery = searchAction.getQuery();

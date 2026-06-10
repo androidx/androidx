@@ -31,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 /**
  * AppSearch document representing a {@link Timer} entity.
@@ -88,28 +87,24 @@ public class Timer extends Thing {
     @Document.BooleanProperty
     private final boolean mShouldVibrate;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Timer(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @Nullable List<PotentialAction> potentialActions,
-            long durationMillis, long originalDurationMillis, long startTimeMillis,
-            long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
-            long remainingDurationMillis, @Nullable String ringtone, int status,
-            boolean shouldVibrate) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mDurationMillis = durationMillis;
-        mOriginalDurationMillis = originalDurationMillis;
-        mStartTimeMillis = startTimeMillis;
-        mBaseTimeMillis = baseTimeMillis;
-        mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
-        mBootCount = bootCount;
-        mRemainingDurationMillis = remainingDurationMillis;
-        mRingtone = ringtone;
-        mStatus = status;
-        mShouldVibrate = shouldVibrate;
+    /**
+     * Constructor for {@link Timer}.
+     *
+     * @param builder The builder to construct the {@link Timer} from.
+     */
+    @ExperimentalAppSearchApi
+    public Timer(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mDurationMillis = builder.mDurationMillis;
+        mOriginalDurationMillis = builder.mOriginalDurationMillis;
+        mStartTimeMillis = builder.mStartTimeMillis;
+        mBaseTimeMillis = builder.mBaseTimeMillis;
+        mBaseTimeMillisInElapsedRealtime = builder.mBaseTimeMillisInElapsedRealtime;
+        mBootCount = builder.mBootCount;
+        mRemainingDurationMillis = builder.mRemainingDurationMillis;
+        mRingtone = builder.mRingtone;
+        mStatus = builder.mStatus;
+        mShouldVibrate = builder.mShouldVibrate;
     }
 
     /**
@@ -294,7 +289,9 @@ public class Timer extends Thing {
     }
 
     /** Builder for {@link Timer}. */
-    public static final class Builder extends BuilderImpl<Builder> {
+    @Document.BuilderProducer
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link Timer.Builder}.
          *
@@ -314,24 +311,36 @@ public class Timer extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected long mDurationMillis;
-        protected long mOriginalDurationMillis;
-        protected long mStartTimeMillis;
-        protected long mBaseTimeMillis;
-        protected long mBaseTimeMillisInElapsedRealtime;
-        protected int mBootCount;
-        protected long mRemainingDurationMillis;
-        protected String mRingtone;
-        protected int mStatus;
-        protected boolean mShouldVibrate;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private long mDurationMillis;
+        private long mOriginalDurationMillis;
+        private long mStartTimeMillis;
+        private long mBaseTimeMillis;
+        private long mBaseTimeMillisInElapsedRealtime;
+        private int mBootCount;
+        private long mRemainingDurationMillis;
+        private String mRingtone;
+        private int mStatus;
+        private boolean mShouldVibrate;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link Timer.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
-        BuilderImpl(@NonNull Timer timer) {
-            super(new Thing.Builder(timer).build());
+        /**
+         * Constructor for {@link Timer.BuilderBase} with all the existing values.
+         *
+         * @param timer The existing {@link Timer} to copy values from.
+         */
+        public BuilderBase(@NonNull Timer timer) {
+            super(timer);
 
             mDurationMillis = timer.getDurationMillis();
             mOriginalDurationMillis = timer.getOriginalDurationMillis();
@@ -422,6 +431,32 @@ public class Timer extends Thing {
         }
 
         /**
+         * Sets the point in time that the {@link Timer} counts down from, relative to its
+         * {@link #setRemainingDurationMillis(long)}. In milliseconds using the
+         * {@link System#currentTimeMillis()} time base.
+         */
+        public @NonNull T setBaseTimeMillis(long baseTimeMillis) {
+            mBaseTimeMillis = baseTimeMillis;
+            return (T) this;
+        }
+
+        /**
+         * Sets the point in time that the {@link Timer} counts down from, relative to its
+         * {@link #setRemainingDurationMillis(long)}. In milliseconds using the
+         * {@link android.os.SystemClock#elapsedRealtime()} time base.
+         */
+        public @NonNull T setBaseTimeMillisInElapsedRealtime(long baseTimeMillisInElapsedRealtime) {
+            mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
+            return (T) this;
+        }
+
+        /** Sets the boot count of the device. */
+        public @NonNull T setBootCount(int bootCount) {
+            mBootCount = bootCount;
+            return (T) this;
+        }
+
+        /**
          * Sets the amount of time remaining in milliseconds for the {@link Timer} relative to its
          * {@link #setBaseTimeMillis(long, long, int)}.
          *
@@ -463,12 +498,7 @@ public class Timer extends Thing {
         /** Builds the {@link Timer}. */
         @Override
         public @NonNull Timer build() {
-            return new Timer(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions,
-                    mDurationMillis, mOriginalDurationMillis, mStartTimeMillis, mBaseTimeMillis,
-                    mBaseTimeMillisInElapsedRealtime, mBootCount, mRemainingDurationMillis,
-                    mRingtone, mStatus, mShouldVibrate);
+            return new Timer(this);
         }
     }
 }

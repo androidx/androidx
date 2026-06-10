@@ -25,11 +25,9 @@ import androidx.appsearch.utils.DateTimeFormatValidator;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 /**
  * AppSearch document representing an {@link AlarmInstance} entity.
@@ -74,18 +72,17 @@ public class AlarmInstance extends Thing {
     @Document.LongProperty
     private final long mSnoozeDurationMillis;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    AlarmInstance(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions, @NonNull String scheduledTime,
-            int status, long snoozeDurationMillis) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mScheduledTime = Preconditions.checkNotNull(scheduledTime);
-        mStatus = status;
-        mSnoozeDurationMillis = snoozeDurationMillis;
+    /**
+     * Constructor for {@link AlarmInstance}.
+     *
+     * @param builder The builder to construct the {@link AlarmInstance} from.
+     */
+    @ExperimentalAppSearchApi
+    public AlarmInstance(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mScheduledTime = builder.mScheduledTime;
+        mStatus = builder.mStatus;
+        mSnoozeDurationMillis = builder.mSnoozeDurationMillis;
     }
 
     /**
@@ -121,7 +118,8 @@ public class AlarmInstance extends Thing {
 
     /** Builder for {@link AlarmInstance}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link AlarmInstance.Builder}.
          *
@@ -145,12 +143,23 @@ public class AlarmInstance extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends AlarmInstance.BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected final String mScheduledTime;
-        protected int mStatus;
-        protected long mSnoozeDurationMillis;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends AlarmInstance.BuilderBase<T>> extends
+            Thing.BuilderBase<T> {
+        private final String mScheduledTime;
+        private int mStatus;
+        private long mSnoozeDurationMillis;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        /**
+         * Constructor for {@link AlarmInstance.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         * @param scheduledTime The time that this is expected to fire in
+         *                      ISO 8601 format. E.g.: 2022-01-14T00:00:00. Scheduled time should
+         *                      be timezone independent.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
                 @NonNull String scheduledTime) {
             super(namespace, id);
             Preconditions.checkNotNull(scheduledTime);
@@ -164,8 +173,13 @@ public class AlarmInstance extends Thing {
             mSnoozeDurationMillis = -1;
         }
 
-        BuilderImpl(@NonNull AlarmInstance alarmInstance) {
-            super(new Thing.Builder(alarmInstance).build());
+        /**
+         * Constructor for {@link AlarmInstance.BuilderBase} with all the existing values.
+         *
+         * @param alarmInstance The existing {@link AlarmInstance} to copy values from.
+         */
+        public BuilderBase(@NonNull AlarmInstance alarmInstance) {
+            super(alarmInstance);
             mScheduledTime = alarmInstance.getScheduledTime();
             mStatus = alarmInstance.getStatus();
             mSnoozeDurationMillis = alarmInstance.getSnoozeDurationMillis();
@@ -197,10 +211,7 @@ public class AlarmInstance extends Thing {
         /** Builds the {@link AlarmInstance}. */
         @Override
         public @NonNull AlarmInstance build() {
-            return new AlarmInstance(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions,
-                    mScheduledTime, mStatus, mSnoozeDurationMillis);
+            return new AlarmInstance(this);
         }
     }
 }

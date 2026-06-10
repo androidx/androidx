@@ -76,7 +76,13 @@ public class ImpressionAction extends TakenAction {
     @Document.LongProperty
     private final int mResultRankGlobal;
 
-    ImpressionAction(@NonNull BuilderImpl<? extends BuilderImpl<?>> builder) {
+    /**
+     * Constructs an {@link ImpressionAction} from a {@link BuilderBase}.
+     *
+     * @param builder The builder to construct the {@link ImpressionAction} from.
+     */
+    @ExperimentalAppSearchApi
+    public ImpressionAction(@NonNull BuilderBase<?> builder) {
         super(builder);
         mQuery = builder.mQuery;
         mReferencedQualifiedId = builder.mReferencedQualifiedId;
@@ -143,7 +149,7 @@ public class ImpressionAction extends TakenAction {
 
     /** Builder for {@link ImpressionAction}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link ImpressionAction.Builder}.
          *
@@ -185,15 +191,18 @@ public class ImpressionAction extends TakenAction {
         }
     }
 
+    /** Builder for {@link ImpressionAction}. */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends TakenAction.BuilderImpl<T> {
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends
+            TakenAction.BuilderBase<T> {
         private String mQuery;
         private String mReferencedQualifiedId;
         private int mResultRankInBlock;
         private int mResultRankGlobal;
 
         /**
-         * Constructs {@link BuilderImpl} with given {@code namespace}, {@code id},
+         * Constructs {@link ImpressionAction.BuilderBase} with given {@code namespace}, {@code id},
          * {@code actionTimestampMillis} and {@code actionType}.
          *
          * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
@@ -203,7 +212,7 @@ public class ImpressionAction extends TakenAction {
          * @param actionType            Action type enum for the Document. See
          *                              {@link TakenAction.ActionType}.
          */
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
                 long actionTimestampMillis, @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
 
@@ -214,12 +223,12 @@ public class ImpressionAction extends TakenAction {
         }
 
         /**
-         * Constructs {@link BuilderImpl} by copying existing values from the given
+         * Constructs {@link ImpressionAction.BuilderBase} by copying existing values from the given
          * {@link ImpressionAction}.
          *
          * @param impressionAction an existing {@link ImpressionAction} object.
          */
-        BuilderImpl(@NonNull ImpressionAction impressionAction) {
+        public BuilderBase(@NonNull ImpressionAction impressionAction) {
             super(Preconditions.checkNotNull(impressionAction));
 
             mQuery = impressionAction.getQuery();

@@ -16,16 +16,12 @@
 
 package androidx.appsearch.builtintypes;
 
-import android.graphics.Color;
-
 import androidx.annotation.OptIn;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * AppSearch document representing a {@link SportsTeam} entity.
@@ -51,26 +47,20 @@ public class SportsTeam extends SportsOrganization {
     @Document.StringProperty
     private @Nullable String mFormattedRecord;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    SportsTeam(
-        @NonNull String namespace, @NonNull String id, int documentScore,
-        long creationTimestampMillis, long documentTtlMillis,
-        @Nullable String name, @Nullable List<String> alternateNames,
-        @Nullable String description, @Nullable String image,
-        @Nullable String url, @NonNull List<PotentialAction> potentialActions,
-        @Nullable ImageObject logo, @NonNull String sport,
-        @Nullable Color accentColor, long wins, long losses, long ties,
-        long overtimeLosses, long overtimeWins,
-        @Nullable String formattedRecord) {
-        super(namespace, id, documentScore, creationTimestampMillis,
-            documentTtlMillis, name, alternateNames, description, image, url,
-            potentialActions, logo, sport, accentColor);
-        this.mWins = wins;
-        this.mLosses = losses;
-        this.mTies = ties;
-        this.mOvertimeLosses = overtimeLosses;
-        this.mOvertimeWins = overtimeWins;
-        this.mFormattedRecord = formattedRecord;
+    /**
+     * Constructor for {@link SportsTeam}.
+     *
+     * @param builder The builder to construct the {@link SportsTeam} from.
+     */
+    @ExperimentalAppSearchApi
+    public SportsTeam(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        this.mWins = builder.mWins;
+        this.mLosses = builder.mLosses;
+        this.mTies = builder.mTies;
+        this.mOvertimeLosses = builder.mOvertimeLosses;
+        this.mOvertimeWins = builder.mOvertimeWins;
+        this.mFormattedRecord = builder.mFormattedRecord;
     }
 
     /**
@@ -119,7 +109,8 @@ public class SportsTeam extends SportsOrganization {
     }
 
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /**
          * Constructor for {@link SportsTeam.Builder}.
@@ -146,21 +137,36 @@ public class SportsTeam extends SportsOrganization {
      * Builder for {@link SportsTeam}.
      */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends SportsOrganization.BuilderImpl<T> {
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends
+            SportsOrganization.BuilderBase<T> {
         // Initialize the default values to 0.
-        protected long mWins = 0;
-        protected long mLosses = 0;
-        protected long mTies = 0;
-        protected long mOvertimeLosses = 0;
-        protected long mOvertimeWins = 0;
-        protected @Nullable String mFormattedRecord;
+        private long mWins = 0;
+        private long mLosses = 0;
+        private long mTies = 0;
+        private long mOvertimeLosses = 0;
+        private long mOvertimeWins = 0;
+        private @Nullable String mFormattedRecord;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        /**
+         * Constructor for {@link SportsTeam.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id The unique identifier for the Document.
+         * @param sport The sport of the sports team.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
             @NonNull String sport) {
             super(namespace, id, sport);
         }
 
-        BuilderImpl(@NonNull SportsTeam sportsTeam) {
+        /**
+         * Constructor for {@link SportsTeam.BuilderBase} with all the existing values.
+         *
+         * @param sportsTeam The existing {@link SportsTeam} to copy values from.
+         */
+        public BuilderBase(@NonNull SportsTeam sportsTeam) {
             super(sportsTeam);
             this.mWins = sportsTeam.getWins();
             this.mLosses = sportsTeam.getLosses();
@@ -236,27 +242,7 @@ public class SportsTeam extends SportsOrganization {
 
         @Override
         public @NonNull SportsTeam build() {
-            return new SportsTeam(
-                mNamespace,
-                mId,
-                mDocumentScore,
-                mCreationTimestampMillis,
-                mDocumentTtlMillis,
-                mName,
-                mAlternateNames,
-                mDescription,
-                mImage,
-                mUrl,
-                mPotentialActions,
-                mLogo,
-                mSport,
-                mAccentColor,
-                mWins,
-                mLosses,
-                mTies,
-                mOvertimeLosses,
-                mOvertimeWins,
-                mFormattedRecord);
+            return new SportsTeam(this);
         }
     }
 }

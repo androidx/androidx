@@ -32,6 +32,7 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Alarm") public class Alarm extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Alarm(androidx.appsearch.builtintypes.Alarm.BuilderBase<? extends java.lang.Object!>);
     method public String? getBlackoutPeriodEndDate();
     method public String? getBlackoutPeriodStartDate();
     method public int[]? getDaysOfWeek();
@@ -48,37 +49,30 @@ package androidx.appsearch.builtintypes {
     field public static final int ORIGINATING_DEVICE_UNKNOWN = 0; // 0x0
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Alarm.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Alarm.Builder extends androidx.appsearch.builtintypes.Alarm.BuilderBase<androidx.appsearch.builtintypes.Alarm.Builder!> {
     ctor public Alarm.Builder(androidx.appsearch.builtintypes.Alarm);
     ctor public Alarm.Builder(String, String);
-    method public androidx.appsearch.builtintypes.Alarm.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Alarm.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Alarm.BuilderBase<T extends androidx.appsearch.builtintypes.Alarm.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Alarm.BuilderBase(androidx.appsearch.builtintypes.Alarm);
+    ctor public Alarm.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.Alarm build();
-    method public androidx.appsearch.builtintypes.Alarm.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Alarm.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Alarm.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodEndDate(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodStartDate(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setEnabled(boolean);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setHour(@IntRange(from=0, to=23) int);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Alarm.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setMinute(@IntRange(from=0, to=59) int);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setNextInstance(androidx.appsearch.builtintypes.AlarmInstance?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setOriginatingDevice(int);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Alarm.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setPreviousInstance(androidx.appsearch.builtintypes.AlarmInstance?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setRingtone(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setShouldVibrate(boolean);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setUrl(String?);
+    method public T setBlackoutPeriodEndDate(String?);
+    method public T setBlackoutPeriodStartDate(String?);
+    method public T setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...?);
+    method public T setEnabled(boolean);
+    method public T setHour(@IntRange(from=0, to=23) int);
+    method public T setMinute(@IntRange(from=0, to=59) int);
+    method public T setNextInstance(androidx.appsearch.builtintypes.AlarmInstance?);
+    method public T setOriginatingDevice(int);
+    method public T setPreviousInstance(androidx.appsearch.builtintypes.AlarmInstance?);
+    method public T setRingtone(String?);
+    method public T setShouldVibrate(boolean);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:AlarmInstance") public class AlarmInstance extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public AlarmInstance(androidx.appsearch.builtintypes.AlarmInstance.BuilderBase<? extends java.lang.Object!>);
     method public String getScheduledTime();
     method public long getSnoozeDurationMillis();
     method public int getStatus();
@@ -90,25 +84,17 @@ package androidx.appsearch.builtintypes {
     field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class AlarmInstance.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class AlarmInstance.Builder extends androidx.appsearch.builtintypes.AlarmInstance.BuilderBase<androidx.appsearch.builtintypes.AlarmInstance.Builder!> {
     ctor public AlarmInstance.Builder(androidx.appsearch.builtintypes.AlarmInstance);
     ctor public AlarmInstance.Builder(String, String, String);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.AlarmInstance.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class AlarmInstance.BuilderBase<T extends androidx.appsearch.builtintypes.AlarmInstance.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public AlarmInstance.BuilderBase(androidx.appsearch.builtintypes.AlarmInstance);
+    ctor public AlarmInstance.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.AlarmInstance build();
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.AlarmInstance.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.AlarmInstance.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.AlarmInstance.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setSnoozeDurationMillis(long);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setStatus(int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setUrl(String?);
+    method public T setSnoozeDurationMillis(long);
+    method public T setStatus(int);
   }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public class BuiltInCorpusFilters {
@@ -117,35 +103,29 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:ContactPoint") public class ContactPoint extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public ContactPoint(androidx.appsearch.builtintypes.ContactPoint.BuilderBase<? extends java.lang.Object!>);
     method public java.util.List<java.lang.String!> getAddresses();
     method public java.util.List<java.lang.String!> getEmails();
     method public String getLabel();
     method public java.util.List<java.lang.String!> getTelephones();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class ContactPoint.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class ContactPoint.Builder extends androidx.appsearch.builtintypes.ContactPoint.BuilderBase<androidx.appsearch.builtintypes.ContactPoint.Builder!> {
     ctor public ContactPoint.Builder(androidx.appsearch.builtintypes.ContactPoint);
     ctor public ContactPoint.Builder(String, String, String);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ContactPoint.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ContactPoint.BuilderBase<T extends androidx.appsearch.builtintypes.ContactPoint.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public ContactPoint.BuilderBase(androidx.appsearch.builtintypes.ContactPoint);
+    ctor public ContactPoint.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.ContactPoint build();
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ContactPoint.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setAddresses(java.util.List<java.lang.String!>);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setEmails(java.util.List<java.lang.String!>);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ContactPoint.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ContactPoint.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setTelephones(java.util.List<java.lang.String!>);
-    method public androidx.appsearch.builtintypes.ContactPoint.Builder setUrl(String?);
+    method public T setAddresses(java.util.List<java.lang.String!>);
+    method public T setEmails(java.util.List<java.lang.String!>);
+    method public T setTelephones(java.util.List<java.lang.String!>);
   }
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.O) @androidx.appsearch.annotation.Document(name="builtin:Event") public class Event extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Event(androidx.appsearch.builtintypes.Event.BuilderBase<? extends java.lang.Object!>);
     method public java.time.Duration? getDuration();
     method public java.time.Instant? getEndDate();
     method public String? getLocation();
@@ -153,27 +133,19 @@ package androidx.appsearch.builtintypes {
     method public java.time.Instant getStartDate();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Event.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Event.Builder extends androidx.appsearch.builtintypes.Event.BuilderBase<androidx.appsearch.builtintypes.Event.Builder!> {
     ctor public Event.Builder(androidx.appsearch.builtintypes.Event);
     ctor public Event.Builder(String, String, java.time.Instant);
-    method public androidx.appsearch.builtintypes.Event.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Event.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Event.BuilderBase<T extends androidx.appsearch.builtintypes.Event.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Event.BuilderBase(androidx.appsearch.builtintypes.Event);
+    ctor public Event.BuilderBase(String, String, java.time.Instant);
     method public androidx.appsearch.builtintypes.Event build();
-    method public androidx.appsearch.builtintypes.Event.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Event.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Event.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Event.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Event.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Event.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Event.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Event.Builder setDuration(java.time.Duration?);
-    method public androidx.appsearch.builtintypes.Event.Builder setEndDate(java.time.Instant?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Event.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Event.Builder setLocation(String?);
-    method public androidx.appsearch.builtintypes.Event.Builder setLogo(androidx.appsearch.builtintypes.ImageObject?);
-    method public androidx.appsearch.builtintypes.Event.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Event.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Event.Builder setUrl(String?);
+    method public T setDuration(java.time.Duration?);
+    method public T setEndDate(java.time.Instant?);
+    method public T setLocation(String?);
+    method public T setLogo(androidx.appsearch.builtintypes.ImageObject?);
   }
 
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.VERBATIM_SEARCH) @androidx.appsearch.annotation.Document(name="builtin:GlobalSearchApplicationInfo") @androidx.appsearch.app.ExperimentalAppSearchApi public class GlobalSearchApplicationInfo {
@@ -193,38 +165,32 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:ImageObject") public class ImageObject extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public ImageObject(androidx.appsearch.builtintypes.ImageObject.BuilderBase<? extends java.lang.Object!>);
     method public byte[]? getBytes();
     method public java.util.List<androidx.appsearch.builtintypes.properties.Keyword!> getKeywords();
     method public String? getSha256();
     method public String? getThumbnailSha256();
   }
 
-  public static final class ImageObject.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class ImageObject.Builder extends androidx.appsearch.builtintypes.ImageObject.BuilderBase<androidx.appsearch.builtintypes.ImageObject.Builder!> {
     ctor public ImageObject.Builder(androidx.appsearch.builtintypes.ImageObject);
     ctor public ImageObject.Builder(String, String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addAlternateName(String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(androidx.appsearch.builtintypes.properties.Keyword);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keyword!>);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ImageObject.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ImageObject.BuilderBase<T extends androidx.appsearch.builtintypes.ImageObject.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public ImageObject.BuilderBase(androidx.appsearch.builtintypes.ImageObject);
+    ctor public ImageObject.BuilderBase(String, String);
+    method public T addKeyword(androidx.appsearch.builtintypes.properties.Keyword);
+    method public T addKeyword(String);
+    method public T addKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keyword!>);
     method public androidx.appsearch.builtintypes.ImageObject build();
-    method public androidx.appsearch.builtintypes.ImageObject.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ImageObject.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setBytes(byte[]?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ImageObject.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.ImageObject.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setSha256(String?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setThumbnailSha256(String?);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder setUrl(String?);
+    method public T setBytes(byte[]?);
+    method public T setSha256(String?);
+    method public T setThumbnailSha256(String?);
   }
 
   @SuppressCompatibility @androidx.appsearch.annotation.Document(name="builtin:MobileApplication") @androidx.appsearch.app.ExperimentalAppSearchApi public class MobileApplication extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public MobileApplication(androidx.appsearch.builtintypes.MobileApplication.BuilderBase<? extends java.lang.Object!>);
     method public String? getClassName();
     method public String? getDisplayName();
     method public android.net.Uri? getIconUri();
@@ -233,27 +199,19 @@ package androidx.appsearch.builtintypes {
     method public long getUpdatedTimestampMillis();
   }
 
-  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final class MobileApplication.Builder {
+  @SuppressCompatibility @androidx.appsearch.annotation.Document.BuilderProducer @androidx.appsearch.app.ExperimentalAppSearchApi public static final class MobileApplication.Builder extends androidx.appsearch.builtintypes.MobileApplication.BuilderBase<androidx.appsearch.builtintypes.MobileApplication.Builder!> {
     ctor public MobileApplication.Builder(androidx.appsearch.builtintypes.MobileApplication);
     ctor public MobileApplication.Builder(String, String, String, byte[]);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.MobileApplication.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class MobileApplication.BuilderBase<T extends androidx.appsearch.builtintypes.MobileApplication.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public MobileApplication.BuilderBase(androidx.appsearch.builtintypes.MobileApplication);
+    ctor public MobileApplication.BuilderBase(String, String, String, byte[]);
     method public androidx.appsearch.builtintypes.MobileApplication build();
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.MobileApplication.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setClassName(String);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setDisplayName(String);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setIconUri(android.net.Uri);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.MobileApplication.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.MobileApplication.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setUpdatedTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.MobileApplication.Builder setUrl(String?);
+    method public T setClassName(String);
+    method public T setDisplayName(String);
+    method public T setIconUri(android.net.Uri);
+    method public T setUpdatedTimestampMillis(long);
   }
 
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:Nickname") @androidx.appsearch.app.ExperimentalAppSearchApi public class Nickname {
@@ -271,30 +229,24 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Organization") public class Organization extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Organization(androidx.appsearch.builtintypes.Organization.BuilderBase<? extends java.lang.Object!>);
     method public androidx.appsearch.builtintypes.ImageObject? getLogo();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Organization.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Organization.Builder extends androidx.appsearch.builtintypes.Organization.BuilderBase<androidx.appsearch.builtintypes.Organization.Builder!> {
     ctor public Organization.Builder(androidx.appsearch.builtintypes.Organization);
     ctor public Organization.Builder(String, String);
-    method public androidx.appsearch.builtintypes.Organization.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Organization.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Organization.BuilderBase<T extends androidx.appsearch.builtintypes.Organization.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Organization.BuilderBase(androidx.appsearch.builtintypes.Organization);
+    ctor public Organization.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.Organization build();
-    method public androidx.appsearch.builtintypes.Organization.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Organization.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Organization.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Organization.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Organization.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Organization.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Organization.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Organization.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Organization.Builder setLogo(androidx.appsearch.builtintypes.ImageObject?);
-    method public androidx.appsearch.builtintypes.Organization.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Organization.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Organization.Builder setUrl(String?);
+    method public T setLogo(androidx.appsearch.builtintypes.ImageObject?);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Person") public class Person extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Person(androidx.appsearch.builtintypes.Person.BuilderBase<? extends java.lang.Object!>);
     method public java.util.List<java.lang.String!> getAdditionalNames();
     method public java.util.List<java.lang.String!> getAffiliations();
     method public java.util.List<androidx.appsearch.builtintypes.ContactPoint!> getContactPoints();
@@ -319,35 +271,35 @@ package androidx.appsearch.builtintypes {
     field public static final int TYPE_UNKNOWN = 0; // 0x0
   }
 
-  public static final class Person.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Person.Builder extends androidx.appsearch.builtintypes.Person.BuilderBase<androidx.appsearch.builtintypes.Person.Builder!> {
     ctor public Person.Builder(androidx.appsearch.builtintypes.Person);
     ctor public Person.Builder(String, String, String);
-    method public androidx.appsearch.builtintypes.Person.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setAdditionalNameTypes(java.util.List<java.lang.Long!>);
+    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setAdditionalNamesList(java.util.List<java.lang.String!>);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Person.BuilderBase<T extends androidx.appsearch.builtintypes.Person.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Person.BuilderBase(androidx.appsearch.builtintypes.Person);
+    ctor public Person.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.Person build();
-    method public androidx.appsearch.builtintypes.Person.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Person.Builder setAdditionalNames(java.util.List<androidx.appsearch.builtintypes.Person.AdditionalName!>);
-    method public androidx.appsearch.builtintypes.Person.Builder setAffiliations(java.util.List<java.lang.String!>);
-    method public androidx.appsearch.builtintypes.Person.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Person.Builder setBot(boolean);
-    method public androidx.appsearch.builtintypes.Person.Builder setContactPoints(java.util.List<androidx.appsearch.builtintypes.ContactPoint!>);
-    method public androidx.appsearch.builtintypes.Person.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Person.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Person.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Person.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Person.Builder setExternalUri(android.net.Uri);
-    method public androidx.appsearch.builtintypes.Person.Builder setFamilyName(String);
-    method public androidx.appsearch.builtintypes.Person.Builder setGivenName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Person.Builder setImageUri(android.net.Uri);
-    method public androidx.appsearch.builtintypes.Person.Builder setImportant(boolean);
-    method public androidx.appsearch.builtintypes.Person.Builder setMiddleName(String);
-    method public androidx.appsearch.builtintypes.Person.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.Person.Builder setNotes(java.util.List<java.lang.String!>);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Person.Builder setRelations(java.util.List<java.lang.String!>);
-    method public androidx.appsearch.builtintypes.Person.Builder setUrl(String?);
+    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public T setAdditionalNameTypes(java.util.List<java.lang.Long!>);
+    method public T setAdditionalNames(java.util.List<androidx.appsearch.builtintypes.Person.AdditionalName!>);
+    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public T setAdditionalNamesList(java.util.List<java.lang.String!>);
+    method public T setAffiliations(java.util.List<java.lang.String!>);
+    method public T setBot(boolean);
+    method public T setContactPoints(java.util.List<androidx.appsearch.builtintypes.ContactPoint!>);
+    method public T setExternalUri(android.net.Uri);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setExternalUri(String);
+    method public T setFamilyName(String);
+    method public T setGivenName(String);
+    method public T setImageUri(android.net.Uri);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setImageUri(String);
+    method public T setImportant(boolean);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setIsBot(boolean);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setIsImportant(boolean);
+    method public T setMiddleName(String);
+    method public T setNotes(java.util.List<java.lang.String!>);
+    method public T setRelations(java.util.List<java.lang.String!>);
   }
 
   @SuppressCompatibility @androidx.appsearch.annotation.Document(name="builtin:PotentialAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class PotentialAction {
@@ -366,6 +318,7 @@ package androidx.appsearch.builtintypes {
   }
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.O) @androidx.appsearch.annotation.Document(name="builtin:SportsEvent") public class SportsEvent extends androidx.appsearch.builtintypes.Event {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SportsEvent(androidx.appsearch.builtintypes.SportsEvent.BuilderBase<? extends java.lang.Object!>);
     method public androidx.appsearch.builtintypes.SportsTeam getAwayTeam();
     method public String? getAwayTeamAccessoryScore();
     method public String? getAwayTeamScore();
@@ -396,69 +349,50 @@ package androidx.appsearch.builtintypes {
     field public static final int STATUS_UPCOMING = 1; // 0x1
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsEvent.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsEvent.Builder extends androidx.appsearch.builtintypes.SportsEvent.BuilderBase<androidx.appsearch.builtintypes.SportsEvent.Builder!> {
     ctor public SportsEvent.Builder(androidx.appsearch.builtintypes.SportsEvent);
     ctor public SportsEvent.Builder(String, String, java.time.Instant, String, androidx.appsearch.builtintypes.SportsTeam, androidx.appsearch.builtintypes.SportsTeam);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsEvent.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class SportsEvent.BuilderBase<T extends androidx.appsearch.builtintypes.SportsEvent.BuilderBase<T>> extends androidx.appsearch.builtintypes.Event.BuilderBase<T> {
+    ctor public SportsEvent.BuilderBase(androidx.appsearch.builtintypes.SportsEvent);
+    ctor public SportsEvent.BuilderBase(String, String, java.time.Instant, String, androidx.appsearch.builtintypes.SportsTeam, androidx.appsearch.builtintypes.SportsTeam);
     method public androidx.appsearch.builtintypes.SportsEvent build();
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsEvent.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setAwayTeamAccessoryScore(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setAwayTeamScore(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setAwayTeamWinProbability(double);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setDuration(java.time.Duration?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setEndDate(java.time.Instant?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setGameTemporalState(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setHomeTeamAccessoryScore(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setHomeTeamScore(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setHomeTeamWinProbability(double);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsEvent.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setLocation(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setLogo(androidx.appsearch.builtintypes.ImageObject?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setNotableDetail(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setOrganizer(androidx.appsearch.builtintypes.Organization?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setPlaceHomeTeamAtStart(boolean);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsEvent.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setResult(long);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setSportsEventStatus(long);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setSportsEventStatusLabel(String?);
-    method public androidx.appsearch.builtintypes.SportsEvent.Builder setUrl(String?);
+    method public T setAwayTeamAccessoryScore(String?);
+    method public T setAwayTeamScore(String?);
+    method public T setAwayTeamWinProbability(double);
+    method public T setGameTemporalState(String?);
+    method public T setHomeTeamAccessoryScore(String?);
+    method public T setHomeTeamScore(String?);
+    method public T setHomeTeamWinProbability(double);
+    method public T setNotableDetail(String?);
+    method public T setOrganizer(androidx.appsearch.builtintypes.Organization?);
+    method public T setPlaceHomeTeamAtStart(boolean);
+    method public T setResult(long);
+    method public T setSportsEventStatus(long);
+    method public T setSportsEventStatusLabel(String?);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:SportsOrganization") public class SportsOrganization extends androidx.appsearch.builtintypes.Organization {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SportsOrganization(androidx.appsearch.builtintypes.SportsOrganization.BuilderBase<? extends java.lang.Object!>);
     method public android.graphics.Color? getAccentColor();
     method public String getSport();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsOrganization.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsOrganization.Builder extends androidx.appsearch.builtintypes.SportsOrganization.BuilderBase<androidx.appsearch.builtintypes.SportsOrganization.Builder!> {
     ctor public SportsOrganization.Builder(androidx.appsearch.builtintypes.SportsOrganization);
     ctor public SportsOrganization.Builder(String, String, String);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsOrganization.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class SportsOrganization.BuilderBase<T extends androidx.appsearch.builtintypes.SportsOrganization.BuilderBase<T>> extends androidx.appsearch.builtintypes.Organization.BuilderBase<T> {
+    ctor public SportsOrganization.BuilderBase(androidx.appsearch.builtintypes.SportsOrganization);
+    ctor public SportsOrganization.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.SportsOrganization build();
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsOrganization.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setAccentColor(android.graphics.Color?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsOrganization.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setLogo(androidx.appsearch.builtintypes.ImageObject?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsOrganization.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.SportsOrganization.Builder setUrl(String?);
+    method public T setAccentColor(android.graphics.Color?);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:SportsTeam") public class SportsTeam extends androidx.appsearch.builtintypes.SportsOrganization {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SportsTeam(androidx.appsearch.builtintypes.SportsTeam.BuilderBase<? extends java.lang.Object!>);
     method public String? getFormattedRecord();
     method public long getLosses();
     method public long getOvertimeLosses();
@@ -467,34 +401,25 @@ package androidx.appsearch.builtintypes {
     method public long getWins();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsTeam.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SportsTeam.Builder extends androidx.appsearch.builtintypes.SportsTeam.BuilderBase<androidx.appsearch.builtintypes.SportsTeam.Builder!> {
     ctor public SportsTeam.Builder(androidx.appsearch.builtintypes.SportsTeam);
     ctor public SportsTeam.Builder(String, String, String);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsTeam.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class SportsTeam.BuilderBase<T extends androidx.appsearch.builtintypes.SportsTeam.BuilderBase<T>> extends androidx.appsearch.builtintypes.SportsOrganization.BuilderBase<T> {
+    ctor public SportsTeam.BuilderBase(androidx.appsearch.builtintypes.SportsTeam);
+    ctor public SportsTeam.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.SportsTeam build();
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsTeam.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setAccentColor(android.graphics.Color?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setFormattedRecord(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsTeam.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setLogo(androidx.appsearch.builtintypes.ImageObject?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setLosses(long);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setOvertimeLosses(long);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setOvertimeWins(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.SportsTeam.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setTies(long);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setUrl(String?);
-    method public androidx.appsearch.builtintypes.SportsTeam.Builder setWins(long);
+    method public T setFormattedRecord(String?);
+    method public T setLosses(long);
+    method public T setOvertimeLosses(long);
+    method public T setOvertimeWins(long);
+    method public T setTies(long);
+    method public T setWins(long);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Stopwatch") public class Stopwatch extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Stopwatch(androidx.appsearch.builtintypes.Stopwatch.BuilderBase<? extends java.lang.Object!>);
     method public long calculateBaseTimeMillis(android.content.Context);
     method public long calculateCurrentAccumulatedDurationMillis(android.content.Context);
     method public long getAccumulatedDurationMillis();
@@ -509,59 +434,48 @@ package androidx.appsearch.builtintypes {
     field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
-  public static final class Stopwatch.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Stopwatch.Builder extends androidx.appsearch.builtintypes.Stopwatch.BuilderBase<androidx.appsearch.builtintypes.Stopwatch.Builder!> {
     ctor public Stopwatch.Builder(androidx.appsearch.builtintypes.Stopwatch);
     ctor public Stopwatch.Builder(String, String);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Stopwatch.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Stopwatch.BuilderBase<T extends androidx.appsearch.builtintypes.Stopwatch.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Stopwatch.BuilderBase(androidx.appsearch.builtintypes.Stopwatch);
+    ctor public Stopwatch.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.Stopwatch build();
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Stopwatch.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setAccumulatedDurationMillis(long);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(android.content.Context, long, long);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(long, long, int);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Stopwatch.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setLaps(java.util.List<androidx.appsearch.builtintypes.StopwatchLap!>);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Stopwatch.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setStatus(int);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setUrl(String?);
+    method public T setAccumulatedDurationMillis(long);
+    method public T setBaseTimeMillis(android.content.Context, long, long);
+    method public T setBaseTimeMillis(long);
+    method public T setBaseTimeMillis(long, long, int);
+    method public T setBaseTimeMillisInElapsedRealtime(long);
+    method public T setBootCount(int);
+    method public T setLaps(java.util.List<androidx.appsearch.builtintypes.StopwatchLap!>);
+    method public T setStatus(int);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:StopwatchLap") public class StopwatchLap extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public StopwatchLap(androidx.appsearch.builtintypes.StopwatchLap.BuilderBase<? extends java.lang.Object!>);
     method public long getAccumulatedLapDurationMillis();
     method public long getLapDurationMillis();
     method public int getLapNumber();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class StopwatchLap.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class StopwatchLap.Builder extends androidx.appsearch.builtintypes.StopwatchLap.BuilderBase<androidx.appsearch.builtintypes.StopwatchLap.Builder!> {
     ctor public StopwatchLap.Builder(androidx.appsearch.builtintypes.StopwatchLap);
     ctor public StopwatchLap.Builder(String, String);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.StopwatchLap.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class StopwatchLap.BuilderBase<T extends androidx.appsearch.builtintypes.StopwatchLap.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public StopwatchLap.BuilderBase(androidx.appsearch.builtintypes.StopwatchLap);
+    ctor public StopwatchLap.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.StopwatchLap build();
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.StopwatchLap.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setAccumulatedLapDurationMillis(long);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.StopwatchLap.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setLapDurationMillis(long);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setLapNumber(int);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.StopwatchLap.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setUrl(String?);
+    method public T setAccumulatedLapDurationMillis(long);
+    method public T setLapDurationMillis(long);
+    method public T setLapNumber(int);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Thing") public class Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Thing(androidx.appsearch.builtintypes.Thing.BuilderBase<? extends java.lang.Object!>);
     method public java.util.List<java.lang.String!> getAlternateNames();
     method public long getCreationTimestampMillis();
     method public String? getDescription();
@@ -575,26 +489,33 @@ package androidx.appsearch.builtintypes {
     method public String? getUrl();
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Thing.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Thing.Builder extends androidx.appsearch.builtintypes.Thing.BuilderBase<androidx.appsearch.builtintypes.Thing.Builder!> {
     ctor public Thing.Builder(androidx.appsearch.builtintypes.Thing);
     ctor public Thing.Builder(String, String);
-    method public androidx.appsearch.builtintypes.Thing.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Thing.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Thing.BuilderBase<T extends androidx.appsearch.builtintypes.Thing.BuilderBase<T>> {
+    ctor public Thing.BuilderBase(androidx.appsearch.builtintypes.Thing);
+    ctor public Thing.BuilderBase(String, String);
+    method public T addAlternateName(String);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
     method public androidx.appsearch.builtintypes.Thing build();
-    method public androidx.appsearch.builtintypes.Thing.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Thing.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Thing.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Thing.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Thing.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Thing.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Thing.Builder setDocumentTtlMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Thing.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Thing.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Thing.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Thing.Builder setUrl(String?);
+    method public T clearAlternateNames();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T clearPotentialActions();
+    method protected void resetIfBuilt();
+    method public T setAlternateNames(java.util.List<java.lang.String!>?);
+    method public T setCreationTimestampMillis(long);
+    method public T setDescription(String?);
+    method public T setDocumentScore(int);
+    method public T setDocumentTtlMillis(long);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setImage(String?);
+    method public T setName(String?);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
+    method public T setUrl(String?);
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Timer") public class Timer extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public Timer(androidx.appsearch.builtintypes.Timer.BuilderBase<? extends java.lang.Object!>);
     method public long calculateBaseTimeMillis(android.content.Context);
     method public long calculateCurrentRemainingDurationMillis(android.content.Context);
     method public long calculateExpirationTimeMillis(android.content.Context);
@@ -616,59 +537,47 @@ package androidx.appsearch.builtintypes {
     field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
-  public static final class Timer.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class Timer.Builder extends androidx.appsearch.builtintypes.Timer.BuilderBase<androidx.appsearch.builtintypes.Timer.Builder!> {
     ctor public Timer.Builder(androidx.appsearch.builtintypes.Timer);
     ctor public Timer.Builder(String, String);
-    method public androidx.appsearch.builtintypes.Timer.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Timer.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Timer.BuilderBase<T extends androidx.appsearch.builtintypes.Timer.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public Timer.BuilderBase(androidx.appsearch.builtintypes.Timer);
+    ctor public Timer.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.Timer build();
-    method public androidx.appsearch.builtintypes.Timer.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Timer.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.Timer.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(android.content.Context, long, long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(long, long, int);
-    method public androidx.appsearch.builtintypes.Timer.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setDurationMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Timer.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setOriginalDurationMillis(long);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Timer.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setRemainingDurationMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setRingtone(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setShouldVibrate(boolean);
-    method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setStatus(int);
-    method public androidx.appsearch.builtintypes.Timer.Builder setUrl(String?);
+    method public T setBaseTimeMillis(android.content.Context, long, long);
+    method public T setBaseTimeMillis(long);
+    method public T setBaseTimeMillis(long, long, int);
+    method public T setBaseTimeMillisInElapsedRealtime(long);
+    method public T setBootCount(int);
+    method public T setDurationMillis(long);
+    method public T setOriginalDurationMillis(long);
+    method public T setRemainingDurationMillis(long);
+    method public T setRingtone(String?);
+    method public T setShouldVibrate(boolean);
+    method public T setStartTimeMillis(long);
+    method public T setStatus(int);
   }
 
   @androidx.appsearch.annotation.Document(name=androidx.appsearch.builtintypes.WebPage.SCHEMA_NAME) public class WebPage extends androidx.appsearch.builtintypes.Thing {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public WebPage(androidx.appsearch.builtintypes.WebPage.BuilderBase<? extends java.lang.Object!>);
     method public androidx.appsearch.builtintypes.ImageObject? getFavicon();
     method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public String? getSource();
     field public static final String SCHEMA_NAME = "builtin:WebPage";
   }
 
-  @androidx.appsearch.annotation.Document.BuilderProducer public static final class WebPage.Builder {
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class WebPage.Builder extends androidx.appsearch.builtintypes.WebPage.BuilderBase<androidx.appsearch.builtintypes.WebPage.Builder!> {
     ctor public WebPage.Builder(androidx.appsearch.builtintypes.WebPage);
     ctor public WebPage.Builder(String, String);
-    method public androidx.appsearch.builtintypes.WebPage.Builder addAlternateName(String);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.WebPage.Builder addPotentialAction(androidx.appsearch.builtintypes.PotentialAction);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class WebPage.BuilderBase<T extends androidx.appsearch.builtintypes.WebPage.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
+    ctor public WebPage.BuilderBase(androidx.appsearch.builtintypes.WebPage);
+    ctor public WebPage.BuilderBase(String, String);
     method public androidx.appsearch.builtintypes.WebPage build();
-    method public androidx.appsearch.builtintypes.WebPage.Builder clearAlternateNames();
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.WebPage.Builder clearPotentialActions();
-    method public androidx.appsearch.builtintypes.WebPage.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setDescription(String?);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setDocumentScore(int);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setFavicon(androidx.appsearch.builtintypes.ImageObject?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.WebPage.Builder setImage(String?);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setName(String?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.WebPage.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
-    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.WebPage.Builder setSource(String?);
-    method public androidx.appsearch.builtintypes.WebPage.Builder setUrl(String?);
+    method public T setFavicon(androidx.appsearch.builtintypes.ImageObject?);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public T setSource(String?);
   }
 
 }

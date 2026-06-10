@@ -72,9 +72,15 @@ public abstract class TakenAction {
     @ActionType
     private final int mActionType;
 
-    TakenAction(@NonNull BuilderImpl<? extends BuilderImpl<?>> builder) {
-        mNamespace = builder.mNamespace;
-        mId = builder.mId;
+    /**
+     * Constructs a {@link TakenAction} from a {@link BuilderBase}.
+     *
+     * @param builder The builder to construct the {@link TakenAction} from.
+     */
+    @ExperimentalAppSearchApi
+    public TakenAction(@NonNull BuilderBase<?> builder) {
+        mNamespace = Preconditions.checkNotNull(builder.mNamespace);
+        mId = Preconditions.checkNotNull(builder.mId);
         mDocumentTtlMillis = builder.mDocumentTtlMillis;
         mActionTimestampMillis = builder.mActionTimestampMillis;
         mActionType = builder.mActionType;
@@ -130,7 +136,7 @@ public abstract class TakenAction {
     //                    builder.
     /** Builder for {@link TakenAction}. */
     @Document.BuilderProducer
-    static final class Builder extends BuilderImpl<Builder> {
+    static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link TakenAction.Builder}.
          *
@@ -152,10 +158,12 @@ public abstract class TakenAction {
         }
     }
 
-    // Use templated BuilderImpl to resolve base class setter return type issue for child class
+    // Use templated BuilderBase to resolve base class setter return type issue for child class
     // builder instances.
+    /** Builder for {@link TakenAction}. */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> {
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> {
         private final String mNamespace;
         private final String mId;
         private long mDocumentTtlMillis;
@@ -164,7 +172,7 @@ public abstract class TakenAction {
         private int mActionType;
 
         /**
-         * Constructs {@link TakenAction.BuilderImpl} with given {@code namespace}, {@code id},
+         * Constructs {@link TakenAction.BuilderBase} with given {@code namespace}, {@code id},
          * {@code actionTimestampMillis} and {@code actionType}.
          *
          * @param namespace             The namespace of the {@link TakenAction} document.
@@ -173,8 +181,8 @@ public abstract class TakenAction {
          *                              since Unix epoch.
          * @param actionType            The action type enum of the Document.
          */
-        BuilderImpl(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
-                @TakenAction.ActionType int actionType) {
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis, @TakenAction.ActionType int actionType) {
             mNamespace = Preconditions.checkNotNull(namespace);
             mId = Preconditions.checkNotNull(id);
             mActionTimestampMillis = actionTimestampMillis;
@@ -185,12 +193,12 @@ public abstract class TakenAction {
         }
 
         /**
-         * Constructs {@link TakenAction.BuilderImpl} by copying existing values from the given
+         * Constructs {@link TakenAction.BuilderBase} by copying existing values from the given
          * {@link TakenAction}.
          *
          * @param takenAction an existing {@link TakenAction} object.
          */
-        BuilderImpl(@NonNull TakenAction takenAction) {
+        public BuilderBase(@NonNull TakenAction takenAction) {
             this(takenAction.getNamespace(), takenAction.getId(),
                     takenAction.getActionTimestampMillis(), takenAction.getActionType());
             mDocumentTtlMillis = takenAction.getDocumentTtlMillis();
