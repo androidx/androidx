@@ -89,7 +89,6 @@ public class SceneCoreTestRule : ExternalResource() {
         return block()
     }
 
-    // TODO: b/512223711 - Add testers for specific entities/components in follow-up PRs.
     @PublishedApi
     internal fun resolveTesterInternal(entity: Entity): Any? {
         return if (entity::class == Entity::class) {
@@ -107,7 +106,6 @@ public class SceneCoreTestRule : ExternalResource() {
         }
     }
 
-    // TODO: b/512223711 - Add testers for specific entities/components in follow-up PRs.
     @PublishedApi
     internal fun resolveTesterInternal(component: Component): Any? {
         return when (component) {
