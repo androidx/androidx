@@ -16,7 +16,11 @@
 
 package androidx.compose.material3.benchmark
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +29,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayoutDraw
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
 import org.junit.Rule
@@ -49,6 +57,7 @@ class ButtonBenchmark(private val type: ButtonType) {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val buttonTestCaseFactory = { ButtonTestCase(type) }
+    private val animatedButtonTestCaseFactory = { AnimatedShapeButtonTestCase(type) }
 
     @Ignore
     @Test
@@ -78,6 +87,14 @@ class ButtonBenchmark(private val type: ButtonType) {
     fun button_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(buttonTestCaseFactory)
     }
+
+    @Test
+    fun button_toggleRecomposeMeasureLayoutDraw() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
+            animatedButtonTestCaseFactory,
+            assertOneRecomposition = false,
+        )
+    }
 }
 
 internal class ButtonTestCase(private val type: ButtonType) : LayeredComposeTestCase() {
@@ -100,6 +117,82 @@ internal class ButtonTestCase(private val type: ButtonType) : LayeredComposeTest
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         MaterialTheme { content() }
+    }
+}
+
+internal class AnimatedShapeButtonTestCase(private val type: ButtonType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
+
+    private val interactionSource = MutableInteractionSource()
+    private var isPressed = false
+    private var pressInteraction: PressInteraction.Press? = null
+
+    @Composable
+    override fun MeasuredContent() {
+        val shapes =
+            ButtonDefaults.shapes(
+                shape = RoundedCornerShape(8.dp),
+                pressedShape = RoundedCornerShape(24.dp),
+            )
+
+        when (type) {
+            ButtonType.FilledButton ->
+                Button(
+                    onClick = { /* Do something! */ },
+                    shapes = shapes,
+                    interactionSource = interactionSource,
+                ) {
+                    Text("Button")
+                }
+            ButtonType.ElevatedButton ->
+                ElevatedButton(
+                    onClick = { /* Do something! */ },
+                    shapes = shapes,
+                    interactionSource = interactionSource,
+                ) {
+                    Text("Elevated Button")
+                }
+            ButtonType.FilledTonalButton ->
+                FilledTonalButton(
+                    onClick = { /* Do something! */ },
+                    shapes = shapes,
+                    interactionSource = interactionSource,
+                ) {
+                    Text("Filled Tonal Button")
+                }
+            ButtonType.OutlinedButton ->
+                OutlinedButton(
+                    onClick = { /* Do something! */ },
+                    shapes = shapes,
+                    interactionSource = interactionSource,
+                ) {
+                    Text("Outlined Button")
+                }
+            ButtonType.TextButton ->
+                TextButton(
+                    onClick = { /* Do something! */ },
+                    shapes = shapes,
+                    interactionSource = interactionSource,
+                ) {
+                    Text("Text Button")
+                }
+        }
+    }
+
+    @Composable
+    override fun ContentWrappers(content: @Composable () -> Unit) {
+        MaterialTheme { content() }
+    }
+
+    override fun toggleState() {
+        if (isPressed) {
+            interactionSource.tryEmit(PressInteraction.Release(pressInteraction!!))
+            isPressed = false
+        } else {
+            pressInteraction = PressInteraction.Press(Offset.Zero)
+            interactionSource.tryEmit(pressInteraction!!)
+            isPressed = true
+        }
     }
 }
 
