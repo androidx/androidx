@@ -107,12 +107,25 @@ object Transformations {
         val matrix =
             getRectToRect(surfaceCropRect, viewfinderCropRect, transformationInfo.sourceRotation)
 
+        // For horizontal mirroring: if the rotation is 90 or 270 degrees, a horizontal mirror at
+        // the output actually requires a vertical flip of the original coordinates
+        // (x, y) -> (x, -y); for other angles, it's a standard horizontal flip (x, y) -> (-x, y).
         if (transformationInfo.isSourceMirroredHorizontally) {
-            matrix.preScale(-1f, 1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            if (is90or270(transformationInfo.sourceRotation)) {
+                matrix.preScale(1f, -1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            } else {
+                matrix.preScale(-1f, 1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            }
         }
 
+        // For vertical mirroring: similarly, at 90 or 270 degrees, it needs a horizontal flip
+        // (x, y) -> (-x, y); for others, it's a standard vertical flip (x, y) -> (x, -y).
         if (transformationInfo.isSourceMirroredVertically) {
-            matrix.preScale(1f, -1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            if (is90or270(transformationInfo.sourceRotation)) {
+                matrix.preScale(-1f, 1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            } else {
+                matrix.preScale(1f, -1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+            }
         }
         return matrix
     }

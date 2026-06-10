@@ -162,13 +162,22 @@ fun drawFaceToSurface(
             size = Size(resolution.width.toFloat(), resolution.height.toFloat()),
         ) {
             val iconSize = painter.calcFitSize(size, rotation)
+
+            var hMirror = testParams.isMirroredHorizontally
+            var vMirror = testParams.isMirroredVertically
+            if (rotation == 90 || rotation == 270) {
+                val tmp = hMirror
+                hMirror = vMirror
+                vMirror = tmp
+            }
+
             val mirrorX =
-                when (testParams.isMirroredHorizontally) {
+                when (hMirror) {
                     true -> -1.0f
                     false -> 1.0f
                 }
             val flipY =
-                when (testParams.isMirroredVertically) {
+                when (vMirror) {
                     true -> -1.0f
                     false -> 1.0f
                 }
@@ -228,29 +237,33 @@ private fun toTransformEnum(
     horizontalMirror: Boolean,
     verticalMirror: Boolean,
 ): Int {
-    val rotationTransform =
-        when (sourceRotation) {
-            0 -> SurfaceUtil.TRANSFORM_IDENTITY
-            90 -> SurfaceUtil.TRANSFORM_ROTATE_90
-            180 -> SurfaceUtil.TRANSFORM_ROTATE_180
-            270 -> SurfaceUtil.TRANSFORM_ROTATE_270
-            else ->
-                throw IllegalArgumentException(
-                    "Rotation value $sourceRotation does not correspond to valid transform"
-                )
-        }
+    var hMirror = horizontalMirror
+    var vMirror = verticalMirror
 
-    val horizontalMirrorTransform =
-        when (horizontalMirror) {
-            true -> SurfaceUtil.TRANSFORM_MIRROR_HORIZONTAL
-            false -> SurfaceUtil.TRANSFORM_IDENTITY
-        }
+    // The Android HAL transform order is defined as Flip then Rotate 90.
+    // To achieve a Visual Rotate then Mirror effect, we need to compensate.
 
-    val verticalMirrorTransform =
-        when (verticalMirror) {
-            true -> SurfaceUtil.TRANSFORM_MIRROR_VERTICAL
-            false -> SurfaceUtil.TRANSFORM_IDENTITY
-        }
+    // 1. Compensate for Rotate 180 (equivalent to H-Flip + V-Flip)
+    // Note: 270 degrees is handled as 180 + 90 degrees, so it triggers both steps.
+    if (sourceRotation == 180 || sourceRotation == 270) {
+        hMirror = !hMirror
+        vMirror = !vMirror
+    }
 
-    return (horizontalMirrorTransform or verticalMirrorTransform) xor rotationTransform
+    // 2. Compensate for Rotate 90 Axis Swap
+    // R90 * H-Flip = V-Flip * R90
+    // R90 * V-Flip = H-Flip * R90
+    if (sourceRotation == 90 || sourceRotation == 270) {
+        val tmp = hMirror
+        hMirror = vMirror
+        vMirror = tmp
+    }
+
+    var result = 0
+    if (hMirror) result = result or SurfaceUtil.TRANSFORM_MIRROR_HORIZONTAL
+    if (vMirror) result = result or SurfaceUtil.TRANSFORM_MIRROR_VERTICAL
+    if (sourceRotation == 90 || sourceRotation == 270) {
+        result = result or SurfaceUtil.TRANSFORM_ROTATE_90
+    }
+    return result
 }
