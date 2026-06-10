@@ -461,7 +461,14 @@ class SubspaceTest {
     @Test
     fun subspace_whenUnbounded_withFillMaxSize_doesNotRespectConstraints() {
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialBox(
                     SubspaceModifier.fillMaxWidth(1.0f).fillMaxHeight(1.0f).testTag("box")
                 ) {}
@@ -522,7 +529,14 @@ class SubspaceTest {
                         .roundToPx(this)
                         .toDp()
                 }
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialPanel(
                     SubspaceModifier.width(widthLargerThanRecommendedBox)
                         .height(heightLargerThanRecommendedBox)
@@ -2183,7 +2197,12 @@ class SubspaceTest {
             FollowingSubspace(
                 target = FollowTarget.ArDevice(session),
                 behavior = FollowBehavior.Soft(),
-                allowUnboundedSubspace = true,
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    ),
             ) {
                 SpatialBox(
                     SubspaceModifier.fillMaxWidth(1.0f).fillMaxHeight(1.0f).testTag("box")

@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
@@ -38,6 +39,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.padding
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.components.CUJButton
@@ -63,7 +65,14 @@ class SampleAnimations : ComponentActivity() {
         val (animationStyle, setAnimationStyle) =
             remember { mutableStateOf(AnimationStyle.SequentialExample) }
         MainPanelContent(setAnimationStyle)
-        Subspace(allowUnboundedSubspace = true) {
+        Subspace(
+            modifier =
+                SubspaceModifier.requiredSizeIn(
+                    maxWidth = Dp.Infinity,
+                    maxHeight = Dp.Infinity,
+                    maxDepth = Dp.Infinity,
+                )
+        ) {
             SpatialCurvedRow(modifier = SubspaceModifier.fillMaxSize(), curveRadius = 1025.dp) {
                 SpatialMainPanel(modifier = SubspaceModifier.width(600.dp).height(400.dp))
                 SpatialColumn(modifier = SubspaceModifier.padding(50.dp)) {
