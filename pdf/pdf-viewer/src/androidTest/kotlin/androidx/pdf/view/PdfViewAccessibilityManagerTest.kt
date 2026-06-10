@@ -16,10 +16,18 @@
 
 package androidx.pdf.view
 
+import android.graphics.Bitmap
+import android.graphics.Point
 import android.graphics.RectF
 import android.view.ViewGroup
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.pdf.R
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.KeyedPdfObject
+import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.ocr.FakeOcrProvider
+import androidx.pdf.ocr.FakeOcrResult
+import androidx.pdf.ocr.OcrText
 import androidx.pdf.view.PdfViewAccessibilityManager.Companion.FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET
 import androidx.pdf.view.fastscroll.getDimensions
 import androidx.test.core.app.ActivityScenario
@@ -76,6 +84,50 @@ class PdfViewAccessibilityManagerTest {
         // Reset the fast scroller visibility
         pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
         pdfView.lastFastScrollerVisibility = false
+    }
+
+    @Test
+    fun onPopulateNodeForVirtualView_withOcrText_combinesText() = runTest {
+        val ocrTextString = "OCR detected text"
+        val fakeOcrResult = FakeOcrResult(words = listOf(OcrText(ocrTextString, emptyList())))
+        val fakeOcrProvider = FakeOcrProvider(fakeResult = fakeOcrResult)
+
+        val imageBounds = RectF(0f, 0f, 100f, 100f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), imageBounds)
+        val keyedObject = KeyedPdfObject("image1", imageObject)
+
+        val docWithImage =
+            FakePdfDocument(
+                pages = listOf(Point(100, 200)),
+                textContents =
+                    listOf(PdfPageTextContent(listOf(RectF(0f, 0f, 100f, 10f)), "Native text")),
+                pageObjectsPerPage = mapOf(0 to listOf(keyedObject)),
+            )
+
+        activityScenario.onActivity {
+            pdfView.pdfDocument = docWithImage
+            pdfView.setOcrProvider(fakeOcrProvider)
+        }
+
+        docWithImage.waitForLayout(untilPage = 0)
+
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
+
+        val node = AccessibilityNodeInfoCompat.obtain()
+        activityScenario.onActivity {
+            pdfViewAccessibilityManager.onPopulateNodeForVirtualView(0, node)
+        }
+
+        val description = node.contentDescription.toString()
+        assertThat(description).contains("Native text")
+        assertThat(description).contains(ocrTextString)
+        // Verify native text comes before OCR text
+        assertThat(description.indexOf("Native text"))
+            .isLessThan(description.indexOf(ocrTextString))
     }
 
     @Test

@@ -33,6 +33,8 @@ import androidx.pdf.PdfFeature
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.ocr.OcrContextRepository
+import androidx.pdf.ocr.getAllText
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.PAGE_CONTENTS_REQUEST_NAME
 import androidx.pdf.util.PAGE_LINKS_REQUEST_NAME
@@ -41,6 +43,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 /** A single PDF page that knows how to render and draw itself */
@@ -73,9 +76,20 @@ internal class Page(
     formWidgetInfos: List<FormWidgetInfo>? = null,
     private val pdfFormFillingConfig: PdfFormFillingConfig,
     private val onBitmapCleared: (Int) -> Unit,
+    ocrContextRepository: OcrContextRepository? = null,
 ) {
     init {
         require(pageNum >= 0) { "Invalid negative page" }
+    }
+
+    private var _ocrContextRepository: OcrContextRepository? = ocrContextRepository
+
+    internal fun setOcrContextRepository(value: OcrContextRepository?) {
+        _ocrContextRepository = value
+        if (value != null && isAccessibilityEnabled) {
+            fetchTextJob?.cancel()
+            maybeFetchText()
+        }
     }
 
     /** Handles rendering bitmaps for this page using [PdfDocument] */
@@ -93,9 +107,21 @@ internal class Page(
     private val formWidgetHighlightRect = RectF()
     private val tileLocationRect = RectF()
 
-    private var fetchPageTextJob: Job? = null
+    private var fetchTextJob: Job? = null
+
     internal var pageText: String? = null
         private set
+
+    internal var ocrText: String? = null
+        private set
+
+    private val isTextReady: Boolean
+        get() {
+            val isPageTextReady =
+                !pdfDocument.isFeatureSupported(PdfFeature.TEXT_EXTRACTION) || pageText != null
+            val isOcrTextReady = _ocrContextRepository == null || ocrText != null
+            return isPageTextReady && isOcrTextReady
+        }
 
     private var fetchLinksJob: Job? = null
     internal var links: PdfDocument.PdfPageLinks? = null
@@ -107,7 +133,7 @@ internal class Page(
         set(value) {
             field = value
             if (value) {
-                maybeFetchPageText()
+                maybeFetchText()
             }
         }
 
@@ -158,9 +184,7 @@ internal class Page(
         }
         if (stablePosition) {
             maybeFetchLinks()
-            if (isAccessibilityEnabled) {
-                maybeFetchPageText()
-            }
+            maybeFetchText()
         }
     }
 
@@ -192,43 +216,54 @@ internal class Page(
         bitmapFetcher?.close()
         bitmapFetcher = null
         pageText = null
-        fetchPageTextJob?.cancel()
-        fetchPageTextJob = null
+        ocrText = null
+        fetchTextJob?.cancel()
+        fetchTextJob = null
         links = null
         fetchLinksJob?.cancel()
         fetchLinksJob = null
     }
 
-    private fun maybeFetchPageText() {
-        if (!pdfDocument.isFeatureSupported(PdfFeature.TEXT_EXTRACTION)) return
-        if (fetchPageTextJob?.isActive == true || pageText != null) return
+    private fun maybeFetchText() {
+        if (!isAccessibilityEnabled || fetchTextJob?.isActive == true || isTextReady) return
 
-        fetchPageTextJob =
-            backgroundScope
-                .launch {
-                    ensureActive()
-                    try {
-                        pageText =
-                            pdfDocument.getPageContent(pageNum)?.textContents?.joinToString {
-                                it.text
-                            }
-                        onPageTextReady.invoke(pageNum)
-                    } catch (e: RemoteException) {
-                        if (!e.isHandledRemoteException) throw e
+        fetchTextJob =
+            backgroundScope.launch {
+                joinAll(launch { maybeFetchPageText() }, launch { maybeFetchOcrText() })
+                onPageTextReady.invoke(pageNum)
+            }
+    }
 
-                        val exception =
-                            RequestFailedException(
-                                requestMetadata =
-                                    RequestMetadata(
-                                        requestName = PAGE_CONTENTS_REQUEST_NAME,
-                                        pageRange = pageNum..pageNum,
-                                    ),
-                                throwable = e,
-                            )
-                        errorFlow.emit(exception)
-                    }
-                }
-                .also { it.invokeOnCompletion { fetchPageTextJob = null } }
+    private suspend fun maybeFetchPageText() {
+        if (!pdfDocument.isFeatureSupported(PdfFeature.TEXT_EXTRACTION) || pageText != null) return
+
+        try {
+            pageText = pdfDocument.getPageContent(pageNum)?.textContents?.joinToString { it.text }
+        } catch (e: RemoteException) {
+            if (!e.isHandledRemoteException) throw e
+
+            val exception =
+                RequestFailedException(
+                    requestMetadata =
+                        RequestMetadata(
+                            requestName = PAGE_CONTENTS_REQUEST_NAME,
+                            pageRange = pageNum..pageNum,
+                        ),
+                    throwable = e,
+                )
+            errorFlow.emit(exception)
+        }
+    }
+
+    private suspend fun maybeFetchOcrText() {
+        if (ocrText != null) return
+        val localOcrContextRepository = _ocrContextRepository ?: return
+
+        ocrText =
+            localOcrContextRepository
+                .getOcrContexts(pageNum)
+                .map { it.getAllText().text }
+                .joinToString(separator = "\n")
     }
 
     /** Updates the [formWidgetInfos] associated with the page. */
