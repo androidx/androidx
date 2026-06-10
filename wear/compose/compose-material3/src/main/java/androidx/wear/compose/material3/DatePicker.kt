@@ -68,6 +68,7 @@ import androidx.wear.compose.material3.tokens.DatePickerTokens
 import androidx.wear.compose.materialcore.isLargeScreen
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.max
 
 /**
@@ -168,6 +169,7 @@ public fun DatePicker(
     val yearString = getString(Strings.DatePickerYear)
     val monthString = getString(Strings.DatePickerMonth)
     val dayString = getString(Strings.DatePickerDay)
+    val contentDescriptionTemplate = getString(Strings.DatePickerContentDescription)
 
     LaunchedEffect(
         datePickerState.isMinYearSelected,
@@ -218,7 +220,13 @@ public fun DatePicker(
     val shortMonthNames = remember(monthPattern) { getMonthNames(monthPattern) }
     val fullMonthNames = remember { getMonthNames("MMMM") }
     val yearContentDescription = {
-        createDescriptionDatePicker(selectedIndex, datePickerState.selectedYear, yearString)
+        createDescriptionDatePicker(
+            locale,
+            contentDescriptionTemplate,
+            selectedIndex,
+            datePickerState.selectedYear,
+            yearString,
+        )
     }
     val monthContentDescription = {
         if (selectedIndex == null) {
@@ -228,7 +236,13 @@ public fun DatePicker(
         }
     }
     val dayContentDescription = {
-        createDescriptionDatePicker(selectedIndex, datePickerState.selectedDay, dayString)
+        createDescriptionDatePicker(
+            locale,
+            contentDescriptionTemplate,
+            selectedIndex,
+            datePickerState.selectedDay,
+            dayString,
+        )
     }
 
     val datePickerOptions = datePickerType.toDatePickerOptions()
@@ -405,7 +419,11 @@ public fun DatePicker(
                                             pickerTextOption(
                                                 textStyle = optionTextStyle,
                                                 indexToText = {
-                                                    "%02d".format(datePickerState.dayValue(it))
+                                                    "%02d"
+                                                        .format(
+                                                            locale,
+                                                            datePickerState.dayValue(it),
+                                                        )
                                                 },
                                                 optionHeight = optionHeight,
                                                 optionBaseline = optionBaseline,
@@ -464,7 +482,11 @@ public fun DatePicker(
                                             pickerTextOption(
                                                 textStyle = optionTextStyle,
                                                 indexToText = {
-                                                    "%4d".format(datePickerState.yearValue(it))
+                                                    "%4d"
+                                                        .format(
+                                                            locale,
+                                                            datePickerState.yearValue(it),
+                                                        )
                                                 },
                                                 optionHeight = optionHeight,
                                                 optionBaseline = optionBaseline,
@@ -930,10 +952,13 @@ private class DatePickerState(
 }
 
 private fun createDescriptionDatePicker(
+    locale: Locale,
+    template: String,
     selectedIndex: Int?,
     selectedValue: Int,
     label: String,
-): String = if (selectedIndex == null) label else "$label, $selectedValue"
+): String =
+    if (selectedIndex == null) label else String.format(locale, template, label, selectedValue)
 
 /** A private data class to hold the measured raw pixel metrics for picker options. */
 private data class DatePickerMeasuredMetrics(
