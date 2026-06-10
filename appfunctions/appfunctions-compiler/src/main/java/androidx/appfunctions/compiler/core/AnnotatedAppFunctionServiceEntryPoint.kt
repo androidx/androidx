@@ -97,17 +97,12 @@ class AnnotatedAppFunctionServiceEntryPoint(
     }
 
     private fun validateSuperClass() {
-        val isAppFunctionService =
-            serviceDeclaration.getAllSuperTypes().any { it.declaration.isAppFunctionService() }
-        val isExtensionAppFunctionService =
-            serviceDeclaration.getAllSuperTypes().any {
-                it.declaration.isExtensionAppFunctionService()
-            }
-        if (
-            !isAppFunctionService &&
-                !isExtensionAppFunctionService &&
-                !isExtendingHiltGeneratedClass()
-        ) {
+        val isValid =
+            serviceDeclaration.isValidAppFunctionServiceEntryPointSuperClass() ||
+                serviceDeclaration.getAllSuperTypes().any {
+                    it.declaration.isValidAppFunctionServiceEntryPointSuperClass()
+                }
+        if (!isValid) {
             throw ProcessingException(
                 "Class must extend either " +
                     "${AppFunctionServiceClass.CLASS_NAME.canonicalName} or " +
@@ -115,6 +110,12 @@ class AnnotatedAppFunctionServiceEntryPoint(
                 serviceDeclaration,
             )
         }
+    }
+
+    private fun KSDeclaration.isValidAppFunctionServiceEntryPointSuperClass(): Boolean {
+        return isAppFunctionService() ||
+            isExtensionAppFunctionService() ||
+            isExtendingHiltGeneratedClass()
     }
 
     /**
@@ -136,16 +137,15 @@ class AnnotatedAppFunctionServiceEntryPoint(
      * To avoid this issue, this method is to detect such scenario and fallback to check the class
      * declared in AndroidEntryPoint.
      */
-    private fun isExtendingHiltGeneratedClass(): Boolean {
-        val androidEntryPointAnnotation =
-            serviceDeclaration.annotations.findAnnotation(
-                IntrospectionHelper.AndroidEntryPointAnnotation.CLASS_NAME
-            )
-        if (androidEntryPointAnnotation == null) {
+    private fun KSDeclaration.isExtendingHiltGeneratedClass(): Boolean {
+        if (this !is KSClassDeclaration) {
             return false
         }
+        val androidEntryPointAnnotation =
+            annotations.findAnnotation(IntrospectionHelper.AndroidEntryPointAnnotation.CLASS_NAME)
+                ?: return false
         var hasHiltGeneratedPrefix = false
-        for (superType in serviceDeclaration.superTypes) {
+        for (superType in superTypes) {
             val simpleName = superType.toString().substringAfterLast('.')
             if (simpleName.startsWith(HILT_CLASS_PREFIX)) {
                 hasHiltGeneratedPrefix = true
