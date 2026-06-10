@@ -1096,7 +1096,21 @@ internal fun Transition<EnterExitState>.trackActiveExit(exit: ExitTransition): E
             activeExit = ExitTransition.None
         }
     } else if (targetState != EnterExitState.Visible) {
-        activeExit += exit
+        // The exit transition accumulates when the content goes from exiting, to incoming,
+        // to then again exiting. In this scenario, we first neutralize the previous exit animations
+        // by animating them to their resting state (e.g. scale = 1f, alpha = 1f).
+        // This ensures seamless animations without jump cuts and prevents old exit animations
+        // from bleeding into the new exit transition (e.g. preventing a previous `scaleOut`
+        // from mistakenly combining with a new `slideOut`).
+        val neutralData =
+            TransitionData(
+                fade = activeExit.data.fade?.copy(alpha = 1f),
+                scale = activeExit.data.scale?.copy(scale = 1f),
+                slide = activeExit.data.slide?.copy(slideOffset = { IntOffset.Zero }),
+                changeSize = activeExit.data.changeSize?.copy(size = { it }),
+                veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
+            )
+        activeExit = ExitTransitionImpl(neutralData) + exit
     }
     return activeExit
 }
