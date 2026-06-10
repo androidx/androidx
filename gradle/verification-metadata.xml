@@ -462,6 +462,7 @@
             <trusting group="org.apache"/>
             <trusting group="org.apache.maven"/>
          </trusted-key>
+         <trusted-key id="9A762C93B8C54128A3FC73B8CED3EF3DDAF4D9AB" group="com.microsoft.playwright"/>
          <trusted-key id="9BBC1C3E408CA09CF76D1A029C538D5A79281639" group="com.squareup.sqldelight"/>
          <trusted-key id="9D0A56AAA0D60E0C0C7DCCC0B4C70893B62BABE8">
             <trusting group="org.apache.logging"/>
