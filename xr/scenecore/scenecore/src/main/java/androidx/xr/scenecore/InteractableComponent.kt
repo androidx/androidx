@@ -48,7 +48,9 @@ private constructor(
     private var entity: Entity? = null
 
     /**
-     * Attaches this component to the given [Entity].
+     * Attaches this component to the given [Entity]. When attached, the component begins listening
+     * for [InputEvent]s on this [Entity], and any descendant [Entity]s in its subgraph that do not
+     * have a [InteractableComponent] attached to themselves.
      *
      * @param entity The [Entity] to attach this component to.
      * @return `true` if the component was successfully attached, `false` otherwise.
