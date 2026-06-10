@@ -28,7 +28,6 @@ import androidx.appsearch.utils.BootCountUtil;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -75,22 +74,20 @@ public class Stopwatch extends Thing {
     @Document.DocumentProperty
     private final List<StopwatchLap> mLaps;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Stopwatch(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount, int status,
-            long accumulatedDurationMillis, @NonNull List<StopwatchLap> laps) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mBaseTimeMillis = baseTimeMillis;
-        mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
-        mBootCount = bootCount;
-        mStatus = status;
-        mAccumulatedDurationMillis = accumulatedDurationMillis;
-        mLaps = Preconditions.checkNotNull(laps);
+    /**
+     * Constructor for {@link Stopwatch}.
+     *
+     * @param builder The builder to construct the {@link Stopwatch} from.
+     */
+    @ExperimentalAppSearchApi
+    public Stopwatch(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mBaseTimeMillis = builder.mBaseTimeMillis;
+        mBaseTimeMillisInElapsedRealtime = builder.mBaseTimeMillisInElapsedRealtime;
+        mBootCount = builder.mBootCount;
+        mStatus = builder.mStatus;
+        mAccumulatedDurationMillis = builder.mAccumulatedDurationMillis;
+        mLaps = Preconditions.checkNotNull(builder.mLaps);
     }
 
     /**
@@ -194,7 +191,9 @@ public class Stopwatch extends Thing {
     }
 
     /** Builder for {@link Stopwatch}. */
-    public static final class Builder extends BuilderImpl<Builder> {
+    @Document.BuilderProducer
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link Stopwatch.Builder}.
          *
@@ -214,23 +213,36 @@ public class Stopwatch extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends Stopwatch.BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected long mBaseTimeMillis;
-        protected long mBaseTimeMillisInElapsedRealtime;
-        protected int mBootCount;
-        protected int mStatus;
-        protected long mAccumulatedDurationMillis;
-        protected List<StopwatchLap> mLaps;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends Stopwatch.BuilderBase<T>> extends
+            Thing.BuilderBase<T> {
+        private long mBaseTimeMillis;
+        private long mBaseTimeMillisInElapsedRealtime;
+        private int mBootCount;
+        private int mStatus;
+        private long mAccumulatedDurationMillis;
+        private List<StopwatchLap> mLaps;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link Stopwatch.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
 
             // Default empty laps
             mLaps = Collections.emptyList();
         }
 
-        BuilderImpl(@NonNull Stopwatch stopwatch) {
-            super(new Thing.Builder(stopwatch).build());
+        /**
+         * Constructor for {@link Stopwatch.BuilderBase} with all the existing values.
+         *
+         * @param stopwatch The existing {@link Stopwatch} to copy values from.
+         */
+        public BuilderBase(@NonNull Stopwatch stopwatch) {
+            super(stopwatch);
             mBaseTimeMillis = stopwatch.getBaseTimeMillis();
             mBaseTimeMillisInElapsedRealtime =
                     stopwatch.getBaseTimeMillisInElapsedRealtime();
@@ -281,6 +293,30 @@ public class Stopwatch extends Thing {
         }
 
         /**
+         * Sets the point in time that the {@link Stopwatch} counts up from. In milliseconds using
+         * the {@link System#currentTimeMillis()} time base.
+         */
+        public @NonNull T setBaseTimeMillis(long baseTimeMillis) {
+            mBaseTimeMillis = baseTimeMillis;
+            return (T) this;
+        }
+
+        /**
+         * Sets the point in time that the {@link Stopwatch} counts up from. In milliseconds using
+         * the {@link android.os.SystemClock#elapsedRealtime()} time base.
+         */
+        public @NonNull T setBaseTimeMillisInElapsedRealtime(long baseTimeMillisInElapsedRealtime) {
+            mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
+            return (T) this;
+        }
+
+        /** Sets the boot count of the device. */
+        public @NonNull T setBootCount(int bootCount) {
+            mBootCount = bootCount;
+            return (T) this;
+        }
+
+        /**
          * Sets the current status.
          *
          * <p>Status can be {@link Stopwatch#STATUS_UNKNOWN}, {@link Stopwatch#STATUS_RESET},
@@ -309,11 +345,7 @@ public class Stopwatch extends Thing {
         /** Builds the {@link Stopwatch}. */
         @Override
         public @NonNull Stopwatch build() {
-            return new Stopwatch(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions,
-                    mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount, mStatus,
-                    mAccumulatedDurationMillis, mLaps);
+            return new Stopwatch(this);
         }
     }
 }

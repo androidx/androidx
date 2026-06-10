@@ -23,7 +23,6 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,29 +48,18 @@ public class ContactPoint extends Thing {
             "telephone")
     private final List<String> mTelephones;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    ContactPoint(
-            @NonNull String namespace,
-            @NonNull String id,
-            int documentScore,
-            long creationTimestampMillis,
-            long documentTtlMillis,
-            @Nullable String name,
-            @Nullable List<String> alternateNames,
-            @Nullable String description,
-            @Nullable String image,
-            @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            @NonNull String label,
-            @NonNull List<String> addresses,
-            @NonNull List<String> emails,
-            @NonNull List<String> telephones) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mLabel = label;
-        mAddresses = Collections.unmodifiableList(addresses);
-        mEmails = Collections.unmodifiableList(emails);
-        mTelephones = Collections.unmodifiableList(telephones);
+    /**
+     * Constructor for {@link ContactPoint}.
+     *
+     * @param builder The builder to construct the {@link ContactPoint} from.
+     */
+    @ExperimentalAppSearchApi
+    public ContactPoint(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mLabel = builder.mLabel;
+        mAddresses = Collections.unmodifiableList(new ArrayList<>(builder.mAddresses));
+        mEmails = Collections.unmodifiableList(new ArrayList<>(builder.mEmails));
+        mTelephones = Collections.unmodifiableList(new ArrayList<>(builder.mTelephones));
     }
 
     /**
@@ -103,7 +91,8 @@ public class ContactPoint extends Thing {
 
     /** Builder for {@link ContactPoint}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link ContactPoint.Builder}.
          *
@@ -127,20 +116,38 @@ public class ContactPoint extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected String mLabel;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private String mLabel;
         // Initialization to guarantee those won't be null
-        protected List<String> mAddresses = Collections.emptyList();
-        protected List<String> mEmails = Collections.emptyList();
-        protected List<String> mTelephones = Collections.emptyList();
+        private List<String> mAddresses = Collections.emptyList();
+        private List<String> mEmails = Collections.emptyList();
+        private List<String> mTelephones = Collections.emptyList();
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String label) {
+        /**
+         * Constructor for {@link ContactPoint.BuilderBase}.
+         *
+         * @param namespace Namespace for the {@link ContactPoint} Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the {@link ContactPoint} Document. See
+         *                  {@link Document.Id}.
+         * @param label     Label of this {@link ContactPoint} document. It could be "Home",
+         *                  "Work" or anything user defined.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                @NonNull String label) {
             super(namespace, id);
             mLabel = Preconditions.checkNotNull(label);
         }
 
-        BuilderImpl(@NonNull ContactPoint contactPoint) {
-            super(new Thing.Builder(contactPoint).build());
+        /**
+         * Constructor for {@link ContactPoint.BuilderBase} with all the existing values of a
+         * {@link ContactPoint}.
+         *
+         * @param contactPoint The existing {@link ContactPoint} to copy values from.
+         */
+        public BuilderBase(@NonNull ContactPoint contactPoint) {
+            super(contactPoint);
             mLabel = contactPoint.getLabel();
             mAddresses = contactPoint.getAddresses();
             mEmails = contactPoint.getEmails();
@@ -168,22 +175,7 @@ public class ContactPoint extends Thing {
         /** Builds the {@link ContactPoint}. */
         @Override
         public @NonNull ContactPoint build() {
-            return new ContactPoint(
-                    /*namespace=*/ mNamespace,
-                    /*id=*/ mId,
-                    /*documentScore=*/mDocumentScore,
-                    /*creationTimestampMillis=*/ mCreationTimestampMillis,
-                    /*documentTtlMillis=*/ mDocumentTtlMillis,
-                    /*name=*/ mName,
-                    /*alternateNames=*/ mAlternateNames,
-                    /*description=*/ mDescription,
-                    /*image=*/ mImage,
-                    /*url=*/ mUrl,
-                    /*potentialActions=*/ mPotentialActions,
-                    /*label=*/ mLabel,
-                    /*addresses=*/ new ArrayList<>(mAddresses),
-                    /*emails=*/ new ArrayList<>(mEmails),
-                    /*telephones=*/ new ArrayList<>(mTelephones));
+            return new ContactPoint(this);
         }
     }
 }

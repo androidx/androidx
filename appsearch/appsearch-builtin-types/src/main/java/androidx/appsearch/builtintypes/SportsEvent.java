@@ -31,9 +31,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 /**
  * AppSearch document representing a {@link SportsEvent} entity.
@@ -137,53 +135,30 @@ public class SportsEvent extends Event {
     @Document.LongProperty
     private @SportsEventResult long mResult;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    SportsEvent(
-        @NonNull String namespace, @NonNull String id, int documentScore,
-        long creationTimestampMillis, long documentTtlMillis,
-        @Nullable String name, @Nullable List<String> alternateNames,
-        @Nullable String description,
-        @Nullable String image, @Nullable String url,
-        @NonNull List<PotentialAction> potentialActions,
-        @NonNull Instant startDate,
-        @Nullable Instant endDate, @Nullable Duration duration,
-        @Nullable String location, @Nullable ImageObject imageObject,
-        @NonNull String sport,
-        @Nullable Organization organizer,
-        @SportsEventStatus long sportsEventStatus,
-        @Nullable String sportsEventStatusLabel,
-        @Nullable String gameTemporalState,
-        @Nullable String notableDetail,
-        @NonNull SportsTeam homeTeam,
-        @Nullable String homeTeamScore,
-        @Nullable String homeTeamAccessoryScore,
-        double homeTeamWinProbability,
-        @NonNull SportsTeam awayTeam,
-        @Nullable String awayTeamScore,
-        @Nullable String awayTeamAccessoryScore,
-        double awayTeamWinProbability,
-        boolean placeHomeTeamAtStart,
-        @SportsEventResult long result) {
-        super(namespace, id, documentScore, creationTimestampMillis,
-            documentTtlMillis, name, alternateNames, description, image, url,
-            potentialActions, startDate, endDate, duration, location,
-            imageObject);
-        this.mSport = sport;
-        this.mOrganizer = organizer;
-        this.mSportsEventStatus = sportsEventStatus;
-        this.mSportsEventStatusLabel = sportsEventStatusLabel;
-        this.mGameTemporalState = gameTemporalState;
-        this.mNotableDetail = notableDetail;
-        this.mHomeTeam = homeTeam;
-        this.mHomeTeamScore = homeTeamScore;
-        this.mHomeTeamAccessoryScore = homeTeamAccessoryScore;
-        this.mHomeTeamWinProbability = homeTeamWinProbability;
-        this.mAwayTeam = awayTeam;
-        this.mAwayTeamScore = awayTeamScore;
-        this.mAwayTeamAccessoryScore = awayTeamAccessoryScore;
-        this.mAwayTeamWinProbability = awayTeamWinProbability;
-        this.mPlaceHomeTeamAtStart = placeHomeTeamAtStart;
-        this.mResult = result;
+    /**
+     * Constructor for {@link SportsEvent}.
+     *
+     * @param builder The builder to construct the {@link SportsEvent} from.
+     */
+    @ExperimentalAppSearchApi
+    public SportsEvent(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        this.mSport = builder.mSport;
+        this.mOrganizer = builder.mOrganizer;
+        this.mSportsEventStatus = builder.mSportsEventStatus;
+        this.mSportsEventStatusLabel = builder.mSportsEventStatusLabel;
+        this.mGameTemporalState = builder.mGameTemporalState;
+        this.mNotableDetail = builder.mNotableDetail;
+        this.mHomeTeam = builder.mHomeTeam;
+        this.mHomeTeamScore = builder.mHomeTeamScore;
+        this.mHomeTeamAccessoryScore = builder.mHomeTeamAccessoryScore;
+        this.mHomeTeamWinProbability = builder.mHomeTeamWinProbability;
+        this.mAwayTeam = builder.mAwayTeam;
+        this.mAwayTeamScore = builder.mAwayTeamScore;
+        this.mAwayTeamAccessoryScore = builder.mAwayTeamAccessoryScore;
+        this.mAwayTeamWinProbability = builder.mAwayTeamWinProbability;
+        this.mPlaceHomeTeamAtStart = builder.mPlaceHomeTeamAtStart;
+        this.mResult = builder.mResult;
     }
 
     /**
@@ -330,7 +305,8 @@ public class SportsEvent extends Event {
     }
 
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /**
          * Constructor for {@link SportsEvent.Builder}.
@@ -359,30 +335,42 @@ public class SportsEvent extends Event {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Event.BuilderImpl<T> {
-        protected String mSport;
-        protected @Nullable Organization mOrganizer;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Event.BuilderBase<T> {
+        private String mSport;
+        private @Nullable Organization mOrganizer;
         // Initialized to STATUS_UNSPECIFIED.
-        protected @SportsEventStatus long mSportsEventStatus = SportsEvent.STATUS_UNSPECIFIED;
-        protected @Nullable String mSportsEventStatusLabel;
-        protected @Nullable String mGameTemporalState;
-        protected @Nullable String mNotableDetail;
-        protected SportsTeam mHomeTeam;
-        protected @Nullable String mHomeTeamScore;
-        protected @Nullable String mHomeTeamAccessoryScore;
+        private @SportsEventStatus long mSportsEventStatus = SportsEvent.STATUS_UNSPECIFIED;
+        private @Nullable String mSportsEventStatusLabel;
+        private @Nullable String mGameTemporalState;
+        private @Nullable String mNotableDetail;
+        private final SportsTeam mHomeTeam;
+        private @Nullable String mHomeTeamScore;
+        private @Nullable String mHomeTeamAccessoryScore;
         // Initialized to 0.0.
-        protected double mHomeTeamWinProbability = 0.0;
-        protected SportsTeam mAwayTeam;
-        protected @Nullable String mAwayTeamScore;
-        protected @Nullable String mAwayTeamAccessoryScore;
+        private double mHomeTeamWinProbability = 0.0;
+        private final SportsTeam mAwayTeam;
+        private @Nullable String mAwayTeamScore;
+        private @Nullable String mAwayTeamAccessoryScore;
         // Initialized to 0.0.
-        protected double mAwayTeamWinProbability = 0.0;
+        private double mAwayTeamWinProbability = 0.0;
         // Initialized to true.
-        protected boolean mPlaceHomeTeamAtStart = true;
+        private boolean mPlaceHomeTeamAtStart = true;
         // Initialized to RESULT_UNSPECIFIED.
-        protected @SportsEventResult long mResult = SportsEvent.RESULT_UNSPECIFIED;
+        private @SportsEventResult long mResult = SportsEvent.RESULT_UNSPECIFIED;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        /**
+         * Constructor for {@link SportsEvent.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         * @param startDate The start date of the sports event.
+         * @param sport The sport of the sports event.
+         * @param homeTeam The home team of the sports event.
+         * @param awayTeam The away team of the sports event.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
             @NonNull Instant startDate,
             @NonNull String sport, @NonNull SportsTeam homeTeam,
             @NonNull SportsTeam awayTeam) {
@@ -392,7 +380,12 @@ public class SportsEvent extends Event {
             mAwayTeam = Preconditions.checkNotNull(awayTeam);
         }
 
-        BuilderImpl(@NonNull SportsEvent sportsEvent) {
+        /**
+         * Constructor for {@link SportsEvent.BuilderBase} with all the existing values.
+         *
+         * @param sportsEvent The existing {@link SportsEvent} to copy values from.
+         */
+        public BuilderBase(@NonNull SportsEvent sportsEvent) {
             super(sportsEvent);
             mSport = sportsEvent.getSport();
             mHomeTeam = sportsEvent.getHomeTeam();
@@ -564,39 +557,7 @@ public class SportsEvent extends Event {
 
         @Override
         public @NonNull SportsEvent build() {
-            return new SportsEvent(
-                    mNamespace,
-                    mId,
-                    mDocumentScore,
-                    mCreationTimestampMillis,
-                    mDocumentTtlMillis,
-                    mName,
-                    mAlternateNames,
-                    mDescription,
-                    mImage,
-                    mUrl,
-                    mPotentialActions,
-                    mStartDate,
-                    mEndDate,
-                    mDuration,
-                    mLocation,
-                    mLogo,
-                    mSport,
-                    mOrganizer,
-                    mSportsEventStatus,
-                    mSportsEventStatusLabel,
-                    mGameTemporalState,
-                    mNotableDetail,
-                    mHomeTeam,
-                    mHomeTeamScore,
-                    mHomeTeamAccessoryScore,
-                    mHomeTeamWinProbability,
-                    mAwayTeam,
-                    mAwayTeamScore,
-                    mAwayTeamAccessoryScore,
-                    mAwayTeamWinProbability,
-                    mPlaceHomeTeamAtStart,
-                    mResult);
+            return new SportsEvent(this);
         }
     }
 }

@@ -31,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 /**
  * AppSearch document representing an {@link Event} entity.
@@ -55,24 +54,19 @@ public class Event extends Thing {
     @Document.DocumentProperty
     private @Nullable ImageObject mLogo;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Event(
-        @NonNull String namespace, @NonNull String id, int documentScore,
-        long creationTimestampMillis, long documentTtlMillis,
-        @Nullable String name, @Nullable List<String> alternateNames,
-        @Nullable String description, @Nullable String image,
-        @Nullable String url, @NonNull List<PotentialAction> potentialActions,
-        @Nullable Instant startDate,
-        @Nullable Instant endDate, @Nullable Duration duration,
-        @Nullable String location, @Nullable ImageObject logo) {
-          super(namespace, id, documentScore, creationTimestampMillis,
-              documentTtlMillis, name, alternateNames, description, image, url,
-              potentialActions);
-        this.mStartDate = startDate;
-        this.mEndDate = endDate;
-        this.mDuration = duration;
-        this.mLocation = location;
-        this.mLogo = logo;
+    /**
+     * Constructor for {@link Event}.
+     *
+     * @param builder The builder to construct the {@link Event} from.
+     */
+    @ExperimentalAppSearchApi
+    public Event(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mStartDate = builder.mStartDate;
+        mEndDate = builder.mEndDate;
+        mDuration = builder.mDuration;
+        mLocation = builder.mLocation;
+        mLogo = builder.mLogo;
     }
 
     /**
@@ -121,7 +115,8 @@ public class Event extends Thing {
     }
 
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /**
          * Constructor for {@link Event.Builder}.
@@ -148,21 +143,35 @@ public class Event extends Thing {
      * Builder for {@link Event}.
      */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected Instant mStartDate;
-        protected Instant mEndDate;
-        protected Duration mDuration;
-        protected String mLocation;
-        protected ImageObject mLogo;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private Instant mStartDate;
+        private Instant mEndDate;
+        private Duration mDuration;
+        private String mLocation;
+        private ImageObject mLogo;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id,
+        /**
+         * Constructor for {@link Event.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id The unique identifier for the Document.
+         * @param startDate The start date of the event.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
             @NonNull Instant startDate) {
             super(namespace, id);
             this.mStartDate = Preconditions.checkNotNull(startDate);
         }
 
-        BuilderImpl(@NonNull Event event) {
-            super(new Thing.Builder(event).build());
+        /**
+         * Constructor for {@link Event.BuilderBase} with all the existing values.
+         *
+         * @param event The existing {@link Event} to copy values from.
+         */
+        public BuilderBase(@NonNull Event event) {
+            super(event);
             mStartDate = event.getStartDate();
             mEndDate = event.getEndDate();
             mDuration = event.getDuration();
@@ -215,23 +224,7 @@ public class Event extends Thing {
 
         @Override
         public @NonNull Event build() {
-            return new Event(
-                mNamespace,
-                mId,
-                mDocumentScore,
-                mCreationTimestampMillis,
-                mDocumentTtlMillis,
-                mName,
-                mAlternateNames,
-                mDescription,
-                mImage,
-                mUrl,
-                mPotentialActions,
-                mStartDate,
-                mEndDate,
-                mDuration,
-                mLocation,
-                mLogo);
+            return new Event(this);
         }
     }
 }

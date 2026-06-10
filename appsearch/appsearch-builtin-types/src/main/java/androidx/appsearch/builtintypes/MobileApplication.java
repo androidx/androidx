@@ -18,6 +18,7 @@ package androidx.appsearch.builtintypes;
 
 import android.net.Uri;
 
+import androidx.annotation.OptIn;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.appsearch.annotation.Document;
@@ -30,8 +31,6 @@ import androidx.core.util.Preconditions;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /** Represents an installed app to enable searching using names, nicknames, and package names. */
@@ -66,38 +65,21 @@ public class MobileApplication extends Thing {
 
     @Document.StringProperty private final String mClassName;
 
-    /** Constructs the {@link MobileApplication}. */
-    MobileApplication(
-            @NonNull String namespace,
-            @NonNull String id,
-            int documentScore,
-            long creationTimestampMillis,
-            long documentTtlMillis,
-            @Nullable String name,
-            @Nullable List<String> alternateNames,
-            @Nullable String description,
-            @Nullable String image,
-            @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            @NonNull String packageName,
-            @Nullable String displayName,
-            @Nullable Uri iconUri,
-            byte @NonNull [] sha256Certificate,
-            long updatedTimestampMillis,
-            @Nullable String className) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mPackageName = Preconditions.checkNotNull(packageName);
-        mDisplayName = displayName;
-        if (alternateNames == null) {
-            mAlternateNames = Collections.emptyList();
-        } else {
-            mAlternateNames = Collections.unmodifiableList(alternateNames);
-        }
-        mIconUri = iconUri;
-        mSha256Certificate = Preconditions.checkNotNull(sha256Certificate);
-        mUpdatedTimestampMillis = updatedTimestampMillis;
-        mClassName = className;
+    /**
+     * Constructor for {@link MobileApplication}.
+     *
+     * @param builder The builder to construct the {@link MobileApplication} from.
+     */
+    @ExperimentalAppSearchApi
+    public MobileApplication(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mPackageName = Preconditions.checkNotNull(builder.mPackageName);
+        mDisplayName = builder.mDisplayName;
+        mAlternateNames = super.getAlternateNames();
+        mIconUri = builder.mIconUri;
+        mSha256Certificate = Preconditions.checkNotNull(builder.mSha256Certificate);
+        mUpdatedTimestampMillis = builder.mUpdatedTimestampMillis;
+        mClassName = builder.mClassName;
     }
 
     /**
@@ -162,7 +144,9 @@ public class MobileApplication extends Thing {
     }
 
     /** Builder class for {@link MobileApplication}. */
-    public static final class Builder extends BuilderImpl<Builder> {
+    @Document.BuilderProducer
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link Builder}.
          *
@@ -188,25 +172,38 @@ public class MobileApplication extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected final String mPackageName;
-        protected String mDisplayName;
-        protected Uri mIconUri;
-        protected final byte[] mSha256Certificate;
-        protected long mUpdatedTimestampMillis;
-        protected String mClassName;
-        private boolean mBuilt = false;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private final String mPackageName;
+        private String mDisplayName;
+        private Uri mIconUri;
+        private final byte[] mSha256Certificate;
+        private long mUpdatedTimestampMillis;
+        private String mClassName;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String packageName,
-                byte @NonNull [] sha256Certificate) {
+        /**
+         * Constructor for {@link MobileApplication.BuilderBase}.
+         *
+         * @param namespace The namespace of the document.
+         * @param id The id of the document.
+         * @param packageName The package name of the application.
+         * @param sha256Certificate The SHA-256 certificate of the application.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                @NonNull String packageName, byte @NonNull [] sha256Certificate) {
             super(namespace, id);
             mPackageName = Preconditions.checkNotNull(packageName);
             mSha256Certificate = Preconditions.checkNotNull(sha256Certificate);
         }
 
-        BuilderImpl(@NonNull MobileApplication mobileApplication) {
-            super(new Thing.Builder(mobileApplication).build());
-            Preconditions.checkNotNull(mobileApplication);
+        /**
+         * Constructor for {@link MobileApplication.BuilderBase} with all the existing values of a
+         * {@link MobileApplication}.
+         *
+         * @param mobileApplication The existing {@link MobileApplication} to copy values from.
+         */
+        public BuilderBase(@NonNull MobileApplication mobileApplication) {
+            super(Preconditions.checkNotNull(mobileApplication));
             mPackageName = mobileApplication.mPackageName;
             mDisplayName = mobileApplication.mDisplayName;
             mIconUri = mobileApplication.mIconUri;
@@ -248,38 +245,11 @@ public class MobileApplication extends Thing {
             return (T) this;
         }
 
-        /**
-         * If built, make a copy of previous data for every field so that the builder can be reused.
-         */
-        private void resetIfBuilt() {
-            if (mBuilt) {
-                mAlternateNames = new ArrayList<>(mAlternateNames);
-                mBuilt = false;
-            }
-        }
-
         /** Builds the {@link MobileApplication}. */
         @Override
         public @NonNull MobileApplication build() {
-            mBuilt = true;
-            return new MobileApplication(
-                    mNamespace,
-                    mId,
-                    /*documentScore=*/mDocumentScore,
-                    /*creationTimestampMillis=*/ mCreationTimestampMillis,
-                    /*documentTtlMillis=*/ mDocumentTtlMillis,
-                    /*name=*/ mName,
-                    /*alternateNames=*/ mAlternateNames,
-                    /*description=*/ mDescription,
-                    /*image=*/ mImage,
-                    /*url=*/ mUrl,
-                    /*potentialActions=*/ mPotentialActions,
-                    mPackageName,
-                    mDisplayName,
-                    mIconUri,
-                    mSha256Certificate,
-                    mUpdatedTimestampMillis,
-                    mClassName);
+            super.build();
+            return new MobileApplication(this);
         }
     }
 

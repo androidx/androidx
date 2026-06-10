@@ -23,8 +23,6 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * AppSearch document representing an {@link Organization} entity.
  */
@@ -33,19 +31,15 @@ public class Organization extends Thing {
     @Document.DocumentProperty
     private @Nullable ImageObject mLogo;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Organization(
-        @NonNull String namespace, @NonNull String id, int documentScore,
-        long creationTimestampMillis, long documentTtlMillis,
-        @Nullable String name, @Nullable List<String> alternateNames,
-        @Nullable String description,
-        @Nullable String image, @Nullable String url,
-        @NonNull List<PotentialAction> potentialActions,
-        @Nullable ImageObject logo) {
-        super(namespace, id, documentScore, creationTimestampMillis,
-            documentTtlMillis, name, alternateNames, description, image, url,
-            potentialActions);
-        this.mLogo = logo;
+    /**
+     * Constructor for {@link Organization}.
+     *
+     * @param builder The builder to construct the {@link Organization} from.
+     */
+    @ExperimentalAppSearchApi
+    public Organization(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mLogo = builder.mLogo;
     }
 
     /**
@@ -56,7 +50,8 @@ public class Organization extends Thing {
     }
 
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /**
          * Constructor for {@link Organization.Builder}.
@@ -81,15 +76,28 @@ public class Organization extends Thing {
      * Builder for {@link Organization}.
      */
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected @Nullable ImageObject mLogo;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private @Nullable ImageObject mLogo;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link Organization.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id The unique identifier for the Document.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
-        BuilderImpl(@NonNull Organization organization) {
-            super(new Thing.Builder(organization).build());
+        /**
+         * Constructor for {@link Organization.BuilderBase} with all the existing values.
+         *
+         * @param organization The existing {@link Organization} to copy values from.
+         */
+        public BuilderBase(@NonNull Organization organization) {
+            super(organization);
             mLogo = organization.getLogo();
         }
 
@@ -103,19 +111,7 @@ public class Organization extends Thing {
 
         @Override
         public @NonNull Organization build() {
-            return new Organization(
-                mNamespace,
-                mId,
-                mDocumentScore,
-                mCreationTimestampMillis,
-                mDocumentTtlMillis,
-                mName,
-                mAlternateNames,
-                mDescription,
-                mImage,
-                mUrl,
-                mPotentialActions,
-                mLogo);
+            return new Organization(this);
         }
     }
 }

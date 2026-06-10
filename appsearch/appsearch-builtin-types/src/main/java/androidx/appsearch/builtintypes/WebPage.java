@@ -26,8 +26,6 @@ import androidx.core.util.Preconditions;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * AppSearch document representing a {@link WebPage} entity.
  *
@@ -46,18 +44,16 @@ public class WebPage extends Thing {
     @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS)
     private final @Nullable String mSource;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    WebPage(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames,
-            @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @Nullable List<PotentialAction> potentialActions, @Nullable ImageObject favicon,
-            @Nullable String source) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mFavicon = favicon;
-        mSource = source;
+    /**
+     * Constructor for {@link WebPage}.
+     *
+     * @param builder The builder to construct the {@link WebPage} from.
+     */
+    @ExperimentalAppSearchApi
+    public WebPage(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mFavicon = builder.mFavicon;
+        mSource = builder.mSource;
     }
 
     /**
@@ -77,7 +73,8 @@ public class WebPage extends Thing {
 
     /** Builder for {@link WebPage}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
 
         /** Constructs {@link WebPage.Builder} with given {@code namespace} and {@code id} */
         public Builder(@NonNull String namespace, @NonNull String id) {
@@ -91,19 +88,30 @@ public class WebPage extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<Self extends BuilderImpl<Self>> extends Thing.BuilderImpl<Self> {
-
-        protected ImageObject mFavicon;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private ImageObject mFavicon;
         @ExperimentalAppSearchApi
-        protected String mSource;
+        private String mSource;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link WebPage.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
-        @OptIn(markerClass = ExperimentalAppSearchApi.class)
-        BuilderImpl(@NonNull WebPage webPage) {
-            super(new Thing.Builder(Preconditions.checkNotNull(webPage)).build());
+        /**
+         * Constructor for {@link WebPage.BuilderBase} with all the existing values.
+         *
+         * @param webPage The existing {@link WebPage} to copy values from.
+         */
+        public BuilderBase(@NonNull WebPage webPage) {
+            super(Preconditions.checkNotNull(webPage));
             mFavicon = webPage.getFavicon();
             mSource = webPage.getSource();
         }
@@ -111,37 +119,24 @@ public class WebPage extends Thing {
         /**
          * Sets the favicon that represents the web page.
          */
-        public @NonNull Self setFavicon(@Nullable ImageObject favicon) {
+        public @NonNull T setFavicon(@Nullable ImageObject favicon) {
             mFavicon = favicon;
-            return (Self) this;
+            return (T) this;
         }
 
         /**
          * Sets the source of how the web page was accessed in CamelCase. (e.g. Tab, CustomTab)
          */
         @ExperimentalAppSearchApi
-        public @NonNull Self setSource(@Nullable String type) {
+        public @NonNull T setSource(@Nullable String type) {
             mSource = type;
-            return (Self) this;
+            return (T) this;
         }
 
         /** Builds the {@link WebPage}. */
-        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         @Override
         public @NonNull WebPage build() {
-            return new WebPage(
-                    mNamespace,
-                    mId,
-                    mDocumentScore,
-                    mCreationTimestampMillis,
-                    mDocumentTtlMillis,
-                    mName,
-                    mAlternateNames,
-                    mDescription,
-                    mImage,
-                    mUrl,
-                    mPotentialActions,
-                    mFavicon, mSource);
+            return new WebPage(this);
         }
     }
 }

@@ -22,9 +22,6 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * An AppSearch document representing a {@link StopwatchLap} entity.
@@ -45,18 +42,17 @@ public class StopwatchLap extends Thing {
     @Document.LongProperty
     private final long mAccumulatedLapDurationMillis;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    StopwatchLap(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            int lapNumber, long lapDurationMillis, long accumulatedLapDurationMillis) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mLapNumber = lapNumber;
-        mLapDurationMillis = lapDurationMillis;
-        mAccumulatedLapDurationMillis = accumulatedLapDurationMillis;
+    /**
+     * Constructor for {@link StopwatchLap}.
+     *
+     * @param builder The builder to construct the {@link StopwatchLap} from.
+     */
+    @ExperimentalAppSearchApi
+    public StopwatchLap(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mLapNumber = builder.mLapNumber;
+        mLapDurationMillis = builder.mLapDurationMillis;
+        mAccumulatedLapDurationMillis = builder.mAccumulatedLapDurationMillis;
     }
 
     /** Returns the position of the current {@link StopwatchLap}, starting at 1. */
@@ -81,7 +77,8 @@ public class StopwatchLap extends Thing {
 
     /** Builder for {@link StopwatchLap}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link StopwatchLap.Builder}.
          *
@@ -101,17 +98,29 @@ public class StopwatchLap extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected int mLapNumber;
-        protected long mLapDurationMillis;
-        protected long mAccumulatedLapDurationMillis;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private int mLapNumber;
+        private long mLapDurationMillis;
+        private long mAccumulatedLapDurationMillis;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link StopwatchLap.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
-        BuilderImpl(@NonNull StopwatchLap stopwatchLap) {
-            super(new Thing.Builder(stopwatchLap).build());
+        /**
+         * Constructor for {@link StopwatchLap.BuilderBase} with all the existing values.
+         *
+         * @param stopwatchLap The existing {@link StopwatchLap} to copy values from.
+         */
+        public BuilderBase(@NonNull StopwatchLap stopwatchLap) {
+            super(stopwatchLap);
 
             this.mLapNumber = stopwatchLap.getLapNumber();
             this.mLapDurationMillis = stopwatchLap.getLapDurationMillis();
@@ -146,10 +155,7 @@ public class StopwatchLap extends Thing {
         /** Builds the {@link StopwatchLap}. */
         @Override
         public @NonNull StopwatchLap build() {
-            return new StopwatchLap(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions,
-                    mLapNumber, mLapDurationMillis, mAccumulatedLapDurationMillis);
+            return new StopwatchLap(this);
         }
     }
 }
