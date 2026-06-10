@@ -197,9 +197,6 @@ constructor(
         awbRegions: List<MeteringRectangle>? = null,
         retainLocks: Boolean = false,
     ): Deferred<Result3A> {
-        // TODO(b/496247476): Handle cases when retainLocks is true but the lock will not be
-        // retained.
-
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or trigger set a new listener.
         if (graphProcessor.repeatingRequest == null) {
@@ -251,10 +248,28 @@ constructor(
         // Locks for AF will only be retained if AF is previously locked and AfMode is continuous
         // and the new AfMode is different from the previous
         // To retain the locks, we will send af trigger
-        val needAfTrigger =
-            retainLocks && currentState3A.afLock == true && isAfContinuousAndDifferent
+        val afLockedAndContinuous = currentState3A.afLock == true && isAfContinuousAndDifferent
+        val needAfTrigger = retainLocks && afLockedAndContinuous
         if (needAfTrigger) {
             parameters = parameters + parameterForAfTriggerStart
+        }
+
+        if (retainLocks) {
+            if (aeLock != true) {
+                debug {
+                    "Controller3A#update3A: AE lock will not be retained because previous AE is not locked"
+                }
+            }
+            if (awbLock != true) {
+                debug {
+                    "Controller3A#update3A: AWB lock will not be retained because previous AWB is not locked"
+                }
+            }
+            if (!afLockedAndContinuous) {
+                debug {
+                    "Controller3A#update3A: AF lock will not be retained because previous AF is not locked or AfMode is not continuous and different"
+                }
+            }
         }
 
         // Try submitting a new repeating request with the 3A parameters corresponding to the new
