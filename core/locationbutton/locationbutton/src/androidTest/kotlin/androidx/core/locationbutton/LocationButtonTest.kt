@@ -300,7 +300,7 @@ public class LocationButtonTest {
             button.setOnRequestPermissionsListener {}
             button.setOnErrorListener {}
 
-            // Test clear listener
+            // Test clear listeners
             button.setOnPermissionResultListener(null)
             button.setOnRequestPermissionsListener(null)
             button.setOnErrorListener(null)
@@ -348,5 +348,190 @@ public class LocationButtonTest {
         instrumentation.waitForIdleSync()
 
         assertThat(permissionGranted).isTrue()
+    }
+
+    @Test
+    public fun testCustomRequestPermissionFlow() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            return
+        }
+
+        var customRequestCallCount = 0
+        var permissionResultCallCount = 0
+        lateinit var button: LocationButton
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    setOnPermissionResultListener { isGranted -> permissionResultCallCount++ }
+                    setOnRequestPermissionsListener { customRequestCallCount++ }
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        activityRule.scenario.onActivity { _ -> button.localButtonView.performClick() }
+
+        instrumentation.waitForIdleSync()
+
+        // Custom flow should be called, and default result should NOT be called (since we didn't
+        // run defaultRequester)
+        assertThat(customRequestCallCount).isEqualTo(1)
+        assertThat(permissionResultCallCount).isEqualTo(0)
+    }
+
+    // We suppress to minSdkVersion = 28 for integration tests that require UiAutomation
+    // to grant permissions, as UiAutomation.grantRuntimePermission can be flaky on older APIs.
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public fun testPreFlightPermissionCheck() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            return
+        }
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val packageName = context.packageName
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        uiAutomation.grantRuntimePermission(
+            packageName,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+
+        var permissionResultCallCount = 0
+        var lastGrantedResult = false
+        lateinit var button: LocationButton
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    // Set an ID so it attempts to register (though it shouldn't need to launch)
+                    id = 12345
+                    setOnPermissionResultListener { isGranted ->
+                        permissionResultCallCount++
+                        lastGrantedResult = isGranted
+                    }
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        activityRule.scenario.onActivity { _ -> button.localButtonView.performClick() }
+
+        instrumentation.waitForIdleSync()
+
+        // Should immediately return true without launching the contract (since we already have
+        // permission)
+        assertThat(permissionResultCallCount).isEqualTo(1)
+        assertThat(lastGrantedResult).isTrue()
+    }
+
+    // We suppress to minSdkVersion = 28 for integration tests that require UiAutomation
+    // to grant permissions, as UiAutomation.grantRuntimePermission can be flaky on older APIs.
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public fun testAttachDetachCycle() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            return
+        }
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val packageName = context.packageName
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        uiAutomation.grantRuntimePermission(
+            packageName,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+
+        var permissionResultCallCount = 0
+        lateinit var button: LocationButton
+        lateinit var parent: FrameLayout
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    id = 12345
+                    setOnPermissionResultListener { isGranted -> permissionResultCallCount++ }
+                }
+            parent =
+                FrameLayout(activity).apply {
+                    addView(button)
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        // Detach
+        activityRule.scenario.onActivity { _ -> parent.removeView(button) }
+        instrumentation.waitForIdleSync()
+
+        // Re-attach
+        activityRule.scenario.onActivity { _ -> parent.addView(button) }
+        instrumentation.waitForIdleSync()
+
+        // Click should still work
+        activityRule.scenario.onActivity { _ -> button.localButtonView.performClick() }
+        instrumentation.waitForIdleSync()
+
+        assertThat(permissionResultCallCount).isEqualTo(1)
+    }
+
+    @Test
+    public fun testAutomaticPermissionRequestFailureWithoutId() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            return
+        }
+
+        lateinit var button: LocationButton
+
+        activityRule.scenario.onActivity { activity ->
+            button = LocationButton(activity) // No ID set
+            activity.setContentView(button)
+        }
+
+        instrumentation.waitForIdleSync()
+
+        activityRule.scenario.onActivity { _ ->
+            assertThrows(IllegalStateException::class.java) {
+                button.localButtonView.performClick()
+            }
+        }
+    }
+
+    @Test
+    public fun testUnregisterOnDetach() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            return
+        }
+
+        lateinit var button: LocationButton
+        lateinit var parent: FrameLayout
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    id = 12345
+                    setOnPermissionResultListener {}
+                }
+            parent =
+                FrameLayout(activity).apply {
+                    addView(button)
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        // Verify it is initially registered (launcher is non-null)
+        assertThat(button.activityResultLauncher).isNotNull()
+
+        // Detach the view (this should trigger unregister)
+        activityRule.scenario.onActivity { _ -> parent.removeView(button) }
+        instrumentation.waitForIdleSync()
+
+        // Verify it is unregistered (launcher is set to null)
+        assertThat(button.activityResultLauncher).isNull()
     }
 }

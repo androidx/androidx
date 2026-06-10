@@ -16,6 +16,9 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Apply the test theme to the test application context -->
     <application android:theme="@style/Theme.AndroidXCore.LocationButton.Test">
         <activity android:name="androidx.core.locationbutton.LocationButtonTestActivity" />
