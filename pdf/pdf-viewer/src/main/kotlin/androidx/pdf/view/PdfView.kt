@@ -73,6 +73,7 @@ import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.formfilling.FormFillingEditTextState
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.ocr.OcrContextRepository
 import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.selection.Selection
@@ -311,9 +312,19 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setOcrProvider(ocrProvider: OcrProvider?) {
+        checkMainThread()
         if (this@PdfView.ocrProvider == ocrProvider) return
         this@PdfView.ocrProvider = ocrProvider
         selectionStateManager?.ocrProvider = ocrProvider
+
+        val localPdfDocument = pdfDocument
+        val ocrContextRepository =
+            if (ocrProvider != null && localPdfDocument != null) {
+                OcrContextRepository(localPdfDocument, ocrProvider)
+            } else {
+                null
+            }
+        pageManager?.setOcrContextRepository(ocrContextRepository)
     }
 
     /**
@@ -2026,6 +2037,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 Point(maxBitmapDimensionPx, maxBitmapDimensionPx),
                 errorFlow,
                 isAccessibilityEnabled,
+                ocrProvider?.let { OcrContextRepository(localPdfDocument, it) },
             )
 
         formWidgetInteractionHandler =
