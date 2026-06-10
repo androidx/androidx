@@ -32,7 +32,7 @@ package androidx.appfunctions
  *
  * @AppFunctionServiceEntryPoint(
  *   serviceName = "MyAppFunctionService",
- *   appFunctionXmlFileName = "my_service.xml"
+ *   appFunctionXmlFileName = "my_service"
  * )
  * abstract class BaseMyAppFunctionService : AppFunctionService() {
  *   @AppFunction fun add(a: Int, b: Int): Int = a + b
