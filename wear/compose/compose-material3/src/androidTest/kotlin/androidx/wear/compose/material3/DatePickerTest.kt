@@ -851,7 +851,13 @@ class DatePickerTest {
         resources: Resources,
         selectedValue: Int,
         contentDescriptionResource: Strings,
-    ): String = "${resources.getString(contentDescriptionResource.value)}, $selectedValue"
+    ): String =
+        String.format(
+            resources.configuration.locales[0],
+            resources.getString(Strings.DatePickerContentDescription.value),
+            resources.getString(contentDescriptionResource.value),
+            selectedValue,
+        )
 
     private enum class SelectionMode(val contentDescriptionResource: Strings) {
         Day(Strings.DatePickerDay),

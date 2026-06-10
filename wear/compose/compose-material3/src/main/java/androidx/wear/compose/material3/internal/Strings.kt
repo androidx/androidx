@@ -118,6 +118,9 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val NotCheckedStateDescription
             get() = Strings(R.string.wear_m3c_not_checked_state_description)
+
+        inline val DatePickerContentDescription
+            get() = Strings(R.string.wear_m3c_date_picker_content_description)
     }
 }
 
