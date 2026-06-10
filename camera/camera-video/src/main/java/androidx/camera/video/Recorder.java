@@ -844,6 +844,14 @@ public final class Recorder implements VideoOutput {
         return getObservableData(mMediaSpec).getVideoSpec().getQualitySelector();
     }
 
+    /**
+     * Gets the muxer factory of this Recorder.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull MuxerFactory getMuxerFactory() {
+        return mMuxerFactory;
+    }
+
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isQualitySelectorDefault() {
@@ -4020,7 +4028,7 @@ public final class Recorder implements VideoOutput {
         }
 
         /** Sets the {@link MuxerFactory} of this Recorder. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public @NonNull Builder setMuxerFactory(@NonNull MuxerFactory muxerFactory) {
             mMuxerFactory = muxerFactory;
             return this;

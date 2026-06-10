@@ -102,6 +102,7 @@ import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.video.internal.muxer.MuxerFactory;
 import androidx.camera.view.internal.ScreenFlashUiInfo;
 import androidx.camera.view.video.AudioConfig;
 import androidx.core.content.PermissionChecker;
@@ -315,6 +316,8 @@ public abstract class CameraController {
     @NonNull Map<Consumer<VideoRecordEvent>, Recording> mRecordingMap = new HashMap<>();
 
     @NonNull QualitySelector mVideoCaptureQualitySelector = Recorder.DEFAULT_QUALITY_SELECTOR;
+
+    @Nullable MuxerFactory mVideoCaptureMuxerFactory = null;
 
     @MirrorMode.Mirror
     private int mVideoCaptureMirrorMode = MirrorMode.MIRROR_MODE_OFF;
@@ -2257,6 +2260,19 @@ public abstract class CameraController {
         }
     }
 
+    /** Sets the {@link MuxerFactory} of this CameraController. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @MainThread
+    public void setVideoCaptureMuxerFactory(@NonNull MuxerFactory muxerFactory) {
+        checkMainThread();
+        throwExceptionIfSessionConfigExists("setVideoCaptureMuxerFactory");
+        if (mVideoCaptureMuxerFactory != muxerFactory) {
+            mVideoCaptureMuxerFactory = muxerFactory;
+            recreateVideoCapture(/* shouldUnbind= */ true);
+            startCameraAndTrackStates();
+        }
+    }
+
     /**
      * Recreates VideoCapture with the latest parameters.
      */
@@ -2279,6 +2295,9 @@ public abstract class CameraController {
             if (aspectRatioInt != AspectRatio.RATIO_DEFAULT) {
                 videoRecorderBuilder.setAspectRatio(aspectRatioInt);
             }
+        }
+        if (mVideoCaptureMuxerFactory != null) {
+            videoRecorderBuilder.setMuxerFactory(mVideoCaptureMuxerFactory);
         }
 
         VideoCapture.Builder<Recorder> builder = new VideoCapture.Builder<>(
