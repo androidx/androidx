@@ -170,6 +170,7 @@ package androidx.appfunctions {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? isAppFunctionEnabled(String packageName, String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? isAppFunctionEnabled(String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public kotlinx.coroutines.flow.Flow<java.util.List<androidx.appfunctions.metadata.AppFunctionPackageMetadata>> observeAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec);
+    method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? searchAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata>>);
     method public suspend Object? setAppFunctionEnabled(String functionId, int newEnabledState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final int APP_FUNCTION_STATE_DEFAULT = 0; // 0x0
     field public static final int APP_FUNCTION_STATE_DISABLED = 2; // 0x2
@@ -214,15 +215,18 @@ package androidx.appfunctions {
 
   public final class AppFunctionSearchSpec {
     ctor public AppFunctionSearchSpec();
-    ctor @BytecodeOnly public AppFunctionSearchSpec(java.util.Set!, String!, String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public AppFunctionSearchSpec(java.util.Set!, String!, String!, int, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory, optional String? schemaName);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory, optional String? schemaName, optional int minSchemaVersion);
+    ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory, optional String? schemaName, optional int minSchemaVersion, optional java.util.Set<androidx.appfunctions.metadata.AppFunctionName>? functionNames);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.appfunctions.metadata.AppFunctionName>? getFunctionNames();
     method @InaccessibleFromKotlin public int getMinSchemaVersion();
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String>? getPackageNames();
     method @InaccessibleFromKotlin public String? getSchemaCategory();
     method @InaccessibleFromKotlin public String? getSchemaName();
+    property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName>? functionNames;
     property public int minSchemaVersion;
     property public java.util.Set<java.lang.String>? packageNames;
     property public String? schemaCategory;

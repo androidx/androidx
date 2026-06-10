@@ -82,10 +82,11 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
         packageToComponentsMetadataMapState = MutableStateFlow(packageToComponentsMetadataMap)
     }
 
-    override fun searchAppFunctions(
+    override fun searchAppFunctionsPackageMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> =
-        packageToFunctionMetadataMapState.combine(packageToComponentsMetadataMapState) {
+    ): Flow<List<AppFunctionPackageMetadata>> {
+        val functionNames = searchFunctionSpec.functionNames
+        return packageToFunctionMetadataMapState.combine(packageToComponentsMetadataMapState) {
             packageToFunctionMetadataMap:
                 Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>,
             packageToComponentsMetadataMap: Map<String, AppFunctionComponentsMetadata> ->
@@ -97,7 +98,12 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                 .mapNotNull { (packageName, metadataMap) ->
                     val appFunctions =
                         metadataMap.values
-                            .filter { metadata -> matchesSchemaSpec(metadata, searchFunctionSpec) }
+                            .filter { metadata ->
+                                matchesSchemaSpec(metadata, searchFunctionSpec) &&
+                                    (functionNames == null ||
+                                        AppFunctionName(packageName, metadata.staticMetadata.id) in
+                                            functionNames)
+                            }
                             .map { metadata ->
                                 AppFunctionMetadata(
                                     name = AppFunctionName(packageName, metadata.staticMetadata.id),
@@ -121,6 +127,44 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                     }
                 }
         }
+    }
+
+    override suspend fun searchAppFunctionsMetadata(
+        searchFunctionSpec: AppFunctionSearchSpec
+    ): List<AppFunctionMetadata> {
+        val packageToFunctionMetadataMap = packageToFunctionMetadataMapState.value
+        val packageToComponentsMetadataMap = packageToComponentsMetadataMapState.value
+        val functionNames = searchFunctionSpec.functionNames
+
+        return packageToFunctionMetadataMap
+            .filterKeys { packageName ->
+                searchFunctionSpec.packageNames == null ||
+                    packageName in checkNotNull(searchFunctionSpec.packageNames)
+            }
+            .flatMap { (packageName, metadataMap) ->
+                metadataMap.values
+                    .filter { metadata ->
+                        matchesSchemaSpec(metadata, searchFunctionSpec) &&
+                            (functionNames == null ||
+                                AppFunctionName(packageName, metadata.staticMetadata.id) in
+                                    functionNames)
+                    }
+                    .map { metadata ->
+                        AppFunctionMetadata(
+                            name = AppFunctionName(packageName, metadata.staticMetadata.id),
+                            schema = metadata.staticMetadata.schema,
+                            parameters = metadata.staticMetadata.parameters,
+                            response = metadata.staticMetadata.response,
+                            packageMetadata =
+                                AppFunctionPackageMetadata(
+                                    packageName,
+                                    checkNotNull(packageToComponentsMetadataMap[packageName]),
+                                ),
+                            isEnabled = metadata.computeEffectivelyEnabled(),
+                        )
+                    }
+            }
+    }
 
     private fun matchesSchemaSpec(
         metadata: AppFunctionStaticAndRuntimeMetadata,

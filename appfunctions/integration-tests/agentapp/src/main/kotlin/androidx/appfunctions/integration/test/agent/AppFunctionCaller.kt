@@ -21,6 +21,7 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import kotlinx.coroutines.flow.Flow
 
@@ -34,4 +35,7 @@ class AppFunctionCaller(val context: Context) {
     suspend fun observeAppFunctions(
         searchSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>> = mAppFunctionManager.observeAppFunctions(searchSpec)
+
+    suspend fun searchAppFunctions(searchSpec: AppFunctionSearchSpec): List<AppFunctionMetadata> =
+        mAppFunctionManager.searchAppFunctions(searchSpec)
 }

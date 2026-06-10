@@ -24,6 +24,7 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -174,6 +175,50 @@ class AppFunctionTestRuleTest {
                     .toList()
 
             assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
+                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_filterByFunctionName_success() =
+        runBlocking<Unit> {
+            val results =
+                mAppFunctionManager
+                    .observeAppFunctions(
+                        AppFunctionSearchSpec(
+                            functionNames =
+                                setOf(
+                                    AppFunctionName(
+                                        context.packageName,
+                                        "androidx.appfunctions.testing.NotesFunctions#createNote",
+                                    )
+                                )
+                        )
+                    )
+                    .timeout(FLOW_COLLECTION_TIMEOUT)
+                    .take(1)
+                    .toList()
+
+            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
+                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByFunctionName_success() =
+        runBlocking<Unit> {
+            val results =
+                mAppFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(
+                        functionNames =
+                            setOf(
+                                AppFunctionName(
+                                    context.packageName,
+                                    "androidx.appfunctions.testing.NotesFunctions#createNote",
+                                )
+                            )
+                    )
+                )
+
+            assertThat(results.map { it.id })
                 .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
         }
 
