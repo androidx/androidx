@@ -16,11 +16,14 @@
 
 package androidx.camera.integration.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Toast
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
@@ -29,6 +32,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.SurfaceRequest
@@ -38,7 +42,10 @@ import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTI
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
+import androidx.camera.viewfinder.core.FocusState
 import androidx.camera.viewfinder.core.ImplementationMode
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +53,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +68,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -67,15 +77,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.concurrent.futures.await
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import java.io.File
+import java.util.Locale
+import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 /** A fragment that demonstrates how to use [ComposeView] to display camera preview. */
 class ComposeUiFragment : Fragment() {
@@ -120,8 +139,9 @@ class ComposeUiFragment : Fragment() {
                 LENS_FACING_BACK
             }
 
+        val window = activity?.window
         return ComposeView(requireContext()).apply {
-            setContent { CameraScreen(initialLensFacing, contentScale, alignment) }
+            setContent { CameraScreen(initialLensFacing, contentScale, alignment, window) }
         }
     }
 }
@@ -136,16 +156,18 @@ private val SCALE_OPTIONS: List<Triple<String, ContentScale, Alignment>> =
         Triple("FIT_END", ContentScale.Fit, Alignment.BottomEnd),
     )
 
+@SuppressLint("RestrictedApiAndroidX")
 @Composable
 private fun CameraScreen(
     initialLensFacing: Int,
     initialContentScale: ContentScale,
     initialAlignment: Alignment,
+    window: Window?,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var lensFacing by rememberSaveable { mutableStateOf(initialLensFacing) }
+    var lensFacing by rememberSaveable { mutableIntStateOf(initialLensFacing) }
     var implementationMode by
         rememberSaveable(
             saver =
@@ -157,7 +179,7 @@ private fun CameraScreen(
             mutableStateOf(ImplementationMode.EXTERNAL)
         }
     var selectedScaleIndex by rememberSaveable {
-        mutableStateOf(
+        mutableIntStateOf(
             SCALE_OPTIONS.indexOfFirst {
                     it.second == initialContentScale && it.third == initialAlignment
                 }
@@ -220,15 +242,132 @@ private fun CameraScreen(
 
     var showImplementationMode by remember { mutableStateOf(false) }
     var showScaleMenu by remember { mutableStateOf(false) }
+    var zoomRatio by remember { mutableFloatStateOf(1.0f) }
+
+    var focusPoint by remember { mutableStateOf<Offset?>(null) }
+    var focusState by remember { mutableIntStateOf(FocusState.INACTIVE) }
+    var currentScreenFlash by remember { mutableStateOf<ImageCapture.ScreenFlash?>(null) }
+
+    LaunchedEffect(lensFacing, currentScreenFlash) {
+        imageCapture.screenFlash = currentScreenFlash
+        if (currentScreenFlash != null && lensFacing == LENS_FACING_FRONT) {
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+        } else {
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
+        }
+    }
+
+    LaunchedEffect(focusPoint) {
+        if (focusPoint != null) {
+            delay(2000)
+            focusPoint = null
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         surfaceRequest?.let { request ->
             CameraXViewfinder(
                 surfaceRequest = request,
+                modifier = Modifier.fillMaxSize(),
                 contentScale = contentScale,
                 alignment = alignment,
                 implementationMode = implementationMode,
+                isTapToFocusEnabled = true,
+                isPinchToZoomEnabled = true,
+                onTapToFocus = { offset, status ->
+                    focusPoint = offset
+                    focusState = status
+                    Log.d("ComposeUiFragment", "Tap to focus at: $offset, status: $status")
+                },
+                onZoomRatioChanged = { ratio ->
+                    zoomRatio = ratio
+                    Log.d("ComposeUiFragment", "Zoom ratio changed: $ratio")
+                },
+                onScreenFlashReady = { screenFlash -> currentScreenFlash = screenFlash },
             )
+        }
+
+        focusPoint?.let { point ->
+            val ringColor =
+                when (focusState) {
+                    FocusState.STARTED -> Color.Yellow
+                    FocusState.FOCUSED -> Color.Green
+                    else -> Color.Red
+                }
+            val density = LocalDensity.current
+            val sizeDp = 60.dp
+            val sizePx = with(density) { sizeDp.toPx() }
+            Box(
+                modifier =
+                    Modifier.offset {
+                            IntOffset(
+                                (point.x - sizePx / 2).roundToInt(),
+                                (point.y - sizePx / 2).roundToInt(),
+                            )
+                        }
+                        .size(sizeDp)
+                        .border(2.dp, ringColor, CircleShape)
+            )
+        }
+
+        Box(
+            modifier =
+                Modifier.align(Alignment.TopCenter)
+                    .padding(top = 32.dp)
+                    .background(Color(0x88000000), shape = CircleShape)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = String.format(Locale.US, "%.1fx", zoomRatio),
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        Button(
+            onClick = {
+                val file = File(context.cacheDir, "test_capture_${System.currentTimeMillis()}.jpg")
+                val outputFileOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+                val mainExecutor = ContextCompat.getMainExecutor(context)
+                imageCapture.takePicture(
+                    outputFileOptions,
+                    mainExecutor,
+                    object : ImageCapture.OnImageSavedCallback {
+                        override fun onImageSaved(
+                            outputFileResults: ImageCapture.OutputFileResults
+                        ) {
+                            Log.d(
+                                "ComposeUiFragment",
+                                "Photo saved successfully to: ${file.absolutePath}",
+                            )
+                            Toast.makeText(context, "Captured: ${file.name}", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                        override fun onError(exception: ImageCaptureException) {
+                            Log.e("ComposeUiFragment", "Photo capture failed!", exception)
+                            Toast.makeText(
+                                    context,
+                                    "Error: ${exception.message}",
+                                    Toast.LENGTH_SHORT,
+                                )
+                                .show()
+                        }
+                    },
+                )
+            },
+            enabled = surfaceRequest != null,
+            shape = CircleShape,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp).size(64.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Red,
+                    contentColor = Color.White,
+                ),
+            contentPadding = PaddingValues(0.dp),
+        ) {
+            Text(text = "CAP", fontSize = 14.sp)
         }
 
         Column(

@@ -24,10 +24,13 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.lifecycle.ViewModel
@@ -37,6 +40,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @Suppress("unused", "UNUSED_PARAMETER")
 @Sampled
+@Composable
 fun CameraXViewfinderSample() {
     class PreviewViewModel : ViewModel() {
         private val _surfaceRequests = MutableStateFlow<SurfaceRequest?>(null)
@@ -44,11 +48,9 @@ fun CameraXViewfinderSample() {
         val surfaceRequests: StateFlow<SurfaceRequest?>
             get() = _surfaceRequests.asStateFlow()
 
-        private fun produceSurfaceRequests(previewUseCase: Preview) {
-            // Always publish new SurfaceRequests from Preview
-            previewUseCase.setSurfaceProvider { newSurfaceRequest ->
-                _surfaceRequests.value = newSurfaceRequest
-            }
+        // Connects a CameraX Preview use case to this ViewModel to publish SurfaceRequests
+        fun bindPreview(preview: Preview) {
+            preview.setSurfaceProvider { newRequest -> _surfaceRequests.value = newRequest }
         }
 
         fun focusOnPoint(surfaceBounds: Size, x: Float, y: Float) {
@@ -87,4 +89,54 @@ fun CameraXViewfinderSample() {
             )
         }
     }
+
+    val viewModel = remember { PreviewViewModel() }
+    MyCameraViewfinder(viewModel = viewModel)
+}
+
+@Suppress("unused", "UNUSED_PARAMETER")
+@Sampled
+@Composable
+fun CameraXViewfinderAdvancedSample() {
+    class PreviewViewModel : ViewModel() {
+        private val _surfaceRequests = MutableStateFlow<SurfaceRequest?>(null)
+
+        val surfaceRequests: StateFlow<SurfaceRequest?>
+            get() = _surfaceRequests.asStateFlow()
+
+        // Connects a CameraX Preview use case to this ViewModel to publish SurfaceRequests
+        fun bindPreview(preview: Preview) {
+            preview.setSurfaceProvider { newRequest -> _surfaceRequests.value = newRequest }
+        }
+    }
+
+    @Composable
+    fun MyCameraViewfinder(viewModel: PreviewViewModel, modifier: Modifier = Modifier) {
+        val currentSurfaceRequest: SurfaceRequest? by viewModel.surfaceRequests.collectAsState()
+
+        Box(modifier = modifier) {
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    modifier = Modifier.fillMaxSize(),
+                    isTapToFocusEnabled = true,
+                    isPinchToZoomEnabled = true,
+                    onTapToFocus = { offset, state ->
+                        // Respond to tap-to-focus (e.g. update focus UI indicator state)
+                    },
+                    onZoomRatioChanged = { ratio ->
+                        // Respond to zoom ratio changes (e.g. update zoom UI indicator)
+                    },
+                    onScreenFlashReady = { screenFlash ->
+                        // Coordinate screen flash callbacks with camera capture lifecycle
+                    },
+                )
+            }
+
+            // Draw a focus indicator when a focus point is active.
+        }
+    }
+
+    val viewModel = remember { PreviewViewModel() }
+    MyCameraViewfinder(viewModel = viewModel)
 }
