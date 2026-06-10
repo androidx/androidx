@@ -113,7 +113,7 @@ private object SubspaceConstants {
  * Using this default is the suggested way to create responsive spatial layouts that look great
  * without hardcoding dimensions. SubspaceModifiers like `SubspaceModifier.fillMaxSize` will expand
  * to fill this recommended box. This default can be overridden by applying a custom size-based
- * modifier. For unbounded behavior, set `allowUnboundedSubspace = true`.
+ * modifier.
  *
  * This composable is a no-op and does not render anything in non-XR environments (i.e., Phone and
  * Tablet).
@@ -125,6 +125,28 @@ private object SubspaceConstants {
  * compose runtime to lose state (app process killed or configuration change) will also cause the
  * Subspace to lose its state.
  *
+ * @sample androidx.xr.compose.samples.SubspaceSample
+ * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
+ * @param content The 3D content to render within this Subspace.
+ */
+@Composable
+@ComposableOpenTarget(index = -1)
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
+public fun Subspace(
+    modifier: SubspaceModifier = SubspaceModifier,
+    content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
+) {
+    Subspace(
+        modifier = modifier,
+        allowUnboundedSubspace = false,
+        subspaceRootNode = LocalSubspaceRootNode.current,
+        content = content,
+    )
+}
+
+/**
+ * Create a 3D area that the app can render spatial content into.
+ *
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
  * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
  *   be applied, allowing the Subspace to be infinite. Unbounded Subspaces are considered unsafe
@@ -134,12 +156,17 @@ private object SubspaceConstants {
  *   content box.
  * @param content The 3D content to render within this Subspace.
  */
+@Deprecated(
+    message =
+        "The allowUnboundedSubspace parameter is deprecated. To achieve unbounded behavior, use the requiredSizeIn modifier instead.",
+    replaceWith = ReplaceWith("Subspace(modifier, content)"),
+)
 @Composable
 @ComposableOpenTarget(index = -1)
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
 public fun Subspace(
     modifier: SubspaceModifier = SubspaceModifier,
-    allowUnboundedSubspace: Boolean = false,
+    allowUnboundedSubspace: Boolean,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     Subspace(
@@ -456,12 +483,6 @@ public annotation class ExperimentalFollowingSubspaceApi
  *   rotationY, and rotationZ. By default, all dimensions are tracked. Any dimensions not listed
  *   will not be tracked. For example if translationY is not listed, this means the content will not
  *   move as the user moves vertically up and down.
- * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
- *   be applied, allowing the Subspace to be infinite. Unbounded subspaces are considered unsafe
- *   because they can lead to poor performance or even a crash as the content expands to the maximum
- *   volume constraint size. In addition, content placed too far away may not be visible to the
- *   user. Defaults to false, providing a safe, bounded space within the system's recommended
- *   content box.
  * @param content The 3D content to render within this Subspace.
  */
 // TODO(b/446871230): Add unit tests for FollowingSubspace.
@@ -474,7 +495,6 @@ public fun FollowingSubspace(
     behavior: FollowBehavior,
     modifier: SubspaceModifier = SubspaceModifier,
     dimensions: TrackedDimensions = TrackedDimensions.All,
-    allowUnboundedSubspace: Boolean = false,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     // If not in XR, do nothing
@@ -489,7 +509,7 @@ public fun FollowingSubspace(
         Subspace(
             modifier = modifier,
             subspaceRootNode = target.anchorSpace,
-            allowUnboundedSubspace = allowUnboundedSubspace,
+            allowUnboundedSubspace = false,
             content = content,
         )
         return
@@ -537,7 +557,7 @@ public fun FollowingSubspace(
 
     Subspace(
         modifier = modifier,
-        allowUnboundedSubspace = allowUnboundedSubspace,
+        allowUnboundedSubspace = false,
         subspaceRootNode = subspaceRootNode,
     ) {
         SpatialBox(

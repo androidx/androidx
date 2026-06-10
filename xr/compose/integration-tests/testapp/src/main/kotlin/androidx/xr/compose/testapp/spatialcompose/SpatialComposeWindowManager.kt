@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.xr.compose.platform.LocalSpatialCapabilities
@@ -59,6 +60,7 @@ import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import kotlinx.coroutines.launch
@@ -80,7 +82,16 @@ class SpatialComposeWindowManager : ComponentActivity() {
             // 2D Content rendered to the MainPanel
             MainPanelContent()
 
-            Subspace(allowUnboundedSubspace = true) { SpatialLayout() }
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialLayout()
+            }
         }
     }
 

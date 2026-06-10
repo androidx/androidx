@@ -64,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
@@ -96,6 +97,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
@@ -211,7 +213,16 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         Button(onClick = { releaseMediaPlayer() }) { Text("Close") }
                     }
 
-                    Subspace(allowUnboundedSubspace = true) { VideoOptionsContent(session) }
+                    Subspace(
+                        modifier =
+                            SubspaceModifier.requiredSizeIn(
+                                maxWidth = Dp.Infinity,
+                                maxHeight = Dp.Infinity,
+                                maxDepth = Dp.Infinity,
+                            )
+                    ) {
+                        VideoOptionsContent(session)
+                    }
                 }
             } else {
                 finish()

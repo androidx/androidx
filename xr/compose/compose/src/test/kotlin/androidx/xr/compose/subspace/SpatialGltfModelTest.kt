@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
@@ -35,6 +36,7 @@ import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.semantics.testTag
@@ -455,7 +457,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialGltfModel(
                     state =
                         rememberSpatialGltfModelState(
@@ -506,7 +515,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialGltfModel(
                     state =
                         rememberSpatialGltfModelState(
@@ -561,7 +577,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialGltfModel(
                     state =
                         rememberSpatialGltfModelState(
@@ -609,7 +632,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialBox(SubspaceModifier.size(200.dp)) {
                     SpatialGltfModel(
                         state =
@@ -662,7 +692,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialGltfModel(
                     state =
                         rememberSpatialGltfModelState(
@@ -724,7 +761,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 // Parent provides the constraints
                 SpatialBox(SubspaceModifier.size(2000.dp)) {
                     SpatialGltfModel(
@@ -784,7 +828,14 @@ class SpatialGltfModelTest {
         )
 
         composeTestRule.setContent {
-            Subspace(allowUnboundedSubspace = true) {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
                 SpatialGltfModel(
                     state =
                         rememberSpatialGltfModelState(
