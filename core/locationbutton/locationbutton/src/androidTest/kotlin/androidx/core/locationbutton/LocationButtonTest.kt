@@ -534,4 +534,25 @@ public class LocationButtonTest {
         // Verify it is unregistered (launcher is set to null)
         assertThat(button.activityResultLauncher).isNull()
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testLocationButtonCompositionOrderIsOnTop() {
+        val provider = TestLocationButtonProvider.create()
+        lateinit var button: LocationButton
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    setLocationButtonProvider(provider)
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        assertThat(button.surfaceView).isNotNull()
+        val compositionOrder = button.surfaceView!!.compositionOrder
+        assertThat(compositionOrder).isEqualTo(LocationButton.DEFAULT_COMPOSITION_ORDER)
+    }
 }

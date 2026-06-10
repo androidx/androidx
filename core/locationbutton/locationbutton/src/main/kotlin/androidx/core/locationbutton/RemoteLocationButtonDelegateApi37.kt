@@ -151,9 +151,7 @@ internal class RemoteLocationButtonDelegateApi37(
                         surfaceView.apply {
                             visibility = View.VISIBLE
                             setChildSurfacePackage(openedSession.surfacePackage)
-                            setCompositionOrder(
-                                this@RemoteLocationButtonDelegateApi37.getCompositionOrder()
-                            )
+                            setCompositionOrder(LocationButton.DEFAULT_COMPOSITION_ORDER)
                             invalidate()
                         }
                         view.localButtonView.visibility = View.INVISIBLE
