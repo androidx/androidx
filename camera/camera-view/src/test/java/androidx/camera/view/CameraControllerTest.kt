@@ -65,6 +65,8 @@ import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput
+import androidx.camera.video.internal.muxer.MediaMuxerImpl
+import androidx.camera.video.internal.muxer.MuxerFactory
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
@@ -530,6 +532,17 @@ class CameraControllerTest {
         controller.videoCaptureTargetFrameRate = Range.create(60, 120)
         assertThat(controller.videoCaptureTargetFrameRate).isEqualTo(Range.create(60, 120))
         assertThat(controller.mVideoCapture.targetFrameRate).isEqualTo(Range.create(60, 120))
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureMuxerFactory_setToRecorder() {
+        val muxerFactory = MuxerFactory { MediaMuxerImpl() }
+
+        controller.setVideoCaptureMuxerFactory(muxerFactory)
+
+        val recorder = controller.mVideoCapture.output
+        assertThat(recorder.muxerFactory).isSameInstanceAs(muxerFactory)
     }
 
     @UiThreadTest
@@ -1373,6 +1386,13 @@ class CameraControllerTest {
     fun throwException_whenSessionConfigExists_setVideoCaptureTargetFrameRate() {
         functionCallCausesException_whenSessionConfigExists {
             controller.videoCaptureTargetFrameRate = Range.create(30, 30)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureMuxerFactory() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.setVideoCaptureMuxerFactory { MediaMuxerImpl() }
         }
     }
 
