@@ -70,8 +70,13 @@ public class DataDynamicListFloat extends Operation
                 Float.isNaN(mArrayLength)
                         ? context.getFloat(Utils.idFromNan(mArrayLength))
                         : mArrayLength;
-        if ((int) mArrayLengthOut != mValues.length) {
-            mValues = new float[(int) mArrayLengthOut];
+        int newLength = (int) mArrayLengthOut;
+        if (newLength < 0 || newLength > MAX_FLOAT_ARRAY) {
+            throw new RuntimeException("Dynamic list size " + newLength
+                    + " exceeds limit " + MAX_FLOAT_ARRAY);
+        }
+        if (newLength != mValues.length) {
+            mValues = new float[newLength];
             Arrays.fill(mValues, 0f);
         }
     }

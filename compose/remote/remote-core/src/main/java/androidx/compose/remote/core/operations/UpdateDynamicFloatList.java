@@ -81,7 +81,7 @@ public class UpdateDynamicFloatList extends Operation implements VariableSupport
         float[] values = state.getDynamicFloats(id);
         if (values != null) {
             int index = (int) mIndexOut;
-            if (index < values.length) {
+            if (index >= 0 && index < values.length) {
                 values[index] = mValueOut;
             }
             state.markVariableDirty(id);
