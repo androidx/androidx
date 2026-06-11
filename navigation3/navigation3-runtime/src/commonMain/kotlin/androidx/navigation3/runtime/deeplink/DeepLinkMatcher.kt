@@ -28,7 +28,7 @@ import androidx.navigation3.runtime.fastForEachOrForEach
  *
  * @param filters an optional list of [Filter] to apply to the [DeepLinkRequest] during matching
  */
-public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<*>> = emptyList()) {
+public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter> = emptyList()) {
     /**
      * Matches a [DeepLinkRequest] to a [DeepLinkMatcher].
      *
@@ -67,16 +67,16 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<
      * Filters declared in a [DeepLinkMatcher] must be present in a [DeepLinkRequest]. On the other
      * hand, a matching [DeepLinkRequest] may contain more filter info than is required by a
      * [DeepLinkMatcher]
-     *
-     * @param filter the value to filter by
      */
-    public abstract class Filter<K : Any>(private val filter: K) {
+    public fun interface Filter {
         /**
          * Matches a [DeepLinkRequest] to this [Filter].
          *
          * Returns true if they are a match, false otherwise.
+         *
+         * @sample androidx.navigation3.runtime.samples.deeplink.staticKeyDeepLinkMatcherSample
          */
-        public abstract fun filterRequest(request: DeepLinkRequest): Boolean
+        public fun filterRequest(request: DeepLinkRequest): Boolean
     }
 
     /**

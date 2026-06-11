@@ -141,7 +141,7 @@ private const val STRICT_SCHEME_PATTERN = "https://"
 public open class UriDeepLinkMatcher<T : Any>(
     private val uriPattern: DeepLinkUri,
     private val serializer: KSerializer<T>,
-    filters: List<Filter<Any>> = emptyList(),
+    filters: List<Filter> = emptyList(),
 ) : DeepLinkMatcher<T>(filters) {
 
     // Pair of path pattern regex to list of extracted arg names. List is empty if path

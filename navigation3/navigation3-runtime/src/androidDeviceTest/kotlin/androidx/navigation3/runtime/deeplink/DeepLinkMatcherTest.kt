@@ -20,16 +20,20 @@ import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
 
+private const val filterString = "filterString"
+
 class DeepLinkMatcherTest {
-    class TestDeepLinkMatcher(filters: List<Filter<*>> = emptyList()) :
+    class TestDeepLinkMatcher(filters: List<Filter> = emptyList()) :
         DeepLinkMatcher<TestKey>(filters) {
         override fun matchRequest(request: DeepLinkRequest): MatchResult<TestKey>? {
             return MatchResult(TestKey)
         }
     }
 
-    class TestFilter(val matches: Boolean) : DeepLinkMatcher.Filter<String>("test") {
-        override fun filterRequest(request: DeepLinkRequest): Boolean = matches
+    class TestFilter(val filter: String) : DeepLinkMatcher.Filter {
+        override fun filterRequest(request: DeepLinkRequest): Boolean {
+            return filter == filterString
+        }
     }
 
     @Test
@@ -43,7 +47,7 @@ class DeepLinkMatcherTest {
 
     @Test
     fun match_filterPasses() {
-        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(matches = true)))
+        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(filterString)))
         val request = DeepLinkRequest.fromUriString("https://example.com")
         val result = matcher.match(request)
         assertThat(result).isNotNull()
@@ -52,7 +56,7 @@ class DeepLinkMatcherTest {
 
     @Test
     fun match_filterFails() {
-        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(matches = false)))
+        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter("wrongFilter")))
         val request = DeepLinkRequest.fromUriString("https://example.com")
         val result = matcher.match(request)
         assertThat(result).isNull()
@@ -62,7 +66,7 @@ class DeepLinkMatcherTest {
     fun match_allFiltersPass() {
         val matcher =
             TestDeepLinkMatcher(
-                filters = listOf(TestFilter(matches = true), TestFilter(matches = true))
+                filters = listOf(TestFilter(filterString), TestFilter(filterString))
             )
         val request = DeepLinkRequest.fromUriString("https://example.com")
         val result = matcher.match(request)
@@ -74,7 +78,7 @@ class DeepLinkMatcherTest {
     fun match_someFiltersFail() {
         val matcher =
             TestDeepLinkMatcher(
-                filters = listOf(TestFilter(matches = true), TestFilter(matches = false))
+                filters = listOf(TestFilter(filterString), TestFilter("wrongFilter"))
             )
         val request = DeepLinkRequest.fromUriString("https://example.com")
         val result = matcher.match(request)
