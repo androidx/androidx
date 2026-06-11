@@ -165,6 +165,15 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
             if (!checkCurrentMetricsSpec(spec, workInfo, "onStarted")) {
                 return@runInTransaction
             }
+            if (workInfo.runAttemptCount != spec!!.runAttemptCount + 1) {
+                Logger.get()
+                    .warning(
+                        TAG,
+                        "Run attempt count mismatch in onStarted for work ID $id. " +
+                            "WorkInfo runAttemptCount: ${workInfo.runAttemptCount}, " +
+                            "DB runAttemptCount: ${spec.runAttemptCount}",
+                    )
+            }
             if (spec!!.firstStartTimeMillis == WorkMetricsSpec.TIME_NOT_SET) {
                 dao.setFirstStartTime(
                     workId = spec.workSpecId,
@@ -178,6 +187,12 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.RUNNING,
+            )
+            dao.setRunAttemptCount(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                runAttemptCount = workInfo.runAttemptCount,
             )
         }
     }
@@ -194,6 +209,17 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.ENQUEUED_PENDING,
+            )
+            val currentCounts = spec.stopReasonCounts
+            val updatedCounts =
+                currentCounts.toMutableMap().apply {
+                    this[stopReason] = (this[stopReason] ?: 0) + 1
+                }
+            dao.setStopReasonCounts(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                stopReasonCounts = updatedCounts,
             )
         }
     }
@@ -223,6 +249,11 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                     generation = spec.generation,
                     periodCount = spec.periodCount,
                     state = state,
+                )
+                dao.incrementExplicitRetryCount(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
                 )
             } else {
                 dao.setFinishTime(

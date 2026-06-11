@@ -142,6 +142,25 @@ class WorkMetricsInfoRepositoryTest {
     }
 
     @Test
+    fun onStarted_setsRunAttemptCountFromWorkInfo() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        val startedWorkInfo =
+            createTestWorkInfo(id = workId, state = WorkInfo.State.RUNNING, runAttemptCount = 5)
+        repository.onStarted(startedWorkInfo)
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.RUNNING, result.state)
+        assertEquals(5, result.runAttemptCount)
+    }
+
+    @Test
     fun onStarted_multipleCalls_preservesFirstStartTime() = runTest {
         val workId = UUID.randomUUID()
         val workInfo = createTestWorkInfo(id = workId)
@@ -188,6 +207,92 @@ class WorkMetricsInfoRepositoryTest {
         val updatedInfos = repository.getWorkMetricsInfoById(workId)
         assertEquals(1, updatedInfos.size)
         assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, updatedInfos[0].state)
+    }
+
+    @Test
+    fun onStarted_updatesRunAttemptCount() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1))
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.runAttemptCount)
+
+        repository.onStopped(
+            WorkInfo.STOP_REASON_UNKNOWN,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 2))
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.runAttemptCount)
+    }
+
+    @Test
+    fun onStopped_updatesStopReasonCounts() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onStopped(
+            WorkInfo.STOP_REASON_TIMEOUT,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+        assertEquals(1, result.stopReasonCounts[WorkInfo.STOP_REASON_TIMEOUT])
+    }
+
+    @Test
+    fun onFinished_oneTimeRetry_incrementsExplicitRetryCount() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.explicitRetryCount)
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.explicitRetryCount)
     }
 
     @Test
@@ -407,6 +512,7 @@ class WorkMetricsInfoRepositoryTest {
     private fun WorkInfo.copy(
         state: WorkInfo.State = this.state,
         generation: Int = this.generation,
+        runAttemptCount: Int = this.runAttemptCount,
     ): WorkInfo {
         return WorkInfo(
             id = this.id,
@@ -414,7 +520,7 @@ class WorkMetricsInfoRepositoryTest {
             tags = this.tags,
             outputData = this.outputData,
             progress = this.progress,
-            runAttemptCount = this.runAttemptCount,
+            runAttemptCount = runAttemptCount,
             generation = generation,
             constraints = this.constraints,
             initialDelayMillis = this.initialDelayMillis,
@@ -429,6 +535,7 @@ class WorkMetricsInfoRepositoryTest {
         id: UUID,
         generation: Int = 0,
         state: WorkInfo.State = WorkInfo.State.ENQUEUED,
+        runAttemptCount: Int = 0,
         isPeriodic: Boolean = false,
         tags: Set<String> = TEST_TAGS,
         workerClass: String = TEST_WORKER_CLASS,
@@ -447,7 +554,7 @@ class WorkMetricsInfoRepositoryTest {
             tags = tags,
             outputData = Data.EMPTY,
             progress = Data.EMPTY,
-            runAttemptCount = 0,
+            runAttemptCount = runAttemptCount,
             generation = generation,
             workerClassName = workerClass,
             periodicityInfo = periodicityInfo,

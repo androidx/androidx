@@ -147,4 +147,65 @@ internal interface WorkMetricsSpecDao {
     """
     )
     fun setUnblockTime(workId: String, generation: Int, periodCount: Int, unblockTime: Long): Int
+
+    /**
+     * Sets the run attempt count of a [WorkMetricsSpec] matching the specified primary keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @param runAttemptCount The run attempt count to be set.
+     * @return The number of updated rows.
+     */
+    @Query(
+        """
+        UPDATE WorkMetricsSpec SET run_attempt_count = :runAttemptCount
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun setRunAttemptCount(
+        workId: String,
+        generation: Int,
+        periodCount: Int,
+        runAttemptCount: Int,
+    ): Int
+
+    /**
+     * Increments the explicit retry count of a [WorkMetricsSpec] matching the specified primary
+     * keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @return The number of updated rows.
+     */
+    @Query(
+        """
+        UPDATE WorkMetricsSpec SET explicit_retry_count = explicit_retry_count + 1
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun incrementExplicitRetryCount(workId: String, generation: Int, periodCount: Int): Int
+
+    /**
+     * Sets the stop reason counts of a [WorkMetricsSpec] matching the specified primary keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @param stopReasonCounts The map of stop reasons to their respective counts.
+     * @return The number of updated rows.
+     */
+    @Query(
+        """
+        UPDATE WorkMetricsSpec SET stop_reasons = :stopReasonCounts
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun setStopReasonCounts(
+        workId: String,
+        generation: Int,
+        periodCount: Int,
+        stopReasonCounts: Map<Int, Int>,
+    ): Int
 }

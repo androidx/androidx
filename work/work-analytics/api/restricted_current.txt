@@ -5,21 +5,28 @@ package androidx.work.analytics {
   }
 
   public final class WorkMetricsInfo {
-    ctor public WorkMetricsInfo(java.util.UUID workSpecId, int generation, String? workerClassName, java.util.Set<java.lang.String> tags, androidx.work.analytics.WorkMetricsInfo.State state, long enqueueTimeMillis, long unblockTimeMillis, long firstStartTimeMillis, long finishTimeMillis);
+    ctor @BytecodeOnly public WorkMetricsInfo(java.util.UUID!, int, String!, java.util.Set!, androidx.work.analytics.WorkMetricsInfo.State!, long, long, long, long, int, int, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public WorkMetricsInfo(java.util.UUID workSpecId, int generation, String? workerClassName, java.util.Set<java.lang.String> tags, androidx.work.analytics.WorkMetricsInfo.State state, long enqueueTimeMillis, long unblockTimeMillis, long firstStartTimeMillis, long finishTimeMillis, optional int runAttemptCount, optional int explicitRetryCount, optional java.util.Map<java.lang.Integer,java.lang.Integer> stopReasonCounts);
     method @InaccessibleFromKotlin public long getEnqueueTimeMillis();
+    method @InaccessibleFromKotlin public int getExplicitRetryCount();
     method @InaccessibleFromKotlin public long getFinishTimeMillis();
     method @InaccessibleFromKotlin public long getFirstStartTimeMillis();
     method @InaccessibleFromKotlin public int getGeneration();
+    method @InaccessibleFromKotlin public int getRunAttemptCount();
     method @InaccessibleFromKotlin public androidx.work.analytics.WorkMetricsInfo.State getState();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.Integer,java.lang.Integer> getStopReasonCounts();
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getTags();
     method @InaccessibleFromKotlin public long getUnblockTimeMillis();
     method @InaccessibleFromKotlin public java.util.UUID getWorkSpecId();
     method @InaccessibleFromKotlin public String? getWorkerClassName();
     property public long enqueueTimeMillis;
+    property public int explicitRetryCount;
     property public long finishTimeMillis;
     property public long firstStartTimeMillis;
     property public int generation;
+    property public int runAttemptCount;
     property public androidx.work.analytics.WorkMetricsInfo.State state;
+    property public java.util.Map<java.lang.Integer,java.lang.Integer> stopReasonCounts;
     property public java.util.Set<java.lang.String> tags;
     property public long unblockTimeMillis;
     property public java.util.UUID workSpecId;

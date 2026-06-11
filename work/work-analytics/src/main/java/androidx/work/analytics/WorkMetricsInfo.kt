@@ -16,6 +16,7 @@
 
 package androidx.work.analytics
 
+import androidx.work.ListenableWorker.Result
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
@@ -74,6 +75,21 @@ public class WorkMetricsInfo(
      * failing, cancelling, or being updated.
      */
     public val finishTimeMillis: Long,
+
+    /**
+     * The number of times this work has started in this period. This can occur multiple times for
+     * various reasons e.g. worker returns [Result.retry], worker is stopped, app is closed.
+     */
+    public val runAttemptCount: Int = 0,
+
+    /**
+     * The number of times this worker returned [Result.retry] in this period. This is separate from
+     * implicit retries such as stopping and starting or app kills.
+     */
+    public val explicitRetryCount: Int = 0,
+
+    /** How many times this work stopped for each [WorkInfo.stopReason] in this period. */
+    public val stopReasonCounts: Map<Int, Int> = emptyMap(),
 ) {
     public enum class State {
         /**
