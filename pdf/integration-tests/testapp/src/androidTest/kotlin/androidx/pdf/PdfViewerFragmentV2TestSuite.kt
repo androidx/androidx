@@ -151,7 +151,10 @@ class PdfViewerFragmentV2TestSuite {
 
         // Swipe actions
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeUp())
-        scenario.onFragment { it.pdfScrollIdlingResource.increment() }
+        scenario.onFragment {
+            it.pdfScrollIdlingResource.increment()
+            it.getPdfViewInstance().fastScrollVisibility = PdfView.FastScrollVisibility.AUTO_HIDE
+        }
 
         // Cause Espresso to wait for IdlingResources before performing the assertion below
         // which doesn't use Espresso APIs.

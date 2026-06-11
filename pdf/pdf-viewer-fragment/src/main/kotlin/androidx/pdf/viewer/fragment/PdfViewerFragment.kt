@@ -60,10 +60,12 @@ import androidx.pdf.event.RequestFailureEvent
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.Selection
+import androidx.pdf.util.Accessibility
 import androidx.pdf.util.AnnotationUtils
 import androidx.pdf.util.Uris
 import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
+import androidx.pdf.view.PdfView.FastScrollVisibility
 import androidx.pdf.view.ToolBoxView
 import androidx.pdf.view.search.PdfSearchView
 import androidx.pdf.viewer.PdfPasswordDialog
@@ -651,8 +653,16 @@ public open class PdfViewerFragment constructor() : Fragment() {
                             fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_HIDE
                         }
                     } else {
+                        val isAccessibilityEnabled: Boolean =
+                            Accessibility.get().isAccessibilityEnabled(requireContext())
+
                         // Let PdfView internally control fast scroller visibility.
-                        _pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.AUTO_HIDE
+                        _pdfView.fastScrollVisibility =
+                            if (isAccessibilityEnabled) {
+                                FastScrollVisibility.ALWAYS_SHOW
+                            } else {
+                                FastScrollVisibility.AUTO_HIDE
+                            }
                     }
                 }
             }

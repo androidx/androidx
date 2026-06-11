@@ -57,6 +57,16 @@ public class FastScroller(
 
     private var hideValueAnimator: ValueAnimator? = null
 
+    private val handler = Handler(Looper.getMainLooper())
+    private var hideRunnable: Runnable? = null
+
+    internal var shouldAutoHide: Boolean = true
+        set(value) {
+            if (field != value) {
+                field = value
+            }
+        }
+
     internal var isFastScrollerVisible: Boolean = false
         set(value) {
             if (field != value) {
@@ -162,16 +172,28 @@ public class FastScroller(
         )
     }
 
-    public fun show(onAnimationUpdate: () -> Unit) {
-        hideValueAnimator?.cancel()
+    public fun show(onAnimationEnd: () -> Unit) {
+        cancelHide()
         isFastScrollerVisible = true
         fastScrollDrawer.alpha = FastScrollDrawer.VISIBLE_ALPHA
-        animate(onAnimationUpdate)
+        if (shouldAutoHide) {
+            animate(onAnimationEnd)
+        } else {
+            onAnimationEnd()
+        }
     }
 
     public fun hide() {
-        hideValueAnimator?.cancel()
+        cancelHide()
         fastScrollDrawer.alpha = FastScrollDrawer.GONE_ALPHA
+        isFastScrollerVisible = false
+    }
+
+    private fun cancelHide() {
+        hideValueAnimator?.cancel()
+        hideValueAnimator = null
+        hideRunnable?.let { handler.removeCallbacks(it) }
+        hideRunnable = null
     }
 
     private fun animate(onAnimationUpdate: () -> Unit) {
@@ -191,15 +213,17 @@ public class FastScroller(
         } else {
             // Handle when animations are disabled
             fastScrollDrawer.alpha = FastScrollDrawer.VISIBLE_ALPHA
-            isFastScrollerVisible = false
-            Handler(Looper.getMainLooper())
-                .postDelayed(
-                    {
-                        fastScrollDrawer.alpha = FastScrollDrawer.GONE_ALPHA
-                        onAnimationUpdate()
-                    },
-                    HIDE_DELAY_MS + HIDE_ANIMATION_DURATION_MILLIS,
-                ) // Simulate total time
+            val runnable = Runnable {
+                fastScrollDrawer.alpha = FastScrollDrawer.GONE_ALPHA
+                isFastScrollerVisible = false
+                onAnimationUpdate()
+                hideRunnable = null
+            }
+            hideRunnable = runnable
+            handler.postDelayed(
+                runnable,
+                HIDE_DELAY_MS + HIDE_ANIMATION_DURATION_MILLIS,
+            ) // Simulate total time
         }
     }
 
