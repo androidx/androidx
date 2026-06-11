@@ -66,12 +66,11 @@ private constructor(
     public val augmentedImageDatabase: AugmentedImageDatabase?,
     public val qrCodeTracking: QrCodeTrackingMode = QrCodeTrackingMode.DISABLED,
     public val qrCodeSizeMeters: Float = 0f,
-    @OptIn(PreviewSpatialApi::class) private val sceneSignalTypes: Set<SceneSignalType>,
+    private val sceneSignalTypes: Set<SceneSignalType>,
 ) {
     // TODO(b/513553206) - Remove this constructor when 1P apps are migrated to use Config.Builder.
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(PreviewSpatialApi::class)
     public constructor(
         planeTracking: PlaneTrackingMode = PlaneTrackingMode.DISABLED,
         handTracking: HandTrackingMode = HandTrackingMode.DISABLED,
@@ -102,7 +101,6 @@ private constructor(
         sceneSignalTypes = setOf(),
     )
 
-    @OptIn(PreviewSpatialApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Config) return false
@@ -125,7 +123,6 @@ private constructor(
         return true
     }
 
-    @OptIn(PreviewSpatialApi::class)
     override fun hashCode(): Int {
         var result = planeTracking.hashCode()
         result = 31 * result + handTracking.hashCode()
@@ -144,7 +141,6 @@ private constructor(
         return result
     }
 
-    @PreviewSpatialApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getSceneSignalTypes(): Set<SceneSignalType> = sceneSignalTypes
 
@@ -172,11 +168,10 @@ private constructor(
         private var augmentedImageDatabase: AugmentedImageDatabase?,
         private var qrCodeTracking: QrCodeTrackingMode,
         private var qrCodeSizeMeters: Float,
-        @OptIn(PreviewSpatialApi::class) private var sceneSignalTypes: Set<SceneSignalType>,
+        private var sceneSignalTypes: Set<SceneSignalType>,
     ) {
 
         /** Creates a [Builder] instance for a [Config] with default values. */
-        @OptIn(PreviewSpatialApi::class)
         public constructor() :
             this(
                 planeTracking = PlaneTrackingMode.DISABLED,
@@ -201,7 +196,6 @@ private constructor(
          *
          * @param config the configuration for the [Builder] instance
          */
-        @OptIn(PreviewSpatialApi::class)
         public constructor(
             config: Config
         ) : this(
@@ -391,7 +385,6 @@ private constructor(
             return this
         }
 
-        @PreviewSpatialApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun setSceneSignalTypes(sceneSignalTypes: Set<SceneSignalType>): Builder {
             this.sceneSignalTypes = sceneSignalTypes
@@ -399,7 +392,6 @@ private constructor(
         }
 
         /** Creates a new instance of [Config] with the configuration specified in this instance. */
-        @OptIn(PreviewSpatialApi::class)
         public fun build(): Config {
             return Config(
                 planeTracking,

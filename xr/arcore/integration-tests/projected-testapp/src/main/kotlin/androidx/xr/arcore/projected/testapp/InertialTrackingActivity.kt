@@ -49,7 +49,6 @@ import androidx.xr.arcore.TrackingState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.ExperimentalInertialTrackingApi
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import java.util.Locale
@@ -58,7 +57,6 @@ import kotlinx.coroutines.launch
 
 /** Activity to test 3DoF Inertial Tracking Mode on projected devices. */
 @OptIn(
-    PreviewSpatialApi::class,
     androidx.xr.projected.experimental.ExperimentalProjectedApi::class,
     ExperimentalInertialTrackingApi::class,
 )

@@ -490,7 +490,6 @@ public fun DepthEstimationMode.toInternalDepthEstimationMode(): InternalDepthEst
         else -> throw IllegalStateException("Invalid DepthEstimationMode")
     }
 
-@OptIn(PreviewSpatialApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun GeospatialMode.toInternalGeospatialMode(): InternalGeospatialMode =
     when (this) {

@@ -88,7 +88,6 @@ internal class OpenXrRuntime(
     var instanceProcAddr: Long = 0L
         private set
 
-    @OptIn(androidx.xr.runtime.UnstableNativeResourceApi::class)
     override fun initialize() {
         nativePointer = nativeGetPointer()
         val nativeInstanceData = XrDevice.getCurrentDevice(context).getNativeInstanceData(context)
@@ -149,7 +148,6 @@ internal class OpenXrRuntime(
         return now
     }
 
-    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
         if (config.geospatial == GeospatialMode.INERTIAL) {
             throw UnsupportedOperationException(

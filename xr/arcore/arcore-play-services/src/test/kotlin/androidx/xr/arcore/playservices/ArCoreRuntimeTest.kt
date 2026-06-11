@@ -71,11 +71,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowSensor
 
-@OptIn(
-    ExperimentalCoroutinesApi::class,
-    androidx.xr.runtime.PreviewSpatialApi::class,
-    ExperimentalInertialTrackingApi::class,
-)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalInertialTrackingApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArCoreRuntimeTest {
 

@@ -117,7 +117,6 @@ private constructor(
          *   supported by the device
          */
         @JvmStatic
-        @UnstableNativeResourceApi
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun getCurrentDevice(

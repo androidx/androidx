@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
-
 package androidx.xr.arcore.openxr
 
 import androidx.activity.ComponentActivity

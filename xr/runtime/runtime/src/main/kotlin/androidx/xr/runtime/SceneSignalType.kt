@@ -21,7 +21,6 @@ package androidx.xr.runtime
  *
  * @param id The integer value corresponding to this signal type.
  */
-@PreviewSpatialApi
 @androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class SceneSignalType private constructor(public val id: Int) {
     public companion object {

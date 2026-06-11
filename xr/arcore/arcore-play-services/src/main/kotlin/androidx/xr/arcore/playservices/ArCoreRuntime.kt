@@ -115,7 +115,6 @@ internal constructor(
         return timeSource.markNow()
     }
 
-    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     @SuppressWarnings("RestrictedApiAndroidX")
     override fun configure(config: Config) {
         val arConfig = _session.config

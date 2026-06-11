@@ -80,7 +80,6 @@ class XrDeviceTest {
         assertThat(device1).isNotSameInstanceAs(device2)
     }
 
-    @OptIn(UnstableNativeResourceApi::class)
     @Test
     fun getCurrentDevice_withExtensions_addsExtensionsAndReturnsDevice() {
         androidx.xr.runtime.internal.XrInstanceManager.resetInitForTesting()
