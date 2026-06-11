@@ -53,7 +53,6 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FlexibleBottomAppBar
@@ -314,7 +313,6 @@ fun SimpleTopAppBarWithAdaptiveActions() {
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -503,7 +501,6 @@ fun SimpleCenterAlignedTopAppBar() {
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -857,7 +854,6 @@ fun PinnedTopAppBarWithReversedLazyGrid() {
  * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
  * the content scrolled down.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -951,7 +947,6 @@ fun EnterAlwaysTopAppBar() {
  * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
  * the content is scrolled down, using a [Column] with reverse scrolling.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1112,7 +1107,6 @@ fun ExitUntilCollapsedMediumTopAppBar() {
  * A sample for a [MediumFlexibleTopAppBar] that collapses when the content is scrolled up, and
  * appears when the content is completely scrolled back down, centered with subtitle.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1301,7 +1295,6 @@ fun ExitUntilCollapsedLargeTopAppBar() {
  * A sample for a [LargeFlexibleTopAppBar] that collapses when the content is scrolled up, and
  * appears when the content is completely scrolled back down, centered with subtitle.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1396,7 +1389,6 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
  * A sample for a [TwoRowsTopAppBar] that collapses when the content is scrolled up, and appears
  * when the content is completely scrolled back down.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1718,7 +1710,7 @@ fun ExitAlwaysBottomAppBar() {
  * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
  * when the content scrolled down. The content is spaced around.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -1804,7 +1796,7 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
  * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
  * when the content scrolled down. The content is spaced between.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -1888,7 +1880,7 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
  * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
  * when the content scrolled down. The content is spaced evenly.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -1973,7 +1965,7 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
  * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
  * when the content scrolled down. The content arrangement is fixed.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -2057,7 +2049,7 @@ fun ExitAlwaysBottomAppBarFixed() {
  * A sample for a vibrant [FlexibleBottomAppBar] that collapses when the content is scrolled up, and
  * appears when the content scrolled down. The content arrangement is fixed.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -2140,7 +2132,7 @@ fun ExitAlwaysBottomAppBarFixedVibrant() {
 }
 
 /** A sample for a [FlexibleBottomAppBar] with an overflow behavior when the content doesn't fit. */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
