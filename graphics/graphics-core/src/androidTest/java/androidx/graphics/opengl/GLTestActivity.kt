@@ -40,6 +40,7 @@ class GLTestActivity : Activity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 weightSum = 2f
+                setPadding(100, 100, 100, 100)
             }
         val layoutParams = LinearLayout.LayoutParams(TARGET_WIDTH, TARGET_HEIGHT)
 
