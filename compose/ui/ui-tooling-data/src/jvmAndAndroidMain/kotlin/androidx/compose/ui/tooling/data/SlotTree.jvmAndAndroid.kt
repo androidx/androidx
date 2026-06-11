@@ -598,18 +598,21 @@ private fun extractFromIndyLambdaFields(
     val sortedFields =
         fields.sortedBy { it.name.substringAfter("f$").toIntOrNull() ?: Int.MAX_VALUE }
 
+    val firstField = sortedFields.firstOrNull()
+    val hasThis = firstField != null && block.javaClass.name.startsWith(firstField.type.name + "$")
+
     val hasParameterNames = metadata.isEmpty() || metadata.any { it.name != null }
     val realFields =
-        if (hasParameterNames) {
-            // Lambda fields might contain additional synthetic parameters.
-            // If we know the definitive list with parameter names, only take those parameters.
-            sortedFields.take(metadata.size)
-        } else {
-            sortedFields
-        }
+        if (hasThis) {
+                sortedFields.drop(1)
+            } else {
+                sortedFields
+            }
+            .let { if (hasParameterNames) it.take(metadata.size) else it }
 
     // todo: parameter logic assumes one changed parameter and one default
-    val changedIndex = if (hasParameterNames) metadata.size else sortedFields.size
+    val changedIndex =
+        (if (hasThis) 1 else 0) + (if (hasParameterNames) metadata.size else realFields.size)
     val changed = (sortedFields.getOrNull(changedIndex)?.get(block) as? Int) ?: 0
     val defaults = (sortedFields.getOrNull(changedIndex + 1)?.get(block) as? Int) ?: 0
 

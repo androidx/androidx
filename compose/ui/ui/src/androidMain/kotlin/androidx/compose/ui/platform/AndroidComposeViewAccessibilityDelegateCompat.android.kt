@@ -2827,20 +2827,23 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             actions.fastForEach { action -> labels.add(action.label) }
                             val oldLabels = mutableScatterSetOf<String>()
                             oldActions.fastForEach { action -> oldLabels.add(action.label) }
-                            propertyChanged = labels != oldLabels
-                        } else if (actions.isNotEmpty()) {
-                            propertyChanged = true
+                            propertyChanged = propertyChanged || labels != oldLabels
+                        } else {
+                            propertyChanged = propertyChanged || actions.isNotEmpty()
                         }
                     }
                     // TODO(b/151840490) send the correct events for certain properties, like view
                     //  selected.
                     else -> {
                         propertyChanged =
-                            if (value is AccessibilityAction<*>) {
-                                !value.accessibilityEquals(oldNode.unmergedConfig.getOrNull(key))
-                            } else {
-                                true
-                            }
+                            propertyChanged ||
+                                if (value is AccessibilityAction<*>) {
+                                    !value.accessibilityEquals(
+                                        oldNode.unmergedConfig.getOrNull(key)
+                                    )
+                                } else {
+                                    true
+                                }
                     }
                 }
             }

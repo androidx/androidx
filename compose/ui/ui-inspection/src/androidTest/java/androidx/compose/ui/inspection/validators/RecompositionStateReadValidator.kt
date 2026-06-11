@@ -29,7 +29,7 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRe
 // Can be used to extract className, methodName, fileName and line number.
 // example: "at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)"
 private val stackTraceLinePattern =
-    Regex("\\s*at ([\\w$.<>]+)\\.([\\w$-<>]+)\\(([ $.\\w<>]*):(-?\\d+)\\)")
+    Regex("\\s*at ([\\w$.<>]+)\\.([\\w$-<>]+)\\(([$.\\w<>]*):(-?\\d+)\\)")
 
 private val composers = listOf("GapComposer", "LinkComposer", "ComposerImpl")
 

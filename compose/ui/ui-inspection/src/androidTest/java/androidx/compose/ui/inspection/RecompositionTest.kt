@@ -56,7 +56,7 @@ private const val TRACE_BUTTON_EMPTY_INTERACTIONS =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.snapshots.SnapshotStateListKt.getReadable(SnapshotStateList.kt:215)
     at kotlin.collections.CollectionsKt___CollectionsKt.lastOrNull(_Collections.kt:519)
@@ -64,8 +64,8 @@ private const val TRACE_BUTTON_EMPTY_INTERACTIONS =
     at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -83,8 +83,8 @@ private const val UNFOLDED_TRACE_BUTTON_EMPTY_INTERACTIONS =
     at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
@@ -93,15 +93,15 @@ private const val TRACE_BUTTON_INTERACTIONS_WITH_PRESS =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.snapshots.SnapshotStateListKt.getReadable(SnapshotStateList.kt:215)
     at kotlin.collections.CollectionsKt___CollectionsKt.lastOrNull(_Collections.kt:519)
     at androidx.compose.material3.ButtonElevation.animateElevation(Button.kt:969)
     at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -118,8 +118,8 @@ private const val UNFOLDED_TRACE_BUTTON_INTERACTIONS_WITH_PRESS =
     at androidx.compose.material3.ButtonElevation.animateElevation(Button.kt:969)
     at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:10)
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
@@ -128,14 +128,14 @@ private const val TRACE_BUTTON_EMPTY_SHADOW_ELEVATION =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.SnapshotMutableStateImpl.getValue(SnapshotState.kt:142)
     at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -152,8 +152,8 @@ private const val UNFOLDED_TRACE_BUTTON_EMPTY_SHADOW_ELEVATION =
     at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
@@ -162,13 +162,13 @@ private const val TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.SnapshotMutableStateImpl.getValue(SnapshotState.kt:142)
     at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -184,8 +184,8 @@ private const val UNFOLDED_TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS =
     """
     at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
     at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
-    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.<any>(<any>:10)
     """
 
 private const val TRACE_ITEM_UPDATE_COUNT_STATE =
@@ -193,12 +193,12 @@ private const val TRACE_ITEM_UPDATE_COUNT_STATE =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.SnapshotMutableStateImpl.getValue(SnapshotState.kt:142)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -213,8 +213,8 @@ private const val TRACE_ITEM_UPDATE_COUNT_STATE =
 private const val UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE =
     """
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
@@ -223,15 +223,15 @@ private const val TRACE_ITEM_UPDATE_LIST_STATE =
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
     at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
     ...
-    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.Recomposer<any>.<any>(<any>:0)
     at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
     at androidx.compose.runtime.snapshots.SnapshotStateListKt.getReadable(SnapshotStateList.kt:215)
     at kotlin.collections.CollectionsKt___CollectionsKt.joinTo(_Collections.kt:3490)
     at kotlin.collections.CollectionsKt___CollectionsKt.joinToString(_Collections.kt:3510)
     at kotlin.collections.CollectionsKt___CollectionsKt.joinToString<any>(_Collections.kt:3509)
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
     at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
     at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
@@ -246,44 +246,45 @@ private const val TRACE_ITEM_UPDATE_LIST_STATE =
 private const val UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE =
     """
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:10)
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_ANOTHER_ITEM =
     """
-    at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
-    at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
-    ...
+    at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1119)
+    at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1435)
     at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
-    at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
+    at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2123)
     at androidx.compose.runtime.SnapshotMutableStateImpl.getValue(SnapshotState.kt:142)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:71)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
-    at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
-    at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
-    at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
-    at androidx.compose.runtime.<composer>.doCompose<any>(<composer>.kt:2676)
-    at androidx.compose.runtime.<composer>.recompose<any>(<composer>.kt:2600)
-    at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1076)
-    at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1400)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item<any>(RecompositionTestActivity.kt:74)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.<any>(:0)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:0)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:99)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:58)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item<any>(:6)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:0)
+    at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:204)
+    at androidx.compose.runtime.GapComposer.recomposeToGroupEnd(<composer>.kt:1678)
+    at androidx.compose.runtime.GapComposer.skipCurrentGroup(<composer>.kt:2014)
+    at androidx.compose.runtime.GapComposer.doCompose<any>(<composer>.kt:2655)
+    at androidx.compose.runtime.GapComposer.recompose<any>(<composer>.kt:2577)
+    at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1184)
+    at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1318)
     ...
     """
 
 @DoNotChangeMayRequireChangesInAndroidStudio
 private const val UNFOLDED_TRACE_ANOTHER_ITEM =
     """
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:71)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:61)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
-    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item<any>(RecompositionTestActivity.kt:74)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.<any>(<any>:0)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.<any>(<any>:0)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:99)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:58)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item<any>(<any>:6)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:0)
     """
 
 @LargeTest
