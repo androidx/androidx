@@ -485,8 +485,6 @@ private constructor(
             currentComposer.collectParameterInformation()
         }
 
-        val scrollCaptureInProgress =
-            LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
         val hostDefaultProvider = remember(owner.view) { ViewTreeHostDefaultProvider(owner.view) }
         @Suppress("UNCHECKED_CAST")
         CompositionLocalProvider(
@@ -500,7 +498,10 @@ private constructor(
             LocalConfiguration provides owner.configuration,
             LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
             LocalView provides owner.view,
-            LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
+            LocalProvidableScrollCaptureInProgress providesComputed
+                {
+                    owner.scrollCaptureInProgress
+                },
             LocalViewConfiguration provides owner.viewConfiguration,
             LocalHostDefaultProvider provides hostDefaultProvider,
         ) {
