@@ -23,6 +23,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchema
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableProxyAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceEntryPointAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSignatureAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.SERIALIZABLE_PROXY_PACKAGE_NAME
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getDeclaredFunctions
@@ -137,6 +138,31 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
     fun resolveAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
         return resolveUnvalidatedAnnotatedAppFunctions().map { annotatedAppFunction ->
             annotatedAppFunction.validate()
+        }
+    }
+
+    /** Resolves unvalidated classes annotated with @AppFunctionSignature annotation. */
+    fun resolveUnvalidatedAnnotatedAppFunctionSignatures(): List<AnnotatedAppFunctionSignature> {
+        return resolver
+            .getSymbolsWithAnnotation(AppFunctionSignatureAnnotation.CLASS_NAME.canonicalName)
+            .map { declaration ->
+                if (declaration !is KSClassDeclaration) {
+                    throw ProcessingException(
+                        "Only fun interfaces can be annotated with @AppFunctionSignature",
+                        declaration,
+                    )
+                }
+                declaration
+            }
+            .sortedBy { checkNotNull(it.qualifiedName).asString() }
+            .map { declaration -> AnnotatedAppFunctionSignature(declaration) }
+            .toList()
+    }
+
+    /** Resolves valid classes annotated with @AppFunctionSignature annotation. */
+    fun resolveAnnotatedAppFunctionSignatures(): List<AnnotatedAppFunctionSignature> {
+        return resolveUnvalidatedAnnotatedAppFunctionSignatures().map { signature ->
+            signature.validate()
         }
     }
 

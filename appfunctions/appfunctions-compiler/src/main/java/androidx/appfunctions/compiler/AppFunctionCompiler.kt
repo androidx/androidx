@@ -74,12 +74,28 @@ class AppFunctionCompiler(
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
         val annotatedAppFunctions =
             appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctions()
+        val annotatedSignatures =
+            appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctionSignatures()
+
+        val allSymbolsToDefer =
+            annotatedAppFunctions.flatMap(AnnotatedAppFunctions::getAllAnnotated) +
+                annotatedSignatures.map { it.classDeclaration }
+
         for (annotatedAppFunction in annotatedAppFunctions) {
             try {
                 annotatedAppFunction.validate()
             } catch (e: SymbolNotReadyException) {
                 logger.logging(e.message.toString(), e.node)
-                return annotatedAppFunctions.flatMap(AnnotatedAppFunctions::getAllAnnotated)
+                return allSymbolsToDefer
+            }
+        }
+
+        for (annotatedSignature in annotatedSignatures) {
+            try {
+                annotatedSignature.validate()
+            } catch (e: SymbolNotReadyException) {
+                logger.logging(e.message.toString(), e.node)
+                return allSymbolsToDefer
             }
         }
         return emptyList()
