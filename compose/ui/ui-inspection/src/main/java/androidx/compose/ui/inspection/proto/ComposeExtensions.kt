@@ -233,7 +233,6 @@ private fun Parameter.Builder.setFunctionType(value: Any?, stringTable: StringTa
             .apply {
                 packageName = stringTable.put(location.packageName)
                 functionName = function?.let { stringTable.put(it) } ?: 0
-                lambdaName = stringTable.put(location.lambdaName)
                 fileName = stringTable.put(location.fileName)
                 startLineNumber = location.startLine
                 endLineNumber = location.endLine

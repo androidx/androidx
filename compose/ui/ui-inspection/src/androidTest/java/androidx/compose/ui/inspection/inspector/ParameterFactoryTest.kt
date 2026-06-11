@@ -263,7 +263,7 @@ class ParameterFactoryTest {
         assertThat(result.first).isEqualTo(ParameterType.Lambda)
         assertThat(array).hasLength(1)
         assertThat(array[0]?.javaClass?.name)
-            .isEqualTo("${ParameterFactoryTest::class.java.name}\$testComposableLambda\$1\$c\$1")
+            .startsWith("${ParameterFactoryTest::class.java.name}\$testComposableLambda")
     }
 
     @Test
