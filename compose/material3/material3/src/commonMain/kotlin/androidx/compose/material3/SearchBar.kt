@@ -539,7 +539,6 @@ fun AppBarWithSearch(
  * @param content the content of this search bar to display search results below the [inputField].
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ExpandedFullScreenContainedSearchBar(
     state: SearchBarState,
@@ -719,7 +718,6 @@ private fun ExpandedFullScreenSearchBarImpl(
  * @param content the content of this search bar to display search results below the [inputField].
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ExpandedDockedSearchBarWithGap(
     state: SearchBarState,

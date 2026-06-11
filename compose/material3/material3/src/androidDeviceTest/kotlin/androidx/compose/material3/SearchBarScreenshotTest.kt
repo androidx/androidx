@@ -743,7 +743,6 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         assertAgainstGolden("appBarWithSearch_withNavigationIconAndActions_${scheme.name}")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap() {
         rule.setMaterialContent(scheme.colorScheme) {
@@ -784,7 +783,6 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun appBarWithSearch_withNavigationIconAndActions_fullScreenAndExpanded_contained() {
         rule.setMaterialContent(scheme.colorScheme) {
