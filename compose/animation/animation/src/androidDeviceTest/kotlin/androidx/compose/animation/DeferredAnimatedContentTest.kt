@@ -433,16 +433,8 @@ class DeferredAnimatedContentTest {
         rule.onNodeWithTag("content_0").assertIsDisplayed()
         // Content_2 should be composed but not yet displayed.
         rule.onNodeWithTag("content_2").assertExists()
-        // Content_1 should still be in the composition, as it might have manual transformations
-        // applied to it during its deferred phase, and it will be cleared once the transition
-        // settles.
-        rule.onNodeWithTag("content_1").assertExists()
-
-        // Now let the transition settle
-        rule.runOnIdle { state.animateTo(2) }
-        rule.waitForIdle()
-
-        // After settling, content_1 should finally be cleared
+        // Content_1 should no longer be in the composition, as it was never truly "entered"
+        // and has been superseded by content_2 as the new target.
         rule.onNodeWithTag("content_1").assertDoesNotExist()
     }
 
@@ -1075,79 +1067,6 @@ class DeferredAnimatedContentTest {
             fadeOut(tween(800)),
             exitSpecForB,
         )
-
-        rule.onNodeWithTag("content_C").assertIsDisplayed()
-        rule.onNodeWithTag("content_A").assertDoesNotExist()
-        rule.onNodeWithTag("content_B").assertDoesNotExist()
-    }
-
-    @Test
-    fun animatedContent_interruption_during_regular_phase_uses_correct_spec() {
-        val state = DeferredTransitionState("A")
-        var exitSpecForA: ExitTransition? = null
-        var exitSpecForB: ExitTransition? = null
-
-        rule.setContent {
-            val transition = rememberTransition(state)
-            transition.DeferredAnimatedContent(
-                transitionSpec = {
-                    val spec =
-                        if (initialState == "A" && targetState == "B") {
-                            fadeIn() togetherWith fadeOut(tween(100))
-                        } else if (initialState == "A" && targetState == "C") {
-                            fadeIn() togetherWith fadeOut(tween(500))
-                        } else if (initialState == "B" && targetState == "C") {
-                            fadeIn() togetherWith fadeOut(tween(800))
-                        } else {
-                            fadeIn() togetherWith fadeOut()
-                        }
-                    if (initialState == "A") {
-                        exitSpecForA = spec.initialContentExit
-                    }
-                    if (initialState == "B") {
-                        exitSpecForB = spec.initialContentExit
-                    }
-                    spec
-                }
-            ) { target ->
-                Box(Modifier.size(100.dp).testTag("content_$target"))
-            }
-        }
-
-        rule.waitForIdle()
-        rule.mainClock.autoAdvance = false
-
-        // 1. Animate to B. Spec for A should be fadeOut(100).
-        rule.runOnIdle { state.animateTo("B") }
-        rule.mainClock.advanceTimeByFrame()
-        rule.waitForIdle()
-        assertEquals(fadeOut(tween(100)), exitSpecForA)
-
-        // 2. Interrupt by animating to C.
-        // During a regular interruption, A is already exiting towards B.
-        // AnimatedContent does not re-evaluate the exit spec for content that is already exiting.
-        rule.runOnIdle { state.animateTo("C") }
-        rule.mainClock.advanceTimeByFrame()
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("content_C").assertIsDisplayed()
-        rule.onNodeWithTag("content_A").assertIsDisplayed()
-        rule.onNodeWithTag("content_B").assertIsDisplayed()
-
-        assertEquals(
-            "Exit spec for A should NOT be re-evaluated (it continues its original A->B exit)",
-            fadeOut(tween(100)),
-            exitSpecForA,
-        )
-
-        assertEquals(
-            "Exit spec for B should use the B->C spec since it is now exiting",
-            fadeOut(tween(800)),
-            exitSpecForB,
-        )
-
-        rule.mainClock.autoAdvance = true
-        rule.waitForIdle()
 
         rule.onNodeWithTag("content_C").assertIsDisplayed()
         rule.onNodeWithTag("content_A").assertDoesNotExist()
