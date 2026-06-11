@@ -1154,13 +1154,20 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     private val scrollCapture = if (SDK_INT >= 31) ScrollCapture() else null
-    internal val scrollCaptureInProgress: Boolean
-        get() =
-            if (SDK_INT >= 31) {
-                scrollCapture?.scrollCaptureInProgress ?: false
-            } else {
-                false
+    val scrollCaptureInProgress: Boolean
+        get() {
+            if (SDK_INT >= 31 && scrollCapture?.scrollCaptureInProgress == true) {
+                return true
             }
+            var p = parent
+            while (p != null) {
+                if (p is AndroidComposeView) {
+                    return p.scrollCaptureInProgress
+                }
+                p = p.parent
+            }
+            return false
+        }
 
     override fun onScrollCaptureSearch(
         localVisibleRect: Rect,
