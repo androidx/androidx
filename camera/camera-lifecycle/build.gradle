@@ -81,9 +81,6 @@ dependencies {
         // Ensure camera-camera2 is not pulled in as it may lead to manifest merge conflict
         exclude(module:"camera-camera2")
     }
-    testImplementation("org.robolectric:annotations:4.14")
-    testImplementation("org.robolectric:shadowapi:4.14")
-    testImplementation("org.robolectric:shadows-framework:4.14")
     testImplementation(libs.guavaAndroid)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesCore)
