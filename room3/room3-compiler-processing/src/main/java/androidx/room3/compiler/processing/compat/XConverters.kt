@@ -211,7 +211,7 @@ object XConverters {
     fun XElement.toKS(): KSAnnotated =
         when (this) {
             is KspElement -> this.declaration
-            is KspSyntheticPropertyMethodElement -> this.field.declaration
+            is KspSyntheticPropertyMethodElement -> this.prop.declaration
             is KspSyntheticContinuationParameterElement -> this.enclosingElement.declaration
             is KspSyntheticReceiverParameterElement -> this.enclosingElement.declaration
             else -> error("Don't know how to convert element of type '${this::class}' to KSP")

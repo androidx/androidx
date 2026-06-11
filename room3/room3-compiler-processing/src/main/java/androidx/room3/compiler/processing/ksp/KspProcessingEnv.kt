@@ -355,7 +355,7 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
             .map {
                 when (it) {
                     is KSClassDeclaration -> wrapClassDeclaration(it)
-                    is KSPropertyDeclaration -> KspFieldElement.create(env, it)
+                    is KSPropertyDeclaration -> KspPropertyElement.create(env, it)
                     is KSFunctionDeclaration -> KspMethodElement.create(env, it)
                     else -> error("Unknown element type")
                 }
@@ -477,8 +477,8 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
         return executableElementStore[declaration]
     }
 
-    fun wrapPropertyDeclaration(declaration: KSPropertyDeclaration): KspFieldElement {
-        return KspFieldElement.create(env, declaration)
+    fun wrapPropertyDeclaration(declaration: KSPropertyDeclaration): KspPropertyElement {
+        return KspPropertyElement.create(env, declaration)
     }
 
     fun wrapValueParameter(declaration: KSValueParameter): XExecutableParameterElement {

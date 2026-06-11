@@ -504,4 +504,14 @@ class BooksDaoTest(useDriver: UseDriver) : TestDatabaseTest(useDriver) {
         val tracedQuery = booksDao.getAllBooksTraced()
         assertThat(tracedQuery.result).hasSize(3)
     }
+
+    @Test
+    fun booksByDelegateProperty() = runTest {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
+
+        val result = booksDao.getBooksWithDelegateProp().map { it.title }
+        assertThat(result).containsExactly(TestUtil.BOOK_1.title, TestUtil.BOOK_2.title)
+    }
 }

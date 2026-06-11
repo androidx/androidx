@@ -38,7 +38,7 @@ internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutin
 private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration =
     when (this) {
         is KspExecutableElement -> this.declaration
-        is KspSyntheticPropertyMethodElement -> this.field.declaration
+        is KspSyntheticPropertyMethodElement -> this.prop.declaration
         else -> throw IllegalStateException("unexpected XExecutableElement type. $this")
     }
 

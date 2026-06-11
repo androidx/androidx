@@ -22,7 +22,7 @@ import androidx.room3.Ignore
 import androidx.room3.PrimaryKey
 import androidx.room3.Relation
 import androidx.room3.compiler.processing.XExecutableElement
-import androidx.room3.compiler.processing.XFieldElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XVariableElement
@@ -131,7 +131,7 @@ private constructor(
         // TODO handle conflicts with super: b/35568142
         val allProperties =
             element
-                .getAllFieldsIncludingPrivateSupers()
+                .getAllPropertiesIncludingPrivateSupers()
                 .filter {
                     !it.hasAnnotation(Ignore::class) &&
                         !it.isStatic() &&
@@ -452,7 +452,7 @@ private constructor(
 
     private fun processEmbeddedProperty(
         declaredType: XType,
-        variableElement: XFieldElement,
+        variableElement: XPropertyElement,
     ): EmbeddedProperty? {
         val asMemberType = variableElement.asMemberOf(declaredType)
         val asTypeElement = asMemberType.typeElement
@@ -500,7 +500,7 @@ private constructor(
     private fun processRelationProperty(
         myProperties: List<Property>,
         container: XType,
-        relationElement: XFieldElement,
+        relationElement: XPropertyElement,
     ): androidx.room3.vo.Relation? {
         val annotation = relationElement.requireAnnotation(Relation::class)
 

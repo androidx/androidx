@@ -26,11 +26,12 @@ import androidx.room3.compiler.processing.XMemberContainer
 import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XPackageElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XTypeParameterElement
 import androidx.room3.compiler.processing.collectAllMethods
-import androidx.room3.compiler.processing.collectFieldsIncludingPrivateSupers
+import androidx.room3.compiler.processing.collectPropertiesIncludingPrivateSupers
 import androidx.room3.compiler.processing.filterMethodsByConfig
 import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticConstructorElement
@@ -147,7 +148,7 @@ internal sealed class KspTypeElement(
     private val allMethods = MemoizedSequence { collectAllMethods(this) }
 
     private val allFieldsIncludingPrivateSupers = MemoizedSequence {
-        collectFieldsIncludingPrivateSupers(this)
+        collectPropertiesIncludingPrivateSupers(this) { it.getDeclaredFields() }
     }
 
     override fun getAllMethods(): Sequence<XMethodElement> = allMethods
@@ -194,14 +195,18 @@ internal sealed class KspTypeElement(
         }
     }
 
-    private val _declaredFields: List<XFieldElement> by lazy {
+    private val _declaredProperties: List<KspPropertyElement> by lazy {
         if (isCompanionObject()) {
             emptyList()
         } else {
             (_enclosedElements + (companionObject?._enclosedElements ?: emptyList()))
-                .filterIsInstance<KspFieldElement>()
-                .filter { it.declaration.hasBackingField && it.name != "_hashCode" }
+                .filterIsInstance<KspPropertyElement>()
+                .filter { it.name != "_hashCode" }
         }
+    }
+
+    private val _declaredFields: List<KspFieldElement> by lazy {
+        _declaredProperties.filterIsInstance<KspFieldElement>()
     }
 
     override fun isNested(): Boolean {
@@ -254,6 +259,18 @@ internal sealed class KspTypeElement(
             superClass?.let { recordType.isAssignableFrom(it) } == true
     }
 
+    override fun getAllPropertiesIncludingPrivateSupers(): Sequence<XPropertyElement> {
+        return allPropertiesIncludingPrivateSupers
+    }
+
+    override fun getDeclaredProperties(): List<XPropertyElement> {
+        return _declaredProperties
+    }
+
+    private val allPropertiesIncludingPrivateSupers = MemoizedSequence {
+        collectPropertiesIncludingPrivateSupers(this) { it.getDeclaredProperties() }
+    }
+
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
     }
@@ -272,13 +289,13 @@ internal sealed class KspTypeElement(
                 _enclosedElements.forEach { element ->
                     when (element) {
                         is KspMethodElement -> add(element)
-                        is KspFieldElement -> addAll(element.syntheticAccessors)
+                        is KspPropertyElement -> addAll(element.syntheticAccessors)
                     }
                 }
                 companionObject?._enclosedElements?.forEach { element ->
                     when (element) {
                         is KspMethodElement -> element.syntheticStaticMethod?.let { add(it) }
-                        is KspFieldElement -> addAll(element.syntheticStaticAccessors)
+                        is KspPropertyElement -> addAll(element.syntheticStaticAccessors)
                     }
                 }
             }

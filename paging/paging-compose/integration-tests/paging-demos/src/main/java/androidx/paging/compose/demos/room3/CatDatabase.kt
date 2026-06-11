@@ -20,6 +20,7 @@ import androidx.room3.Dao
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.Entity
+import androidx.room3.Ignore
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
@@ -55,6 +56,7 @@ internal interface CatDao {
 
 @Entity
 internal data class Cat(@PrimaryKey val name: String) : KeyedValue {
+    @Ignore
     override val key: String
         get() = name
 }

@@ -22,8 +22,8 @@ import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.codegen.asClassName
 import androidx.room3.compiler.processing.javac.JavacTypeElement
 import androidx.room3.compiler.processing.ksp.KspExecutableElement
-import androidx.room3.compiler.processing.ksp.KspFieldElement
 import androidx.room3.compiler.processing.ksp.KspFileMemberContainer
+import androidx.room3.compiler.processing.ksp.KspPropertyElement
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
 import androidx.room3.compiler.processing.testcode.OtherAnnotation
 import androidx.room3.compiler.processing.util.Source
@@ -1345,7 +1345,7 @@ class XElementTest {
                     is KSFunctionDeclaration ->
                         KspExecutableElement.create(inv.kspProcessingEnv, declaration)
                     is KSPropertyDeclaration ->
-                        KspFieldElement.create(inv.kspProcessingEnv, declaration)
+                        KspPropertyElement.create(inv.kspProcessingEnv, declaration)
                     else -> null
                 }
             }

@@ -92,7 +92,7 @@ internal sealed class KSTypeVarianceResolverScope(
     ) :
         KSTypeVarianceResolverScope(
             annotated = setterMethod.accessor,
-            container = setterMethod.field.enclosingElement.declaration,
+            container = setterMethod.prop.enclosingElement.declaration,
             asMemberOf = asMemberOf,
         ) {
         override fun declarationType(): KSType {
@@ -110,7 +110,7 @@ internal sealed class KSTypeVarianceResolverScope(
     ) :
         KSTypeVarianceResolverScope(
             annotated = getterMethod.accessor,
-            container = getterMethod.field.enclosingElement.declaration,
+            container = getterMethod.prop.enclosingElement.declaration,
             asMemberOf = asMemberOf,
         ) {
         override fun declarationType(): KSType {
@@ -122,15 +122,15 @@ internal sealed class KSTypeVarianceResolverScope(
         override fun isValOrReturnType() = true
     }
 
-    internal class PropertyType(val field: KspFieldElement, asMemberOf: KspType?) :
+    internal class PropertyType(val prop: KspPropertyElement, asMemberOf: KspType?) :
         KSTypeVarianceResolverScope(
-            annotated = field.declaration,
-            container = field.enclosingElement.declaration,
+            annotated = prop.declaration,
+            container = prop.enclosingElement.declaration,
             asMemberOf = asMemberOf,
         ) {
-        override fun declarationType() = field.type.ksType
+        override fun declarationType() = prop.type.ksType
 
-        override fun isValOrReturnType() = field.isFinal()
+        override fun isValOrReturnType() = prop.isFinal()
     }
 
     internal class MethodReturnType(val method: KspMethodElement, asMemberOf: KspType?) :

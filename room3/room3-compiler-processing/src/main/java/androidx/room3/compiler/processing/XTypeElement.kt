@@ -113,6 +113,12 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     /** Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]). */
     fun isRecordClass(): Boolean
 
+    /** Properties declared in this type includes all properties in this */
+    fun getDeclaredProperties(): List<XPropertyElement>
+
+    /** All properties, including private supers. Room reads properties this way. */
+    fun getAllPropertiesIncludingPrivateSupers(): Sequence<XPropertyElement>
+
     /** Fields declared in this type includes all instance/static fields in this */
     fun getDeclaredFields(): List<XFieldElement>
 

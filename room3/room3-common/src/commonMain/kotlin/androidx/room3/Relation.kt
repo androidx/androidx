@@ -112,7 +112,7 @@ import kotlin.reflect.KClass
  *
  * @see [Junction]
  */
-@Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Relation(
     /**

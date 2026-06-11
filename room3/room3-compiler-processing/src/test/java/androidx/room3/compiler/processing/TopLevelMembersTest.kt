@@ -18,7 +18,7 @@ package androidx.room3.compiler.processing
 
 import androidx.kruth.assertWithMessage
 import androidx.room3.compiler.processing.ksp.KspExecutableElement
-import androidx.room3.compiler.processing.ksp.KspFieldElement
+import androidx.room3.compiler.processing.ksp.KspPropertyElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.kspProcessingEnv
@@ -82,7 +82,7 @@ class TopLevelMembersTest {
                     assertWithMessage(pkg).that(properties).hasSize(2)
                     properties.forEach {
                         val element =
-                            KspFieldElement.create(
+                            KspPropertyElement.create(
                                 env = invocation.kspProcessingEnv,
                                 declaration = it,
                             )

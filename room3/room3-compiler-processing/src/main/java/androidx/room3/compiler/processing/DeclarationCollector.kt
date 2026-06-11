@@ -16,22 +16,22 @@
 
 package androidx.room3.compiler.processing
 
-/** see [XTypeElement.getAllFieldsIncludingPrivateSupers] */
-internal fun collectFieldsIncludingPrivateSupers(
-    xTypeElement: XTypeElement
-): Sequence<XFieldElement> {
+/** see [XTypeElement.getAllPropertiesIncludingPrivateSupers] */
+internal fun <T : XPropertyElement> collectPropertiesIncludingPrivateSupers(
+    xTypeElement: XTypeElement,
+    getDeclaredFunction: (XTypeElement) -> List<T>,
+): Sequence<T> {
     return sequence {
-        val existingFieldNames = mutableSetOf<String>()
-        suspend fun SequenceScope<XFieldElement>.yieldAllFields(type: XTypeElement) {
-            // yield all fields declared directly on this type
-            type
-                .getDeclaredFields()
-                .filter { existingFieldNames.add(it.name) }
+        val existingPropertyNames = mutableSetOf<String>()
+        suspend fun SequenceScope<T>.yieldAllProperties(type: XTypeElement) {
+            // yield all properties declared directly on this type
+            getDeclaredFunction(type)
+                .filter { existingPropertyNames.add(it.name) }
                 .forEach { yield(it) }
-            // visit all declared fields on super types
-            type.superClass?.typeElement?.let { parent -> yieldAllFields(parent) }
+            // visit all declared properties on super types
+            type.superClass?.typeElement?.let { parent -> yieldAllProperties(parent) }
         }
-        yieldAllFields(xTypeElement)
+        yieldAllProperties(xTypeElement)
     }
 }
 

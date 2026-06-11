@@ -24,6 +24,7 @@ package androidx.room3
  */
 @Target(
     AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
     AnnotationTarget.FIELD,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.PROPERTY_GETTER,
