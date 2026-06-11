@@ -32,6 +32,10 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<
     /**
      * Matches a [DeepLinkRequest] to a [DeepLinkMatcher].
      *
+     * The entry point to match a [DeepLinkMatcher] to a [DeepLinkRequest]. It iterates through any
+     * [filters] and if all filters returns true, proceeds to call [matchRequest] to get the final
+     * match result.
+     *
      * Returns [MatchResult] if it is a match, and returns null otherwise.
      *
      * @param request the [DeepLinkRequest] to match against
@@ -47,6 +51,9 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<
 
     /**
      * Matches a [DeepLinkRequest] to a [DeepLinkMatcher].
+     *
+     * The core function that is called within the matching process after all [filters] are applied.
+     * Subclasses should override this to implement matching logic beyond matching [filters].
      *
      * Returns [MatchResult] if it is a match, and returns null otherwise.
      *
