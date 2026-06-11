@@ -29,17 +29,17 @@ internal class MemoryEstimatorTest {
     fun unboundedEstimator_canAlwaysAllocate() {
         val estimator = MemoryEstimator.create()
 
-        assertThat(estimator.canAllocate(10L)).isTrue()
-        assertThat(estimator.canAllocate(Long.MAX_VALUE)).isTrue()
+        assertThat(estimator.canAllocateNow(10L)).isTrue()
+        assertThat(estimator.canAllocateNow(Long.MAX_VALUE)).isTrue()
     }
 
     @Test
     fun impl_initialStateIsCorrect() = runTest {
         val estimator = MemoryEstimator.create(initialCapacity = 1000L)
 
-        assertThat(estimator.usage.value).isEqualTo(0L)
-        assertThat(estimator.capacity.first()).isEqualTo(1000L)
-        assertThat(estimator.evictable.value).isEqualTo(0L)
+        assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(estimator.capacityFlow.first()).isEqualTo(1000L)
+        assertThat(estimator.evictableMemory.value).isEqualTo(0L)
     }
 
     @Test
@@ -48,8 +48,8 @@ internal class MemoryEstimatorTest {
 
         estimator.incrementUsage(300L)
 
-        assertThat(estimator.usage.value).isEqualTo(300L)
-        assertThat(estimator.capacity.first()).isEqualTo(700L)
+        assertThat(estimator.memoryUsage.value).isEqualTo(300L)
+        assertThat(estimator.capacityFlow.first()).isEqualTo(700L)
     }
 
     @Test
@@ -58,8 +58,8 @@ internal class MemoryEstimatorTest {
 
         estimator.incrementUsage(1200L)
 
-        assertThat(estimator.usage.value).isEqualTo(1200L)
-        assertThat(estimator.capacity.first()).isEqualTo(-200L)
+        assertThat(estimator.memoryUsage.value).isEqualTo(1200L)
+        assertThat(estimator.capacityFlow.first()).isEqualTo(-200L)
     }
 
     @Test
@@ -67,12 +67,12 @@ internal class MemoryEstimatorTest {
         val estimator = MemoryEstimator.create(1000L)
 
         estimator.incrementUsage(500L)
-        assertThat(estimator.usage.value).isEqualTo(500L)
-        assertThat(estimator.capacity.first()).isEqualTo(500L)
+        assertThat(estimator.memoryUsage.value).isEqualTo(500L)
+        assertThat(estimator.capacityFlow.first()).isEqualTo(500L)
 
         estimator.decrementUsage(200L)
-        assertThat(estimator.usage.value).isEqualTo(300L)
-        assertThat(estimator.capacity.first()).isEqualTo(700L)
+        assertThat(estimator.memoryUsage.value).isEqualTo(300L)
+        assertThat(estimator.capacityFlow.first()).isEqualTo(700L)
     }
 
     @Test
@@ -80,26 +80,26 @@ internal class MemoryEstimatorTest {
         val estimator = MemoryEstimator.create(1000L)
 
         // Add to evictable
-        estimator.updateEvictable(200L)
-        assertThat(estimator.evictable.value).isEqualTo(200L)
+        estimator.incrementEvictableBytes(200L)
+        assertThat(estimator.evictableMemory.value).isEqualTo(200L)
 
         // Subtract from evictable (resource going from evictable to non-evictable)
-        estimator.updateEvictable(-50L)
-        assertThat(estimator.evictable.value).isEqualTo(150L)
+        estimator.decrementEvictableBytes(50L)
+        assertThat(estimator.evictableMemory.value).isEqualTo(150L)
     }
 
     @Test
-    fun impl_canAllocateReflectsAvailableCapacity() {
+    fun impl_canAllocateNowReflectsAvailableCapacity() {
         val estimator = MemoryEstimator.create(1000L)
 
         // Can allocate exact capacity
-        assertThat(estimator.canAllocate(1000L)).isTrue()
+        assertThat(estimator.canAllocateNow(1000L)).isTrue()
         // Cannot allocate more than capacity
-        assertThat(estimator.canAllocate(1001L)).isFalse()
+        assertThat(estimator.canAllocateNow(1001L)).isFalse()
 
         estimator.incrementUsage(600L)
 
-        assertThat(estimator.canAllocate(400L)).isTrue()
-        assertThat(estimator.canAllocate(401L)).isFalse()
+        assertThat(estimator.canAllocateNow(400L)).isTrue()
+        assertThat(estimator.canAllocateNow(401L)).isFalse()
     }
 }

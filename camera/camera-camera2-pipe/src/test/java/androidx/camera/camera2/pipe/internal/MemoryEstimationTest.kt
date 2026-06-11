@@ -113,8 +113,8 @@ class MemoryEstimationTest {
 
             // Usage increases by 1 image, and because it is only held by the internal
             // FrameBuffer, 100% of that allocated memory should be marked as evictable.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
         }
 
     @Test
@@ -127,16 +127,16 @@ class MemoryEstimationTest {
             frame.simulateImage(streamId)
 
             // Memory starts in the evictable pool
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
 
             // App acquires the frame (Establishing the external usage lease)
             val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
             assertThat(acquiredFrame).isNotNull()
 
             // The memory is still actively allocated (usage remains increased)...
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
             // ...but it is strictly hidden from the EvictionManager!
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             acquiredFrame?.close()
         }
@@ -152,7 +152,7 @@ class MemoryEstimationTest {
 
             // App acquires and hides the memory
             val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // App finishes processing and closes the frame
             acquiredFrame?.close()
@@ -160,8 +160,8 @@ class MemoryEstimationTest {
 
             // The external lease is dropped. Since the internal FrameBuffer still
             // holds the frame, it becomes eligible for eviction once again.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
         }
 
     @Test
@@ -176,22 +176,22 @@ class MemoryEstimationTest {
             // App acquires frame
             val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
 
-            // Simulate FrameBuffer clearing (e.g. graph shuts down or buffer capacity drops to 0)
+            // Simulate FrameBuffer close.
             frameBuffer.close()
             advanceUntilIdle()
 
             // The buffer released its reference, but the App still holds it.
             // Usage should still be 1 image, and evictable should be 0.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Finally, the App closes the frame
             acquiredFrame?.close()
             advanceUntilIdle()
 
-            // Both references are gone. The hardware buffer is freed, and ALL usage is cleared.
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            // Both references are gone and all usage is cleared.
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
         }
 
     @Test
@@ -208,23 +208,23 @@ class MemoryEstimationTest {
             }
 
             // 3 frames in buffer = 3 allocated images, 3 evictable images
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 3)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 3)
 
             // App acquires the 1st frame (removes from internal buffer and takes ownership).
             val frame1 = frameBuffer.removeFirst()
             assertThat(frame1).isNotNull()
 
             // Evictable drops by 1 (hidden)
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 3)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 2)
 
             // App acquires the 2nd frame
             val frame2 = frameBuffer.removeFirst()
             assertThat(frame2).isNotNull()
 
             // Evictable drops by another 1
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 1)
 
             // App closes the 1st frame. Because it was cleanly removed from the
             // internal buffer earlier, closing it completely destroys it.
@@ -232,8 +232,8 @@ class MemoryEstimationTest {
             frame1?.close()
             advanceUntilIdle()
 
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 2)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 1)
 
             frame2?.close()
         }
@@ -256,17 +256,17 @@ class MemoryEstimationTest {
             assertThat(buffer2.size.value).isEqualTo(1)
 
             // Only 1 image is actually allocated!
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
             // And it is 100% evictable because it's only held in internal buffers
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
 
             // If the app acquires from buffer1, it hides the memory
             val acquired1 = buffer1.removeFirst()
 
             // Even though buffer2 still holds an internal reference, the app holds
             // an external lease, so the EvictionManager must not touch it!
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Once the app returns its external lease...
             acquired1?.close()
@@ -274,16 +274,16 @@ class MemoryEstimationTest {
 
             // ...buffer2 STILL holds its internal reference.
             // Therefore, the memory is NOT freed; it goes back to being evictable.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
 
             // Finally, clear the second buffer
             buffer2.close()
             advanceUntilIdle()
 
             // Now all references (external and internal) are gone, and memory is freed.
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             buffer1.close()
         }
@@ -305,8 +305,8 @@ class MemoryEstimationTest {
             assertThat(frame).isNotNull()
 
             // Frame meant for explicit capture is for extern use, and thus it is not evictable.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Close the FrameCapture object.
             frameCapture.close()
@@ -316,8 +316,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // Once the app closes the captured frame, the memory is completely freed
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
         }
 
     @Test
@@ -338,8 +338,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // Estimator should be back to initial state (1 frame in buffer, 1 evictable)
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
         }
 
     @Test
@@ -360,7 +360,7 @@ class MemoryEstimationTest {
             frameB.simulateImage(streamB)
 
             // Both are in the evictable pool
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize + smallImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize + smallImageSize)
 
             // Acquiring A should only hide A's memory
             val acquiredA = bufferA.peekFirstReference()?.tryAcquire()
@@ -368,13 +368,13 @@ class MemoryEstimationTest {
             // Memory state:
             // A's memory is hidden (0 evictable)
             // B's memory is still evictable
-            assertThat(estimator.evictable.value).isEqualTo(smallImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(smallImageSize)
 
             acquiredA?.close()
             advanceUntilIdle()
 
             // Verify restoration
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize + smallImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize + smallImageSize)
 
             bufferA.close()
             bufferB.close()
@@ -405,8 +405,8 @@ class MemoryEstimationTest {
             // Usage = (2 * largeImageSize)
             // Buffer frame = 1 evictable image
             // Capture frame = 1 non-evictable image (acquired by request)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
 
             // 3. Clean up
             frameCapture.close()
@@ -415,8 +415,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // Everything freed
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
         }
 
     @Test
@@ -435,7 +435,8 @@ class MemoryEstimationTest {
             frame1.simulateImage(streamId)
 
             assertThat(frameBuffer.size.value).isEqualTo(1)
-            assertThat(tightEstimator.usage.value).isEqualTo(largeImageSize) // Completely full
+            assertThat(tightEstimator.memoryUsage.value)
+                .isEqualTo(largeImageSize) // Completely full
 
             // 2. Simulate a second frame when memory is full
             val frame2 = tightGraph.simulateNextFrame()
@@ -457,7 +458,7 @@ class MemoryEstimationTest {
             assertThat(acquiredFrame2!!.getImage(streamId)).isNull()
 
             // The estimator usage should remain at exactly largeImageSize
-            assertThat(tightEstimator.usage.value).isEqualTo(largeImageSize)
+            assertThat(tightEstimator.memoryUsage.value).isEqualTo(largeImageSize)
 
             // Clean up resources
             acquiredFrame1.close()
@@ -484,8 +485,8 @@ class MemoryEstimationTest {
             assertThat(frameBuffer.size.value).isEqualTo(2)
 
             // Memory should reflect 2 allocated, 2 evictable images
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 2)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 2)
 
             // Reduce the capacity to 1.
             // According to FrameBuffer docs, this should evict the oldest FrameReference
@@ -497,8 +498,8 @@ class MemoryEstimationTest {
 
             // Because the oldest frame was evicted and closed internally,
             // the memory for 1 image should be completely restored.
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
 
             frameBuffer.close()
         }
@@ -516,8 +517,8 @@ class MemoryEstimationTest {
             }
 
             assertThat(frameBuffer.size.value).isEqualTo(3)
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 3)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 3)
 
             // App removes and acquires the FIRST and LAST frames, leaving the middle frame in the
             // buffer.
@@ -529,32 +530,32 @@ class MemoryEstimationTest {
             assertThat(frameBuffer.size.value).isEqualTo(1)
 
             // Usage is still 3, but now only 1 frame is evictable (the middle one)
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 3)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 1)
 
             // Close the LAST frame first
             frame3?.close()
             advanceUntilIdle()
 
             // Memory for the last frame is completely freed
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 2)
-            assertThat(estimator.evictable.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 1)
 
             // Close the buffer (this destroys the middle frame)
             frameBuffer.close()
             advanceUntilIdle()
 
             // Buffer frame destroyed, but frame1 is still held externally
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 1)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Close the FIRST frame
             frame1?.close()
             advanceUntilIdle()
 
             // Everything is freed
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
         }
 
     @Test
@@ -581,8 +582,8 @@ class MemoryEstimationTest {
             assertThat(frames.size).isEqualTo(3)
 
             // Since these are explicit captures, none of them are evictable
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 3)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 3)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Close Capture/Frame 1
             captures[0].close()
@@ -590,8 +591,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // 1 freed, 2 remaining
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 2)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Close Capture/Frame 3 (out of order)
             captures[2].close()
@@ -599,8 +600,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // 2 freed, 1 remaining
-            assertThat(estimator.usage.value).isEqualTo(largeImageSize * 1)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 1)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
             // Close Capture/Frame 2
             captures[1].close()
@@ -608,8 +609,8 @@ class MemoryEstimationTest {
             advanceUntilIdle()
 
             // All freed
-            assertThat(estimator.usage.value).isEqualTo(0L)
-            assertThat(estimator.evictable.value).isEqualTo(0L)
+            assertThat(estimator.memoryUsage.value).isEqualTo(0L)
+            assertThat(estimator.evictableMemory.value).isEqualTo(0L)
         }
 
     private fun createSimulator(memoryEstimator: MemoryEstimator): CameraPipeSimulator {
