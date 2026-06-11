@@ -319,8 +319,12 @@ public actual object Trace {
         Log.v(TAG, "Unable to call $methodName via reflection", exception)
     }
 
-    private fun String.truncatedTraceSectionLabel(): String =
-        takeIf { it.length <= MAX_TRACE_LABEL_LENGTH } ?: substring(0, MAX_TRACE_LABEL_LENGTH)
+    private fun String.truncatedTraceSectionLabel(): String {
+        if (this.length <= MAX_TRACE_LABEL_LENGTH) {
+            return this
+        }
+        return this.substring(0, MAX_TRACE_LABEL_LENGTH)
+    }
 }
 
 /**
