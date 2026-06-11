@@ -55,7 +55,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class AppBarScreenshotTest {
 
     @get:Rule
