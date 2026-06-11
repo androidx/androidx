@@ -4959,6 +4959,7 @@ package androidx.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarScrollBehavior exitUntilCollapsedScrollBehavior(optional androidx.compose.material3.TopAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarScrollBehavior exitUntilCollapsedScrollBehavior(androidx.compose.material3.TopAppBarState?, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!> getFlingAnimationSpec(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getLargeAppBarCollapsedHeight-D9Ej5fM();
     method @BytecodeOnly public float getLargeAppBarExpandedHeight-D9Ej5fM();
     method @BytecodeOnly public float getLargeFlexibleAppBarWithSubtitleExpandedHeight-D9Ej5fM();
@@ -5003,6 +5004,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.unit.Dp MediumFlexibleAppBarWithSubtitleExpandedHeight;
     property public androidx.compose.ui.unit.Dp MediumFlexibleAppBarWithoutSubtitleExpandedHeight;
     property public androidx.compose.ui.unit.Dp TopAppBarExpandedHeight;
+    property @androidx.compose.runtime.Composable public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec;
     property @androidx.compose.runtime.Composable public androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.TopAppBarDefaults INSTANCE;
