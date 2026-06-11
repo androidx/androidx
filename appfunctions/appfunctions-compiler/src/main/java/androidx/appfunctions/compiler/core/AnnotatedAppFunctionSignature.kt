@@ -17,6 +17,7 @@
 package androidx.appfunctions.compiler.core
 
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionMetadataClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.DeprecatedAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
@@ -65,6 +66,31 @@ data class AnnotatedAppFunctionSignature(
             throw ProcessingException("appFunctionXmlFileName cannot be empty", classDeclaration)
         }
         value
+    }
+
+    /** The lifecycle scope of the app function. */
+    val scope: String by lazy {
+        val appFunctionSignatureAnnotation =
+            classDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionSignatureAnnotation.CLASS_NAME
+            )
+                ?: throw ProcessingException(
+                    "AppFunctionSignature annotation not found on class ${classDeclaration.simpleName.asString()}",
+                    classDeclaration,
+                )
+        val declaredScope =
+            appFunctionSignatureAnnotation.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionSignatureAnnotation.PROPERTY_SCOPE,
+                String::class,
+            )
+
+        if (declaredScope !in SUPPORTED_SCOPES) {
+            throw ProcessingException(
+                "Invalid scope: \"$declaredScope\". Supported scopes are \"${AppFunctionMetadataClass.SCOPE_GLOBAL}\" and \"${AppFunctionMetadataClass.SCOPE_ACTIVITY}\".",
+                classDeclaration,
+            )
+        }
+        declaredScope
     }
 
     /**
@@ -116,6 +142,7 @@ data class AnnotatedAppFunctionSignature(
             components = AppFunctionComponentsMetadata(dataTypes = sharedDataTypeMap),
             description = functionDescription,
             deprecation = deprecationMetadata,
+            scope = scope,
         )
     }
 
@@ -238,5 +265,10 @@ data class AnnotatedAppFunctionSignature(
     /** Gets the [classDeclaration]'s [ClassName]. */
     fun getEnclosingClassName(): ClassName {
         return classDeclaration.toClassName()
+    }
+
+    companion object {
+        private val SUPPORTED_SCOPES =
+            setOf(AppFunctionMetadataClass.SCOPE_GLOBAL, AppFunctionMetadataClass.SCOPE_ACTIVITY)
     }
 }

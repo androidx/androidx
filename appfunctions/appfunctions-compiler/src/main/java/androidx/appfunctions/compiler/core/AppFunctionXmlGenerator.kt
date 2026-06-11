@@ -19,9 +19,11 @@ package androidx.appfunctions.compiler.core
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSFile
 import java.io.IOException
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
@@ -111,13 +113,68 @@ class AppFunctionXmlGenerator(
                     appFunctionSerializablesDescriptionMap,
                 )
             }
+        generateXmlFromMetadata(
+            appFunctionMetadataList,
+            appFunctionsByClass.flatMap { it.getSourceFiles() }.toSet(),
+            packageName,
+            fileName,
+            outputLocation,
+        )
+    }
+
+    /**
+     * Generates an XML file containing the AppFunction metadata.
+     *
+     * @param appFunctionSignatures A list of [AnnotatedAppFunctionSignature] to be included in the
+     *   XML.
+     * @param resolvedAnnotatedSerializableProxies A collection of resolved annotated serializable
+     *   proxies.
+     * @param appFunctionSerializablesDescriptionMap A map containing descriptions of AppFunction
+     *   serializables.
+     * @param packageName The package name where the XML file should be generated.
+     * @param fileName The name of the generated XML file.
+     * @param outputLocation An optional custom path to save the XML file in addition to the
+     *   standard KSP output.
+     */
+    @JvmName("generateXmlForSignatures")
+    fun generateXml(
+        appFunctionSignatures: List<AnnotatedAppFunctionSignature>,
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        appFunctionSerializablesDescriptionMap: Map<String, String>,
+        packageName: String,
+        fileName: String,
+        outputLocation: String? = null,
+    ) {
+        val appFunctionMetadataList =
+            appFunctionSignatures.map {
+                it.createAppFunctionMetadata(
+                    resolvedAnnotatedSerializableProxies,
+                    appFunctionSerializablesDescriptionMap,
+                )
+            }
+        generateXmlFromMetadata(
+            appFunctionMetadataList,
+            appFunctionSignatures.flatMap { it.getSourceFiles() }.toSet(),
+            packageName,
+            fileName,
+            outputLocation,
+        )
+    }
+
+    /**
+     * Generates an XML file containing the AppFunction metadata from a list of
+     * [CompileTimeAppFunctionMetadata].
+     */
+    private fun generateXmlFromMetadata(
+        appFunctionMetadataList: List<CompileTimeAppFunctionMetadata>,
+        sourceFiles: Set<KSFile>,
+        packageName: String,
+        fileName: String,
+        outputLocation: String? = null,
+    ) {
         writeXml(
             appFunctionMetadataList = appFunctionMetadataList,
-            dependencies =
-                Dependencies(
-                    aggregating = true,
-                    *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray(),
-                ),
+            dependencies = Dependencies(aggregating = true, *sourceFiles.toTypedArray()),
             packageName = packageName,
             fileName = fileName,
             outputLocation = outputLocation,

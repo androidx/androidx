@@ -360,6 +360,7 @@ public data class CompileTimeAppFunctionMetadata(
 
 /** Represents the persistent storage format of [AppFunctionMetadata]. */
 @Document(name = "AppFunctionStaticMetadata")
+@Suppress("InlinedApi")
 internal data class AppFunctionMetadataDocument(
     @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
     /** The id of the AppFunction. */
@@ -387,4 +388,7 @@ internal data class AppFunctionMetadataDocument(
     @Document.StringProperty val description: String? = null,
     /** Indicates whether the function is deprecated or not. */
     @Document.DocumentProperty val deprecation: AppFunctionDeprecationMetadataDocument? = null,
+    /** The lifecycle scope of the AppFunction. */
+    @Document.StringProperty(name = android.app.appfunctions.AppFunctionMetadata.PROPERTY_SCOPE)
+    val scope: String? = null,
 )
