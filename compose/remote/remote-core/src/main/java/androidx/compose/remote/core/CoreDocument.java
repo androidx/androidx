@@ -1601,6 +1601,9 @@ public class CoreDocument implements Serializable {
         return handled;
     }
 
+    private int mClickReentrancyDepth = 0;
+    private static final int MAX_CLICK_REENTRANCY_DEPTH = 128;
+
     /**
      * Programmatically trigger the click response for the given id
      *
@@ -1610,23 +1613,31 @@ public class CoreDocument implements Serializable {
      * @return true if handled
      */
     public boolean performClick(@NonNull RemoteContext context, int id, @NonNull String metadata) {
-        if (context.isBasicDebug()) {
-            System.out.println("[RC] performClick for " + id);
+        if (mClickReentrancyDepth > MAX_CLICK_REENTRANCY_DEPTH) {
+            throw new RuntimeException("Maximum click re-entrancy depth exceeded");
         }
-        for (ClickAreaRepresentation clickArea : mClickAreas) {
-            if (clickArea.mId == id) {
-                warnClickListeners(clickArea);
-                return true;
+        mClickReentrancyDepth++;
+        try {
+            if (context.isBasicDebug()) {
+                System.out.println("[RC] performClick for " + id);
             }
-        }
+            for (ClickAreaRepresentation clickArea : mClickAreas) {
+                if (clickArea.mId == id) {
+                    warnClickListeners(clickArea);
+                    return true;
+                }
+            }
 
-        notifyOfException(id, metadata);
+            notifyOfException(id, metadata);
 
-        Component component = getComponent(id);
-        if (component != null) {
-            return component.onClick(context, this, -1, -1);
+            Component component = getComponent(id);
+            if (component != null) {
+                return component.onClick(context, this, -1, -1);
+            }
+            return false;
+        } finally {
+            mClickReentrancyDepth--;
         }
-        return false;
     }
 
     /**
