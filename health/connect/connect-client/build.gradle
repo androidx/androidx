@@ -83,9 +83,3 @@ androidx {
     enableRobolectric()
 }
 
-//TODO(b/407717306): Remove this block when RecordConvertersTest passes on API Level 21 and 34 devices
-tasks.withType(KotlinCompile).configureEach { task ->
-    task.compilerOptions {
-        it.freeCompilerArgs.add("-Xlambdas=class")
-    }
-}

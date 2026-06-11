@@ -2508,7 +2508,7 @@ class RecordConvertersTest {
         assertPlatformRecord(platformRecord) {}
     }
 
-    private fun <T : PlatformIntervalRecord> assertPlatformRecord(
+    private inline fun <T : PlatformIntervalRecord> assertPlatformRecord(
         platformRecord: T,
         typeSpecificAssertions: T.() -> Unit,
     ) {
@@ -2523,7 +2523,7 @@ class RecordConvertersTest {
     private fun <T : PlatformInstantRecord> assertPlatformRecord(platformRecord: T) =
         assertPlatformRecord(platformRecord) {}
 
-    private fun <T : PlatformInstantRecord> assertPlatformRecord(
+    private inline fun <T : PlatformInstantRecord> assertPlatformRecord(
         platformRecord: T,
         typeSpecificAssertions: T.() -> Unit,
     ) {
@@ -2535,7 +2535,7 @@ class RecordConvertersTest {
 
     private fun <T : IntervalRecord> assertSdkRecord(sdkRecord: T) = assertSdkRecord(sdkRecord) {}
 
-    private fun <T : IntervalRecord> assertSdkRecord(
+    private inline fun <T : IntervalRecord> assertSdkRecord(
         sdkRecord: T,
         typeSpecificAssertions: T.() -> Unit,
     ) {
@@ -2552,7 +2552,7 @@ class RecordConvertersTest {
     private fun <T : InstantaneousRecord> assertSdkRecord(sdkRecord: T) =
         assertSdkRecord(sdkRecord) {}
 
-    private fun <T : InstantaneousRecord> assertSdkRecord(
+    private inline fun <T : InstantaneousRecord> assertSdkRecord(
         sdkRecord: T,
         typeSpecificAssertions: T.() -> Unit,
     ) {
