@@ -17,7 +17,6 @@
 package androidx.xr.glimmer
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -56,7 +55,6 @@ import androidx.compose.ui.semantics.Role
  *   [IconToggleButtonDefaults.shape] for more details.
  * @param colors the [IconToggleButtonColors] providing color variants for all icon toggle button
  *   states.
- * @param border the border to draw around this icon toggle button.
  * @param enabled controls the enabled state of this icon toggle button. When `false`, this button
  *   will not respond to user input.
  * @param contentPadding the spacing values to apply internally between the container and the
@@ -74,7 +72,6 @@ public fun IconToggleButton(
     modifier: Modifier = Modifier,
     shape: Shape = IconToggleButtonDefaults.animatedShape(checked),
     colors: IconToggleButtonColors = IconToggleButtonDefaults.colors(),
-    border: BorderStroke? = SurfaceDefaults.border(),
     enabled: Boolean = true,
     contentPadding: PaddingValues = IconToggleButtonDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -96,7 +93,6 @@ public fun IconToggleButton(
                 color = colors.resolveBackgroundColor(checked),
                 contentColor = colors.resolveContentColor(checked),
                 depthEffect = depthEffect,
-                border = border,
                 interactionSource = internalInteractionSource,
             )
             .toggleable(
@@ -172,7 +168,7 @@ public object IconToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = GlimmerTheme.colors.outline,
+        checkedBackgroundColor: Color = OutlineColor,
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): IconToggleButtonColors =
