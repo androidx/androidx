@@ -19,8 +19,7 @@
 package androidx.ink.strokes
 
 import androidx.ink.geometry.PartitionedMesh
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmName
 
 /**
  * Creates a [PartitionedMesh] of the shape enclosed by the given [StrokeInputBatch] input points. A
@@ -57,12 +56,6 @@ public fun StrokeInputBatch.createClosedShape(): PartitionedMesh {
     }
 }
 
-@UsedByNative
-private object MeshCreationNative {
-    init {
-        NativeLoader.load()
-    }
-
-    @UsedByNative
-    external fun createClosedShapeFromStrokeInputBatch(strokeInputBatchNativePointer: Long): Long
+expect internal object MeshCreationNative {
+    fun createClosedShapeFromStrokeInputBatch(strokeInputBatchNativePointer: Long): Long
 }

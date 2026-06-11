@@ -46,6 +46,8 @@ import androidx.ink.nativeloader.UsedByNative
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
+import androidx.ink.strokes.getRawTriangleIndexBuffer
+import androidx.ink.strokes.getRawVertexBuffer
 import java.util.WeakHashMap
 
 /**

@@ -32,9 +32,9 @@ private constructor(
      *
      * @param target the brush tip property to affect
      * @param targetModifierRangeStart start of the range of the input value that should affect the
-     *   target property
+     *   target property. Must be finite and distinct from [targetModifierRangeEnd]
      * @param targetModifierRangeEnd end of the range of the input value that should affect the
-     *   target property
+     *   target property. Must be finite and distinct from [targetModifierRangeStart]
      * @param input input node that produces the value used to affect the target
      */
     public constructor(
@@ -157,7 +157,9 @@ private constructor(
             /**
              * Moves the brush tip by the target modifier times the brush size in the direction of
              * the modeled stroke input's velocity (the opposite direction if the value is
-             * negative).
+             * negative). For example, if a stroke is moving from left to right, a positive modifier
+             * will shift the brush tip to the right, and a negative modifier will shift the brush
+             * tip to the left.
              */
             @JvmField
             public val POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE: Target =
@@ -165,7 +167,9 @@ private constructor(
             /**
              * Moves the brush tip by the target modifier times the brush size perpendicular to the
              * modeled stroke input's velocity, rotated 90 degrees in the direction from the
-             * positive x-axis to the positive y-axis.
+             * positive x-axis to the positive y-axis. For example, if positive-Y is up, and a
+             * stroke is moving from left to right, a positive modifier will shift the brush tip up,
+             * and a negative modifier will shift the brush tip down.
              */
             @JvmField
             public val POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE: Target =

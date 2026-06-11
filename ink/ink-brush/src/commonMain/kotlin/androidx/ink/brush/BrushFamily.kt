@@ -75,6 +75,17 @@ private constructor(
     public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
+     * Returns the duration of a complete texture animation loop for an entire stroke with this
+     * brush family (such that each animated texture in the brush goes through an integral number of
+     * complete loops and returns to its starting frame), or zero if this family contains no
+     * animated textures. If nonzero, this duration will be no greater than 2^24 milliseconds (about
+     * 4.66 hours).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public val textureAnimationLoopDurationMillis: Long =
+        BrushFamilyNative.getTextureAnimationLoopDurationMillis(nativePointer)
+
+    /**
      * Returns true if this [BrushFamily] contains serialized fallback data representing similar
      * [BrushFamily]s that are compatible with other versions of Ink. If true, the stored data will
      * be used when serializing this [BrushFamily] to a proto instead of recomputing it from the
@@ -535,6 +546,8 @@ expect internal object BrushFamilyNative {
     fun getClientBrushFamilyId(nativePointer: Long): String
 
     fun getDeveloperComment(nativePointer: Long): String
+
+    fun getTextureAnimationLoopDurationMillis(nativePointer: Long): Long
 
     fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 

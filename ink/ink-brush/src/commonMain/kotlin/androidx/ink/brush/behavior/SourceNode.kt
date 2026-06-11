@@ -28,8 +28,10 @@ public class SourceNode private constructor(nativeAlloc: () -> Long) :
      * Creates a [SourceNode] that gets data from the stroke inputs.
      *
      * @param source the property of the data to get values from
-     * @param sourceValueRangeStart the start of the range of values that the source can produce
-     * @param sourceValueRangeEnd the end of the range of values that the source can produce
+     * @param sourceValueRangeStart the start of the range of values that the source can produce.
+     *   Must be finite and distinct from [sourceValueRangeEnd]
+     * @param sourceValueRangeEnd the end of the range of values that the source can produce. Must
+     *   be finite and distinct from [sourceValueRangeStart]
      * @param sourceOutOfRangeBehavior the behavior to use if the source produces a value outside
      *   the specified range
      */

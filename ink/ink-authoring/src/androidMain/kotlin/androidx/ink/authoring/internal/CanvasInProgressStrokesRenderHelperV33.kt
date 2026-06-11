@@ -33,7 +33,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.AnyThread
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
@@ -298,21 +297,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
          */
         private val discarded = AtomicBoolean(false)
 
-        private val buffersState =
-            object {
-                private val stateInternal = AtomicReference<BuffersState?>()
-
-                @AnyThread
-                fun checkAndSet(expectedValue: BuffersState?, newValue: BuffersState?) {
-                    check(stateInternal.compareAndSet(expectedValue, newValue)) {
-                        "buffersState: expected $expectedValue, but current value is ${stateInternal.get()}"
-                    }
-                }
-
-                @AnyThread fun getAndClear(): BuffersState? = stateInternal.getAndSet(null)
-
-                @AnyThread fun get(): BuffersState? = stateInternal.get()
-            }
+        private val buffersState = AtomicReference<BuffersState?>()
 
         /**
          * The next value to pass to [SurfaceControlCompat.Transaction.setLayer]. This increases
@@ -371,7 +356,9 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     // returns false, a subequent call to discard() will be able to clean up the
                     // state. (If
                     // the check below returns true, we ensure it's cleaned up here.)
-                    buffersState.checkAndSet(expectedValue = null, initialState)
+                    check(buffersState.getAndSet(initialState) == null) {
+                        "BuffersState was not null when initializing the first viewport."
+                    }
                     if (discarded.get()) {
                         // If we're in this block, discard() has definitely started and maybe
                         // (probably)
@@ -381,7 +368,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                         // by setting
                         // buffersState to null. So whichever place gets to that first does the
                         // cleanup.
-                        buffersState.getAndClear()?.cleanup()
+                        buffersState.getAndSet(null)?.cleanup()
                         return@drawAsync
                     }
                     SurfaceControlCompat.Transaction()
@@ -790,7 +777,17 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     inactive = state.active,
                     inactiveIsReady = false,
                 )
-            buffersState.checkAndSet(state, newState)
+            // The buffers state should not change between where it is retrieved above and here.
+            // Exactly
+            // one handoff gets triggered here and further handoffs are blocked until the inactive
+            // buffer
+            // is ready again, so this can't be interrupted by the callback posted by
+            // onInactiveBufferHidden. And it can't be interrupted by a discard() call, as that's
+            // also on
+            // the UI thread.
+            check(buffersState.getAndSet(newState) == state) {
+                "Buffers state should not change during a handoff on the UI thread."
+            }
             mainView.invalidate()
             callback.onStrokeCohortHandoffToHwui(cohort)
             callback.onStrokeCohortHandoffToHwuiComplete()
@@ -840,7 +837,22 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                                             inactive = state.inactive,
                                             inactiveIsReady = true,
                                         )
-                                    buffersState.checkAndSet(state, newState)
+                                    // Theres a very narrow window where there could be an
+                                    // interleaving of:
+                                    // * discarded.get() above
+                                    // * discarded.getAndSet(true) in discard()
+                                    // * buffersState.getAndSet(null) in discard()
+                                    // * buffersState.compareAndSet below
+                                    // So if the state is not as expected, double-check
+                                    // discarded.get() and
+                                    // only throw if that's not the case.
+                                    check(
+                                        buffersState.compareAndSet(state, newState) ||
+                                            discarded.get()
+                                    ) {
+                                        "Buffers state should not change during a handoff on the render thread " +
+                                            "unless the view is discarded."
+                                    }
                                     callback.resumeStrokeCohortHandoffs()
                                     countDownAfterHandoffsResumedTestLatch?.countDown()
                                 }
@@ -854,7 +866,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         fun discard() {
             assertOnUiThread()
             if (discarded.getAndSet(true)) return
-            val state = buffersState.getAndClear() ?: return
+            val state = buffersState.getAndSet(null) ?: return
             SurfaceControlCompat.Transaction()
                 .unsetAndHide(state.active)
                 .unsetAndHide(state.inactive)

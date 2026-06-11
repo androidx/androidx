@@ -16,17 +16,23 @@
 
 package androidx.ink.storage
 
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.Arrays
 import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /** Gets decompressed [ByteArray] from an [InputStream] of GZIP-compressed bytes. */
-internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
-    /** The first [size] bytes of this contain the decompressed bytes, the rest are zero. */
-    val bytes: ByteArray
+actual internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
 
-    /** The size of the initial portion of [bytes] containing the decompressed bytes. */
-    val size: Int
+    actual constructor(compressedBytes: ByteArray) : this(ByteArrayInputStream(compressedBytes))
+
+    /** The first [size] bytes of this contain the decompressed bytes, the rest are zero. */
+    actual val buffer: ByteArray
+
+    /** The size of the initial portion of [buffer] containing the decompressed bytes. */
+    actual val size: Int
 
     init {
         var byteArray = ByteArray(DECOMPRESSED_BYTES_INITIAL_CAPACITY)
@@ -54,7 +60,7 @@ internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
                     byteArray = Arrays.copyOf(byteArray, totalBytesRead * 2)
                 }
             }
-            bytes = byteArray
+            buffer = byteArray
             size = totalBytesRead
         }
     }
@@ -63,3 +69,15 @@ internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
         const val DECOMPRESSED_BYTES_INITIAL_CAPACITY: Int = 32 * 1024
     }
 }
+
+actual internal fun ByteArray.compress(): ByteArray =
+    ByteArrayOutputStream().use { byteArrayStream ->
+        GZIPOutputStream(byteArrayStream).use { gzipStream -> gzipStream.write(this) }
+        byteArrayStream.toByteArray()
+    }
+
+// This is a typealias to allow documenting behavior of a KMP-common method and allow writing
+// exception-handling code in a KMP-common way without requiring JVM consumers to take on a
+// dependency on Okio. It is capitalized for consistency with java.io.IOException.
+@Suppress("TypealiasDefinition", "AcronymName")
+actual public typealias IOException = java.io.IOException

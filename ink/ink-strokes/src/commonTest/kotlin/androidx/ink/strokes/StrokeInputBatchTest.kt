@@ -422,6 +422,27 @@ class StrokeInputBatchTest {
     }
 
     @Test
+    fun getBaseAnimationPhase_returnsZeroIfUnset() {
+        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.0f)
+        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.0f)
+
+        builder.add(InputToolType.MOUSE, 1f, 2f, 3L)
+        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.0f)
+        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.0f)
+    }
+
+    @Test
+    fun getBaseAnimationPhase_returnsValueIfSet() {
+        builder.setBaseAnimationPhase(0.75f)
+        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.75f)
+
+        builder.add(InputToolType.MOUSE, 1f, 2f, 3L)
+        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.75f)
+    }
+
+    @Test
     fun clear_removesAllInput() {
         assertThat(
                 builder

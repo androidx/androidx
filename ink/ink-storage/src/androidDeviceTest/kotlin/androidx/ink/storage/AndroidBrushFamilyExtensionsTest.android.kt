@@ -104,11 +104,6 @@ class AndroidBrushFamilyExtensionsTest {
                                             sizeX = 2f,
                                             sizeY = 2f,
                                         ),
-                                        TilingTexture(
-                                            clientTextureId = textureId1,
-                                            sizeX = 1f,
-                                            sizeY = 4f,
-                                        ),
                                     )
                             ),
                         tip =
@@ -257,7 +252,7 @@ class AndroidBrushFamilyExtensionsTest {
         val original = testFamily
         val encoded =
             ByteArrayOutputStream().use {
-                original.encode(it, textureBitmapStore)
+                AndroidBrushFamilySerialization.encode(original, it, textureBitmapStore)
                 it.toByteArray()
             }
         ByteArrayInputStream(encoded).use {
@@ -288,7 +283,7 @@ class AndroidBrushFamilyExtensionsTest {
         val original = testFamily
         val encoded =
             ByteArrayOutputStream().use {
-                original.encode(it, textureBitmapStore)
+                AndroidBrushFamilySerialization.encode(original, it, textureBitmapStore)
                 it.toByteArray()
             }
         ByteArrayInputStream(encoded).use {
@@ -327,7 +322,7 @@ class AndroidBrushFamilyExtensionsTest {
         val original = testFamily
         val encoded =
             ByteArrayOutputStream().use {
-                original.encode(it, textureBitmapStore)
+                AndroidBrushFamilySerialization.encode(original, it, textureBitmapStore)
                 it.toByteArray()
             }
         ByteArrayInputStream(encoded).use {

@@ -46,9 +46,14 @@ androidXMultiplatform {
             implementation(project(":ink:ink-rendering"))
         }
 
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.okio)
+            implementation(project(":kruth:kruth"))
+        }
+
         jvmAndAndroidTest.dependencies {
             implementation(libs.junit)
-            implementation(libs.kotlinTest)
             implementation(libs.truth)
         }
 

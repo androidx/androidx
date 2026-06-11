@@ -47,6 +47,8 @@ actual internal object StrokeInputBatchNative {
 
     @UsedByNative actual external fun getNoiseSeed(nativePointer: Long): Int
 
+    @UsedByNative actual external fun getBaseAnimationPhase(nativePointer: Long): Float
+
     @UsedByNative actual external fun populate(nativePointer: Long, index: Int, input: StrokeInput)
 }
 
@@ -77,4 +79,6 @@ actual internal object MutableStrokeInputBatchNative {
     @UsedByNative actual external fun newCopy(nativePointer: Long): Long
 
     @UsedByNative actual external fun setNoiseSeed(nativePointer: Long, seed: Int)
+
+    @UsedByNative actual external fun setBaseAnimationPhase(nativePointer: Long, phase: Float)
 }

@@ -108,7 +108,7 @@ class MultiTouchInputBuilderTest {
 
         MultiTouchInputBuilder(
                 pointerCount = 1,
-                toolTypes = intArrayOf(MotionEvent.TOOL_TYPE_STYLUS),
+                toolType = MotionEvent.TOOL_TYPE_STYLUS,
                 historyIncrements = 2,
             )
             .runGestureWith {

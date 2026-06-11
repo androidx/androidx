@@ -21,13 +21,10 @@ import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.ImmutableBox
 import androidx.ink.geometry.ImmutableVec
 import androidx.ink.geometry.Intersection.intersects
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.collections.listOf
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class MeshCreationTest {
 
     private fun createStrokeInputBatch(points: List<ImmutableVec>): StrokeInputBatch {

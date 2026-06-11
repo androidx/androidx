@@ -58,7 +58,9 @@ package androidx.ink.brush {
     ctor @BytecodeOnly public BrushBehavior(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes, optional String developerComment);
+    method @InaccessibleFromKotlin public String getDeveloperComment();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.behavior.TerminalNode> getTerminalNodes();
+    property public String developerComment;
     property public java.util.List<androidx.ink.brush.behavior.TerminalNode> terminalNodes;
     field public static final androidx.ink.brush.BrushBehavior.Companion Companion;
   }

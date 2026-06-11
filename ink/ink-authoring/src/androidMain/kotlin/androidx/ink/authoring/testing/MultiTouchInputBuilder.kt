@@ -16,6 +16,7 @@
 
 package androidx.ink.authoring.testing
 
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.AXIS_TILT
 import android.view.MotionEvent.PointerCoords
@@ -44,45 +45,51 @@ import androidx.annotation.VisibleForTesting
  * Change [historyIncrements] to have more than one input point per [MotionEvent]. It represents the
  * number of steps from the previous event to the next one, so there will be `historyIncrements - 1`
  * historical events preceding the primary [MotionEvent] data.
+ *
+ * Although [MotionEvent] APIs support a different tool type per pointer, in practice this cannot
+ * occur as the different tool types would come from different devices, and [MotionEvent.getDevice]
+ * is not available per pointer. Similarly, the presence or absence of optional stylus fields like
+ * pressure/tilt/orientation cannot differ per pointer.
  */
 @VisibleForTesting
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public class MultiTouchInputBuilder(
     private val pointerCount: Int = 2,
     private val pointerId: IntArray = IntArray(pointerCount) { 9000 + it },
-    private val toolTypes: IntArray = IntArray(pointerCount) { MotionEvent.TOOL_TYPE_FINGER },
+    private val toolType: Int = MotionEvent.TOOL_TYPE_FINGER,
     private val startX: FloatArray = FloatArray(pointerCount) { 100F * it },
     private val startY: FloatArray = FloatArray(pointerCount),
-    /** Set an entry to null if that pointer should not have pressure. */
-    private val startPressure: Array<Float?> =
-        Array(pointerCount) {
-            if (toolTypes[it] == MotionEvent.TOOL_TYPE_STYLUS) 0.05F * (it + 1) else null
+    private val startPressure: FloatArray =
+        FloatArray(pointerCount) {
+            if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.05F * (it + 1) else 0F
         },
-    /** Set an entry to null if that pointer should not have orientation. */
-    private val startOrientation: Array<Float?> =
-        Array(pointerCount) {
-            if (toolTypes[it] == MotionEvent.TOOL_TYPE_STYLUS) 0.01F * (it + 1) else null
+    private val startOrientation: FloatArray =
+        FloatArray(pointerCount) {
+            if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.01F * (it + 1) else 0F
         },
     /**
-     * Set an entry to null if that pointer should not have tilt.
-     *
      * Note: Tilt does not seem to be supported currently in Robolectric, but it can be used for
      * emulator/device tests.
      */
-    private val startTilt: Array<Float?> =
-        Array(pointerCount) {
-            if (toolTypes[it] == MotionEvent.TOOL_TYPE_STYLUS) 0.07F * (it + 1) else null
+    private val startTilt: FloatArray =
+        FloatArray(pointerCount) {
+            if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.07F * (it + 1) else 0F
         },
     private val historyIncrements: Int = 1,
     private val timeIncrementMillis: Long = 10L * historyIncrements,
     private val xIncrement: FloatArray = FloatArray(pointerCount) { 100F },
     private val yIncrement: FloatArray = FloatArray(pointerCount) { 100F },
-    private val pressureIncrement: FloatArray = FloatArray(pointerCount) { 0.1F },
-    private val orientationIncrement: FloatArray = FloatArray(pointerCount) { 0.2F },
-    private val tiltIncrement: FloatArray = FloatArray(pointerCount) { 0.1F },
+    private val pressureIncrement: FloatArray =
+        FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.1F else 0F },
+    private val orientationIncrement: FloatArray =
+        FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.2F else 0F },
+    private val tiltIncrement: FloatArray =
+        FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.1F else 0F },
     private val downFlags: IntArray = IntArray(pointerCount),
     private val upFlags: IntArray = IntArray(pointerCount),
     private val downtime: Long = 1000L,
+    /** Set this to non-null to enable optional fields like pressure, tilt, and orientation. */
+    private val device: InputDevice? = null,
 ) {
     private var moveCount: Int = 0
 
@@ -92,7 +99,6 @@ public class MultiTouchInputBuilder(
         }
         require(
             pointerId.size == pointerCount &&
-                toolTypes.size == pointerCount &&
                 startX.size == pointerCount &&
                 startY.size == pointerCount &&
                 startPressure.size == pointerCount &&
@@ -110,6 +116,14 @@ public class MultiTouchInputBuilder(
         }
     }
 
+    private val eventSource =
+        when (toolType) {
+            MotionEvent.TOOL_TYPE_STYLUS -> InputDevice.SOURCE_STYLUS
+            MotionEvent.TOOL_TYPE_FINGER -> InputDevice.SOURCE_TOUCHSCREEN
+            MotionEvent.TOOL_TYPE_MOUSE -> InputDevice.SOURCE_MOUSE
+            else -> InputDevice.SOURCE_UNKNOWN
+        }
+
     /**
      * Perform [block] with a stream of [MotionEvent] such that the stream begins with one pointer
      * and ACTION_DOWN, where pointers 2 and higher will be added incrementally in ascending order
@@ -125,16 +139,16 @@ public class MultiTouchInputBuilder(
             arrayOfPointerProperties.add(
                 PointerProperties().apply {
                     id = pointerId[p]
-                    toolType = toolTypes[p]
+                    toolType = this@MultiTouchInputBuilder.toolType
                 }
             )
             arrayOfPointerCoords.add(
                 PointerCoords().apply {
                     x = startX[p]
                     y = startY[p]
-                    startPressure[p]?.let { pressure = it }
-                    startOrientation[p]?.let { orientation = it }
-                    startTilt[p]?.let { setAxisValue(AXIS_TILT, it) }
+                    pressure = startPressure[p]
+                    orientation = startOrientation[p]
+                    setAxisValue(AXIS_TILT, startTilt[p])
                 }
             )
             val ev =
@@ -142,10 +156,12 @@ public class MultiTouchInputBuilder(
                     downTime = downtime,
                     eventTime = downtime,
                     action =
-                        if (p == 0) MotionEvent.ACTION_DOWN
-                        else
-                            (MotionEvent.ACTION_POINTER_DOWN or
-                                (p shl MotionEvent.ACTION_POINTER_INDEX_SHIFT)),
+                        if (p == 0) {
+                            MotionEvent.ACTION_DOWN
+                        } else {
+                            MotionEvent.ACTION_POINTER_DOWN or
+                                (p shl MotionEvent.ACTION_POINTER_INDEX_SHIFT)
+                        },
                     pointerCount = p + 1,
                     arrayOfPointerProperties.toTypedArray(),
                     arrayOfPointerCoords.toTypedArray(),
@@ -155,7 +171,7 @@ public class MultiTouchInputBuilder(
                     yPrecision = 0.001F,
                     deviceId = 0,
                     edgeFlags = 0,
-                    source = 0,
+                    source = eventSource,
                     flags = downFlags[p],
                 )
             ev.use(block)
@@ -171,23 +187,17 @@ public class MultiTouchInputBuilder(
                     PointerCoords().apply {
                         x = previousPointerCoords.x + xIncrement[p] / historyIncrements
                         y = previousPointerCoords.y + yIncrement[p] / historyIncrements
-                        if (startPressure[p] != null) {
-                            pressure =
-                                previousPointerCoords.pressure +
-                                    pressureIncrement[p] / historyIncrements
-                        }
-                        if (startOrientation[p] != null) {
-                            orientation =
-                                previousPointerCoords.orientation +
-                                    orientationIncrement[p] / historyIncrements
-                        }
-                        if (startTilt[p] != null) {
-                            setAxisValue(
-                                AXIS_TILT,
-                                previousPointerCoords.getAxisValue(AXIS_TILT) +
-                                    tiltIncrement[p] / historyIncrements,
-                            )
-                        }
+                        pressure =
+                            previousPointerCoords.pressure +
+                                pressureIncrement[p] / historyIncrements
+                        orientation =
+                            previousPointerCoords.orientation +
+                                orientationIncrement[p] / historyIncrements
+                        setAxisValue(
+                            AXIS_TILT,
+                            previousPointerCoords.getAxisValue(AXIS_TILT) +
+                                tiltIncrement[p] / historyIncrements,
+                        )
                     }
             }
             val ev =
@@ -207,7 +217,7 @@ public class MultiTouchInputBuilder(
                     yPrecision = 0.001F,
                     deviceId = 0,
                     edgeFlags = 0,
-                    source = 0,
+                    source = eventSource,
                     flags = 0,
                 )
             // Start with the second history increment and go all the way through the primary event
@@ -219,23 +229,17 @@ public class MultiTouchInputBuilder(
                         PointerCoords().apply {
                             x = previousPointerCoords.x + xIncrement[p] / historyIncrements
                             y = previousPointerCoords.y + yIncrement[p] / historyIncrements
-                            if (startPressure[p] != null) {
-                                pressure =
-                                    previousPointerCoords.pressure +
-                                        pressureIncrement[p] / historyIncrements
-                            }
-                            if (startOrientation[p] != null) {
-                                orientation =
-                                    previousPointerCoords.orientation +
-                                        orientationIncrement[p] / historyIncrements
-                            }
-                            if (startTilt[p] != null) {
-                                setAxisValue(
-                                    AXIS_TILT,
-                                    previousPointerCoords.getAxisValue(AXIS_TILT) +
-                                        tiltIncrement[p] / historyIncrements,
-                                )
-                            }
+                            pressure =
+                                previousPointerCoords.pressure +
+                                    pressureIncrement[p] / historyIncrements
+                            orientation =
+                                previousPointerCoords.orientation +
+                                    orientationIncrement[p] / historyIncrements
+                            setAxisValue(
+                                AXIS_TILT,
+                                previousPointerCoords.getAxisValue(AXIS_TILT) +
+                                    tiltIncrement[p] / historyIncrements,
+                            )
                         }
                 }
                 ev.addBatch(
@@ -258,10 +262,12 @@ public class MultiTouchInputBuilder(
                     downTime = downtime,
                     eventTime = downtime + moveCount * timeIncrementMillis,
                     action =
-                        if (p == 0) MotionEvent.ACTION_UP
-                        else
-                            (MotionEvent.ACTION_POINTER_UP or
-                                (p shl MotionEvent.ACTION_POINTER_INDEX_SHIFT)),
+                        if (p == 0) {
+                            MotionEvent.ACTION_UP
+                        } else {
+                            MotionEvent.ACTION_POINTER_UP or
+                                (p shl MotionEvent.ACTION_POINTER_INDEX_SHIFT)
+                        },
                     pointerCount = p + 1,
                     arrayOfPointerProperties.toTypedArray(),
                     arrayOfPointerCoords.toTypedArray(),
@@ -271,7 +277,7 @@ public class MultiTouchInputBuilder(
                     yPrecision = 0.001F,
                     deviceId = 0,
                     edgeFlags = 0,
-                    source = 0,
+                    source = eventSource,
                     flags = upFlags[p],
                 )
             ev.use(block)
@@ -375,9 +381,9 @@ public class MultiTouchInputBuilder(
             buttonState: Int = 0,
             xPrecision: Float = 0.001F,
             yPrecision: Float = 0.001F,
-            deviceId: Int = 0,
+            deviceId: Int = 1,
             edgeFlags: Int = 0,
-            source: Int = 0,
+            source: Int = InputDevice.SOURCE_UNKNOWN,
             flags: Int = 0,
         ): MotionEvent =
             MotionEvent.obtain(

@@ -63,6 +63,12 @@ private constructor(@JvmField internal val value: Int, private val name: String)
          * a stroke can be filled only with a solid color or textures using
          * [BrushPaint.TilingTexture]. This is the default behavior for Android T and below when
          * [ANY] is used, and can also be used on Android U and above if desired.
+         *
+         * This is incompatible with [BrushBehavior]s which target opacity or color, and with
+         * [BrushPaint.StampingTexture]. This is because [SelfOverlap.DISCARD] forces usage of the
+         * path renderer, and the aforementioned features require the mesh renderer. In the case
+         * where both are specified on the same [BrushCoat], the effects of the [BrushBehavior] or
+         * [BrushPaint.StampingTexture] will not be rendered.
          */
         @JvmField public val DISCARD: SelfOverlap = SelfOverlap(2, "DISCARD")
     }

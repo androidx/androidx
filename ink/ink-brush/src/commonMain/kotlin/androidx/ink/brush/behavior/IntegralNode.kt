@@ -33,8 +33,10 @@ private constructor(
      * the input.
      *
      * @param integrateOver the metric to integrate the input over
-     * @param integralValueRangeStart the start of the range of values that the integral can produce
-     * @param integralValueRangeEnd the end of the range of values that the integral can produce
+     * @param integralValueRangeStart the start of the range of values that the integral can
+     *   produce. Must be finite and distinct from [integralValueRangeEnd]
+     * @param integralValueRangeEnd the end of the range of values that the integral can produce.
+     *   Must be finite and distinct from [integralValueRangeStart]
      * @param integralOutOfRangeBehavior the behavior to use if the integral produces a value
      *   outside the specified range
      * @param input input node that produces the value to be integrated

@@ -1,4 +1,4 @@
-// Copyright 2024-2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,4 +96,6 @@ message CodedStrokeInputBatch {
   // The seed value that should be used for seeding any noise generators for
   // brush behaviors when a full stroke is regenerated with this input batch.
   optional fixed32 noise_seed = 9;
+
+  reserved 10;
 }

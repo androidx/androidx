@@ -30,14 +30,10 @@ import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
-import com.google.common.collect.ImmutableList
-import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
-@RunWith(JUnit4::class)
 class StrokeTest {
 
     @Test
@@ -76,12 +72,12 @@ class StrokeTest {
 
         // Create a brush with two brush coats.
         val coat = BrushCoat(BrushTip(), BrushPaint())
-        val brush = Brush(BrushFamily(ImmutableList.of(coat, coat)), size = 10f, epsilon = 0.1f)
+        val brush = Brush(BrushFamily(listOf(coat, coat)), size = 10f, epsilon = 0.1f)
 
         // We should get an error, because the number of render groups doesn't match the number of
         // brush
         // coats.
-        assertThrows(IllegalArgumentException::class.java) { Stroke(brush, inputs, shape) }
+        assertFailsWith<IllegalArgumentException> { Stroke(brush, inputs, shape) }
     }
 
     @Test
@@ -165,7 +161,7 @@ class StrokeTest {
                                     paintPreferences =
                                         listOf(
                                             BrushPaint(
-                                                ImmutableList.of(
+                                                listOf(
                                                     TilingTexture(
                                                         clientTextureId = "test-one",
                                                         sizeX = 123.45F,

@@ -23,6 +23,7 @@ import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getBrushCoatCount
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getClientBrushFamilyId
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getDeveloperComment
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getInputModelType
+import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getTextureAnimationLoopDurationMillis
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_hasFallbacks
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_newCopyOfBrushCoat
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_newCopyOfInputModel
@@ -68,6 +69,9 @@ actual internal object BrushFamilyNative {
 
     actual fun getDeveloperComment(nativePointer: Long): String =
         BrushFamilyNative_getDeveloperComment(nativePointer)?.toKString() ?: ""
+
+    actual fun getTextureAnimationLoopDurationMillis(nativePointer: Long): Long =
+        BrushFamilyNative_getTextureAnimationLoopDurationMillis(nativePointer)
 
     actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
         BrushFamilyNative_calculateMinimumRequiredVersion(nativePointer)

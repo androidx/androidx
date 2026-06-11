@@ -43,12 +43,16 @@ private constructor(
      * vector brush tip property.
      *
      * @param target vector brush tip property to affect
-     * @param angleRangeStart start of the angle range for the target property
-     * @param angleRangeEnd end of the angle range for the target property
+     * @param angleRangeStart start of the angle range for the target property. Must be finite and
+     *   distinct from [angleRangeEnd]
+     * @param angleRangeEnd end of the angle range for the target property. Must be finite and
+     *   distinct from [angleRangeStart]
      * @param angleInput input node that produces the value used to affect the angle of the target
      *   vector property
-     * @param magnitudeRangeStart start of the magnitude range for the target property
-     * @param magnitudeRangeEnd end of the magnitude range for the target property
+     * @param magnitudeRangeStart start of the magnitude range for the target property. Must be
+     *   finite and distinct from [magnitudeRangeEnd]
+     * @param magnitudeRangeEnd end of the magnitude range for the target property. Must be finite
+     *   and distinct from [magnitudeRangeStart]
      * @param magnitudeInput input node that produces the value used to affect the magnitude of the
      *   target vector property
      */
