@@ -86,15 +86,11 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
         scope.launch {
             try {
                 val driver = TraceDriver.getTraceDriver(context)
-                if (driver == null) {
-                    result.resultCode = RESULT_CODE_NO_TRACE_DRIVER
-                } else {
-                    driver.flush()
-                    result.resultCode = RESULT_CODE_FLUSH_COMPLETED
-                    // The path to find traces in.
-                    result.resultData = context.getOrCreateTracesDirectory().absolutePath
-                    Log.d(TAG, "Flushed traces.")
-                }
+                driver.flush()
+                result.resultCode = RESULT_CODE_FLUSH_COMPLETED
+                // The path to find traces in.
+                result.resultData = context.getOrCreateTracesDirectory().absolutePath
+                Log.d(TAG, "Flushed traces.")
             } finally {
                 result.finish()
             }

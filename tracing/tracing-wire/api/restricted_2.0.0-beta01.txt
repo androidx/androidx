@@ -28,6 +28,7 @@ package androidx.tracing.wire {
     method public void close();
     method public void flush();
     method public static androidx.tracing.wire.TraceDriver getStubTraceDriver();
+    method public static androidx.tracing.wire.TraceDriver getTraceDriver(android.content.Context context);
     method @InaccessibleFromKotlin public androidx.tracing.Tracer getTracer();
     property public androidx.tracing.Tracer tracer;
     field public static final androidx.tracing.wire.TraceDriver.Companion Companion;
@@ -35,6 +36,11 @@ package androidx.tracing.wire {
 
   public static final class TraceDriver.Companion {
     method public androidx.tracing.wire.TraceDriver getStubTraceDriver();
+    method public androidx.tracing.wire.TraceDriver getTraceDriver(android.content.Context context);
+  }
+
+  public static interface TraceDriver.Factory {
+    method public androidx.tracing.wire.TraceDriver create();
   }
 
   public final class TraceSink extends androidx.tracing.AbstractTraceSink {
