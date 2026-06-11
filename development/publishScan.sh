@@ -40,13 +40,8 @@ scanDir="$effectiveGradleUserHome/build-scan-data"
 function downloadScan() {
   filename="$1"
   echo downloading build scan from $buildId $target
-  if [ "$target" == "androidx_incremental" ]; then
-    downloadPath="incremental/$filename"
-  else
-    downloadPath="$filename"
-  fi
   cd /tmp
-  /google/data/ro/projects/android/fetch_artifact --bid $buildId --target $target "$downloadPath"
+  /google/data/ro/projects/android/fetch_artifact --bid $buildId --target $target "$filename"
   cd -
 }
 

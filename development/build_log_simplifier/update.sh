@@ -55,10 +55,6 @@ function fetch_logs() {
       logName="gradle.${i}.log"
     fi
     filepath="logs/$logName"
-    # incremental build uses a subdirectory
-    if [ "$target" == "androidx_incremental" ]; then
-      filepath="incremental/$filepath"
-    fi
     if fetch_artifact --bid "$buildId" --target "$target" "$filepath"; then
       echo "downloaded log ${i} in build $buildId target $target"
     else
