@@ -58,6 +58,9 @@ internal data class WorkMetricsSpec(
             unblockTimeMillis = unblockTimeMillis,
             firstStartTimeMillis = firstStartTimeMillis,
             finishTimeMillis = finishTimeMillis,
+            runAttemptCount = runAttemptCount,
+            explicitRetryCount = explicitRetryCount,
+            stopReasonCounts = stopReasonCounts,
         )
     }
 }
