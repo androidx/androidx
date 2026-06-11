@@ -139,9 +139,6 @@ dependencies {
     androidTestImplementation libs.junit
     androidTestImplementation libs.kotlinCoroutinesCore
     androidTestImplementation libs.testMonitor
-    testImplementation 'org.robolectric:annotations:4.14'
-    testImplementation 'org.robolectric:shadowapi:4.14'
-    testImplementation 'org.robolectric:shadows-framework:4.14'
     testImplementation libs.kotlinCoroutinesCore
     testImplementation libs.testCore
 }
