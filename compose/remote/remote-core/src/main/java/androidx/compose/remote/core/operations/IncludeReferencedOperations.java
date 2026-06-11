@@ -74,7 +74,9 @@ public class IncludeReferencedOperations extends Operation implements ModifierOp
                                 context.getMacroManager(),
                                 context.getDocument(),
                                 ctx,
-                                new java.util.HashMap<>());
+                                new java.util.HashMap<>(),
+                                context.isSafeMode(),
+                                context.getDepth() + 1);
                 childContext.expandRecursive(templateContent, result, loomManager);
                 return;
             }

@@ -99,7 +99,9 @@ public class PatternForEach extends Operation implements Container {
                             context.getMacroManager(),
                             context.getDocument(),
                             ctx,
-                            new java.util.HashMap<>());
+                            new java.util.HashMap<>(),
+                            context.isSafeMode(),
+                            context.getDepth());
             childContext.expandRecursive(templateContent, result, loomManager);
         }
     }
