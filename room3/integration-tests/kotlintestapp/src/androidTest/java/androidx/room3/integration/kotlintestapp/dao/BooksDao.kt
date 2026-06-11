@@ -22,6 +22,7 @@ import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Delete
+import androidx.room3.Ignore
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.RawQuery
@@ -544,4 +545,16 @@ interface BooksDao {
     fun getPublisherNameAndIdAndStatic(): Triple<String, String, String>
 
     @Query("SELECT * FROM Book") suspend fun getAllBooksTraced(): TracedQuery<List<Book>>
+
+    class BookWithDelegateProperty {
+        @Ignore private var privateTitle: String = ""
+        var title: String
+            get() = privateTitle
+            set(value) {
+                privateTitle = value
+            }
+    }
+
+    @Query("SELECT title FROM Book")
+    suspend fun getBooksWithDelegateProp(): List<BookWithDelegateProperty>
 }

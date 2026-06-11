@@ -87,9 +87,9 @@ internal sealed class KspSyntheticPropertyMethodType(
     ) : KspSyntheticPropertyMethodType(env = env, origin = origin, containing = containingType) {
         override val returnType: XType by lazy {
             if (containingType == null) {
-                    origin.field.type
+                    origin.prop.type
                 } else {
-                    origin.field.asMemberOf(containingType)
+                    origin.prop.asMemberOf(containingType)
                 }
                 .copyWithScope(
                     KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(

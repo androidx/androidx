@@ -32,10 +32,10 @@ import androidx.room3.compiler.processing.ksp.KspAnnotated
 import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_GETTER
 import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_SETTER
 import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_SET_PARAM
-import androidx.room3.compiler.processing.ksp.KspFieldElement
 import androidx.room3.compiler.processing.ksp.KspHasModifiers
 import androidx.room3.compiler.processing.ksp.KspMemberContainer
 import androidx.room3.compiler.processing.ksp.KspProcessingEnv
+import androidx.room3.compiler.processing.ksp.KspPropertyElement
 import androidx.room3.compiler.processing.ksp.KspType
 import androidx.room3.compiler.processing.ksp.hasJvmStaticAnnotation
 import androidx.room3.compiler.processing.ksp.isEnclosedInCompanionObject
@@ -50,8 +50,9 @@ import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.google.devtools.ksp.symbol.Origin
 
 /**
- * Kotlin properties don't have getters/setters in KSP. As Room expects Java code, we synthesize
- * them.
+ * Kotlin properties don't have getters/setters in KSP.
+ *
+ * Some processor expects Java code, we synthesize them.
  *
  * @see KspSyntheticPropertyMethodElement.Getter
  * @see KspSyntheticPropertyMethodElement.Setter
@@ -59,7 +60,7 @@ import com.google.devtools.ksp.symbol.Origin
  */
 internal sealed class KspSyntheticPropertyMethodElement(
     val env: KspProcessingEnv,
-    val field: KspFieldElement,
+    val prop: KspPropertyElement,
     val isSyntheticStatic: Boolean,
     open val accessor: KSPropertyAccessor,
 ) :
@@ -67,7 +68,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     XEquality,
     XHasModifiers by KspHasModifiers.create(accessor, isSyntheticStatic) {
 
-    override val propertyName = field.name
+    override val propertyName = prop.name
 
     @OptIn(KspExperimental::class)
     override val jvmName: String by lazy {
@@ -75,7 +76,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(field, accessor, isSyntheticStatic)
+        arrayOf(prop, accessor, isSyntheticStatic)
     }
 
     // NOTE: modifiers of the property are not necessarily my modifiers.
@@ -98,7 +99,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             }
 
     private val actualEnclosingElement: KspMemberContainer
-        get() = this.field.enclosingElement
+        get() = this.prop.enclosingElement
 
     final override val closestMemberContainer: XMemberContainer by lazy {
         enclosingElement.closestMemberContainer
@@ -115,10 +116,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
         // If this is already a synthetic static method don't create another one.
         if (
             !isSyntheticStatic &&
-                field.declaration.isEnclosedInCompanionObject() &&
-                (field.declaration.hasJvmStaticAnnotation() || accessor.hasJvmStaticAnnotation())
+                prop.declaration.isEnclosedInCompanionObject() &&
+                (prop.declaration.hasJvmStaticAnnotation() || accessor.hasJvmStaticAnnotation())
         ) {
-            createInternal(env, field, accessor, isSyntheticStatic = true)
+            createInternal(env, prop, accessor, isSyntheticStatic = true)
         } else {
             null
         }
@@ -130,7 +131,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         KspSyntheticPropertyMethodType.create(
             env = env,
             element = this,
-            container = field.enclosingElement.type,
+            container = prop.enclosingElement.type,
         )
     }
 
@@ -180,13 +181,13 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     internal class Getter(
         env: KspProcessingEnv,
-        field: KspFieldElement,
+        prop: KspPropertyElement,
         override val accessor: KSPropertyGetter,
         isSyntheticStatic: Boolean,
     ) :
         KspSyntheticPropertyMethodElement(
             env = env,
-            field = field,
+            prop = prop,
             accessor = accessor,
             isSyntheticStatic = isSyntheticStatic,
         ),
@@ -201,14 +202,14 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override fun isKotlinPropertyGetter() = true
 
         override val name: String by lazy {
-            JvmAbi.computeGetterName(field.declaration.simpleName.asString())
+            JvmAbi.computeGetterName(prop.declaration.simpleName.asString())
         }
 
         override val jvmDescriptor: String
             get() = this.jvmDescriptor()
 
         override val returnType: XType by lazy {
-            field.type.copyWithScope(
+            prop.type.copyWithScope(
                 KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(
                     getterMethod = this,
                     asMemberOf = enclosingElement.type,
@@ -229,19 +230,19 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     internal class Setter(
         env: KspProcessingEnv,
-        field: KspFieldElement,
+        prop: KspPropertyElement,
         override val accessor: KSPropertySetter,
         isSyntheticStatic: Boolean,
     ) :
         KspSyntheticPropertyMethodElement(
             env = env,
-            field = field,
+            prop = prop,
             accessor = accessor,
             isSyntheticStatic = isSyntheticStatic,
         ),
         XAnnotated by KspAnnotated.create(
             env = env,
-            delegate = field.declaration.setter,
+            delegate = prop.declaration.setter,
             filter = NO_USE_SITE_OR_SETTER,
         ) {
 
@@ -250,7 +251,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override fun isKotlinPropertyGetter() = false
 
         override val name by lazy {
-            JvmAbi.computeSetterName(field.declaration.simpleName.asString())
+            JvmAbi.computeSetterName(prop.declaration.simpleName.asString())
         }
 
         override val jvmDescriptor: String
@@ -276,7 +277,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
-                delegate = enclosingElement.field.declaration.setter?.parameter,
+                delegate = enclosingElement.prop.declaration.setter?.parameter,
                 filter = NO_USE_SITE_OR_SET_PARAM,
             ) {
             override fun isContinuationParam() = false
@@ -305,7 +306,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override val jvmName: String by lazy { name.sanitizeAsJavaParameterName(0) }
 
             override val type: KspType by lazy {
-                enclosingElement.field.type.copyWithScope(
+                enclosingElement.prop.type.copyWithScope(
                     KSTypeVarianceResolverScope.PropertySetterParameterType(
                         setterMethod = enclosingElement,
                         asMemberOf = enclosingElement.enclosingElement.type,
@@ -328,7 +329,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                     return type
                 }
                 check(other is KspType)
-                return enclosingElement.field
+                return enclosingElement.prop
                     .asMemberOf(other)
                     .copyWithScope(
                         KSTypeVarianceResolverScope.PropertySetterParameterType(
@@ -352,12 +353,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
     }
 
     companion object {
-        fun create(env: KspProcessingEnv, field: KspFieldElement, accessor: KSPropertyAccessor) =
-            createInternal(env = env, field = field, accessor = accessor, isSyntheticStatic = false)
+        fun create(env: KspProcessingEnv, prop: KspPropertyElement, accessor: KSPropertyAccessor) =
+            createInternal(env = env, prop = prop, accessor = accessor, isSyntheticStatic = false)
 
         private fun createInternal(
             env: KspProcessingEnv,
-            field: KspFieldElement,
+            prop: KspPropertyElement,
             accessor: KSPropertyAccessor,
             isSyntheticStatic: Boolean,
         ): KspSyntheticPropertyMethodElement {
@@ -365,7 +366,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 is KSPropertyGetter -> {
                     Getter(
                         env = env,
-                        field = field,
+                        prop = prop,
                         accessor = accessor,
                         isSyntheticStatic = isSyntheticStatic,
                     )
@@ -373,7 +374,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 is KSPropertySetter -> {
                     Setter(
                         env = env,
-                        field = field,
+                        prop = prop,
                         accessor = accessor,
                         isSyntheticStatic = isSyntheticStatic,
                     )

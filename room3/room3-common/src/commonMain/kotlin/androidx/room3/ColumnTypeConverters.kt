@@ -39,6 +39,7 @@ import kotlin.reflect.KClass
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.PROPERTY,
     AnnotationTarget.FIELD,
     AnnotationTarget.CLASS,
 )

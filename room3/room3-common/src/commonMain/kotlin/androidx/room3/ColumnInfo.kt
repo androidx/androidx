@@ -23,7 +23,7 @@ import androidx.annotation.IntDef
  *
  * For example, you can specify a column name for the property or change the column's type affinity.
  */
-@Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class ColumnInfo(
     /**

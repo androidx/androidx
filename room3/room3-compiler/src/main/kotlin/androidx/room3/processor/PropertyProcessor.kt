@@ -18,7 +18,7 @@ package androidx.room3.processor
 
 import androidx.room3.ColumnInfo
 import androidx.room3.compiler.codegen.CodeLanguage
-import androidx.room3.compiler.processing.XFieldElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.parser.Collate
 import androidx.room3.parser.SQLTypeAffinity
@@ -29,7 +29,7 @@ import java.util.Locale
 class PropertyProcessor(
     baseContext: Context,
     val containing: XType,
-    val element: XFieldElement,
+    val element: XPropertyElement,
     val bindingScope: BindingScope,
     val propertyParent:
         EmbeddedProperty?, // pass only if this is processed as a child of Embedded property

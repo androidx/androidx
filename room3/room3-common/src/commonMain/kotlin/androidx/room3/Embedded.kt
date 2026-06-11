@@ -66,7 +66,7 @@ package androidx.room3
  * This behavior only applies to nullable embedded properties and can be overridden by making the
  * property non-null.
  */
-@Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Embedded(
     /**

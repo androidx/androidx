@@ -133,7 +133,7 @@ class OriginatingElementsTest {
                     assertThat(originatingFile)
                         .isEqualTo(
                             (syntheticPropertyElement as KspSyntheticPropertyMethodElement)
-                                .field
+                                .prop
                                 .declaration
                                 .containingFile
                         )
@@ -164,7 +164,7 @@ class OriginatingElementsTest {
                         .isEqualTo(
                             // Parent is the Companion
                             (syntheticPropertyElement as KspSyntheticPropertyMethodElement)
-                                .field
+                                .prop
                                 .declaration
                                 .parentDeclaration!!
                                 .parentDeclaration

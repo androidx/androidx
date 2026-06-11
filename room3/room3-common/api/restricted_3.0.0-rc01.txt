@@ -33,7 +33,7 @@ package androidx.room3 {
     enum_constant public static final androidx.room3.BuiltInColumnTypeConverters.State INHERITED;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ColumnInfo {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ColumnInfo {
     ctor @KotlinOnly public ColumnInfo(optional String name, optional int typeAffinity, optional boolean index, optional int collate, optional String defaultValue);
     method @InaccessibleFromKotlin @androidx.room3.ColumnInfo.Collate public abstract int collate() default androidx.room3.ColumnInfo.UNSPECIFIED;
     method @InaccessibleFromKotlin public abstract String defaultValue() default androidx.room3.ColumnInfo.VALUE_UNSPECIFIED;
@@ -99,7 +99,7 @@ package androidx.room3 {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ColumnTypeConverter {
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CLASS}) public @interface ColumnTypeConverters {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CLASS}) public @interface ColumnTypeConverters {
     ctor @KotlinOnly public ColumnTypeConverters(optional kotlin.reflect.KClass<? extends java.lang.Object?>... value, optional androidx.room3.BuiltInColumnTypeConverters builtInColumnTypeConverters);
     method @InaccessibleFromKotlin public abstract androidx.room3.BuiltInColumnTypeConverters builtInColumnTypeConverters() default androidx.room3.BuiltInColumnTypeConverters();
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?>[] value() default {};
@@ -182,7 +182,7 @@ package androidx.room3 {
     property public abstract androidx.room3.DeleteTable[] value;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Embedded {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Embedded {
     ctor @KotlinOnly public Embedded(optional String prefix);
     method @InaccessibleFromKotlin public abstract String prefix() default "";
     property public abstract String prefix;
@@ -327,7 +327,7 @@ package androidx.room3 {
     enum_constant public static final androidx.room3.FtsOptions.Order DESC;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface Ignore {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface Ignore {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface Index {
@@ -403,7 +403,7 @@ package androidx.room3 {
     enum_constant public static final androidx.room3.OperationType WRITE;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PrimaryKey {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PrimaryKey {
     ctor @KotlinOnly public PrimaryKey(optional boolean autoGenerate, optional androidx.room3.PrimaryKey.Algorithm algorithm);
     method @InaccessibleFromKotlin public abstract androidx.room3.PrimaryKey.Algorithm algorithm() default androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT;
     method @InaccessibleFromKotlin public abstract boolean autoGenerate() default false;
@@ -437,7 +437,7 @@ package androidx.room3 {
     property public abstract kotlin.reflect.KClass<? extends java.lang.Object?>[] observedEntities;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Relation {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Relation {
     ctor @KotlinOnly public Relation(optional kotlin.reflect.KClass<? extends java.lang.Object?> entity, String[] parentColumns, String[] entityColumns, optional androidx.room3.Junction associateBy, optional String[] projection);
     method @InaccessibleFromKotlin public abstract androidx.room3.Junction associateBy() default androidx.room3.Junction(Any::class);
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?> entity() default Any::class;

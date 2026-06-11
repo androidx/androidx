@@ -29,7 +29,7 @@ package androidx.room3
  * If this annotation is used on a [Embedded] property, all columns inherited from that embedded
  * property becomes the composite primary key (including its grand children properties).
  */
-@Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class PrimaryKey(
     /**

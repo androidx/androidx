@@ -27,7 +27,7 @@ import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XTypeParameterElement
 import androidx.room3.compiler.processing.collectAllMethods
-import androidx.room3.compiler.processing.collectFieldsIncludingPrivateSupers
+import androidx.room3.compiler.processing.collectPropertiesIncludingPrivateSupers
 import androidx.room3.compiler.processing.filterMethodsByConfig
 import androidx.room3.compiler.processing.javac.kotlin.KmClassContainer
 import androidx.room3.compiler.processing.util.MemoizedSequence
@@ -105,10 +105,16 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
     private val allMethods = MemoizedSequence { collectAllMethods(this) }
 
     private val allFieldsIncludingPrivateSupers = MemoizedSequence {
-        collectFieldsIncludingPrivateSupers(this)
+        collectPropertiesIncludingPrivateSupers(this) { it.getDeclaredFields() }
     }
 
     override fun getAllMethods(): Sequence<XMethodElement> = allMethods
+
+    override fun getAllPropertiesIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
+
+    override fun getDeclaredProperties(): List<XFieldElement> {
+        return _declaredFields
+    }
 
     override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
 

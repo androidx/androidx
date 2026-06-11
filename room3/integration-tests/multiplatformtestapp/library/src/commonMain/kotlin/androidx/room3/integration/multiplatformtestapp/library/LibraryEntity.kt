@@ -31,4 +31,8 @@ interface LibraryDao {
     @Insert suspend fun insert(entity: LibraryEntity)
 
     @Query("SELECT * FROM library_table") suspend fun getAll(): List<LibraryEntity>
+
+    @Query("SELECT data FROM library_table") suspend fun getAllText(): List<NestedLibraryText>
+
+    data class NestedLibraryText(@ColumnInfo(name = "data") val text: String)
 }
