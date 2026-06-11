@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.sqlite.driver.web {
+
+  public final class WebWorkerSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public WebWorkerSQLiteDriver(org.w3c.dom.Worker worker);
+    property public kotlin.Boolean hasConnectionPool;
+  }
+
+}
+
