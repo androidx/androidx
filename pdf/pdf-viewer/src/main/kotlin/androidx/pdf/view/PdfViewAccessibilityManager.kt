@@ -146,10 +146,8 @@ internal class PdfViewAccessibilityManager(
             addAll(gotoLinks.keys)
             addAll(urlLinks.keys)
             addAll(formWidgetInfos.keys)
-            if (isFastScrollerStateValid()) {
-                add(fastScrollVerticalThumbDrawableId)
-                add(fastScrollPageIndicatorBackgroundDrawableId)
-            }
+            add(fastScrollVerticalThumbDrawableId)
+            add(fastScrollPageIndicatorBackgroundDrawableId)
         }
     }
 
@@ -175,14 +173,8 @@ internal class PdfViewAccessibilityManager(
     }
 
     private fun populateFastScrollThumbNode(node: AccessibilityNodeInfoCompat) {
-        if (!isFastScrollerStateValid()) {
-            node.contentDescription = ""
-            node.setBoundsInScreen(Rect())
-            node.isFocusable = false
-            return
-        }
-
         val thumbBounds = getFastScroller()?.getThumbScreenBounds() ?: Rect()
+        thumbBounds.offset(pdfView.scrollX, pdfView.scrollY + pdfView.paddingTop)
         node.apply {
             contentDescription = pdfView.context.getString(R.string.fast_scroller_thumb)
             setBoundsInScreenFromBoundsInParent(node, thumbBounds)
@@ -191,14 +183,8 @@ internal class PdfViewAccessibilityManager(
     }
 
     private fun populateFastScrollPageIndicatorNode(node: AccessibilityNodeInfoCompat) {
-        if (!isFastScrollerStateValid()) {
-            node.contentDescription = ""
-            node.setBoundsInScreen(Rect())
-            node.isFocusable = false
-            return
-        }
-
         val indicatorBounds = getFastScroller()?.getIndicatorScreenBounds() ?: Rect()
+        indicatorBounds.offset(pdfView.scrollX, pdfView.scrollY + pdfView.paddingTop)
         val currentLabel =
             buildPageIndicatorLabel(
                 pdfView.context,
@@ -213,15 +199,6 @@ internal class PdfViewAccessibilityManager(
             isFocusable = pdfView.lastFastScrollerVisibility
         }
     }
-
-    /**
-     * Checks and sets the AccessibilityNodeInfoCompat to an invalid state if the fast scroller
-     * state is invalid.
-     *
-     * @return True if the fast scroller state is valid, false otherwise.
-     */
-    private fun isFastScrollerStateValid(): Boolean =
-        pdfView.lastFastScrollerVisibility && pdfView.positionIsStable
 
     public override fun onPerformActionForVirtualView(
         virtualViewId: Int,

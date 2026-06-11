@@ -803,8 +803,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     public var fastScrollVisibility: FastScrollVisibility = FastScrollVisibility.AUTO_HIDE
         set(value) {
             field = value
-            if (value == FastScrollVisibility.ALWAYS_SHOW) fastScroller?.show { postInvalidate() }
-            else if (value == FastScrollVisibility.ALWAYS_HIDE) fastScroller?.hide()
+            fastScroller?.shouldAutoHide = (value == FastScrollVisibility.AUTO_HIDE)
+            if (
+                value == FastScrollVisibility.ALWAYS_SHOW || value == FastScrollVisibility.AUTO_HIDE
+            )
+                fastScroller?.show { postInvalidate() }
+            else {
+                fastScroller?.hide()
+                postInvalidate()
+            }
         }
 
     /**
@@ -925,6 +932,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         set(value) {
             field = value
             pageManager?.isAccessibilityEnabled = value
+            initAccessibility()
         }
 
     private var accessibilityManager: AccessibilityManager =
@@ -933,9 +941,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     internal val accessibilityStateChangeHandler =
         AccessibilityManager.AccessibilityStateChangeListener { isEnabled ->
             isAccessibilityEnabled = isEnabled
-            setAccessibility()
         }
-
     private var selectionStateManager: SelectionStateManager? = null
     private val selectionRenderer = SelectionRenderer(context)
 
@@ -1787,7 +1793,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         if (isImageSelectionAvailableInSdk()) {
             isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled
         }
-        setAccessibility()
+        initAccessibility()
 
         restoreFormFillingEditText()
 
@@ -2087,7 +2093,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     isImageSelectionEnabled = isImageSelectionAvailable,
                     ocrProvider = ocrProvider,
                 )
-            setAccessibility()
+            initAccessibility()
         }
 
         /* PageMetadataLoader must have been initialized either with the restored state
@@ -2396,7 +2402,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * and [.pageManager] are initialized, and sets it as the accessibility delegate for the view
      * using [ViewCompat.setAccessibilityDelegate].
      */
-    private fun setAccessibility() {
+    private fun initAccessibility() {
+        fastScrollVisibility =
+            if (isAccessibilityEnabled) {
+                FastScrollVisibility.ALWAYS_SHOW
+            } else {
+                FastScrollVisibility.AUTO_HIDE
+            }
         if (isAccessibilityEnabled && pageLayoutManager != null && pageManager != null) {
             pdfViewAccessibilityManager =
                 PdfViewAccessibilityManager(
@@ -2411,6 +2423,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             pdfViewAccessibilityManager = null
         }
         ViewCompat.setAccessibilityDelegate(this, pdfViewAccessibilityManager)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public fun updateFastScrollVisibility() {
+        fastScrollVisibility =
+            if (isAccessibilityEnabled) {
+                FastScrollVisibility.ALWAYS_SHOW
+            } else {
+                FastScrollVisibility.AUTO_HIDE
+            }
     }
 
     internal fun commitFormFillingEditText() {
