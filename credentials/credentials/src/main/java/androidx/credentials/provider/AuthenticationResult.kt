@@ -20,7 +20,6 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.credentials.provider.AuthenticationError.Companion.TAG
 import java.util.Objects
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * Successful result returned from the Biometric Prompt authentication flow handled by
@@ -34,14 +33,11 @@ import org.jetbrains.annotations.VisibleForTesting
  */
 class AuthenticationResult(val authenticationType: @AuthenticationResultTypes Int) {
     internal companion object {
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE =
             "androidx.credentials.provider.BIOMETRIC_AUTH_RESULT"
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK = "BIOMETRIC_AUTH_RESULT"
-        @VisibleForTesting
         internal val biometricFrameworkToJetpackResultMap =
             linkedMapOf(
                 BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC to

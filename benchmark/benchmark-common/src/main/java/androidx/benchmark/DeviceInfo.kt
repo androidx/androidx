@@ -28,10 +28,10 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.DeviceInfo.ART_MAINLINE_MIN_VERSION_VERIFY_CLEARS_RUNTIME_IMAGE
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
-import org.jetbrains.annotations.VisibleForTesting
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object DeviceInfo {

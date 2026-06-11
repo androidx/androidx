@@ -18,8 +18,8 @@ package androidx.credentials.provider
 import android.hardware.biometrics.BiometricPrompt
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import java.util.Objects
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * Error returned from the Biometric Prompt flow that is executed by
@@ -40,18 +40,14 @@ class AuthenticationError
 constructor(val errorCode: @AuthenticationErrorTypes Int, val errorMsg: CharSequence? = null) {
     internal companion object {
         internal val TAG = "AuthenticationError"
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR =
             "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_CODE"
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK = "BIOMETRIC_AUTH_ERROR_CODE"
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE =
             "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_MESSAGE"
-        @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK = "BIOMETRIC_AUTH_ERROR_MESSAGE"
         // The majority of this is unexpected to be sent, or the values are equal,
