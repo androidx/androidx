@@ -53,6 +53,13 @@ class FrameRecomposer(
     private val recomposeDispatcher = FlushCoroutineDispatcher(coroutineScope)
     private val recomposer = Recomposer(coroutineContext + job + effectDispatcher)
 
+    /**
+     * Registers `coroutineContext` with the shared [GlobalSnapshotManager] so ambient global writes
+     * schedule apply notifications onto this host. Several [FrameRecomposer]s built on the same
+     * host context share one observer and it's released only when the last of them is closed.
+     */
+    private val globalSnapshotRegistration = GlobalSnapshotManager.register(coroutineContext)
+
     init {
         coroutineScope.launch(
             recomposeDispatcher + frameClock,
@@ -136,6 +143,7 @@ class FrameRecomposer(
      * Cancels the host recomposer and releases host-owned resources.
      */
     override fun close() {
+        globalSnapshotRegistration?.close()
         recomposer.cancel()
         job.cancel()
     }

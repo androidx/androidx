@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.use
-import androidx.compose.ui.useInUiThread
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Executors
@@ -82,7 +81,7 @@ class MouseMoveTest {
         width = 100,
         height = 100,
         density = Density(2f)
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
 
         scene.setContent {
@@ -109,7 +108,7 @@ class MouseMoveTest {
         width = 100,
         height = 100,
         density = Density(2f)
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
 
         scene.setContent {
@@ -131,7 +130,7 @@ class MouseMoveTest {
     fun `move between two components`() = ImageComposeScene(
         width = 100,
         height = 100
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector1 = EventCollector()
         val collector2 = EventCollector()
 
@@ -171,7 +170,7 @@ class MouseMoveTest {
     fun `move between two overlapped components`() = ImageComposeScene(
         width = 200,
         height = 200
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector1 = EventCollector()
         val collector2 = EventCollector()
 
@@ -209,7 +208,7 @@ class MouseMoveTest {
     fun `move between two nested components`() = ImageComposeScene(
         width = 200,
         height = 200
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector1 = EventCollector()
         val collector2 = EventCollector()
 
@@ -253,7 +252,7 @@ class MouseMoveTest {
     fun `shouldn't send a move events with same position`() = ImageComposeScene(
         width = 100,
         height = 100
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         var pressCount = 0
 
@@ -280,7 +279,7 @@ class MouseMoveTest {
     fun `should send a press with same position`() = ImageComposeScene(
         width = 100,
         height = 100
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
 
         scene.setContent {
@@ -306,7 +305,7 @@ class MouseMoveTest {
     fun `should send a synthetic move when component moves`() = ImageComposeScene(
         width = 100,
         height = 100
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         
         var x by mutableStateOf(0)
@@ -411,7 +410,7 @@ class MouseMoveTest {
     fun `consuming move events with same position shouldn't affect hover()`() = ImageComposeScene(
         width = 100,
         height = 100
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector1 = EventCollector()
         val collector2 = EventCollector()
 
@@ -514,7 +513,7 @@ class MouseMoveTest {
     fun `only one rect can be hovered in random moves in random rects`() = ImageComposeScene(
         width = 8,
         height = 8
-    ).useInUiThread { scene ->
+    ).use { scene ->
         fun log(obj: Any) = Unit
 //        fun log(obj: Any) = println(obj)
 
@@ -603,7 +602,7 @@ class MouseMoveTest {
     fun `window exit followed by layout does not trigger mouse enter`() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         var yOffset by mutableStateOf(0.dp)
         scene.setContent {
@@ -633,7 +632,7 @@ class MouseMoveTest {
     fun `window exit while pressed followed by layout triggers mouse move`() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         var yOffset by mutableStateOf(0.dp)
         scene.setContent {
@@ -665,7 +664,7 @@ class MouseMoveTest {
     fun `window exit while pressed followed by mouse up and layout does not trigger mouse move`() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         var yOffset by mutableStateOf(0.dp)
         scene.setContent {
@@ -700,7 +699,7 @@ class MouseMoveTest {
     fun `window exit while pressed continues to send mouse events to target element`() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val collector = EventCollector()
         scene.setContent {
             Box(
@@ -727,7 +726,7 @@ class MouseMoveTest {
     fun `window exit clears lastKnownPointerPosition`() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         lateinit var composeScene: ComposeScene
         scene.setContent {
             composeScene = LocalComposeScene.current!!
@@ -746,7 +745,7 @@ class MouseMoveTest {
     fun magicMouseScenario() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         var clicksCount = 0
         scene.setContent {
             Box(modifier = Modifier
@@ -776,7 +775,7 @@ class MouseMoveTest {
     fun allNativeMouseEventsAreSent1() = ImageComposeScene(
         width = 100,
         height = 100,
-    ).useInUiThread { scene ->
+    ).use { scene ->
         val nativeEventsReceived = mutableListOf<Any>()
         scene.setContent {
             Box(modifier = Modifier

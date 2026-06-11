@@ -37,7 +37,6 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.FrameRecomposer
-import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.ProvidePlatformCompositionLocals
 import androidx.compose.ui.util.trace
 import kotlin.concurrent.Volatile
@@ -126,10 +125,6 @@ internal abstract class BaseComposeScene(
      * TODO: Move it to PlatformContext
      */
     val lastKnownPointerPosition by inputHandler::lastKnownPointerPosition
-
-    init {
-        GlobalSnapshotManager.ensureStarted()
-    }
 
     override fun close() {
         check(!isClosed) { "ComposeScene is already closed" }
