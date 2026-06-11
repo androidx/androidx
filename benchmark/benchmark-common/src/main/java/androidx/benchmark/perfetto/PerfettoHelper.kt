@@ -19,14 +19,13 @@ package androidx.benchmark.perfetto
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.Shell
 import androidx.benchmark.inMemoryTrace
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_SDK_VERSION
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
@@ -34,14 +33,12 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import org.jetbrains.annotations.TestOnly
 
 /**
  * PerfettoHelper is used to start and stop the perfetto tracing and move the output perfetto trace
  * file to destination folder.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(MIN_SDK_VERSION)
 class PerfettoHelper(
     private val unbundled: Boolean = Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION
 ) {
@@ -442,6 +439,9 @@ class PerfettoHelper(
         private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
         init {
+            // Leaving this in here, to make sure as the values evolve, the underlying condition
+            // remains true.
+            @Suppress("SimplifyBooleanWithConstants")
             check(
                 PERFETTO_KILL_WAIT_COUNT * PERFETTO_KILL_WAIT_TIME_MS >=
                     PERFETTO_DATA_SOURCE_STOP_TIMEOUT_MS * 2
@@ -470,7 +470,7 @@ class PerfettoHelper(
                 Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
         }
 
-        @get:TestOnly
+        @get:VisibleForTesting
         val unbundledPerfettoShellPath: String by lazy { createExecutable("tracebox") }
 
         fun createExecutable(tool: String): String {
