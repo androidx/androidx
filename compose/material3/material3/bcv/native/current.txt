@@ -3347,6 +3347,8 @@ final object androidx.compose.material3/TopAppBarDefaults { // androidx.compose.
         final fun <get-MediumFlexibleAppBarWithoutSubtitleExpandedHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/TopAppBarDefaults.MediumFlexibleAppBarWithoutSubtitleExpandedHeight.<get-MediumFlexibleAppBarWithoutSubtitleExpandedHeight>|<get-MediumFlexibleAppBarWithoutSubtitleExpandedHeight>(){}[0]
     final val TopAppBarExpandedHeight // androidx.compose.material3/TopAppBarDefaults.TopAppBarExpandedHeight|{}TopAppBarExpandedHeight[0]
         final fun <get-TopAppBarExpandedHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/TopAppBarDefaults.TopAppBarExpandedHeight.<get-TopAppBarExpandedHeight>|<get-TopAppBarExpandedHeight>(){}[0]
+    final val snapAnimationSpec // androidx.compose.material3/TopAppBarDefaults.snapAnimationSpec|{}snapAnimationSpec[0]
+        final fun <get-snapAnimationSpec>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation.core/AnimationSpec<kotlin/Float> // androidx.compose.material3/TopAppBarDefaults.snapAnimationSpec.<get-snapAnimationSpec>|<get-snapAnimationSpec>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     final val windowInsets // androidx.compose.material3/TopAppBarDefaults.windowInsets|{}windowInsets[0]
         final fun <get-windowInsets>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.material3/TopAppBarDefaults.windowInsets.<get-windowInsets>|<get-windowInsets>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 

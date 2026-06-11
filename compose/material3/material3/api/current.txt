@@ -4964,6 +4964,7 @@ package androidx.compose.material3 {
     method @BytecodeOnly public float getMediumAppBarExpandedHeight-D9Ej5fM();
     method @BytecodeOnly public float getMediumFlexibleAppBarWithSubtitleExpandedHeight-D9Ej5fM();
     method @BytecodeOnly public float getMediumFlexibleAppBarWithoutSubtitleExpandedHeight-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.animation.core.AnimationSpec<java.lang.Float!> getSnapAnimationSpec(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getTopAppBarExpandedHeight-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors largeTopAppBarColors();
@@ -4999,6 +5000,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.unit.Dp MediumFlexibleAppBarWithSubtitleExpandedHeight;
     property public androidx.compose.ui.unit.Dp MediumFlexibleAppBarWithoutSubtitleExpandedHeight;
     property public androidx.compose.ui.unit.Dp TopAppBarExpandedHeight;
+    property @androidx.compose.runtime.Composable public androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.TopAppBarDefaults INSTANCE;
   }
