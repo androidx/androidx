@@ -38,6 +38,8 @@
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Bulan"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Tahun"</string>
     <string name="wear_m3c_date_picker_heading" msgid="1824308273028674826">"Scroll untuk menyetel tanggal"</string>
+    <!-- no translation found for wear_m3c_date_picker_content_description (3105311900321115237) -->
+    <skip />
     <string name="wear_m3c_picker_click_to_adjust_hint" msgid="167976024035966099">"Sesuaikan nilainya"</string>
     <string name="wear_m3c_picker_click_to_select_hint" msgid="7994498880084699884">"Pilih nilai"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Konfirmasi"</string>
