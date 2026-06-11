@@ -198,6 +198,80 @@ constructor(
             packageMetadata = packageMetadata,
         )
     }
+
+    /** Specifies the lifecycle scope of an AppFunction. */
+    @Retention(AnnotationRetention.SOURCE)
+    @androidx.annotation.StringDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class AppFunctionScope
+
+    public companion object {
+
+        // TODO(b/501032667): Update links to the androidx verions of
+        // ExecuteAppFunctionRequest.setActivityId,
+        // getAppFunctionStates, getAppFunctionActivityStates,
+        // registerAppFunction
+        /**
+         * Indicates it is a globally-scoped app function.
+         *
+         * There can be at most one app function implementation with the same name available with
+         * this scope. This is useful for functions that are tied to a singleton component, such as
+         * a foreground service.
+         *
+         * When using [android.app.appfunctions.AppFunctionManager.registerAppFunction], the
+         * function remains registered until it is explicitly unregistered or the calling context is
+         * destroyed.
+         *
+         * To execute a globally-scoped function, the caller of
+         * [androidx.appfunctions.AppFunctionManager.executeAppFunction] must not use
+         * [android.app.appfunctions.ExecuteAppFunctionRequest#setActivityId] (or set it to null),
+         * otherwise [androidx.appfunctions.AppFunctionFunctionNotFoundException] will be returned.
+         *
+         * This is always the scope for [androidx.appfunctions.AppFunctionService]-based functions.
+         *
+         * **IMPORTANT:** Functions provided with
+         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
+         * for such functions if you are absolutely sure there can be only one instance of that
+         * activity.
+         */
+        @Suppress("InlinedApi")
+        public const val SCOPE_GLOBAL: String =
+            android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
+
+        /**
+         * Indicates it is an activity-scoped app function.
+         *
+         * Multiple app function implementations with the same name can exist simultaneously, each
+         * registered from a different [android.app.Activity] instance, which is identified by an
+         * [android.app.appfunctions.AppFunctionActivityId].
+         *
+         * Functions with this scope must be registered by an
+         * [androidx.appfunctions.AppFunctionManager] that is created from an [android.app.Activity]
+         * context.
+         *
+         * To execute an activity-scoped function, the caller of
+         * [androidx.appfunctions.AppFunctionManager.executeAppFunction] must use
+         * [android.app.appfunctions.ExecuteAppFunctionRequest#setActivityId], otherwise
+         * [androidx.appfunctions.AppFunctionFunctionNotFoundException] will be returned.
+         *
+         * To discover the specific activities where an activity-scoped function is currently
+         * registered, see [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] and
+         * [android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates].
+         *
+         * The function remains registered until it is explicitly unregistered or the activity is
+         * destroyed.
+         *
+         * **IMPORTANT:** Functions provided with
+         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
+         * for such functions if you are absolutely sure there can be only one instance of that
+         * activity.
+         */
+        @Suppress("InlinedApi")
+        public const val SCOPE_ACTIVITY: String =
+            android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_ACTIVITY
+    }
 }
 
 /**

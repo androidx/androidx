@@ -60,6 +60,12 @@ object IntrospectionHelper {
         const val PROPERTY_APP_FUNCTION_XML_FILE_NAME = "appFunctionXmlFileName"
     }
 
+    object AppFunctionSignatureAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionSignature")
+        const val PROPERTY_SCOPE = "scope"
+        const val PROPERTY_XML_FILE_NAME = "appFunctionXmlFileName"
+    }
+
     object AppFunctionSchemaDefinitionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionSchemaDefinition")
         const val PROPERTY_CATEGORY = "category"

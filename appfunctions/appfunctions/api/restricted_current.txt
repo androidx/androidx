@@ -253,6 +253,14 @@ package androidx.appfunctions {
     property public abstract String serviceName;
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
+    ctor @KotlinOnly public AppFunctionSignature(String scope, String appFunctionXmlFileName);
+    method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
+    method @InaccessibleFromKotlin public abstract String scope();
+    property public abstract String appFunctionXmlFileName;
+    property public abstract String scope;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
     ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
     method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
@@ -464,6 +472,14 @@ package androidx.appfunctions.metadata {
     property public java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters;
     property public androidx.appfunctions.metadata.AppFunctionResponseMetadata response;
     property public androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema;
+    field public static final androidx.appfunctions.metadata.AppFunctionMetadata.Companion Companion;
+    field public static final String SCOPE_ACTIVITY = "activity";
+    field public static final String SCOPE_GLOBAL = "global";
+  }
+
+  public static final class AppFunctionMetadata.Companion {
+    property public static String SCOPE_ACTIVITY;
+    property public static String SCOPE_GLOBAL;
   }
 
   public final class AppFunctionName {

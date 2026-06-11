@@ -43,6 +43,61 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testAppFunctionSignature_noMethods_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/NoMethodsInterface.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Only functional interfaces (fun interface) can be annotated with @AppFunctionSignature",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_multiMethods_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/MultiMethodsInterface.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Only functional interfaces (fun interface) can be annotated with @AppFunctionSignature",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_invalidClassKind_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/InvalidClassSignature.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Only functional interfaces (fun interface) can be annotated with @AppFunctionSignature",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_notFunctionalInterface_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/NotFunctionalInterface.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Only functional interfaces (fun interface) can be annotated with @AppFunctionSignature",
+        )
+    }
+
     fun testEmpty() {
         val report = compilationTestHelper.compileAll(sourceFileNames = emptyList())
 
