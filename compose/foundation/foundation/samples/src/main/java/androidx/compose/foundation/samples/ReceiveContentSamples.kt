@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,7 +89,7 @@ fun ReceiveContentFullSample() {
                         when {
                             dragging -> Color.Red
                             hovering -> Color.Green
-                            else -> MaterialTheme.colors.background
+                            else -> MaterialTheme.colorScheme.background
                         }
                     )
                     .contentReceiver(

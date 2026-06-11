@@ -44,8 +44,8 @@ import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.End
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.HalfEnd
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.HalfStart
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.Start
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf

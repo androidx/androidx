@@ -38,9 +38,8 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -257,9 +256,7 @@ fun ScrollToPageSample() {
         }
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            androidx.compose.material.Button(
-                onClick = { scrollScope.launch { state.scrollToPage(state.currentPage + 1) } }
-            ) {
+            Button(onClick = { scrollScope.launch { state.scrollToPage(state.currentPage + 1) } }) {
                 Text(text = "Next Page")
             }
         }
@@ -290,13 +287,17 @@ fun HorizontalPagerWithScrollableContent() {
     }
 
     Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
-        TopAppBar(
+        // This Box simulates a collapsing top bar. It stands in for a component like TopAppBar.
+        Box(
             modifier =
-                Modifier.height(toolbarHeight).offset {
-                    IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
-                },
-            title = { Text("Toolbar offset is ${toolbarOffsetHeightPx.value}") },
-        )
+                Modifier.fillMaxWidth()
+                    .height(toolbarHeight)
+                    .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) }
+                    .background(Color.Blue),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Toolbar offset is ${toolbarOffsetHeightPx.value}", color = Color.White)
+        }
 
         val paddingOffset =
             toolbarHeight + with(LocalDensity.current) { toolbarOffsetHeightPx.value.toDp() }
