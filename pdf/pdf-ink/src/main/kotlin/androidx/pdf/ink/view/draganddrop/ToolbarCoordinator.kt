@@ -23,6 +23,7 @@ import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.animation.OvershootInterpolator
+import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.pdf.ink.R
@@ -30,7 +31,6 @@ import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * A [ConstraintLayout] layout that manages the dragging, dropping, and docking of an

@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.pdf.ink.R
 import androidx.pdf.ink.view.colorpalette.model.PaletteItem
@@ -30,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R as MaterialR
 import com.google.android.material.color.MaterialColors
 import kotlin.math.max
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * A custom [RecyclerView] that displays a grid of selectable palette items (colors or emojis) for
@@ -41,6 +41,7 @@ internal class ColorPaletteView
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     RecyclerView(context, attrs, defStyleAttr) {
 
+    @SuppressWarnings("VisibleForTests") // areAnimationsEnabled is also @VisibleForTesting.
     @VisibleForTesting
     internal var areAnimationsEnabled: Boolean = true
         set(value) {

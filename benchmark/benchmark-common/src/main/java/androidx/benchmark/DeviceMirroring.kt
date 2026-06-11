@@ -17,7 +17,7 @@
 package androidx.benchmark
 
 import androidx.annotation.RestrictTo
-import org.jetbrains.annotations.VisibleForTesting
+import androidx.annotation.VisibleForTesting
 
 /** Provides information about Android Studio Device mirroring */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

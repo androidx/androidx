@@ -18,11 +18,11 @@ package androidx.pdf.ink.view.colorpalette
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
 import androidx.pdf.ink.view.colorpalette.model.PaletteItem
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * An adapter for displaying a list of [PaletteItem]s in a [RecyclerView].
