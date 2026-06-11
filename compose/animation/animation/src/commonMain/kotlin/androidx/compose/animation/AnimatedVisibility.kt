@@ -799,16 +799,20 @@ internal fun <T> AnimatedEnterExitImpl(
     shouldDisposeBlock: (EnterExitState, EnterExitState) -> Boolean,
     onLookaheadMeasured: OnLookaheadMeasured? = null,
     mutableTransformData: MutableTransform? = null,
-    forceVisible: Boolean = false,
     content: @Composable() AnimatedVisibilityScope.() -> Unit,
 ) {
     val localPendingTargetState = transition.pendingTargetState
+    var hasBeenPending by remember { mutableStateOf(false) }
+    transition.DeferredTransitionCleanupEffect { hasBeenPending = false }
+    if (localPendingTargetState != null && visible(localPendingTargetState)) {
+        hasBeenPending = true
+    }
 
     if (
-        forceVisible ||
-            visible(transition.targetState) ||
+        visible(transition.targetState) ||
             visible(transition.currentState) ||
             (localPendingTargetState != null && visible(localPendingTargetState)) ||
+            (hasBeenPending && transition.currentState != transition.targetState) ||
             transition.isSeeking ||
             transition.hasInitialValueAnimations
     ) {
