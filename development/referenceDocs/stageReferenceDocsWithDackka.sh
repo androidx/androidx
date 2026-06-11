@@ -69,7 +69,7 @@ if [ "$FLAGS_sourceDir" == "" ]; then
   fi
 
   if (( "${FLAGS_buildId::1}" == "P" )); then
-    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx_incremental incremental/$androidxDackkaZip
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx_incremental $androidxDackkaZip
   else
     /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxDackkaZip
   fi
