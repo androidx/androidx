@@ -280,4 +280,47 @@ class PredictiveBackTest {
             assertThat(fm.backStackEntryCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun backCancelAfterSavedState() {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setPrimaryNavigationFragment(fragment1)
+                .commit()
+            executePendingTransactions()
+
+            val fragment2 = StrictViewFragment()
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setPrimaryNavigationFragment(fragment2)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+
+            // Move the activity to CREATED (Stopped) state so that state is saved
+            moveToState(Lifecycle.State.CREATED)
+
+            // Cancel the back operation via the dispatcher after state has been saved
+            withActivity { dispatcher.dispatchOnBackCancelled() }
+            executePendingTransactions()
+
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
 }
