@@ -27,10 +27,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
-import androidx.compose.material.darkColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -192,7 +192,7 @@ fun RotaryEventSample() {
 @Sampled
 @Composable
 fun PreRotaryEventSample() {
-    MaterialTheme(colors = darkColors()) {
+    MaterialTheme(colorScheme = darkColorScheme()) {
         val rowScrollState = rememberScrollState()
         val columnScrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()

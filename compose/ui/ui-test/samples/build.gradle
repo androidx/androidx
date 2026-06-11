@@ -40,7 +40,7 @@ dependencies {
     implementation(project(":compose:ui:ui-test-junit4"))
 
     implementation("androidx.compose.animation:animation:1.2.1")
-    implementation("androidx.compose.material:material:1.2.1")
+    implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation(libs.espressoAccessibility)
 }
