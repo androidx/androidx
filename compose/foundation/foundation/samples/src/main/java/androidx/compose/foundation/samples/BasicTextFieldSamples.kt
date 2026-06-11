@@ -54,14 +54,14 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
 import androidx.compose.foundation.text.input.toTextFieldBuffer
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -603,21 +603,15 @@ fun BasicTextFieldUndoSample() {
 
     Column(Modifier.padding(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            androidx.compose.material.Button(
-                onClick = { state.undoState.undo() },
-                enabled = state.undoState.canUndo,
-            ) {
+            Button(onClick = { state.undoState.undo() }, enabled = state.undoState.canUndo) {
                 Text("Undo")
             }
 
-            androidx.compose.material.Button(
-                onClick = { state.undoState.redo() },
-                enabled = state.undoState.canRedo,
-            ) {
+            Button(onClick = { state.undoState.redo() }, enabled = state.undoState.canRedo) {
                 Text("Redo")
             }
 
-            androidx.compose.material.Button(
+            Button(
                 onClick = { state.undoState.clearHistory() },
                 enabled = state.undoState.canUndo || state.undoState.canRedo,
             ) {
