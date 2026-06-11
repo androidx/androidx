@@ -1497,6 +1497,13 @@ object TopAppBarDefaults {
         @Composable get() = MotionSchemeKeyTokens.DefaultEffects.value()
 
     /**
+     * Default [DecayAnimationSpec] that defines how to fling the top app bar when the user flings
+     * the app bar itself, or the scrollable content.
+     */
+    val flingAnimationSpec: DecayAnimationSpec<Float>
+        @Composable get() = rememberSplineBasedDecay()
+
+    /**
      * Creates a [TopAppBarColors] for [CenterAlignedTopAppBar]s. The default implementation
      * animates between the provided colors according to the Material Design specification.
      */
@@ -1854,7 +1861,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
             EnterAlwaysScrollBehavior(
@@ -1901,7 +1908,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
         reverseLayout: Boolean = false,
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec, reverseLayout) {
@@ -1955,7 +1962,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior {
         return enterAlwaysScrollBehavior(
             scrollableState = lazyListState,
@@ -2014,7 +2021,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior {
         return enterAlwaysScrollBehavior(
             scrollableState = scrollState,
@@ -2061,7 +2068,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
         isScrollingContentAtStart: () -> Boolean = { true },
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
@@ -2110,7 +2117,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior {
         return remember(scrollableState, state, canScroll, snapAnimationSpec, flingAnimationSpec) {
             EnterAlwaysScrollBehavior(
@@ -2155,7 +2162,7 @@ object TopAppBarDefaults {
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
             ExitUntilCollapsedScrollBehavior(
