@@ -190,7 +190,7 @@ internal class CanvasOperationBuffer {
         val counts = MutableObjectIntMap<RemoteStateCacheKey>()
         val commonOps = mutableSetOf<RemoteOperationCacheKey>()
 
-        val visited = mutableSetOf<RemoteStateCacheKey>()
+        val visitedDuringTraversal = mutableSetOf<RemoteStateCacheKey>()
 
         // First, initialize counts with direct usages from usageMap
         for ((key, usages) in usageMap) {
@@ -202,7 +202,7 @@ internal class CanvasOperationBuffer {
 
         // Then, traverse from all roots in usageMap
         for (key in usageMap.keys) {
-            traverseCacheKey(key, counts, commonOps, visited)
+            traverseCacheKey(key, counts, commonOps, visitedDuringTraversal)
         }
 
         if (commonOps.isEmpty()) {
@@ -227,9 +227,10 @@ internal class CanvasOperationBuffer {
         }
 
         // Then, propagate from parents to children (pre-order)
+        val visited = mutableSetOf<RemoteOperationCacheKey>()
         for (key in usageMap.keys) {
             if (key is RemoteOperationCacheKey) {
-                keyToIdealSpan[key]?.let { propagateSpan(key, it, keyToIdealSpan) }
+                keyToIdealSpan[key]?.let { propagateSpan(key, it, keyToIdealSpan, visited) }
             }
         }
 
@@ -335,20 +336,28 @@ internal class CanvasOperationBuffer {
      * @param key The cache key of the operation.
      * @param span The span where this operation is currently being used.
      * @param keyToIdealSpan A mutable map that accumulates the calculated ideal span for each key.
+     * @param visited Tracks visited operation keys to avoid redundant propagation.
      */
     private fun propagateSpan(
         key: RemoteOperationCacheKey,
         span: Span,
         keyToIdealSpan: MutableMap<RemoteOperationCacheKey, Span>,
+        visited: MutableSet<RemoteOperationCacheKey>,
     ) {
         val currentSpan = keyToIdealSpan[key]
         val newSpan = if (currentSpan == null) span else findCommonAncestor(currentSpan, span)
+        val isFirstPropagation = visited.add(key)
         keyToIdealSpan[key] = newSpan
+
+        if (!isFirstPropagation && currentSpan == newSpan) {
+            // We've aready propagated this span.
+            return
+        }
 
         for (i in 0 until key.args.size) {
             val arg = key.args[i]
             if (arg is RemoteOperationCacheKey) {
-                propagateSpan(arg, newSpan, keyToIdealSpan)
+                propagateSpan(arg, newSpan, keyToIdealSpan, visited)
             }
         }
     }
