@@ -28,6 +28,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,17 +64,17 @@ import kotlinx.coroutines.withContext
 @ExperimentalPhotoPickerComposeApi
 public interface EmbeddedPhotoPickerState {
 
-    /** The current [SurfaceView#hostToken] */
+    /**
+     * The host token for the `SurfaceControlViewHost` where the picker UI will be rendered. Set
+     * externally before [runSession] is called.
+     */
     public var surfaceHostToken: IBinder?
 
-    /** The current [Context#displayId] */
-    public var displayId: Int
-
     /**
-     * The current ready state of this state object. Signifies whether this state object is ready to
-     * run a Embedded Photopicker session.
+     * The current ready state of this state object. Signifies that the Compose host is ready, which
+     * allows the display layer Composable to call [runSession].
      */
-    public var isReady: Boolean
+    public val isReadyToRunSession: Boolean
 
     /**
      * The current expanded state of this state object. Signifies whether the underlying
@@ -82,8 +83,8 @@ public interface EmbeddedPhotoPickerState {
     public var isExpanded: Boolean
 
     /**
-     * A set of currently selected media items that have been selected by the user during the
-     * current Photopicker session.
+     * A read-only set of URIs representing the currently selected media items. Updated internally
+     * based on granted/revoked permissions.
      */
     public val selectedMedia: Set<Uri>
 
@@ -114,9 +115,6 @@ public interface EmbeddedPhotoPickerState {
      * @see EmbeddedPhotoPickerClient#onSelectionComplete
      */
     public fun onSelectionComplete()
-
-    /** Sets the isExpanded state of the current session. */
-    public fun setCurrentExpanded(expanded: Boolean)
 
     /**
      * Notify the underlying [EmbeddedPhotoPickerSession] that the current [Configuration] has
@@ -179,12 +177,34 @@ public interface EmbeddedPhotoPickerState {
 }
 
 /**
- * Abstract base class for managing the state of an embedded photo picker.
+ * Internal interface defining callback methods for client interactions. These callbacks are invoked
+ * by the service to notify the client about various events.
+ */
+internal interface ClientCallbacks {
+    /** Called when a session error occurs, passing the [Throwable] that occurred. */
+    var onSessionError: (Throwable) -> Unit
+
+    /**
+     * Called when URI permissions are granted to the service, passing the list of [Uri]s for which
+     * permissions have been granted.
+     */
+    var onUriPermissionGranted: (List<Uri>) -> Unit
+
+    /**
+     * Called when URI permissions are revoked from the service, passing the list of [Uri]s for
+     * which permissions have been revoked.
+     */
+    var onUriPermissionRevoked: (List<Uri>) -> Unit
+
+    /** Called when the selection process is complete. */
+    var onSelectionComplete: () -> Unit
+}
+
+/**
+ * Implementation of [EmbeddedPhotoPickerState] for managing the state of an embedded photo picker.
  *
- * This class provides common functionalities for handling the picker's lifecycle, UI state (such as
- * expansion and readiness), selected media, and communication with the underlying
- * [EmbeddedPhotoPickerProvider]. It is designed to be subclassed to provide specific
- * implementations for event handling.
+ * This class handles the picker's lifecycle, UI state (such as expansion and readiness), selected
+ * media, and communication with the underlying [EmbeddedPhotoPickerProvider].
  *
  * In order to make the state object ready and before calling [runSession], the composable that
  * receives this state object should set the [surfaceHostToken] once the SurfaceView has attached to
@@ -193,25 +213,19 @@ public interface EmbeddedPhotoPickerState {
  * [androidx.compose.ui.layout.onSizeChanged] as a modifier that can listen for size changes.)
  *
  * Key responsibilities include:
- * - Managing the [isExpanded] and [isReady] states.
+ * - Managing the [isExpanded] and [isReadyToRunSession] states.
  * - Holding references to the [surfaceHostToken], [displayId], and current [surfaceSize].
  * - Tracking [selectedMedia] URIs.
  * - Orchestrating the photo picker session via the [runSession] suspend function.
- * - Providing hooks for subclasses to react to session events ([onSessionError]), URI permission
- *   changes ([onUriPermissionGranted], [onUriPermissionRevoked]), and selection completion
- *   ([onSelectionComplete]).
  *
- * This API is experimental, as indicated by [ExperimentalPhotoPickerComposeApi], and requires
- * Android U (API level 34, version 15 of the extension), as indicated by [RequiresExtension].
- *
- * @param isExpanded Initial expanded state of the photo picker. Defaults to `false`.
- * @param media Initial set of selected media URIs. Defaults to an empty set. This set should only
- *   include URIs that have been received from the Photopicker. Do not pass general MediaStore URIs
- *   here, they will be ignored.
- * @property isReady Indicates whether the photo picker state is ready to start a session. This
- *   becomes `true` once surface information (host token, display ID, and size) is available.
- * @property isExpanded Current expanded state of the photo picker. Can be modified using
- *   [setCurrentExpanded].
+ * @param isInitiallyExpanded Initial expanded state of the photo picker. Defaults to `false`.
+ * @param initialMediaSelection Initial set of selected media URIs. Defaults to an empty set. This
+ *   set should only include URIs that have been received from the Photopicker. Do not pass general
+ *   MediaStore URIs here, they will be ignored.
+ * @property isReadyToRunSession Indicates whether the photo picker state is ready to start a
+ *   session. This becomes `true` once surface information (host token, display ID, and size) is
+ *   available.
+ * @property isExpanded Current expanded state of the photo picker.
  * @property surfaceHostToken The host token for the `SurfaceControlViewHost` where the picker UI
  *   will be rendered. Set externally before [runSession] is called.
  * @property displayId The ID of the display where the photo picker is shown. Set externally before
@@ -221,61 +235,62 @@ public interface EmbeddedPhotoPickerState {
  */
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @ExperimentalPhotoPickerComposeApi
-public abstract class AbstractEmbeddedPhotoPickerState(
-    isExpanded: Boolean = false,
-    media: Set<Uri> = emptySet<Uri>(),
+internal class EmbeddedPhotoPickerStateImpl(
+    isInitiallyExpanded: Boolean = false,
+    initialMediaSelection: Set<Uri> = emptySet(),
 ) : EmbeddedPhotoPickerState {
 
     private val openSession: AtomicReference<EmbeddedPhotoPickerSession?> = AtomicReference(null)
-    internal var surfaceSize: IntSize = IntSize.Zero
+    internal var surfaceSize by mutableStateOf(IntSize.Zero)
 
-    public final override var isReady: Boolean by mutableStateOf<Boolean>(false)
-    public final override var isExpanded: Boolean by mutableStateOf<Boolean>(isExpanded)
+    override var surfaceHostToken: IBinder? by mutableStateOf(null)
 
-    public final override var surfaceHostToken: IBinder? by mutableStateOf(null)
-    public final override var displayId: Int by mutableIntStateOf(-1)
+    internal var displayId: Int by mutableIntStateOf(-1)
 
-    private val _selectedMedia: MutableSet<Uri>
-    public final override val selectedMedia: Set<Uri>
-        get() = _selectedMedia.toSet()
-
-    init {
-        _selectedMedia = mutableSetOf(*media.toTypedArray())
+    override val isReadyToRunSession: Boolean by derivedStateOf {
+        surfaceHostToken != null && surfaceSize != IntSize.Zero && displayId != -1
     }
 
-    final override fun notifyConfigurationChanged(config: Configuration) {
+    override var isExpanded: Boolean
+        get() = _isExpanded
+        set(value) {
+            _isExpanded = value
+            openSession.get()?.notifyPhotoPickerExpanded(value)
+        }
+
+    private var _isExpanded by mutableStateOf(isInitiallyExpanded)
+
+    override var selectedMedia: Set<Uri> by mutableStateOf(initialMediaSelection)
+        private set
+
+    override fun notifyConfigurationChanged(config: Configuration) {
         openSession.get()?.notifyConfigurationChanged(config)
     }
 
-    public abstract override fun onSessionError(throwable: Throwable)
-
-    public abstract override fun onUriPermissionGranted(uris: List<Uri>)
-
-    public abstract override fun onUriPermissionRevoked(uris: List<Uri>)
-
-    public abstract override fun onSelectionComplete()
-
-    public final override fun setCurrentExpanded(expanded: Boolean) {
-        isExpanded = expanded
-        openSession.get()?.notifyPhotoPickerExpanded(expanded)
+    override fun onSessionError(throwable: Throwable) {
+        clientCallbacks.onSessionError(throwable)
     }
 
-    public final override fun notifyResized(size: IntSize) {
+    override fun onUriPermissionGranted(uris: List<Uri>) {
+        clientCallbacks.onUriPermissionGranted(uris)
+    }
+
+    override fun onUriPermissionRevoked(uris: List<Uri>) {
+        clientCallbacks.onUriPermissionRevoked(uris)
+    }
+
+    override fun onSelectionComplete() {
+        clientCallbacks.onSelectionComplete()
+    }
+
+    override fun notifyResized(size: IntSize) {
         surfaceSize = size
         openSession.get()?.notifyResized(size.width, size.height)
-
-        // If not currently ready, checkIfReady as size is one of the conditions
-        // needed to be ready.
-        if (!isReady) {
-            checkIfReady()
-        }
     }
 
-    public final override suspend fun deselectUris(uris: List<Uri>) {
+    override suspend fun deselectUris(uris: List<Uri>) {
         if (uris.isNotEmpty()) {
             openSession.get()?.requestRevokeUriPermission(uris)
-                // Throw if this is called when openSession is null (a session has not been received
-                // yet)
                 ?: throw IllegalStateException(
                     "Cannot request deselect: there is no running session, ensure runSession has " +
                         "been called first."
@@ -283,12 +298,12 @@ public abstract class AbstractEmbeddedPhotoPickerState(
         }
     }
 
-    public final override suspend fun runSession(
+    override suspend fun runSession(
         provider: EmbeddedPhotoPickerProvider,
         featureInfo: EmbeddedPhotoPickerFeatureInfo,
         onReceiveSession: (EmbeddedPhotoPickerSession) -> Unit,
     ) {
-        assert(isReady) {
+        assert(isReadyToRunSession) {
             "This state object is not currently ready to runSession. " +
                 "Ensure initialization is complete before calling runSession."
         }
@@ -309,43 +324,48 @@ public abstract class AbstractEmbeddedPhotoPickerState(
                 },
                 onSessionError = ::onSessionError,
                 onUriPermissionGranted = {
-                    _selectedMedia.addAll(it)
+                    selectedMedia = selectedMedia + it
                     onUriPermissionGranted(it)
                 },
                 onUriPermissionRevoked = {
-                    _selectedMedia.removeAll(it)
+                    selectedMedia = selectedMedia - it
                     onUriPermissionRevoked(it)
                 },
                 onSelectionComplete = ::onSelectionComplete,
             )
 
         // Modify the incoming featureInfo object to capture any state held by this object so that
-        // sessions that are created with this state object, reflect the state held here.
+        // sessions that are created with this state object reflect the state held here.
         val featureInfoWithLocalState: EmbeddedPhotoPickerFeatureInfo =
             EmbeddedPhotoPickerFeatureInfo.Builder()
                 .apply {
                     // Copy properties from the client's provided FeatureInfo
-                    setAccentColor(featureInfo.getAccentColor())
-                    setMaxSelectionLimit(featureInfo.getMaxSelectionLimit())
-                    setMimeTypes(featureInfo.getMimeTypes())
-                    setOrderedSelection(featureInfo.isOrderedSelection())
-                    setThemeNightMode(featureInfo.getThemeNightMode())
-                    // Check for U Extension version 19 before calling highlight setters
+                    setAccentColor(featureInfo.accentColor)
+                    setMaxSelectionLimit(featureInfo.maxSelectionLimit)
+                    setMimeTypes(featureInfo.mimeTypes)
+                    setOrderedSelection(featureInfo.isOrderedSelection)
+                    setThemeNightMode(featureInfo.themeNightMode)
                     if (
                         SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
-                            19
+                            SDK_EXT_19
                     ) {
                         setHighlightSearchMediaTextQuery(featureInfo.highlightSearchMediaTextQuery)
                         setHighlightAlbumId(featureInfo.highlightAlbumId)
                     }
 
+                    if (
+                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
+                            SDK_EXT_21
+                    ) {
+                        setPickerLaunchedInExpandedState(isExpanded)
+                    }
+
                     // Restore any already selectedMedia that are being held in this state object,
-                    // plus
-                    // copy in anything the client has asked to be preselected as well.
+                    // plus copy in anything the client has asked to be preselected as well.
                     setPreSelectedUris(
                         listOf(
                             *selectedMedia.toTypedArray(),
-                            *featureInfo.getPreSelectedUris().toTypedArray(),
+                            *featureInfo.preSelectedUris.toTypedArray(),
                         )
                     )
                 }
@@ -360,9 +380,9 @@ public abstract class AbstractEmbeddedPhotoPickerState(
             /* height =          */ surfaceSize.height,
             /* featureInfo =     */ featureInfoWithLocalState,
             @OptIn(ExperimentalStdlibApi::class)
+            // Fallback to Main.immediate if the dispatcher in this context is null.
+            // (i.e.) for Instrumented tests.
             /* clientExecutor =  */ coroutineContext[CoroutineDispatcher]?.asExecutor()
-                // Fallback to Main.immediate if the dispatcher in this context is null.
-                // (i.e) for Instrumented tests.
                 ?: Dispatchers.Main.immediate.asExecutor(),
             /* callback =        */ innerClientCallback,
         )
@@ -370,34 +390,71 @@ public abstract class AbstractEmbeddedPhotoPickerState(
         // Acquire the session from the provider before starting the client.
         val session = deferredSession.await()
 
-        // Pass the initial expanded state as the session starts.
-        session.notifyPhotoPickerExpanded(isExpanded)
+        // Pass the initial expanded state as the session starts for older extensions.
+        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < SDK_EXT_21) {
+            session.notifyPhotoPickerExpanded(isExpanded)
+        }
 
         try {
             awaitCancellation()
         } finally {
+            // Clear the openSession reference to prevent any late calls (like isExpanded setter)
+            // from attempting to interact with a closed session.
+            openSession.set(null)
+
             // When this suspended function is cancelled clean up the session by closing it.
             withContext(Dispatchers.Main.immediate) { session.close() }
         }
     }
 
-    private fun checkIfReady() {
-        surfaceHostToken?.let {
-            // Ensure the surface size and displayId are something other than initialization.
-            if (surfaceSize != IntSize.Zero && displayId != -1) {
-                isReady = true
-            }
+    internal var clientCallbacks: ClientCallbacks =
+        object : ClientCallbacks {
+            override var onSessionError by mutableStateOf<(Throwable) -> Unit>({})
+            override var onUriPermissionGranted by mutableStateOf<(List<Uri>) -> Unit>({})
+            override var onUriPermissionRevoked by mutableStateOf<(List<Uri>) -> Unit>({})
+            override var onSelectionComplete by mutableStateOf<() -> Unit>({})
         }
-    }
 
-    public companion object {
+    companion object {
+        private const val SDK_EXT_19 = 19
+        private const val SDK_EXT_21 = 21
+
+        /**
+         * A [androidx.compose.runtime.saveable.Saver] for [EmbeddedPhotoPickerStateImpl] to enable
+         * state restoration, for example, across configuration changes. It saves and restores the
+         * `selectedMedia` and `isExpanded` properties.
+         */
+        val saver = run {
+            val selectedUrisKey = "selectedUris"
+            val isExpandedKey = "isExpanded"
+            mapSaver(
+                save = {
+                    mapOf(
+                        selectedUrisKey to ArrayList(it.selectedMedia.toList()),
+                        isExpandedKey to it.isExpanded,
+                    )
+                },
+                restore = {
+                    // Casting here using `as?` such that if there is no value, or it can't fulfill
+                    // the collection interface, the value will be null and ignored.
+                    @Suppress("UNCHECKED_CAST")
+                    val uris: Collection<Uri>? = it[selectedUrisKey] as? Collection<Uri>
+                    val isExpanded: Boolean = it[isExpandedKey] as? Boolean ?: false
+                    EmbeddedPhotoPickerStateImpl(
+                        isInitiallyExpanded = isExpanded,
+                        initialMediaSelection = uris?.toSet() ?: emptySet<Uri>(),
+                    )
+                },
+            )
+        }
+
         /**
          * Generates an object which implements [EmbeddedPhotoPickerClient] that is passed to the
          * [EmbeddedPhotoPickerProvider] during openSession that will proxy calls that it receives
          * to the relevant provided input callable.
          */
         @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-        public fun createEmbeddedPhotoPickerClient(
+        fun createEmbeddedPhotoPickerClient(
             onSessionOpened: (EmbeddedPhotoPickerSession) -> Unit,
             onSessionError: (Throwable) -> Unit,
             onUriPermissionGranted: (List<Uri>) -> Unit,
@@ -430,131 +487,6 @@ public abstract class AbstractEmbeddedPhotoPickerState(
 }
 
 /**
- * Defines callback methods for client interactions. These callbacks are invoked by the service to
- * notify the client about various events.
- */
-internal interface ClientCallbacks {
-    /**
-     * Called when a session error occurs.
-     *
-     * Param: The error that occurred.
-     */
-    var onSessionError: (Throwable) -> Unit
-
-    /**
-     * Called when URI permissions are granted to the service.
-     *
-     * Param: A list of URIs for which permissions have been granted.
-     */
-    var onUriPermissionGranted: (List<Uri>) -> Unit
-
-    /**
-     * Called when URI permissions are revoked from the service.
-     *
-     * Param: A list of URIs for which permissions have been revoked.
-     */
-    var onUriPermissionRevoked: (List<Uri>) -> Unit
-
-    /** Called when the selection process is complete. */
-    var onSelectionComplete: () -> Unit
-}
-
-/**
- * Internal implementation of [AbstractEmbeddedPhotoPickerState].
- *
- * This largely relies on the abstract class for its implementation, but handles session related
- * state serialization and restoration. Additionally, it also wires the client's callbacks to the
- * state objects callbacks.
- *
- * @param isExpanded Initial state of expansion. Defaults to `false`.
- * @param selectedMedia Initial set of selected media. Defaults to an empty set.
- */
-@ExperimentalPhotoPickerComposeApi
-@RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-internal class EmbeddedPhotoPickerStateImpl(
-    isExpanded: Boolean = false,
-    selectedMedia: Set<Uri> = emptySet(),
-) : AbstractEmbeddedPhotoPickerState(isExpanded, selectedMedia) {
-
-    companion object {
-        /**
-         * A [androidx.compose.runtime.saveable.Saver] for [EmbeddedPhotoPickerStateImpl] to enable
-         * state restoration, for example, across configuration changes. It saves and restores the
-         * `selectedMedia` and `isExpanded` properties.
-         */
-        val saver = run {
-            val selectedUrisKey = "selectedUris"
-            val isExpandedKey = "isExpanded"
-            mapSaver(
-                save = {
-                    mapOf(selectedUrisKey to it.selectedMedia, isExpandedKey to it.isExpanded)
-                },
-                restore = {
-
-                    // Casting here using `as?` such that if there is no value, or it can't fulfill
-                    // the collection interface, the value will be null and ignored.
-                    @Suppress("UNCHECKED_CAST")
-                    val uris: Collection<Uri>? = it[selectedUrisKey] as? Collection<Uri>
-                    val isExpanded: Boolean = it[isExpandedKey] as? Boolean ?: false
-
-                    EmbeddedPhotoPickerStateImpl(isExpanded, uris?.toSet() ?: emptySet<Uri>())
-                },
-            )
-        }
-    }
-
-    /**
-     * Holds client-provided callbacks for photo picker events. These callbacks are invoked by the
-     * corresponding `on...` methods of this class.
-     */
-    internal var clientCallbacks: ClientCallbacks =
-        object : ClientCallbacks {
-            override var onSessionError by mutableStateOf<(Throwable) -> Unit>({})
-            override var onUriPermissionGranted by mutableStateOf<(List<Uri>) -> Unit>({})
-            override var onUriPermissionRevoked by mutableStateOf<(List<Uri>) -> Unit>({})
-            override var onSelectionComplete by mutableStateOf<() -> Unit>({})
-        }
-
-    /**
-     * Invoked when a session error occurs in the photo picker. Delegates to the
-     * [ClientCallbacks.onSessionError] callback.
-     *
-     * @param throwable The error that occurred.
-     */
-    override fun onSessionError(throwable: Throwable) {
-        clientCallbacks.onSessionError(throwable)
-    }
-
-    /**
-     * Invoked when URI permissions are granted for a list of URIs. Delegates to the
-     * [ClientCallbacks.onUriPermissionGranted] callback.
-     *
-     * @param uris The list of [Uri]s for which permission was granted.
-     */
-    override fun onUriPermissionGranted(uris: List<Uri>) {
-        clientCallbacks.onUriPermissionGranted(uris)
-    }
-
-    /**
-     * Invoked when URI permissions are revoked for a list of URIs. Delegates to the
-     * [ClientCallbacks.onUriPermissionRevoked] callback.
-     *
-     * @param uris The list of [Uri]s for which permission was revoked.
-     */
-    override fun onUriPermissionRevoked(uris: List<Uri>) {
-        clientCallbacks.onUriPermissionRevoked(uris)
-    }
-
-    /**
-     * Invoked when the user completes their selection in the photo picker. Delegates to the
-     * [ClientCallbacks.onSelectionComplete] callback.
-     */
-    override fun onSelectionComplete() {
-        clientCallbacks.onSelectionComplete()
-    }
-}
-
-/**
  * Generates a [EmbeddedPhotoPickerState] object and remembers it. This object can be used to
  * interact with the remote EmbeddedPhotoPickerSession. This object's state will survive the
  * activity or process recreation but the underlying EmbeddedPhotoPickerSession will be recreated
@@ -563,7 +495,7 @@ internal class EmbeddedPhotoPickerStateImpl(
  * If a clean state object is needed, be sure to provide some input keys that are unique.
  *
  * @param inputs A set of inputs such that, when any of them have changed, will cause the state to
- *   reset and [init] to be rerun. Note that state restoration DOES NOT validate against inputs
+ *   reset and `init` to be rerun. Note that state restoration DOES NOT validate against inputs
  *   provided before value was saved.
  * @param initialExpandedValue the initial expanded state of the photopicker. This property only
  *   affects the initial value, and has no further effect.
@@ -596,8 +528,6 @@ public fun rememberEmbeddedPhotoPickerState(
     val context = LocalContext.current
     val displayId = remember(context) { context.display.displayId }
 
-    // Use context as a minimum key (plus whatever the client supplies) so when this recomposes the
-    // constructor doesn't run for trivial internal state changes.
     val state =
         rememberSaveable(context, *inputs, saver = EmbeddedPhotoPickerStateImpl.saver) {
                 EmbeddedPhotoPickerStateImpl(initialExpandedValue, initialMediaSelection)

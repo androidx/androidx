@@ -120,8 +120,7 @@ public fun EmbeddedPhotoPicker(
         }
 
     // Wait until the state object is ready before starting the LaunchedEffect
-    // val isReady by state.isReady
-    if (state.isReady) {
+    if (state.isReadyToRunSession) {
         LaunchedEffect(
             // Restart this launched effect if the provider or state object changes
             state,
