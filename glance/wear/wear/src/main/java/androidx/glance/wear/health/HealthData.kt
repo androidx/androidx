@@ -91,13 +91,9 @@ public object HealthData {
      * Heart rate sensor accuracy data. The accuracy value is one of `HEART_RATE_ACCURACY_*`
      * constants.
      *
-     * Required permissions are:
-     * * API < 36: [Manifest.permission.BODY_SENSORS]
-     * * API >= 36: [HealthPermissions.READ_HEART_RATE]
+     * If permission for [heartRateBpm] is not granted, [heartRateAccuracy] will be
+     * [HEART_RATE_ACCURACY_UNKNOWN].
      */
-    @get:RequiresPermission(
-        anyOf = [Manifest.permission.BODY_SENSORS, HealthPermissions.READ_HEART_RATE]
-    )
     public val heartRateAccuracy: RemoteInt =
         RemoteInt.createNamedRemoteInt(
             name = HEART_RATE_ACCURACY_METRIC_KEY,

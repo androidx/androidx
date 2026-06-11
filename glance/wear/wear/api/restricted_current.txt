@@ -71,7 +71,7 @@ package @SuppressCompatibility androidx.glance.wear.health {
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyDistanceMeters();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyFloors();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt getDailySteps();
-    method @InaccessibleFromKotlin @RequiresPermission(anyOf={android.Manifest.permission.BODY_SENSORS, android.health.connect.HealthPermissions.READ_HEART_RATE}) public androidx.compose.remote.creation.compose.state.RemoteInt getHeartRateAccuracy();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getHeartRateAccuracy();
     method @InaccessibleFromKotlin @RequiresPermission(anyOf={android.Manifest.permission.BODY_SENSORS, android.health.connect.HealthPermissions.READ_HEART_RATE}) public androidx.compose.remote.creation.compose.state.RemoteFloat getHeartRateBpm();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable();
@@ -88,7 +88,7 @@ package @SuppressCompatibility androidx.glance.wear.health {
     property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat dailyDistanceMeters;
     property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat dailyFloors;
     property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt dailySteps;
-    property @RequiresPermission(anyOf={"android.permission.BODY_SENSORS", "android.permission.health.READ_HEART_RATE"}) public androidx.compose.remote.creation.compose.state.RemoteInt heartRateAccuracy;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt heartRateAccuracy;
     property @RequiresPermission(anyOf={"android.permission.BODY_SENSORS", "android.permission.health.READ_HEART_RATE"}) public androidx.compose.remote.creation.compose.state.RemoteFloat heartRateBpm;
     property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable;
     property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable;
