@@ -103,7 +103,12 @@ public class PatternInflation extends Operation implements Container, ComponentD
         // Run materialize recursively so nested MacroCalls/ForEach/Arguments expand too.
         ExpansionContext child =
                 new ExpansionContext(
-                        loomManager, context.getDocument(), ctx, context.getBlocksForCall(this));
+                        loomManager,
+                        context.getDocument(),
+                        ctx,
+                        context.getBlocksForCall(this),
+                        context.isSafeMode(),
+                        context.getDepth() + 1);
         child.expandRecursive(templateOps, result, loomManager);
     }
 

@@ -36,6 +36,7 @@ public class ExpansionContext {
     private final CoreDocument mDocument;
     private final RemapContext mRemapContext;
     private final Map<Integer, ArrayList<Operation>> mBlocks;
+    private final int mDepth;
     private boolean mSafeMode = false;
 
     public ExpansionContext(
@@ -43,10 +44,7 @@ public class ExpansionContext {
             @NonNull CoreDocument document,
             @NonNull RemapContext remapContext,
             @NonNull Map<Integer, ArrayList<Operation>> blocks) {
-        mLoomManager = loomManager;
-        mDocument = document;
-        mRemapContext = remapContext;
-        mBlocks = blocks;
+        this(loomManager, document, remapContext, blocks, false, 0);
     }
 
     public ExpansionContext(
@@ -55,8 +53,30 @@ public class ExpansionContext {
             @NonNull RemapContext remapContext,
             @NonNull Map<Integer, ArrayList<Operation>> blocks,
             boolean safeMode) {
-        this(loomManager, document, remapContext, blocks);
+        this(loomManager, document, remapContext, blocks, safeMode, 0);
+    }
+
+    public ExpansionContext(
+            @NonNull LoomManager loomManager,
+            @NonNull CoreDocument document,
+            @NonNull RemapContext remapContext,
+            @NonNull Map<Integer, ArrayList<Operation>> blocks,
+            boolean safeMode,
+            int depth) {
+        mLoomManager = loomManager;
+        mDocument = document;
+        mRemapContext = remapContext;
+        mBlocks = blocks;
         mSafeMode = safeMode;
+        mDepth = depth;
+    }
+
+    public int getDepth() {
+        return mDepth;
+    }
+
+    public boolean isSafeMode() {
+        return mSafeMode;
     }
 
     @NonNull
@@ -83,7 +103,7 @@ public class ExpansionContext {
     @NonNull
     public ExpansionContext fork() {
         return new ExpansionContext(
-                mLoomManager, mDocument, mRemapContext.fork(), mBlocks, mSafeMode);
+                mLoomManager, mDocument, mRemapContext.fork(), mBlocks, mSafeMode, mDepth);
     }
 
     /**
@@ -97,19 +117,23 @@ public class ExpansionContext {
         return result;
     }
 
-    /**
-     * Recursively expands a list of operations into the provided result list. This implementation
-     * preserves the flat sequence of operations (including Container and ContainerEnd markers) to
-     * allow for proper re-nesting later.
-     */
+    private static final int MAX_EXPANSION_DEPTH = 64;
+
     public void expandRecursive(
             @NonNull ArrayList<Operation> operations,
             @NonNull ArrayList<Operation> result,
             @NonNull LoomManager loomManager) {
+        if (mDepth > MAX_EXPANSION_DEPTH) {
+            if (mSafeMode) {
+                result.add(new DebugMessage(-1, Float.NaN, 0));
+                return;
+            }
+            throw new RuntimeException("Maximum macro expansion depth exceeded");
+        }
         for (Operation op : operations) {
             try {
                 op.materialize(this, result, loomManager);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 if (mSafeMode) {
                     // Create a debug message describing the failure.
                     // We try to capture as much context as possible.
@@ -117,7 +141,10 @@ public class ExpansionContext {
                     result.add(new DebugMessage(-1, Float.NaN, 0));
                 } else {
                     // In standard mode, rethrow to provide feedback about corrupted data.
-                    throw e;
+                    if (t instanceof RuntimeException) {
+                        throw (RuntimeException) t;
+                    }
+                    throw new RuntimeException(t);
                 }
             }
         }
