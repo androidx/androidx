@@ -17,7 +17,6 @@
 package androidx.pdf.annotation.content
 
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 
 /**
  * Represents a Highlight Annotation in a PDF document.
@@ -27,7 +26,6 @@ import androidx.annotation.RestrictTo
  *   are highlighted.
  * @property color The color of the highlight.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HighlightAnnotation(
     pageNum: Int,
     public val bounds: List<RectF>,

@@ -16,20 +16,17 @@
 
 package androidx.pdf
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents an exception that occurred while applying edits on a PDF document.
  *
- * @property failureIndex The index of the operation that caused the failure, relative to the order
- *   in which operations were enqueued in the [EditsDraft].
- * @property appliedEditIds A list of unique identifiers for the annotations that were successfully
+ * @param failureIndex The index of the operation that caused the failure, relative to the order in
+ *   which operations were enqueued in the [EditsDraft].
+ * @param appliedEditIds A list of unique identifiers for the annotations that were successfully
  *   edited (inserted, updated, or removed) before the failure occurred.
- * @property error The underlying cause of the failure.
+ * @param cause The underlying cause of the failure.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PdfEditApplyException(
     public val failureIndex: Int,
     public val appliedEditIds: List<String>,
-    public val error: Throwable,
-) : Exception()
+    cause: Throwable,
+) : Exception(cause)

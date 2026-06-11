@@ -86,7 +86,7 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
                     throw PdfEditApplyException(
                         failureIndex = processedCount + result.failedBatchIndex,
                         appliedEditIds = annotationIds + result.appliedIds,
-                        error = Exception(result.errorMessage),
+                        cause = Exception(result.errorMessage),
                     )
                 }
             }

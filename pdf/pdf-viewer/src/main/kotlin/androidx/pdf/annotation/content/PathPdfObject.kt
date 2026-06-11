@@ -16,7 +16,6 @@
 
 package androidx.pdf.annotation.content
 
-import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.content.PathPdfObject.PathInput.Companion.LINE_TO
 import androidx.pdf.annotation.content.PathPdfObject.PathInput.Companion.MOVE_TO
 import androidx.pdf.constants.PathOp
@@ -28,7 +27,6 @@ import androidx.pdf.constants.PathOp
  * @property brushWidth The width of the path's stroke.
  * @property inputs The list of coordinates and commands that define the path.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathPdfObject(
     public val brushColor: Int,
     public val brushWidth: Float,
