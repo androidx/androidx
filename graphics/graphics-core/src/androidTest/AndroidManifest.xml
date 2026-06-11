@@ -27,16 +27,19 @@
 
         <activity android:name="androidx.graphics.surface.SurfaceControlWrapperTestActivity"
             android:label="Graphics Core Test"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:exported="true">
         </activity>
 
         <activity android:name="androidx.graphics.opengl.GLTestActivity"
             android:label="Graphics Core Test"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:exported="true">
         </activity>
 
         <activity android:name="androidx.graphics.opengl.SurfaceViewTestActivity"
             android:label="WetDryRendererTest"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:exported="true"/>
 
         <activity android:name="androidx.graphics.lowlatency.LowLatencyActivity"

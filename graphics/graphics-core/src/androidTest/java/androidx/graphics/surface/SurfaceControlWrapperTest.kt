@@ -48,7 +48,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 34) // maxSdkVersion due to b/427258439
+@SdkSuppress(minSdkVersion = 29)
 class SurfaceControlWrapperTest {
     private var executor: Executor? = null
 
@@ -158,8 +158,7 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
@@ -185,8 +184,7 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testSurfaceTransactionOnCommitCallback_multiple() {
         val listener = TransactionOnCommitListener()
@@ -219,8 +217,7 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testSurfaceTransactionOnCommitCallbackAndOnCompleteCallback() {
         val listener1 = TransactionOnCommitListener()
@@ -772,9 +769,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_null() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -804,9 +800,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardCrop() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -836,9 +831,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardThenNullCrop() {
         var scCompat: SurfaceControlWrapper? = null
         val listener = TransactionOnCompleteListener()
@@ -903,9 +897,8 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetPosition() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -945,9 +938,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetScale() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -989,9 +981,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetBufferTransform_identity() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -1036,9 +1027,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetGeometry_identity() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -1090,9 +1080,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetBufferTransform_singleTransform() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
@@ -1143,9 +1132,8 @@ class SurfaceControlWrapperTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetGeometry_singleTransform() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->

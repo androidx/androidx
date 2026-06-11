@@ -611,9 +611,8 @@ class GLRendererTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun testSurfaceViewResumeRendersContent() {
         var surfaceView: SurfaceView? = null
         var glRenderer: GLRenderer? = null
@@ -752,9 +751,8 @@ class GLRendererTest {
         assertFalse(target!!.isAttached())
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun testTextureViewRendersAfterSurfaceTextureAvailable() {
         var textureView: TextureView? = null
         var glRenderer: GLRenderer? = null

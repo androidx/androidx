@@ -23,7 +23,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.ViewGroup
+import android.widget.FrameLayout
 
 class SurfaceViewTestActivity : Activity() {
 
@@ -32,8 +32,13 @@ class SurfaceViewTestActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        val frameLayout = FrameLayout(this)
         val surfaceView = TestSurfaceView(this).also { mSurfaceView = it }
-        setContentView(surfaceView, ViewGroup.LayoutParams(WIDTH, HEIGHT))
+        val lp = FrameLayout.LayoutParams(WIDTH, HEIGHT)
+        lp.leftMargin = 100
+        lp.topMargin = 100
+        frameLayout.addView(surfaceView, lp)
+        setContentView(frameLayout)
     }
 
     private var mOnDestroyCallback: (() -> Unit)? = null
