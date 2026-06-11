@@ -48,6 +48,7 @@ import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -499,46 +500,208 @@ class RotateToLookAtUserTest {
         }
 
     @Test
-    fun rotateToLookAtUser_userAlignedWithCustomUpDirection_remainsStable() =
+    fun rotateToLookAtUser_whenYawDisabled_doesNotTurnOnYAxis() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
-
-            // Position the user in front of the node along the Z axis.
-            val userLocation = Vector3(x = 0F, y = 0F, z = 3F)
-
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
-            // Explicitly set a custom upDirection that is collinear with the target vector (Gimbal
-            // Lock condition)
-            // We set the upDirection to Vector3.Backward [0,0,1], matching the target direction to
-            // the user.
-            val customUpDirection = Vector3.Backward
 
             composeTestRule.setContent {
                 Subspace {
                     SpatialPanel(
                         SubspaceModifier.testTag("TheWatcher")
-                            .rotateToLookAtUser(upDirection = customUpDirection)
+                            .rotateToLookAtUser(isYawUpdateEnabled = false, pitchLimits = null)
                     ) {
                         Text(text = "Target")
                     }
                 }
             }
 
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+
+            // Move the user horizontally, which would normally trigger a yaw rotation.
+            val userLocation: Vector3 = Vector3(x = 2F, y = 0F, z = 3F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            // Verify it does not collapse into NaN. The logic correctly derives
-            // up = [0, 1, 0] from the plane, and atan2(0, 0) safely yields 0 degrees.
-            // So we should settle precisely back into the default Identity orientation.
-            val expectedRotation = Quaternion.Identity
+            // Since yaw is disabled, the rotation must remain exactly Identity.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+        }
+
+    @Test
+    fun rotateToLookAtUser_whenPitchLimited_onlyRotatesThatMuch() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .rotateToLookAtUser(
+                                isYawUpdateEnabled = true,
+                                pitchLimits = PitchLimits(-15f, 15f),
+                            )
+                    ) {
+                        Text(text = "Target")
+                    }
+                }
+            }
+
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+
+            // Position the user at a 45-degree angle above the watcher.
+            // Watcher is at (0, 0, 0)
+            // User is at (0, 3, 3)
+            // This would normally result in a pitch rotation of 45 degrees.
+            val userLocation: Vector3 = Vector3(x = 0F, y = 3F, z = 3F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // The pitch must be clamped to the minimum pitch limit of -15 degrees.
+            val expectedRotation: Quaternion =
+                Quaternion.fromEulerAngles(pitch = -15f, yaw = 0f, roll = 0f)
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
                 .assertRotationInRootIsEqualTo(expectedRotation)
         }
+
+    @Test
+    fun rotateToLookAtUser_whenUserAtNodeLocation_fallsBackToIdentityTargetRotation() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("TheWatcher").rotateToLookAtUser()) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
+
+            val watcherEntity: Entity = composeTestRule.getTaggedEntity("TheWatcher")
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            val watcherWorldPose: Pose = watcherEntity.getPose(Space.ACTIVITY)
+
+            // Position the user exactly at the watcher's location.
+            fakePerceptionManager.arDevice.apply {
+                devicePose = Pose(watcherWorldPose.translation, Quaternion.Identity)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // The target rotation should fall back to Identity because the target vector is zero
+            // length.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+        }
+
+    @Test
+    fun rotateToLookAtUser_unconstrainedPitchAndYaw_matchesTargetLookRotation() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .rotateToLookAtUser(
+                                isYawUpdateEnabled = true,
+                                pitchLimits = PitchLimits.UNCONSTRAINED,
+                            )
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
+
+            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
+            val userLocation = Vector3(x = 2F, y = 3F, z = 4F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
+            val targetVector = userLocation - watcherWorldPose.translation
+            val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
+
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
+        }
+
+    @Test
+    fun pitchLimits_validRange_createsSuccessfully() {
+        val limits = PitchLimits(minimumPitch = -30f, maximumPitch = 45f)
+        assertThat(limits.minimumPitch).isEqualTo(-30f)
+        assertThat(limits.maximumPitch).isEqualTo(45f)
+    }
+
+    @Test
+    fun pitchLimits_unconstrained_hasFullRange() {
+        val limits = PitchLimits.UNCONSTRAINED
+        assertThat(limits.minimumPitch).isEqualTo(-90f)
+        assertThat(limits.maximumPitch).isEqualTo(90f)
+    }
+
+    @Test
+    fun pitchLimits_minimumPitchBelowLimit_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = -90.1f, maximumPitch = 0f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_maximumPitchAboveLimit_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = 0f, maximumPitch = 90.1f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_minimumGreaterThanMaximum_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = 10f, maximumPitch = -10f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_equalsAndHashCode_workCorrectly() {
+        val limits1 = PitchLimits(-15f, 15f)
+        val limits2 = PitchLimits(-15f, 15f)
+        val limits3 = PitchLimits(-10f, 15f)
+
+        assertThat(limits1).isEqualTo(limits2)
+        assertThat(limits1.hashCode()).isEqualTo(limits2.hashCode())
+        assertThat(limits1).isNotEqualTo(limits3)
+    }
+
+    @Test
+    fun pitchLimits_toString_returnsExpectedFormat() {
+        val limits = PitchLimits(-10f, 20f)
+        assertThat(limits.toString())
+            .isEqualTo("PitchLimits(minimumPitch=-10.0, maximumPitch=20.0)")
+    }
 
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes

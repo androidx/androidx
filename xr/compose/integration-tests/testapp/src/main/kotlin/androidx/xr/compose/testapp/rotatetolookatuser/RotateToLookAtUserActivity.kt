@@ -54,6 +54,7 @@ import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
 import androidx.xr.compose.subspace.layout.MovePolicy
+import androidx.xr.compose.subspace.layout.PitchLimits
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -74,7 +75,6 @@ import androidx.xr.compose.testapp.ui.theme.PurpleGrey80
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 
 /**
  * Integration test activity for the [rotateToLookAtUser] modifier.
@@ -87,11 +87,11 @@ import androidx.xr.runtime.math.Vector3
  *    applied to a [SpatialPanel], [SpatialRow], [SpatialColumn], and [SpatialExternalSurface].
  * 2. Nested Hierarchies: Validates that the tracking logic correctly handles coordinate
  *    transformations when the child tracks the user inside a rotated [SpatialBox].
- * 3. Custom Up Vector: Validates tracking behavior when a specific 'up' orientation is provided,
- *    useful for tilted or non-standard tracking requirements.
- * 4. Billboard: Demonstrates and validates the "Billboard" effect, achieved by chaining
+ * 3. Billboard: Demonstrates and validates the "Billboard" effect, achieved by chaining
  *    [rotateToLookAtUser] with [gravityAligned]. This should result in horizontal-only tracking
  *    while the panel remains vertically upright.
+ * 4. Rotation Constraints: Demonstrates and validates that yaw tracking can be disabled and pitch
+ *    tracking can be constrained using the [isYawUpdateEnabled] and [pitchLimits] parameters.
  *
  * Usage
  * - Use the global switch in the top control panel to toggle the tracking behavior for all test
@@ -183,9 +183,10 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         title: String,
         isFeatureOn: Boolean,
         modifier: SubspaceModifier = SubspaceModifier,
-        upVector: Vector3? = null,
         width: Int = 360,
         height: Int = 140,
+        isYawUpdateEnabled: Boolean = true,
+        pitchLimits: PitchLimits? = PitchLimits.UNCONSTRAINED,
         container:
             @Composable
             @SubspaceComposable
@@ -194,10 +195,10 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         var finalModifier = modifier.width(width.dp).height(height.dp)
         if (isFeatureOn) {
             finalModifier =
-                when {
-                    upVector != null -> finalModifier.rotateToLookAtUser(upDirection = upVector)
-                    else -> finalModifier.rotateToLookAtUser()
-                }
+                finalModifier.rotateToLookAtUser(
+                    isYawUpdateEnabled = isYawUpdateEnabled,
+                    pitchLimits = pitchLimits,
+                )
         }
 
         val innerContent: @Composable () -> Unit = {
@@ -219,6 +220,70 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         }
 
         container(finalModifier, innerContent)
+    }
+
+    @SubspaceComposable
+    @Composable
+    private fun InteractiveConstraintsPanel(isFeatureOn: Boolean) {
+        var isYawEnabled: Boolean by remember { mutableStateOf(true) }
+        var isPitchClamped: Boolean by remember { mutableStateOf(false) }
+
+        var modifier: SubspaceModifier = SubspaceModifier.width(400.dp).height(250.dp)
+        if (isFeatureOn) {
+            modifier =
+                modifier.rotateToLookAtUser(
+                    isYawUpdateEnabled = isYawEnabled,
+                    pitchLimits =
+                        if (isPitchClamped) PitchLimits(-15f, 15f) else PitchLimits.UNCONSTRAINED,
+                )
+        }
+
+        SpatialPanel(modifier = modifier) {
+            Column(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .background(if (isFeatureOn) Purple40 else PurpleGrey40)
+                        .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Interactive Constraints",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                )
+
+                // Yaw Switch
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("Yaw Tracking", color = Color.White, fontSize = 16.sp)
+                    Switch(
+                        checked = isYawEnabled,
+                        onCheckedChange = { isYawEnabled = it },
+                        enabled = isFeatureOn,
+                    )
+                }
+
+                // Pitch Switch
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("Clamp Pitch [-15°, 15°]", color = Color.White, fontSize = 16.sp)
+                    Switch(
+                        checked = isPitchClamped,
+                        onCheckedChange = { isPitchClamped = it },
+                        enabled = isFeatureOn,
+                    )
+                }
+            }
+        }
     }
 
     @SubspaceComposable
@@ -268,15 +333,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     SpatialPanel(modifier = modifier.gravityAligned(), content = content)
                 }
 
-                // Custom up vector: Tracking with a specific 'up' orientation
-                TestPanelContainer(
-                    title = "Up Vector (1, 0, 0)",
-                    isFeatureOn = isFeatureOn,
-                    upVector = Vector3(1f, 0f, 0f),
-                    width = 250,
-                ) { modifier, content ->
-                    SpatialPanel(modifier = modifier, content = content)
-                }
+                // Rotation Constraints: Interactive panel with dynamic yaw/pitch toggles
+                InteractiveConstraintsPanel(isFeatureOn = isFeatureOn)
 
                 // Panel that uses transformingMovable
                 TestPanelContainer(
@@ -292,12 +350,15 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 var yValueMovable by remember { mutableStateOf(0.dp) }
                 var zValueMovable by remember { mutableStateOf(0.dp) }
                 val density = LocalDensity.current
-                var rotateValueMovable by remember { mutableStateOf(Quaternion.Identity) }
+                var rotateValueMovable: Quaternion by remember {
+                    mutableStateOf(Quaternion.Identity)
+                }
                 val customMovement: (SpatialMoveEvent) -> Unit = { event ->
-                    val deltaX = event.pose.translation.x - event.previousPose.translation.x
-                    val deltaY = event.pose.translation.y - event.previousPose.translation.y
-                    val deltaZ = event.pose.translation.z - event.previousPose.translation.z
-                    val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
+                    val deltaX: Float = event.pose.translation.x - event.previousPose.translation.x
+                    val deltaY: Float = event.pose.translation.y - event.previousPose.translation.y
+                    val deltaZ: Float = event.pose.translation.z - event.previousPose.translation.z
+                    val deltaRot: Quaternion =
+                        event.previousPose.rotation.inverse * event.pose.rotation
 
                     with(density) {
                         xValueMovable += deltaX.toDp()
