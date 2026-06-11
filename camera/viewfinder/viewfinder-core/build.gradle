@@ -40,7 +40,6 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
-    testImplementation("org.robolectric:shadowapi:4.14")
     testImplementation(libs.junit)
 }
 
