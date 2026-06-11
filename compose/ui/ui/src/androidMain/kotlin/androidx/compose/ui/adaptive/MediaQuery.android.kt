@@ -17,26 +17,16 @@
 
 package androidx.compose.ui.adaptive
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.input.InputManager
-import android.os.Handler
-import android.os.Looper
 import android.view.InputDevice
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewTreeObserver
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.UiMediaScope
@@ -46,18 +36,14 @@ import androidx.compose.ui.UiMediaScope.Posture
 import androidx.compose.ui.UiMediaScope.ViewingDistance
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.Dp
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import kotlinx.coroutines.flow.collectLatest
 
 @Stable
 internal class UiMediaScopeImpl(
     context: Context,
-    inputManager: InputManager,
+    internal val inputManager: InputManager,
     windowInfo: WindowInfo,
     imeVisibility: Boolean,
 ) : UiMediaScope {
@@ -106,95 +92,8 @@ internal class UiMediaScopeImpl(
             }
 }
 
-/**
- * A composable function that creates and populates a [UiMediaScope] with information about the
- * current device and window environment.
- *
- * This function is the core implementation that backs the `mediaQuery` composable. It gathers
- * various pieces of context-dependent information and makes them available through the
- * [UiMediaScope] interface.
- */
-@Composable
-internal fun obtainUiMediaScope(
-    context: Context,
-    view: View,
-    windowInfo: WindowInfo,
-): UiMediaScope {
-    val inputManager = remember { context.getSystemService(Context.INPUT_SERVICE) as InputManager }
-    val initialImeVisibility = remember { ViewCompat.getRootWindowInsets(view).isImeVisible }
-    val scope = remember {
-        UiMediaScopeImpl(context, inputManager, windowInfo, initialImeVisibility)
-    }
-    scope._windowInfo = windowInfo
-
-    // Window posture
-    LaunchedEffect(context) {
-        WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).collectLatest { layout ->
-            scope._windowPosture = resolvePosture(layout)
-        }
-    }
-
-    // Input Devices (Pointer & Physical Keyboard)
-    DisposableEffect(context) {
-        val listener =
-            object : InputManager.InputDeviceListener {
-                override fun onInputDeviceAdded(id: Int) = update()
-
-                override fun onInputDeviceRemoved(id: Int) = update()
-
-                override fun onInputDeviceChanged(id: Int) = update()
-
-                fun update() {
-                    scope._anyPointer = resolvePointerPrecision(inputManager)
-                    scope.hasPhysicalKeyboard = hasPhysicalKeyboard(inputManager)
-                }
-            }
-
-        inputManager.registerInputDeviceListener(listener, Handler(Looper.getMainLooper()))
-
-        listener.update()
-
-        onDispose { inputManager.unregisterInputDeviceListener(listener) }
-    }
-
-    // IME listener (Virtual Keyboard)
-    DisposableEffect(view) {
-        val listener =
-            ViewTreeObserver.OnGlobalLayoutListener {
-                scope.isImeVisible = ViewCompat.getRootWindowInsets(view).isImeVisible
-            }
-
-        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
-
-        onDispose { view.viewTreeObserver.removeOnGlobalLayoutListener(listener) }
-    }
-
-    // Docked state receiver for reachability
-    DisposableEffect(context) {
-        val filter = IntentFilter(Intent.ACTION_DOCK_EVENT)
-        val receiver =
-            object : BroadcastReceiver() {
-                override fun onReceive(context: Context?, intent: Intent?) {
-                    scope.isDocked = isDocked(intent)
-                }
-            }
-        val stickyIntent =
-            ContextCompat.registerReceiver(
-                context,
-                receiver,
-                filter,
-                ContextCompat.RECEIVER_EXPORTED,
-            )
-        scope.isDocked = isDocked(stickyIntent)
-
-        onDispose { context.unregisterReceiver(receiver) }
-    }
-
-    return scope
-}
-
 /** Resolves the device [Posture] from the given [WindowLayoutInfo]. */
-private fun resolvePosture(layoutInfo: WindowLayoutInfo): Posture {
+internal fun resolvePosture(layoutInfo: WindowLayoutInfo): Posture {
     @Suppress("ListIterator")
     val fold =
         layoutInfo.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull {
@@ -209,7 +108,7 @@ private fun resolvePosture(layoutInfo: WindowLayoutInfo): Posture {
 }
 
 /** Checks if a physical, alphabetic keyboard is currently connected to the device. */
-private fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
+internal fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
     if (inputManager == null) return false
 
     return inputManager.inputDeviceIds?.any { id ->
@@ -230,7 +129,7 @@ private fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
  *
  * A valid hardware source is always preferred over the fallback heuristic to avoid false positives.
  */
-private fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecision {
+internal fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecision {
     if (inputManager == null) return PointerPrecision.None
 
     var pointerPrecision = PointerPrecision.None
@@ -311,10 +210,10 @@ private fun InputDevice.hasFallbackCoarsePointer(): Boolean {
             getMotionRange(MotionEvent.AXIS_TOUCH_MINOR) != null)
 }
 
-private val WindowInsetsCompat?.isImeVisible: Boolean
+internal val WindowInsetsCompat?.isImeVisible: Boolean
     get() = this?.isVisible(WindowInsetsCompat.Type.ime()) == true
 
-private fun isDocked(intent: Intent?): Boolean {
+internal fun isDocked(intent: Intent?): Boolean {
     if (intent == null) return false
     val dockState = intent.getIntExtra(Intent.EXTRA_DOCK_STATE, Intent.EXTRA_DOCK_STATE_UNDOCKED)
     return dockState != Intent.EXTRA_DOCK_STATE_UNDOCKED

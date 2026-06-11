@@ -35,7 +35,6 @@ import androidx.compose.ui.UiMediaScope.Posture
 import androidx.compose.ui.UiMediaScope.ViewingDistance
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.mediaQuery
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.findViewTreeComposeViewContext
@@ -238,23 +237,14 @@ class MediaQueryTest {
 
     @Test
     fun derivedMediaQuery_stateUpdates_withConfigurationChanges() {
-        scope.windowWidth = 100.dp
         var result = false
 
         rule.setContent {
-            val context = LocalContext.current
-            val view = LocalView.current
-            val windowInfo = LocalWindowInfo.current
-
-            val mediaScope = obtainUiMediaScope(context, view, windowInfo)
-
-            CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 300.dp))
-                ) {
-                    val state by derivedMediaQuery { windowWidth > 200.dp }
-                    result = state
-                }
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 300.dp))
+            ) {
+                val state by derivedMediaQuery { windowWidth == 300.dp }
+                result = state
             }
         }
 
