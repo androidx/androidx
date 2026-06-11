@@ -722,6 +722,8 @@ final class androidx.ink.brush/BrushFamily { // androidx.ink.brush/BrushFamily|n
         final fun <get-inputModel>(): androidx.ink.brush/BrushFamily.InputModel // androidx.ink.brush/BrushFamily.inputModel.<get-inputModel>|<get-inputModel>(){}[0]
     final val nativePointer // androidx.ink.brush/BrushFamily.nativePointer|{}nativePointer[0]
         final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushFamily.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
+    final val textureAnimationLoopDurationMillis // androidx.ink.brush/BrushFamily.textureAnimationLoopDurationMillis|{}textureAnimationLoopDurationMillis[0]
+        final fun <get-textureAnimationLoopDurationMillis>(): kotlin/Long // androidx.ink.brush/BrushFamily.textureAnimationLoopDurationMillis.<get-textureAnimationLoopDurationMillis>|<get-textureAnimationLoopDurationMillis>(){}[0]
 
     final fun calculateMinimumRequiredVersion(): androidx.ink.brush/Version // androidx.ink.brush/BrushFamily.calculateMinimumRequiredVersion|calculateMinimumRequiredVersion(){}[0]
     final fun copy(androidx.ink.brush/BrushCoat, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(androidx.ink.brush.BrushCoat;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
@@ -794,8 +796,34 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
     final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.toString|toString(){}[0]
 
     abstract class ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction|null[0]
-        abstract fun transformComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.transformComposeColor|transformComposeColor(androidx.ink.brush.color.Color){}[0]
         final fun transformColorIntArgb(kotlin/Int): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.transformColorIntArgb|transformColorIntArgb(kotlin.Int){}[0]
+        open fun transformComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.transformComposeColor|transformComposeColor(androidx.ink.brush.color.Color){}[0]
+
+        final class HueOffset : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset|null[0]
+            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.<init>|<init>(kotlin.Float){}[0]
+
+            final val offsetDegrees // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.offsetDegrees|{}offsetDegrees[0]
+                final fun <get-offsetDegrees>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.offsetDegrees.<get-offsetDegrees>|<get-offsetDegrees>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.hashCode|hashCode(){}[0]
+            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.toString|toString(){}[0]
+
+            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.Companion|null[0]
+        }
+
+        final class LuminosityOffset : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset|null[0]
+            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.<init>|<init>(kotlin.Float){}[0]
+
+            final val offset // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.offset|{}offset[0]
+                final fun <get-offset>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.offset.<get-offset>|<get-offset>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.hashCode|hashCode(){}[0]
+            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.toString|toString(){}[0]
+
+            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.Companion|null[0]
+        }
 
         final class OpacityMultiplier : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier|null[0]
             constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.<init>|<init>(kotlin.Float){}[0]
@@ -829,6 +857,19 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
                 final fun withColorLong(kotlin/Long): androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion.withColorLong|withColorLong(kotlin.Long){}[0]
                 final fun withComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion.withComposeColor|withComposeColor(androidx.ink.brush.color.Color){}[0]
             }
+        }
+
+        final class SaturationMultiplier : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier|null[0]
+            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.<init>|<init>(kotlin.Float){}[0]
+
+            final val multiplier // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.multiplier|{}multiplier[0]
+                final fun <get-multiplier>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.multiplier.<get-multiplier>|<get-multiplier>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.hashCode|hashCode(){}[0]
+            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.toString|toString(){}[0]
+
+            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.Companion|null[0]
         }
 
         final object Companion { // androidx.ink.brush/BrushPaint.ColorFunction.Companion|null[0]

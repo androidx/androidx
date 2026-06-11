@@ -14,31 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.ink.storage
+package androidx.ink.strokes
 
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
-import java.nio.ByteBuffer
 
 @UsedByNative
-internal object StrokeInputBatchSerializationNative {
+actual internal object MeshCreationNative {
     init {
         NativeLoader.load()
     }
 
-    /**
-     * Constructs a StrokeInputBatch from a serialized gzip-compressed
-     * `ink.proto.CodedStrokeInputBatch`, which can be passed in as either a direct [ByteBuffer] or
-     * as an array of bytes. This returns the address of a new-allocated native `StrokeInputBatch`,
-     * which can be passed to and managed by [androidx.ink.strokes.ImmutableStrokeInputBatch].
-     */
     @UsedByNative
-    external fun newFromProto(
-        directByteBuffer: ByteBuffer?,
-        byteArray: ByteArray?,
-        offset: Int,
-        length: Int,
+    actual external fun createClosedShapeFromStrokeInputBatch(
+        strokeInputBatchNativePointer: Long
     ): Long
-
-    @UsedByNative external fun serialize(nativeStrokeInputBatchPointer: Long): ByteArray
 }

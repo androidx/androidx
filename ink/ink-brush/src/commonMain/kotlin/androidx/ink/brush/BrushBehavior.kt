@@ -104,7 +104,6 @@ private constructor(
      * within the brush, with the intended audience being designers/developers who are editing the
      * brush definition. This string is not generally intended to be displayed to end users.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val developerComment: String =
         // If we just constructed this in Kotlin, use the developer comment provided.
         developerComment

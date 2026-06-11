@@ -10,7 +10,7 @@
 
 # Keep annotated classes unconditionally.
 -if class androidx.ink.nativeloader.NativeLoader
--keep @androidx.ink.nativeloader.UsedByNative class * {
+-keep,allowoptimization,allowaccessmodification @androidx.ink.nativeloader.UsedByNative class * {
   <init>();
 }
 
@@ -18,17 +18,14 @@
 # from renaming but also from pruning, since some of the annotated methods may
 # only be used as callbacks from native code.
 -if class androidx.ink.nativeloader.NativeLoader
--keepclassmembers class * {
+-keepclassmembers,allowoptimization,allowaccessmodification class * {
     @androidx.ink.nativeloader.UsedByNative *;
 }
 
 # Proguard configuration to retain stuff outside of Ink that is called
 # from JNI code via reflection (e.g. Get[Static]MethodID (including in method
-# signatures), Get[Static]FieldID, FindClass). Stuff in Ink that's
+# signatures), Get[Static]FieldID, FindClass) can go below. Stuff in Ink that's
 # called this way should be annotated with Ink's @UsedByNative instead.
 # (This includes methods referenced in GetMethodID and classes in those methods'
-# signatures.)
-
-# Used in interfaces for platform-specific implementation:
--if class androidx.ink.brush.TextureBufferedImageStore
--keep class java.awt.image.BufferedImage
+# signatures.) Java system classes do not need to be mentioned here, they're
+# not subject to this optimization.

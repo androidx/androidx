@@ -24,13 +24,11 @@ import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
-// TODO: b/512506942 - Restore the link to `InProgressStroke` in the doc comment once that is
-// KMP-compatible.
 /**
  * A single input specifying position, time since the start of the stream, and optionally
  * [pressure], [tiltRadians], and [orientationRadians].
  *
- * This data type is used as an input to [StrokeInputBatch] and `InProgressStroke`. If these are to
+ * This data type is used as an input to [StrokeInputBatch] and [InProgressStroke]. If these are to
  * be created as part of real-time input, it is recommended to use some sort of object pool so that
  * new usages can make use of existing objects that have been recycled, rather than allocating new
  * ones which could introduce unpredictable garbage collection related delays to the time-sensitive
@@ -142,7 +140,6 @@ public class StrokeInput {
      *   end is along positive x and values increase towards the positive y-axis. Absence of
      *   [orientationRadians] data is represented with [NO_ORIENTATION].
      */
-    @UsedByNative
     @JvmOverloads
     public fun update(
         x: Float,
@@ -163,6 +160,32 @@ public class StrokeInput {
         this.tiltRadians = tiltRadians
         this.orientationRadians = orientationRadians
     }
+
+    /**
+     * Internal overload of [update] used from native code, so that can avoid the need to separately
+     * call [InputToolType.fromInt] across the JNI interface.
+     */
+    @UsedByNative
+    private fun update(
+        x: Float,
+        y: Float,
+        @IntRange(from = 0) elapsedTimeMillis: Long,
+        toolTypeInt: Int,
+        strokeUnitLengthCm: Float,
+        pressure: Float,
+        tiltRadians: Float,
+        orientationRadians: Float,
+    ) =
+        update(
+            x,
+            y,
+            elapsedTimeMillis,
+            InputToolType.fromInt(toolTypeInt),
+            strokeUnitLengthCm,
+            pressure,
+            tiltRadians,
+            orientationRadians,
+        )
 
     public override fun equals(other: Any?): Boolean {
         // NOMUTANTS -- Check the instance first to short circuit faster.

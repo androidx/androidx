@@ -51,7 +51,9 @@ public fun Mesh.getRawVertexBuffer(): ByteBuffer =
         // allocated buffer for this purpose. But each duplicate points back to the original, not to
         // intermediate entries in the chain.
         .also {
-            check(it.isDirect()) { "This must return a direct buffer." }
+            check(it.isDirect) {
+                "createUnsafelyMutableMeshOwnedRawVertexBuffer returned a non-direct buffer."
+            }
             synchronized(meshesReferencedByBuffers) { meshesReferencedByBuffers.put(it, this) }
         }
         .asReadOnlyBuffer()
@@ -76,7 +78,9 @@ public fun Mesh.getRawTriangleIndexBuffer(): ShortBuffer =
         // allocated buffer for this purpose. But each duplicate points back to the original, not to
         // intermediate entries in the chain.
         .also {
-            check(it.isDirect()) { "This must return a direct buffer." }
+            check(it.isDirect) {
+                "createUnsafelyMutableMeshOwnedRawTriangleIndexBuffer returned a non-direct buffer."
+            }
             synchronized(meshesReferencedByBuffers) { meshesReferencedByBuffers.put(it, this) }
         }
         // Note that the order of operations seems to be important: asShortBuffer() must be called

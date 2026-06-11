@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.ink.brush.BrushFamily.InputModel
+import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.behavior.BinaryOpNode
@@ -36,6 +37,7 @@ import androidx.ink.brush.behavior.ToolTypeFilterNode
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class BrushFamilyTest {
     @Test
@@ -150,6 +152,37 @@ class BrushFamilyTest {
                     "inputModel=SlidingWindowModel(windowDurationMillis=1000, upsamplingFrequencyHz=1), " +
                     "clientBrushFamilyId=)"
             )
+    }
+
+    @Test
+    fun textureAnimationLoopDurationMillis_returnsExpectedValue() {
+        fun makeAnimatedCoat(animationDurationMillis: Long) =
+            BrushCoat(
+                BrushPaint(
+                    listOf(
+                        BrushPaint.StampingTexture(
+                            clientTextureId = "foo",
+                            animationFrames = 10,
+                            animationRows = 10,
+                            animationDurationMillis = animationDurationMillis,
+                        )
+                    )
+                )
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            // These three prime numbers multiply to 428,868,313 (which is more than 2^24).
+            BrushFamily(
+                listOf(makeAnimatedCoat(751L), makeAnimatedCoat(1531L), makeAnimatedCoat(373L))
+            )
+        }
+
+        // These three numbers also multiply to more than 2^24, but their LCM is only 3000.
+        val brushFamily =
+            BrushFamily(
+                listOf(makeAnimatedCoat(1000L), makeAnimatedCoat(1500L), makeAnimatedCoat(600L))
+            )
+        assertThat(brushFamily.textureAnimationLoopDurationMillis).isEqualTo(3000L)
     }
 
     @Test

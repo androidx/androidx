@@ -20,8 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
+import androidx.ink.nativeloader.NativePointer
 
 /**
  * An immutable object comprised of a [StrokeInputBatch] that represents a user-drawn (or sometimes
@@ -31,35 +30,55 @@ import androidx.ink.nativeloader.UsedByNative
  *
  * This can be constructed directly from a [StrokeInputBatch] that has already been completed. To
  * construct a stroke incrementally and render it as input events are received in real time, use
- * [androidx.ink.authoring.InProgressStrokesView] or [InProgressStroke], which will ultimately
+ * `androidx.ink.authoring.InProgressStrokesView` or [InProgressStroke], which will ultimately
  * return a [Stroke] when input is completed.
  */
-@Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class Stroke
 private constructor(
-    /**
-     * This is the raw pointer address of an `ink::Stroke` that has been heap allocated to be owned
-     * solely by this JVM [Stroke] object. Although the `ink::Stroke` is owned exclusively by this
-     * [Stroke] object, it may be a copy of another `ink::Stroke`, where it has a copy of fairly
-     * lightweight metadata but shares ownership of the more heavyweight `ink::Mesh` objects. This
-     * class is responsible for freeing the `ink::Stroke`, usually through its [finalize] method.
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long,
+    nativeAlloc: () -> Long,
     /**
      * Contains information on how the [inputs] should be used to calculate the [shape] and how that
      * [shape] should be drawn on screen.
      */
     public val brush: Brush,
+    inputs: StrokeInputBatch? = null,
+    shape: PartitionedMesh? = null,
+) {
+    /**
+     * This is the raw pointer address of a heap-allocated native `Stroke` owned solely by this
+     * [Stroke] object, though that may share ownership of the underlying mesh data with other
+     * similar (e.g. created by copying) strokes.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val nativePointer: Long by NativePointer(nativeAlloc, StrokeNative::free)
+
     /** The user-drawn (or perhaps synthetically generated) path that this [Stroke] takes. */
-    public val inputs: ImmutableStrokeInputBatch,
+    public val inputs: ImmutableStrokeInputBatch =
+        // If the inputs were passed to the constructor, use them.
+        inputs?.toImmutable()
+            // Otherwise, copy them from the native object.
+            ?: ImmutableStrokeInputBatch.wrapNative {
+                StrokeNative.newShallowCopyOfInputs(nativePointer)
+            }
+
     /**
      * The geometric shape of the [Stroke], which can be used to render it on screen and to perform
      * geometric calculations. This [PartitionedMesh] will have one render group per brush coat in
      * [brush].
      */
     public val shape: PartitionedMesh =
-        PartitionedMesh.wrapNative { StrokeNative.newShallowCopyOfShape(nativePointer) },
-) {
+        // If the mesh was passed to the constructor, use it.
+        shape
+            // Otherwise, copy it from the native object.
+            ?: PartitionedMesh.wrapNative { StrokeNative.newShallowCopyOfShape(nativePointer) }
+
+    init {
+        require(this.shape.getRenderGroupCount() == brush.family.coats.size) {
+            "The shape must have one render group per brush coat, but found " +
+                "${this.shape.getRenderGroupCount()} render groups in shape and ${brush.family.coats.size} " +
+                "brush coats in brush."
+        }
+    }
 
     /**
      * Construct a [Stroke] given a [Brush], a [StrokeInputBatch], and a [PartitionedMesh].
@@ -73,21 +92,23 @@ private constructor(
         inputs: StrokeInputBatch,
         shape: PartitionedMesh,
     ) : this(
-        StrokeNative.createWithBrushInputsAndShape(
-            brush.nativePointer,
-            inputs.nativePointer,
-            shape
-                .also {
-                    require(it.getRenderGroupCount() == brush.family.coats.size) {
-                        "The shape must have one render group per brush coat, but found " +
-                            "${it.getRenderGroupCount()} render groups in shape and " +
-                            "${brush.family.coats.size} brush coats in brush."
+        {
+            StrokeNative.createWithBrushInputsAndShape(
+                brush.nativePointer,
+                inputs.nativePointer,
+                shape
+                    .also {
+                        require(it.getRenderGroupCount() == brush.family.coats.size) {
+                            "The shape must have one render group per brush coat, but found " +
+                                "${it.getRenderGroupCount()} render groups in shape and " +
+                                "${brush.family.coats.size} brush coats in brush."
+                        }
                     }
-                }
-                .nativePointer,
-        ),
+                    .nativePointer,
+            )
+        },
         brush,
-        inputs.toImmutable(),
+        inputs,
         shape,
     )
 
@@ -96,9 +117,9 @@ private constructor(
         brush: Brush,
         inputs: StrokeInputBatch,
     ) : this(
-        StrokeNative.createWithBrushAndInputs(brush.nativePointer, inputs.nativePointer),
+        { StrokeNative.createWithBrushAndInputs(brush.nativePointer, inputs.nativePointer) },
         brush,
-        inputs.toImmutable(),
+        inputs,
     )
 
     /**
@@ -144,17 +165,6 @@ private constructor(
         return false
     }
 
-    // NOMUTANTS -- Not tested post garbage collection.
-    protected fun finalize() {
-        // Note that the instance becomes finalizable at the conclusion of the Object constructor,
-        // which
-        // in Kotlin is always before any non-default field initialization has been done by a
-        // derived
-        // class constructor.
-        if (nativePointer == 0L) return
-        StrokeNative.free(nativePointer)
-    }
-
     public override fun toString(): String {
         return "Stroke(brush=$brush, inputs=$inputs, shape=$shape)"
     }
@@ -175,93 +185,88 @@ private constructor(
         eraserShape: PartitionedMesh,
         eraserTransform: AffineTransform,
         strokeTransform: AffineTransform,
-    ): Set<Stroke> {
-        val ptrs =
-            StrokeNative.partialErase(
-                nativePointer,
-                eraserShape.nativePointer,
-                eraserTransform.m00,
-                eraserTransform.m10,
-                eraserTransform.m20,
-                eraserTransform.m01,
-                eraserTransform.m11,
-                eraserTransform.m21,
-                strokeTransform.m00,
-                strokeTransform.m10,
-                strokeTransform.m20,
-                strokeTransform.m01,
-                strokeTransform.m11,
-                strokeTransform.m21,
-            )
-        val resultSet = mutableSetOf<Stroke>()
-        for (ptr in ptrs) {
-            resultSet.add(wrapNative(ptr, brush))
-        }
-        return resultSet
-    }
+    ): Set<Stroke> =
+        MultipleStrokes.createWithPartialErase(this, eraserShape, eraserTransform, strokeTransform)
 
     public companion object {
         /** Construct a [Stroke] from an unowned heap-allocated native pointer to a C++ `Stroke`. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun wrapNative(unownedNativePointer: Long, brush: Brush): Stroke {
-            val shape =
-                PartitionedMesh.wrapNative {
-                    StrokeNative.newShallowCopyOfShape(unownedNativePointer)
-                }
-            require(shape.getRenderGroupCount() == brush.family.coats.size) {
-                "The shape must have one render group per brush coat, but found ${shape.getRenderGroupCount()} render groups in shape and ${brush.family.coats.size} brush coats in brush."
-            }
-            return Stroke(
-                unownedNativePointer,
-                brush,
-                ImmutableStrokeInputBatch.wrapNative {
-                    StrokeNative.newShallowCopyOfInputs(unownedNativePointer)
-                },
-                shape,
-            )
+        public fun wrapNative(brush: Brush, nativeAlloc: () -> Long): Stroke {
+            return Stroke(nativeAlloc, brush)
         }
     }
 }
 
-/**
- * Singleton wrapper around native JNI calls.
- *
- * The alternative to this is putting the methods in [Stroke] itself (doesn't work for native calls
- * used by constructors), or in [Stroke.Companion] (makes the `JNI_METHOD` naming less clear).
- */
-@UsedByNative
-private object StrokeNative {
-    init {
-        NativeLoader.load()
+/** Singleton wrapper around native JNI calls. */
+internal expect object StrokeNative {
+    fun createWithBrushAndInputs(brushNativePointer: Long, inputs: Long): Long
+
+    fun createWithBrushInputsAndShape(brushNativePointer: Long, inputs: Long, shape: Long): Long
+
+    /**
+     * Returns the address of a new native `StrokeInputBatch` that is a shallow copy of the inputs
+     * belonging to the `Stroke` at [nativePointer].
+     */
+    fun newShallowCopyOfInputs(nativePointer: Long): Long
+
+    /**
+     * Returns the address of a new native `PartitionedMesh` that is a shallow copy of the shape
+     * belonging to the `Stroke` at [nativePointer].
+     */
+    fun newShallowCopyOfShape(nativePointer: Long): Long
+
+    fun free(nativePointer: Long)
+}
+
+internal class MultipleStrokes
+private constructor(private val brush: Brush, pointerAlloc: () -> Long) {
+
+    private val nativePointer by NativePointer(pointerAlloc, MultipleStrokesNative::free)
+
+    private fun releaseStrokes(): Set<Stroke> = buildSet {
+        for (i in 0 until MultipleStrokesNative.getStrokeCount(nativePointer)) {
+            add(
+                Stroke.wrapNative(brush) {
+                    MultipleStrokesNative.releaseStroke(nativePointer, i).also {
+                        check(it != 0L) { "releaseStrokes can only be called once." }
+                    }
+                }
+            )
+        }
     }
 
-    @UsedByNative
-    external fun createWithBrushAndInputs(brushNativePointer: Long, inputs: Long): Long
+    companion object {
+        fun createWithPartialErase(
+            targetStroke: Stroke,
+            eraserShape: PartitionedMesh,
+            eraserTransform: AffineTransform,
+            strokeTransform: AffineTransform,
+        ): Set<Stroke> =
+            MultipleStrokes(targetStroke.brush) {
+                    MultipleStrokesNative.createWithPartialErase(
+                        targetStroke.nativePointer,
+                        eraserShape.nativePointer,
+                        eraserTransform.m00,
+                        eraserTransform.m10,
+                        eraserTransform.m20,
+                        eraserTransform.m01,
+                        eraserTransform.m11,
+                        eraserTransform.m21,
+                        strokeTransform.m00,
+                        strokeTransform.m10,
+                        strokeTransform.m20,
+                        strokeTransform.m01,
+                        strokeTransform.m11,
+                        strokeTransform.m21,
+                    )
+                }
+                .releaseStrokes()
+    }
+}
 
-    @UsedByNative
-    external fun createWithBrushInputsAndShape(
-        brushNativePointer: Long,
-        inputs: Long,
-        shape: Long,
-    ): Long
+internal expect object MultipleStrokesNative {
 
-    /**
-     * Returns the address of a new `ink::StrokeInputBatch` that is a shallow copy of the inputs
-     * belonging to the `ink::Stroke` given by the [nativePointer].
-     */
-    @UsedByNative external fun newShallowCopyOfInputs(nativePointer: Long): Long
-
-    /**
-     * Returns the address of a new `ink::PartitionedMesh` that is a shallow copy of the shape
-     * belonging to the `ink::Stroke` given by the [nativePointer].
-     */
-    @UsedByNative external fun newShallowCopyOfShape(nativePointer: Long): Long
-
-    /** Deletes the `ink::Stroke` given by the [nativePointer]. */
-    @UsedByNative external fun free(nativePointer: Long)
-
-    @UsedByNative
-    external fun partialErase(
+    fun createWithPartialErase(
         targetStrokePointer: Long,
         eraserShapePointer: Long,
         eraserA: Float,
@@ -276,5 +281,11 @@ private object StrokeNative {
         strokeD: Float,
         strokeE: Float,
         strokeF: Float,
-    ): LongArray
+    ): Long
+
+    fun getStrokeCount(nativePointer: Long): Int
+
+    fun releaseStroke(nativePointer: Long, index: Int): Long
+
+    fun free(nativePointer: Long)
 }

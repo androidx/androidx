@@ -153,6 +153,15 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
      *   coordinates of [event] into the client-defined stroke coordinate system.
      * @param strokeStartTimeMillis The time at which the stroke started in the
      *   [android.os.SystemClock.elapsedRealtime] time base.
+     * @param strokeUnitLengthCm See [StrokeInput.strokeUnitLengthCm].
+     * @param forceHasPressure When null, use the [MotionEvent.getDevice] information to determine
+     *   whether the [StrokeInput.pressure] field is populated with data. When false, set that field
+     *   to [StrokeInput.NO_PRESSURE]. When true, set that field to whatever the [MotionEvent]
+     *   reports, even if 0. This should generally only be forced one way or the other when
+     *   [MotionEvent] is synthetic, e.g. from motion prediction.
+     * @param forceHasTilt Like [forceHasPressure], but with [StrokeInput.tiltRadians].
+     * @param forceHasOrientation Like [forceHasPressure], but with
+     *   [StrokeInput.orientationRadians].
      * @param outBatch The [MutableStrokeInputBatch] that will contain the produced result values.
      *   Any existing data in here will be lost.
      */
@@ -163,6 +172,9 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         motionEventToStrokeTransform: Matrix,
         strokeStartTimeMillis: Long,
         strokeUnitLengthCm: Float = StrokeInput.NO_STROKE_UNIT_LENGTH,
+        forceHasPressure: Boolean? = null,
+        forceHasTilt: Boolean? = null,
+        forceHasOrientation: Boolean? = null,
         outBatch: MutableStrokeInputBatch,
     ) {
         // This does not trim the capacity of the list, so if it was pre-allocated to a big enough
@@ -180,6 +192,9 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
                     motionEventToStrokeTransform,
                     strokeStartTimeMillis,
                     strokeUnitLengthCm,
+                    forceHasPressure,
+                    forceHasTilt,
+                    forceHasOrientation,
                 )
             runCatching { outBatch.add(input) }
             recycle(input)
@@ -203,6 +218,15 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
      *
      * This function must be called on the UI thread, but its results can be passed to another
      * thread.
+     *
+     * @param forceHasPressure When null, use the [MotionEvent.getDevice] information to determine
+     *   whether the [StrokeInput.pressure] field is populated with data. When false, set that field
+     *   to [StrokeInput.NO_PRESSURE]. When true, set that field to whatever the [MotionEvent]
+     *   reports, even if 0. This should generally only be forced one way or the other when
+     *   [MotionEvent] is synthetic, e.g. from motion prediction.
+     * @param forceHasTilt Like [forceHasPressure], but with [StrokeInput.tiltRadians].
+     * @param forceHasOrientation Like [forceHasPressure], but with
+     *   [StrokeInput.orientationRadians].
      */
     @UiThread
     private fun obtainHistoricalValueForMotionEvent(
@@ -212,6 +236,9 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         motionEventToStrokeTransform: Matrix,
         strokeStartTimeMillis: Long,
         strokeUnitLengthCm: Float,
+        forceHasPressure: Boolean? = null,
+        forceHasTilt: Boolean? = null,
+        forceHasOrientation: Boolean? = null,
     ): StrokeInput {
         scratchPoint[0] =
             event.getMaybeHistoricalAxisValue(MotionEvent.AXIS_X, pointerIndex, historyIndex)
@@ -227,38 +254,45 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
             toolType = getToolTypeFromMotionEvent(event, pointerIndex),
             strokeUnitLengthCm = strokeUnitLengthCm,
             pressure =
-                if (event.getToolType(pointerIndex) == MotionEvent.TOOL_TYPE_STYLUS) {
-                    event
-                        .getMaybeHistoricalAxisValue(
-                            MotionEvent.AXIS_PRESSURE,
-                            pointerIndex,
-                            historyIndex,
-                        )
-                        .coerceIn(0f, 1f)
-                } else {
-                    StrokeInput.NO_PRESSURE
+                event.getOptionalHistoricalStylusAxisValue(
+                    axis = MotionEvent.AXIS_PRESSURE,
+                    pointerIndex = pointerIndex,
+                    historyIndex = historyIndex,
+                    absentValue = StrokeInput.NO_PRESSURE,
+                    forceHasValue = forceHasPressure,
+                ) {
+                    it.coerceIn(0f, 1f)
                 },
             tiltRadians =
-                if (event.getToolType(pointerIndex) == MotionEvent.TOOL_TYPE_STYLUS) {
-                    event
-                        .getMaybeHistoricalAxisValue(
-                            MotionEvent.AXIS_TILT,
-                            pointerIndex,
-                            historyIndex,
-                        )
-                        .coerceIn(0f, PI.toFloat() / 2F)
-                } else {
-                    StrokeInput.NO_TILT
+                event.getOptionalHistoricalStylusAxisValue(
+                    axis = MotionEvent.AXIS_TILT,
+                    pointerIndex = pointerIndex,
+                    historyIndex = historyIndex,
+                    absentValue = StrokeInput.NO_TILT,
+                    forceHasValue = forceHasTilt,
+                ) {
+                    it.coerceIn(0f, PI.toFloat() / 2f)
                 },
             orientationRadians =
-                convertOrientationToStrokeInputRadians(
-                    event.getToolType(pointerIndex),
-                    event.getMaybeHistoricalAxisValue(
-                        MotionEvent.AXIS_ORIENTATION,
-                        pointerIndex,
-                        historyIndex,
-                    ),
-                ),
+                event.getOptionalHistoricalStylusAxisValue(
+                    axis = MotionEvent.AXIS_ORIENTATION,
+                    pointerIndex = pointerIndex,
+                    historyIndex = historyIndex,
+                    absentValue = StrokeInput.NO_ORIENTATION,
+                    forceHasValue = forceHasOrientation,
+                ) {
+                    // Convert MotionEvent orientation angles into StrokeInput orientation angles.
+                    // MotionEvent orientation values lie in [-PI, PI] with zero where the tip of
+                    // the stylus
+                    // is pointing "up" (think the tool bar), positive values are the tip pointing
+                    // "right" and
+                    // the negative values are the tip pointing "left".
+                    // StrokeInput orientationRadians values lie in [0, 2PI] with zero being where
+                    // the tip
+                    // points to the "left" and increases as you rotate clockwise (towards "up", and
+                    // so on).
+                    (it + 2.5f * PI.toFloat()).mod(2 * PI.toFloat())
+                },
         )
     }
 
@@ -297,6 +331,37 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
     }
 
     /**
+     * Like [getMaybeHistoricalAxisValue], but for a stylus-specific [MotionEvent] axis that may not
+     * be present.
+     */
+    private inline fun MotionEvent.getOptionalHistoricalStylusAxisValue(
+        axis: Int,
+        pointerIndex: Int,
+        historyIndex: Int,
+        absentValue: Float,
+        forceHasValue: Boolean?,
+        convertValue: (motionEventValue: Float) -> Float,
+    ): Float {
+        if (getToolType(pointerIndex) != MotionEvent.TOOL_TYPE_STYLUS) {
+            return absentValue
+        }
+        if (
+            forceHasValue == false ||
+                (forceHasValue == null &&
+                    (device == null || device.getMotionRange(axis, source) == null))
+        ) {
+            return absentValue
+        }
+        return convertValue(
+            getMaybeHistoricalAxisValue(
+                axis = axis,
+                pointerIndex = pointerIndex,
+                historyIndex = historyIndex,
+            )
+        )
+    }
+
+    /**
      * Gets the time in milliseconds of a historical event - one that was previously unreported, was
      * batched into this [MotionEvent], but isn't the primary (most recent) event in this
      * [MotionEvent]. Normally [MotionEvent.getHistorySize] would be an invalid argument for
@@ -311,25 +376,5 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         } else {
             getHistoricalEventTime(historyIndex)
         }
-    }
-
-    /**
-     * Convert an orientation angle from how [MotionEvent] reports it to how [StrokeInput] expects
-     * it.
-     */
-    private fun convertOrientationToStrokeInputRadians(toolType: Int, orientation: Float): Float {
-        if (toolType == MotionEvent.TOOL_TYPE_STYLUS) {
-            // Convert MotionEvent orientation angles into StrokeInput orientation angles.
-            // MotionEvent orientation values lie in [-PI, PI] with zero where the tip of the stylus
-            // is
-            // pointing "up" (think the tool bar), positive values are the tip pointing "right" and
-            // the
-            // negative values are the tip pointing "left".
-            // StrokeInput orientationRadians values lie in [0, 2PI] with zero being where the tip
-            // points
-            // to the "left" and increases as you rotate clockwise (towards "up", and so on).
-            return (orientation + 2.5f * PI.toFloat()).mod(2 * PI.toFloat())
-        }
-        return StrokeInput.NO_ORIENTATION
     }
 }

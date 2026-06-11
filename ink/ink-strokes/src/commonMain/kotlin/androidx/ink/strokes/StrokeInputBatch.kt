@@ -16,6 +16,7 @@
 
 package androidx.ink.strokes
 
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.NativePointer
@@ -96,6 +97,16 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
      * been set for this input batch, returns the default seed of zero.
      */
     public fun getNoiseSeed(): Int = StrokeInputBatchNative.getNoiseSeed(nativePointer)
+
+    /**
+     * Returns the [0, 1) value that will determine the stroke's overall animation progress at some
+     * arbitrary zero clock state, so that different strokes can be animated correctly relative to
+     * each other.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
+    public fun getBaseAnimationPhase(): Float =
+        StrokeInputBatchNative.getBaseAnimationPhase(nativePointer)
 
     /**
      * Gets the value of the i-th input. Requires that [index] is non-negative and less than [size].
@@ -323,10 +334,26 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
     public fun setNoiseSeed(seed: Int): Unit =
         MutableStrokeInputBatchNative.setNoiseSeed(nativePointer, seed)
 
+    /**
+     * Sets the [0, 1) animation progress value that the stroke should have at clock state zero. For
+     * newly-drawn strokes, this value should generally be chosen such that the stroke will be at
+     * animation progress 0 at the current clock state for the first input of the stroke.
+     *
+     * Note that it doesn't especially matter what clock is being used by the environment creating
+     * the stroke, since this value only matters for capturing the relative animation phases between
+     * multiple strokes created in the same environment: if such strokes are serialized and later
+     * loaded in a different environment with a different clock that uses a different zero point,
+     * they will still maintain the same relative phases.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun setBaseAnimationPhase(
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) phase: Float
+    ): Unit = MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
+
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public override fun toImmutable(): ImmutableStrokeInputBatch =
-        if (isEmpty() && getNoiseSeed() == 0) {
+        if (isEmpty() && getNoiseSeed() == 0 && getBaseAnimationPhase() == 0.0f) {
             ImmutableStrokeInputBatch.EMPTY
         } else {
             val currentPointer = nativePointer
@@ -361,6 +388,8 @@ expect internal object StrokeInputBatchNative {
 
     fun getNoiseSeed(nativePointer: Long): Int
 
+    fun getBaseAnimationPhase(nativePointer: Long): Float
+
     fun populate(nativePointer: Long, index: Int, input: StrokeInput)
 }
 
@@ -384,4 +413,6 @@ expect internal object MutableStrokeInputBatchNative {
     fun newCopy(nativePointer: Long): Long
 
     fun setNoiseSeed(nativePointer: Long, seed: Int)
+
+    fun setBaseAnimationPhase(nativePointer: Long, phase: Float)
 }

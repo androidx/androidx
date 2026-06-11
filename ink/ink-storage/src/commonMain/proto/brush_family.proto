@@ -1,4 +1,4 @@
-// Copyright 2024-2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -139,7 +139,8 @@ message BrushCoat {
   // Was `paint`; use `paint_preferences` instead.
   reserved 2;
 
-  // If empty, the default `BrushPaint` will be used.
+  // If empty, the default `BrushPaint` will be used, which has no
+  // `TextureLayer`s or `ColorFunction`s, and uses `SELF_OVERLAP_ANY`.
   repeated BrushPaint paint_preferences = 3 [(ink.proto.field_min_version) = 0];
 }
 
@@ -493,6 +494,14 @@ message BrushPaint {
   // opacity variations (e.g. with
   // `BrushBehavior::Target::HUE_OFFSET_IN_RADIANS`), or complex textures (e.g.
   // with `BrushPaint::StampingTexture`).
+  //
+  // That being said, SELF_OVERLAP_DISCARD is incompatible on the same
+  // `BrushCoat` with `BrushBehavior`s which target opacity or color, and with
+  // `BrushPaint::StampingTexture`. This is because SELF_OVERLAP_DISCARD forces
+  // usage of the path renderer, and the aforementioned features require the
+  // mesh renderer. In the case where both are specified on the same
+  // `BrushCoat`, the effects of the `BrushBehavior`/`TextureLayer`(s) will not
+  // be rendered.
   enum SelfOverlap {
     SELF_OVERLAP_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
     SELF_OVERLAP_ANY = 1 [(ink.proto.enum_value_min_version) = 0];
@@ -920,13 +929,18 @@ message BrushBehavior {
 
     // Moves the brush tip by the target modifier times the brush size in the
     // direction of the modeled stroke input's velocity (the opposite direction
-    // if the value is negative).
+    // if the value is negative). For example, if a stroke is moving from left
+    // to right, a positive modifier will shift the brush tip to the right,
+    // and a negative modifier will shift the brush tip to the left.
     TARGET_POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE = 14
         [(ink.proto.enum_value_min_version) = 0];
 
     // Moves the brush tip by the target modifier times the brush size
     // perpendicular to the modeled stroke input's velocity, rotated 90 degrees
-    // in the direction from the positive x-axis to the positive y-axis.
+    // in the direction from the positive x-axis to the positive y-axis. For
+    // example, if positive-Y is up, and a stroke is moving from left to right,
+    // a positive modifier will shift the brush tip up, and a negative modifier
+    // will shift the brush tip down.
     TARGET_POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE = 15
         [(ink.proto.enum_value_min_version) = 0];
 
@@ -1094,7 +1108,8 @@ message BrushBehavior {
   // To be valid:
   //   * `source` must be a valid `Source` enumerator.
   //   * `source_out_of_range_behavior` must be a valid `OutOfRange` enumerator.
-  //   * The endpoints of `source_value_range` must be finite and distinct.
+  //   * `source_value_range_start` and `source_value_range_end` must be finite
+  //     and distinct.
   message SourceNode {
     option (ink.proto.message_min_version) = 0;
 
@@ -1266,7 +1281,8 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `integrate_over` must be a valid `ProgressDomain` enumerator.
-  //   * The endpoints of `integral_value_range` must be finite and distinct.
+  //   * `integral_value_range_start` and `integral_value_range_end` must be
+  //     finite and distinct.
   //   * `integral_out_of_range_behavior` must be a valid `OutOfRange`
   //     enumerator.
   message IntegralNode {
@@ -1304,7 +1320,8 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `target` must be a valid `Target` enumerator.
-  //   * The endpoints of `target_modifier_range` must be finite and distinct.
+  //   * `target_modifier_range_start` and `target_modifier_range_end` must be
+  //     finite and distinct.
   message TargetNode {
     option (ink.proto.message_min_version) = 0;
 
@@ -1333,8 +1350,9 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `target` must be a valid `PolarTarget` enumerator.
-  //   * The endpoints of `angle_range` and of `magnitude_range` must be finite
-  //     and distinct.
+  //   * `angle_range_start` and `angle_range_end` must be finite and distinct.
+  //   * `magnitude_range_start` and `magnitude_range_end` must be finite and
+  //     distinct.
   message PolarTargetNode {
     option (ink.proto.message_min_version) = 0;
 
@@ -1374,8 +1392,22 @@ message ColorFunction {
   option (ink.proto.message_min_version) = 0;
 
   oneof function {
+    // Applies a multiplier to the color's opacity.  The multiplier must be
+    // finite and nonnegative.  Typical multiplier values range between 0 and 1.
     float opacity_multiplier = 1 [(ink.proto.field_min_version) = 0];
+    // Ignores the original color and replaces it with a fixed color.
     Color replace_color = 2 [(ink.proto.field_min_version) = 0];
+    // Applies an additive offset to the color's hue angle.  The offset angle
+    // must be finite, but can be positive or negative (or zero).
+    float hue_offset_radians = 3 [(ink.proto.field_min_version) = 2147483647];
+    // Applies a multiplier to the color's saturation.  The multiplier must be
+    // finite and nonnegative.  Typical multiplier values range between 0 and 1.
+    float saturation_multiplier = 4
+        [(ink.proto.field_min_version) = 2147483647];
+    // Applies an additive offset to the color's luminosity.  The offset must be
+    // finite, but can be positive or negative (or zero).  Typical offset values
+    // range between -1 and 1.
+    float luminosity_offset = 5 [(ink.proto.field_min_version) = 2147483647];
   }
 }
 

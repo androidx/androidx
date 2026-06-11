@@ -346,7 +346,9 @@ internal class InProgressStrokesManager<
      * Start building a stroke with the [event] data for [pointerId].
      *
      * @param event The first [MotionEvent] as part of a Stroke's input data, typically an
-     *   ACTION_DOWN.
+     *   ACTION_DOWN. This should be obtained from [android.view.View.OnTouchListener] or a similar
+     *   API. If the input data is synthetic, prefer to use the version of [startStroke] that
+     *   accepts a [StrokeInput].
      * @param pointerId The index of the relevant pointer in the [event].
      * @param motionEventToWorldTransform The matrix that transforms [event] coordinates into the
      *   client app's "world" coordinates, which typically is defined by how a client app's document
@@ -547,7 +549,7 @@ internal class InProgressStrokesManager<
                 }
                 check(predictedInputs.isEmpty())
                 check(predictedInputLatencyDatas.isEmpty())
-                if (prediction != null) {
+                if (prediction != null && !realInputs.isEmpty()) {
                     // The real and predicted MotionEvents don't necessarily align pointers by their
                     // index,
                     // but rather their ID. And there isn't always necessarily a prediction for
@@ -563,6 +565,22 @@ internal class InProgressStrokesManager<
                             motionEventToStrokeTransform = strokeState.motionEventToStrokeTransform,
                             strokeStartTimeMillis = strokeState.startEventTimeMillis,
                             strokeUnitLengthCm = strokeState.strokeUnitLengthCm,
+                            // We can't necessarily rely on the predicted MotionEvent to have the
+                            // same InputDevice
+                            // metadata as real inputs, so use the real MotionEvent to determine
+                            // which of the
+                            // optional fields should be present or absent. Predicted MotionEvents
+                            // should have the
+                            // optional fields set according to the real MotionEvents used for
+                            // prediction, but
+                            // the presence or absence of the optional fields can't be determined
+                            // from the return
+                            // values themselves as the return value when absent (0) is within the
+                            // valid range for
+                            // pressure/tilt/orientation.
+                            forceHasPressure = realInputs.hasPressure(),
+                            forceHasTilt = realInputs.hasTilt(),
+                            forceHasOrientation = realInputs.hasOrientation(),
                             outBatch = predictedInputs,
                         )
                         // TODO b/306361370 - Generate LatencyData only for those inputs that pass

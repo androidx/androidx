@@ -21,9 +21,11 @@ import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendBa
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendSingle
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_clear
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_newCopy
+import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_setBaseAnimationPhase
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_setNoiseSeed
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_create
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_free
+import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getBaseAnimationPhase
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getDurationMillis
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getNoiseSeed
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getSize
@@ -71,13 +73,16 @@ actual internal object StrokeInputBatchNative {
     actual fun getNoiseSeed(nativePointer: Long): Int =
         StrokeInputBatchNative_getNoiseSeed(nativePointer)
 
+    actual fun getBaseAnimationPhase(nativePointer: Long): Float =
+        StrokeInputBatchNative_getBaseAnimationPhase(nativePointer)
+
     actual fun populate(nativePointer: Long, index: Int, input: StrokeInput) {
         StrokeInputBatchNative_getStrokeInput(nativePointer, index).useContents {
             input.update(
                 x = x,
                 y = y,
                 elapsedTimeMillis = elapsed_time_millis,
-                toolType = InputToolType.fromInt(tool_type),
+                toolType = InputToolType.fromInt(tool_type_int),
                 strokeUnitLengthCm = stroke_unit_length_cm,
                 pressure = pressure,
                 tiltRadians = tilt_radians,
@@ -131,5 +136,9 @@ actual internal object MutableStrokeInputBatchNative {
 
     actual fun setNoiseSeed(nativePointer: Long, seed: Int) {
         MutableStrokeInputBatchNative_setNoiseSeed(nativePointer, seed)
+    }
+
+    actual fun setBaseAnimationPhase(nativePointer: Long, phase: Float) {
+        MutableStrokeInputBatchNative_setBaseAnimationPhase(nativePointer, phase)
     }
 }
