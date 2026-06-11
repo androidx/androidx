@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -248,7 +249,7 @@ fun ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog() {
             }
         },
         extraPane = {
-            AnimatedPane {
+            AnimatedPane(shape = RoundedCornerShape(16.dp)) {
                 ExtraPaneContent(
                     extraItems = extraItems,
                     selectedItem = selectedItem,
