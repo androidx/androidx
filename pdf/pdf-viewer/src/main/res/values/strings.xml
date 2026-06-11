@@ -193,7 +193,7 @@
     <string name="clipboard_label">Content copied from PDF</string>
 
     <!-- Content description of the fast scroller thumb -->
-    <string name="fast_scroller_thumb">Scroll Bar</string>
+    <string name="fast_scroller_thumb">Scroll bar</string>
 
     <!-- Text for confirm button in dialog boxes(Confirms the selected elements) -->
     <string name="confirm_selection">Confirm</string>
@@ -218,7 +218,7 @@
     <string name="form_read_only">Widget is read only and cannot be changed.</string>
 
     <!-- Multi-select form widget label -->
-    <string name="form_multiselect_type">Type: Multi select <xliff:g example="LISTBOX" id="widget_type_name">%1$s</xliff:g>.</string>
+    <string name="form_multiselect_type">Type: Multi-select <xliff:g example="LISTBOX" id="widget_type_name">%1$s</xliff:g>.</string>
 
     <!-- Instruction for click action when it toggles the selected value (click type form widget) -->
     <string name="form_click_toggle_instruction">Click will toggle value.</string>
@@ -236,22 +236,22 @@
     <string name="form_unknown">"Unknown"</string>
 
     <!-- String for form widget type - Push Button -->
-    <string name="form_widget_type_push_button">"Push Button"</string>
+    <string name="form_widget_type_push_button">"Push button"</string>
 
     <!-- String for form widget type - Checkbox -->
-    <string name="form_widget_type_checkbox">"Checkbox"</string>
+    <string name="form_widget_type_checkbox">"Check box"</string>
 
     <!-- String for pdf form widget type - Radio Button -->
-    <string name="form_widget_type_radio_button">"Radio Button"</string>
+    <string name="form_widget_type_radio_button">"Radio button"</string>
 
     <!-- String for pdf form widget type - Combo Box -->
-    <string name="form_widget_type_combo_box">"Combo Box"</string>
+    <string name="form_widget_type_combo_box">"Combo box"</string>
 
     <!-- String for pdf form widget type - List Box -->
-    <string name="form_widget_type_list_box">"List Box"</string>
+    <string name="form_widget_type_list_box">"List box"</string>
 
     <!-- String for pdf form widget type - Text Field -->
-    <string name="form_widget_type_text_field">"Text Field"</string>
+    <string name="form_widget_type_text_field">"Text field"</string>
 
     <!-- String for pdf form widget type - Signature -->
     <string name="form_widget_type_signature">"Signature"</string>
