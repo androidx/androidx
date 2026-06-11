@@ -7330,7 +7330,7 @@ public class ExifInterface {
                 int jpegInterchangeFormat =
                         jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
                 int jpegInterchangeFormatLength =
-                        jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
+                        jpegInterchangeFormatLengthAttribute.getIntValue(mExifByteOrder);
 
                 // Searches for SOF marker in JPEG data and updates IMAGE_LENGTH & IMAGE_WIDTH tags
                 in.seek(jpegInterchangeFormat);
