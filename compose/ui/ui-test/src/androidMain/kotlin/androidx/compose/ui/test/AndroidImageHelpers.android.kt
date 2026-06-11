@@ -22,10 +22,13 @@ import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Build
+import android.view.SurfaceView
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect as ComposeRect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ViewRootForTest
@@ -64,8 +67,8 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
 
     val node = nodes.single()
 
-    // Popups are in a different window; use the multi-window screenshot mechanism
-    if (node.isInsidePopup) {
+    // Popups and Surface Views are in a different window; use the multi-window screenshot mechanism
+    if (node.isInsidePopup || node.hasIntersectingSurfaceView()) {
         return processMultiWindowScreenshot(listOf(node), testContext)
     }
 
@@ -107,6 +110,51 @@ private fun processMultiWindowScreenshot(
 
     val finalBitmap = Bitmap.createBitmap(combinedBitmap, cropX, cropY, cropWidth, cropHeight)
     return finalBitmap.asImageBitmap()
+}
+
+/**
+ * Traverses the root Android View hierarchy to determine if a [SurfaceView] is actively rendered
+ * within the boundaries of this [SemanticsNode].
+ */
+private fun SemanticsNode.hasIntersectingSurfaceView(): Boolean {
+    val composeRootView = this.view as? ViewGroup ?: return false
+    val nodeBoundsOnScreen =
+        this.getPositionOnScreen().let { offset ->
+            ComposeRect(
+                left = offset.x,
+                top = offset.y,
+                right = offset.x + this.boundsInRoot.width,
+                bottom = offset.y + this.boundsInRoot.height,
+            )
+        }
+
+    fun ViewGroup.containsIntersectingSurfaceView(): Boolean {
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+
+            if (child is SurfaceView) {
+                val location = intArrayOf(0, 0)
+                child.getLocationOnScreen(location)
+
+                val childBounds =
+                    ComposeRect(
+                        left = location[0].toFloat(),
+                        top = location[1].toFloat(),
+                        right = (location[0] + child.width).toFloat(),
+                        bottom = (location[1] + child.height).toFloat(),
+                    )
+
+                if (nodeBoundsOnScreen.overlaps(childBounds)) {
+                    return true
+                }
+            } else if (child is ViewGroup) {
+                if (child.containsIntersectingSurfaceView()) return true
+            }
+        }
+        return false
+    }
+
+    return composeRootView.containsIntersectingSurfaceView()
 }
 
 /**

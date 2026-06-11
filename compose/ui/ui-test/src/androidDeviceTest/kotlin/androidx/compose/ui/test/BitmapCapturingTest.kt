@@ -18,12 +18,15 @@ package androidx.compose.ui.test
 
 import android.graphics.Rect
 import android.os.Build
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +40,7 @@ import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -45,12 +49,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.window.Popup
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -312,6 +319,103 @@ class BitmapCapturingTest(val config: TestConfig) {
         assertThat(exception)
             .hasMessageThat()
             .contains("Cannot currently capture dialogs on API lower than 28")
+    }
+
+    @Test
+    fun captureToImage_withIntersectingSurfaceView() {
+        val surfaceDrawnLatch = CountDownLatch(1)
+
+        setContent {
+            Box(Modifier.testTag(rootTag).size(200.dp)) {
+                AndroidView(
+                    factory = { ctx ->
+                        SurfaceView(ctx).apply {
+                            holder.addCallback(
+                                object : SurfaceHolder.Callback {
+                                    override fun surfaceCreated(holder: SurfaceHolder) {
+                                        val canvas = holder.lockCanvas()
+                                        if (canvas != null) {
+                                            canvas.drawColor(Color.Blue.toArgb())
+                                            holder.unlockCanvasAndPost(canvas)
+                                            surfaceDrawnLatch.countDown()
+                                        }
+                                    }
+
+                                    override fun surfaceChanged(
+                                        holder: SurfaceHolder,
+                                        format: Int,
+                                        w: Int,
+                                        h: Int,
+                                    ) {}
+
+                                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
+                                }
+                            )
+                        }
+                    },
+                    modifier = Modifier.matchParentSize(),
+                )
+                Box(Modifier.size(50.dp).background(Color.Red).align(Alignment.Center))
+            }
+        }
+
+        surfaceDrawnLatch.await(2, TimeUnit.SECONDS)
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(rootTag).captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.Blue)
+            bitmap.assertContainsColor(Color.Red)
+        }
+    }
+
+    @Test
+    fun captureToImage_withNonIntersectingSurfaceView() {
+        val surfaceDrawnLatch = CountDownLatch(1)
+
+        setContent {
+            Column(Modifier.fillMaxSize()) {
+                // SurfaceView rendered completely outside the target node's bounds
+                AndroidView(
+                    factory = { ctx ->
+                        SurfaceView(ctx).apply {
+                            holder.addCallback(
+                                object : SurfaceHolder.Callback {
+                                    override fun surfaceCreated(holder: SurfaceHolder) {
+                                        val canvas = holder.lockCanvas()
+                                        if (canvas != null) {
+                                            canvas.drawColor(Color.Blue.toArgb())
+                                            holder.unlockCanvasAndPost(canvas)
+                                            surfaceDrawnLatch.countDown()
+                                        }
+                                    }
+
+                                    override fun surfaceChanged(
+                                        holder: SurfaceHolder,
+                                        format: Int,
+                                        w: Int,
+                                        h: Int,
+                                    ) {}
+
+                                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
+                                }
+                            )
+                        }
+                    },
+                    modifier = Modifier.size(100.dp),
+                )
+                Box(Modifier.testTag(rootTag).size(50.dp).background(Color.Red))
+            }
+        }
+
+        surfaceDrawnLatch.await(2, TimeUnit.SECONDS)
+        rule.waitForIdle()
+
+        // Capture the target tag. This should successfully default to the
+        // PixelCopy because there is no coordinate intersection.
+        rule.onNodeWithTag(rootTag).captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.Red)
+            bitmap.assertDoesNotContainColor(Color.Blue)
+        }
     }
 
     private fun Dp.toPixel(density: Density) = this.value * density.density
