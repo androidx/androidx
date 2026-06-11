@@ -16,10 +16,8 @@
 
 package androidx.pdf.annotation.content
 
-import androidx.annotation.RestrictTo
-
 /**
  * This sealed interface represents specific types of PDF objects, such as [PathPdfObject] and
  * [ImagePdfObject].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface PdfObject
+public sealed interface PdfObject

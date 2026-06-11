@@ -3,14 +3,29 @@ package androidx.pdf {
 
   public interface EditablePdfDocument extends androidx.pdf.PdfDocument {
     method public suspend Object? applyEdit(androidx.pdf.models.FormEditInfo record, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? applyEdits(androidx.pdf.EditsDraft editsDraft, kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
     method public androidx.pdf.PdfWriteHandle createWriteHandle();
+  }
+
+  public class EditsDraft {
+    method public final kotlin.Pair<androidx.pdf.EditsDraft,androidx.pdf.EditsDraft> splitAt(int index);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPdfApi {
   }
 
+  public final class MutableEditsDraft extends androidx.pdf.EditsDraft {
+    ctor public MutableEditsDraft();
+    method public void insert(androidx.pdf.annotation.content.PdfAnnotation annotation);
+    method public void remove(String annotationId, int pageNum);
+    method public androidx.pdf.EditsDraft toEditsDraft();
+    method public void update(String annotationId, androidx.pdf.annotation.content.PdfAnnotation annotation);
+  }
+
   public interface PdfDocument extends java.io.Closeable {
+    method public default void addOnEditAppliedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnEditAppliedListener listener);
     method public void addOnPdfContentInvalidatedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
+    method public suspend Object? getAnnotationsForPage(int pageNum, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation>>);
     method @InaccessibleFromKotlin public int getFormType();
     method public suspend Object? getFormWidgetInfos(int pageNum, optional long types, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.models.FormWidgetInfo>>);
     method @BytecodeOnly public static Object! getFormWidgetInfos$default(androidx.pdf.PdfDocument!, int, long, kotlin.coroutines.Continuation!, int, Object!);
@@ -28,6 +43,7 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public androidx.pdf.RenderParams getRenderParams();
     method public suspend Object? getSelectionBounds(int pageNumber, android.graphics.PointF start, android.graphics.PointF stop, kotlin.coroutines.Continuation<? super androidx.pdf.content.PageSelection?>);
     method @InaccessibleFromKotlin public android.net.Uri getUri();
+    method public default void removeOnEditAppliedListener(androidx.pdf.PdfDocument.OnEditAppliedListener listener);
     method public void removeOnPdfContentInvalidatedListener(androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
     method public suspend Object? searchDocument(String query, kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super android.util.SparseArray<java.util.List<androidx.pdf.content.PageMatchBounds>>>);
     property public abstract int formType;
@@ -102,6 +118,10 @@ package androidx.pdf {
     field public static final int PDF_FORM_TYPE_XFA_FULL = 2; // 0x2
   }
 
+  public static interface PdfDocument.OnEditAppliedListener {
+    method public void onEditApplied(int pageNum, String editId);
+  }
+
   public static interface PdfDocument.OnPdfContentInvalidatedListener {
     method public void onPdfContentInvalidated(int pageNumber, java.util.List<android.graphics.Rect> dirtyAreas);
   }
@@ -133,6 +153,14 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> getGotoLinks();
     property public java.util.List<androidx.pdf.content.PdfPageLinkContent> externalLinks;
     property public java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> gotoLinks;
+  }
+
+  public final class PdfEditApplyException extends java.lang.Exception {
+    ctor public PdfEditApplyException(int failureIndex, java.util.List<java.lang.String> appliedEditIds, Throwable cause);
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getAppliedEditIds();
+    method @InaccessibleFromKotlin public int getFailureIndex();
+    property public java.util.List<java.lang.String> appliedEditIds;
+    property public int failureIndex;
   }
 
   public interface PdfLoader {
@@ -211,6 +239,86 @@ package androidx.pdf {
     property public static int RENDER_FORM_CONTENT_ENABLED;
     property public static int RENDER_MODE_FOR_DISPLAY;
     property public static int RENDER_MODE_FOR_PRINT;
+  }
+
+}
+
+package androidx.pdf.annotation.content {
+
+  public final class HighlightAnnotation extends androidx.pdf.annotation.content.PdfAnnotation {
+    ctor public HighlightAnnotation(int pageNum, java.util.List<? extends android.graphics.RectF> bounds, int color);
+    method @InaccessibleFromKotlin public java.util.List<android.graphics.RectF> getBounds();
+    method @InaccessibleFromKotlin public int getColor();
+    property public java.util.List<android.graphics.RectF> bounds;
+    property public int color;
+  }
+
+  public final class ImagePdfObject implements androidx.pdf.annotation.content.PdfObject {
+    ctor public ImagePdfObject(android.graphics.Bitmap bitmap, android.graphics.RectF bounds);
+    method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
+    method @InaccessibleFromKotlin public android.graphics.RectF getBounds();
+    property public android.graphics.Bitmap bitmap;
+    property public android.graphics.RectF bounds;
+  }
+
+  public final class KeyedPdfAnnotation {
+    ctor public KeyedPdfAnnotation(String key, androidx.pdf.annotation.content.PdfAnnotation annotation);
+    method @InaccessibleFromKotlin public androidx.pdf.annotation.content.PdfAnnotation getAnnotation();
+    method @InaccessibleFromKotlin public String getKey();
+    property public androidx.pdf.annotation.content.PdfAnnotation annotation;
+    property public String key;
+  }
+
+  public final class KeyedPdfObject {
+    ctor public KeyedPdfObject(String key, androidx.pdf.annotation.content.PdfObject pdfObject);
+    method @InaccessibleFromKotlin public String getKey();
+    method @InaccessibleFromKotlin public androidx.pdf.annotation.content.PdfObject getPdfObject();
+    property public String key;
+    property public androidx.pdf.annotation.content.PdfObject pdfObject;
+  }
+
+  public final class PathPdfObject implements androidx.pdf.annotation.content.PdfObject {
+    ctor public PathPdfObject(int brushColor, float brushWidth, java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs);
+    method @InaccessibleFromKotlin public int getBrushColor();
+    method @InaccessibleFromKotlin public float getBrushWidth();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> getInputs();
+    property public int brushColor;
+    property public float brushWidth;
+    property public java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs;
+  }
+
+  public static final class PathPdfObject.PathInput {
+    ctor public PathPdfObject.PathInput(float x, float y, int command);
+    method @InaccessibleFromKotlin public int getCommand();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    property public int command;
+    property public float x;
+    property public float y;
+    field public static final androidx.pdf.annotation.content.PathPdfObject.PathInput.Companion Companion;
+    field public static final int LINE_TO = 1; // 0x1
+    field public static final int MOVE_TO = 0; // 0x0
+  }
+
+  public static final class PathPdfObject.PathInput.Companion {
+    property public static int LINE_TO;
+    property public static int MOVE_TO;
+  }
+
+  public abstract class PdfAnnotation {
+    method @InaccessibleFromKotlin public int getPageNum();
+    property public int pageNum;
+  }
+
+  public sealed exhaustive interface PdfObject {
+  }
+
+  public final class StampAnnotation extends androidx.pdf.annotation.content.PdfAnnotation {
+    ctor public StampAnnotation(int pageNum, android.graphics.RectF bounds, java.util.List<? extends androidx.pdf.annotation.content.PdfObject> pdfObjects);
+    method @InaccessibleFromKotlin public android.graphics.RectF getBounds();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.annotation.content.PdfObject> getPdfObjects();
+    property public android.graphics.RectF bounds;
+    property public java.util.List<androidx.pdf.annotation.content.PdfObject> pdfObjects;
   }
 
 }

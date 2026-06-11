@@ -25,7 +25,6 @@ import androidx.pdf.annotation.content.RemoveDraftEditOperation
 import androidx.pdf.annotation.content.UpdateDraftEditOperation
 
 /** A mutable builder for creating a sequence of draft edit operations. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableEditsDraft
 private constructor(private val mutableOperations: MutableList<DraftEditOperation>) :
     EditsDraft(mutableOperations) {
@@ -66,6 +65,7 @@ private constructor(private val mutableOperations: MutableList<DraftEditOperatio
      *
      * @param operation The [DraftEditOperation] to add.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     public fun addOperation(operation: DraftEditOperation) {
         mutableOperations.add(operation)

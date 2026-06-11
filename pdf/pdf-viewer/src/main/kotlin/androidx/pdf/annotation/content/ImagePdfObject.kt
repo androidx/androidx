@@ -18,7 +18,6 @@ package androidx.pdf.annotation.content
 
 import android.graphics.Bitmap
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 import androidx.pdf.Dimension
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.model.ImageSelection
@@ -29,7 +28,6 @@ import androidx.pdf.selection.model.ImageSelection
  * @property bitmap The [Bitmap] data of the image.
  * @property bounds The rectangular boundaries of its position and size on the PDF page.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF) : PdfObject {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

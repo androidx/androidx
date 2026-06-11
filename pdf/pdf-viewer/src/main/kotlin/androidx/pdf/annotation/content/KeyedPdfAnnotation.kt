@@ -16,15 +16,12 @@
 
 package androidx.pdf.annotation.content
 
-import androidx.annotation.RestrictTo
-
 /**
  * Associates a [PdfAnnotation] with a unique key.
  *
  * @property key The unique string identifier for the annotation.
  * @property annotation The [PdfAnnotation] object.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class KeyedPdfAnnotation(public val key: String, public val annotation: PdfAnnotation) {
     override fun equals(other: Any?): Boolean {
         return (other is KeyedPdfAnnotation) && other.key == key && other.annotation == annotation

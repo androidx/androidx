@@ -17,18 +17,19 @@
 package androidx.pdf
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.pdf.annotation.content.DraftEditOperation
 import androidx.pdf.annotation.content.InsertDraftEditOperation
 import androidx.pdf.annotation.content.RemoveDraftEditOperation
 import androidx.pdf.annotation.content.UpdateDraftEditOperation
 
-/**
- * Represents a read-only sequence of draft edit operations for a PDF document.
- *
- * @property operations The list of operations contained in this draft.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class EditsDraft internal constructor(public val operations: List<DraftEditOperation>) {
+/** Represents a read-only sequence of draft edit operations for a PDF document. */
+public open class EditsDraft
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:VisibleForTesting
+    public val operations: List<DraftEditOperation>
+) {
 
     /**
      * Splits this [EditsDraft] into two separate drafts at the specified index with bounds [0,
@@ -59,6 +60,7 @@ public open class EditsDraft internal constructor(public val operations: List<Dr
      * @return A new [EditsDraft] containing the operations of this draft followed by the operations
      *   of the other draft.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun plus(other: EditsDraft): EditsDraft {
         val combinedOperations = this.operations + other.operations
         return EditsDraft(combinedOperations)
@@ -69,6 +71,7 @@ public open class EditsDraft internal constructor(public val operations: List<Dr
      *
      * @return A list of [DraftEditOperation] sorted by page index.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getOperationsSortedByPage(): List<DraftEditOperation> {
         val sortedOperations =
             operations

@@ -17,7 +17,6 @@
 package androidx.pdf
 
 import android.os.ParcelFileDescriptor
-import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener
 import androidx.pdf.models.FormEditInfo
 
@@ -48,7 +47,6 @@ public interface EditablePdfDocument : PdfDocument {
      * @return List of annotationId for each operation in sequence of the order they were enqueued.
      * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
 
     /**

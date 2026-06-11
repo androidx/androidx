@@ -383,14 +383,14 @@ public class SandboxedPdfDocument(
         }
     }
 
-    override fun addOnEditsAppliedListener(
+    override fun addOnEditAppliedListener(
         executor: Executor,
-        listener: PdfDocument.OnEditsAppliedListener,
+        listener: PdfDocument.OnEditAppliedListener,
     ) {
         onEditsAppliedListenerEntries.add(OnEditsAppliedListenerEntry(executor, listener))
     }
 
-    override fun removeOnEditsAppliedListener(listener: PdfDocument.OnEditsAppliedListener) {
+    override fun removeOnEditAppliedListener(listener: PdfDocument.OnEditAppliedListener) {
         for (onEditsAppliedListener in onEditsAppliedListenerEntries) {
             if (onEditsAppliedListener.listener == listener) {
                 onEditsAppliedListenerEntries.remove(onEditsAppliedListener)
@@ -596,7 +596,7 @@ public class SandboxedPdfDocument(
 
     private data class OnEditsAppliedListenerEntry(
         val executor: Executor,
-        val listener: PdfDocument.OnEditsAppliedListener,
+        val listener: PdfDocument.OnEditAppliedListener,
     )
 
     /**

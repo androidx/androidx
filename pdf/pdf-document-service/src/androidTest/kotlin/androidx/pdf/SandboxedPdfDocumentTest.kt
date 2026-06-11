@@ -650,7 +650,7 @@ class SandboxedPdfDocumentTest {
 
             assertThat(thrownException.failureIndex).isEqualTo(0)
             assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
-            assertThat(thrownException.error.message).isEqualTo("Invalid page index")
+            assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
         }
     }
 
@@ -679,17 +679,17 @@ class SandboxedPdfDocumentTest {
 
                 assertThat(thrownException.failureIndex).isEqualTo(0)
                 assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
-                assertThat(thrownException.error.message).isEqualTo("Invalid page index")
+                assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
             }
         }
 
     @Test
-    fun addOnEditsAppliedListener_singleListener_isNotified() = runTest {
+    fun addOnEditAppliedListener_singleListener_isNotified() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
-            object : PdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
@@ -702,7 +702,7 @@ class SandboxedPdfDocumentTest {
 
             repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
 
-            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener)
             editablePdfDocument.applyEdits(draft.toEditsDraft())
 
             assertThat(appliedEdits.size).isEqualTo(numAnnots)
@@ -710,25 +710,25 @@ class SandboxedPdfDocumentTest {
             assertThat(appliedEdits[1].pageNum).isEqualTo(1)
 
             // Clean up
-            editablePdfDocument.removeOnEditsAppliedListener(listener)
+            editablePdfDocument.removeOnEditAppliedListener(listener)
         }
     }
 
     @Test
-    fun addOnEditsAppliedListener_multipleListeners_sameNotification() = runTest {
+    fun addOnEditAppliedListener_multipleListeners_sameNotification() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits1 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val appliedEdits2 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
 
         val listener1 =
-            object : PdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits1.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
             }
         val listener2 =
-            object : PdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits2.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
@@ -741,8 +741,8 @@ class SandboxedPdfDocumentTest {
 
             repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
 
-            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener1)
-            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener2)
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener1)
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener2)
             editablePdfDocument.applyEdits(draft.toEditsDraft())
 
             assertThat(appliedEdits1.size).isEqualTo(appliedEdits2.size)
@@ -750,18 +750,18 @@ class SandboxedPdfDocumentTest {
             assertThat(appliedEdits1[1]).isEqualTo(appliedEdits2[1])
 
             // Clean up
-            editablePdfDocument.removeOnEditsAppliedListener(listener1)
-            editablePdfDocument.removeOnEditsAppliedListener(listener2)
+            editablePdfDocument.removeOnEditAppliedListener(listener1)
+            editablePdfDocument.removeOnEditAppliedListener(listener2)
         }
     }
 
     @Test
-    fun removeOnEditsAppliedListener_singleListener_isEmpty() = runTest {
+    fun removeOnEditAppliedListener_singleListener_isEmpty() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
-            object : PdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
@@ -774,8 +774,8 @@ class SandboxedPdfDocumentTest {
 
             repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
 
-            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener)
-            editablePdfDocument.removeOnEditsAppliedListener(listener)
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.removeOnEditAppliedListener(listener)
             editablePdfDocument.applyEdits(draft.toEditsDraft())
 
             assertThat(appliedEdits).isEmpty()

@@ -16,8 +16,6 @@
 
 package androidx.pdf.annotation.content
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents an annotation on a PDF page.
  *
@@ -26,7 +24,6 @@ import androidx.annotation.RestrictTo
  *
  * @param pageNum The page number (0-indexed) where this annotation is located.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PdfAnnotation internal constructor(public open val pageNum: Int) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
