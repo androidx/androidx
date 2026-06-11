@@ -131,6 +131,13 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "SchemaAppFunctionInventory")
     val APP_FUNCTION_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "CompileTimeAppFunctionMetadata")
+
+    object AppFunctionMetadataClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionMetadata")
+        const val SCOPE_GLOBAL = "global"
+        const val SCOPE_ACTIVITY = "activity"
+    }
+
     val APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS =
         ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionFunctionNotFoundException")
     val APP_FUNCTION_CANCELLED_EXCEPTION_CLASS =

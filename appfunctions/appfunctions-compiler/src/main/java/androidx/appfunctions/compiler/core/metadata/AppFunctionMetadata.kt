@@ -28,6 +28,7 @@ data class CompileTimeAppFunctionMetadata(
     val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     val description: String = "",
     val deprecation: AppFunctionDeprecationMetadata? = null,
+    val scope: String? = null,
 ) {
     fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
         return AppFunctionMetadataDocument(
@@ -40,6 +41,7 @@ data class CompileTimeAppFunctionMetadata(
             response = response.toAppFunctionResponseMetadataDocument(),
             description = description,
             deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
+            scope = scope,
         )
     }
 }
@@ -55,4 +57,5 @@ data class AppFunctionMetadataDocument(
     val response: AppFunctionResponseMetadataDocument?,
     val description: String = "",
     val deprecation: AppFunctionDeprecationMetadataDocument? = null,
+    val scope: String? = null,
 )

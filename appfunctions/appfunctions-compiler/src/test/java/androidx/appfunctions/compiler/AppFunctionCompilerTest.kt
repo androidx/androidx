@@ -43,6 +43,34 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testAppFunctionSignature_globalScope_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/GlobalSignature.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/globalSignature_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_activityScope_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/ActivitySignature.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/activitySignature_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
     fun testAppFunctionSignature_noMethods_hasCompileError() {
         val report =
             compilationTestHelper.compileAll(
@@ -95,6 +123,48 @@ class AppFunctionCompilerTest {
             report,
             expectedErrorMessage =
                 "Only functional interfaces (fun interface) can be annotated with @AppFunctionSignature",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_invalidScope_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/InvalidScopeSignature.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Invalid scope: \"invalid_scope\". Supported scopes are \"global\" and \"activity\".",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_wrongCaseScope_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/WrongCaseScopeSignature.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Invalid scope: \"Global\". Supported scopes are \"global\" and \"activity\".",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_emptyAppFunctionXmlFileName_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf("signatures/invalid/EmptyAppFunctionXmlFileNameSignature.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage = "appFunctionXmlFileName cannot be empty",
         )
     }
 

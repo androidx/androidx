@@ -37,6 +37,10 @@ internal fun AppFunctionMetadataDocument.toXmlElement(doc: Document, elementName
             doc.createElementWithTextNode("enabledByDefault", isEnabledByDefault.toString())
         )
 
+        if (scope != null) {
+            appendChild(doc.createElementWithTextNode("scope", scope))
+        }
+
         if (description.isNotEmpty()) {
             appendChild(doc.createElementWithTextNode("description", description))
         }
