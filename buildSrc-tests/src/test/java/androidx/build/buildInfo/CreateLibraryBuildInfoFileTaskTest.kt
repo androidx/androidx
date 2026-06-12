@@ -318,7 +318,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                                 project.provider { "fakeSha" },
                                 project.provider { false }, // shouldPublishDocs
                                 true, // isKmp
-                                "androidx",
+                                project.provider { "androidx" },
                                 ["linuxx64"].toSet(),
                                 project.provider { [] },
                                 it.name,
@@ -387,7 +387,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                                 project.provider { "fakeSha" },
                                 project.provider { false },
                                 false,
-                                "androidx",
+                                project.provider { "androidx" },
                                 ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
                                 project.provider { ["test.xml"] },
                                 it.name,
@@ -452,7 +452,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                                 project.provider { "fakeSha" },
                                 project.provider { false },
                                 false,
-                                "androidx",
+                                project.provider { "androidx" },
                                 ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
                                 project.provider { ["test.xml"] },
                                 it.name
@@ -513,7 +513,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                                 project.provider { "fakeSha" },
                                 project.provider { false },
                                 false,
-                                "androidx",
+                                project.provider { "androidx" },
                                 [].toSet(),
                                 project.provider { [] },
                                 it.name
@@ -580,7 +580,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                                 project.provider { "fakeSha" },
                                 project.provider { false }, // shouldPublishDocs
                                 true, // isKmp
-                                "androidx",
+                                project.provider { "androidx" },
                                 ["android", "jvm"].toSet(),
                                 project.provider { ["test.xml"] },
                                 it.name,

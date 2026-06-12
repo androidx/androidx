@@ -33,8 +33,10 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.the
@@ -930,4 +932,43 @@ fun Project.validatePublishedMultiplatformHasDefault() {
                 }
         )
     }
+}
+
+val HAS_CINTEROP_ATTRIBUTE = Attribute.of("androidx.kmp.hasCInterop", Boolean::class.javaObjectType)
+
+fun KotlinMultiplatformExtension.nativeTargets() =
+    targets.withType(KotlinNativeTarget::class.java).matching {
+        it.platformType == KotlinPlatformType.native
+    }
+
+fun KotlinMultiplatformExtension.hasCInterop(): Boolean {
+    val nativeTargets = nativeTargets()
+    val mainCompilations =
+        nativeTargets.map { it.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME) }
+    return mainCompilations.any { it.cinterops.isNotEmpty() }
+}
+
+fun Project.hasCInteropDependency(): Provider<Boolean> {
+    val nativeTargets =
+        multiplatformExtension?.nativeTargets()
+            ?: return objects.property(Boolean::class.javaObjectType).value(false)
+    val cinteropFiles = objects.fileCollection()
+    nativeTargets.forEach { target ->
+        val compilation =
+            target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                ?: return@forEach
+        configurations
+            .matching { it.name == compilation.compileDependencyConfigurationName }
+            .configureEach { configuration ->
+                cinteropFiles.from(
+                    configuration.incoming
+                        .artifactView { view ->
+                            view.lenient(true)
+                            view.attributes { it.attribute(HAS_CINTEROP_ATTRIBUTE, true) }
+                        }
+                        .files
+                )
+            }
+    }
+    return cinteropFiles.elements.map { it.isNotEmpty() }
 }

@@ -28,8 +28,11 @@ import androidx.build.getBuildInfoDirectory
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.getHeadShaProvider
+import androidx.build.hasCInterop
+import androidx.build.hasCInteropDependency
 import androidx.build.jetpad.LibraryBuildInfoFile
 import androidx.build.kotlinExtensionOrNull
+import androidx.build.multiplatformExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.google.common.annotations.VisibleForTesting
 import com.google.gson.GsonBuilder
@@ -217,7 +220,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             shaProvider: Provider<String>,
             shouldPublishDocs: Provider<Boolean>,
             isKmp: Boolean,
-            target: String,
+            target: Provider<String>,
             kmpChildren: Set<String>,
             testModuleNames: Provider<Set<String>>,
             gradlePluginIds: Set<String>,
@@ -362,6 +365,20 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     }
 }
 
+private fun createBuildTargetProvider(
+    hasApplePlatform: Boolean,
+    hasCInterop: Boolean,
+    hasCInteropDependency: Provider<Boolean>,
+): Provider<String> {
+    return hasCInteropDependency.map { hasCInteropDep ->
+        if (hasApplePlatform && (hasCInterop || hasCInteropDep)) {
+            "androidx_multiplatform_mac"
+        } else {
+            "androidx"
+        }
+    }
+}
+
 // Tasks that create a json files of a project's variant's dependencies
 fun Project.addCreateLibraryBuildInfoFileTasks(
     androidXExtension: AndroidXExtension,
@@ -378,12 +395,15 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
              * If the project targets any Apple platform then the project can only be built on the
              * 'androidx_multiplatform_mac' target. Otherwise the 'androidx' build target is used.
              */
+            val hasCInterop = project.multiplatformExtension?.hasCInterop() == true
+            val hasCInteropDependency = project.hasCInteropDependency()
+            val hasApplePlatform = hasApplePlatform(androidXKmpExtension.supportedPlatforms)
             val buildTarget =
-                if (hasApplePlatform(androidXKmpExtension.supportedPlatforms)) {
-                    "androidx_multiplatform_mac"
-                } else {
-                    "androidx"
-                }
+                createBuildTargetProvider(
+                    hasApplePlatform = hasApplePlatform,
+                    hasCInterop = hasCInterop,
+                    hasCInteropDependency = hasCInteropDependency,
+                )
 
             // Unfortunately, dependency information is only available through internal API
             // (See https://github.com/gradle/gradle/issues/21345).
@@ -420,7 +440,7 @@ private fun Project.createTaskForComponent(
     artifactId: Provider<String>,
     shouldPublishDocs: Provider<Boolean>,
     isKmp: Boolean,
-    buildTarget: String,
+    buildTarget: Provider<String>,
     kmpChildren: Set<String>,
     testModuleNames: Provider<Set<String>>,
     isolatedProjectEnabled: Boolean,
@@ -452,7 +472,7 @@ private fun Project.createBuildInfoTask(
     shaProvider: Provider<String>,
     shouldPublishDocs: Provider<Boolean>,
     isKmp: Boolean,
-    buildTarget: String,
+    buildTarget: Provider<String>,
     kmpChildren: Set<String>,
     testModuleNames: Provider<Set<String>>,
     variantName: String,
