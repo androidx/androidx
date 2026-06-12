@@ -17,6 +17,7 @@
 package androidx.build.binarycompatibilityvalidator
 
 import androidx.build.AndroidXMultiplatformExtension
+import androidx.build.HAS_CINTEROP_ATTRIBUTE
 import androidx.build.Version
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
@@ -27,16 +28,18 @@ import androidx.build.checkapi.shouldWriteVersionedApiFile
 import androidx.build.getDistributionDirectory
 import androidx.build.getLibraryClasspath
 import androidx.build.getSupportRootFolder
+import androidx.build.hasCInterop
+import androidx.build.hasCInteropDependency
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.metalava.UpdateApiTask
 import androidx.build.multiplatformExtension
+import androidx.build.nativeTargets
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
@@ -47,7 +50,6 @@ import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.abi.tools.KlibTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
@@ -63,8 +65,6 @@ internal const val CURRENT_API_FILE_NAME = "current.txt"
 private const val IGNORE_FILE_NAME = "current.ignore"
 private const val ABI_GROUP_NAME = "abi"
 private const val CROSS_COMPILATION_FLAG = "kotlin.native.enableKlibsCrossCompilation"
-private val HAS_CINTEROP_ATTRIBUTE =
-    Attribute.of("androidx.kmp.hasCInterop", Boolean::class.javaObjectType)
 
 class BinaryCompatibilityValidation(
     val project: Project,
@@ -302,39 +302,6 @@ private fun Project.getRequiredCompatibilityAbiLocation(suffix: String) =
         ApiType.CLASSAPI,
         enforceVersionContinuity = isWriteVersionedApiFilesEnabled(),
     )
-
-private fun KotlinMultiplatformExtension.nativeTargets() =
-    targets.withType(KotlinNativeTarget::class.java).matching {
-        it.platformType == KotlinPlatformType.native
-    }
-
-private fun KotlinMultiplatformExtension.hasCInterop(): Boolean {
-    val mainCompilations = nativeTargets().map { it.compilations.getByName(MAIN_COMPILATION_NAME) }
-    return mainCompilations.any { it.cinterops.isNotEmpty() }
-}
-
-private fun Project.hasCInteropDependency(): Provider<Boolean> {
-    val nativeTargets =
-        multiplatformExtension?.nativeTargets()
-            ?: return objects.property(Boolean::class.javaObjectType).value(false)
-    val cinteropFiles = objects.fileCollection()
-    nativeTargets.forEach { target ->
-        val compilation = target.compilations.findByName(MAIN_COMPILATION_NAME) ?: return@forEach
-        configurations
-            .matching { it.name == compilation.compileDependencyConfigurationName }
-            .configureEach { configuration ->
-                cinteropFiles.from(
-                    configuration.incoming
-                        .artifactView { view ->
-                            view.lenient(true)
-                            view.attributes { it.attribute(HAS_CINTEROP_ATTRIBUTE, true) }
-                        }
-                        .files
-                )
-            }
-    }
-    return cinteropFiles.elements.map { it.isNotEmpty() }
-}
 
 private fun KotlinMultiplatformExtension.hasUnsupportedTargets(): Boolean {
     val hostManager = HostManager()
