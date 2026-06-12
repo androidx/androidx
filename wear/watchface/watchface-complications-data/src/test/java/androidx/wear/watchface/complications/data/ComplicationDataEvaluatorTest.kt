@@ -36,6 +36,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -444,6 +445,34 @@ class ComplicationDataEvaluatorTest {
     private fun advanceUntilIdle() {
         @OptIn(ExperimentalCoroutinesApi::class) // StandardTestDispatcher no longer experimental.
         (dispatcher as TestDispatcher).scheduler.advanceUntilIdle()
+    }
+
+    private class CrashingPlatformDataProvider : PlatformDataProvider {
+        override fun setReceiver(
+            executor: java.util.concurrent.Executor,
+            receiver: androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver,
+        ) {
+            throw RuntimeException("Bind-phase provider crash!")
+        }
+
+        override fun clearReceiver() {}
+    }
+
+    @Test
+    fun evaluate_crashingPlatformSource_isInvalidatedSafely() {
+        val badProvider = CrashingPlatformDataProvider()
+        val badKey = PlatformHealthSources.Keys.HEART_RATE_BPM
+        val customEvaluator =
+            ComplicationDataEvaluator(platformDataProviders = mapOf(badProvider to setOf(badKey)))
+
+        val malformedData =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicFloat.from(badKey).format()))
+                .build()
+
+        // Bind-phase exception is safely caught, emitting null and invalidating the data.
+        val result = runBlocking { customEvaluator.evaluate(malformedData).first() }
+        assertThat(result.type).isEqualTo(TYPE_NO_DATA)
     }
 
     private companion object {
