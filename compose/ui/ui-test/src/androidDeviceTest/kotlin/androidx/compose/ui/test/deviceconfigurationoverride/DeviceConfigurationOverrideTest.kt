@@ -19,12 +19,34 @@ package androidx.compose.ui.test.deviceconfigurationoverride
 import android.content.res.Configuration
 import android.util.DisplayMetrics
 import android.view.View
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.draggable2D
+import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
+import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -40,6 +62,7 @@ import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.FontWeightAdjustment
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.Keyboard
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.Locales
@@ -50,9 +73,22 @@ import androidx.compose.ui.test.UiMode
 import androidx.compose.ui.test.WindowSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performIndirectPointerInput
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.then
+import androidx.compose.ui.test.util.ClickableTestBox
+import androidx.compose.ui.test.util.MultiPointerInputRecorder
+import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
+import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
@@ -61,12 +97,16 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -1105,5 +1145,393 @@ class DeviceConfigurationOverrideTest {
         )
         assertEquals(LayoutDirection.Ltr, layoutDirection)
         assertEquals(View.LAYOUT_DIRECTION_LTR, configuration.layoutDirection)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canScrollWithSwipe() {
+        val scrollState = ScrollState(initial = 0)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(1000.dp, 1000.dp)) {
+                    Column(
+                        Modifier.testTag("scrollable").fillMaxSize().verticalScroll(scrollState)
+                    ) {
+                        repeat(50) { Box(Modifier.requiredSize(1000.dp, 100.dp)) }
+                    }
+                }
+            }
+        }
+
+        assertEquals(0, scrollState.value)
+
+        rule.onNodeWithTag("scrollable").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertTrue(scrollState.value > 0)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canDragAndDropMouse() {
+        val sizeDp = 50.dp
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+        var density: Density? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                density = LocalDensity.current
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val sizePx = with(density!!) { sizeDp.toPx() }
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performMouseInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * sizePx, xOffsetPx, tolerance)
+        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
+        val sizeDp = 50.dp
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+        var density: Density? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                // We must capture LocalDensity because DeviceConfigurationOverride dynamically
+                // scales down the density to fit the size on the physical screen.
+                density = LocalDensity.current
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val sizePx = with(density!!) { sizeDp.toPx() }
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performTrackpadInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * sizePx, xOffsetPx, tolerance)
+        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canScrollWithSwipe() {
+        val scrollState = ScrollState(initial = 0)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(1000.dp, 1000.dp)) {
+                    Column(
+                        Modifier.testTag("scrollable").fillMaxSize().verticalScroll(scrollState)
+                    ) {
+                        repeat(50) { Box(Modifier.requiredSize(1000.dp, 100.dp)) }
+                    }
+                }
+            }
+        }
+
+        assertEquals(0, scrollState.value)
+
+        rule.onNodeWithTag("scrollable").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertTrue(scrollState.value > 0)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canDragAndDropMouse() {
+        val sizeDp = 50.dp
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+        var density: Density? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                density = LocalDensity.current
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val sizePx = with(density!!) { sizeDp.toPx() }
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performMouseInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * sizePx, xOffsetPx, tolerance)
+        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
+        val sizeDp = 50.dp
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+        var density: Density? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                density = LocalDensity.current
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val sizePx = with(density!!) { sizeDp.toPx() }
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performTrackpadInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * sizePx, xOffsetPx, tolerance)
+        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canInjectKeyInput() {
+        var keyReceived = false
+        val focusRequester = FocusRequester()
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("target")
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            .onKeyEvent {
+                                if (it.key == Key.A) {
+                                    keyReceived = true
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .requiredSize(100.dp, 100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.onNodeWithTag("target").performKeyInput { pressKey(Key.A) }
+
+        rule.waitForIdle()
+        assertTrue(keyReceived)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canInjectKeyInput() {
+        var keyReceived = false
+        val focusRequester = FocusRequester()
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("target")
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            .onKeyEvent {
+                                if (it.key == Key.A) {
+                                    keyReceived = true
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .requiredSize(100.dp, 100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.onNodeWithTag("target").performKeyInput { pressKey(Key.A) }
+
+        rule.waitForIdle()
+        assertTrue(keyReceived)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_indirectPointer_onePointerSameInputBlock() {
+        val recorder = MultiPointerInputRecorder()
+        val downPosition1 = Offset(10f, 10f)
+        val delta1 = Offset(11f, 11f)
+        val inputDeviceSize = IntSize(3082, 616)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                ClickableTestBox(recorder)
+            }
+        }
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).requestFocus()
+
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Advance event time to simulate a realistic pause between touch down
+            // and movement, preventing the gesture from being interpreted as a fling.
+            advanceEventTime(20)
+            moveBy(delta1)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                events[1]
+                    .getPointer(0)
+                    .verify(
+                        t + eventPeriodMillis + 20,
+                        pointerId,
+                        true,
+                        downPosition1 + delta1,
+                        Touch,
+                        Move,
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_indirectPointer_onePointerSameInputBlock() {
+        val recorder = MultiPointerInputRecorder()
+        val downPosition1 = Offset(10f, 10f)
+        val delta1 = Offset(11f, 11f)
+        val inputDeviceSize = IntSize(3082, 616)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                ClickableTestBox(recorder)
+            }
+        }
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).requestFocus()
+
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Advance event time to simulate a realistic pause between touch down
+            // and movement, preventing the gesture from being interpreted as a fling.
+            advanceEventTime(20)
+            moveBy(delta1)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                events[1]
+                    .getPointer(0)
+                    .verify(
+                        t + eventPeriodMillis + 20,
+                        pointerId,
+                        true,
+                        downPosition1 + delta1,
+                        Touch,
+                        Move,
+                    )
+            }
+        }
     }
 }
