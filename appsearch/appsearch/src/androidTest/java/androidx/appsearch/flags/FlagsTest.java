@@ -263,4 +263,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
                 .isEqualTo("com.android.appsearch.flags.enable_embedding_pre_quantized_data");
     }
+
+    @Test
+    public void testFlagValue_enableDatabaseStablenessLog() {
+        assertThat(Flags.FLAG_ENABLE_DATABASE_STABLENESS_LOG)
+                .isEqualTo("com.android.appsearch.flags.enable_database_stableness_log");
+    }
 }

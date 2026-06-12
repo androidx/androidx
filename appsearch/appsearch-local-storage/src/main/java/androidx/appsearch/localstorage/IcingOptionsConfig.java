@@ -348,6 +348,7 @@ public interface IcingOptionsConfig {
                         Flags.enableSkipSetSchemaTypeEqualityCheck())
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
+                .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())
                 .build();
     }
 }

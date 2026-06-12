@@ -294,6 +294,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA =
             FLAG_PREFIX + "enable_embedding_pre_quantized_data";
 
+    /** Enables database stableness log in Icing. */
+    public static final String FLAG_ENABLE_DATABASE_STABLENESS_LOG =
+            FLAG_PREFIX + "enable_database_stableness_log";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -638,5 +642,10 @@ public final class Flags {
     /** Whether embedding pre-quantized data should be enabled. */
     public static boolean enableEmbeddingPreQuantizedData() {
         return true;
+    }
+
+    /** Whether to enable database stableness log in Icing. */
+    public static boolean enableDatabaseStablenessLog() {
+        return false;
     }
 }
