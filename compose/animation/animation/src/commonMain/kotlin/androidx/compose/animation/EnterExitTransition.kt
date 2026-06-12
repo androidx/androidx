@@ -108,7 +108,11 @@ public annotation class ExperimentalAnimationApi
  */
 @Immutable
 public sealed class EnterTransition {
-    internal abstract val data: TransitionData
+    /**
+     * The underlying transition configuration containing the specs for fade, slide, scale, expand,
+     * and veil animations.
+     */
+    public abstract val config: EnterExitTransitionConfig
 
     /**
      * Combines different enter transitions. The order of the [EnterTransition]s being combined does
@@ -124,14 +128,14 @@ public sealed class EnterTransition {
         if (this == None) return enter
         if (enter == None) return this
         return EnterTransitionImpl(
-            TransitionData(
-                fade = enter.data.fade ?: data.fade,
-                slide = enter.data.slide ?: data.slide,
-                changeSize = enter.data.changeSize ?: data.changeSize,
-                scale = enter.data.scale ?: data.scale,
-                veil = enter.data.veil ?: data.veil,
+            EnterExitTransitionConfig(
+                fade = enter.config.fade ?: config.fade,
+                slide = enter.config.slide ?: config.slide,
+                changeSize = enter.config.changeSize ?: config.changeSize,
+                scale = enter.config.scale ?: config.scale,
+                veil = enter.config.veil ?: config.veil,
                 // `enter` after plus operator to prioritize its values on the map
-                effectsMap = data.effectsMap + enter.data.effectsMap,
+                effectsMap = config.effectsMap + enter.config.effectsMap,
             )
         )
     }
@@ -140,7 +144,7 @@ public sealed class EnterTransition {
         if (this == None) {
             "EnterTransition.None"
         } else {
-            data.run {
+            config.run {
                 "EnterTransition: " +
                     "Fade - " +
                     fade?.toString() +
@@ -156,10 +160,10 @@ public sealed class EnterTransition {
         }
 
     override fun equals(other: Any?): Boolean {
-        return other is EnterTransition && other.data == data
+        return other is EnterTransition && other.config == config
     }
 
-    override fun hashCode(): Int = data.hashCode()
+    override fun hashCode(): Int = config.hashCode()
 
     public companion object {
         /**
@@ -170,7 +174,7 @@ public sealed class EnterTransition {
          *
          * @see [ExitTransition.None]
          */
-        public val None: EnterTransition = EnterTransitionImpl(TransitionData())
+        public val None: EnterTransition = EnterTransitionImpl(EnterExitTransitionConfig())
     }
 }
 
@@ -204,7 +208,11 @@ public sealed class EnterTransition {
  */
 @Immutable
 public sealed class ExitTransition {
-    internal abstract val data: TransitionData
+    /**
+     * The underlying transition configuration containing the specs for fade, slide, scale, shrink,
+     * and veil animations.
+     */
+    public abstract val config: EnterExitTransitionConfig
 
     /**
      * Combines different exit transitions. The order of the [ExitTransition]s being combined does
@@ -220,21 +228,21 @@ public sealed class ExitTransition {
         if (this == None) return exit
         if (exit == None) return this
         return ExitTransitionImpl(
-            TransitionData(
-                fade = exit.data.fade ?: data.fade,
-                slide = exit.data.slide ?: data.slide,
-                changeSize = exit.data.changeSize ?: data.changeSize,
-                scale = exit.data.scale ?: data.scale,
-                veil = exit.data.veil ?: data.veil,
-                hold = exit.data.hold || data.hold,
+            EnterExitTransitionConfig(
+                fade = exit.config.fade ?: config.fade,
+                slide = exit.config.slide ?: config.slide,
+                changeSize = exit.config.changeSize ?: config.changeSize,
+                scale = exit.config.scale ?: config.scale,
+                veil = exit.config.veil ?: config.veil,
+                hold = exit.config.hold || config.hold,
                 // `exit` after plus operator to prioritize its values on the map
-                effectsMap = data.effectsMap + exit.data.effectsMap,
+                effectsMap = config.effectsMap + exit.config.effectsMap,
             )
         )
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is ExitTransition && other.data == data
+        return other is ExitTransition && other.config == config
     }
 
     override fun toString(): String =
@@ -242,7 +250,7 @@ public sealed class ExitTransition {
             None -> "ExitTransition.None"
             KeepUntilTransitionsFinished -> "ExitTransition.KeepUntilTransitionsFinished"
             else ->
-                data.run {
+                config.run {
                     "ExitTransition:  " +
                         "Fade - " +
                         fade?.toString() +
@@ -259,7 +267,7 @@ public sealed class ExitTransition {
                 }
         }
 
-    override fun hashCode(): Int = data.hashCode()
+    override fun hashCode(): Int = config.hashCode()
 
     public companion object {
         /**
@@ -273,7 +281,7 @@ public sealed class ExitTransition {
          *
          * @sample androidx.compose.animation.samples.AVScopeAnimateEnterExit
          */
-        public val None: ExitTransition = ExitTransitionImpl(TransitionData())
+        public val None: ExitTransition = ExitTransitionImpl(EnterExitTransitionConfig())
 
         /**
          * Keep this type of exit transition internal and only expose it in AnimatedContent, as
@@ -282,7 +290,7 @@ public sealed class ExitTransition {
          * holding would not be meaningful.
          */
         internal val KeepUntilTransitionsFinished: ExitTransition =
-            ExitTransitionImpl(TransitionData(hold = true))
+            ExitTransitionImpl(EnterExitTransitionConfig(hold = true))
     }
 }
 
@@ -303,10 +311,10 @@ internal data class ContentScaleTransitionEffect(
 }
 
 internal infix fun EnterTransition.withEffect(effect: TransitionEffect): EnterTransition =
-    EnterTransitionImpl(TransitionData(effectsMap = mapOf(effect.key to effect)))
+    EnterTransitionImpl(EnterExitTransitionConfig(effectsMap = mapOf(effect.key to effect)))
 
 internal infix fun ExitTransition.withEffect(effect: TransitionEffect): ExitTransition =
-    ExitTransitionImpl(TransitionData(effectsMap = mapOf(effect.key to effect)))
+    ExitTransitionImpl(EnterExitTransitionConfig(effectsMap = mapOf(effect.key to effect)))
 
 /**
  * This fades in the content of the transition, from the specified starting alpha (i.e.
@@ -322,7 +330,9 @@ public fun fadeIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialAlpha: Float = 0f,
 ): EnterTransition {
-    return EnterTransitionImpl(TransitionData(fade = Fade(initialAlpha, animationSpec)))
+    return EnterTransitionImpl(
+        EnterExitTransitionConfig(fade = FadeConfig(initialAlpha, animationSpec))
+    )
 }
 
 /**
@@ -340,7 +350,9 @@ public fun fadeOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetAlpha: Float = 0f,
 ): ExitTransition {
-    return ExitTransitionImpl(TransitionData(fade = Fade(targetAlpha, animationSpec)))
+    return ExitTransitionImpl(
+        EnterExitTransitionConfig(fade = FadeConfig(targetAlpha, animationSpec))
+    )
 }
 
 /**
@@ -370,7 +382,9 @@ public fun slideIn(
         ),
     initialOffset: (fullSize: IntSize) -> IntOffset,
 ): EnterTransition {
-    return EnterTransitionImpl(TransitionData(slide = Slide(initialOffset, animationSpec)))
+    return EnterTransitionImpl(
+        EnterExitTransitionConfig(slide = SlideConfig(initialOffset, animationSpec))
+    )
 }
 
 /**
@@ -400,7 +414,9 @@ public fun slideOut(
         ),
     targetOffset: (fullSize: IntSize) -> IntOffset,
 ): ExitTransition {
-    return ExitTransitionImpl(TransitionData(slide = Slide(targetOffset, animationSpec)))
+    return ExitTransitionImpl(
+        EnterExitTransitionConfig(slide = SlideConfig(targetOffset, animationSpec))
+    )
 }
 
 /**
@@ -429,7 +445,7 @@ public fun scaleIn(
     transformOrigin: TransformOrigin = TransformOrigin.Center,
 ): EnterTransition {
     return EnterTransitionImpl(
-        TransitionData(scale = Scale(initialScale, transformOrigin, animationSpec))
+        EnterExitTransitionConfig(scale = ScaleConfig(initialScale, transformOrigin, animationSpec))
     )
 }
 
@@ -459,7 +475,7 @@ public fun scaleOut(
     transformOrigin: TransformOrigin = TransformOrigin.Center,
 ): ExitTransition {
     return ExitTransitionImpl(
-        TransitionData(scale = Scale(targetScale, transformOrigin, animationSpec))
+        EnterExitTransitionConfig(scale = ScaleConfig(targetScale, transformOrigin, animationSpec))
     )
 }
 
@@ -483,8 +499,14 @@ public fun unveilIn(
     matchParentSize: Boolean = false,
 ): EnterTransition {
     return EnterTransitionImpl(
-        TransitionData(
-            veil = Veil(initialColor, initialColor.copy(alpha = 0f), animationSpec, matchParentSize)
+        EnterExitTransitionConfig(
+            veil =
+                VeilConfig(
+                    initialColor,
+                    initialColor.copy(alpha = 0f),
+                    animationSpec,
+                    matchParentSize,
+                )
         )
     )
 }
@@ -509,8 +531,14 @@ public fun veilOut(
     matchParentSize: Boolean = false,
 ): ExitTransition {
     return ExitTransitionImpl(
-        TransitionData(
-            veil = Veil(targetColor.copy(alpha = 0f), targetColor, animationSpec, matchParentSize)
+        EnterExitTransitionConfig(
+            veil =
+                VeilConfig(
+                    targetColor.copy(alpha = 0f),
+                    targetColor,
+                    animationSpec,
+                    matchParentSize,
+                )
         )
     )
 }
@@ -552,7 +580,9 @@ public fun expandIn(
     initialSize: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },
 ): EnterTransition {
     return EnterTransitionImpl(
-        TransitionData(changeSize = ChangeSize(expandFrom, initialSize, animationSpec, clip))
+        EnterExitTransitionConfig(
+            changeSize = ChangeSizeConfig(expandFrom, initialSize, animationSpec, clip)
+        )
     )
 }
 
@@ -592,7 +622,9 @@ public fun shrinkOut(
     targetSize: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },
 ): ExitTransition {
     return ExitTransitionImpl(
-        TransitionData(changeSize = ChangeSize(shrinkTowards, targetSize, animationSpec, clip))
+        EnterExitTransitionConfig(
+            changeSize = ChangeSizeConfig(shrinkTowards, targetSize, animationSpec, clip)
+        )
     )
 }
 
@@ -868,41 +900,280 @@ public fun slideOutVertically(
         animationSpec = animationSpec,
     )
 
+/**
+ * Configuration parameters for the fade effect of an [EnterTransition] or [ExitTransition].
+ *
+ * @property alpha The initial value for EnterTransition, or the target value for ExitTransition.
+ * @property animationSpec The [FiniteAnimationSpec] used for the fade animation.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class FadeConfig
+internal constructor(
+    public val alpha: Float,
+    public val animationSpec: FiniteAnimationSpec<Float>,
+) {
+    internal fun copy(
+        alpha: Float = this.alpha,
+        animationSpec: FiniteAnimationSpec<Float> = this.animationSpec,
+    ): FadeConfig = FadeConfig(alpha, animationSpec)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FadeConfig) return false
+        return alpha == other.alpha && animationSpec == other.animationSpec
+    }
+
+    override fun hashCode(): Int {
+        var result = alpha.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "FadeConfig(alpha=$alpha, animationSpec=$animationSpec)"
+}
+
+/**
+ * Configuration parameters for the slide effect of an [EnterTransition] or [ExitTransition].
+ *
+ * @property slideOffset Lambda that calculates the slide offset vector based on the container size.
+ * @property animationSpec The [FiniteAnimationSpec] used for the slide animation.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class SlideConfig
+internal constructor(
+    public val slideOffset: (fullSize: IntSize) -> IntOffset,
+    public val animationSpec: FiniteAnimationSpec<IntOffset>,
+) {
+    internal fun copy(
+        slideOffset: (fullSize: IntSize) -> IntOffset = this.slideOffset,
+        animationSpec: FiniteAnimationSpec<IntOffset> = this.animationSpec,
+    ): SlideConfig = SlideConfig(slideOffset, animationSpec)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SlideConfig) return false
+        return slideOffset === other.slideOffset && animationSpec == other.animationSpec
+    }
+
+    override fun hashCode(): Int {
+        var result = slideOffset.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "SlideConfig(slideOffset=$slideOffset, animationSpec=$animationSpec)"
+}
+
+/**
+ * Configuration parameters for the size change (expand/shrink) effect of an [EnterTransition] or
+ * [ExitTransition].
+ *
+ * @property alignment The [Alignment] used to align the content inside the changing boundary.
+ * @property size Lambda that calculates the initial size for EnterTransition, or target size for
+ *   ExitTransition based on the full container size.
+ * @property animationSpec The [FiniteAnimationSpec] used for the size animation.
+ * @property clip If true, the content will be clipped to the animated size boundary.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class ChangeSizeConfig
+internal constructor(
+    public val alignment: Alignment,
+    public val size: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },
+    public val animationSpec: FiniteAnimationSpec<IntSize>,
+    @get:Suppress("GetterSetterNames") public val clip: Boolean = true,
+) {
+    internal fun copy(
+        alignment: Alignment = this.alignment,
+        size: (fullSize: IntSize) -> IntSize = this.size,
+        animationSpec: FiniteAnimationSpec<IntSize> = this.animationSpec,
+        clip: Boolean = this.clip,
+    ): ChangeSizeConfig = ChangeSizeConfig(alignment, size, animationSpec, clip)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ChangeSizeConfig) return false
+        return alignment == other.alignment &&
+            size === other.size &&
+            animationSpec == other.animationSpec &&
+            clip == other.clip
+    }
+
+    override fun hashCode(): Int {
+        var result = alignment.hashCode()
+        result = 31 * result + size.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        result = 31 * result + clip.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "ChangeSizeConfig(alignment=$alignment, size=$size, animationSpec=$animationSpec, clip=$clip)"
+}
+
+/**
+ * Configuration parameters for the scale effect of an [EnterTransition] or [ExitTransition].
+ *
+ * @property scale The initial scale value for EnterTransition, or the target scale value for
+ *   ExitTransition.
+ * @property transformOrigin The pivot point as a [TransformOrigin] for the scale transformation.
+ * @property animationSpec The [FiniteAnimationSpec] used for the scale animation.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class ScaleConfig
+internal constructor(
+    public val scale: Float,
+    public val transformOrigin: TransformOrigin,
+    public val animationSpec: FiniteAnimationSpec<Float>,
+) {
+    internal fun copy(
+        scale: Float = this.scale,
+        transformOrigin: TransformOrigin = this.transformOrigin,
+        animationSpec: FiniteAnimationSpec<Float> = this.animationSpec,
+    ): ScaleConfig = ScaleConfig(scale, transformOrigin, animationSpec)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ScaleConfig) return false
+        return scale == other.scale &&
+            transformOrigin == other.transformOrigin &&
+            animationSpec == other.animationSpec
+    }
+
+    override fun hashCode(): Int {
+        var result = scale.hashCode()
+        result = 31 * result + transformOrigin.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "ScaleConfig(scale=$scale, transformOrigin=$transformOrigin, animationSpec=$animationSpec)"
+}
+
+/**
+ * Configuration parameters for the veil effect (color overlay transition) of an [EnterTransition]
+ * or [ExitTransition].
+ *
+ * @property initialColor The initial color of the veil overlay.
+ * @property targetColor The target color of the veil overlay.
+ * @property animationSpec The [FiniteAnimationSpec] used for the veil animation.
+ * @property matchParentSize If true, the veil will match the parent size.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class VeilConfig
+internal constructor(
+    public val initialColor: Color,
+    public val targetColor: Color,
+    public val animationSpec: FiniteAnimationSpec<Color>,
+    @get:Suppress("GetterSetterNames") public val matchParentSize: Boolean,
+) {
+    internal fun copy(
+        initialColor: Color = this.initialColor,
+        targetColor: Color = this.targetColor,
+        animationSpec: FiniteAnimationSpec<Color> = this.animationSpec,
+        matchParentSize: Boolean = this.matchParentSize,
+    ): VeilConfig = VeilConfig(initialColor, targetColor, animationSpec, matchParentSize)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VeilConfig) return false
+        return initialColor == other.initialColor &&
+            targetColor == other.targetColor &&
+            animationSpec == other.animationSpec &&
+            matchParentSize == other.matchParentSize
+    }
+
+    override fun hashCode(): Int {
+        var result = initialColor.hashCode()
+        result = 31 * result + targetColor.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        result = 31 * result + matchParentSize.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "VeilConfig(initialColor=$initialColor, targetColor=$targetColor, " +
+            "animationSpec=$animationSpec, matchParentSize=$matchParentSize)"
+}
+
+/**
+ * Configurations for all transitions within an [EnterTransition] or [ExitTransition].
+ *
+ * This class exposes the internal parameters for all transition effects that have been combined
+ * into the transition. If an effect is not present in the transition, its corresponding
+ * configuration property will be `null`.
+ *
+ * @property fade The fade effect configuration, or `null` if fade is not defined.
+ * @property slide The slide effect configuration, or `null` if slide is not defined.
+ * @property changeSize The size change effect configuration, or `null` if size change is not
+ *   defined.
+ * @property scale The scale effect configuration, or `null` if scale is not defined.
+ * @property veil The veil effect configuration, or `null` if veil is not defined.
+ * @sample androidx.compose.animation.samples.EnterExitTransitionConfigSample
+ */
+@Immutable
+public class EnterExitTransitionConfig
+internal constructor(
+    public val fade: FadeConfig? = null,
+    public val slide: SlideConfig? = null,
+    public val changeSize: ChangeSizeConfig? = null,
+    public val scale: ScaleConfig? = null,
+    @get:Suppress("GetterSetterNames") public val veil: VeilConfig? = null,
+    internal val hold: Boolean = false,
+    internal val effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = emptyMap(),
+) {
+    internal fun copy(
+        fade: FadeConfig? = this.fade,
+        slide: SlideConfig? = this.slide,
+        changeSize: ChangeSizeConfig? = this.changeSize,
+        scale: ScaleConfig? = this.scale,
+        veil: VeilConfig? = this.veil,
+        hold: Boolean = this.hold,
+        effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = this.effectsMap,
+    ): EnterExitTransitionConfig =
+        EnterExitTransitionConfig(fade, slide, changeSize, scale, veil, hold, effectsMap)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is EnterExitTransitionConfig) return false
+        return fade == other.fade &&
+            slide == other.slide &&
+            changeSize == other.changeSize &&
+            scale == other.scale &&
+            veil == other.veil &&
+            hold == other.hold &&
+            effectsMap == other.effectsMap
+    }
+
+    override fun hashCode(): Int {
+        var result = fade?.hashCode() ?: 0
+        result = 31 * result + (slide?.hashCode() ?: 0)
+        result = 31 * result + (changeSize?.hashCode() ?: 0)
+        result = 31 * result + (scale?.hashCode() ?: 0)
+        result = 31 * result + (veil?.hashCode() ?: 0)
+        result = 31 * result + hold.hashCode()
+        result = 31 * result + effectsMap.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "EnterExitTransitionConfig(fade=$fade, slide=$slide, changeSize=$changeSize, scale=$scale, " +
+            "veil=$veil, hold=$hold, effectsMap=$effectsMap)"
+}
+
 /** ********************* Below are internal classes and methods ***************** */
-@Immutable internal data class Fade(val alpha: Float, val animationSpec: FiniteAnimationSpec<Float>)
+@Immutable
+private class EnterTransitionImpl(override val config: EnterExitTransitionConfig) :
+    EnterTransition()
 
 @Immutable
-internal data class Slide(
-    val slideOffset: (fullSize: IntSize) -> IntOffset,
-    val animationSpec: FiniteAnimationSpec<IntOffset>,
-)
-
-@Immutable
-internal data class ChangeSize(
-    val alignment: Alignment,
-    val size: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },
-    val animationSpec: FiniteAnimationSpec<IntSize>,
-    val clip: Boolean = true,
-)
-
-@Immutable
-internal data class Scale(
-    val scale: Float,
-    val transformOrigin: TransformOrigin,
-    val animationSpec: FiniteAnimationSpec<Float>,
-)
-
-@Immutable
-internal data class Veil(
-    val initialColor: Color,
-    val targetColor: Color,
-    val animationSpec: FiniteAnimationSpec<Color>,
-    val matchParentSize: Boolean,
-)
-
-@Immutable private class EnterTransitionImpl(override val data: TransitionData) : EnterTransition()
-
-@Immutable private class ExitTransitionImpl(override val data: TransitionData) : ExitTransition()
+private class ExitTransitionImpl(override val config: EnterExitTransitionConfig) : ExitTransition()
 
 private fun Alignment.Horizontal.toAlignment() =
     when (this) {
@@ -918,24 +1189,13 @@ private fun Alignment.Vertical.toAlignment() =
         else -> Alignment.Center
     }
 
-@Immutable
-internal data class TransitionData(
-    val fade: Fade? = null,
-    val slide: Slide? = null,
-    val changeSize: ChangeSize? = null,
-    val scale: Scale? = null,
-    val veil: Veil? = null,
-    val hold: Boolean = false,
-    val effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = emptyMap(),
-)
-
 @Suppress("UNCHECKED_CAST")
 internal operator fun <T : TransitionEffect> EnterTransition.get(key: TransitionEffectKey<T>): T? =
-    data.effectsMap[key] as? T
+    config.effectsMap[key] as? T
 
 @Suppress("UNCHECKED_CAST")
 internal operator fun <T : TransitionEffect> ExitTransition.get(key: TransitionEffectKey<T>): T? =
-    data.effectsMap[key] as? T
+    config.effectsMap[key] as? T
 
 @OptIn(ExperimentalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
@@ -971,15 +1231,15 @@ internal fun Transition<EnterExitState>.createModifier(
         }
 
     val shouldAnimateVeil =
-        activeEnter.data.veil != null ||
-            activeExit.data.veil != null ||
+        activeEnter.config.veil != null ||
+            activeExit.config.veil != null ||
             activeMutableState.veilRequiresAnimation
     val shouldAnimateSlide =
-        activeEnter.data.slide != null ||
-            activeExit.data.slide != null ||
+        activeEnter.config.slide != null ||
+            activeExit.config.slide != null ||
             activeMutableState.slideRequiresAnimation
     val shouldAnimateSizeChange =
-        activeEnter.data.changeSize != null || activeExit.data.changeSize != null
+        activeEnter.config.changeSize != null || activeExit.config.changeSize != null
 
     val slideAnimation =
         if (shouldAnimateSlide) {
@@ -1001,14 +1261,14 @@ internal fun Transition<EnterExitState>.createModifier(
         } else null
 
     val disableClip =
-        (activeEnter.data.changeSize?.clip == false || activeExit.data.changeSize?.clip == false) ||
-            !shouldAnimateSizeChange
+        (activeEnter.config.changeSize?.clip == false ||
+            activeExit.config.changeSize?.clip == false) || !shouldAnimateSizeChange
 
     val colorSpace =
-        activeEnter.data.veil?.initialColor?.colorSpace
-            ?: activeEnter.data.veil?.targetColor?.colorSpace
-            ?: activeExit.data.veil?.initialColor?.colorSpace
-            ?: activeExit.data.veil?.targetColor?.colorSpace
+        activeEnter.config.veil?.initialColor?.colorSpace
+            ?: activeEnter.config.veil?.targetColor?.colorSpace
+            ?: activeExit.config.veil?.initialColor?.colorSpace
+            ?: activeExit.config.veil?.targetColor?.colorSpace
             ?: ColorSpaces.Srgb
     val veilModifierElement =
         if (shouldAnimateVeil) {
@@ -1022,8 +1282,8 @@ internal fun Transition<EnterExitState>.createModifier(
             Modifier
         }
     val shouldVeilMatchParentSize =
-        activeEnter.data.veil?.matchParentSize
-            ?: activeExit.data.veil?.matchParentSize
+        activeEnter.config.veil?.matchParentSize
+            ?: activeExit.config.veil?.matchParentSize
             ?: activeMutableState.mutableData?.veilMatchParentSize
             ?: false
 
@@ -1152,12 +1412,13 @@ internal fun Transition<EnterExitState>.trackActiveExit(
                 activeExit
             } else {
                 ExitTransitionImpl(
-                    activeExit.data.copy(
-                        fade = activeExit.data.fade?.copy(alpha = 1f),
-                        scale = activeExit.data.scale?.copy(scale = 1f),
-                        slide = activeExit.data.slide?.copy(slideOffset = NeutralSlideOffset),
-                        changeSize = activeExit.data.changeSize?.copy(size = NeutralChangeSize),
-                        veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
+                    activeExit.config.copy(
+                        fade = activeExit.config.fade?.copy(alpha = 1f),
+                        scale = activeExit.config.scale?.copy(scale = 1f),
+                        slide = activeExit.config.slide?.copy(slideOffset = NeutralSlideOffset),
+                        changeSize = activeExit.config.changeSize?.copy(size = NeutralChangeSize),
+                        veil =
+                            activeExit.config.veil?.let { it.copy(targetColor = it.initialColor) },
                     )
                 )
             }
@@ -1184,12 +1445,12 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
 ): GraphicsLayerBlockForEnterExit {
 
     val shouldAnimateAlpha =
-        enter.data.fade != null ||
-            exit.data.fade != null ||
+        enter.config.fade != null ||
+            exit.config.fade != null ||
             mutableTransformState.alphaRequiresAnimation
     val shouldAnimateScale =
-        enter.data.scale != null ||
-            exit.data.scale != null ||
+        enter.config.scale != null ||
+            exit.config.scale != null ||
             mutableTransformState.scaleRequiresAnimation
 
     // Fade - it's important to put fade in the end. Otherwise fade will clip slide.
@@ -1225,9 +1486,9 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 transitionSpec = {
                     when {
                         EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                            enter.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            enter.config.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
                         EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                            exit.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            exit.config.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
                         else -> DefaultAlphaAndScaleSpring
                     }
                 },
@@ -1235,8 +1496,8 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
-                    EnterExitState.PreEnter -> enter.data.fade?.alpha ?: 1f
-                    EnterExitState.PostExit -> exit.data.fade?.alpha ?: 1f
+                    EnterExitState.PreEnter -> enter.config.fade?.alpha ?: 1f
+                    EnterExitState.PostExit -> exit.config.fade?.alpha ?: 1f
                 }
             }
 
@@ -1245,9 +1506,9 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 transitionSpec = {
                     when {
                         EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                            enter.data.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            enter.config.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
                         EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                            exit.data.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            exit.config.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
                         else -> DefaultAlphaAndScaleSpring
                     }
                 },
@@ -1256,15 +1517,15 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
-                    EnterExitState.PreEnter -> enter.data.scale?.scale ?: 1f
-                    EnterExitState.PostExit -> exit.data.scale?.scale ?: 1f
+                    EnterExitState.PreEnter -> enter.config.scale?.scale ?: 1f
+                    EnterExitState.PostExit -> exit.config.scale?.scale ?: 1f
                 }
             }
         val transformOriginWhenVisible =
             if (currentState == EnterExitState.PreEnter) {
-                enter.data.scale?.transformOrigin ?: exit.data.scale?.transformOrigin
+                enter.config.scale?.transformOrigin ?: exit.config.scale?.transformOrigin
             } else {
-                exit.data.scale?.transformOrigin ?: enter.data.scale?.transformOrigin
+                exit.config.scale?.transformOrigin ?: enter.config.scale?.transformOrigin
             }
         // Animate transform origin if there's any change. If scale is only defined for enter or
         // exit, use the same transform origin for both.
@@ -1276,9 +1537,9 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 when (it) {
                     EnterExitState.Visible -> transformOriginWhenVisible
                     EnterExitState.PreEnter ->
-                        enter.data.scale?.transformOrigin ?: exit.data.scale?.transformOrigin
+                        enter.config.scale?.transformOrigin ?: exit.config.scale?.transformOrigin
                     EnterExitState.PostExit ->
-                        exit.data.scale?.transformOrigin ?: TransformOrigin.Center
+                        exit.config.scale?.transformOrigin ?: TransformOrigin.Center
                 } ?: TransformOrigin.Center
             }
 
@@ -1357,9 +1618,9 @@ private class EnterExitTransitionModifierNode(
         get() =
             with(transition.segment) {
                 if (EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible) {
-                    enter.data.changeSize?.alignment ?: exit.data.changeSize?.alignment
+                    enter.config.changeSize?.alignment ?: exit.config.changeSize?.alignment
                 } else {
-                    exit.data.changeSize?.alignment ?: enter.data.changeSize?.alignment
+                    exit.config.changeSize?.alignment ?: enter.config.changeSize?.alignment
                 }
             }
 
@@ -1367,9 +1628,9 @@ private class EnterExitTransitionModifierNode(
         {
             when {
                 EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                    enter.data.changeSize?.animationSpec
+                    enter.config.changeSize?.animationSpec
                 EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                    exit.data.changeSize?.animationSpec
+                    exit.config.changeSize?.animationSpec
                 else -> DefaultSizeAnimationSpec
             } ?: DefaultSizeAnimationSpec
         }
@@ -1377,8 +1638,8 @@ private class EnterExitTransitionModifierNode(
     fun sizeByState(targetState: EnterExitState, fullSize: IntSize): IntSize =
         when (targetState) {
             EnterExitState.Visible -> fullSize
-            EnterExitState.PreEnter -> enter.data.changeSize?.size?.invoke(fullSize) ?: fullSize
-            EnterExitState.PostExit -> exit.data.changeSize?.size?.invoke(fullSize) ?: fullSize
+            EnterExitState.PreEnter -> enter.config.changeSize?.size?.invoke(fullSize) ?: fullSize
+            EnterExitState.PostExit -> exit.config.changeSize?.size?.invoke(fullSize) ?: fullSize
         }
 
     override fun onAttach() {
@@ -1401,7 +1662,7 @@ private class EnterExitTransitionModifierNode(
                     EnterExitState.Visible -> IntOffset.Zero
                     EnterExitState.PreEnter -> IntOffset.Zero
                     EnterExitState.PostExit ->
-                        exit.data.changeSize?.let {
+                        exit.config.changeSize?.let {
                             val endSize = it.size(fullSize)
                             val targetOffset =
                                 alignment!!.align(fullSize, endSize, LayoutDirection.Ltr)
@@ -1482,18 +1743,18 @@ private class EnterExitTransitionModifierNode(
     val slideSpec: Transition.Segment<EnterExitState>.() -> FiniteAnimationSpec<IntOffset> = {
         when {
             EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible -> {
-                enter.data.slide?.animationSpec ?: DefaultOffsetAnimationSpec
+                enter.config.slide?.animationSpec ?: DefaultOffsetAnimationSpec
             }
             EnterExitState.Visible isTransitioningTo EnterExitState.PostExit -> {
-                exit.data.slide?.animationSpec ?: DefaultOffsetAnimationSpec
+                exit.config.slide?.animationSpec ?: DefaultOffsetAnimationSpec
             }
             else -> DefaultOffsetAnimationSpec
         }
     }
 
     fun slideTargetValueByState(targetState: EnterExitState, fullSize: IntSize): IntOffset {
-        val preEnter = enter.data.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
-        val postExit = exit.data.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
+        val preEnter = enter.config.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
+        val postExit = exit.config.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
         return when (targetState) {
             EnterExitState.Visible -> IntOffset.Zero
             EnterExitState.PreEnter -> preEnter
@@ -1620,9 +1881,9 @@ private class VeilModifierNode(
                 transitionSpec = {
                     when {
                         EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                            enter.data.veil?.animationSpec ?: DefaultColorAnimationSpec
+                            enter.config.veil?.animationSpec ?: DefaultColorAnimationSpec
                         EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                            exit.data.veil?.animationSpec ?: DefaultColorAnimationSpec
+                            exit.config.veil?.animationSpec ?: DefaultColorAnimationSpec
                         else -> DefaultColorAnimationSpec
                     }
                 },
@@ -1630,11 +1891,11 @@ private class VeilModifierNode(
             ) {
                 when (it) {
                     EnterExitState.Visible ->
-                        enter.data.veil?.targetColor
-                            ?: exit.data.veil?.initialColor
+                        enter.config.veil?.targetColor
+                            ?: exit.config.veil?.initialColor
                             ?: Color.Transparent
-                    EnterExitState.PreEnter -> enter.data.veil?.initialColor ?: Color.Transparent
-                    EnterExitState.PostExit -> exit.data.veil?.targetColor ?: Color.Transparent
+                    EnterExitState.PreEnter -> enter.config.veil?.initialColor ?: Color.Transparent
+                    EnterExitState.PostExit -> exit.config.veil?.targetColor ?: Color.Transparent
                 }
             }
 
@@ -1642,7 +1903,7 @@ private class VeilModifierNode(
             mutableTransformState.combinedVeil(transitionValue = veilColor.value)
 
         if (combinedVeilColor.alpha != 0f) {
-            val veil = enter.data.veil ?: exit.data.veil
+            val veil = enter.config.veil ?: exit.config.veil
             if (veil?.matchParentSize == true) {
                 val layoutCoordinates = requireLayoutCoordinates()
                 val parentSize =
