@@ -360,16 +360,20 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateDocument(@NonNull RemoteDocument value) {
-        AndroidRemoteContext tmpContext = new AndroidRemoteContext(value.getClock());
-        tmpContext.setAccessibilityAnimationEnabled(
-                SettingsRetriever.animationsEnabled(getContext()));
-        value.initializeContext(tmpContext);
-        float density = getContext().getResources().getDisplayMetrics().density;
-        tmpContext.setAnimationEnabled(true);
-        tmpContext.setDensity(density);
-        tmpContext.setUseChoreographer(false);
-        mInner.applyUpdate(value);
-        mInner.invalidate();
+        try {
+            AndroidRemoteContext tmpContext = new AndroidRemoteContext(value.getClock());
+            tmpContext.setAccessibilityAnimationEnabled(
+                    SettingsRetriever.animationsEnabled(getContext()));
+            value.initializeContext(tmpContext);
+            float density = getContext().getResources().getDisplayMetrics().density;
+            tmpContext.setAnimationEnabled(true);
+            tmpContext.setDensity(density);
+            tmpContext.setUseChoreographer(false);
+            mInner.applyUpdate(value);
+            mInner.invalidate();
+        } catch (Throwable t) {
+            Log.e("RemoteComposePlayer", "Error updating document", t);
+        }
     }
 
     /**
@@ -379,63 +383,82 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateDocument(byte @NonNull [] buffer) {
-        RemoteDocument document = new RemoteDocument(buffer);
-        updateDocument(document);
+        try {
+            RemoteDocument document = new RemoteDocument(buffer);
+            updateDocument(document);
+        } catch (Throwable t) {
+            Log.e("RemoteComposePlayer", "Error loading update document", t);
+        }
     }
 
     /** Set a document on the player */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(byte @NonNull [] buffer) {
-        RemoteDocument document = new RemoteDocument(buffer);
-        setDocument(document);
+        try {
+            RemoteDocument document = new RemoteDocument(buffer);
+            setDocument(document);
+        } catch (Throwable t) {
+            Log.e("RemoteComposePlayer", "Error loading document", t);
+        }
     }
 
     /** Set a document on the player */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(@NonNull InputStream inputStream) {
-        RemoteDocument document = new RemoteDocument(inputStream);
-        setDocument(document);
+        try {
+            RemoteDocument document = new RemoteDocument(inputStream);
+            setDocument(document);
+        } catch (Throwable t) {
+            Log.e("RemoteComposePlayer", "Error loading document", t);
+        }
     }
 
     /** Set a document on the player */
     public void setDocument(@Nullable RemoteDocument value) {
-        if (value != null) {
-            for (Map.Entry<String, RemoteComposeBuffer> entry : mLoadedMacros.entrySet()) {
-                value.getDocument()
-                        .mLoomManager
-                        .addMacroFromBuffer(entry.getKey(), entry.getValue());
-            }
-            value.reinflate();
-            if (value.canBeDisplayed(
-                    MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
-                if (value.isUpdateDoc()) {
-                    updateDocument(value);
-                    return;
+        try {
+            if (value != null) {
+                for (Map.Entry<String, RemoteComposeBuffer> entry : mLoadedMacros.entrySet()) {
+                    value.getDocument()
+                            .mLoomManager
+                            .addMacroFromBuffer(entry.getKey(), entry.getValue());
                 }
-                mInner.setDocument(value);
-                int contentBehavior = value.getDocument().getContentScroll();
-                applyContentBehavior(contentBehavior);
+                value.reinflate();
+                if (value.canBeDisplayed(
+                        MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
+                    if (value.isUpdateDoc()) {
+                        updateDocument(value);
+                        return;
+                    }
+                    mInner.setDocument(value);
+                    int contentBehavior = value.getDocument().getContentScroll();
+                    applyContentBehavior(contentBehavior);
+                } else {
+                    Log.e("RemoteComposePlayer", "Unsupported document ");
+                }
+
+                RemoteComposeTouchHelper.REGISTRAR
+                        .setAccessibilityDelegate(this, value.getDocument());
             } else {
-                Log.e("RemoteComposePlayer", "Unsupported document ");
+                // TODO discuss with Nico
+                //            mInner.setDocument(null);
+
+                RemoteComposeTouchHelper.REGISTRAR
+                        .clearAccessibilityDelegate(this);
             }
 
-            RemoteComposeTouchHelper.REGISTRAR.setAccessibilityDelegate(this, value.getDocument());
-        } else {
-            // TODO discuss with Nico
-            //            mInner.setDocument(null);
+            FloatSystemVariables sysVar = mFloatSystemVariables;
+            if (sysVar != null) {
+                sysVar.loadSystemVariables(mInner,
+                        mInner.getNamedVariables(NamedVariable.FLOAT_TYPE));
+            }
 
-            RemoteComposeTouchHelper.REGISTRAR.clearAccessibilityDelegate(this);
+            mThemeSupport.mapColors(getContext(), mInner);
+            mSensorsSupport.setupSensors(getContext().getApplicationContext(), mInner);
+            mHapticSupport.setupHaptics(mInner);
+            mInner.checkShaders(mShaderControl);
+        } catch (Throwable t) {
+            Log.e("RemoteComposePlayer", "Error setting document", t);
         }
-
-        FloatSystemVariables sysVar = mFloatSystemVariables;
-        if (sysVar != null) {
-            sysVar.loadSystemVariables(mInner, mInner.getNamedVariables(NamedVariable.FLOAT_TYPE));
-        }
-
-        mThemeSupport.mapColors(getContext(), mInner);
-        mSensorsSupport.setupSensors(getContext().getApplicationContext(), mInner);
-        mHapticSupport.setupHaptics(mInner);
-        mInner.checkShaders(mShaderControl);
     }
 
     @Override
