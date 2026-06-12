@@ -296,6 +296,42 @@ class TextInputSessionTest {
     }
 
     @Test
+    fun setComposingRegion_reversed_setsCoercedComposition() = runSessionTest(
+        initialText = "abcde",
+        initialSelection = TextRange(5),
+    ) { state, request ->
+        request.editText {
+            setComposingRegion(start = 4, end = 1)
+        }
+
+        assertThat(state.composition).isEqualTo(TextRange(1, 4))
+    }
+
+    @Test
+    fun setComposingRegion_outOfBounds_setsCoercedComposition() = runSessionTest(
+        initialText = "abcde",
+        initialSelection = TextRange(5),
+    ) { state, request ->
+        request.editText {
+            setComposingRegion(start = -1, end = 10)
+        }
+
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun setComposingRegion_emptyRange_doesNotSetComposition() = runSessionTest(
+        initialText = "abcde",
+        initialSelection = TextRange(5),
+    ) { state, request ->
+        request.editText {
+            setComposingRegion(start = 2, end = 2)
+        }
+
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
     fun setComposingText_insertsAndMarksComposition() = runSessionTest(
         initialText = "abef",
         initialSelection = TextRange(2, 2),
