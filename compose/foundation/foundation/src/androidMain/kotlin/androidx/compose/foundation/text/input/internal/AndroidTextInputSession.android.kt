@@ -55,7 +55,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     updateSelectionState: (() -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
     viewConfiguration: ViewConfiguration?,
-    updateTouchMode: (Boolean) -> Unit,
+    updateDirectTouchInteraction: (Boolean) -> Unit,
 ): Nothing {
     platformSpecificTextInputSession(
         state = state,
@@ -67,7 +67,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
         composeImm = ComposeInputMethodManager(view),
         stylusHandwritingTrigger = stylusHandwritingTrigger,
         viewConfiguration = viewConfiguration,
-        updateTouchMode = updateTouchMode,
+        updateDirectTouchInteraction = updateDirectTouchInteraction,
     )
 }
 
@@ -82,7 +82,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     composeImm: ComposeInputMethodManager,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
     viewConfiguration: ViewConfiguration?,
-    updateTouchMode: (Boolean) -> Unit,
+    updateDirectTouchInteraction: (Boolean) -> Unit,
 ): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
@@ -181,8 +181,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                         return false
                     }
 
-                    override fun updateTouchMode(isInTouchMode: Boolean) {
-                        updateTouchMode.invoke(isInTouchMode)
+                    override fun updateDirectTouchInteraction(isDirectTouchInteraction: Boolean) {
+                        updateDirectTouchInteraction.invoke(isDirectTouchInteraction)
                     }
                 }
 

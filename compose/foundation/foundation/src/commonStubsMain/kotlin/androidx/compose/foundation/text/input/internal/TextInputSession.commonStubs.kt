@@ -33,5 +33,5 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     updateSelectionState: (() -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
     viewConfiguration: ViewConfiguration?,
-    updateTouchMode: (Boolean) -> Unit,
+    updateDirectTouchInteraction: (Boolean) -> Unit,
 ): Nothing = implementedInJetBrainsFork()

@@ -314,7 +314,7 @@ internal class StatelessInputConnection(
     override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
         session.setSelection(start, end)
-        session.updateTouchMode(false)
+        session.updateDirectTouchInteraction(false)
         return true
     }
 

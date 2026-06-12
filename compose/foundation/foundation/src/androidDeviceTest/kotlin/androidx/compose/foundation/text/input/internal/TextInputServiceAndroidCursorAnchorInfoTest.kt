@@ -187,7 +187,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
                 imeOptions = ImeOptions.Default,
                 receiveContentConfiguration = null,
                 onImeAction = null,
-                updateTouchMode = {},
+                updateDirectTouchInteraction = {},
             )
         }
 
@@ -337,7 +337,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
                 imeOptions = ImeOptions.Default,
                 receiveContentConfiguration = null,
                 onImeAction = null,
-                updateTouchMode = {},
+                updateDirectTouchInteraction = {},
             )
         }
 

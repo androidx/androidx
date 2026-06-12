@@ -128,8 +128,8 @@ class StatelessInputConnectionTest {
                 onSendKeyEvent?.invoke(keyEvent)
             }
 
-            override fun updateTouchMode(isInTouchMode: Boolean) {
-                lastTouchModeUpdate = isInTouchMode
+            override fun updateDirectTouchInteraction(isDirectTouchInteraction: Boolean) {
+                lastDirectTouchInteractionUpdate = isDirectTouchInteraction
             }
 
             override fun requestCursorUpdates(cursorUpdateMode: Int) {}
@@ -172,7 +172,7 @@ class StatelessInputConnectionTest {
 
     private var batchDepth = 0
 
-    private var lastTouchModeUpdate: Boolean? = null
+    private var lastDirectTouchInteractionUpdate: Boolean? = null
 
     @Before
     fun setup() {
@@ -663,19 +663,19 @@ class StatelessInputConnectionTest {
     }
 
     @Test
-    fun setSelection_updatesTouchMode() {
-        assertThat(lastTouchModeUpdate).isNull()
+    fun setSelection_updatesDirectTouchInteraction() {
+        assertThat(lastDirectTouchInteractionUpdate).isNull()
         value = TextFieldCharSequence("Hello, World")
         ic.setSelection(0, 5)
-        assertThat(lastTouchModeUpdate).isFalse()
+        assertThat(lastDirectTouchInteractionUpdate).isFalse()
     }
 
     @Test
-    fun setSelection_collapsed_updatesTouchMode() {
-        assertThat(lastTouchModeUpdate).isNull()
+    fun setSelection_collapsed_updatesDirectTouchInteraction() {
+        assertThat(lastDirectTouchInteractionUpdate).isNull()
         value = TextFieldCharSequence("Hello, World")
         ic.setSelection(0, 0)
-        assertThat(lastTouchModeUpdate).isFalse()
+        assertThat(lastDirectTouchInteractionUpdate).isFalse()
     }
 
     @Test

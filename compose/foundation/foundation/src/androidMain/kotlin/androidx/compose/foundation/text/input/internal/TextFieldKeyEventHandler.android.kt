@@ -59,15 +59,17 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         onSubmit: () -> Boolean,
     ): Boolean {
         // Before handing off the key processing to the super class, we check whether the event is
-        // coming from a hardware keyboard (virtual or not) to decide touch mode.
-        // We use !isFromSoftKeyboard here to preserve the old behavior of leaving touch mode for
+        // coming from a hardware keyboard (virtual or not) to decide direct touch interaction
+        // state.
+        // We use !isFromSoftKeyboard here to preserve the old behavior of leaving direct touch
+        // interaction for
         // anything that is not explicitly a soft keyboard event.
         if (
             event.type == KeyDown &&
                 event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
                 (!event.isFromSoftKeyboard || !event.isTypedEvent)
         ) {
-            textFieldSelectionState.isInTouchMode = false
+            textFieldSelectionState.isDirectTouchInteraction = false
         }
 
         return super.onKeyEvent(
