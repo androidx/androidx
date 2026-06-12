@@ -24,7 +24,6 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -98,11 +97,4 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-}
-
-// TODO(b/407640608): Task :compose:ui:ui-inspection:connectedCheck fails without this block
-tasks.withType(KotlinCompile).configureEach { task ->
-    task.compilerOptions {
-        it.freeCompilerArgs.addAll("-Xlambdas=class")
-    }
 }

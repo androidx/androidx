@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -58,7 +57,6 @@ class PaneMotionTest {
         }
     }
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-7979
     @Test
     fun test_allDefaultPaneMotionTransitions() {
         NoMotion.assertTransitions(EnterTransition.None, ExitTransition.None)
@@ -89,15 +87,26 @@ class PaneMotionTest {
                 mockPaneScaffoldMotionDataProvider
                     .calculateDefaultEnterTransition(ThreePaneScaffoldRole.Primary)
                     .toString()
+                    .sanitize()
             )
-            .isEqualTo(expectedEnterTransition.toString())
+            .isEqualTo(expectedEnterTransition.toString().sanitize())
         assertWithMessage("Exit transition of $this: ")
             .that(
                 mockPaneScaffoldMotionDataProvider
                     .calculateDefaultExitTransition(ThreePaneScaffoldRole.Primary)
                     .toString()
+                    .sanitize()
             )
-            .isEqualTo(expectedExitTransition.toString())
+            .isEqualTo(expectedExitTransition.toString().sanitize())
+    }
+
+    private fun String.sanitize(): String {
+        return this
+            // Replace lambda class names like
+            // "EnterExitTransitionKt$$ExternalSyntheticLambda2@23c5171" with "<lambda>"
+            .replace(Regex("[a-zA-Z0-9_$./]+\\$\\$[a-zA-Z0-9_$/]+@[0-9a-fA-F]+"), "<lambda>")
+            // Replace remaining hashcodes like "@efce3513" with "@<hash>"
+            .replace(Regex("@[0-9a-fA-F]+"), "@<hash>")
     }
 
     @Test
