@@ -56,9 +56,14 @@ androidXMultiplatform {
 
         androidDeviceTest {
             dependencies {
-                implementation(libs.junit)
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":compose:ui:ui-test-manifest"))
+                implementation(libs.junit)
+                implementation(libs.espressoCore)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
             }
         }
     }
