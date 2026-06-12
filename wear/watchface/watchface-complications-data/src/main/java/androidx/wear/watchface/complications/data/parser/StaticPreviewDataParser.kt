@@ -100,7 +100,10 @@ public object StaticPreviewDataParser {
             providerContext.resources.getXml(xmlResId).use { parser ->
                 return PreviewData.inflate(providerComponent, context, providerContext, parser)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Invalid provider XML can produce OutOfMemoryError / StackOverflowError
+            // (java.lang.Error), not just Exception. Swallow everything and return null
+            // so a single bad provider cannot take down the picker.
             Log.e(TAG, "Error parsing complication preview data for $providerComponent", e)
         }
         return null

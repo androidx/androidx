@@ -24,4 +24,6 @@
     <string name="formatted_text_of_2">Steps: %1$s, Time: %2$s</string>
     <string name="formatted_text_of_3"><xliff:g id="percentage">Steps: %1$s, Time: %2$s, Progress: %3$d</xliff:g>%%</string>
 
+    <string name="invalid_fmt_oome">%2000000000s</string>
+    <string name="invalid_fmt_simple">%1$s</string>
 </resources>
