@@ -25,11 +25,14 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -126,6 +129,7 @@ class HapticFeedbackSelectionTest {
     fun testBasicTextFieldValue_DoubleTap_DoesNotTriggerHaptic() = runUIKitInstrumentedTest {
         val hapticFeedback = TestHapticFeedback()
         var textFieldValue by mutableStateOf(TextFieldValue("Hello-LongLongLongLongLongLong-text"))
+        val focusRequester = FocusRequester()
 
         setContent {
             WithTestHapticFeedback(hapticFeedback) {
@@ -137,16 +141,19 @@ class HapticFeedbackSelectionTest {
                             .align(Alignment.Center)
                             .testTag("TextField")
                             .padding(16.dp)
+                            .focusRequester(focusRequester)
                     )
                 }
+            }
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
             }
         }
 
         // Perform double tap
-        selectWithDoubleTap("TextField")
+        findNodeWithTag("TextField").doubleTap()
 
         waitForIdle()
-
         // Verify that haptic feedback was NOT triggered
         hapticFeedback.assertNoHaptic()
 
@@ -190,6 +197,7 @@ class HapticFeedbackSelectionTest {
     fun testBasicTextFieldState_DoubleTap_DoesNotTriggerHaptic() = runUIKitInstrumentedTest {
         val hapticFeedback = TestHapticFeedback()
         val textFieldState = TextFieldState("Hello-LongLongLongLongLongLong-text")
+        val focusRequester = FocusRequester()
 
         setContent {
             WithTestHapticFeedback(hapticFeedback) {
@@ -200,15 +208,18 @@ class HapticFeedbackSelectionTest {
                             .align(Alignment.Center)
                             .testTag("TextField")
                             .padding(16.dp)
+                            .focusRequester(focusRequester)
                     )
                 }
             }
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
         }
 
-        selectWithDoubleTap("TextField")
+        findNodeWithTag("TextField").doubleTap()
 
         waitForIdle()
-
         // Verify that haptic feedback was NOT triggered
         hapticFeedback.assertNoHaptic()
 
@@ -277,12 +288,5 @@ class HapticFeedbackSelectionTest {
 
         // Verify that haptic feedback was NOT triggered
         hapticFeedback.assertNoHaptic()
-    }
-
-    private fun UIKitInstrumentedTest.selectWithDoubleTap(textFieldTag: String) {
-        findNodeWithTag(textFieldTag).tap()
-        delay(500)
-        findNodeWithTag(textFieldTag).doubleTap()
-        waitForIdle()
     }
 }

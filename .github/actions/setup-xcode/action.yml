@@ -3,13 +3,11 @@ runs:
   using: "composite"
   steps:
     # List of available Xcode versions:
-    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
-    # Note that explicit download is required due to updated support policy:
-    # https://github.com/actions/runner-images/issues/12758#issuecomment-3206748945
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md#xcode
     - name: Setup Xcode version
       shell: bash
       run: |
-        sudo xcode-select -s /Applications/Xcode_26.3.app
+        sudo xcode-select -s /Applications/Xcode_26.5.app
         /usr/bin/xcodebuild -version
 
     - name: Cache Xcode DerivedData
