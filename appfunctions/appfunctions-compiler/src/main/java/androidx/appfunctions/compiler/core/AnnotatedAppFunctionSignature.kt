@@ -18,16 +18,13 @@ package androidx.appfunctions.compiler.core
 
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionMetadataClass
-import androidx.appfunctions.compiler.core.IntrospectionHelper.DeprecatedAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
-import androidx.appfunctions.compiler.core.metadata.AppFunctionDeprecationMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
@@ -93,6 +90,18 @@ data class AnnotatedAppFunctionSignature(
         declaredScope
     }
 
+    /** Whether the app function is described by KDoc. */
+    val isDescribedByKDoc: Boolean by lazy {
+        val appFunctionSignatureAnnotation =
+            classDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionSignatureAnnotation.CLASS_NAME
+            )
+        appFunctionSignatureAnnotation?.requirePropertyValueOfType(
+            IntrospectionHelper.AppFunctionSignatureAnnotation.PROPERTY_IS_DESCRIBED_BY_KDOC,
+            Boolean::class,
+        ) ?: false
+    }
+
     /**
      * Creates a [CompileTimeAppFunctionMetadata] instance for the app function defined in this
      * class.
@@ -106,8 +115,8 @@ data class AnnotatedAppFunctionSignature(
         val sharedDataTypeMap: MutableMap<String, AppFunctionDataTypeMetadata> = mutableMapOf()
         val seenDataTypeQualifiers: MutableSet<String> = mutableSetOf()
 
-        // TODO: b/501032667 - Extract descriptions from KDoc
-        val functionDescription = ""
+        val rawKDoc = getRawKDoc()
+        val functionDescription = functionDeclaration.getFunctionDescription(rawKDoc)
 
         val parameterTypeMetadataList =
             metadataCreatorHelper.buildParameterTypeMetadataList(
@@ -115,8 +124,7 @@ data class AnnotatedAppFunctionSignature(
                 resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
                 sharedDataTypeMap = sharedDataTypeMap,
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
-                // TODO: b/501032667 - Extract parameter descriptions from KDoc
-                parameterDescriptionMap = emptyMap(),
+                parameterDescriptionMap = getParamDescriptionsFromKDoc(rawKDoc),
             )
         val responseTypeMetadata =
             metadataCreatorHelper.buildResponseTypeMetadata(
@@ -126,8 +134,6 @@ data class AnnotatedAppFunctionSignature(
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
                 functionAnnotations = functionDeclaration.annotations,
             )
-        val deprecationMetadata = functionDeclaration.getDeprecationMetadata()
-
         return CompileTimeAppFunctionMetadata(
             id = getAppFunctionIdentifier(functionDeclaration),
             isEnabledByDefault = false,
@@ -136,24 +142,13 @@ data class AnnotatedAppFunctionSignature(
             response =
                 AppFunctionResponseMetadata(
                     valueType = responseTypeMetadata,
-                    // TODO: b/501032667 - Extract response description from KDoc
-                    description = "",
+                    description = functionDeclaration.getResponseDescription(rawKDoc),
                 ),
             components = AppFunctionComponentsMetadata(dataTypes = sharedDataTypeMap),
             description = functionDescription,
-            deprecation = deprecationMetadata,
+            deprecation = null,
             scope = scope,
         )
-    }
-
-    private fun KSDeclaration.getDeprecationMetadata(): AppFunctionDeprecationMetadata? {
-        val annotation = annotations.findAnnotation(DeprecatedAnnotation.CLASS_NAME) ?: return null
-        val message =
-            annotation.requirePropertyValueOfType(
-                DeprecatedAnnotation.PROPERTY_MESSAGE,
-                String::class,
-            )
-        return AppFunctionDeprecationMetadata(message)
     }
 
     /**
@@ -172,7 +167,8 @@ data class AnnotatedAppFunctionSignature(
             val parameterTypeReference = AppFunctionTypeReference(ksValueParameter.type)
             if (parameterTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
                 sourceFileSet.addAll(
-                    getAnnotatedAppFunctionSerializable(parameterTypeReference)
+                    parameterTypeReference
+                        .getAnnotatedAppFunctionSerializable()
                         .getTransitiveSerializableSourceFiles()
                 )
             }
@@ -182,36 +178,12 @@ data class AnnotatedAppFunctionSignature(
             AppFunctionTypeReference(checkNotNull(appFunctionDeclaration.returnType))
         if (returnTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
             sourceFileSet.addAll(
-                getAnnotatedAppFunctionSerializable(returnTypeReference)
+                returnTypeReference
+                    .getAnnotatedAppFunctionSerializable()
                     .getTransitiveSerializableSourceFiles()
             )
         }
         return sourceFileSet
-    }
-
-    private fun getAnnotatedAppFunctionSerializable(
-        appFunctionTypeReference: AppFunctionTypeReference
-    ): AppFunctionSerializableType {
-        val appFunctionSerializableKSType =
-            appFunctionTypeReference.selfOrItemTypeReference.resolve()
-        return AppFunctionSerializableType.create(
-            classDeclaration =
-                appFunctionSerializableKSType.declaration as? KSClassDeclaration
-                    ?: throw ProcessingException(
-                        "Only classes/interfaces should be annotated with @AppFunctionSerializable",
-                        appFunctionSerializableKSType.declaration,
-                    ),
-            typeArguments = appFunctionSerializableKSType.arguments,
-        )
-    }
-
-    private fun AppFunctionTypeReference.typeOrItemTypeIsAppFunctionSerializable(): Boolean {
-        return this.isOfTypeCategory(
-            AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_SINGULAR
-        ) ||
-            this.isOfTypeCategory(
-                AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_LIST
-            )
     }
 
     /** Validates if the AppFunction signature is valid. */
@@ -265,6 +237,14 @@ data class AnnotatedAppFunctionSignature(
     /** Gets the [classDeclaration]'s [ClassName]. */
     fun getEnclosingClassName(): ClassName {
         return classDeclaration.toClassName()
+    }
+
+    private fun getRawKDoc(): String {
+        return if (isDescribedByKDoc) {
+            appFunctionDeclaration.docString ?: ""
+        } else {
+            ""
+        }
     }
 
     companion object {

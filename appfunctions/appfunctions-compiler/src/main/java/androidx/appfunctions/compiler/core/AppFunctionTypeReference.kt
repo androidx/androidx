@@ -145,6 +145,26 @@ class AppFunctionTypeReference(val selfTypeReference: KSTypeReference) {
         return defaultValue
     }
 
+    /** Checks if the type reference or its item type is an AppFunctionSerializable. */
+    fun typeOrItemTypeIsAppFunctionSerializable(): Boolean {
+        return this.isOfTypeCategory(AppFunctionSupportedTypeCategory.SERIALIZABLE_SINGULAR) ||
+            this.isOfTypeCategory(AppFunctionSupportedTypeCategory.SERIALIZABLE_LIST)
+    }
+
+    /** Resolves the AppFunctionSerializable type for this reference. */
+    fun getAnnotatedAppFunctionSerializable(): AppFunctionSerializableType {
+        val appFunctionSerializableKSType = this.selfOrItemTypeReference.resolve()
+        return AppFunctionSerializableType.create(
+            classDeclaration =
+                appFunctionSerializableKSType.declaration as? KSClassDeclaration
+                    ?: throw ProcessingException(
+                        "Only classes/interfaces should be annotated with @AppFunctionSerializable",
+                        appFunctionSerializableKSType.declaration,
+                    ),
+            typeArguments = appFunctionSerializableKSType.arguments,
+        )
+    }
+
     /**
      * The category of types that are supported by app functions.
      *

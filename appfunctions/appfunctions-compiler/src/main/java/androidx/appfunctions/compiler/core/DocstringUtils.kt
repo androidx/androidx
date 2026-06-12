@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.compiler.core
 
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import kotlin.collections.joinToString
 
 private const val PARAM_TAG_REGEX_PATTERN = """^@param\s+(\w+)\s*(.*)"""
@@ -141,4 +142,53 @@ internal fun sanitizeKDoc(docString: String): String {
     }
 
     return resultLines.joinToString("\n").trim()
+}
+
+/**
+ * Returns the function's description.
+ *
+ * If the function is annotated with `@AppFunctionInstruction`, its `instruction` property value is
+ * returned. Otherwise, the sanitized KDoc is returned (obtained by stripping Kotlin supported tags
+ * from [rawKDoc]).
+ *
+ * @param rawKDoc The raw KDoc string of the function.
+ * @return The description of the function.
+ */
+internal fun KSFunctionDeclaration.getFunctionDescription(rawKDoc: String): String {
+    val instruction =
+        this.annotations
+            .findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+            ?.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
+    if (instruction != null) {
+        return instruction
+    }
+    return sanitizeKDoc(rawKDoc)
+}
+
+/**
+ * Returns the function's response description.
+ *
+ * If the function's return type is annotated with `@AppFunctionInstruction`, its `instruction`
+ * property value is returned. Otherwise, the response description is extracted from the `@return`
+ * tag of the [rawKDoc] string.
+ *
+ * @param rawKDoc The raw KDoc string of the function.
+ * @return The description of the function's response.
+ */
+internal fun KSFunctionDeclaration.getResponseDescription(rawKDoc: String): String {
+    val returnInstruction =
+        this.returnType
+            ?.annotations
+            ?.findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+            ?.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
+    if (returnInstruction != null) {
+        return returnInstruction
+    }
+    return getResponseDescriptionFromKDoc(rawKDoc)
 }

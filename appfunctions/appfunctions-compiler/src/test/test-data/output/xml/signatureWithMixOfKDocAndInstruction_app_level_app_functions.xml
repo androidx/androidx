@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.test.SignatureWithMixOfKDocAndInstruction#doSomething</id>
+        <enabledByDefault>false</enabledByDefault>
+        <scope>global</scope>
+        <description>KDoc for method.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>a</name>
+            <description>Instruction for param a.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>b</name>
+            <description>KDoc for param b.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+            <description>Instruction for return.</description>
+        </response>
+        <functionId>com.test.SignatureWithMixOfKDocAndInstruction#doSomething</functionId>
+    </appfunction>
+</appfunctions>

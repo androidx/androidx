@@ -57,6 +57,62 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testAppFunctionSignature_withDescription_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/SignatureWithDescription.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/signatureWithDescription_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_withInstruction_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/SignatureWithInstruction.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/signatureWithInstruction_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_withKDocAndInstruction_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/SignatureWithKDocAndInstruction.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/signatureWithKDocAndInstruction_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_withMixOfKDocAndInstruction_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/SignatureWithMixOfKDocAndInstruction.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/signatureWithMixOfKDocAndInstruction_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
     fun testAppFunctionSignature_activityScope_success() {
         val report =
             compilationTestHelper.compileAll(

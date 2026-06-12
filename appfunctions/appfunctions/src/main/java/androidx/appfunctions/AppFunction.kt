@@ -125,6 +125,9 @@ public annotation class AppFunction(
      *   [androidx.appfunctions.metadata.AppFunctionResponseMetadata.description] from the KDoc's
      *   `@return` tags.
      *
+     * Note: If an [AppFunctionInstruction] annotation is also present on the method, parameter, or
+     * return type, its value will take precedence and override the corresponding KDoc description.
+     *
      * Example:
      * ```kotlin
      * /**

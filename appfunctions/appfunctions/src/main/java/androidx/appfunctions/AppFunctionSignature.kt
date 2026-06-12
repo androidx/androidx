@@ -50,6 +50,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * <appfunctions>
  *      <appfunction>
  *          <id>package.name.AddCurrentItemToCart#addToCart</id>
+ *          <scope>activity</scope>
  *          <enabledByDefault>false</enabledByDefault>
  *          <parameters>...</parameters>
  *          <response>...</response>
@@ -63,6 +64,16 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  *   <property
  *       android:name="android.app.appfunctions"
  *       android:value="cart_functions.xml" />
+ *   ...
+ * </application>
+ * ```
+ *
+ * To declare mulltiple xml files in the manifest, use comma separated values. For example:
+ * ```xml
+ * <application ...>
+ *   <property
+ *       android:name="android.app.appfunctions"
+ *       android:value="cart_functions.xml,payments_functions.xml" />
  *   ...
  * </application>
  * ```
@@ -91,4 +102,52 @@ public annotation class AppFunctionSignature(
      * into a single XML resource file.
      */
     public val appFunctionXmlFileName: String,
+
+    /**
+     * Whether to use the functional interface's abstract method KDoc as a function's description
+     * for the agent. The default value is `false`.
+     *
+     * If set to `true`, the KDoc will be used to populate:
+     * - The function's [androidx.appfunctions.metadata.AppFunctionMetadata.description] as the
+     *   KDoc, excluding Kotlin's supported tags like `@param`, `@throws`.
+     * - The function's parameters'
+     *   [androidx.appfunctions.metadata.AppFunctionParameterMetadata.description] from the KDoc's
+     *   `@param` tags.
+     * - The function's response's
+     *   [androidx.appfunctions.metadata.AppFunctionResponseMetadata.description] from the KDoc's
+     *   `@return` tags.
+     *
+     * Note: If an [AppFunctionInstruction] annotation is also present on the method, parameter, or
+     * return type, its value will take precedence and override the corresponding KDoc description.
+     *
+     * Example:
+     * ```kotlin
+     * @AppFunctionSignature(
+     *     scope = AppFunctionMetadata.SCOPE_GLOBAL,
+     *     appFunctionXmlFileName = "my_functions",
+     *     isDescribedByKDoc = true
+     * )
+     * fun interface EnableCaptionsSignature {
+     *     /**
+     *      * Enables closed captions for media playback.
+     *      *
+     *      * @param language The language code for the captions (e.g., "en", "es").
+     *      * @param showBackground Whether to display a dark background behind the caption text.
+     *      * @return Whether the captions were successfully enabled.
+     *      */
+     *     suspend fun enableCaptions(language: String, showBackground: Boolean): Boolean
+     * }
+     * ```
+     *
+     * In this example:
+     * - [androidx.appfunctions.metadata.AppFunctionMetadata.description] will be: "Enables closed
+     *   captions for media playback."
+     * - [androidx.appfunctions.metadata.AppFunctionParameterMetadata.description] for `language`
+     *   will be: "The language code for the captions (e.g., "en", "es")."
+     * - [androidx.appfunctions.metadata.AppFunctionParameterMetadata.description] for
+     *   `showBackground` will be: "Whether to display a dark background behind the caption text."
+     * - [androidx.appfunctions.metadata.AppFunctionResponseMetadata.description] will be: "Whether
+     *   the captions were successfully enabled."
+     */
+    public val isDescribedByKDoc: Boolean = false,
 )

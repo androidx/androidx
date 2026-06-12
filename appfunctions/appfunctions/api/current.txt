@@ -254,10 +254,12 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
-    ctor @KotlinOnly public AppFunctionSignature(String scope, String appFunctionXmlFileName);
+    ctor @KotlinOnly public AppFunctionSignature(String scope, String appFunctionXmlFileName, optional boolean isDescribedByKDoc);
     method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
     method @InaccessibleFromKotlin public abstract String scope();
     property public abstract String appFunctionXmlFileName;
+    property public abstract boolean isDescribedByKDoc;
     property public abstract String scope;
   }
 

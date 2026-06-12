@@ -17,8 +17,8 @@
 package androidx.appfunctions
 
 /**
- * Provides an explicit instruction for an [AppFunction] or an [AppFunctionSerializable] and their
- * respective components.
+ * Provides an explicit instruction for an [AppFunction], an [AppFunctionSignature], or an
+ * [AppFunctionSerializable] and their respective components.
  *
  * Using this annotation will provide instructions to agents that receive the
  * `androidx.appfunctions.metadata.AppFunctionMetadata` to understand how to use the AppFunction.
@@ -50,6 +50,21 @@ package androidx.appfunctions
  *     start: Location,
  *     destination: Location
  * ): @AppFunctionInstruction("The distance in miles.") Float
+ * ```
+ * - Components of an `@AppFunctionSignature`: Works in a similar way as for an `@AppFunction` by
+ *   setting the description for the abstract method, its parameters, or its return type.
+ *
+ * ```
+ * @AppFunctionSignature
+ * fun interface EnableCaptionsSignature {
+ *     @AppFunctionInstruction("Enables closed captions for media playback.")
+ *     suspend fun enableCaptions(
+ *         @AppFunctionInstruction("The language code for the captions (e.g., 'en', 'es').")
+ *         language: String,
+ *         @AppFunctionInstruction("Whether to display a dark background behind the caption text.")
+ *         showBackground: Boolean
+ *     ): @AppFunctionInstruction("Whether the captions were successfully enabled.") Boolean
+ * }
  * ```
  * - A class annotated with `@AppFunctionSerializable`: Sets the description of the data type.
  *
