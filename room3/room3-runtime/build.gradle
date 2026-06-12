@@ -81,8 +81,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":room3:room3-common"))
-                api(project(":sqlite:sqlite"))
-                implementation(project(":sqlite:sqlite-async"))
+                api("androidx.sqlite:sqlite:2.7.0-rc01")
+                implementation("androidx.sqlite:sqlite-async:2.7.0-rc01")
                 api("androidx.collection:collection:1.5.0")
                 api("androidx.annotation:annotation:1.9.1")
                 api(libs.kotlinCoroutinesCore)
@@ -109,7 +109,7 @@ androidXMultiplatform {
         }
         jvmTest {
             dependencies {
-                implementation(project(":sqlite:sqlite-bundled"))
+                implementation("androidx.sqlite:sqlite-bundled:2.7.0-rc01")
                 implementation(libs.kotlinTestJunit)
             }
         }
@@ -123,7 +123,7 @@ androidXMultiplatform {
             kotlin.srcDirs += "src/androidMain/java"
             dependencies {
                 api(libs.jspecify)
-                api(project(":sqlite:sqlite-framework"))
+                api("androidx.sqlite:sqlite-framework:2.7.0-rc01")
                 api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.annotation:annotation-experimental:1.5.0")
             }
@@ -157,7 +157,7 @@ androidXMultiplatform {
             dependsOn(nonWebMain)
             dependsOn(jvmNativeWebMain)
             dependencies {
-                api(project(":sqlite:sqlite-framework"))
+                api("androidx.sqlite:sqlite-framework:2.7.0-rc01")
                 implementation(libs.atomicFu)
             }
         }

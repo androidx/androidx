@@ -34,7 +34,7 @@ plugins {
 
 dependencies {
     api(project(":room3:room3-runtime"))
-    api(project(":sqlite:sqlite"))
+    api("androidx.sqlite:sqlite:2.7.0-rc01")
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.concurrent:concurrent-futures:1.2.0")
 
