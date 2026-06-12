@@ -18,10 +18,11 @@ package androidx.input.motionprediction.kalman;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.kalman.matrix.DVector2;
 import androidx.input.motionprediction.kalman.matrix.Matrix;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Class that independently applies the Kalman Filter to each axis of the pen.

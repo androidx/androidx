@@ -21,11 +21,12 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
 import androidx.input.motionprediction.system.SystemMotionEventPredictor;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * There is a gap between the time a user touches the screen and that information is reported to the
@@ -54,8 +55,7 @@ public interface MotionEventPredictor {
      * @return the predicted {@link android.view.MotionEvent}, or null if not possible to make a
      * prediction.
      */
-    @Nullable
-    MotionEvent predict();
+    @Nullable MotionEvent predict();
 
     /**
      * Create a new motion predictor associated to a specific {@link android.view.View}.
@@ -69,8 +69,7 @@ public interface MotionEventPredictor {
      * @param view the view to associated to this predictor
      * @return the new predictor instance
      */
-    @NonNull
-    static MotionEventPredictor newInstance(@NonNull View view) {
+    static @NonNull MotionEventPredictor newInstance(@NonNull View view) {
         Context context = view.getContext();
         Configuration configuration = Configuration.getInstance();
         if (Build.VERSION.SDK_INT >= 34

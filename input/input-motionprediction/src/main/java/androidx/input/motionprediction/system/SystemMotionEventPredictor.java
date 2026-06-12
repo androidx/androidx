@@ -23,13 +23,14 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.MotionPredictor;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
 import androidx.input.motionprediction.common.PredictionEstimator;
 import androidx.input.motionprediction.kalman.MultiPointerPredictor;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -73,9 +74,8 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
         }
     }
 
-    @Nullable
     @Override
-    public MotionEvent predict() {
+    public @Nullable MotionEvent predict() {
         final int predictionTimeDelta = mPredictionEstimator.estimate();
         if (mUsingSystemPredictor) {
             return mSystemPredictor.predict(
@@ -100,8 +100,8 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
      * @param strategy the strategy to use
      * @return the new instance
      */
-    @NonNull
-    public static SystemMotionEventPredictor newInstance(@NonNull Context context, int strategy) {
+    public static @NonNull SystemMotionEventPredictor newInstance(
+            @NonNull Context context, int strategy) {
         return new SystemMotionEventPredictor(context, strategy);
     }
 }

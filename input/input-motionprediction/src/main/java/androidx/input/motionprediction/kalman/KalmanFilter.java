@@ -18,9 +18,10 @@ package androidx.input.motionprediction.kalman;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.kalman.matrix.Matrix;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Kalman filter implementation following http://filterpy.readthedocs.io/en/latest/

@@ -18,8 +18,9 @@ package androidx.input.motionprediction.kalman.matrix;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A 2 element fixed sized vector, where each element is a double. This class can represent a (2x1)

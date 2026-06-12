@@ -25,9 +25,10 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  */
