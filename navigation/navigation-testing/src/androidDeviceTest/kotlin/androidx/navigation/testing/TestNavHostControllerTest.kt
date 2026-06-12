@@ -16,7 +16,9 @@
 
 package androidx.navigation.testing
 
+import android.net.Uri
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavOptions
@@ -26,6 +28,7 @@ import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.test.R
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject.assertThat
@@ -114,6 +117,20 @@ class TestNavHostControllerTest {
         assertThat(actualArgs).containsKey("arg")
         assertThat(actualArgs).string("arg").isEqualTo("test")
     }
+
+    @Test
+    fun testSetDestinationWithActivityContext() {
+        ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setReferrer(Uri.parse("android-app://com.external.app"))
+                val controller = TestNavHostController(activity)
+                controller.setGraph(R.navigation.test_graph)
+                controller.setCurrentDestination(R.id.third_test)
+
+                assertThat(controller.currentDestination?.id).isEqualTo(R.id.third_test)
+            }
+        }
+    }
 }
 
 @Navigator.Name("activity")
@@ -126,4 +143,16 @@ class NoOpActivityNavigator : ActivityNavigator(ApplicationProvider.getApplicati
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?,
     ) = destination
+}
+
+class TestActivity : ComponentActivity() {
+    private var _referrer: Uri? = null
+
+    fun setReferrer(referrer: Uri?) {
+        _referrer = referrer
+    }
+
+    override fun getReferrer(): Uri? {
+        return _referrer ?: super.getReferrer()
+    }
 }

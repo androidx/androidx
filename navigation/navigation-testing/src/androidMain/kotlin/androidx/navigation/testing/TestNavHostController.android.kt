@@ -25,7 +25,8 @@ import androidx.savedstate.savedState
 import java.lang.IllegalArgumentException
 
 /** Subclass of [NavHostController] that offers additional APIs for testing Navigation. */
-public actual class TestNavHostController(context: Context) : NavHostController(context) {
+public actual class TestNavHostController(context: Context) :
+    NavHostController(context.applicationContext) {
 
     /** Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack. */
     public actual val backStack: List<NavBackStackEntry>
