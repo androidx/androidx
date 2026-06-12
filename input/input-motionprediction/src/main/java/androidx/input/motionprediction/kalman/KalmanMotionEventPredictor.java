@@ -21,11 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.content.Context;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
 import androidx.input.motionprediction.common.PredictionEstimator;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  */
@@ -45,9 +46,8 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
         mMultiPointerPredictor.onTouchEvent(event);
     }
 
-    @Nullable
     @Override
-    public MotionEvent predict() {
+    public @Nullable MotionEvent predict() {
         final int predictionTimeDelta = mPredictionEstimator.estimate();
         return mMultiPointerPredictor.predict(predictionTimeDelta);
     }

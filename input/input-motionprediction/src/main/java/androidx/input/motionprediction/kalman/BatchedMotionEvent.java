@@ -20,8 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Iterator;
 
@@ -76,8 +77,7 @@ public class BatchedMotionEvent {
         }
 
         @Override
-        @NonNull
-        public Iterator<BatchedMotionEvent> iterator() {
+        public @NonNull Iterator<BatchedMotionEvent> iterator() {
             return new Iterator<BatchedMotionEvent>() {
                 private int mHistoryId = 0;
 
