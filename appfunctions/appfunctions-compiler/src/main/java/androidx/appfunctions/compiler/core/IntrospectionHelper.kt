@@ -64,6 +64,7 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionSignature")
         const val PROPERTY_SCOPE = "scope"
         const val PROPERTY_XML_FILE_NAME = "appFunctionXmlFileName"
+        const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
     object AppFunctionSchemaDefinitionAnnotation {
