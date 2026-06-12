@@ -62,5 +62,5 @@ internal interface TextInputSession : ImeEditCommandScope {
         cancellationSignal: CancellationSignal?,
     ): Boolean
 
-    fun updateTouchMode(isInTouchMode: Boolean)
+    fun updateDirectTouchInteraction(isDirectTouchInteraction: Boolean)
 }

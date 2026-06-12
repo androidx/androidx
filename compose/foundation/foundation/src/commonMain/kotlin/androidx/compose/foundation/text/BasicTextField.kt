@@ -542,7 +542,7 @@ internal fun BasicTextField(
                     if (
                         enabled &&
                             isWindowAndTextFieldFocused &&
-                            textFieldSelectionState.isInTouchMode
+                            textFieldSelectionState.isDirectTouchInteraction
                     ) {
                         TextFieldSelectionHandles(selectionState = textFieldSelectionState)
                         if (!readOnly) {

@@ -250,7 +250,9 @@ internal class TextFieldDecoratorModifierNode(
                     with(textFieldSelectionState) {
                         val requestFocus = { if (!isWindowAndTextFieldFocused) requestFocus() }
 
-                        launch(start = CoroutineStart.UNDISPATCHED) { detectTouchMode() }
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            detectDirectTouchInteraction()
+                        }
                         launch(start = CoroutineStart.UNDISPATCHED) {
                             detectTextFieldTapGestures(
                                 requestFocus = requestFocus,
@@ -804,7 +806,7 @@ internal class TextFieldDecoratorModifierNode(
 
     private fun applyCurrentInputMode() {
         if (currentValueOf(LocalInputModeManager).inputMode != InputMode.Touch) {
-            textFieldSelectionState.isInTouchMode = false
+            textFieldSelectionState.isDirectTouchInteraction = false
         }
     }
 
@@ -831,7 +833,9 @@ internal class TextFieldDecoratorModifierNode(
                         },
                         stylusHandwritingTrigger = stylusHandwritingTrigger,
                         viewConfiguration = currentValueOf(LocalViewConfiguration),
-                        updateTouchMode = { textFieldSelectionState.isInTouchMode = it },
+                        updateDirectTouchInteraction = {
+                            textFieldSelectionState.isDirectTouchInteraction = it
+                        },
                     )
                 }
             }
@@ -898,5 +902,5 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     updateSelectionState: (() -> Unit)? = null,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null,
     viewConfiguration: ViewConfiguration? = null,
-    updateTouchMode: (Boolean) -> Unit,
+    updateDirectTouchInteraction: (Boolean) -> Unit,
 ): Nothing
