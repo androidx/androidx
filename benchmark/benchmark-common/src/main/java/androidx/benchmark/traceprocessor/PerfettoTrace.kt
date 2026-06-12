@@ -18,16 +18,12 @@
 
 package androidx.benchmark.traceprocessor
 
-import androidx.annotation.RequiresApi
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
-import java.io.File
 
 /**
  * Record a Perfetto System Trace for the specified [block].
@@ -43,7 +39,6 @@ import java.io.File
  *
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
-@RequiresApi(23)
 @ExperimentalPerfettoCaptureApi
 fun PerfettoTrace.Companion.record(
     /**
@@ -104,7 +99,6 @@ fun PerfettoTrace.Companion.record(
  *
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
-@RequiresApi(23)
 @ExperimentalPerfettoCaptureApi
 fun PerfettoTrace.Companion.record(
     /**
@@ -152,17 +146,7 @@ fun PerfettoTrace.Companion.record(
                 userspaceTracingPackage?.let {
                     PerfettoCapture.PerfettoSdkConfig(it, InitialProcessState.Unknown)
                 },
-            traceCallback = { path ->
-                File(path)
-                    .appendUiState(
-                        UiState(
-                            timelineStart = null,
-                            timelineEnd = null,
-                            highlightPackage = highlightPackage,
-                        )
-                    )
-                traceCallback?.invoke(PerfettoTrace(path))
-            },
+            traceCallback = { path -> traceCallback?.invoke(PerfettoTrace(path)) },
             block = block,
         )
 }

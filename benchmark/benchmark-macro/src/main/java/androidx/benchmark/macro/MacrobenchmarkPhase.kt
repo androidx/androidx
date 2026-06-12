@@ -17,7 +17,6 @@
 package androidx.benchmark.macro
 
 import android.os.Build
-import android.util.Log
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
@@ -27,14 +26,11 @@ import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.traceprocessor.Insight
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.StartupInsights
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.tracing.trace
-import java.io.File
 
 /** A Profiler being used during a Macro Benchmark Phase. */
 internal interface PhaseProfiler {
@@ -151,12 +147,6 @@ internal fun TraceProcessor.runPhase(
                     }
                 }!!
 
-            // Append UI state to trace, so tools opening trace will highlight relevant
-            // parts in UI.
-            val uiState = UiState(highlightPackage = packageName)
-            Log.d(TAG, "Iteration $iteration captured $uiState")
-            File(tracePath).apply { appendUiState(uiState) }
-
             // Accumulate measurements
             loadTrace(PerfettoTrace(tracePath)) {
                 IterationResult(
@@ -168,8 +158,7 @@ internal fun TraceProcessor.runPhase(
                                 // capture list of Measurements
                                 .map { it.getMeasurements(captureInfo, this) }
                                 // merge together
-                                .reduceOrNull() { sum, element -> sum.merge(element) }
-                                ?: emptyList()
+                                .reduceOrNull { sum, element -> sum.merge(element) } ?: emptyList()
                         },
                     insights =
                         if (experimentalConfig?.startupInsightsConfig?.isEnabled == true) {

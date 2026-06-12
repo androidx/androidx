@@ -89,7 +89,7 @@ class PerfettoCaptureSweepTest(
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
 
-        val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
+        val traceFilePath = linkRule.createReportedTracePath()
         val perfettoCapture = PerfettoCapture(unbundled)
 
         perfettoCapture.start(

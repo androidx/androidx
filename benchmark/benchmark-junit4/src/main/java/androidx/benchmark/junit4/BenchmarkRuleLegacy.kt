@@ -17,7 +17,6 @@
 package androidx.benchmark.junit4
 
 import android.Manifest
-import android.os.Build
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -29,13 +28,10 @@ import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
 import androidx.tracing.Trace
 import androidx.tracing.trace
-import java.io.File
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeUnit
@@ -200,54 +196,39 @@ private constructor(
         internalState.traceUniqueName = uniqueName
 
         val tracePath =
-            PerfettoCaptureWrapper()
-                .record(
-                    fileLabel = uniqueName,
-                    config =
-                        PerfettoConfig.Benchmark(
-                            appTagPackages =
-                                if (config?.traceAppTagEnabled == true) {
-                                    listOf(getInstrumentation().context.packageName)
-                                } else {
-                                    emptyList()
-                                },
-                            useStackSamplingConfig = false,
-                        ),
-                    // TODO(290918736): add support for Perfetto SDK Tracing in
-                    //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
-                    perfettoSdkConfig =
-                        if (
-                            config?.perfettoSdkTracingEnabled == true &&
-                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                        ) {
-                            PerfettoCapture.PerfettoSdkConfig(
-                                getInstrumentation().context.packageName,
-                                PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
-                            )
-                        } else {
-                            null
-                        },
-
-                    // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
-                    //   expensive on some emulators. Could alternately use UserspaceTracing if
-                    // desired
-                    // Additionally, skip on misconfigured devices to still enable benchmarking.
-                    enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
-                    inMemoryTracingLabel = "Microbenchmark",
-                ) {
-                    trace(description.displayName) { base.evaluate() }
-                }
-                ?.apply {
-                    // trace completed, and copied into shell writeable dir
-                    val file = File(this)
-                    file.appendUiState(
-                        UiState(
-                            timelineStart = null,
-                            timelineEnd = null,
-                            highlightPackage = getInstrumentation().context.packageName,
+            PerfettoCaptureWrapper().record(
+                fileLabel = uniqueName,
+                config =
+                    PerfettoConfig.Benchmark(
+                        appTagPackages =
+                            if (config?.traceAppTagEnabled == true) {
+                                listOf(getInstrumentation().context.packageName)
+                            } else {
+                                emptyList()
+                            },
+                        useStackSamplingConfig = false,
+                    ),
+                // TODO(290918736): add support for Perfetto SDK Tracing in
+                //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
+                perfettoSdkConfig =
+                    if (config?.perfettoSdkTracingEnabled == true) {
+                        PerfettoCapture.PerfettoSdkConfig(
+                            getInstrumentation().context.packageName,
+                            PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
                         )
-                    )
-                }
+                    } else {
+                        null
+                    },
+
+                // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                //   expensive on some emulators. Could alternately use UserspaceTracing if
+                // desired
+                // Additionally, skip on misconfigured devices to still enable benchmarking.
+                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
+                inMemoryTracingLabel = "Microbenchmark",
+            ) {
+                trace(description.displayName) { base.evaluate() }
+            }
 
         internalState.report(
             fullClassName = description.className,

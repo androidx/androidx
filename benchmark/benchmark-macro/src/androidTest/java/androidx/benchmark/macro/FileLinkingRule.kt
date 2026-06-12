@@ -19,8 +19,6 @@ package androidx.benchmark.macro
 import android.util.Log
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import java.io.File
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -30,7 +28,7 @@ import org.junit.runners.model.Statement
 /**
  * Rule to enable linking files and traces to Studio UI for macrobench correctness tests.
  *
- * Filepaths are registered, and reported, but files are not created by this class, that should be
+ * File paths are registered, and reported, but files are not created by this class, that should be
  * handled by the test. Ensure you don't clean up the file - it needs to persist to be copied over
  * by Studio.
  */
@@ -60,18 +58,8 @@ class FileLinkingRule : TestRule {
         return absolutePath
     }
 
-    /**
-     * Map of trace abs path -> process to highlight.
-     *
-     * After trace is complete (at end of test), we write a UI state packet to it, so trace UI can
-     * highlight/select the relevant process.
-     */
-    private val traceToPackageMap = mutableMapOf<String, String>()
-
-    fun createReportedTracePath(packageName: String, label: String = "trace"): String {
-        val absolutePath = createReportedFilePath(label, "perfetto-trace")
-        traceToPackageMap[absolutePath] = packageName
-        return absolutePath
+    fun createReportedTracePath(label: String = "trace"): String {
+        return createReportedFilePath(label, "perfetto-trace")
     }
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -91,14 +79,6 @@ class FileLinkingRule : TestRule {
         }
 
     private fun flush() {
-        traceToPackageMap.forEach { entry ->
-            File(entry.key).apply {
-                if (exists()) {
-                    appendUiState(UiState(null, null, entry.value))
-                }
-            }
-        }
-
         if (Outputs.outputDirectory == Outputs.dirUsableByAppAndShell) {
             InstrumentationResults.instrumentationReport {
                 reportSummaryToIde(message = summaryString.trim())
