@@ -68,6 +68,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
 
     internal companion object {
         private const val TAG = "PreviewData"
+        private const val MAX_FORMAT_STRING_LEN = 1024
+        // Reject any conversion with an explicit width/precision ≥ 5 digits.
+        private val INVALID_FORMAT_WIDTH = Regex("%[-#+ 0,(]*\\d{5,}")
 
         // XML Tags
         private const val TAG_COMPLICATION = "complication"
@@ -605,7 +608,7 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
             onNonCommonTag: ((XmlResourceParser) -> Boolean)? = null,
             onTextResolved: (String, String) -> Unit,
         ) {
-            while (parser.next() != XmlPullParser.END_TAG || parser.name != TAG_COMPLICATION) {
+            while (parser.isBeforeEndTag(TAG_COMPLICATION)) {
                 if (parser.eventType != XmlPullParser.START_TAG) {
                     continue
                 }
@@ -648,7 +651,7 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
 
             if (dictionaryKey != null) {
                 val replacements = PersistableBundle()
-                while (parser.next() != XmlPullParser.END_TAG || parser.name != TAG_EXTENDED_DATA) {
+                while (parser.isBeforeEndTag(TAG_EXTENDED_DATA)) {
                     if (parser.eventType != XmlPullParser.START_TAG) {
                         continue
                     }
@@ -754,7 +757,7 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
             parentTagName: String,
         ): String? {
             var text: String? = null
-            while (parser.next() != XmlPullParser.END_TAG || parser.name != parentTagName) {
+            while (parser.isBeforeEndTag(parentTagName)) {
                 if (parser.eventType != XmlPullParser.START_TAG) {
                     continue
                 }
@@ -854,13 +857,12 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 )
 
             val params = mutableListOf<Any>()
-            var eventType: Int
-            while (
-                parser.next().also { eventType = it } != XmlPullParser.END_TAG ||
-                    parser.name != TAG_FORMATTED
-            ) {
-                if (eventType == XmlPullParser.START_TAG && parser.name == TAG_PARAM) {
-                    parser.nextTag() // Move to the param's type tag
+            while (parser.isBeforeEndTag(TAG_FORMATTED)) {
+                if (parser.eventType == XmlPullParser.START_TAG && parser.name == TAG_PARAM) {
+                    // Advance to the <param>'s single child; bail out on empty <param/>.
+                    if (parser.nextTag() == XmlPullParser.END_TAG) {
+                        continue
+                    }
                     when (parser.name) {
                         TAG_TIME ->
                             parseTimeText(parser, parserContext, providerContext, textUtils)?.let {
@@ -880,7 +882,13 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                     parser.nextTag() // Move to the param type's end tag
                 }
             }
-            return String.format(formatString, *params.toTypedArray())
+            if (
+                formatString.length > MAX_FORMAT_STRING_LEN ||
+                    INVALID_FORMAT_WIDTH.containsMatchIn(formatString)
+            ) {
+                throw XmlPullParserException("Rejected invalid format string")
+            }
+            return String.format(Locale.getDefault(), formatString, *params.toTypedArray())
         }
 
         private fun parseTimeText(
@@ -1142,8 +1150,21 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 when (parser.next()) {
                     XmlPullParser.END_TAG -> depth--
                     XmlPullParser.START_TAG -> depth++
+                    XmlPullParser.END_DOCUMENT -> return
                 }
             }
+        }
+
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun XmlResourceParser.isBeforeEndTag(targetTagName: String): Boolean {
+            val event = next()
+            if (event == XmlPullParser.END_DOCUMENT) {
+                return false
+            }
+            if (event == XmlPullParser.END_TAG && name == targetTagName) {
+                return false
+            }
+            return true
         }
     }
 }

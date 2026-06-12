@@ -778,6 +778,31 @@ class StaticPreviewDataParserTest {
         testLogic(finalContext)
     }
 
+    @Test
+    fun parseFormattedText_invalidOomeFormatString_isRejectedSafely() {
+        runTestForLocale(Locale.US) { context ->
+            context.resources.getXml(R.xml.static_preview_data_invalid_oome).use { parser ->
+                // After fix: invalid format width specifiers (>5 digits) are explicitly rejected.
+                assertThrows(org.xmlpull.v1.XmlPullParserException::class.java) {
+                    PreviewData.inflate(TEST_PROVIDER, context, context, parser)
+                }
+            }
+        }
+    }
+
+    @Test(timeout = 2000)
+    fun parseFormattedText_invalidEmptyParamLoop_completesInstantlyAfterFix() {
+        runTestForLocale(Locale.US) { context ->
+            context.resources.getXml(R.xml.static_preview_data_invalid_loop).use { parser ->
+                // After fix: empty <param/> bails out cleanly without overshooting into an infinite
+                // spin.
+                assertThrows(Exception::class.java) {
+                    PreviewData.inflate(TEST_PROVIDER, context, context, parser)
+                }
+            }
+        }
+    }
+
     private companion object {
         val TEST_PROVIDER =
             ComponentName(ApplicationProvider.getApplicationContext<Context>(), "TestProvider")
