@@ -48,9 +48,7 @@ public fun StrokeInputBatch.encode(output: OutputStream) {
  *   `ink.proto.CodedStrokeInputBatch` proto message, or the corresponding [StrokeInputBatch] is
  *   invalid.
  */
-// TODO: b/522256938 - Add this annotation once we figure out what to do about this being a
-// breaking change (goes from can't handle to must handle for Java consumers).
-// @Throws(IOException::class)
+@Throws(IOException::class)
 public fun StrokeInputBatch.Companion.decode(input: InputStream): ImmutableStrokeInputBatch =
     decodeUncompressed(DecompressedBytes(input))
 
@@ -93,9 +91,7 @@ public object StrokeInputBatchSerialization {
      *   invalid.
      */
     @JvmStatic
-    // TODO: b/522256938 - Add this annotation once we figure out what to do about this being a
-    // breaking change (goes from can't handle to must handle for Java consumers).
-    // @Throws(IOException::class)
+    @Throws(IOException::class)
     public fun decode(input: InputStream): ImmutableStrokeInputBatch =
         StrokeInputBatch.decode(input)
 

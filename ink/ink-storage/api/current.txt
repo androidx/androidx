@@ -59,14 +59,14 @@ package androidx.ink.storage {
 
   public final class StrokeInputBatchExtensions {
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(androidx.ink.strokes.StrokeInputBatch.Companion, byte[] input) throws java.io.IOException;
-    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream input);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream input) throws java.io.IOException;
     method public static byte[] encode(androidx.ink.strokes.StrokeInputBatch);
     method public static void encode(androidx.ink.strokes.StrokeInputBatch, java.io.OutputStream output);
   }
 
   public final class StrokeInputBatchSerialization {
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(byte[] input) throws java.io.IOException;
-    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(java.io.InputStream input);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(java.io.InputStream input) throws java.io.IOException;
     method public static byte[] encode(androidx.ink.strokes.StrokeInputBatch strokeInputBatch);
     method public static void encode(androidx.ink.strokes.StrokeInputBatch strokeInputBatch, java.io.OutputStream output);
     field public static final androidx.ink.storage.StrokeInputBatchSerialization INSTANCE;
