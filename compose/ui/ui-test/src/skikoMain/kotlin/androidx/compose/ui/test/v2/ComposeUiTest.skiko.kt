@@ -138,7 +138,7 @@ fun runSkikoComposeUiTest(
 }
 
 @InternalTestApi
-@OptIn(InternalComposeUiApi::class, ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalTestApi::class, InternalComposeUiApi::class)
 fun runInternalSkikoComposeUiTest(
     width: Int = 1024,
     height: Int = 768,
@@ -150,17 +150,15 @@ fun runInternalSkikoComposeUiTest(
     windowInsets: PlatformWindowInsets? = null,
     block: suspend SkikoComposeUiTest.() -> Unit,
 ): TestResult {
-    return runTest {
-        SkikoComposeUiTest(
-            width = width,
-            height = height,
-            effectContext = effectContext,
-            runTestContext = runTestContext,
-            testTimeout = testTimeout,
-            density = density,
-            semanticsOwnerListener = semanticsOwnerListener,
-            windowInsets = windowInsets,
-            useStandardTestDispatcherForComposition = true,
-        ).runTest(block)
-    }
+    return SkikoComposeUiTest(
+        width = width,
+        height = height,
+        effectContext = effectContext,
+        runTestContext = runTestContext,
+        testTimeout = testTimeout,
+        density = density,
+        semanticsOwnerListener = semanticsOwnerListener,
+        windowInsets = windowInsets,
+        useStandardTestDispatcherForComposition = true,
+    ).runTest(block)
 }

@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
-import androidx.compose.ui.scene.hasInvalidations
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -52,8 +51,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -221,7 +219,8 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     private val recomposerCoroutineScope = CoroutineScope(
         effectContext +
-            compositionCoroutineDispatcher +
+            // Apply snapshot changes after every resumed continuation.
+            ApplyingContinuationInterceptor(compositionCoroutineDispatcher) +
             infiniteAnimationPolicy +
             uncaughtExceptionHandler +
             Job()
@@ -303,7 +302,10 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
                 while (isActive) {
                     delay(FRAME_DELAY_MILLIS)
                     runOnUiThread {
-                        render(mainClock.currentTime)
+                        frameRecomposer.performFrame(
+                            frameTimeNanos = mainClock.currentTime * NanoSecondsPerMilliSecond,
+                        )
+                        redraw()
                     }
                 }
             }
@@ -314,13 +316,16 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     /**
-     * Render the scene at the given time.
+     * Redraws the current (already-settled) state into [surface] WITHOUT advancing the frame clock,
+     * so a capture reflects the latest state. Draw is decoupled from idle, so producing
+     * an up-to-date image is the capture's responsibility rather than the idle loop's.
      */
-    private fun render(timeMillis: Long) {
-        surface.canvas.clear(Color.TRANSPARENT)
-        frameRecomposer.performFrame(timeMillis * NanoSecondsPerMilliSecond)
+    private fun redraw() = runOnUiThread {
         scene.measureAndLayout()
-        scene.draw(surface.canvas.asComposeCanvas())
+        with(surface.canvas) {
+            clear(Color.TRANSPARENT)
+            scene.draw(asComposeCanvas())
+        }
     }
 
     private fun createScene() {
@@ -349,7 +354,15 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             // The rendering is done by withRenderLoop
         } else {
             runOnUiThread {
-                render(mainClock.currentTime)
+                // Settle non-frame work WITHOUT advancing the frame clock - drain
+                // the currently-due tasks via the test scheduler, then run layout and draw.
+                // Never run [frameRecomposer.performFrame],so withFrameNanos awaiters are not resumed.
+                compositionCoroutineDispatcher.scheduler.runCurrent()
+                redraw()
+
+                // Publish global snapshot writes produced during this settle,
+                // so the next isIdle() sees an applied state.
+                Snapshot.sendApplyNotifications()
             }
         }
     }
@@ -360,48 +373,75 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             return false
         }
 
-        if (!mainClock.autoAdvance) {
-            return true
+        // Only an auto-advancing clock waits for recomposition/effects/frame work to drain.
+        // With a frozen clock the test drives frames itself, so a parked withFrameNanos awaiter
+        // only resumes when the test advances the clock - gating on it here would hang.
+        if (mainClock.autoAdvance && frameRecomposer.hasPendingWork()) {
+            return false
         }
 
+        // Idle once pending snapshot writes are applied and measure/layout has settled.
+        // Do NOT gate on draw, matching Android's ComposeIdlingResource.isIdleNow.
+        // A pending draw is instead flushed after the wait loop by [ensureScheduledDrawCompleted],
+        // mirroring Android's waitForNextChoreographerFrame.
         return !Snapshot.current.hasPendingChanges()
             && !Snapshot.isApplyObserverNotificationPending
-            && !frameRecomposer.hasPendingWork()
-            && !scene.hasInvalidations()
+            && !scene.hasPendingMeasureOrLayout
+            && !scene.hasPendingSnapshotCommands
             && areAllResourcesIdle()
     }
 
-    override fun waitForIdle() {
-        val startedAt = currentNanoTime().toDuration(DurationUnit.NANOSECONDS)
-        var lastReportedElapsedSeconds = 0L
-        // always check even if we are idle
+    /**
+     * Awaits composition, measure and layout - the analog of Android's idlingStrategy.runUntilIdle().
+     * Draw is intentionally NOT awaited here.
+     */
+    private inline fun runUntilIdle(block: () -> Unit) {
+        // Always check even if we are idle.
         uncaughtExceptionHandler.throwUncaught()
+        val startedAt = TimeSource.Monotonic.markNow()
         while (!isIdle()) {
             advanceIfNeededAndRenderNextFrame()
             uncaughtExceptionHandler.throwUncaught()
-            if (!areAllResourcesIdle()) {
-                sleep(IDLING_RESOURCES_CHECK_INTERVAL_MS)
+            // Bound the wait by [testTimeout] so a test that never settles fails fast.
+            if (startedAt.elapsedNow() > testTimeout) {
+                throw ComposeTimeoutException("waitForIdle: timeout $testTimeout reached")
             }
-            val currentTime = currentNanoTime().toDuration(DurationUnit.NANOSECONDS)
-            val elapsedSeconds = (currentTime - startedAt).inWholeSeconds
-            if (elapsedSeconds > lastReportedElapsedSeconds) {
-                println("Suspicious! waitForIdle has not finished after $elapsedSeconds seconds.")
-                lastReportedElapsedSeconds = elapsedSeconds
-            }
+            block()
         }
     }
 
+    /**
+     * Ensures a scheduled draw has completed before returning from a wait.
+     * On Android the draw is produced by the Choreographer/ViewRootImpl pipeline running during
+     * the wait in `waitForNextChoreographerFrame()`; there is no such pipeline here,
+     * so we render the pending draw directly.
+     */
+    private fun ensureScheduledDrawCompleted() {
+        if (scene.hasPendingDraw) {
+            redraw()
+        }
+    }
+
+    override fun waitForIdle() {
+        // Mirrors Android's two-step waitForIdle(): await idleness, then ensure the scheduled draw
+        // has completed (see idlingStrategy.runUntilIdle() + waitForNextChoreographerFrame()).
+        runUntilIdle {
+            if (!areAllResourcesIdle()) {
+                sleep(IDLING_RESOURCES_CHECK_INTERVAL_MS)
+            }
+        }
+        ensureScheduledDrawCompleted()
+    }
+
     override suspend fun awaitIdle() {
-        // always check even if we are idle
-        uncaughtExceptionHandler.throwUncaught()
-        while (!isIdle()) {
-            advanceIfNeededAndRenderNextFrame()
-            uncaughtExceptionHandler.throwUncaught()
+        // Same two-step shape as [waitForIdle], but suspending: await idleness, then flush the draw.
+        runUntilIdle {
             if (!areAllResourcesIdle()) {
                 delay(IDLING_RESOURCES_CHECK_INTERVAL_MS)
             }
             yield()
         }
+        ensureScheduledDrawCompleted()
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {
@@ -480,6 +520,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     fun captureToImage(semanticsNode: SemanticsNode): ImageBitmap {
+        redraw()
         val rect = semanticsNode.boundsInWindow
         val image = surface.makeImageSnapshot(
             rect.left.toInt(),
