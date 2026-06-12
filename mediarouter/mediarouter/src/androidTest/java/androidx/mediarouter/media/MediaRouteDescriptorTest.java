@@ -269,4 +269,83 @@ public class MediaRouteDescriptorTest {
         assertTrue(routeDescriptor.getControlFilters().isEmpty());
         assertTrue(routeDescriptor.getGroupMemberIds().isEmpty());
     }
+
+    @Test
+    @SmallTest
+    public void testGetGroupMemberIds_bundleWithWrongDataType_returnsEmptyCollection() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(MediaRouteDescriptor.KEY_GROUP_MEMBER_IDS, 1);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        List<String> groupMemberIds = routeDescriptor.getGroupMemberIds();
+
+        assertTrue(groupMemberIds.isEmpty());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetControlFilters_bundleWithWrongDataType_returnsEmptyCollection() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(MediaRouteDescriptor.KEY_CONTROL_FILTERS, 2);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        List<IntentFilter> controlFilters = routeDescriptor.getControlFilters();
+
+        assertTrue(controlFilters.isEmpty());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetAllowedPackages_bundleWithWrongDataType_returnsEmptyCollection() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(MediaRouteDescriptor.KEY_ALLOWED_PACKAGES, 3);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        Set<String> allowedPackages = routeDescriptor.getAllowedPackages();
+
+        assertTrue(allowedPackages.isEmpty());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetGroupMemberIds_bundleWithValidDataType_returnsCollection() {
+        Bundle bundle = new Bundle();
+        ArrayList<String> validData = new ArrayList<>();
+        validData.add(FAKE_MEDIA_ROUTE_ID_1);
+        bundle.putStringArrayList(MediaRouteDescriptor.KEY_GROUP_MEMBER_IDS, validData);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        List<String> groupMemberIds = routeDescriptor.getGroupMemberIds();
+
+        assertThat(groupMemberIds).containsExactly(FAKE_MEDIA_ROUTE_ID_1);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetControlFilters_bundleWithValidDataType_returnsCollection() {
+        Bundle bundle = new Bundle();
+        ArrayList<IntentFilter> validData = new ArrayList<>();
+        validData.add(new IntentFilter(FAKE_CONTROL_ACTION_1));
+        bundle.putParcelableArrayList(MediaRouteDescriptor.KEY_CONTROL_FILTERS, validData);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        List<IntentFilter> controlFilters = routeDescriptor.getControlFilters();
+
+        assertEquals(1, controlFilters.size());
+        assertEquals(FAKE_CONTROL_ACTION_1, controlFilters.get(0).getAction(0));
+    }
+
+    @Test
+    @SmallTest
+    public void testGetAllowedPackages_bundleWithValidDataType_returnsCollection() {
+        Bundle bundle = new Bundle();
+        ArrayList<String> validData = new ArrayList<>();
+        validData.add(FAKE_PACKAGE_NAME);
+        bundle.putStringArrayList(MediaRouteDescriptor.KEY_ALLOWED_PACKAGES, validData);
+        MediaRouteDescriptor routeDescriptor = MediaRouteDescriptor.fromBundle(bundle);
+
+        Set<String> allowedPackages = routeDescriptor.getAllowedPackages();
+
+        assertThat(allowedPackages).containsExactly(FAKE_PACKAGE_NAME);
+    }
 }

@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BundleCompat;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -108,10 +109,8 @@ public final class MediaRouteDescriptor {
      */
     @RestrictTo(LIBRARY)
     public @NonNull List<String> getGroupMemberIds() {
-        if (!mBundle.containsKey(KEY_GROUP_MEMBER_IDS)) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS));
+        ArrayList<String> ids = mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
+        return ids != null ? new ArrayList<>(ids) : new ArrayList<>();
     }
 
     /**
@@ -235,17 +234,17 @@ public final class MediaRouteDescriptor {
      * @return An {@link IntentSender} to start a settings activity.
      */
     public @Nullable IntentSender getSettingsActivity() {
-        return mBundle.getParcelable(KEY_SETTINGS_INTENT);
+        return BundleCompat.getParcelable(mBundle, KEY_SETTINGS_INTENT, IntentSender.class);
     }
 
     /**
      * Gets the route's {@link MediaControlIntent media control intent} filters.
      */
     public @NonNull List<IntentFilter> getControlFilters() {
-        if (!mBundle.containsKey(KEY_CONTROL_FILTERS)) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS));
+        ArrayList<IntentFilter> filters =
+                BundleCompat.getParcelableArrayList(
+                        mBundle, KEY_CONTROL_FILTERS, IntentFilter.class);
+        return filters != null ? new ArrayList<>(filters) : new ArrayList<>();
     }
 
     /**
@@ -362,10 +361,8 @@ public final class MediaRouteDescriptor {
      * {@link #isVisibilityPublic} returns {@code false}.
      */
     public @NonNull Set<String> getAllowedPackages() {
-        if (!mBundle.containsKey(KEY_ALLOWED_PACKAGES)) {
-            return new HashSet<>();
-        }
-        return new HashSet<>(mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES));
+        ArrayList<String> pkgs = mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES);
+        return pkgs != null ? new HashSet<>(pkgs) : new HashSet<>();
     }
 
     /**
