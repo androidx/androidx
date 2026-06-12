@@ -1911,6 +1911,25 @@ public class AsWireComplicationDataTest {
         objectInputStream.close()
         return wireData.toApiComplicationData()
     }
+
+    @Test
+    fun toApiComplicationData_invalidShortTextMissingField_isInvalidatedSafely() {
+        val parcel = android.os.Parcel.obtain()
+        parcel.writeInt(WireComplicationData.TYPE_SHORT_TEXT)
+        parcel.writeBundle(
+            android.os.Bundle().apply {
+                // Intentionally omit FIELD_SHORT_TEXT
+            }
+        )
+        parcel.setDataPosition(0)
+        val wireData = WireComplicationData.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        // Omitted required field is intercepted safely, returning NoDataComplicationData instead of
+        // crashing.
+        val apiData = wireData.toApiComplicationData()
+        org.junit.Assert.assertTrue(apiData is NoDataComplicationData)
+    }
 }
 
 @RunWith(SharedRobolectricTestRunner::class)

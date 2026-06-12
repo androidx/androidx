@@ -2914,7 +2914,7 @@ private fun WireComplicationData.toApiComplicationData(
             "WireComplicationData.toApiComplicationData failed for " + toStringNoRedaction(),
             e,
         )
-        throw e
+        return NoDataComplicationData()
     }
 }
 
