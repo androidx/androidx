@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
-/** The data class which holds the set of parameters of the text layout computation. */
+/** Holds parameters used to compute text layout. */
 class TextLayoutInput
 private constructor(
     /** The text used for computing text layout. */
@@ -287,20 +287,20 @@ private constructor(private val fontFamilyResolver: FontFamily.Resolver) : Font.
     }
 }
 
-/** The data class which holds text layout result. */
+/** Holds the result of a text layout computation. */
 class TextLayoutResult
 constructor(
-    /** The parameters used for computing this text layout result. */
+    /** The input parameters used for this layout. */
     val layoutInput: TextLayoutInput,
 
-    /**
-     * The multi paragraph object.
-     *
-     * This is the result of the text layout computation.
-     */
+    /** The computed [MultiParagraph] layout. */
     val multiParagraph: MultiParagraph,
 
-    /** The amount of space required to paint this text in Int. */
+    /**
+     * The width and height of this text layout.
+     *
+     * Unlike [multiParagraph] dimensions, this size respects the input constraints.
+     */
     val size: IntSize,
 ) {
     /** The distance from the top to the alphabetic baseline of the first line. */
@@ -309,15 +309,15 @@ constructor(
     /** The distance from the top to the alphabetic baseline of the last line. */
     val lastBaseline: Float = multiParagraph.lastBaseline
 
-    /** Returns true if the text is too tall and couldn't fit with given height. */
+    /** True if the text height exceeds the layout boundaries. */
     val didOverflowHeight: Boolean
         get() = multiParagraph.didExceedMaxLines || size.height < multiParagraph.height
 
-    /** Returns true if the text is too wide and couldn't fit with given width. */
+    /** True if the text width exceeds the layout boundaries. */
     val didOverflowWidth: Boolean
         get() = size.width < multiParagraph.width
 
-    /** Returns true if either vertical overflow or horizontal overflow happens. */
+    /** True if the text overflows vertically or horizontally. */
     val hasVisualOverflow: Boolean
         get() = didOverflowWidth || didOverflowHeight
 
