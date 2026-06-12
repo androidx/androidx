@@ -284,6 +284,7 @@ private fun CameraScreen(
                     Log.d("ComposeUiFragment", "Zoom ratio changed: $ratio")
                 },
                 onScreenFlashReady = { screenFlash -> currentScreenFlash = screenFlash },
+                onRelease = { currentScreenFlash = null },
             )
         }
 

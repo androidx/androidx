@@ -221,6 +221,9 @@ public fun CameraXViewfinder(
  *   the active zooming state.
  * @param onScreenFlashReady A callback invoked when the screen flash feature is ready to apply,
  *   providing the [ImageCapture.ScreenFlash] implementation to be used with ImageCapture.
+ * @param onRelease A callback invoked when the [CameraXViewfinder] is permanently removed from the
+ *   composition, indicating that any references to resources (like [ImageCapture.ScreenFlash])
+ *   should be cleared.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -238,8 +241,34 @@ public fun CameraXViewfinder(
     autoCancelDurationMillis: Long = 5000L,
     onTapToFocus: (Offset, Int) -> Unit = { _, _ -> },
     onZoomRatioChanged: (Float) -> Unit = {},
-    onScreenFlashReady: (ImageCapture.ScreenFlash?) -> Unit = {},
+    onScreenFlashReady: (ImageCapture.ScreenFlash) -> Unit = {},
+    onRelease: () -> Unit = {},
 ) {
+    val pendingScreenFlashListener = remember { mutableStateOf<ScreenFlashState?>(null) }
+    val screenFlash = remember {
+        object : ImageCapture.ScreenFlash {
+            override fun apply(
+                expirationTimeMillis: Long,
+                listener: ImageCapture.ScreenFlashListener,
+            ) {
+                // TODO(b/355168952): Clarify expirationTimeMillis implementation mismatch with doc
+                // description.
+                pendingScreenFlashListener.value = ScreenFlashState(listener)
+            }
+
+            override fun clear() {
+                pendingScreenFlashListener.value = null
+            }
+        }
+    }
+
+    val currentOnScreenFlashReady by rememberUpdatedState(onScreenFlashReady)
+    val currentOnRelease = rememberUpdatedState(onRelease)
+    DisposableEffect(screenFlash) {
+        currentOnScreenFlashReady(screenFlash)
+        onDispose { currentOnRelease.value() }
+    }
+
     val currentImplementationMode by rememberUpdatedState(implementationMode)
     val currentOnStreamStateChanged = rememberUpdatedState(onStreamStateChanged)
     var sensorToBufferTransform by remember { mutableStateOf<Matrix?>(null) }
@@ -458,7 +487,7 @@ public fun CameraXViewfinder(
                         }
                     }
                 }
-                ScreenFlashOverlay(onScreenFlashReady = onScreenFlashReady)
+                ScreenFlashOverlay(pendingScreenFlashListener = pendingScreenFlashListener)
             }
         }
     }
@@ -770,32 +799,8 @@ private fun speedUpZoomBy2X(scaleFactor: Float): Float {
 }
 
 @Composable
-private fun ScreenFlashOverlay(onScreenFlashReady: (ImageCapture.ScreenFlash?) -> Unit) {
+private fun ScreenFlashOverlay(pendingScreenFlashListener: State<ScreenFlashState?>) {
     val context = LocalContext.current
-
-    val pendingScreenFlashListener = remember { mutableStateOf<ScreenFlashState?>(null) }
-
-    val screenFlash = remember {
-        object : ImageCapture.ScreenFlash {
-            override fun apply(
-                expirationTimeMillis: Long,
-                listener: ImageCapture.ScreenFlashListener,
-            ) {
-                // TODO(b/355168952): Clarify expirationTimeMillis implementation
-                // mismatch with doc description.
-                pendingScreenFlashListener.value = ScreenFlashState(listener)
-            }
-
-            override fun clear() {
-                pendingScreenFlashListener.value = null
-            }
-        }
-    }
-
-    DisposableEffect(screenFlash, onScreenFlashReady) {
-        onScreenFlashReady(screenFlash)
-        onDispose { onScreenFlashReady(null) }
-    }
 
     val flashListenerState = pendingScreenFlashListener.value
     val isScreenFlashActive = flashListenerState != null

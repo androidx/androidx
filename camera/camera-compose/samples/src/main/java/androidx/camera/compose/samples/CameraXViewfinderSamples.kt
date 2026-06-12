@@ -130,6 +130,9 @@ fun CameraXViewfinderAdvancedSample() {
                     onScreenFlashReady = { screenFlash ->
                         // Coordinate screen flash callbacks with camera capture lifecycle
                     },
+                    onRelease = {
+                        // Clear references to screen flash to prevent leaks
+                    },
                 )
             }
 
