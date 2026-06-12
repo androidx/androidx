@@ -64,7 +64,7 @@ class AndroidxTracingTraceTest {
         assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
 
-        val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
+        val traceFilePath = linkRule.createReportedTracePath()
         val perfettoCapture = PerfettoCapture()
 
         perfettoCapture.start(
