@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.material3
 
 import androidx.compose.foundation.background
@@ -24,16 +23,21 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 private const val InfinitePageCount = 100_000
 
@@ -103,7 +107,6 @@ fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
             (InfinitePageCount / 2) - (InfinitePageCount / 2 % itemCount) + index
         }
     val pagerState = rememberPagerState(initialPage = initialPage) { InfinitePageCount }
-
     return remember(pagerState, itemCount) { ScrollFieldState(pagerState, itemCount) }
 }
 
@@ -134,17 +137,30 @@ fun ScrollField(
         ScrollFieldDefaults.Item(index = index, selected = selected, colors = colors)
     },
 ) {
+    val scope = rememberCoroutineScope()
+
     VerticalPager(
         state = state.pagerState,
-        modifier = modifier.background(colors.containerColor, shape = ScrollFieldDefaults.shape),
+        modifier =
+            modifier
+                .background(colors.containerColor, shape = ScrollFieldDefaults.shape)
+                .selectableGroup(),
         pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3),
         horizontalAlignment = Alignment.CenterHorizontally,
         snapPosition = SnapPosition.Center,
     ) { page ->
         val index = page % state.itemCount
         val isSelected = state.pagerState.currentPage == page
-
-        Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier =
+                Modifier.fillMaxHeight()
+                    .selectable(
+                        selected = isSelected,
+                        onClick = { scope.launch { state.animateScrollToOption(index) } },
+                        role = Role.Carousel,
+                    ),
+            contentAlignment = Alignment.Center,
+        ) {
             field(index, isSelected)
         }
     }
@@ -158,7 +174,6 @@ class ScrollFieldColors(
     val unselectedContentColor: Color,
     val selectedContentColor: Color,
 ) {
-
     /**
      * Returns a copy of this ScrollFieldColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source".
@@ -177,11 +192,9 @@ class ScrollFieldColors(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is ScrollFieldColors) return false
-
         if (containerColor != other.containerColor) return false
         if (unselectedContentColor != other.unselectedContentColor) return false
         if (selectedContentColor != other.selectedContentColor) return false
-
         return true
     }
 
@@ -203,7 +216,6 @@ object ScrollFieldDefaults {
      * the typical three-item layout.
      */
     val ScrollFieldHeight = 200.dp
-
     /** The default shape for the [ScrollField] container background. */
     val shape: Shape
         @Composable get() = ShapeDefaults.Large

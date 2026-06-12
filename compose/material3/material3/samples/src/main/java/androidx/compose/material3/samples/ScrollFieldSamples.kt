@@ -37,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +67,10 @@ fun ScrollFieldSample() {
     ) {
         ScrollField(
             state = state,
-            modifier = Modifier.size(width = 192.dp, height = 160.dp),
+            modifier =
+                Modifier.size(width = 192.dp, height = 160.dp).semantics {
+                    contentDescription = "Select value between 1000 and 2000"
+                },
             field = { index, isSelected ->
                 val valueToShow = minVal + index
                 Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
@@ -114,7 +119,13 @@ fun TimeScrollFieldSample() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        ScrollField(state = hourState, modifier = Modifier.size(width = 80.dp, height = 160.dp))
+        ScrollField(
+            state = hourState,
+            modifier =
+                Modifier.size(width = 80.dp, height = 160.dp).semantics {
+                    contentDescription = "Select hour"
+                },
+        )
 
         Text(
             text = ":",
@@ -123,6 +134,12 @@ fun TimeScrollFieldSample() {
             textAlign = TextAlign.Center,
         )
 
-        ScrollField(state = minuteState, modifier = Modifier.size(width = 80.dp, height = 160.dp))
+        ScrollField(
+            state = minuteState,
+            modifier =
+                Modifier.size(width = 80.dp, height = 160.dp).semantics {
+                    contentDescription = "Select minute"
+                },
+        )
     }
 }
