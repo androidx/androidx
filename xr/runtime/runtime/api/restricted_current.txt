@@ -223,8 +223,8 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.HandTrackingMode DISABLED;
   }
 
-  @SuppressCompatibility public final class NativeDataExt {
-    method @SuppressCompatibility @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
+  public final class NativeDataExt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NativeInstanceData {

@@ -71,7 +71,6 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.GeospatialMode
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.GeospatialPose
@@ -80,7 +79,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import kotlinx.coroutines.launch
 
-@OptIn(PreviewSpatialApi::class)
 class LowPowerGeospatialActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LowPowerGeospatialActivity"
@@ -216,7 +214,6 @@ class LowPowerGeospatialActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(PreviewSpatialApi::class)
     @Composable
     private fun GeospatialDashboard(geospatial: Geospatial, arDevice: ArDevice) {
         val geospatialState by geospatial.state.collectAsState()

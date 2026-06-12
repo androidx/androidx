@@ -60,7 +60,6 @@ import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.UnstableNativeResourceApi
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.getNativeInstanceData
 import androidx.xr.runtime.getNativeSessionData
@@ -80,7 +79,6 @@ class NativeDataActivity : ComponentActivity() {
     private var getNativeDataResult by mutableStateOf("Not started")
     private var getNativeDataPassed by mutableStateOf(false)
 
-    @OptIn(UnstableNativeResourceApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -240,7 +238,6 @@ class NativeDataActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(UnstableNativeResourceApi::class)
     @Suppress("RestrictedApiAndroidX")
     private suspend fun runTests() {
         // Test 1: Invalid Extensions

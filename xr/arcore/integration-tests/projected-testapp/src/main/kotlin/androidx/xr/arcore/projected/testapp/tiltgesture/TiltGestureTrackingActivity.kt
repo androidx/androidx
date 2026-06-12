@@ -46,7 +46,6 @@ import androidx.xr.glimmer.Text
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.ExperimentalInertialTrackingApi
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
@@ -91,7 +90,7 @@ class TiltGestureTrackingActivity : ComponentActivity() {
             }
     }
 
-    @OptIn(ExperimentalGesturesApi::class, PreviewSpatialApi::class)
+    @OptIn(ExperimentalGesturesApi::class)
     @Composable
     private fun TiltDemoApp(state: TiltGesture.State) {
         Column(
@@ -120,7 +119,7 @@ class TiltGestureTrackingActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(PreviewSpatialApi::class, ExperimentalInertialTrackingApi::class)
+    @OptIn(ExperimentalInertialTrackingApi::class)
     private suspend fun tryCreateSession() {
         Log.i(TAG, "Session.create($this)")
         // TODO(b/510012792): Use Projected Device Context after 1.55.

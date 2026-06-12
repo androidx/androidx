@@ -41,14 +41,12 @@ import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
-@OptIn(PreviewSpatialApi::class)
 class ConfigProjectedGeospatialActivity : ComponentActivity() {
 
     private val test1Result = mutableStateOf("Pending...")

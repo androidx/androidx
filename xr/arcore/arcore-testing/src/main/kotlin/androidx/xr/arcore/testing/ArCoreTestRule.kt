@@ -31,7 +31,6 @@ import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
 import androidx.xr.arcore.testing.internal.PendingTrackablesProvider
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 import org.junit.rules.ExternalResource
@@ -213,7 +212,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
     /** A test representation of the device's Conversation Scene Signal. */
     @get:android.annotation.SuppressLint("ExperimentalPropertyAnnotation")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @PreviewSpatialApi
     public val conversationSceneSignal: ConversationSceneSignalTester by lazy {
         ConversationSceneSignalTester(
             this,

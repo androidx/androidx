@@ -22,7 +22,6 @@ import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.ExperimentalInertialTrackingApi
-import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.manifest.HEAD_TRACKING
@@ -93,11 +92,7 @@ class ArDeviceTest {
         }
     }
 
-    @OptIn(
-        ExperimentalCoroutinesApi::class,
-        PreviewSpatialApi::class,
-        ExperimentalInertialTrackingApi::class,
-    )
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalInertialTrackingApi::class)
     @Test
     fun pose_InertialLastKnown_onlyTracksRotation() {
         session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.INERTIAL).build())
