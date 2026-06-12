@@ -1,4 +1,3 @@
--keep class androidx.xr.runtime.FieldOfView { *; }
 -keep class androidx.xr.runtime.math.FieldOfView { *; }
 
 -keep class androidx.xr.runtime.math.FloatSize2d { *; }
