@@ -95,5 +95,8 @@ public class Limits {
     /** Maximum size and image header can be */
     public static final int MAX_IMAGE_HEADER_SIZE = 10000;
 
+    /** Maximum nested container depth allowed in a document */
+    public static final int MAX_NESTING_DEPTH = 256;
+
     private Limits() {}
 }

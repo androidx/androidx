@@ -1240,6 +1240,10 @@ public class CoreDocument implements Serializable {
                 document.onBitmapData((BitmapData) o);
             }
             if (o instanceof Container) {
+                if (containers.size() >= Limits.MAX_NESTING_DEPTH) {
+                    throw new RuntimeException("Maximum container nesting depth of "
+                            + Limits.MAX_NESTING_DEPTH + " exceeded");
+                }
                 Container container = (Container) o;
                 if (container instanceof Component) {
                     Component component = (Component) container;
