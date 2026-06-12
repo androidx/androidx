@@ -21,6 +21,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.core.provider.FontRequest
@@ -34,6 +35,8 @@ public class DownloadableTypefaceResolver(
     private val context: Context,
     private val next: TypefaceResolver,
 ) : TypefaceResolver {
+
+    private val cache = mutableMapOf<String, FontInstance>()
 
     override fun resolve(
         fontType: Int,
@@ -62,11 +65,18 @@ public class DownloadableTypefaceResolver(
         fallbackItalic: Boolean,
     ): FontInstance {
         if (fontName.startsWith("google:")) {
+            val key = "$fontName:$weight:$italic"
+            cache[key]?.let {
+                return it
+            }
+
             val realFontName = fontName.substring("google:".length)
             val fallback = fallbackTypeface ?: Typeface.DEFAULT
             val fontInstance = AsyncFontInstance(fallback)
+            cache[key] = fontInstance
 
-            val query = "name=$realFontName&weight=$weight&italic=${if (italic) 1 else 0}"
+            val query =
+                "name=$realFontName&weight=$weight&italic=${if (italic) 1 else 0}&besteffort=true"
             val request =
                 FontRequest(
                     "com.google.android.gms.fonts",
@@ -78,11 +88,15 @@ public class DownloadableTypefaceResolver(
             val callback =
                 object : FontsContractCompat.FontRequestCallback() {
                     override fun onTypefaceRetrieved(typeface: Typeface) {
+                        Log.d("DownloadableTypeface", "Successfully retrieved typeface: $fontName")
                         fontInstance.updateTypeface(typeface)
                     }
 
                     override fun onTypefaceRequestFailed(reason: Int) {
-                        // Handle failure
+                        Log.e(
+                            "DownloadableTypeface",
+                            "Failed to retrieve typeface: $fontName, reason: $reason",
+                        )
                     }
                 }
 
@@ -113,6 +127,7 @@ public class DownloadableTypefaceResolver(
         private var listener: Runnable? = null
 
         fun updateTypeface(typeface: Typeface) {
+            Log.d("DownloadableTypeface", "updateTypeface: updating cached typeface to $typeface")
             this.typeface = typeface
             listener?.run()
         }
