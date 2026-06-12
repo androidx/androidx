@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.pdf.ink
+package androidx.pdf.annotation
 
 import android.graphics.RectF
+import android.util.SparseArray
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -25,21 +26,20 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
-class PageInfoProviderImplTest {
-
-    private lateinit var pageInfoProvider: PageInfoProviderImpl
+class PageInfoProviderTest {
+    private lateinit var pageInfoProvider: PageInfoProvider
 
     @Before
     fun setUp() {
-        pageInfoProvider = PageInfoProviderImpl()
+        pageInfoProvider = PageInfoProvider()
     }
 
     @Test
     fun getPageInfoFromViewCoordinates_pointInsidePage_returnsCorrectPageInfo() {
         val pageNum = 0
         val pageBounds = RectF(100f, 100f, 300f, 500f)
-        pageInfoProvider.pageLocations.put(pageNum, pageBounds)
-        pageInfoProvider.zoom = 2f
+        pageInfoProvider.setPageBounds(SparseArray<RectF>().apply { put(pageNum, pageBounds) })
+        pageInfoProvider.setZoom(2f)
 
         val result = pageInfoProvider.getPageInfoFromViewCoordinates(150f, 250f)
 
@@ -63,8 +63,8 @@ class PageInfoProviderImplTest {
     @Test
     fun getPageInfoFromViewCoordinates_pointOutsidePage_returnsNull() {
         val pageBounds = RectF(100f, 100f, 300f, 500f)
-        pageInfoProvider.pageLocations.put(0, pageBounds)
-        pageInfoProvider.zoom = 1f
+        pageInfoProvider.setPageBounds(SparseArray<RectF>().apply { put(0, pageBounds) })
+        pageInfoProvider.setZoom(1f)
 
         val result = pageInfoProvider.getPageInfoFromViewCoordinates(50f, 250f)
 
@@ -74,8 +74,8 @@ class PageInfoProviderImplTest {
     @Test
     fun getPageInfoFromViewCoordinates_pointOnPageEdge_returnsPageInfo() {
         val pageBounds = RectF(100f, 100f, 300f, 500f)
-        pageInfoProvider.pageLocations.put(0, pageBounds)
-        pageInfoProvider.zoom = 1f
+        pageInfoProvider.setPageBounds(SparseArray<RectF>().apply { put(0, pageBounds) })
+        pageInfoProvider.setZoom(1f)
 
         val result = pageInfoProvider.getPageInfoFromViewCoordinates(100f, 100f)
 
@@ -87,11 +87,13 @@ class PageInfoProviderImplTest {
     fun getPageInfoFromViewCoordinates_multiplePages_returnsCorrectPage() {
         val pageBounds1 = RectF(0f, 0f, 200f, 400f)
         val pageBounds2 = RectF(0f, 400f, 200f, 800f)
-        pageInfoProvider.pageLocations.apply {
-            put(0, pageBounds1)
-            put(1, pageBounds2)
-        }
-        pageInfoProvider.zoom = 1f
+        pageInfoProvider.setPageBounds(
+            SparseArray<RectF>().apply {
+                put(0, pageBounds1)
+                put(1, pageBounds2)
+            }
+        )
+        pageInfoProvider.setZoom(1f)
 
         val result = pageInfoProvider.getPageInfoFromViewCoordinates(100f, 500f)
 

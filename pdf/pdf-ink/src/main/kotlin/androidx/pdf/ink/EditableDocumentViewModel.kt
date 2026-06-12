@@ -16,7 +16,6 @@
 
 package androidx.pdf.ink
 
-import android.graphics.Matrix
 import android.net.Uri
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -33,7 +32,9 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.SandboxedPdfLoader
+import androidx.pdf.annotation.PageInfoProvider
 import androidx.pdf.annotation.PdfAnnotationsEditor
+import androidx.pdf.annotation.PdfViewportState
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
 import androidx.pdf.annotation.manager.PdfAnnotationsManager
@@ -71,7 +72,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     private var annotationsManager: PdfAnnotationsManager? = null
     private var historyCollectionJob: Job? = null
     private val bitmapAvailabilityMap = BitSet()
-
+    internal val pageInfoProvider = PageInfoProvider()
     private val _annotationDisplayStateFlow = MutableStateFlow(AnnotationsDisplayState.EMPTY)
 
     internal val annotationsDisplayStateFlow: StateFlow<AnnotationsDisplayState> =
@@ -231,12 +232,16 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     // Data Loading & Saving
 
     /** Updates the transformation matrices for rendering annotations. */
-    internal fun updateTransformationMatrices(transformationMatrices: Map<Int, Matrix>) {
-        if (editablePdfDocument != null) {
-            _annotationDisplayStateFlow.update {
-                it.copy(transformationMatrices = transformationMatrices)
-            }
-        }
+    internal fun updateViewportState(viewportState: PdfViewportState) {
+        if (editablePdfDocument == null) return
+        pageInfoProvider.setZoom(viewportState.zoom)
+        pageInfoProvider.setPageBounds(viewportState.pageBounds)
+        visiblePageRange =
+            viewportState.firstVisiblePage..<viewportState.firstVisiblePage +
+                    viewportState.visiblePagesCount
+
+        _annotationDisplayStateFlow.update { it.copy(viewportState = viewportState) }
+        fetchAnnotationsForPageRange(visiblePageRange.first, visiblePageRange.last)
     }
 
     /**
@@ -333,11 +338,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         }
     }
 
-    private fun setupManagersAndHandlers(
-        documentUri: Uri?,
-        document: EditablePdfDocument?,
-        initialMatrices: Map<Int, Matrix> = emptyMap(),
-    ) {
+    private fun setupManagersAndHandlers(documentUri: Uri?, document: EditablePdfDocument?) {
         // Cleanup previous flows to prevent memory leaks
         historyCollectionJob?.cancel()
 
@@ -369,10 +370,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                                 .filterValues { it.isNotEmpty() }
                     )
                 _annotationDisplayStateFlow.value =
-                    AnnotationsDisplayState(
-                        transformationMatrices = initialMatrices,
-                        visiblePageAnnotations = visiblePdfAnnotations,
-                    )
+                    AnnotationsDisplayState(visiblePageAnnotations = visiblePdfAnnotations)
             }
         } else {
             editablePdfDocument = null

@@ -45,12 +45,15 @@ class AnnotationsLocatorTest {
 
     private lateinit var annotationsLocator: AnnotationsLocator
     private lateinit var context: Context
-    private lateinit var pageInfoProvider: FakePageInfoProvider
+    private lateinit var pageInfoProvider: PageInfoProvider
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        pageInfoProvider = FakePageInfoProvider()
+        pageInfoProvider =
+            PageInfoProvider().apply {
+                setPageBounds(SparseArray<RectF>().apply { put(0, RectF(0f, 0f, 500f, 500f)) })
+            }
         annotationsLocator = AnnotationsLocator(context, pageInfoProvider)
     }
 

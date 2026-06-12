@@ -17,13 +17,14 @@
 package androidx.pdf.ink.fragment
 
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.RectF
 import android.net.Uri
+import android.util.SparseArray
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.FakeEditablePdfDocument
 import androidx.pdf.SandboxedPdfLoader
+import androidx.pdf.annotation.PdfViewportState
 import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.content.StampAnnotation
@@ -373,17 +374,24 @@ class EditableDocumentViewModelTest {
     // --- Display State Tests ---
 
     @Test
-    fun updateTransformationMatrices_updatesFlow() = runTest {
-        val matrixPage0 = Matrix().apply { setScale(1f, 1f) }
-        val matrixPage1 = Matrix().apply { setTranslate(10f, 10f) }
-        val newMatrices = mapOf(0 to matrixPage0, 1 to matrixPage1)
+    fun updateViewportState_updatesFlow() = runTest {
+        val pageBounds =
+            SparseArray<RectF>().apply {
+                put(0, RectF(0f, 0f, 100f, 100f))
+                put(1, RectF(100f, 100f, 200f, 200f))
+            }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 2,
+                pageBounds = pageBounds,
+                zoom = 1.5f,
+            )
 
-        annotationsViewModel.updateTransformationMatrices(newMatrices)
+        annotationsViewModel.updateViewportState(viewportState)
         val emittedState = annotationsViewModel.annotationsDisplayStateFlow.first()
 
-        assertThat(emittedState.transformationMatrices.size).isEqualTo(2)
-        assertThat(emittedState.transformationMatrices[0]).isEqualTo(matrixPage0)
-        assertThat(emittedState.transformationMatrices[1]).isEqualTo(matrixPage1)
+        assertThat(emittedState.viewportState).isEqualTo(viewportState)
     }
 
     // --- Interaction State Tests ---

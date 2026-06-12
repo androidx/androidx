@@ -59,17 +59,24 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     private val inProgressHighlightsView: InProgressHighlightsView
 
     private var annotationsLocator: AnnotationsLocator? = null
+    private var annotations: SparseArray<PageAnnotationsData> = SparseArray()
+
+    /** Provides page information from view coordinates */
+    internal var pageInfoProvider: PageInfoProvider
 
     private var textBoundsProvider: TextBoundsProvider? = null
 
     init {
         setWillNotDraw(false)
 
+        pageInfoProvider = PageInfoProvider()
         inProgressHighlightsView =
             InProgressHighlightsView(context).apply {
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
                 visibility = GONE
             }
+        inProgressHighlightsView.pageInfoProvider = pageInfoProvider
+        annotationsLocator = AnnotationsLocator(context, pageInfoProvider)
         addViewInternal(inProgressHighlightsView)
     }
 
@@ -118,16 +125,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     }
 
     /**
-     * Represents of page annotations that will be rendered on the view. The collection is
-     * referenced by the page number (0-indexed).
-     */
-    public var annotations: SparseArray<PageAnnotationsData> = SparseArray()
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    /**
      * The current interaction mode, determining how touch events are handled for annotations.
      *
      * Set to [AnnotationMode.Select] to enable selecting existing annotations, or
@@ -147,16 +144,26 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             }
         }
 
-    /** Provides page information from view coordinates */
-    public var pageInfoProvider: PageInfoProvider? = null
-        set(value) {
-            field = value
-            inProgressHighlightsView.pageInfoProvider = value
-
-            if (value != null) {
-                annotationsLocator = AnnotationsLocator(context, pageInfoProvider = value)
-            }
-        }
+    /**
+     * Updates both the content and the layout positioning of the annotations in a single atomic
+     * operation.
+     *
+     * @param pdfViewportState The latest layout snapshot (zoom, scroll, and pagebounds) from the
+     *   PDF renderer.
+     * @param annotations A [SparseArray] indexed with page num containing the list of
+     *   [KeyedPdfAnnotation] objects to be rendered.
+     */
+    @MainThread
+    public fun updateDisplayState(
+        pdfViewportState: PdfViewportState,
+        annotations: SparseArray<List<KeyedPdfAnnotation>>,
+    ) {
+        checkMainThread()
+        pageInfoProvider.setPageBounds(pdfViewportState.pageBounds)
+        pageInfoProvider.setZoom(pdfViewportState.zoom)
+        this.annotations = extractVisiblePageAnnotations(pdfViewportState, annotations)
+        invalidate()
+    }
 
     /**
      * Sets the [TextBoundsProvider] used to retrieve text boundary information during highlighting.
@@ -210,6 +217,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
     private var annotationDrawerFactory: PdfAnnotationDrawerFactory =
         PdfAnnotationDrawerFactoryImpl(pdfObjectDrawerFactory)
+
+    private fun extractVisiblePageAnnotations(
+        pdfViewportState: PdfViewportState,
+        annotations: SparseArray<List<KeyedPdfAnnotation>>,
+    ): SparseArray<PageAnnotationsData> {
+        val newAnnotationsData = SparseArray<PageAnnotationsData>()
+        val firstVisiblePage = pdfViewportState.firstVisiblePage
+        val lastVisiblePage = firstVisiblePage + pdfViewportState.visiblePagesCount - 1
+
+        for (pageNum in firstVisiblePage..lastVisiblePage) {
+            val pageAnnotations = annotations.get(pageNum) ?: emptyList()
+            val transform = pageInfoProvider.getPageInfo(pageNum)?.pageToViewTransform ?: Matrix()
+            newAnnotationsData.put(pageNum, PageAnnotationsData(pageAnnotations, transform))
+        }
+        return newAnnotationsData
+    }
 
     /**
      * Configures the highlighter.
@@ -266,7 +289,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * @property keyedAnnotations List of [PdfAnnotation]s on the page.
      * @property transform [Matrix] to apply when drawing these annotations.
      */
-    public data class PageAnnotationsData(
+    internal data class PageAnnotationsData(
         val keyedAnnotations: List<KeyedPdfAnnotation>,
         val transform: Matrix,
     )
