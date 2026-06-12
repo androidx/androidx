@@ -39,5 +39,4 @@ internal const val ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_NO_TRANSFORM =
     "annotation_view_multiple_squares_same_page_no_transform"
 internal const val ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_SHARED_TRANSFORM =
     "annotation_view_multiple_squares_same_page_shared_transform"
-internal const val ANNOTATION_VIEW_MULTI_PAGE_DIFFERENT_TRANSFORMS =
-    "annotation_view_multi_page_different_transforms"
+internal const val ANNOTATION_VIEW_MULTI_PAGE = "annotation_view_multi_page"

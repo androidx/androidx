@@ -17,7 +17,6 @@
 package androidx.pdf.ink
 
 import android.content.Context
-import android.graphics.Matrix
 import android.graphics.Path
 import android.graphics.RectF
 import android.os.Build
@@ -45,16 +44,15 @@ import androidx.pdf.PdfSandboxHandle
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.AnnotationsView
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.LocatedAnnotations
 import androidx.pdf.annotation.OnAnnotationEditListener
 import androidx.pdf.annotation.OnAnnotationLocatedListener
 import androidx.pdf.annotation.OnGestureClaimListener
+import androidx.pdf.annotation.PdfViewportState
 import androidx.pdf.annotation.TextBoundsProvider
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.models.AnnotationsDisplayState
-import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.model.ApplyInProgressException
@@ -62,7 +60,6 @@ import androidx.pdf.ink.state.AnnotationDrawingMode
 import androidx.pdf.ink.state.PdfEditMode
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
-import androidx.pdf.ink.util.PageTransformCalculator
 import androidx.pdf.ink.util.toInkBrush
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.ink.view.draganddrop.ToolbarCoordinator
@@ -236,12 +233,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
             }
         }
 
-    private lateinit var pageInfoProvider: PageInfoProviderImpl
-
     private val annotationsViewDispatcher = AnnotationsViewTouchEventDispatcher()
     private val inkViewDispatcher = InkViewTouchEventDispatcher()
 
-    private var pageTransformCalculator: PageTransformCalculator = PageTransformCalculator()
     private val strokeIdToPageNumMap: MutableMap<InProgressStrokeId, Int> =
         Collections.synchronizedMap(mutableMapOf<InProgressStrokeId, Int>())
 
@@ -340,7 +334,6 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        pageInfoProvider = PageInfoProviderImpl()
         viewLifecycleOwner.lifecycleScope.launch {
             documentViewModel.applyEditsStatus.collect { status ->
                 when (status) {
@@ -368,7 +361,6 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     }
 
     private fun setupAnnotationViewListeners() {
-        annotationView.pageInfoProvider = pageInfoProvider
         annotationView.addOnAnnotationLocatedListener(onAnnotationLocatedListener)
         annotationView.setOnGestureClaimListener(onGestureClaimListener)
         annotationView.addOnAnnotationEditListener(onAnnotationEditListener)
@@ -494,9 +486,8 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         wetStrokesView.apply {
             addFinishedStrokesListener(wetStrokesOnFinishedListener)
             wetStrokesViewTouchHandler =
-                WetStrokesViewTouchHandler(pageInfoProvider::getPageInfoFromViewCoordinates) {
-                    strokeId,
-                    pageNum ->
+                WetStrokesViewTouchHandler(documentViewModel.pageInfoProvider) { strokeId, pageNum
+                    ->
                     strokeIdToPageNumMap[strokeId] = pageNum
                 }
             setOnTouchListener(wetStrokesViewTouchHandler)
@@ -521,32 +512,15 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     }
 
     private fun updateAnnotationsView(displayState: AnnotationsDisplayState) {
-        val pageRenderDataArray = SparseArray<PageAnnotationsData>()
-        val firstVisiblePage = pdfView.firstVisiblePage
-        val lastVisiblePage = firstVisiblePage + pdfView.visiblePagesCount - 1
+        val pageRenderDataArray = SparseArray<List<KeyedPdfAnnotation>>()
+        val viewportState = displayState.viewportState
 
-        val visiblePageAnnotations = displayState.visiblePageAnnotations
-        val transformationMatrices = displayState.transformationMatrices
+        val visiblePageAnnotations = displayState.visiblePageAnnotations.pageAnnotations
 
-        (firstVisiblePage..lastVisiblePage).forEach { pageNum ->
-            val pageAnnotationData =
-                createPageAnnotationsData(pageNum, visiblePageAnnotations, transformationMatrices)
-            pageRenderDataArray.put(pageNum, pageAnnotationData)
+        visiblePageAnnotations.forEach { (pageNum, annotations) ->
+            pageRenderDataArray.put(pageNum, annotations)
         }
-        annotationView.annotations = pageRenderDataArray
-    }
-
-    private fun createPageAnnotationsData(
-        pageNum: Int,
-        visiblePageAnnotations: VisiblePdfAnnotations,
-        transformationMatrices: Map<Int, Matrix>,
-    ): PageAnnotationsData {
-        val annotationsForPage: List<KeyedPdfAnnotation> =
-            visiblePageAnnotations.getKeyedAnnotationsForPage(pageNum)
-        val transformMatrix =
-            transformationMatrices[pageNum] ?: return PageAnnotationsData(emptyList(), Matrix())
-
-        return PageAnnotationsData(annotationsForPage, transformMatrix)
+        annotationView.updateDisplayState(viewportState, pageRenderDataArray)
     }
 
     private fun setupPdfViewListeners() {
@@ -566,14 +540,14 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                     pageLocations: SparseArray<RectF>,
                     zoomLevel: Float,
                 ) {
-                    updateAnnotationDisplayState(
-                        firstVisiblePage,
-                        visiblePagesCount,
-                        pageLocations,
-                        zoomLevel,
+                    documentViewModel.updateViewportState(
+                        PdfViewportState(
+                            firstVisiblePage,
+                            visiblePagesCount,
+                            pageLocations,
+                            zoomLevel,
+                        )
                     )
-                    pageInfoProvider.zoom = zoomLevel
-                    pageInfoProvider.pageLocations = pageLocations
                 }
             }
 
@@ -602,55 +576,6 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                 }
             }
         )
-    }
-
-    private fun updateAnnotationDisplayState(
-        firstVisiblePage: Int,
-        visiblePagesCount: Int,
-        pageLocations: SparseArray<RectF>,
-        zoomLevel: Float,
-    ) {
-        val lastVisiblePage = firstVisiblePage + visiblePagesCount - 1
-
-        updateTransformationMatrices(firstVisiblePage, visiblePagesCount, pageLocations, zoomLevel)
-
-        documentViewModel.fetchAnnotationsForPageRange(
-            startPage = firstVisiblePage,
-            endPage = lastVisiblePage,
-        )
-    }
-
-    private fun generatePageRangeTransformationMatrices(
-        firstVisiblePage: Int,
-        visiblePagesCount: Int,
-        pageLocations: SparseArray<RectF>,
-        zoomLevel: Float,
-    ): Map<Int, Matrix> {
-        val lastVisiblePage = firstVisiblePage + visiblePagesCount - 1
-        documentViewModel.visiblePageRange = firstVisiblePage..lastVisiblePage
-
-        return pageTransformCalculator.calculate(
-            firstVisiblePage,
-            visiblePagesCount,
-            pageLocations,
-            zoomLevel,
-        )
-    }
-
-    private fun updateTransformationMatrices(
-        firstVisiblePage: Int,
-        visiblePagesCount: Int,
-        pageLocations: SparseArray<RectF>,
-        zoomLevel: Float,
-    ) {
-        val transformationMatrices =
-            generatePageRangeTransformationMatrices(
-                firstVisiblePage,
-                visiblePagesCount,
-                pageLocations,
-                zoomLevel,
-            )
-        documentViewModel.updateTransformationMatrices(transformationMatrices)
     }
 
     private fun setupAnnotationToolbar() {

@@ -16,26 +16,27 @@
 
 package androidx.pdf.annotation.models
 
-import android.graphics.Matrix
+import android.util.SparseArray
 import androidx.annotation.RestrictTo
+import androidx.pdf.annotation.PdfViewportState
 
 /**
  * Represents the complete display state for annotations on a PDF document.
  *
- * @property transformationMatrices A map where the key is the page number (0-indexed) and the value
- *   is the [Matrix] required to transform the annotations for that page from PDF coordinates to
- *   screen coordinates, accounting for zoom and pan.
+ * @property viewportState Represents the state of the associated viewport, contains information
+ *   about visiblePages, pageBounds and zoom.
  * @property visiblePageAnnotations map of annotations currently visible on screen by page.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public data class AnnotationsDisplayState(
-    val transformationMatrices: Map<Int, Matrix>,
+    val viewportState: PdfViewportState = EMPTY_VIEWPORT,
     val visiblePageAnnotations: VisiblePdfAnnotations = VisiblePdfAnnotations.EMPTY,
 ) {
     public companion object {
+        public val EMPTY_VIEWPORT: PdfViewportState = PdfViewportState(0, 0, SparseArray(), 1.0f)
         public val EMPTY: AnnotationsDisplayState =
             AnnotationsDisplayState(
-                transformationMatrices = emptyMap(),
+                viewportState = EMPTY_VIEWPORT,
                 visiblePageAnnotations = VisiblePdfAnnotations.EMPTY,
             )
     }

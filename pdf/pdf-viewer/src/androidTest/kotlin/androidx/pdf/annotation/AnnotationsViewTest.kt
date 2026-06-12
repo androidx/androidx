@@ -17,7 +17,6 @@
 package androidx.pdf.annotation
 
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Point
 import android.graphics.RectF
 import android.os.SystemClock
@@ -27,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.InProgressHighlightViewTest.FakeTextBoundsProvider
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PathPdfObject
@@ -232,21 +230,25 @@ class AnnotationsViewTest {
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT,
                         )
-                    pageInfoProvider = FakePageInfoProvider()
                     setTextBoundsProvider(FakeTextBoundsProvider(fakePdfDocument))
-                    annotations = setFakeAnnotations()
                 }
+            annotationsView.updateDisplayState(getFakePdfViewportState(), setFakeAnnotations())
             activity.container.addView(annotationsView)
         }
     }
 
-    private fun setFakeAnnotations(): SparseArray<PageAnnotationsData> {
+    private fun setFakeAnnotations(): SparseArray<List<KeyedPdfAnnotation>> {
         val annotation = createStampAnnotation(RectF(50f, 50f, 100f, 100f))
         val keyedAnnotation = KeyedPdfAnnotation(key = UUID.randomUUID().toString(), annotation)
-        val data = PageAnnotationsData(listOf(keyedAnnotation), Matrix())
-        val sparseArray = SparseArray<PageAnnotationsData>()
-        sparseArray.put(0, data)
+        val sparseArray = SparseArray<List<KeyedPdfAnnotation>>()
+        sparseArray.put(0, listOf(keyedAnnotation))
         return sparseArray
+    }
+
+    private fun getFakePdfViewportState(): PdfViewportState {
+        val pageLocations = SparseArray<RectF>()
+        pageLocations.put(0, RectF(0f, 0f, 500f, 500f))
+        return PdfViewportState(0, 1, pageLocations, 1f)
     }
 
     private fun createStampAnnotation(bounds: RectF): StampAnnotation {
