@@ -2445,10 +2445,14 @@ package androidx.wear.compose.material3.onehandedgesture {
   }
 
   public final class OneHandedGestureDefaults {
-    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToNextItem(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToNextItem(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.ScalingLazyListState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    method public suspend Object? scrollDownToNextItem(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollDownToNextItem(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollDownToNextItem$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.ScalingLazyListState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! scrollDownToNextItem$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? scrollToNextPage(androidx.wear.compose.foundation.pager.PagerState pagerState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults INSTANCE;
   }
