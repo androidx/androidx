@@ -19,6 +19,12 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <package android:name="com.google.android.gms" />
+    </queries>
+
     <application
         android:enableOnBackInvokedCallback="true"
         android:label="Wear Remote Compose Demos"

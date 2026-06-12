@@ -39,8 +39,10 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun MainScreen(
     useDynamicColor: Boolean,
     onUseDynamicColorChange: (Boolean) -> Unit,
+    onSelectedFontNameChange: (String) -> Unit,
     navigateToRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
+    selectedFontName: String = "Default",
 ) {
     val transformationSpec = rememberTransformationSpec()
     val columnState = rememberTransformingLazyColumnState()
@@ -79,6 +81,23 @@ fun MainScreen(
                         onCheckedChange = onUseDynamicColorChange,
                     ) {
                         Text("Dynamic Color")
+                    }
+                }
+                item {
+                    val presetFonts = listOf("Default", "Pacifico", "Bungee", "Cinzel", "Creepster")
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            val currentIndex = presetFonts.indexOf(selectedFontName)
+                            val nextIndex = (currentIndex + 1) % presetFonts.size
+                            onSelectedFontNameChange(presetFonts[nextIndex])
+                        },
+                    ) {
+                        Text(
+                            "Font: $selectedFontName",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
                 item {
@@ -164,5 +183,11 @@ private fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = M
 @WearPreviewDevices
 @Composable
 private fun MainScreenPreview() {
-    MainScreen(useDynamicColor = true, onUseDynamicColorChange = {}, navigateToRoute = {})
+    MainScreen(
+        useDynamicColor = true,
+        onUseDynamicColorChange = {},
+        selectedFontName = "Default",
+        onSelectedFontNameChange = {},
+        navigateToRoute = {},
+    )
 }

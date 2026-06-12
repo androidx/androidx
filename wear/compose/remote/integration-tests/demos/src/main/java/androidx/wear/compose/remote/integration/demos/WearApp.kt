@@ -27,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import androidx.wear.compose.remote.integration.demos.components.LocalSelectedFontFamilyName
 import androidx.wear.compose.remote.integration.demos.components.LocalUseDynamicColor
 import androidx.wear.compose.remote.integration.demos.components.RemoteAppCardDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteButtonDemos
@@ -51,6 +53,7 @@ import kotlinx.coroutines.launch
 
 private val Context.dataStore by preferencesDataStore(name = "remote_material3_demos")
 private val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
+private val SELECTED_FONT_NAME = stringPreferencesKey("selected_font_name")
 
 @Composable
 fun WearApp(
@@ -64,7 +67,15 @@ fun WearApp(
     }
     val useDynamicColor by useDynamicColorFlow.collectAsState(initial = true)
 
-    CompositionLocalProvider(LocalUseDynamicColor provides useDynamicColor) {
+    val selectedFontNameFlow = remember {
+        context.dataStore.data.map { preferences -> preferences[SELECTED_FONT_NAME] ?: "Default" }
+    }
+    val selectedFontName by selectedFontNameFlow.collectAsState(initial = "Default")
+
+    CompositionLocalProvider(
+        LocalUseDynamicColor provides useDynamicColor,
+        LocalSelectedFontFamilyName provides selectedFontName,
+    ) {
         AppScaffold(modifier = modifier) {
             SwipeDismissableNavHost(
                 startDestination = Screen.MainScreen.route,
@@ -77,6 +88,14 @@ fun WearApp(
                             coroutineScope.launch {
                                 context.dataStore.edit { preferences ->
                                     preferences[USE_DYNAMIC_COLOR] = newValue
+                                }
+                            }
+                        },
+                        selectedFontName = selectedFontName,
+                        onSelectedFontNameChange = { newValue ->
+                            coroutineScope.launch {
+                                context.dataStore.edit { preferences ->
+                                    preferences[SELECTED_FONT_NAME] = newValue
                                 }
                             }
                         },
