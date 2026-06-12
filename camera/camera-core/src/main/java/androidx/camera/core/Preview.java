@@ -413,6 +413,54 @@ public final class Preview extends UseCase {
         }
     }
 
+    /**
+     * Sets the mirror mode.
+     *
+     * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+     * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+     * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+     *
+     * <p>For API 32 and below, it will be no-op.
+     *
+     * @param mirrorMode The mirror mode.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+        if (Build.VERSION.SDK_INT < 33) {
+            return;
+        }
+        if (setMirrorModeInternal(mirrorMode)) {
+            CameraInternal camera = getCamera();
+            if (camera == null) {
+                return;
+            }
+            // When attached to VirtualCamera (e.g. under StreamSharing), skip creating a temporary
+            // SurfaceRequest that StreamSharing.resetPipeline() would immediately recreate.
+            if (camera.getHasTransform()) {
+                updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
+                        requireNonNull(getAttachedStreamSpec()));
+            }
+            notifyReset();
+        }
+    }
+
+    /**
+     * Returns the mirror mode.
+     *
+     * <p>If not set, it defaults to {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+     *
+     * @return The mirror mode.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @MirrorMode.Mirror
+    public int getMirrorMode() {
+        int mirrorMode = getMirrorModeInternal();
+        if (mirrorMode == MIRROR_MODE_UNSPECIFIED) {
+            return MIRROR_MODE_ON_FRONT_ONLY;
+        }
+        return mirrorMode;
+    }
+
     private void sendTransformationInfoIfReady() {
         // TODO(b/159659392): only send transformation after CameraCaptureCallback
         //  .onCaptureCompleted is called.
