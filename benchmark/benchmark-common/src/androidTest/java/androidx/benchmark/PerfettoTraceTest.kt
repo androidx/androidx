@@ -32,6 +32,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,6 +40,10 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceTest {
+    @Before
+    fun checkDeviceSupport() {
+        assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
+    }
 
     @Test
     fun record_basic() {

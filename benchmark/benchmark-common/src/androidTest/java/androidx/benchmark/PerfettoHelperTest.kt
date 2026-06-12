@@ -30,6 +30,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -39,6 +40,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
 @RunWith(AndroidJUnit4::class)
 class PerfettoHelperTest {
+    @Before
+    fun checkDeviceSupport() {
+        assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
+    }
+
     @Before
     @After
     fun cleanup() {

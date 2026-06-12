@@ -121,6 +121,13 @@ object DeviceInfo {
         !File("/sys/kernel/tracing/trace_marker").exists() &&
             !File("/sys/kernel/debug/tracing/trace_marker").exists()
 
+    /**
+     * Observed unreliable tracebox behavior on emulators 23-25, so we suppress those tests
+     *
+     * See b/522895306
+     */
+    val expectedToSupportTracingInTests = !isEmulator || Build.VERSION.SDK_INT >= 26
+
     private fun getMainlinePackageInfo(packageName: String): PackageInfo? {
         return try {
             InstrumentationRegistry.getInstrumentation()

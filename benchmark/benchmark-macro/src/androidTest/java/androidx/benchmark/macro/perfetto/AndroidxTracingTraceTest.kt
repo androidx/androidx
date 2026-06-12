@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
@@ -50,6 +51,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidxTracingTraceTest {
     @get:Rule val linkRule = FileLinkingRule()
+
+    @Before
+    fun checkDeviceSupport() {
+        assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
+    }
 
     @Before
     @After
