@@ -20,13 +20,19 @@ import android.annotation.SuppressLint
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.DeferredAnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.MutableContentTransform
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -75,6 +81,7 @@ import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateListOf
@@ -95,6 +102,7 @@ import androidx.compose.ui.layout.lookaheadScopeCoordinates
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
@@ -718,6 +726,123 @@ fun SharedContentConfigSample() {
                 // meaning the animation will be stopped if the target shared
                 // element is removed.
                 return targetBoundsBeforeRemoval
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalDeferredTransitionApi::class)
+fun SharedContentConfigDeferredTransitionSample() {
+    // In this example, we show how to use permitTransformDuringDeferredTransition to
+    // control whether a shared element transforms (scales/slides) with its parent container
+    // during a deferred transition (e.g., a Predictive Back gesture).
+    var state by remember { mutableStateOf("B") }
+    var isBackGestureInProgress by remember { mutableStateOf(false) }
+    var swipeOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    val transitionState = remember { DeferredTransitionState(state) }
+    val transition = rememberTransition(transitionState)
+
+    LaunchedEffect(isBackGestureInProgress, state) {
+        if (isBackGestureInProgress) {
+            transitionState.defer(state)
+        } else {
+            transitionState.animateTo(state)
+        }
+    }
+
+    SharedTransitionLayout(Modifier.fillMaxSize()) {
+        val mutableTransform = remember {
+            MutableContentTransform {
+                initialContentTransform { fullSize ->
+                    if (isBackGestureInProgress) {
+                        val progressX = (swipeOffset.x.toFloat() / fullSize.width).coerceIn(0f, 1f)
+                        // Shrink the exiting container down to 85% as the user swipes
+                        scale = 1f - (progressX * 0.15f)
+                        // Slide the container along the swipe
+                        offset = swipeOffset
+                    }
+                }
+            }
+        }
+
+        transition.DeferredAnimatedContent(
+            transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) },
+            mutableTransformSpec = { mutableTransform },
+            modifier = Modifier.fillMaxSize(),
+        ) { targetState ->
+            if (targetState == "A") {
+                Box(Modifier.fillMaxSize().background(Color.Gray)) {
+                    // Destination elements on Screen A
+                    Box(
+                        Modifier.align(Alignment.TopStart)
+                            .sharedElement(
+                                rememberSharedContentState(key = "item_1"),
+                                animatedVisibilityScope = this@DeferredAnimatedContent,
+                            )
+                            .size(100.dp)
+                            .background(Color.Red)
+                    )
+
+                    Box(
+                        Modifier.align(Alignment.TopEnd)
+                            .sharedElement(
+                                rememberSharedContentState(key = "item_2"),
+                                animatedVisibilityScope = this@DeferredAnimatedContent,
+                            )
+                            .size(100.dp)
+                            .background(Color.Blue)
+                    )
+                }
+            } else {
+                Box(Modifier.fillMaxSize().background(Color.LightGray)) {
+                    // Origin elements on Screen B
+
+                    // Shared element that permits transformations during the deferred phase
+                    // (default).
+                    // As the user swipes back to screen A, this element will visually scale and
+                    // translate in sync with container B. This is typical for content like images
+                    // or cards that should stay visually anchored to their shifting parent page.
+                    Box(
+                        Modifier.align(Alignment.BottomStart)
+                            .sharedElement(
+                                rememberSharedContentState(
+                                    key = "item_1",
+                                    config =
+                                        SharedContentConfig(
+                                            permitTransformDuringDeferredTransition = true
+                                        ),
+                                ),
+                                animatedVisibilityScope = this@DeferredAnimatedContent,
+                            )
+                            .size(200.dp)
+                            .background(Color.Red)
+                    )
+
+                    // Shared element that disables transformations during the deferred phase.
+                    // It will remain static at its starting position (BottomEnd) relative to the
+                    // root layout, temporarily detaching from the moving container B. This is
+                    // useful for elements that should not scale or slide with the page container
+                    // during a predictive back gesture, such as a shared bottom navigation bar
+                    // or persistent header.
+                    Box(
+                        Modifier.align(Alignment.BottomEnd)
+                            .sharedElement(
+                                rememberSharedContentState(
+                                    key = "item_2",
+                                    config =
+                                        SharedContentConfig(
+                                            permitTransformDuringDeferredTransition = false
+                                        ),
+                                ),
+                                animatedVisibilityScope = this@DeferredAnimatedContent,
+                            )
+                            .size(200.dp)
+                            .background(Color.Blue)
+                    )
+                }
             }
         }
     }
