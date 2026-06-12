@@ -19,6 +19,7 @@ package androidx.compose.ui.test
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmInline
 import kotlin.time.Duration
 
 @Immutable
@@ -28,4 +29,36 @@ public actual constructor(
     public actual val runTestContext: CoroutineContext,
     public actual val testTimeout: Duration,
     public actual val inputMode: InputMode,
-)
+    public actual val failurePolicy: TestFailurePolicy,
+) {
+    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+    public actual constructor(
+        effectContext: CoroutineContext,
+        runTestContext: CoroutineContext,
+        testTimeout: Duration,
+        inputMode: InputMode,
+    ) : this(
+        effectContext = effectContext,
+        runTestContext = runTestContext,
+        testTimeout = testTimeout,
+        inputMode = inputMode,
+        failurePolicy = TestFailurePolicy(),
+    )
+}
+
+@Immutable
+public actual class TestFailurePolicy
+public actual constructor(
+    public actual val screenshotCaptureMode: CaptureMode,
+    public actual val uiHierarchyCaptureMode: CaptureMode,
+    public actual val failureHandlers: List<TestFailureHandler>,
+) {
+    @JvmInline
+    public actual value class CaptureMode private actual constructor(private val value: Int) {
+        public actual companion object {
+            public actual val Unspecified: CaptureMode = CaptureMode(0)
+            public actual val Enabled: CaptureMode = CaptureMode(1)
+            public actual val Disabled: CaptureMode = CaptureMode(2)
+        }
+    }
+}
