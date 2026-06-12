@@ -15,4 +15,5 @@
 
 -keepclassmembers,allowobfuscation,allowshrinking class * {
   @androidx.annotation.DoNotInline <methods>;
+  @androidx.annotation.DoNotInline <fields>;
 }
