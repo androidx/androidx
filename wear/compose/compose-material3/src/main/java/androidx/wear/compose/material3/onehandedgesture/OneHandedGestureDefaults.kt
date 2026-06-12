@@ -34,10 +34,15 @@ public object OneHandedGestureDefaults {
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
      * @param scrollState The scroll state associated with a transforming lazy column.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
      */
-    public suspend fun scrollDown(scrollState: TransformingLazyColumnState) {
+    public suspend fun scrollDown(
+        scrollState: TransformingLazyColumnState,
+        wrapAround: Boolean = true,
+    ) {
         if (!scrollState.canScrollForward) {
-            scrollState.animateScrollToItem(0)
+            if (wrapAround) scrollState.animateScrollToItem(0)
             return
         }
 
@@ -54,10 +59,12 @@ public object OneHandedGestureDefaults {
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
      * @param scrollState The scroll state associated with a scaling lazy column.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
      */
-    public suspend fun scrollDown(scrollState: ScalingLazyListState) {
+    public suspend fun scrollDown(scrollState: ScalingLazyListState, wrapAround: Boolean = true) {
         if (!scrollState.canScrollForward) {
-            scrollState.animateScrollToItem(0)
+            if (wrapAround) scrollState.animateScrollToItem(0)
             return
         }
 
@@ -75,10 +82,15 @@ public object OneHandedGestureDefaults {
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
      * @param scrollState The scroll state associated with a transforming lazy column.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
      */
-    public suspend fun scrollToNextItem(scrollState: TransformingLazyColumnState) {
+    public suspend fun scrollDownToNextItem(
+        scrollState: TransformingLazyColumnState,
+        wrapAround: Boolean = true,
+    ) {
         if (!scrollState.canScrollForward) {
-            scrollState.animateScrollToItem(0)
+            if (wrapAround) scrollState.animateScrollToItem(0)
             return
         }
 
@@ -110,10 +122,15 @@ public object OneHandedGestureDefaults {
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
      * @param scrollState The scroll state associated with a scaling lazy column.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
      */
-    public suspend fun scrollToNextItem(scrollState: ScalingLazyListState) {
+    public suspend fun scrollDownToNextItem(
+        scrollState: ScalingLazyListState,
+        wrapAround: Boolean = true,
+    ) {
         if (!scrollState.canScrollForward) {
-            scrollState.animateScrollToItem(0)
+            if (wrapAround) scrollState.animateScrollToItem(0)
             return
         }
 

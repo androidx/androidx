@@ -308,7 +308,7 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = scrollInteractionSource,
-                        onGesture = { OneHandedGestureDefaults.scrollToNextItem(scrollState) },
+                        onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
         ) {
             items(10) { Text("Item $it") }
@@ -374,7 +374,7 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = slcInteractionSource,
-                        onGesture = { OneHandedGestureDefaults.scrollToNextItem(slcState) },
+                        onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(slcState) },
                     ),
             autoCentering = null,
         ) {
