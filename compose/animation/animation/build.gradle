@@ -91,9 +91,3 @@ androidx {
     samples(project(":compose:animation:animation:animation-samples"))
 }
 
-//TODO(b/407640608): Fix to work without this block for PaneMotionTest.test_allDefaultPaneMotionTransitions
-tasks.withType(KotlinCompile).configureEach { task ->
-    task.compilerOptions {
-        it.freeCompilerArgs.add("-Xlambdas=class")
-    }
-}
