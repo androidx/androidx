@@ -20,10 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkDrawPerf
-import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
-import androidx.compose.testutils.benchmark.benchmarkFirstLayout
-import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,21 +45,6 @@ class TimeTextBenchmark {
     @Test
     fun first_pixel() {
         benchmarkRule.benchmarkToFirstPixel(timeTextCaseFactory)
-    }
-
-    @Test
-    fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(timeTextCaseFactory)
-    }
-
-    @Test
-    fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(timeTextCaseFactory)
-    }
-
-    @Test
-    fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(timeTextCaseFactory)
     }
 
     @Test
