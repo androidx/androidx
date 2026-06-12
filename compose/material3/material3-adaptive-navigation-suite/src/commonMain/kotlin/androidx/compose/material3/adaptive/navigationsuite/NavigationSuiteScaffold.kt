@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
@@ -680,7 +681,7 @@ fun NavigationSuite(
         // Note: This function does not support providing a NavigationBar for the
         // NavigationSuiteType.NavigationBar type instead provides a ShortNavigationBar with a
         // taller height so that it is visually the same.
-        // It's advised to to use NavigationSuiteType.ShortNavigationBarVerticalItems instead.
+        // It's advised to use NavigationSuiteType.ShortNavigationBarVerticalItems instead.
         NavigationSuiteType.NavigationBar -> {
             ShortNavigationBar(
                 modifier = modifier.heightIn(min = TallNavigationBarHeight),
@@ -1530,12 +1531,20 @@ private fun Modifier.navigationSuiteScaffoldConsumeWindowInsets(
             when (navigationSuiteType) {
                 NavigationSuiteType.ShortNavigationBarCompact,
                 NavigationSuiteType.ShortNavigationBarMedium ->
-                    ShortNavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
+                    // We need to add the height of the bar since we subtract it from the layout's
+                    // height in NavigationSuiteScaffoldLayout.
+                    ShortNavigationBarDefaults.windowInsets
+                        .only(WindowInsetsSides.Bottom)
+                        .add(WindowInsets(bottom = ShortNavigationBarHeight))
                 NavigationSuiteType.WideNavigationRailCollapsed,
                 NavigationSuiteType.WideNavigationRailExpanded ->
                     WideNavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
                 NavigationSuiteType.NavigationBar ->
-                    NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
+                    // We need to add the height of the bar since we subtract it from the layout's
+                    // height in NavigationSuiteScaffoldLayout.
+                    NavigationBarDefaults.windowInsets
+                        .only(WindowInsetsSides.Bottom)
+                        .add(WindowInsets(bottom = TallNavigationBarHeight))
                 NavigationSuiteType.NavigationRail ->
                     NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
                 NavigationSuiteType.NavigationDrawer ->
@@ -1631,6 +1640,7 @@ private const val NavigationSuiteLayoutIdTag = "navigationSuite"
 private const val PrimaryActionContentLayoutIdTag = "primaryActionContent"
 private const val ContentLayoutIdTag = "content"
 
+private val ShortNavigationBarHeight = 64.dp
 private val TallNavigationBarHeight = 80.dp
 private val PrimaryActionContentPadding = 16.dp
 private val NoWindowInsets = WindowInsets(0, 0, 0, 0)
