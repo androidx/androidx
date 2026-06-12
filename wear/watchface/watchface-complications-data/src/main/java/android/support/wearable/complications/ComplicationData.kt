@@ -2474,9 +2474,17 @@ private constructor(
             }
             fun putComplicationDataArrayFromBundle(arrayKey: String, entryTypeKey: String) {
                 putFromBundle(arrayKey) { key ->
-                    @Suppress("DEPRECATION")
-                    bundle.getParcelableArray(key)?.map {
-                        it as Bundle
+                    // Use API 33+ typed unparceling to verify class assignability before CREATOR
+                    // executes,
+                    // mitigating CWE-502 arbitrary gadget instantiation from malformed payloads.
+                    val array =
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            bundle.getParcelableArray(key, Bundle::class.java)
+                        } else {
+                            @Suppress("deprecation") bundle.getParcelableArray(key)
+                        }
+                    array?.map {
+                        val it = it as Bundle
                         it.classLoader = ComplicationData::class.java.classLoader
                         ComplicationData(it.getInt(entryTypeKey, type), it)
                     }
@@ -2652,9 +2660,18 @@ private constructor(
             return bundle
         }
 
-        private fun <T : Parcelable?> Bundle.getParcelableFieldOrWarn(key: String): T? =
+        private inline fun <reified T : Parcelable> Bundle.getParcelableFieldOrWarn(
+            key: String
+        ): T? =
             try {
-                @Suppress("deprecation") getParcelable<T>(key)
+                // Use API 33+ typed unparceling to verify class assignability before CREATOR
+                // executes,
+                // mitigating CWE-502 arbitrary gadget instantiation from malformed payloads.
+                if (Build.VERSION.SDK_INT >= 33) {
+                    getParcelable(key, T::class.java)
+                } else {
+                    @Suppress("deprecation") getParcelable<T>(key)
+                }
             } catch (e: BadParcelableException) {
                 Log.w(
                     TAG,

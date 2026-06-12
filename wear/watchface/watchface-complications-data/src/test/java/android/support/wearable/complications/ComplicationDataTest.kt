@@ -20,6 +20,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import android.support.wearable.complications.ComplicationText.plainText
@@ -1144,6 +1147,44 @@ public class ComplicationDataTest {
         for (scenario in HasDynamicValuesWithoutDynamicValueScenario.values()) {
             expect.withMessage(scenario.name).that(scenario.data.hasDynamicValues()).isFalse()
         }
+    }
+
+    private class TypeMismatchedParcelable : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {}
+
+        companion object {
+            @JvmField
+            val CREATOR =
+                object : Parcelable.Creator<TypeMismatchedParcelable> {
+                    override fun createFromParcel(source: Parcel): TypeMismatchedParcelable {
+                        throw AssertionError("Mismatched CREATOR invoked despite type check!")
+                    }
+
+                    override fun newArray(size: Int) = arrayOfNulls<TypeMismatchedParcelable>(size)
+                }
+        }
+    }
+
+    @Test
+    fun testGetParcelableFieldOrWarn_typeMismatch_rejectedBeforeCreatorInvoked() {
+        val dataBundle = Bundle().apply { putParcelable("SHORT_TEXT", TypeMismatchedParcelable()) }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(dataBundle)
+                setDataPosition(0)
+            }
+
+        // On API 33+, BundleCompat.getParcelable checks type matching before invoking CREATOR.
+        // Therefore, TypeMismatchedParcelable.CREATOR.createFromParcel() should NOT be called,
+        // preventing arbitrary gadget execution.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.shortText).isNull()
+
+        parcel.recycle()
     }
 
     private companion object {
