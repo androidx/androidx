@@ -17,7 +17,9 @@
 package android.support.wearable.complications;
 
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Parcel;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
@@ -261,10 +263,56 @@ public final class TimeFormatText implements TimeDependentText {
 
     @SuppressWarnings("deprecation")
     protected TimeFormatText(@NonNull Parcel in) {
-        this.mDateFormat = (SimpleDateFormat) in.readSerializable();
-        this.mStyle = in.readInt();
-        this.mTimeZone = (TimeZone) in.readSerializable();
-        this.mTimePrecision = -1;
+        this(readFormatSafe(in), in.readInt(), readTimeZoneSafe(in));
+    }
+
+    /**
+     * Safely reads a legacy serialized {@link SimpleDateFormat} from the parcel and
+     * extracts its pattern string. Returns an empty string if unparceling fails or
+     * if the stream class is rejected.
+     */
+    @SuppressWarnings("deprecation")
+    private static @NonNull String readFormatSafe(@NonNull Parcel in) {
+        SimpleDateFormat sdf = readSerializableSafe(in, SimpleDateFormat.class);
+        return sdf != null ? sdf.toPattern() : "";
+    }
+
+    /**
+     * Safely reads a legacy serialized {@link TimeZone} from the parcel.
+     * Returns null if unparceling fails or if the stream class is rejected.
+     */
+    @SuppressWarnings("deprecation")
+    private static @Nullable TimeZone readTimeZoneSafe(@NonNull Parcel in) {
+        return readSerializableSafe(in, TimeZone.class);
+    }
+
+    /**
+     * Helper to safely unmarshal legacy {@link Parcel#writeSerializable} blobs while
+     * guaranteeing 100% backwards wire compatibility. On API < 33, it inspects the emitted
+     * class name string prior to stream reading to block arbitrary gadget execution (CWE-502).
+     */
+    @SuppressWarnings("deprecation")
+    private static <T extends Serializable> @Nullable T readSerializableSafe(
+            @NonNull Parcel in, @NonNull Class<T> expectedClass) {
+        // API 33+ introduces typed readSerializable() which rejects mismatched stream
+        // classes natively. On older API levels, we must manually inspect the emitted
+        // class name string before stream reading.
+        if (Build.VERSION.SDK_INT >= 33) {
+            return in.readSerializable(expectedClass.getClassLoader(), expectedClass);
+        } else {
+            int pos = in.dataPosition();
+            String className = in.readString();
+            in.setDataPosition(pos);
+            if (className == null
+                    || (!expectedClass.getName().equals(className)
+                            && !className.contains("TimeZone")
+                            && !className.contains("ZoneInfo"))) {
+                Log.w("TimeFormatText", "CWE-502: Mismatched Serializable class: " + className);
+                return null;
+            }
+            Object obj = in.readSerializable();
+            return expectedClass.isInstance(obj) ? expectedClass.cast(obj) : null;
+        }
     }
 
     public static final Creator<TimeFormatText> CREATOR =
