@@ -23,11 +23,8 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.annotation.VisibleForTesting
-import androidx.startup.AppInitializer
 import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.AbstractTraceSink
 import androidx.tracing.EmptyTraceContext
@@ -37,9 +34,6 @@ import androidx.tracing.Trace
 import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
-import androidx.tracing.profiler.ConnectedProfilerTracing.disableTracing
-import androidx.tracing.profiler.ConnectedProfilerTracingInitializer
-import androidx.tracing.wire.TraceDriver.Companion.getStubTraceDriver
 
 /**
  * Constructs a [TraceDriver] instance on Android.
@@ -174,31 +168,7 @@ internal constructor(
         this.context.close()
     }
 
-    /**
-     * Provide the instance of [TraceDriver] that can be used for in-process-tracing.
-     *
-     * On Android, The `android.app.Application` subtype should implement this, to provide a
-     * canonical process wide [TraceDriver].
-     */
-    public interface Factory {
-        /** @return The [TraceDriver] instance that can be used for in-process tracing. */
-        public fun create(): TraceDriver
-    }
-
     public actual companion object {
-        private val lock: Any = Any()
-        @GuardedBy("lock") private var traceDriver: TraceDriver? = null
-
-        @VisibleForTesting
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public fun resetTraceDriver(context: Context) {
-            synchronized(lock) {
-                traceDriver = null
-                // Reset disabled state
-                disableTracing(context)
-            }
-        }
-
         private val stubTraceDriver =
             TraceDriver(
                 contextProvider = { throw IllegalStateException("Should never happen") },
@@ -211,53 +181,6 @@ internal constructor(
         @JvmStatic
         public actual fun getStubTraceDriver(): TraceDriver {
             return stubTraceDriver
-        }
-
-        /**
-         * Return the [TraceDriver] instance configured by the [Application] for in-process tracing.
-         *
-         * A default [TraceDriver] is provided for the application using an `androidx.startup` hook
-         * via `androidx.tracing.profiler.ConnectedProfilerTracingInitializer`. If the application
-         * wants to override or configure the [TraceDriver] differently, then the [Application]
-         * subclass should implement the [TraceDriver.Factory] interface and provide an appropriate
-         * implementation.
-         *
-         * If the application chooses to remove the startup-hook, and does **not** provide an
-         * implementation of [TraceDriver.Factory], then the instance returned by the method is the
-         * same as the one returned by [getStubTraceDriver].
-         *
-         * @param context The Android application context
-         * @return The [TraceDriver] instance that can be used for in-process tracing. If the
-         *   [android.content.Context] provides an implementation for [TraceDriver.Factory], that
-         *   will be used for in-process tracing. Otherwise, we fallback to a default implementation
-         *   of [TraceDriver] that uses the Perfetto trace format under the hood.
-         */
-        @JvmStatic
-        public fun getTraceDriver(context: Context): TraceDriver {
-            val driver = traceDriver
-            if (driver != null) return driver
-            return synchronized(lock) {
-                val traceDriver = traceDriver
-                if (traceDriver != null) return traceDriver
-                // If the application subtype provides a custom implementation of an
-                // TraceDriver, use it. Otherwise, fallback to the default initializer.
-                val provider =
-                    // Support both ContextWrappers and applicationContext based lookups.
-                    context as? Factory ?: context.applicationContext as? Factory
-                val provided = provider?.create() ?: defaultTraceDriver(context)
-                this.traceDriver = provided
-                provided
-            }
-        }
-
-        private fun defaultTraceDriver(context: Context): TraceDriver {
-            val initializer = AppInitializer.getInstance(context)
-            val klass = ConnectedProfilerTracingInitializer::class.java
-            return if (initializer.isEagerlyInitialized(klass)) {
-                initializer.initializeComponent(klass)
-            } else {
-                stubTraceDriver
-            }
         }
     }
 }

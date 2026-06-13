@@ -11,6 +11,10 @@ package androidx.tracing {
     property public abstract androidx.tracing.Tracer tracer;
   }
 
+  public static interface AbstractTraceDriver.Factory {
+    method public androidx.tracing.AbstractTraceDriver create();
+  }
+
   public abstract class AbstractTraceSink implements java.lang.AutoCloseable {
     ctor public AbstractTraceSink();
     method public abstract void close();
@@ -213,12 +217,14 @@ package androidx.tracing {
     method @BytecodeOnly public static AutoCloseable! beginSection$default(androidx.tracing.Tracer!, String!, String!, androidx.tracing.PropagationToken!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.EventMetadataCloseable beginSectionWithMetadata(String category, String name, androidx.tracing.PropagationToken? token, boolean isRoot);
     method public abstract androidx.tracing.Counter counter(String category, String name);
+    method @InaccessibleFromKotlin public static final androidx.tracing.Tracer getGlobal();
     method public static final androidx.tracing.Tracer getStubTracer();
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.EventMetadataCloseable instant(String category, String name);
     method public final inline void instant(String category, String name);
     method public final inline void instant(String category, String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock);
     method @BytecodeOnly public static void instant$default(androidx.tracing.Tracer!, String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     method public abstract boolean isCategoryEnabled(String category);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public static final void setGlobalTracer(androidx.tracing.Tracer tracer);
     method @SuppressCompatibility @androidx.tracing.ExperimentalContextPropagation public abstract androidx.tracing.PropagationToken tokenForManualPropagation();
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract suspend Object? tokenFromCoroutineContext(kotlin.coroutines.Continuation<? super androidx.tracing.PropagationToken>);
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.PropagationToken tokenFromThreadContext();
@@ -236,7 +242,11 @@ package androidx.tracing {
   }
 
   public static final class Tracer.Companion {
+    method @InaccessibleFromKotlin public androidx.tracing.Tracer getGlobal();
     method public androidx.tracing.Tracer getStubTracer();
+    method @VisibleForTesting public void resetGlobalTracer();
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public void setGlobalTracer(androidx.tracing.Tracer tracer);
+    property public static androidx.tracing.Tracer global;
   }
 
   public final class TrackDescriptor {

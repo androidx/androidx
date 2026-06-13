@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.tracing.Tracer.Companion#resetGlobalTracer():
+    Added method androidx.tracing.Tracer.Companion.resetGlobalTracer()

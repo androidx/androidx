@@ -16,6 +16,7 @@
 
 package androidx.tracing
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 
@@ -368,6 +369,9 @@ public abstract class Tracer {
         private val stubTracer =
             PerfettoTracer(context = EmptyTraceContext, categoryEnabled = { false })
 
+        // The Global Tracer
+        private var tracer: Tracer = stubTracer
+
         /**
          * @return a [Tracer] instance that is a stub (does nothing). This is useful as a
          *   placeholder when you want to enable / disable tracing for the program.
@@ -375,6 +379,54 @@ public abstract class Tracer {
         @JvmStatic
         public fun getStubTracer(): Tracer {
             return stubTracer
+        }
+
+        /**
+         * The Global tracer configured by the application.
+         *
+         * This is the [Tracer] that should be used by both application and library developers. You
+         * should always use [Tracer.global] and **not** cache references this field, given the
+         * [Tracer] being used, is updated after the application is initialized.
+         *
+         * The [global] tracer is typically bootstrapped during process startup. When using
+         * `androidx.tracing:tracing-wire`,
+         * `androidx.tracing.profiler.ConnectedProfilerTracingInitializer` discovers the
+         * [AbstractTraceDriver.Factory], and constructs the instance. It then registers a global
+         * [Tracer] by calling [Tracer.setGlobalTracer].
+         *
+         * Otherwise, construct [AbstractTraceDriver] during startup and register it via
+         * [Tracer.setGlobalTracer] so other components can discover and use it.
+         */
+        @JvmStatic
+        public val global: Tracer
+            get() = tracer
+
+        /**
+         * Registers the **global** [Tracer] instance.
+         *
+         * This should only ever be done **once** per process lifecycle and by the application
+         * initializing the [AbstractTraceDriver]; typically during app startup.
+         *
+         * This should **never** be called by **libraries**.
+         */
+        @JvmStatic
+        @DelicateTracingApi
+        public fun setGlobalTracer(tracer: Tracer) {
+            check(this.tracer == stubTracer) {
+                "A Tracer has already been configured. " +
+                    "setGlobalTracer() should only be called once per process."
+            }
+            this.tracer = tracer
+        }
+
+        /**
+         * Resets the [global] [Tracer] for JVM and Android tests.
+         *
+         * Note: This API should only be used in tests.
+         */
+        @VisibleForTesting
+        public fun resetGlobalTracer() {
+            tracer = stubTracer
         }
     }
 }
