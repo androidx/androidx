@@ -30,8 +30,9 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.kotlinSerializationJson)
     api(libs.kotlinCoroutinesCore)
+
+    implementation(libs.kotlinSerializationJson)
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)

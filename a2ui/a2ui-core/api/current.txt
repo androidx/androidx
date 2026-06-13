@@ -166,3 +166,134 @@ package androidx.a2ui.core.protocol {
 
 }
 
+package androidx.a2ui.core.schema {
+
+  public final class A2uiAllOfSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor @BytecodeOnly public A2uiAllOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiAllOfSchema(java.util.List<? extends androidx.a2ui.core.schema.A2uiSchema> schemas, optional String? description);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.core.schema.A2uiSchema> getSchemas();
+    property public String? description;
+    property public java.util.List<androidx.a2ui.core.schema.A2uiSchema> schemas;
+  }
+
+  public final class A2uiAnyOfSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor @BytecodeOnly public A2uiAnyOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiAnyOfSchema(java.util.List<? extends androidx.a2ui.core.schema.A2uiSchema> schemas, optional String? description);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.core.schema.A2uiSchema> getSchemas();
+    property public String? description;
+    property public java.util.List<androidx.a2ui.core.schema.A2uiSchema> schemas;
+  }
+
+  public final class A2uiAnySchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiAnySchema();
+    ctor public A2uiAnySchema(optional String? description);
+    ctor @BytecodeOnly public A2uiAnySchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    property public String? description;
+  }
+
+  public final class A2uiArraySchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiArraySchema();
+    ctor public A2uiArraySchema(optional androidx.a2ui.core.schema.A2uiSchema? items, optional String? description);
+    ctor @BytecodeOnly public A2uiArraySchema(androidx.a2ui.core.schema.A2uiSchema!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public androidx.a2ui.core.schema.A2uiSchema? getItems();
+    property public String? description;
+    property public androidx.a2ui.core.schema.A2uiSchema? items;
+  }
+
+  public final class A2uiBooleanSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiBooleanSchema();
+    ctor public A2uiBooleanSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiBooleanSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    property public String? description;
+  }
+
+  public abstract class A2uiCompositeSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiCompositeSchema();
+    method public abstract androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin protected String? getDefinitionName();
+    method @InaccessibleFromKotlin protected String? getSchemaId();
+    property protected String? definitionName;
+    property protected String? schemaId;
+  }
+
+  public final class A2uiConstSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiConstSchema(Object value, optional String? description);
+    ctor @BytecodeOnly public A2uiConstSchema(Object!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public Object getValue();
+    property public String? description;
+    property public Object value;
+  }
+
+  public final class A2uiEnumSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor @BytecodeOnly public A2uiEnumSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiEnumSchema(java.util.List<?> enumValues, optional String? description);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.Object> getEnumValues();
+    property public String? description;
+    property public java.util.List<java.lang.Object> enumValues;
+  }
+
+  public final class A2uiNumberSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiNumberSchema();
+    ctor public A2uiNumberSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiNumberSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    property public String? description;
+  }
+
+  public final class A2uiObjectSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiObjectSchema();
+    ctor @BytecodeOnly public A2uiObjectSchema(java.util.Map!, java.util.Set!, boolean, androidx.a2ui.core.schema.A2uiSchema!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.core.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required, optional boolean isAdditionalPropertiesAllowed, optional androidx.a2ui.core.schema.A2uiSchema? additionalPropertiesSchema, optional String? description);
+    method @InaccessibleFromKotlin public androidx.a2ui.core.schema.A2uiSchema? getAdditionalPropertiesSchema();
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.a2ui.core.schema.A2uiSchema> getProperties();
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getRequired();
+    method @InaccessibleFromKotlin public boolean isAdditionalPropertiesAllowed();
+    property public androidx.a2ui.core.schema.A2uiSchema? additionalPropertiesSchema;
+    property public String? description;
+    property public boolean isAdditionalPropertiesAllowed;
+    property public java.util.Map<java.lang.String,androidx.a2ui.core.schema.A2uiSchema> properties;
+    property public java.util.Set<java.lang.String> required;
+  }
+
+  public final class A2uiOneOfSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor @BytecodeOnly public A2uiOneOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiOneOfSchema(java.util.List<? extends androidx.a2ui.core.schema.A2uiSchema> schemas, optional String? description);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.core.schema.A2uiSchema> getSchemas();
+    property public String? description;
+    property public java.util.List<androidx.a2ui.core.schema.A2uiSchema> schemas;
+  }
+
+  public final class A2uiRefSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiRefSchema(String ref, optional String? description);
+    ctor @BytecodeOnly public A2uiRefSchema(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public String getRef();
+    property public String? description;
+    property public String ref;
+  }
+
+  public abstract sealed exhaustive class A2uiSchema {
+    method @InaccessibleFromKotlin public abstract String? getDescription();
+    method public final String toJsonSchema();
+    property public abstract String? description;
+  }
+
+  public final class A2uiStringSchema extends androidx.a2ui.core.schema.A2uiSchema {
+    ctor public A2uiStringSchema();
+    ctor public A2uiStringSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiStringSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    property public String? description;
+  }
+
+}
+
