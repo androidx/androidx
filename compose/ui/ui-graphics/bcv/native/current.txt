@@ -318,6 +318,23 @@ abstract interface androidx.compose.ui.graphics/Shape { // androidx.compose.ui.g
     abstract fun createOutline(androidx.compose.ui.geometry/Size, androidx.compose.ui.unit/LayoutDirection, androidx.compose.ui.unit/Density): androidx.compose.ui.graphics/Outline // androidx.compose.ui.graphics/Shape.createOutline|createOutline(androidx.compose.ui.geometry.Size;androidx.compose.ui.unit.LayoutDirection;androidx.compose.ui.unit.Density){}[0]
 }
 
+sealed interface androidx.compose.ui.graphics.blur/BlurRadiusSpec { // androidx.compose.ui.graphics.blur/BlurRadiusSpec|null[0]
+    abstract fun createRenderEffect(androidx.compose.ui.geometry/Size, androidx.compose.ui.unit/Density, androidx.compose.ui.graphics/TileMode = ...): androidx.compose.ui.graphics/RenderEffect // androidx.compose.ui.graphics.blur/BlurRadiusSpec.createRenderEffect|createRenderEffect(androidx.compose.ui.geometry.Size;androidx.compose.ui.unit.Density;androidx.compose.ui.graphics.TileMode){}[0]
+
+    final object Companion { // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion|null[0]
+        final fun horizontalGradient(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.horizontalGradient|horizontalGradient(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        final fun horizontalGradient(kotlin.collections/List<androidx.compose.ui.graphics.blur/BlurStop>): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.horizontalGradient|horizontalGradient(kotlin.collections.List<androidx.compose.ui.graphics.blur.BlurStop>){}[0]
+        final fun linearGradient(androidx.compose.ui.unit/DpOffset, androidx.compose.ui.unit/DpOffset, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.linearGradient|linearGradient(androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        final fun linearGradient(androidx.compose.ui.unit/DpOffset, androidx.compose.ui.unit/DpOffset, kotlin.collections/List<androidx.compose.ui.graphics.blur/BlurStop>): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.linearGradient|linearGradient(androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.DpOffset;kotlin.collections.List<androidx.compose.ui.graphics.blur.BlurStop>){}[0]
+        final fun radialGradient(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/DpOffset = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.radialGradient|radialGradient(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.Dp){}[0]
+        final fun radialGradient(kotlin.collections/List<androidx.compose.ui.graphics.blur/BlurStop>, androidx.compose.ui.unit/DpOffset = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.radialGradient|radialGradient(kotlin.collections.List<androidx.compose.ui.graphics.blur.BlurStop>;androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.Dp){}[0]
+        final fun shader(androidx.compose.ui.unit/Dp, kotlin/Function2<androidx.compose.ui.unit/Density, androidx.compose.ui.geometry/Size, androidx.compose.ui.graphics/Shader>): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.shader|shader(androidx.compose.ui.unit.Dp;kotlin.Function2<androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Size,androidx.compose.ui.graphics.Shader>){}[0]
+        final fun uniform(androidx.compose.ui.unit/Dp): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.uniform|uniform(androidx.compose.ui.unit.Dp){}[0]
+        final fun verticalGradient(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.verticalGradient|verticalGradient(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        final fun verticalGradient(kotlin.collections/List<androidx.compose.ui.graphics.blur/BlurStop>): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.graphics.blur/BlurRadiusSpec.Companion.verticalGradient|verticalGradient(kotlin.collections.List<androidx.compose.ui.graphics.blur.BlurStop>){}[0]
+    }
+}
+
 sealed interface androidx.compose.ui.graphics.shadow/ShadowContext { // androidx.compose.ui.graphics.shadow/ShadowContext|null[0]
     open fun clearCache() // androidx.compose.ui.graphics.shadow/ShadowContext.clearCache|clearCache(){}[0]
     open fun createDropShadowPainter(androidx.compose.ui.graphics/Shape, androidx.compose.ui.graphics.shadow/Shadow): androidx.compose.ui.graphics.shadow/DropShadowPainter // androidx.compose.ui.graphics.shadow/ShadowContext.createDropShadowPainter|createDropShadowPainter(androidx.compose.ui.graphics.Shape;androidx.compose.ui.graphics.shadow.Shadow){}[0]
@@ -406,6 +423,19 @@ final class <#A: kotlin/Any?> androidx.compose.ui.graphics/IntervalTree { // and
     final fun findOverlaps(kotlin/Float, kotlin/Float = ..., kotlin.collections/MutableList<androidx.compose.ui.graphics/Interval<#A>> = ...): kotlin.collections/MutableList<androidx.compose.ui.graphics/Interval<#A>> // androidx.compose.ui.graphics/IntervalTree.findOverlaps|findOverlaps(kotlin.Float;kotlin.Float;kotlin.collections.MutableList<androidx.compose.ui.graphics.Interval<1:0>>){}[0]
     final fun iterator(): kotlin.collections/Iterator<androidx.compose.ui.graphics/Interval<#A>> // androidx.compose.ui.graphics/IntervalTree.iterator|iterator(){}[0]
     final fun plusAssign(androidx.compose.ui.graphics/Interval<#A>) // androidx.compose.ui.graphics/IntervalTree.plusAssign|plusAssign(androidx.compose.ui.graphics.Interval<1:0>){}[0]
+}
+
+final class androidx.compose.ui.graphics.blur/BlurStop { // androidx.compose.ui.graphics.blur/BlurStop|null[0]
+    constructor <init>(kotlin/Float, androidx.compose.ui.unit/Dp) // androidx.compose.ui.graphics.blur/BlurStop.<init>|<init>(kotlin.Float;androidx.compose.ui.unit.Dp){}[0]
+
+    final val fraction // androidx.compose.ui.graphics.blur/BlurStop.fraction|{}fraction[0]
+        final fun <get-fraction>(): kotlin/Float // androidx.compose.ui.graphics.blur/BlurStop.fraction.<get-fraction>|<get-fraction>(){}[0]
+    final val radius // androidx.compose.ui.graphics.blur/BlurStop.radius|{}radius[0]
+        final fun <get-radius>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.graphics.blur/BlurStop.radius.<get-radius>|<get-radius>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.graphics.blur/BlurStop.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics.blur/BlurStop.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.graphics.blur/BlurStop.toString|toString(){}[0]
 }
 
 final class androidx.compose.ui.graphics.colorspace/Rgb : androidx.compose.ui.graphics.colorspace/ColorSpace { // androidx.compose.ui.graphics.colorspace/Rgb|null[0]
@@ -1986,6 +2016,7 @@ final const val androidx.compose.ui.graphics/DefaultAlpha // androidx.compose.ui
 final const val androidx.compose.ui.graphics/UnspecifiedColor // androidx.compose.ui.graphics/UnspecifiedColor|{}UnspecifiedColor[0]
     final fun <get-UnspecifiedColor>(): kotlin/ULong // androidx.compose.ui.graphics/UnspecifiedColor.<get-UnspecifiedColor>|<get-UnspecifiedColor>(){}[0]
 
+final val androidx.compose.ui.graphics.blur/androidx_compose_ui_graphics_blur_BlurStop$stableprop // androidx.compose.ui.graphics.blur/androidx_compose_ui_graphics_blur_BlurStop$stableprop|#static{}androidx_compose_ui_graphics_blur_BlurStop$stableprop[0]
 final val androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_Adaptation$stableprop // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_Adaptation$stableprop|#static{}androidx_compose_ui_graphics_colorspace_Adaptation$stableprop[0]
 final val androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop|#static{}androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop[0]
 final val androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop|#static{}androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop[0]
@@ -2104,6 +2135,7 @@ final fun (androidx.compose.ui.graphics/Path).androidx.compose.ui.graphics/toSvg
 final fun (androidx.compose.ui.graphics/TileMode).androidx.compose.ui.graphics/isSupported(): kotlin/Boolean // androidx.compose.ui.graphics/isSupported|isSupported@androidx.compose.ui.graphics.TileMode(){}[0]
 final fun (kotlin.collections/List<androidx.compose.ui.graphics.vector/PathNode>).androidx.compose.ui.graphics.vector/toPath(androidx.compose.ui.graphics/Path = ...): androidx.compose.ui.graphics/Path // androidx.compose.ui.graphics.vector/toPath|toPath@kotlin.collections.List<androidx.compose.ui.graphics.vector.PathNode>(androidx.compose.ui.graphics.Path){}[0]
 final fun (kotlin/ByteArray).androidx.compose.ui.graphics/decodeToImageBitmap(): androidx.compose.ui.graphics/ImageBitmap // androidx.compose.ui.graphics/decodeToImageBitmap|decodeToImageBitmap@kotlin.ByteArray(){}[0]
+final fun androidx.compose.ui.graphics.blur/androidx_compose_ui_graphics_blur_BlurStop$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics.blur/androidx_compose_ui_graphics_blur_BlurStop$stableprop_getter|androidx_compose_ui_graphics_blur_BlurStop$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_Adaptation$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_Adaptation$stableprop_getter|androidx_compose_ui_graphics_colorspace_Adaptation$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop_getter|androidx_compose_ui_graphics_colorspace_ColorSpace$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics.colorspace/androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop_getter|androidx_compose_ui_graphics_colorspace_ColorSpaces$stableprop_getter(){}[0]

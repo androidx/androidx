@@ -1433,6 +1433,50 @@ package androidx.compose.ui.graphics {
 
 }
 
+package androidx.compose.ui.graphics.blur {
+
+  @androidx.compose.runtime.Immutable public sealed nonexhaustive interface BlurRadiusSpec {
+    method @KotlinOnly public androidx.compose.ui.graphics.RenderEffect createRenderEffect(androidx.compose.ui.geometry.Size size, androidx.compose.ui.unit.Density density, optional androidx.compose.ui.graphics.TileMode edgeTreatment);
+    method @BytecodeOnly public androidx.compose.ui.graphics.RenderEffect createRenderEffect-aIZFzLM(long, androidx.compose.ui.unit.Density, int);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.RenderEffect! createRenderEffect-aIZFzLM$default(androidx.compose.ui.graphics.blur.BlurRadiusSpec!, long, androidx.compose.ui.unit.Density!, int, int, Object!);
+    field public static final androidx.compose.ui.graphics.blur.BlurRadiusSpec.Companion Companion;
+  }
+
+  public static final class BlurRadiusSpec.Companion {
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec horizontalGradient(androidx.compose.ui.unit.Dp startRadius, androidx.compose.ui.unit.Dp endRadius);
+    method public androidx.compose.ui.graphics.blur.BlurRadiusSpec horizontalGradient(java.util.List<androidx.compose.ui.graphics.blur.BlurStop> stops);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec horizontalGradient-YgX7TsA(float, float);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec linearGradient(androidx.compose.ui.unit.DpOffset start, androidx.compose.ui.unit.DpOffset end, androidx.compose.ui.unit.Dp startRadius, androidx.compose.ui.unit.Dp endRadius);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec linearGradient(androidx.compose.ui.unit.DpOffset start, androidx.compose.ui.unit.DpOffset end, java.util.List<androidx.compose.ui.graphics.blur.BlurStop> stops);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec linearGradient-W9idHKA(long, long, float, float);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec linearGradient-xhh869w(long, long, java.util.List<androidx.compose.ui.graphics.blur.BlurStop!>);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec radialGradient(androidx.compose.ui.unit.Dp startRadius, androidx.compose.ui.unit.Dp endRadius, optional androidx.compose.ui.unit.DpOffset center, optional androidx.compose.ui.unit.Dp fallOffRadius);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec radialGradient(java.util.List<androidx.compose.ui.graphics.blur.BlurStop> stops, optional androidx.compose.ui.unit.DpOffset center, optional androidx.compose.ui.unit.Dp fallOffRadius);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec radialGradient-3s42-ZE(java.util.List<androidx.compose.ui.graphics.blur.BlurStop!>, long, float);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.blur.BlurRadiusSpec! radialGradient-3s42-ZE$default(androidx.compose.ui.graphics.blur.BlurRadiusSpec.Companion!, java.util.List!, long, float, int, Object!);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec radialGradient-xnJUiNE(float, float, long, float);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.blur.BlurRadiusSpec! radialGradient-xnJUiNE$default(androidx.compose.ui.graphics.blur.BlurRadiusSpec.Companion!, float, float, long, float, int, Object!);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec shader(androidx.compose.ui.unit.Dp maxRadius, kotlin.jvm.functions.Function2<androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Size,android.graphics.Shader> block);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec shader-D5KLDUw(float, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density!,? super androidx.compose.ui.geometry.Size!,? extends android.graphics.Shader!>);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec uniform(androidx.compose.ui.unit.Dp radius);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec uniform-0680j_4(float);
+    method @KotlinOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec verticalGradient(androidx.compose.ui.unit.Dp startRadius, androidx.compose.ui.unit.Dp endRadius);
+    method public androidx.compose.ui.graphics.blur.BlurRadiusSpec verticalGradient(java.util.List<androidx.compose.ui.graphics.blur.BlurStop> stops);
+    method @BytecodeOnly public androidx.compose.ui.graphics.blur.BlurRadiusSpec verticalGradient-YgX7TsA(float, float);
+  }
+
+  @androidx.compose.runtime.Immutable public final class BlurStop {
+    ctor @KotlinOnly public BlurStop(float fraction, androidx.compose.ui.unit.Dp radius);
+    ctor @BytecodeOnly public BlurStop(float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getFraction();
+    method @BytecodeOnly public float getRadius-D9Ej5fM();
+    property public float fraction;
+    property public androidx.compose.ui.unit.Dp radius;
+    field public static final int MaxStops = 16; // 0x10
+  }
+
+}
+
 package androidx.compose.ui.graphics.colorspace {
 
   public abstract class Adaptation {
