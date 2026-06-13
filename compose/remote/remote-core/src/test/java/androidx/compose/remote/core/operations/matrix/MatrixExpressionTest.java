@@ -274,4 +274,37 @@ public class MatrixExpressionTest {
                         + "0.0, 0.0, 0.0, 1.0]",
                 expr.toString());
     }
+
+    @Test
+    public void testMatrixStackOverflow_throwsException() {
+        RemoteContext context = mock(RemoteContext.class);
+
+        // Push IDENTITY 11 times (exceeds stack limit of 10)
+        float[] exp = new float[11];
+        for (int i = 0; i < 11; i++) {
+            exp[i] = MatrixOperations.IDENTITY;
+        }
+        MatrixExpression expr = new MatrixExpression(1, 0, exp);
+        expr.updateVariables(context);
+
+        org.junit.Assert.assertThrows(RuntimeException.class, () -> {
+            expr.apply(context);
+        });
+    }
+
+    @Test
+    public void testMatrixStackUnderflow_throwsException() {
+        RemoteContext context = mock(RemoteContext.class);
+
+        // Call MUL on empty matrix stack (requires at least 1 pushed matrix)
+        float[] exp = new float[] {
+            MatrixOperations.MUL
+        };
+        MatrixExpression expr = new MatrixExpression(1, 0, exp);
+        expr.updateVariables(context);
+
+        org.junit.Assert.assertThrows(RuntimeException.class, () -> {
+            expr.apply(context);
+        });
+    }
 }

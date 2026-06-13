@@ -359,6 +359,9 @@ public class MatrixOperations {
     void opEval(int sp, int id) {
         switch (id) {
             case OP_IDENTITY:
+                if (mMatrixIndex + 1 >= mMatrices.length) {
+                    throw new RuntimeException("Matrix stack overflow");
+                }
                 mMatrices[++mMatrixIndex].setIdentity();
                 return;
             case OP_ROT_X:
@@ -401,6 +404,9 @@ public class MatrixOperations {
                 mMatrices[mMatrixIndex].setScale(mStack[sp - 3], mStack[sp - 2], mStack[sp - 1]);
                 return;
             case OP_MUL:
+                if (mMatrixIndex <= 0) {
+                    throw new RuntimeException("Matrix stack underflow");
+                }
                 Matrix.multiply(mMatrices[mMatrixIndex - 1], mMatrices[mMatrixIndex], mTmpMatrix);
                 mMatrices[mMatrixIndex - 1].copyFrom(mTmpMatrix);
                 mMatrixIndex--;
