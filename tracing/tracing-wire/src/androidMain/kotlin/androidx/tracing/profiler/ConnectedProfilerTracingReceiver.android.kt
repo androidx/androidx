@@ -21,10 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.startup.AppInitializer
 import androidx.tracing.Trace.TAG
 import androidx.tracing.profiler.ConnectedProfilerTracing.disableTracing
 import androidx.tracing.profiler.ConnectedProfilerTracing.enableTracing
-import androidx.tracing.wire.TraceDriver
 import androidx.tracing.wire.getOrCreateTracesDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +37,7 @@ internal const val ACTION_FLUSH_TRACES_GET_PATH =
 internal const val ACTION_STOP = "androidx.tracing.profiler.action.STOP"
 
 // Result codes
-internal const val RESULT_CODE_NO_TRACE_DRIVER = -2
+internal const val RESULT_CODE_DELAYED_TRACE_DRIVER = -2
 internal const val RESULT_CODE_SUCCESS = 1
 internal const val RESULT_CODE_FLUSH_COMPLETED = 2
 
@@ -85,9 +85,13 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
         val result = goAsync()
         scope.launch {
             try {
-                val driver = TraceDriver.getTraceDriver(context)
+                val initializer = AppInitializer.getInstance(context)
+                val klass = ConnectedProfilerTracingInitializer::class.java
+                val isEager = initializer.isEagerlyInitialized(klass)
+                val driver = initializer.initializeComponent(klass)
                 driver.flush()
-                result.resultCode = RESULT_CODE_FLUSH_COMPLETED
+                result.resultCode =
+                    if (isEager) RESULT_CODE_FLUSH_COMPLETED else RESULT_CODE_DELAYED_TRACE_DRIVER
                 // The path to find traces in.
                 result.resultData = context.getOrCreateTracesDirectory().absolutePath
                 Log.d(TAG, "Flushed traces.")

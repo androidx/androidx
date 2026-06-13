@@ -18,11 +18,11 @@ package androidx.tracing.profiler
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.Tracer
 import androidx.tracing.wire.TraceDriver
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -35,21 +35,25 @@ class ConnectedProfilerTracingInitializationTest {
     @BeforeTest
     @AfterTest
     fun reset() {
-        // Reset the driver as it is a process wide singleton.
-        TraceDriver.resetTraceDriver(context = context)
+        // Resets the tracer
+        Tracer.resetGlobalTracer()
     }
 
     @Test
     fun customInitializationWithFactory() {
         val wrapper = StubContextWrapper(context = context)
-        val driver = TraceDriver.getTraceDriver(wrapper)
-        // This should be the stub provided by the wrapper.
-        assertEquals(TraceDriver.getStubTraceDriver(), driver)
+        val initializer = ConnectedProfilerTracingInitializer()
+        val driver = initializer.create(wrapper) as? TraceDriver
+        assertNotNull(driver)
+        // This should be a stub
+        assertFalse(driver.context.isGloballyEnabled)
+        assertFalse(driver.isCategoryEnabled("main"))
     }
 
     @Test
     fun defaultInitialization() {
-        val driver = TraceDriver.getTraceDriver(context) as TraceDriver?
+        val initializer = ConnectedProfilerTracingInitializer()
+        val driver = initializer.create(context) as? TraceDriver
         // This should be the default driver
         assertNotNull(driver)
         assertTrue(driver.context.isGloballyEnabled)

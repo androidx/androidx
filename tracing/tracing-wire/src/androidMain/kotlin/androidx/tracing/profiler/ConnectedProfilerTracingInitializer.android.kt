@@ -21,6 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.startup.Initializer
 import androidx.tracing.AbstractTraceDriver
+import androidx.tracing.AbstractTraceDriver.Factory
+import androidx.tracing.Tracer
 import androidx.tracing.wire.TraceDriver
 import androidx.tracing.wire.TraceSink
 
@@ -28,21 +30,35 @@ import androidx.tracing.wire.TraceSink
  * Initializes [TraceDriver] process wide using `androidx.startup`.
  *
  * To customize the [AbstractTraceDriver] instance to use, your [android.app.Application] subtype
- * should implement [TraceDriver.Factory].
+ * should implement [AbstractTraceDriver.Factory].
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public class ConnectedProfilerTracingInitializer : Initializer<TraceDriver> {
-    override fun create(context: Context): TraceDriver {
+public class ConnectedProfilerTracingInitializer : Initializer<AbstractTraceDriver> {
+    override fun create(context: Context): AbstractTraceDriver {
         // There is already a lock acquired by andoidx.startup here.
         // So this code does not have to be guarded by a lock.
         ConnectedProfilerTracing.initialize(context)
-        val sink = TraceSink(context = context)
+
+        // If the application subtype provides a custom implementation of an
+        // TraceDriver, use it. Otherwise, fallback to the default initializer.
+        val provider =
+            // Support both ContextWrappers and applicationContext based lookups.
+            context as? Factory ?: context.applicationContext as? Factory
+
         val driver =
-            TraceDriver(
-                context = context,
-                sink = sink,
-                isCategoryEnabled = { ConnectedProfilerTracing.readAfterInitialize() },
-            )
+            if (provider != null) {
+                provider.create()
+            } else {
+                val sink = TraceSink(context = context)
+                val driver =
+                    TraceDriver(
+                        context = context,
+                        sink = sink,
+                        isCategoryEnabled = { ConnectedProfilerTracing.readAfterInitialize() },
+                    )
+                driver
+            }
+        Tracer.setGlobalTracer(driver.tracer)
         return driver
     }
 

@@ -18,9 +18,10 @@ package androidx.tracing.profiler
 
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.wire.TraceDriver
 
-class StubContextWrapper(context: Context) : ContextWrapper(context), TraceDriver.Factory {
+class StubContextWrapper(context: Context) : ContextWrapper(context), AbstractTraceDriver.Factory {
     override fun create(): TraceDriver {
         return TraceDriver.getStubTraceDriver()
     }
