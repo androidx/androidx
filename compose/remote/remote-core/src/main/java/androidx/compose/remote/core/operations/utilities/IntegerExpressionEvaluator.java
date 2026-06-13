@@ -183,11 +183,11 @@ public class IntegerExpressionEvaluator {
                 return sp - 1;
 
             case OP_DIV: // DIV
-                mStack[sp - 1] = mStack[sp - 1] / mStack[sp];
+                mStack[sp - 1] = (mStack[sp] == 0) ? 0 : mStack[sp - 1] / mStack[sp];
                 return sp - 1;
 
             case OP_MOD: // MOD
-                mStack[sp - 1] = mStack[sp - 1] % mStack[sp];
+                mStack[sp - 1] = (mStack[sp] == 0) ? 0 : mStack[sp - 1] % mStack[sp];
                 return sp - 1;
 
             case OP_SHL: // SHL

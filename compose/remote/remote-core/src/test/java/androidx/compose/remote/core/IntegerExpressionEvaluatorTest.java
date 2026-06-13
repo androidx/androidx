@@ -123,4 +123,10 @@ public class IntegerExpressionEvaluatorTest {
 
         return e.eval(mask, vint);
     }
+
+    @Test
+    public void divisionByZero_doesNotThrow() {
+        assertEquals(0, eval(5, 0, L_DIV));
+        assertEquals(0, eval(5, 0, L_MOD));
+    }
 }

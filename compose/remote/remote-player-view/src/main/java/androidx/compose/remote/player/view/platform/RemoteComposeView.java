@@ -626,7 +626,15 @@ public class RemoteComposeView extends FrameLayout
      * @param document document containing updates
      */
     public void applyUpdate(@NonNull RemoteDocument document) {
-        mDocument.getDocument().applyUpdate(document.getDocument());
+        if (mDisable || mDocument == null) {
+            return;
+        }
+        try {
+            mDocument.getDocument().applyUpdate(document.getDocument());
+        } catch (Throwable t) {
+            mErrorMessage = t.getMessage();
+            mDisable = true;
+        }
     }
 
     @Override
