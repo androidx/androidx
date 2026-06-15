@@ -402,3 +402,58 @@ internal class SharedMutableTransformState {
         mutableData = null
     }
 }
+
+/**
+ * Generates an [ExitTransition] to sustain deferred animations during handoff.
+ *
+ * Targets the last manual values of all properties animated during the deferred phase.
+ */
+@OptIn(ExperimentalAnimationApi::class)
+internal fun SharedMutableTransformState.getHandoffExit(): ExitTransition {
+    var newExit = ExitTransition.None
+    if (this.isHandoffActive) {
+        if (this.scaleRequiresAnimation) {
+            newExit += scaleOut(targetScale = this.lastScale)
+        }
+        if (this.alphaRequiresAnimation) {
+            newExit += fadeOut(targetAlpha = this.lastAlpha)
+        }
+        if (this.slideRequiresAnimation) {
+            newExit += slideOut(targetOffset = { this.lastSlide })
+        }
+        if (this.veilRequiresAnimation) {
+            val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
+            newExit += veilOut(targetColor = this.lastVeil, matchParentSize = matchParentSize)
+        }
+    }
+
+    return newExit
+}
+
+/**
+ * Generates an [EnterTransition] to seamlessly handoff deferred animations.
+ *
+ * Captures the last manual values of all properties animated during the deferred phase to use as
+ * the starting point for the enter transition.
+ */
+@OptIn(ExperimentalAnimationApi::class)
+internal fun SharedMutableTransformState.getHandoffEnter(): EnterTransition {
+    var newEnter = EnterTransition.None
+    if (this.isHandoffActive) {
+        if (this.scaleRequiresAnimation) {
+            newEnter += scaleIn(initialScale = this.lastScale)
+        }
+        if (this.alphaRequiresAnimation) {
+            newEnter += fadeIn(initialAlpha = this.lastAlpha)
+        }
+        if (this.slideRequiresAnimation) {
+            newEnter += slideIn(initialOffset = { this.lastSlide })
+        }
+        if (this.veilRequiresAnimation) {
+            val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
+            newEnter += unveilIn(initialColor = this.lastVeil, matchParentSize = matchParentSize)
+        }
+    }
+
+    return newEnter
+}

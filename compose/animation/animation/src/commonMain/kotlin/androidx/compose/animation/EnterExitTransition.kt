@@ -941,9 +941,27 @@ internal fun Transition<EnterExitState>.createModifier(
     sharedMutableTransformState: SharedMutableTransformState? = null,
     label: String,
 ): Modifier {
-    val activeEnter = if (trackActiveEnterExit) trackActiveEnter(enter = enter) else enter
-    val activeExit = if (trackActiveEnterExit) trackActiveExit(exit = exit) else exit
-    val activeMutableState = trackActiveMutableState(sharedMutableTransformState)
+    val activeMutableState =
+        if (trackActiveEnterExit || sharedMutableTransformState == null) {
+            // When null, it indicates the caller has not provided an external state to track.
+            // In this case, an empty `SharedMutableTransformState` is created internally
+            // to satisfy non-null requirements, but no actual mutable data will be tracked.
+            trackActiveMutableState(sharedMutableTransformState)
+        } else {
+            sharedMutableTransformState
+        }
+    val activeEnter =
+        if (trackActiveEnterExit) {
+            trackActiveEnter(enter = enter, activeMutableState = activeMutableState)
+        } else {
+            enter
+        }
+    val activeExit =
+        if (trackActiveEnterExit) {
+            trackActiveExit(exit = exit, activeMutableState = activeMutableState)
+        } else {
+            exit
+        }
 
     val shouldAnimateVeil =
         activeEnter.data.veil != null ||
@@ -1062,7 +1080,10 @@ internal fun Transition<EnterExitState>.trackActiveMutableState(
 }
 
 @Composable
-internal fun Transition<EnterExitState>.trackActiveEnter(enter: EnterTransition): EnterTransition {
+internal fun Transition<EnterExitState>.trackActiveEnter(
+    enter: EnterTransition,
+    activeMutableState: SharedMutableTransformState? = null,
+): EnterTransition {
     // Active enter & active exit reference the enter and exit transition that is currently being
     // used. It is important to preserve the active enter/exit that was previously used before
     // changing target state, such that if the previous enter/exit is interrupted, we still hold
@@ -1076,13 +1097,22 @@ internal fun Transition<EnterExitState>.trackActiveEnter(enter: EnterTransition)
             activeEnter = EnterTransition.None
         }
     } else if (targetState != EnterExitState.PostExit) {
-        activeEnter += enter
+        // Generate a fallback enter transition to seamlessly handoff deferred animations.
+        // This ensures properties modified during the deferred phase remain tracked even if
+        // not specified in the enter transition spec, so that they don't snap if interrupted.
+        // User-specified `enter` properties will automatically override these fallback values
+        // when combined via the `+` operator below.
+        val handoffEnter = activeMutableState?.getHandoffEnter() ?: EnterTransition.None
+        activeEnter += handoffEnter + enter
     }
     return activeEnter
 }
 
 @Composable
-internal fun Transition<EnterExitState>.trackActiveExit(exit: ExitTransition): ExitTransition {
+internal fun Transition<EnterExitState>.trackActiveExit(
+    exit: ExitTransition,
+    activeMutableState: SharedMutableTransformState? = null,
+): ExitTransition {
     // Active enter & active exit reference the enter and exit transition that is currently being
     // used. It is important to preserve the active enter/exit that was previously used before
     // changing target state, such that if the previous enter/exit is interrupted, we still hold
@@ -1110,7 +1140,12 @@ internal fun Transition<EnterExitState>.trackActiveExit(exit: ExitTransition): E
                 changeSize = activeExit.data.changeSize?.copy(size = { it }),
                 veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
             )
-        activeExit = ExitTransitionImpl(neutralData) + exit
+        // Generate an exit transition to sustain deferred animations that were active at handoff.
+        // User-specified `exit` properties will automatically override these sustained values
+        // when combined via the `+` operator below.
+        val handoffExit = activeMutableState?.getHandoffExit() ?: ExitTransition.None
+
+        activeExit = ExitTransitionImpl(neutralData) + handoffExit + exit
     }
     return activeExit
 }

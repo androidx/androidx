@@ -740,10 +740,11 @@ public interface AnimatedVisibilityScope {
 }
 
 internal class AnimatedVisibilityScopeImpl
-internal constructor(transition: Transition<EnterExitState>) : AnimatedVisibilityScope {
-    override var transition = transition
+internal constructor(
+    override var transition: Transition<EnterExitState>,
+    internal val sharedMutableTransformState: SharedMutableTransformState,
+) : AnimatedVisibilityScope {
     internal val targetSize = mutableStateOf(IntSize.Zero)
-    internal val sharedMutableTransformState = SharedMutableTransformState()
 }
 
 /**
@@ -821,14 +822,18 @@ internal fun <T> AnimatedEnterExitImpl(
                 transition.targetEnterExit(visible, it)
             }
 
+        val sharedState = remember(transition) { SharedMutableTransformState() }
+        sharedState.mutableData = mutableTransformData
+        val activeMutableState = childTransition.trackActiveMutableState(sharedState)
+
         // Hoist the active enter/exit tracking to this scope to survive the temporary disposal
         // of the Layout and its modifiers when an exit transition finishes. If an interruption
         // occurs (e.g. A -> B -> A) after the layout for A has been removed, the hoisted
         // tracking preserves the original exit boundaries. Without this, the tracking would
         // re-initialize with the new parameters (which could be ExitTransition.None in
         // AnimatedContent), causing the animation to lose its start/end values and snap.
-        val activeEnter = childTransition.trackActiveEnter(enter)
-        val activeExit = childTransition.trackActiveExit(exit)
+        val activeEnter = childTransition.trackActiveEnter(enter, activeMutableState)
+        val activeExit = childTransition.trackActiveExit(exit, activeMutableState)
 
         val shouldDisposeBlockUpdated by rememberUpdatedState(shouldDisposeBlock)
 
@@ -852,8 +857,8 @@ internal fun <T> AnimatedEnterExitImpl(
             }
 
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
-            val scope = remember(transition) { AnimatedVisibilityScopeImpl(childTransition) }
-            scope.sharedMutableTransformState.mutableData = mutableTransformData
+            val scope =
+                remember(transition) { AnimatedVisibilityScopeImpl(childTransition, sharedState) }
             Layout(
                 content = { scope.content() },
                 modifier =
@@ -863,7 +868,7 @@ internal fun <T> AnimatedEnterExitImpl(
                                 activeEnter,
                                 activeExit,
                                 trackActiveEnterExit = false,
-                                sharedMutableTransformState = scope.sharedMutableTransformState,
+                                sharedMutableTransformState = activeMutableState,
                                 label = "Built-in",
                             )
                             .then(

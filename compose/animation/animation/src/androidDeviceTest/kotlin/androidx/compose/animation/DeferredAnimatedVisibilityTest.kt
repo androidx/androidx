@@ -853,6 +853,162 @@ class DeferredAnimatedVisibilityTest {
     }
 
     @Test
+    fun visibility_previewScale_handoff_sustainUnlessSpecified_thenInterrupted_isSeamless() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            state = remember { DeferredTransitionState(true) }
+            val transition = rememberTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                // Use linear easing and long duration to make progress predictable
+                // Note: No scale specified!
+                enter = fadeIn(tween(1000, easing = LinearEasing)),
+                exit = fadeOut(tween(1000, easing = LinearEasing)),
+                mutableTransform = remember { MutableTransform { _ -> scale = previewScale } },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredWidth = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidth
+        rule.mainClock.autoAdvance = false
+
+        // 1. Deferred phase (e.g. back gesture)
+        rule.runOnIdle {
+            state.defer(false)
+            previewScale = 0.8f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.8f, measuredWidth, 1f)
+
+        // 2. Handoff to exit transition
+        rule.runOnIdle { state.animateTo(false) }
+        rule.mainClock.advanceTimeByFrame() // Handoff frame
+
+        // 3. Let it animate for a bit
+        // Since scale is NOT specified in ExitTransition, it should sustain at 0.8f
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+        val widthBeforeInterruption = measuredWidth
+        assertEquals(fullWidth * 0.8f, widthBeforeInterruption, 1f)
+
+        // 4. Interrupt mid-animation (e.g. user cancels back gesture)
+        // This should clear the sustained handoff value and start a new transition from 0.8f.
+        rule.runOnIdle { state.animateTo(true) }
+        rule.mainClock.advanceTimeByFrame() // Interruption frame
+        rule.waitForIdle()
+
+        // 5. Verify it is seamless (no snap jump to 1.0f)
+        val widthAfterInterruption = measuredWidth
+        assertTrue(
+            "Width should not snap back to 1.0f immediately after interruption. " +
+                "Was $widthBeforeInterruption, now $widthAfterInterruption",
+            widthAfterInterruption < fullWidth * 0.95f,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(fullWidth, measuredWidth, 1f)
+    }
+
+    @Test
+    fun visibility_previewScale_handoffUnspecifiedEnter_animatesToVisibleValue_thenInterrupted_isSeamless() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            // Start hidden
+            state = remember { DeferredTransitionState(false) }
+            val transition = rememberTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                // Note: No scaleIn specified!
+                enter = fadeIn(tween(1000, easing = LinearEasing)),
+                exit = fadeOut(tween(1000, easing = LinearEasing)),
+                mutableTransform = remember { MutableTransform { _ -> scale = previewScale } },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredWidth = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        // Let's defer enter.
+        rule.mainClock.autoAdvance = false
+
+        // 1. Deferred phase (e.g. predictive forward gesture)
+        rule.runOnIdle {
+            state.defer(true)
+            previewScale = 0.8f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val fullWidth = 100f * rule.density.density
+        // Since it's composed now and previewScale = 0.8f, measured width should be 0.8 *
+        // fullWidth.
+        assertEquals(fullWidth * 0.8f, measuredWidth, 1f)
+
+        // 2. Handoff to enter transition
+        rule.runOnIdle { state.animateTo(true) }
+        rule.mainClock.advanceTimeByFrame() // Handoff frame
+
+        // 3. Let it animate for a bit
+        rule.mainClock.advanceTimeBy(50)
+        rule.waitForIdle()
+        val widthBeforeInterruption = measuredWidth
+
+        // 4. Interrupt mid-animation
+        rule.runOnIdle { state.animateTo(false) }
+        rule.mainClock.advanceTimeByFrame() // Interruption frame
+        rule.waitForIdle()
+        val widthAfterInterruption = measuredWidth
+
+        // This assertion checks if it snapped to 1.0f (fullWidth) immediately after interruption
+        assertTrue(
+            "Width should not snap back to 1.0f immediately after interruption. " +
+                "Was $widthBeforeInterruption, now $widthAfterInterruption",
+            widthAfterInterruption < fullWidth * 0.95f,
+        )
+
+        // 5. Where does it animate to?
+        // Since Exit doesn't specify scaleOut, and the deferred state was cleared,
+        // the target scale for PostExit is 1f. It should smoothly animate towards 1f.
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+        val widthLater = measuredWidth
+
+        assertTrue(
+            "Width should be increasing towards fullWidth. " +
+                "Was $widthAfterInterruption, now $widthLater",
+            widthLater > widthAfterInterruption,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        // Note: Because the final target state is PostExit, AnimatedVisibility will dispose
+        // the content once the transition finishes. The last measuredWidth is captured right
+        // before disposal, which may be slightly below 1.0f (e.g., 0.99f) due to spring
+        // visibility thresholds.
+        assertEquals(fullWidth, measuredWidth, 5f)
+    }
+
+    @Test
     fun visibility_previewScale_handoffVelocity() {
         testTimeSource = { rule.mainClock.currentTime }
 
