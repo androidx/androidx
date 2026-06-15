@@ -247,15 +247,20 @@ private fun LazyLayoutMeasureScope.keepAroundItems(
 
             debugLog { "Keep Around First Visible Page Index: $firstVisiblePageIndex" }
             debugLog { "Keep Around Last Visible Page Index: $firstVisiblePageIndex" }
-            debugLog { "Prefetch Window Start Line: ${cacheWindowLogic.prefetchWindowStartLine}" }
-            debugLog { "Prefetch Window End Line: ${cacheWindowLogic.prefetchWindowEndLine}" }
+            debugLog {
+                "Prefetch Window Start Lines: ${cacheWindowLogic.perLaneCacheWindowStartIndex.contentToString()}"
+            }
+            debugLog {
+                "Prefetch Window End Lines: ${cacheWindowLogic.perLaneCacheWindowEndItemIndex.contentToString()}"
+            }
             // we must send a message in case of changing directions for items
             // that were keep around and become prefetch forward
-            for (item in cacheWindowLogic.prefetchWindowStartLine..<firstVisiblePageIndex) {
+            for (item in cacheWindowLogic.perLaneCacheWindowStartIndex[0]..<firstVisiblePageIndex) {
                 compose(item)
             }
 
-            for (item in (lastVisiblePageIndex + 1)..cacheWindowLogic.prefetchWindowEndLine) {
+            for (item in
+                (lastVisiblePageIndex + 1)..cacheWindowLogic.perLaneCacheWindowEndItemIndex[0]) {
                 compose(item)
             }
         }

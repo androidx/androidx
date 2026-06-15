@@ -163,6 +163,7 @@ package androidx.compose.foundation {
     property public boolean isInheritedTextStyleEnabled;
     property public boolean isInteractionSoundEffectOnClickEnabled;
     property public boolean isMouseSelectionBetweenTextEnabled;
+    property public boolean isMultiLaneCacheWindowEnabled;
     property public boolean isNewContextMenuEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
@@ -183,6 +184,7 @@ package androidx.compose.foundation {
     field public static boolean isInheritedTextStyleEnabled;
     field public static boolean isInteractionSoundEffectOnClickEnabled;
     field public static boolean isMouseSelectionBetweenTextEnabled;
+    field public static boolean isMultiLaneCacheWindowEnabled;
     field public static boolean isNewContextMenuEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
