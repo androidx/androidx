@@ -3918,6 +3918,7 @@ package androidx.compose.ui.node {
     method @BytecodeOnly public boolean sendKeyEvent-ZmokQxo(android.view.KeyEvent);
     method public default void setAccessibilityEventBatchIntervalMillis(long intervalMillis);
     method public default void setUncaughtExceptionHandler(androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler? handler);
+    method public default void updateSemanticsForTest();
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.semantics.SemanticsOwner semanticsOwner;
     property @Deprecated public abstract androidx.compose.ui.text.input.TextInputService textInputService;

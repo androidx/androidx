@@ -332,6 +332,14 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun getCoroutineLaunchedCount(): Int {
         return continuationCountInterceptor.continuationCount - InternallyLaunchedCoroutines
     }
+
+    override fun setAccessibilityEnabled(enabled: Boolean) {
+        owner?.forceAccessibilityForTesting(enabled)
+    }
+
+    override fun updateSemantics() {
+        owner?.updateSemanticsForTest()
+    }
 }
 
 private enum class SimulationState {

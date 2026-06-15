@@ -931,6 +931,7 @@ abstract interface androidx.compose.ui.node/RootForTest { // androidx.compose.ui
     open fun sendIndirectPointerEvent(androidx.compose.ui.input.indirect/IndirectPointerEvent): kotlin/Boolean // androidx.compose.ui.node/RootForTest.sendIndirectPointerEvent|sendIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent){}[0]
     open fun setAccessibilityEventBatchIntervalMillis(kotlin/Long) // androidx.compose.ui.node/RootForTest.setAccessibilityEventBatchIntervalMillis|setAccessibilityEventBatchIntervalMillis(kotlin.Long){}[0]
     open fun setUncaughtExceptionHandler(androidx.compose.ui.node/RootForTest.UncaughtExceptionHandler?) // androidx.compose.ui.node/RootForTest.setUncaughtExceptionHandler|setUncaughtExceptionHandler(androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler?){}[0]
+    open fun updateSemanticsForTest() // androidx.compose.ui.node/RootForTest.updateSemanticsForTest|updateSemanticsForTest(){}[0]
 
     abstract interface UncaughtExceptionHandler { // androidx.compose.ui.node/RootForTest.UncaughtExceptionHandler|null[0]
         abstract fun onUncaughtException(kotlin/Throwable) // androidx.compose.ui.node/RootForTest.UncaughtExceptionHandler.onUncaughtException|onUncaughtException(kotlin.Throwable){}[0]

@@ -157,6 +157,39 @@ fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> LayeredComposeTes
     }
 }
 
+/**
+ * Measures the time of a semantics update after the test case content is added to the already
+ * existing hierarchy.
+ */
+fun ComposeBenchmarkRule.benchmarkFirstSemanticsUpdate(caseFactory: () -> LayeredComposeTestCase) {
+    runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
+        runOnUiThread { setAccessibilityEnabled(true) }
+        measureRepeatedOnUiThread {
+            runWithMeasurementDisabled {
+                doFramesUntilNoChangesPending()
+                // Add the content to benchmark
+                getTestCase().addMeasuredContent()
+                recomposeUntilNoChangesPending()
+                requestLayout()
+                measure()
+                layout()
+                drawPrepare()
+                draw()
+                drawFinish()
+            }
+
+            updateSemantics()
+
+            runWithMeasurementDisabled {
+                assertNoPendingChanges()
+                disposeContent()
+            }
+        }
+
+        runOnUiThread { setAccessibilityEnabled(false) }
+    }
+}
+
 /** Measures the time of the first set content of the given Android test case. */
 fun AndroidBenchmarkRule.benchmarkFirstSetContent(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
