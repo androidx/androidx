@@ -644,6 +644,7 @@ public class RemoteComposeView extends FrameLayout
 
     /**
      * Set a custom support object
+     *
      * @param androidCustomSupport the custom support object
      */
     public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
@@ -690,126 +691,136 @@ public class RemoteComposeView extends FrameLayout
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.onTouchEvent(event);
         }
-        CoreDocument doc = mDocument.getDocument();
-        float x = event.getX();
-        float y = event.getY();
-        long time = event.getEventTime();
+        if (mDisable || mDocument == null) {
+            return false;
+        }
+        try {
+            CoreDocument doc = mDocument.getDocument();
+            float x = event.getX();
+            float y = event.getY();
+            long time = event.getEventTime();
 
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                mDownTime = time;
-                mDownX = x;
-                mDownY = y;
-                mInActionDown = true;
-                mHasMoved = false;
-                mIsLongPressPerformed = false;
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    mDownTime = time;
+                    mDownX = x;
+                    mDownY = y;
+                    mInActionDown = true;
+                    mHasMoved = false;
+                    mIsLongPressPerformed = false;
 
-                if (mUseGestureDetector) {
-                    if (time - mLastUpTime < mDoubleTapTimeout) {
-                        float dx = x - mLastUpX;
-                        float dy = y - mLastUpY;
-                        if (dx * dx + dy * dy < mDoubleTapSlopSquare) {
-                            mIsDoubleTap = true;
+                    if (mUseGestureDetector) {
+                        if (time - mLastUpTime < mDoubleTapTimeout) {
+                            float dx = x - mLastUpX;
+                            float dy = y - mLastUpY;
+                            if (dx * dx + dy * dy < mDoubleTapSlopSquare) {
+                                mIsDoubleTap = true;
+                            } else {
+                                mIsDoubleTap = false;
+                            }
                         } else {
                             mIsDoubleTap = false;
                         }
-                    } else {
-                        mIsDoubleTap = false;
                     }
-                }
 
-                if (doc.hasTouchListener()) {
-                    mARContext.loadFloat(
-                            RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
-                    boolean handled = doc.touchDown(mARContext, x, y);
-                    if (handled) {
-                        if (mVelocityTracker == null) {
-                            mVelocityTracker = VelocityTracker.obtain();
-                        } else {
-                            mVelocityTracker.clear();
+                    if (doc.hasTouchListener()) {
+                        mARContext.loadFloat(
+                                RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
+                        boolean handled = doc.touchDown(mARContext, x, y);
+                        if (handled) {
+                            if (mVelocityTracker == null) {
+                                mVelocityTracker = VelocityTracker.obtain();
+                            } else {
+                                mVelocityTracker.clear();
+                            }
+                            mVelocityTracker.addMovement(event);
+                            invalidate();
+                            return true;
                         }
-                        mVelocityTracker.addMovement(event);
+                    }
+                    mInActionDown = false;
+                    return false;
+
+                case MotionEvent.ACTION_CANCEL:
+                    mInActionDown = false;
+                    if (doc.hasTouchListener()) {
+                        mVelocityTracker.computeCurrentVelocity(1000);
+                        float dx = mVelocityTracker.getXVelocity(pointerId);
+                        float dy = mVelocityTracker.getYVelocity(pointerId);
+                        doc.touchCancel(mARContext, x, y, dx, dy);
                         invalidate();
                         return true;
                     }
-                }
-                mInActionDown = false;
-                return false;
+                    return false;
 
-            case MotionEvent.ACTION_CANCEL:
-                mInActionDown = false;
-                if (doc.hasTouchListener()) {
-                    mVelocityTracker.computeCurrentVelocity(1000);
-                    float dx = mVelocityTracker.getXVelocity(pointerId);
-                    float dy = mVelocityTracker.getYVelocity(pointerId);
-                    doc.touchCancel(mARContext, x, y, dx, dy);
-                    invalidate();
-                    return true;
-                }
-                return false;
-
-            case MotionEvent.ACTION_UP:
-                mInActionDown = false;
-                mActionCurrentPoint.x = (int) x;
-                mActionCurrentPoint.y = (int) y;
-                boolean handled = false;
-                if (!mHasMoved) {
-                    if (mIsDoubleTap) {
-                        doc.onDoubleClick(mARContext, x, y);
-                        mLastUpTime = 0;
-                        mIsDoubleTap = false;
-                    } else if (!mIsLongPressPerformed) {
-                        long duration = time - mDownTime;
-                        if (mUseGestureDetector && duration >= mLongPressTimeout) {
-                            doc.onLongPress(mARContext, x, y);
-                            mLastUpTime = 0;
-                        } else {
-                            performClick();
-                            mLastUpTime = time;
-                            mLastUpX = x;
-                            mLastUpY = y;
-                            handled = true;
-                        }
-                    }
-                    invalidate();
-                }
-                if (doc.hasTouchListener()) {
-                    mARContext.loadFloat(
-                            RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
-                    mVelocityTracker.computeCurrentVelocity(1000);
-                    float dx = mVelocityTracker.getXVelocity(pointerId);
-                    float dy = mVelocityTracker.getYVelocity(pointerId);
-                    doc.touchUp(mARContext, x, y, dx, dy);
-                    invalidate();
-                    handled = true;
-                }
-                return handled;
-
-            case MotionEvent.ACTION_MOVE:
-                if (!mHasMoved) {
-                    float dx = x - mDownX;
-                    float dy = y - mDownY;
-                    if (dx * dx + dy * dy > mTouchSlop * mTouchSlop) {
-                        mHasMoved = true;
-                    }
-                }
-                if (mInActionDown) {
+                case MotionEvent.ACTION_UP:
+                    mInActionDown = false;
                     mActionCurrentPoint.x = (int) x;
                     mActionCurrentPoint.y = (int) y;
-                    if (mVelocityTracker != null) {
+                    boolean handled = false;
+                    if (!mHasMoved) {
+                        if (mIsDoubleTap) {
+                            doc.onDoubleClick(mARContext, x, y);
+                            mLastUpTime = 0;
+                            mIsDoubleTap = false;
+                        } else if (!mIsLongPressPerformed) {
+                            long duration = time - mDownTime;
+                            if (mUseGestureDetector && duration >= mLongPressTimeout) {
+                                doc.onLongPress(mARContext, x, y);
+                                mLastUpTime = 0;
+                            } else {
+                                performClick();
+                                mLastUpTime = time;
+                                mLastUpX = x;
+                                mLastUpY = y;
+                                handled = true;
+                            }
+                        }
+                        invalidate();
+                    }
+                    if (doc.hasTouchListener()) {
                         mARContext.loadFloat(
                                 RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
-                        mVelocityTracker.addMovement(event);
-                        boolean repaint = doc.touchDrag(mARContext, x, y);
-                        if (repaint) {
-                            invalidate();
+                        mVelocityTracker.computeCurrentVelocity(1000);
+                        float dx = mVelocityTracker.getXVelocity(pointerId);
+                        float dy = mVelocityTracker.getYVelocity(pointerId);
+                        doc.touchUp(mARContext, x, y, dx, dy);
+                        invalidate();
+                        handled = true;
+                    }
+                    return handled;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (!mHasMoved) {
+                        float dx = x - mDownX;
+                        float dy = y - mDownY;
+                        if (dx * dx + dy * dy > mTouchSlop * mTouchSlop) {
+                            mHasMoved = true;
                         }
                     }
-                    return true;
-                }
-                return false;
+                    if (mInActionDown) {
+                        mActionCurrentPoint.x = (int) x;
+                        mActionCurrentPoint.y = (int) y;
+                        if (mVelocityTracker != null) {
+                            mARContext.loadFloat(
+                                    RemoteContext.ID_TOUCH_EVENT_TIME,
+                                    mARContext.getAnimationTime());
+                            mVelocityTracker.addMovement(event);
+                            boolean repaint = doc.touchDrag(mARContext, x, y);
+                            if (repaint) {
+                                invalidate();
+                            }
+                        }
+                        return true;
+                    }
+                    return false;
+            }
+            return false;
+        } catch (Throwable e) {
+            mErrorMessage = e.getMessage();
+            mDisable = true;
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -817,9 +828,20 @@ public class RemoteComposeView extends FrameLayout
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.performClick();
         }
-        mDocument
-                .getDocument()
-                .onClick(mARContext, (float) mActionCurrentPoint.x, (float) mActionCurrentPoint.y);
+        if (mDisable || mDocument == null) {
+            return super.performClick();
+        }
+        try {
+            mDocument
+                    .getDocument()
+                    .onClick(
+                            mARContext,
+                            (float) mActionCurrentPoint.x,
+                            (float) mActionCurrentPoint.y);
+        } catch (Throwable e) {
+            mErrorMessage = e.getMessage();
+            mDisable = true;
+        }
         super.performClick();
         invalidate();
         return true;
