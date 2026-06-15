@@ -25,6 +25,7 @@ import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
 import androidx.webkit.CustomHeader;
+import androidx.webkit.HttpCache;
 import androidx.webkit.PrefetchCache;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.Profile;
@@ -32,6 +33,7 @@ import androidx.webkit.SpeculativeLoadingConfig;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebViewOutcomeReceiver;
 
+import org.chromium.support_lib_boundary.HttpCacheBoundaryInterface;
 import org.chromium.support_lib_boundary.OriginMatchedHeaderBoundaryInterface;
 import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -344,6 +346,20 @@ public class ProfileImpl implements Profile {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.ADD_QUIC_HINTS_V1;
         if (feature.isSupportedByWebView()) {
             mProfileImpl.addQuicHints(urls);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public @NonNull HttpCache getHttpCache() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.HTTP_CACHE_MANAGER;
+        if (feature.isSupportedByWebView()) {
+            // Note: this creates a new object on each call, which does not maintain object
+            // identity. (This is a general quirk across the library.)
+            InvocationHandler httpCache = mProfileImpl.getHttpCache();
+            return new HttpCache(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                    HttpCacheBoundaryInterface.class, httpCache));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

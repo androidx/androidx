@@ -1055,6 +1055,19 @@ public class WebViewFeatureInternal {
                     WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
                     Features.DOWNLOAD_FAVICONS_ENABLED);
 
+    /**
+     * This feature covers
+     * {@link Profile#getHttpCache()}
+     * {@link HttpCache#getDefaultQuotaBytes()}
+     * {@link HttpCache#isUsingDefaultQuota()}
+     * {@link HttpCache#useDefaultQuota()}
+     * {@link HttpCache#getQuotaBytes()}
+     * {@link HttpCache#setQuotaBytes(long)}
+     */
+    public static final ApiFeature.NoFramework HTTP_CACHE_MANAGER =
+            new ApiFeature.NoFramework(WebViewFeature.HTTP_CACHE_MANAGER,
+                    Features.HTTP_CACHE_MANAGER);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
