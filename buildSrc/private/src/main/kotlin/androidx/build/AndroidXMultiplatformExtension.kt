@@ -33,6 +33,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.plugins.ExtensionAware
@@ -964,6 +965,7 @@ fun Project.hasCInteropDependency(): Provider<Boolean> {
                     configuration.incoming
                         .artifactView { view ->
                             view.lenient(true)
+                            view.componentFilter { id -> id is ProjectComponentIdentifier }
                             view.attributes { it.attribute(HAS_CINTEROP_ATTRIBUTE, true) }
                         }
                         .files
