@@ -34,6 +34,7 @@ import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
 import androidx.savedstate.savedState
 
 /**
@@ -53,7 +54,8 @@ interface PlatformArchitectureComponentsOwner {
 @InternalComposeUiApi
 class DefaultArchitectureComponentsOwner(
     savedState: SavedState? = null,
-    enforceMainThread: Boolean = true
+    override val viewModelStore: ViewModelStore = ViewModelStore(),
+    enforceMainThread: Boolean = true,
 ) : PlatformArchitectureComponentsOwner,
     LifecycleOwner,
     ViewModelStoreOwner,
@@ -69,7 +71,6 @@ class DefaultArchitectureComponentsOwner(
     } else {
         LifecycleRegistry.createUnsafe(this)
     }
-    override val viewModelStore = ViewModelStore()
     override val navigationEventDispatcher = NavigationEventDispatcher()
 
     private val savedStateController = SavedStateRegistryController.create(this)

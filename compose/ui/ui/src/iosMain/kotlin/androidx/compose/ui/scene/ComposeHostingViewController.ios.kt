@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.scene
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -25,6 +26,7 @@ import androidx.compose.ui.window.ComposeContainerLifecycleDelegate
 import androidx.compose.ui.window.ComposeContainerView
 import androidx.compose.ui.window.DisplayLinkListener
 import androidx.compose.ui.window.MetalRedrawer
+import androidx.lifecycle.Lifecycle
 import kotlin.coroutines.CoroutineContext
 import kotlin.native.runtime.NativeRuntimeApi
 import kotlin.time.Duration
@@ -55,9 +57,14 @@ internal class ComposeHostingViewController(
         lifecycleDelegate = lifecycleDelegate
     )
 
-    // Used for testing
+    @VisibleForTesting
     val rootRedrawer: MetalRedrawer? get() = container.view.redrawer
+
+    @VisibleForTesting
     fun hasInvalidations(): Boolean = container.hasInvalidations()
+
+    @VisibleForTesting
+    val lifecycleState: Lifecycle.State get() = container.currentLifecycleState
 
     @Suppress("DEPRECATION")
     override fun preferredStatusBarStyle(): UIStatusBarStyle =
