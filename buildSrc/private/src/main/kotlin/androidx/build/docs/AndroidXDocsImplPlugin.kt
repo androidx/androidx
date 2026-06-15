@@ -202,6 +202,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     }
             )
             task.rewriteSamplesTags()
+            task.filterColGroup()
             // Files with the same path in different source jars of the same library will lead to
             // some classes/methods not appearing in the docs.
             task.duplicatesStrategy = DuplicatesStrategy.WARN
@@ -1015,6 +1016,7 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
                 }
             }
             it.rewriteSamplesTags()
+            it.filterColGroup()
         }
 
         fileSystemOperations.sync {
@@ -1044,6 +1046,14 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
  */
 internal fun CopySpec.rewriteSamplesTags() {
     filter { line -> line.replace(" * @sample ", " * @author #@sample ") }
+}
+
+/**
+ * The AAPT2-generated R.java file contains colgroup tags, but the dokka parser doesn't handle them
+ * well (b/522904047).
+ */
+internal fun CopySpec.filterColGroup() {
+    filter { line -> line.takeUnless { line.contains("* <colgroup align=\"left\" />") } }
 }
 
 private fun <K, V> Map<K, V>.partition(condition: (K) -> Boolean): Pair<Map<K, V>, Map<K, V>> =
