@@ -58,7 +58,7 @@ public class TestEmbeddedPhotoPickerSession(
     private val displayId: Int,
     private val width: Int,
     private val height: Int,
-    featureInfo: EmbeddedPhotoPickerFeatureInfo,
+    public val featureInfo: EmbeddedPhotoPickerFeatureInfo,
     private val clientCallback: EmbeddedPhotoPickerClient,
 ) : EmbeddedPhotoPickerSession {
 

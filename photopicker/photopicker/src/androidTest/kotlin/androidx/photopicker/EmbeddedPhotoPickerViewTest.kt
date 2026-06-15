@@ -318,6 +318,45 @@ class EmbeddedPhotoPickerViewTest {
         assertThat(selectionComplete.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
 
+    @Test
+    @ExperimentalPhotoPickerApi
+    fun testEmbeddedPhotoPickerViewFeatureInfoPropagation() {
+        val activity = activityRule.withActivity { this }
+        val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
+
+        val testProvider =
+            TestEmbeddedPhotoPickerProvider(
+                InstrumentationRegistry.getInstrumentation().targetContext
+            )
+
+        val maxSelectionLimit = 10
+        val mimeTypes = listOf("image/png")
+        val accentColor = 0xFFFF0000L
+        val themeNightMode = Configuration.UI_MODE_NIGHT_NO
+        val orderedSelection = false
+        val preSelectedUris = listOf(Uri.parse("content://media/picker/1"))
+
+        val customFeatureInfo =
+            EmbeddedPhotoPickerFeatureInfo.Builder()
+                .setMaxSelectionLimit(maxSelectionLimit)
+                .setMimeTypes(mimeTypes)
+                .setAccentColor(accentColor)
+                .setThemeNightMode(themeNightMode)
+                .setOrderedSelection(orderedSelection)
+                .setPreSelectedUris(preSelectedUris)
+                .build()
+
+        val session = openSession(embeddedView, testProvider, featureInfo = customFeatureInfo)
+        val featureInfo = session.featureInfo
+
+        assertThat(featureInfo.maxSelectionLimit).isEqualTo(maxSelectionLimit)
+        assertThat(featureInfo.mimeTypes).containsExactlyElementsIn(mimeTypes)
+        assertThat(featureInfo.accentColor).isEqualTo(accentColor)
+        assertThat(featureInfo.themeNightMode).isEqualTo(themeNightMode)
+        assertThat(featureInfo.isOrderedSelection).isEqualTo(orderedSelection)
+        assertThat(featureInfo.preSelectedUris).containsExactlyElementsIn(preSelectedUris)
+    }
+
     @OptIn(ExperimentalPhotoPickerApi::class)
     private fun openSession(
         embeddedView: EmbeddedPhotoPickerView,
