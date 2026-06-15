@@ -43,7 +43,7 @@ private constructor(
             columnNames: Array<String>,
             inTransactionSetter: (Boolean) -> Unit,
         ): WebWorkerSQLiteStatement {
-            val sqlString = sql.trim().uppercase()
+            val sqlString = sql.trim()
             val sqlPrefix = getStatementPrefix(sqlString)
             if (sqlPrefix == null) {
                 return WebWorkerSQLiteStatement(
@@ -85,24 +85,23 @@ private constructor(
         }
 
         private fun getTransactionOperation(prefix: String, sql: String): TransactionOperation? =
-            when (prefix) {
-                "END",
-                "COM" -> TransactionOperation.END
-                "ROL" ->
-                    if (sql.contains(" TO ")) {
+            when {
+                "END".equals(prefix, ignoreCase = true) ||
+                    "COM".equals(prefix, ignoreCase = true) -> TransactionOperation.END
+                "ROL".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains(" TO ", ignoreCase = true)) {
                         null
                     } else {
                         TransactionOperation.ROLLBACK
                     }
-                "BEG" -> {
-                    if (sql.contains("EXCLUSIVE")) {
+                "BEG".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains("EXCLUSIVE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_EXCLUSIVE
-                    } else if (sql.contains("IMMEDIATE")) {
+                    } else if (sql.contains("IMMEDIATE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_IMMEDIATE
                     } else {
                         TransactionOperation.BEGIN_DEFERRED
                     }
-                }
                 else -> null
             }
 
