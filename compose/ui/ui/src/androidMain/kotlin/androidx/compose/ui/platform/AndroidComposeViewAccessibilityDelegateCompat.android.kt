@@ -2316,14 +2316,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             for (notification in boundsUpdateChannel) {
                 if (isEnabled) {
                     trace("Compose:semantics:boundUpdates") {
-                        for (i in subtreeChangedLayoutNodes.indices) {
-                            val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
-                            sendSubtreeChangeAccessibilityEvents(
-                                layoutNode,
-                                subtreeChangedSemanticsNodesIds,
-                            )
-                            sendTypeViewScrolledAccessibilityEvent(layoutNode)
-                        }
+                        updateBounds(subtreeChangedSemanticsNodesIds)
                         subtreeChangedSemanticsNodesIds.clear()
                     }
                     // When the bounds of layout nodes change, we will not always get semantics
@@ -2356,6 +2349,19 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         } finally {
             subtreeChangedLayoutNodes.clear()
         }
+    }
+
+    private fun updateBounds(subtreeChangedSemanticsNodesIds: MutableIntSet) {
+        for (i in subtreeChangedLayoutNodes.indices) {
+            val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
+            sendSubtreeChangeAccessibilityEvents(layoutNode, subtreeChangedSemanticsNodesIds)
+            sendTypeViewScrolledAccessibilityEvent(layoutNode)
+        }
+    }
+
+    internal fun processSemanticChangesForTest() {
+        semanticsChangeChecker.run()
+        updateBounds(MutableIntSet())
     }
 
     internal fun onLayoutChange(layoutNode: LayoutNode) {

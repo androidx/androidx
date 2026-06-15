@@ -100,6 +100,18 @@ interface ComposeExecutionControl {
 
     /** A count on launched jobs in the composition. */
     fun getCoroutineLaunchedCount(): Int
+
+    /**
+     * Force accessibility to be enabled or disabled. It is usually disabled for benchmarks to
+     * ensure stability
+     */
+    fun setAccessibilityEnabled(enabled: Boolean)
+
+    /**
+     * Execute semantic node updates. Note that accessibility is disabled by default, so you might
+     * want to use [setAccessibilityEnabled] before calling this method.
+     */
+    fun updateSemantics()
 }
 
 /** Helper interface to run execution-controlled test via [ComposeTestRule]. */
