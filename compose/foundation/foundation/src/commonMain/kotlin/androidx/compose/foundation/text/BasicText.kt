@@ -61,31 +61,27 @@ import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.floor
 
 /**
- * Basic element that displays text and provides semantics / accessibility information. Typically
- * you will instead want to use [androidx.compose.material.Text], which is a higher level Text
- * element that contains semantics and consumes style information from a theme.
+ * Displays text with semantics and accessibility information.
  *
- * @param text The text to be displayed.
- * @param modifier [Modifier] to apply to this layout node.
- * @param style Style configuration for the text such as color, font, line height etc.
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
- *   text, baselines and other details. The callback can be used to add additional decoration or
- *   functionality to the text. For example, to draw selection around the text.
- * @param overflow How visual overflow should be handled.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
- *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
- *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
- * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- *   that 1 <= [minLines] <= [maxLines].
- * @param color Overrides the text color provided in [style]
- * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
- *   fits in the available space and lays the text out with this size. This performs multiple layout
- *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style]. See [TextAutoSize] and the sample code.
+ * For theme integration, use Material [androidx.compose.material3.Text].
+ *
+ * @param text text to display
+ * @param modifier for this layout
+ * @param style configuration
+ * @param onTextLayout callback run when a new text layout is calculated. The [TextLayoutResult]
+ *   parameter contains paragraph information, size, baselines, and other details. Use this callback
+ *   to add decoration or functionality, such as drawing selection
+ * @param overflow handling visual overflow
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow]
+ * @param maxLines maximum number of visible lines. If the text exceeds this value, it is truncated
+ *   according to [overflow] and [softWrap]. Requires 1 <= [minLines] <= [maxLines]
+ * @param minLines minimum number of visible lines. Requires 1 <= [minLines] <= [maxLines]
+ * @param color to override style color
+ * @param autoSize configuration for automatic font size adjustment to fit available space. Warning:
+ *   Auto-sizing runs multiple layout passes and may affect performance. Takes precedence over sizes
+ *   defined in [style]
  * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable
@@ -165,33 +161,29 @@ fun BasicText(
 }
 
 /**
- * Basic element that displays text and provides semantics / accessibility information. Typically
- * you will instead want to use [androidx.compose.material.Text], which is a higher level Text
- * element that contains semantics and consumes style information from a theme.
+ * Displays text with semantics and accessibility information.
  *
- * @param text The text to be displayed.
- * @param modifier [Modifier] to apply to this layout node.
- * @param style Style configuration for the text such as color, font, line height etc.
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
- *   text, baselines and other details. The callback can be used to add additional decoration or
- *   functionality to the text. For example, to draw selection around the text.
- * @param overflow How visual overflow should be handled.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
- *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
- *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
- * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- *   that 1 <= [minLines] <= [maxLines].
- * @param inlineContent A map store composables that replaces certain ranges of the text. It's used
- *   to insert composables into text layout. Check [InlineTextContent] for more information.
- * @param color Overrides the text color provided in [style]
- * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
- *   fits in the available space and lays the text out with this size. This performs multiple layout
- *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style]. See [TextAutoSize] and the sample code.
+ * For theme integration, use Material [androidx.compose.material3.Text].
+ *
+ * @param text text to display
+ * @param modifier for this layout
+ * @param style configuration
+ * @param onTextLayout callback run when a new text layout is calculated. The [TextLayoutResult]
+ *   parameter contains paragraph information, size, baselines, and other details. Use this callback
+ *   to add decoration or functionality, such as drawing selection
+ * @param overflow handling visual overflow
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow]
+ * @param maxLines maximum number of visible lines. If the text exceeds this value, it is truncated
+ *   according to [overflow] and [softWrap]. Requires 1 <= [minLines] <= [maxLines]
+ * @param minLines minimum number of visible lines. Requires 1 <= [minLines] <= [maxLines]
+ * @param inlineContent map storing [InlineTextContent] composables that replace specified ranges of
+ *   text, embedding them in the layout
+ * @param color to override style color
+ * @param autoSize configuration for automatic font size adjustment to fit available space. Warning:
+ *   Auto-sizing runs multiple layout passes and may affect performance. Takes precedence over sizes
+ *   defined in [style]
  * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable

@@ -43,10 +43,11 @@ import androidx.compose.ui.unit.TextUnit
 import kotlin.jvm.JvmName
 
 /**
- * Styling configuration for a `Text`.
+ * Styling configuration for text.
  *
  * @sample androidx.compose.ui.text.samples.TextStyleSample
- * @param platformStyle Platform specific [TextStyle] parameters.
+ * @sample androidx.compose.ui.text.samples.TextStyleBrushSample
+ * @param platformStyle platform specific [TextStyle] parameters
  * @see AnnotatedString
  * @see SpanStyle
  * @see ParagraphStyle
@@ -350,43 +351,38 @@ internal constructor(
     )
 
     /**
-     * Styling configuration for a `Text`.
+     * Styling configuration for text.
      *
      * @sample androidx.compose.ui.text.samples.TextStyleSample
-     * @param color The text color.
-     * @param fontSize The size of glyphs to use when painting the text. This may be
-     *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
-     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
-     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
-     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     *   or style cannot be found in the provided font family.
-     * @param fontFamily The font family to be used when rendering the text.
-     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     *   the same as the CSS font-feature-settings attribute:
-     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param letterSpacing The amount of space to add between each letter.
-     * @param baselineShift The amount by which the text is shifted up from the current baseline.
-     * @param textGeometricTransform The geometric transformation applied the text.
-     * @param localeList The locale list used to select region-specific glyphs.
-     * @param background The background color for the text.
-     * @param textDecoration The decorations to paint on the text (e.g., an underline).
-     * @param shadow The shadow effect applied on the text.
-     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     *   around the edges.
-     * @param textAlign The alignment of the text within the lines of the paragraph.
-     * @param textDirection The algorithm to be used to resolve the final text and paragraph
-     *   direction: Left To Right or Right To Left. If no value is provided the system will use the
-     *   [LayoutDirection] as the primary signal.
-     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
-     * @param textIndent The indentation of the paragraph.
-     * @param platformStyle Platform specific [TextStyle] parameters.
-     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     *   line, whether to apply additional space as a result of line height to top of first line top
-     *   and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
-     *   When null, [LineHeightStyle.Default] is used.
-     * @param lineBreak The line breaking configuration for the text.
-     * @param hyphens The configuration of hyphenation.
-     * @param textMotion Text character placement, whether to optimize for animated or static text.
+     * @param color color to apply to the text
+     * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
+     *   style.
+     * @param fontWeight typeface thickness (e.g., bold)
+     * @param fontStyle typeface variant (e.g., italic)
+     * @param fontSynthesis font synthesis rules to fallback to bold/italic if the requested style
+     *   is missing in [fontFamily]
+     * @param fontFamily font family for rendering
+     * @param fontFeatureSettings advanced font features in CSS format (e.g., "smcp" for small caps)
+     * @param letterSpacing amount of space (in SP or EM) to add between letters. If
+     *   [TextUnit.Unspecified], inherits from parent.
+     * @param baselineShift vertical shift amount from the baseline (e.g., for superscript or
+     *   subscript)
+     * @param textGeometricTransform geometric transformation to apply
+     * @param localeList locale list for region-specific glyphs
+     * @param background color of background rectangle covering entire line height from start to end
+     * @param textDecoration decorations (e.g., underline)
+     * @param shadow shadow effect
+     * @param drawStyle drawing style (fill or stroke)
+     * @param textAlign alignment of the text within the lines of the paragraph.
+     * @param textDirection [TextDirection] direction resolution algorithm, defaults to
+     *   [LayoutDirection] signal
+     * @param lineHeight line height
+     * @param textIndent paragraph indentation
+     * @param platformStyle platform-specific parameters
+     * @param lineHeightStyle line height distribution configuration
+     * @param lineBreak line breaking rules
+     * @param hyphens hyphenation configuration.
+     * @param textMotion [TextMotion] character placement optimization
      */
     constructor(
         color: Color = Color.Unspecified,
@@ -447,46 +443,39 @@ internal constructor(
     )
 
     /**
-     * Styling configuration for a `Text`.
+     * Styling configuration for text.
      *
      * @sample androidx.compose.ui.text.samples.TextStyleBrushSample
-     * @param brush The brush to use when painting the text. If brush is given as null, it will be
-     *   treated as unspecified. It is equivalent to calling the alternative color constructor with
-     *   [Color.Unspecified]
-     * @param alpha Opacity to be applied to [brush] from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively.
-     * @param fontSize The size of glyphs to use when painting the text. This may be
-     *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
-     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
-     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
-     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     *   or style cannot be found in the provided font family.
-     * @param fontFamily The font family to be used when rendering the text.
-     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     *   the same as the CSS font-feature-settings attribute:
-     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param letterSpacing The amount of space to add between each letter.
-     * @param baselineShift The amount by which the text is shifted up from the current baseline.
-     * @param textGeometricTransform The geometric transformation applied the text.
-     * @param localeList The locale list used to select region-specific glyphs.
-     * @param background The background color for the text.
-     * @param textDecoration The decorations to paint on the text (e.g., an underline).
-     * @param shadow The shadow effect applied on the text.
-     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     *   around the edges.
-     * @param textAlign The alignment of the text within the lines of the paragraph.
-     * @param textDirection The algorithm to be used to resolve the final text and paragraph
-     *   direction: Left To Right or Right To Left. If no value is provided the system will use the
-     *   [LayoutDirection] as the primary signal.
-     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
-     * @param textIndent The indentation of the paragraph.
-     * @param platformStyle Platform specific [TextStyle] parameters.
-     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     *   line, whether to apply additional space as a result of line height to top of first line top
-     *   and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
-     * @param lineBreak The line breaking configuration for the text.
-     * @param hyphens The configuration of hyphenation.
-     * @param textMotion Text character placement, whether to optimize for animated or static text.
+     * @param brush [Brush] for painting text, null for unspecified
+     * @param alpha opacity applied to [brush] (0.0 to 1.0)
+     * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
+     *   style.
+     * @param fontWeight typeface thickness (e.g., bold)
+     * @param fontStyle typeface variant (e.g., italic)
+     * @param fontSynthesis font synthesis rules to fallback to bold/italic if the requested style
+     *   is missing in [fontFamily]
+     * @param fontFamily font family for rendering
+     * @param fontFeatureSettings advanced font features in CSS format (e.g., "smcp" for small caps)
+     * @param letterSpacing amount of space (in SP or EM) to add between letters. If
+     *   [TextUnit.Unspecified], inherits from parent.
+     * @param baselineShift vertical shift amount from the baseline (e.g., for superscript or
+     *   subscript)
+     * @param textGeometricTransform geometric transformation to apply
+     * @param localeList locale list for region-specific glyphs
+     * @param background color of background rectangle covering entire line height from start to end
+     * @param textDecoration decorations (e.g., underline)
+     * @param shadow shadow effect
+     * @param drawStyle drawing style (fill or stroke)
+     * @param textAlign alignment of the text within the lines of the paragraph.
+     * @param textDirection [TextDirection] direction resolution algorithm, defaults to
+     *   [LayoutDirection] signal
+     * @param lineHeight line height
+     * @param textIndent paragraph indentation
+     * @param platformStyle platform-specific parameters
+     * @param lineHeightStyle line height distribution configuration
+     * @param lineBreak line breaking rules
+     * @param hyphens hyphenation configuration.
+     * @param textMotion [TextMotion] character placement optimization
      */
     constructor(
         brush: Brush?,
@@ -620,13 +609,12 @@ internal constructor(
     @Stable fun toParagraphStyle(): ParagraphStyle = paragraphStyle
 
     /**
-     * Returns a new text style that is a combination of this style and the given [other] style.
+     * Merges this style with [other].
      *
-     * [other] text style's null or inherit properties are replaced with the non-null properties of
-     * this text style. Another way to think of it is that the "missing" properties of the [other]
-     * style are _filled_ by the properties of this style.
+     * Properties of [other] take precedence when they are not unspecified (e.g.
+     * [Color.Unspecified]). Returns this if [other] is null or [TextStyle.Default].
      *
-     * If the given text style is null, returns this text style.
+     * @param other style to merge
      */
     @Stable
     fun merge(other: TextStyle? = null): TextStyle {
@@ -638,37 +626,19 @@ internal constructor(
     }
 
     /**
-     * Fast merge non-default values and parameters.
+     * Merges this style with individual styling parameters.
      *
-     * This is the same algorithm as [merge] but does not require allocating it's parameter and may
-     * return this instead of allocating a result when all values are default.
+     * Similar to [merge] but avoids allocation if parameters are default.
      *
-     * This is a similar algorithm to [copy] but when either this or a parameter are set to a
-     * default value, the other value will take precedent.
+     * Always use this method over the [merge] (taking [TextStyle]) overload when you do not already
+     * have a [TextStyle] allocated. Prefer this over [copy] when building a theming system and
+     * applying styling information to a specific usage.
      *
-     * To explain better, consider the following examples:
+     * Example:
+     * - `this.color` = [Color.Unspecified], param `color` = [Color.Red] -> result [Color.Red]
+     * - `this.color` = [Color.Red], param `color` = [Color.Unspecified] -> result [Color.Red]
+     * - `this.color` = [Color.Red], param `color` = [Color.Blue] -> result [Color.Blue]
      *
-     * Example 1:
-     * - this.color = [Color.Unspecified]
-     * - [color] = [Color.Red]
-     * - result => [Color.Red]
-     *
-     * Example 2:
-     * - this.color = [Color.Red]
-     * - [color] = [Color.Unspecified]
-     * - result => [Color.Red]
-     *
-     * Example 3:
-     * - this.color = [Color.Red]
-     * - [color] = [Color.Blue]
-     * - result => [Color.Blue]
-     *
-     * You should _always_ use this method over the [merge]([TextStyle]) overload when you do not
-     * already have a TextStyle allocated. You should chose this over [copy] when building a theming
-     * system and applying styling information to a specific usage.
-     *
-     * @return this or a new TextLayoutResult with all parameters chosen to the non-default option
-     *   provided.
      * @see merge
      */
     @Stable

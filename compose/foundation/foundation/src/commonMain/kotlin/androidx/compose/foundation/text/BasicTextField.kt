@@ -107,79 +107,49 @@ private object BasicTextFieldDefaults {
 }
 
 /**
- * Basic text composable that provides an interactive box that accepts text input through software
- * or hardware keyboard, but provides no decorations like hint or placeholder.
+ * Interactive text input field without decorations.
  *
- * All the editing state of this composable is hoisted through [state]. Whenever the contents of
- * this composable change via user input or semantics, [TextFieldState.text] gets updated.
- * Similarly, all the programmatic updates made to [state] also reflect on this composable.
+ * Hoists editing state through [state].
  *
- * If you want to add decorations to your text field, such as icon or similar, and increase the hit
- * target area, use the decorator.
+ * To add decorations (such as borders, placeholders, hints, prefixes, or suffixes) and increase the
+ * hit target area, use [decorator].
  *
- * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
- * convert every character to uppercase) the input received from the user, use an
+ * To filter or modify input (e.g., limit characters or restrict input patterns), use
  * [InputTransformation].
  *
- * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
- * direction can be achieved by using [TextFieldLineLimits].
+ * To transform the visual output (e.g., apply password mask or format phone numbers), use
+ * [OutputTransformation].
  *
- * Scroll state of the composable is also hoisted to enable observation and manipulation of the
- * scroll behavior by the developer, e.g. bringing a searched keyword into view by scrolling to its
- * position without focusing, or changing selection.
+ * To limit height, use [lineLimits].
  *
- * It's also possible to internally wrap around an existing TextFieldState and expose a more
- * lightweight state hoisting mechanism through a value that dictates the content of the TextField
- * and an onValueChange callback that communicates the changes to this value.
+ * Hoists scroll state via [scrollState] to observe and manipulate scroll position, such as
+ * scrolling a searched keyword into view without focusing.
  *
- * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField].
- * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text field
- *   will be neither editable nor focusable, the input of the text field will not be selectable.
- * @param readOnly controls the editable state of the [BasicTextField]. When `true`, the text field
- *   can not be modified, however, a user can focus it and copy text from it. Read-only text fields
- *   are usually used to display pre-filled forms that user can not edit.
- * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
- *   to the [TextFieldState] made by the user. The transformation will be applied to changes made by
- *   hardware and software keyboard events, pasting or dropping text, accessibility services, and
- *   tests. The transformation will _not_ be applied when changing the [state] programmatically, or
- *   when the transformation is changed. If the transformation is changed on an existing text field,
- *   it will be applied to the next user edit. the transformation will not immediately affect the
- *   current [state].
- * @param textStyle Typographic and graphic style configuration for text content that's displayed in
- *   the editor.
- * @param keyboardOptions Software keyboard options that contain configurations such as
- *   [KeyboardType] and [ImeAction].
- * @param onKeyboardAction Called when the user presses the action button in the input method editor
- *   (IME), or by pressing the enter key on a hardware keyboard if the [lineLimits] is configured as
- *   [TextFieldLineLimits.SingleLine]. By default this parameter is null, and would execute the
- *   default behavior for a received IME Action e.g., [ImeAction.Done] would close the keyboard,
- *   [ImeAction.Next] would switch the focus to the next focusable item on the screen.
- * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and ignore
- *   newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all newline
- *   characters ('\n') within the text will be replaced with regular whitespace (' '), ensuring that
- *   the contents of the text field are presented in a single line.
- * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
- *   callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
- *   or null if it cannot. The function reads the layout result from a snapshot state object, and
- *   will invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
- *   paragraph information, size of the text, baselines and other details. The callback can be used
- *   to add additional decoration or functionality to the text. For example, to draw a cursor or
- *   selection around the text. [Density] scope is the one that was used while creating the given
- *   text layout.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- *   for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
- *   if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
- *   for different [Interaction]s.
- * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- *   provided, then no cursor will be drawn.
- * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
- *   text field are presented.
- * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
- *   messages or similar, and automatically increase the hit target area of the text field.
- * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
- *   If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
- *   scroll behavior. In other cases the text field becomes vertically scrollable.
+ * @param state holding the editing state
+ * @param modifier for this layout
+ * @param enabled controls enabled state. If false, field is not editable, focusable, or selectable
+ * @param readOnly controls editable state. If true, field cannot be modified but can be focused and
+ *   copied
+ * @param inputTransformation to transform user changes. Only applies to user-initiated changes
+ *   (e.g., keyboard input, paste, accessibility), not programmatic updates to [state]. Changing the
+ *   transformation applies to the next user edit
+ * @param textStyle configuration for text content
+ * @param keyboardOptions software keyboard options
+ * @param onKeyboardAction run when user triggers IME action
+ * @param lineLimits limits for line count and scroll behavior. If set to [SingleLine], the text
+ *   field scrolls horizontally and newlines ('\n') are replaced with spaces
+ * @param onTextLayout callback run when a new text layout is calculated. The [TextLayoutResult]
+ *   parameter contains paragraph information, size, baselines, and other details. Use this callback
+ *   to add decoration or functionality, such as drawing selection
+ * @param interactionSource to observe interactions
+ * @param cursorBrush to paint the cursor
+ * @param outputTransformation to transform output representation
+ * @param decorator to add decorations (such as borders, placeholders, hints, or prefixes/suffixes)
+ *   around the text field, and increase the hit target area. The decorator receives an
+ *   `innerTextField` composable lambda representing the actual text input area, which must be
+ *   called exactly once
+ * @param scrollState to manage scroll. If [lineLimits] is [SingleLine], the text field scrolls
+ *   horizontally. Otherwise, it scrolls vertically
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
