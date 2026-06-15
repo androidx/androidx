@@ -143,6 +143,7 @@ public class WebViewFeature {
             NAVIGATION_LISTENER,
             WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
             DOWNLOAD_FAVICONS_ENABLED,
+            HTTP_CACHE_MANAGER,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -971,6 +972,19 @@ public class WebViewFeature {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOWNLOAD_FAVICONS_ENABLED = "DOWNLOAD_FAVICONS_ENABLED";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#getHttpCache()}
+     * {@link HttpCache#getDefaultQuotaBytes()}
+     * {@link HttpCache#isUsingDefaultQuota()}
+     * {@link HttpCache#useDefaultQuota()}
+     * {@link HttpCache#getQuotaBytes()}
+     * {@link HttpCache#setQuotaBytes(long)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String HTTP_CACHE_MANAGER = "HTTP_CACHE_MANAGER";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

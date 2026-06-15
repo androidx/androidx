@@ -742,4 +742,23 @@ public interface Profile {
         // that's better than silently no-oping.
         throw new UnsupportedOperationException("Profile#addQuicHints is not implemented.");
     }
+
+    /**
+     * Returns the {@link HttpCache} associated with this {@link Profile}.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#HTTP_CACHE_MANAGER}.
+     *
+     * @return {@link HttpCache} instance associated with this profile.
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#HTTP_CACHE_MANAGER}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.HTTP_CACHE_MANAGER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    default @NonNull HttpCache getHttpCache() {
+        throw new UnsupportedOperationException("Profile#getHttpCache is not implemented.");
+    }
 }

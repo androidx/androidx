@@ -151,4 +151,14 @@
     <string name="custom_header_load_button_label">Load and show headers</string>
     <string name="custom_header_missing_input_warning">Please enter both header name and value</string>
 
+    <!-- HTTP Cache Quota -->
+    <string name="http_cache_quota_activity_title">HTTP Cache Quota Demo</string>
+    <string name="http_cache_quota_size">Quota size in bytes</string>
+    <string name="http_cache_quota_get_default">Get Default</string>
+    <string name="http_cache_quota_set_quota">Set Quota</string>
+    <string name="http_cache_quota_get_quota">Get Quota</string>
+    <string name="http_cache_quota_use_default">Use Default</string>
+    <string name="http_cache_quota_is_using_default">Is Default?</string>
+    <string name="http_cache_quota_missing_input_warning">Please enter a quota size</string>
+
 </resources>
