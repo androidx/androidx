@@ -939,6 +939,11 @@ private val annotationsToHideApis: List<String> =
         "androidx.annotation.RestrictTo",
         // Appears in androidx.test sources
         "dagger.internal.DaggerGenerated",
+        // Use for Ink internal APIs, which can be exposed via KMP so
+        // RestrictTo is not sufficient. Instead, those use a
+        // RequiresOptIn annotation that itself is restricted via
+        // RestrictTo.
+        "androidx.ink.nativeloader.InkInternalOnlyApi",
     )
 
 /** Data class that matches JSON structure of kotlin source set metadata */

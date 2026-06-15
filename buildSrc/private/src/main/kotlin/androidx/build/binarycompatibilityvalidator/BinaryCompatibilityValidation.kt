@@ -391,6 +391,7 @@ private val nonPublicMarkers =
         "androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi",
         "androidx.ink.authoring.ExperimentalLatencyDataApi",
         "androidx.ink.brush.ExperimentalInkCustomBrushApi",
+        "androidx.ink.nativeloader.InkInternalOnlyApi",
         "androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi",
         "androidx.paging.ExperimentalPagingApi",
         "androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.RegisterSourceOptIn",
