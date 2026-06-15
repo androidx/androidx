@@ -19,7 +19,9 @@ package androidx.compose.ui.tooling.animation.search
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.material3.Button
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -33,7 +35,6 @@ import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,22 +86,25 @@ class AnimateXAsStateSearchInfoTest {
 
         search.animations.first().let { searchInfo ->
             // Default attached values
-            assertNotNull(searchInfo.toolingOverride.override.value)
-            assertEquals(1, searchInfo.toolingOverride.state.value)
-            assertEquals(1, searchInfo.toolingOverride.override.value?.value)
+            assertEquals(1, searchInfo.toolingOverride.value)
             assertEquals(1, animatedValue.value)
 
-            // Detach
-            searchInfo.detach()
-            assertNull(searchInfo.toolingOverride.override.value)
-
-            // Attach and change value
-            searchInfo.attach()
-            (searchInfo.toolingOverride.state as ToolingState<Int>).value = 10
+            // Change the value
+            (searchInfo.toolingOverride as ToolingState<Int>).value = 10
+            assertEquals(10, searchInfo.toolingOverride.value)
             rule.waitForIdle()
-            assertNotNull(searchInfo.toolingOverride.override.value)
-            assertEquals(10, searchInfo.toolingOverride.state.value)
-            assertEquals(10, searchInfo.toolingOverride.override.value?.value)
+            assertEquals(10, animatedValue.value)
+
+            // Detach, value is reset to the original animatable
+            searchInfo.detach()
+            rule.waitForIdle()
+            assertEquals(1, animatedValue.value)
+
+            // Attach and change value again
+            searchInfo.attach()
+            searchInfo.toolingOverride.value = 10
+            rule.waitForIdle()
+            assertEquals(10, searchInfo.toolingOverride.value)
             assertEquals(10, animatedValue.value)
         }
     }
@@ -139,5 +143,29 @@ class AnimateXAsStateSearchInfoTest {
         rule.waitForIdle()
         searchInfo.setTargetStateToCurrentAnimationValue()
         assertEquals(null, searchInfo.targetState)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun overrideStateReadInADifferentScope() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        var animatedValue = 0
+        rule.addAnimations(search) {
+            val x by animateIntAsState(10)
+            Button(onClick = {}) {
+                // Changes in `animateIntAsState` only affect this part.
+                animatedValue = x
+            }
+        }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(10, searchInfo.initialState)
+
+        // Change target state.
+        (searchInfo.toolingOverride as ToolingState<Int>).value = 20
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+
+        assertEquals(20, animatedValue)
     }
 }

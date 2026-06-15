@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.animation:animation-core>
+open annotation class androidx.compose.animation.core.tooling/AnimationToolingApi : kotlin/Annotation { // androidx.compose.animation.core.tooling/AnimationToolingApi|null[0]
+    constructor <init>() // androidx.compose.animation.core.tooling/AnimationToolingApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.animation.core/ExperimentalAnimationSpecApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalAnimationSpecApi|null[0]
     constructor <init>() // androidx.compose.animation.core/ExperimentalAnimationSpecApi.<init>|<init>(){}[0]
 }
@@ -80,6 +84,15 @@ abstract interface <#A: androidx.compose.animation.core/AnimationVector> android
 abstract interface <#A: androidx.compose.animation.core/AnimationVector> androidx.compose.animation.core/VectorizedFiniteAnimationSpec : androidx.compose.animation.core/VectorizedAnimationSpec<#A> { // androidx.compose.animation.core/VectorizedFiniteAnimationSpec|null[0]
     open val isInfinite // androidx.compose.animation.core/VectorizedFiniteAnimationSpec.isInfinite|{}isInfinite[0]
         open fun <get-isInfinite>(): kotlin/Boolean // androidx.compose.animation.core/VectorizedFiniteAnimationSpec.isInfinite.<get-isInfinite>|<get-isInfinite>(){}[0]
+}
+
+abstract interface <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVector> androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle { // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle|null[0]
+    abstract val animatable // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle.animatable|{}animatable[0]
+        abstract fun <get-animatable>(): androidx.compose.animation.core/Animatable<#A, #B> // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle.animatable.<get-animatable>|<get-animatable>(){}[0]
+    abstract val animationSpec // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle.animationSpec|{}animationSpec[0]
+        abstract fun <get-animationSpec>(): androidx.compose.animation.core/AnimationSpec<#A> // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle.animationSpec.<get-animationSpec>|<get-animationSpec>(){}[0]
+
+    abstract fun setToolingOverrideState(androidx.compose.runtime/State<#A>?) // androidx.compose.animation.core.tooling/AnimateValueAsStateToolingHandle.setToolingOverrideState|setToolingOverrideState(androidx.compose.runtime.State<1:0>?){}[0]
 }
 
 abstract interface <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVector> androidx.compose.animation.core/Animation { // androidx.compose.animation.core/Animation|null[0]
