@@ -23,7 +23,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 internal object AppFunctionMetadataUtils {
 
     /**
@@ -34,6 +33,7 @@ internal object AppFunctionMetadataUtils {
      * no inventory is present it queries AppSearch to find the metadata using
      * [AppSearchAppFunctionReader].
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     suspend fun getAppFunctionMetadata(
         context: Context,
         inventory: AppFunctionInventory?,

@@ -16,7 +16,7 @@
 
 package androidx.appfunctions
 
-import android.app.appfunctions.AppFunctionManager
+import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
 import android.content.Context
 import android.os.Build
 import android.os.UserManager
@@ -30,6 +30,7 @@ import androidx.appfunctions.internal.Dependencies
 import androidx.appfunctions.internal.ExtensionAppFunctionManagerApi
 import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.PlatformAppFunctionManagerApi
+import androidx.appfunctions.internal.PlatformAppFunctionReader
 import androidx.appfunctions.internal.Translator
 import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -212,14 +213,26 @@ public constructor(
      *
      * The calling app can search for:
      * - Functions in its own package (no permission required).
-     * - When holding the [android.Manifest.permission.EXECUTE_APP_FUNCTIONS] permission - functions
-     *   in other packages that the calling app is allowed to query via
-     *   [android.content.pm.PackageManager.canPackageQuery].
+     * - Functions in other packages that it is allowed to query via
+     *   [android.content.pm.PackageManager.canPackageQuery] when holding the
+     *   [android.Manifest.permission.EXECUTE_APP_FUNCTIONS] permission.
+     * - Functions in other packages that it is allowed to query via
+     *   [android.content.pm.PackageManager.canPackageQuery] when holding either the
+     *   `android.Manifest.permission.EXECUTE_APP_FUNCTIONS_SYSTEM` or
+     *   `android.Manifest.permission.DISCOVER_APP_FUNCTIONS` permission on
+     *   [Build.VERSION_CODES.CINNAMON_BUN] and above.
      *
      * @param searchSpec The spec of app functions to search for.
-     * @return The list of search results.
      */
-    @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
+    @RequiresPermission(
+        anyOf =
+            [
+                "android.permission.EXECUTE_APP_FUNCTIONS",
+                "android.permission.DISCOVER_APP_FUNCTIONS",
+                "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM",
+            ],
+        conditional = true,
+    )
     public suspend fun searchAppFunctions(
         searchSpec: AppFunctionSearchSpec
     ): List<AppFunctionMetadata> {
@@ -240,19 +253,19 @@ public constructor(
          * enabled state to the default value.
          */
         public const val APP_FUNCTION_STATE_DEFAULT: Int =
-            AppFunctionManager.APP_FUNCTION_STATE_DEFAULT
+            PlatformAppFunctionManager.APP_FUNCTION_STATE_DEFAULT
         /**
          * The app function is enabled. To enable an app function, call [setAppFunctionEnabled] with
          * this value.
          */
         public const val APP_FUNCTION_STATE_ENABLED: Int =
-            AppFunctionManager.APP_FUNCTION_STATE_ENABLED
+            PlatformAppFunctionManager.APP_FUNCTION_STATE_ENABLED
         /**
          * The app function is disabled. To disable an app function, call [setAppFunctionEnabled]
          * with this value.
          */
         public const val APP_FUNCTION_STATE_DISABLED: Int =
-            AppFunctionManager.APP_FUNCTION_STATE_DISABLED
+            PlatformAppFunctionManager.APP_FUNCTION_STATE_DISABLED
 
         /** The version shared across all schema defined in the legacy SDK. */
         private const val LEGACY_SDK_GLOBAL_SCHEMA_VERSION = 1L
@@ -296,6 +309,14 @@ public constructor(
             }
 
             return when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN -> {
+                    AppFunctionManager(
+                        context,
+                        PlatformAppFunctionReader(context, Dependencies.schemaAppFunctionInventory),
+                        PlatformAppFunctionManagerApi(context),
+                        Dependencies.translatorSelector,
+                    )
+                }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA -> {
                     AppFunctionManager(
                         context,

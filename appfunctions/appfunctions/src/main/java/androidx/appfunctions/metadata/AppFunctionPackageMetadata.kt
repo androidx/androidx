@@ -25,8 +25,12 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.GenericDocumentUtils.fromPlatformToJetpackGenericDocument
+import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
+import androidx.appfunctions.internal.SchemaAppFunctionInventory
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_APPFUNCTIONS_LIBRARY_ATTRIBUTE_NAMESPACE
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_ATTRIBUTE_NAMESPACE
+import androidx.appsearch.app.GenericDocument
 import org.xmlpull.v1.XmlPullParser
 
 /** Represents metadata about a package providing app functions. */
@@ -207,7 +211,7 @@ constructor(
         } else displayDescriptionResIdWithGenericNamespace
     }
 
-    private companion object {
+    internal companion object {
         private const val APP_METADATA_XML_PROPERTY = "android.app.appfunctions.app_metadata"
 
         /**
@@ -225,5 +229,77 @@ constructor(
             "http://schemas.android.com/apk/androidx.appfunctions"
         private const val DISPLAY_DESCRIPTION_ATTRIBUTE_NAME = "displayDescription"
         private const val DESCRIPTION_ATTRIBUTE_NAME = "description"
+
+        private const val PROPERTY_TOP_LEVEL_DOCUMENTS =
+            android.app.appfunctions.AppFunctionPackageMetadata.PROPERTY_TOP_LEVEL_DOCUMENTS
+
+        /**
+         * Converts [android.app.appfunctions.AppFunctionPackageMetadata] to
+         * [androidx.appfunctions.metadata.AppFunctionPackageMetadata].
+         */
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionPackageMetadata(
+            platformPackageMetadata: android.app.appfunctions.AppFunctionPackageMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            isFromDynamicIndexer: Boolean,
+        ): AppFunctionPackageMetadata {
+            val componentsMetadata: AppFunctionComponentsMetadata? =
+                getAppFunctionComponentsMetadata(
+                    isFromDynamicIndexer,
+                    schemaMetadata,
+                    fromPlatformToJetpackGenericDocument(platformPackageMetadata.metadataDocument),
+                    schemaAppFunctionInventory,
+                )
+
+            return AppFunctionPackageMetadata(
+                packageName = platformPackageMetadata.packageName,
+                components = componentsMetadata ?: AppFunctionComponentsMetadata(),
+            )
+        }
+
+        private fun getAppFunctionComponentsMetadata(
+            isFromDynamicIndexer: Boolean,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            packageMetadataDocument: GenericDocument,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionComponentsMetadata? {
+            if (isFromDynamicIndexer) {
+                return extractComponentMetadataFromPackageMetadataDocument(packageMetadataDocument)
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.componentsMetadata
+            }
+        }
+
+        private fun extractComponentMetadataFromPackageMetadataDocument(
+            packageMetadataDocument: GenericDocument
+        ): AppFunctionComponentsMetadata? {
+            val packageLevelDocuments =
+                packageMetadataDocument.getPropertyDocumentArray(PROPERTY_TOP_LEVEL_DOCUMENTS)
+                    ?: return AppFunctionComponentsMetadata()
+
+            val aggregatedDataTypes = buildMap {
+                for (document in packageLevelDocuments) {
+                    if (
+                        document.schemaType.startsWith(
+                            AppFunctionComponentsMetadataDocument.SCHEMA_TYPE
+                        )
+                    ) {
+                        val metadata =
+                            safeCastToDocumentClass<AppFunctionComponentsMetadataDocument>(document)
+                                ?.toAppFunctionComponentsMetadata()
+                        if (metadata != null) {
+                            putAll(metadata.dataTypes)
+                        }
+                    }
+                }
+            }
+
+            return AppFunctionComponentsMetadata(aggregatedDataTypes)
+        }
     }
 }

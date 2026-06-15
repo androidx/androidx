@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.appfunctions.metadata
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.GenericDocumentUtils
+import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
+import androidx.appfunctions.internal.SchemaAppFunctionInventory
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -271,6 +277,154 @@ constructor(
         @Suppress("InlinedApi")
         public const val SCOPE_ACTIVITY: String =
             android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_ACTIVITY
+
+        /**
+         * Converts [android.app.appfunctions.AppFunctionMetadata] to
+         * [androidx.appfunctions.metadata.AppFunctionMetadata].
+         */
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionMetadata(
+            platformMetadata: android.app.appfunctions.AppFunctionMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionMetadata? {
+            val document =
+                GenericDocumentUtils.fromPlatformToJetpackGenericDocument(
+                    platformMetadata.metadataDocument
+                )
+            val staticMetadataDocument =
+                safeCastToDocumentClass<AppFunctionMetadataDocument>(document) ?: return null
+
+            val schemaMetadata =
+                platformMetadata.schemaMetadata?.let { platformSchema ->
+                    AppFunctionSchemaMetadata(
+                        category = platformSchema.category,
+                        name = platformSchema.name,
+                        version = platformSchema.version,
+                    )
+                }
+
+            val packageMetadata =
+                AppFunctionPackageMetadata.fromPlatformAppFunctionPackageMetadata(
+                    platformPackageMetadata = platformMetadata.packageMetadata,
+                    schemaAppFunctionInventory = schemaAppFunctionInventory,
+                    schemaMetadata = schemaMetadata,
+                    isFromDynamicIndexer =
+                        isAppFunctionMetadataDocumentFromDynamicIndexer(staticMetadataDocument),
+                )
+
+            return create(
+                appFunctionName =
+                    AppFunctionName.fromPlatformAppFunctionName(platformMetadata.name),
+                staticMetadataDocument = staticMetadataDocument,
+                isEnabled = staticMetadataDocument.isEnabledByDefault,
+                packageMetadata = packageMetadata,
+                schemaAppFunctionInventory = schemaAppFunctionInventory,
+            )
+        }
+
+        /** Creates an [AppFunctionMetadata] from static metadata details. */
+        internal fun create(
+            appFunctionName: AppFunctionName,
+            staticMetadataDocument: AppFunctionMetadataDocument,
+            isEnabled: Boolean,
+            packageMetadata: AppFunctionPackageMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionMetadata? {
+            val schemaName = staticMetadataDocument.schemaName
+            val schemaCategory = staticMetadataDocument.schemaCategory
+            val schemaVersion = staticMetadataDocument.schemaVersion ?: 0L
+            val schemaMetadata =
+                if (schemaName != null && schemaCategory != null && schemaVersion > 0) {
+                    AppFunctionSchemaMetadata(
+                        category = schemaCategory,
+                        name = schemaName,
+                        version = schemaVersion,
+                    )
+                } else {
+                    if (schemaName != null || schemaCategory != null || schemaVersion != 0L) {
+                        Log.e(
+                            APP_FUNCTIONS_TAG,
+                            "Unexpected state: schemaName=$schemaName, " +
+                                "schemaCategory=$schemaCategory, " +
+                                "schemaVersion=$schemaVersion",
+                        )
+                    }
+                    null
+                }
+
+            val parameterMetadata =
+                getAppFunctionParameterMetadata(
+                    staticMetadataDocument,
+                    schemaMetadata,
+                    schemaAppFunctionInventory,
+                ) ?: return null
+            val responseMetadata =
+                getAppFunctionResponseMetadata(
+                    staticMetadataDocument,
+                    schemaMetadata,
+                    schemaAppFunctionInventory,
+                ) ?: return null
+
+            val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
+
+            return AppFunctionMetadata(
+                name = appFunctionName,
+                schema = schemaMetadata,
+                parameters = parameterMetadata,
+                response = responseMetadata,
+                packageMetadata = packageMetadata,
+                isEnabled = isEnabled,
+                description = staticMetadataDocument.description ?: "",
+                deprecation = deprecationMetadata,
+            )
+        }
+
+        private fun getAppFunctionParameterMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): List<AppFunctionParameterMetadata>? {
+            if (isAppFunctionMetadataDocumentFromDynamicIndexer(appFunctionMetadataDocument)) {
+                return appFunctionMetadataDocument.parameters?.map(
+                    AppFunctionParameterMetadataDocument::toAppFunctionParameterMetadata
+                ) ?: emptyList()
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.schemaFunctionsMap?.get(schemaMetadata)?.parameters
+            }
+        }
+
+        private fun getAppFunctionResponseMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionResponseMetadata? {
+            if (isAppFunctionMetadataDocumentFromDynamicIndexer(appFunctionMetadataDocument)) {
+                return checkNotNull(appFunctionMetadataDocument.response)
+                    .toAppFunctionResponseMetadata()
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.schemaFunctionsMap?.get(schemaMetadata)?.response
+            }
+        }
+
+        private fun getAppFunctionDeprecationMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument
+        ): AppFunctionDeprecationMetadata? {
+            return appFunctionMetadataDocument.deprecation?.toAppFunctionDeprecationMetadata()
+        }
+
+        internal fun isAppFunctionMetadataDocumentFromDynamicIndexer(
+            document: AppFunctionMetadataDocument
+        ): Boolean {
+            return document.response != null
+        }
     }
 }
 

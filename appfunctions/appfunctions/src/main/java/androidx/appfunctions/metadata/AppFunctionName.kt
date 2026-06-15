@@ -16,6 +16,9 @@
 
 package androidx.appfunctions.metadata
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 /** Globally unique identifier for an app function. */
 public class AppFunctionName
 constructor(
@@ -55,6 +58,16 @@ constructor(
             }
 
             return AppFunctionName(parts[0], parts[1])
+        }
+
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionName(
+            platformAppFunctionName: android.app.appfunctions.AppFunctionName
+        ): AppFunctionName {
+            return AppFunctionName(
+                packageName = platformAppFunctionName.packageName,
+                functionIdentifier = platformAppFunctionName.functionIdentifier,
+            )
         }
     }
 }
