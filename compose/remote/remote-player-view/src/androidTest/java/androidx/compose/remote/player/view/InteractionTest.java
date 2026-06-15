@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 
 import androidx.compose.remote.core.RcProfiles;
 import androidx.compose.remote.creation.RemoteComposeWriter;
+import androidx.compose.remote.creation.actions.ValueFloatChange;
 import androidx.compose.remote.creation.actions.ValueStringChange;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
@@ -136,5 +137,50 @@ public class InteractionTest {
 
         // Status should now be "clicked"
         assertEquals("clicked", context.getStringVariableName("status"));
+    }
+
+    @Test
+    public void testTouchExceptionSwallowed() {
+        int w = 100;
+        int h = 100;
+        RemoteComposeView view = new RemoteComposeView(sAppContext);
+
+        RemoteComposeWriter writer =
+                new RemoteComposeWriter(
+                        w,
+                        h,
+                        "Test",
+                        7,
+                        RcProfiles.PROFILE_ANDROIDX,
+                        new AndroidxRcPlatformServices());
+
+        writer.root(
+                () -> {
+                    writer.box(
+                            new RecordingModifier()
+                                    .size(100)
+                                    .background(Color.RED)
+                                    .onClick(new ValueFloatChange(1000000, 1.0f)));
+                });
+
+        byte[] bytes = writer.encodeToByteArray();
+        RemoteDocument remoteDoc = new RemoteDocument(new ByteArrayInputStream(bytes));
+        view.setDocument(remoteDoc);
+
+        // Force layout
+        view.measure(w, h);
+        view.layout(0, 0, w, h);
+
+        long downTime = SystemClock.uptimeMillis();
+        view.onTouchEvent(
+                MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 50f, 50f, 0));
+        boolean handled =
+                view.onTouchEvent(
+                        MotionEvent.obtain(
+                                downTime, downTime + 10, MotionEvent.ACTION_UP, 50f, 50f, 0));
+
+        // Exception was swallowed, so performClick should not crash the thread,
+        // and returns false/handled accordingly.
+        org.junit.Assert.assertFalse(handled);
     }
 }
