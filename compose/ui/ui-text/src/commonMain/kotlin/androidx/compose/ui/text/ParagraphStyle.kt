@@ -36,27 +36,26 @@ import kotlin.jvm.JvmName
 private val DefaultLineHeight = TextUnit.Unspecified
 
 /**
- * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
- * `ParagraphStyle` is that, `ParagraphStyle` can be applied to a whole [Paragraph] while
- * [SpanStyle] can be applied at the character level. Once a portion of the text is marked with a
- * `ParagraphStyle`, that portion will be separated from the remaining as if a line feed character
- * was added.
+ * Paragraph styling configuration.
+ *
+ * Defines styling parameters that apply to a whole paragraph (e.g., alignment, line height).
+ *
+ * In contrast to [SpanStyle] which applies at character level, [ParagraphStyle] separates the
+ * marked text into a new paragraph, as if a line feed character was inserted.
  *
  * @sample androidx.compose.ui.text.samples.ParagraphStyleSample
  * @sample androidx.compose.ui.text.samples.ParagraphStyleAnnotatedStringsSample
- * @param textAlign The alignment of the text within the lines of the paragraph.
- * @param textDirection The algorithm to be used to resolve the final text direction: Left To Right
- *   or Right To Left.
- * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
- * @param textIndent The indentation of the paragraph.
- * @param platformStyle Platform specific [ParagraphStyle] parameters.
- * @param lineHeightStyle the configuration for line height such as vertical alignment of the line,
- *   whether to apply additional space as a result of line height to top of first line top and
- *   bottom of last line. The configuration is applied only when a [lineHeight] is defined. When
- *   null, [LineHeightStyle.Default] is used.
- * @param lineBreak The line breaking configuration for the text.
- * @param hyphens The configuration of hyphenation.
- * @param textMotion Text character placement, whether to optimize for animated or static text.
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
+ * @param textAlign alignment of the text within the lines of the paragraph.
+ * @param textDirection algorithm used to resolve the final text direction: Left To Right or Right
+ *   To Left.
+ * @param lineHeight line height
+ * @param textIndent paragraph indentation
+ * @param platformStyle platform-specific parameters
+ * @param lineHeightStyle line height distribution configuration
+ * @param lineBreak line breaking rules.
+ * @param hyphens hyphenation configuration.
+ * @param textMotion character placement optimization.
  * @see Paragraph
  * @see AnnotatedString
  * @see SpanStyle
@@ -216,6 +215,8 @@ class ParagraphStyle(
      * style.
      *
      * If the given paragraph style is null, returns this paragraph style.
+     *
+     * @param other style to merge
      */
     @Stable
     fun merge(other: ParagraphStyle? = null): ParagraphStyle {

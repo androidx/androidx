@@ -54,32 +54,35 @@ private val DefaultColor = Color.Black
 private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
 
 /**
- * Styling configuration for a text span. This configuration only allows character level styling, in
- * order to set paragraph level styling such as line height, or text alignment please see
- * [ParagraphStyle].
+ * Styling configuration that applies at the character level.
+ *
+ * Use [SpanStyle] to configure character-level styles such as text color, font size, font family,
+ * background color, and text decorations.
+ *
+ * For paragraph-level styling (e.g., alignment, line height), see [ParagraphStyle].
  *
  * @sample androidx.compose.ui.text.samples.SpanStyleSample
+ * @sample androidx.compose.ui.text.samples.SpanStyleBrushSample
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
- * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This may be
- *   [TextUnit.Unspecified] for inheriting from another [SpanStyle].
- * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
- * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
- * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
- *   style cannot be found in the provided font family.
- * @param fontFamily The font family to be used when rendering the text.
- * @param fontFeatureSettings The advanced typography settings provided by font. The format is the
- *   same as the CSS font-feature-settings attribute:
- *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
- * @param letterSpacing The amount of space (in em) to add between each letter.
- * @param baselineShift The amount by which the text is shifted up from the current baseline.
- * @param textGeometricTransform The geometric transformation applied the text.
- * @param localeList The locale list used to select region-specific glyphs.
- * @param background The background color for the text.
- * @param textDecoration The decorations to paint on the text (e.g., an underline).
- * @param shadow The shadow effect applied on the text.
- * @param platformStyle Platform specific [SpanStyle] parameters.
- * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke around
- *   the edges.
+ * @param color color to apply to the text
+ * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
+ *   style.
+ * @param fontWeight typeface thickness (e.g., bold)
+ * @param fontStyle typeface variant (e.g., italic)
+ * @param fontSynthesis font synthesis rules to fallback to bold/italic if the requested style is
+ *   missing in [fontFamily]
+ * @param fontFamily font family for rendering
+ * @param fontFeatureSettings advanced font features in CSS format (e.g., "smcp" for small caps)
+ * @param letterSpacing amount of space (in SP or EM) to add between letters. If
+ *   [TextUnit.Unspecified], inherits from parent.
+ * @param baselineShift vertical shift amount from the baseline (e.g., for superscript or subscript)
+ * @param textGeometricTransform geometric transformation to apply
+ * @param localeList locale list for region-specific glyphs
+ * @param background color of background rectangle covering entire line height from start to end
+ * @param textDecoration decorations (e.g., underline)
+ * @param shadow shadow effect
+ * @param platformStyle platform-specific parameters
+ * @param drawStyle drawing style (fill or stroke)
  * @see AnnotatedString
  * @see TextStyle
  * @see ParagraphStyle
@@ -245,33 +248,36 @@ internal constructor(
     )
 
     /**
-     * Styling configuration for a text span. This configuration only allows character level
-     * styling, in order to set paragraph level styling such as line height, or text alignment
-     * please see [ParagraphStyle].
+     * Styling configuration for text spans.
+     *
+     * Configures character-level styles such as text color, font size, font family, background
+     * color, and text decorations.
+     *
+     * For paragraph-level styling (e.g., alignment, line height), see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleSample
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     * @param color The color to draw the text.
-     * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
-     *   may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
-     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
-     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
-     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     *   or style cannot be found in the provided font family.
-     * @param fontFamily The font family to be used when rendering the text.
-     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     *   the same as the CSS font-feature-settings attribute:
-     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param letterSpacing The amount of space (in em) to add between each letter.
-     * @param baselineShift The amount by which the text is shifted up from the current baseline.
-     * @param textGeometricTransform The geometric transformation applied the text.
-     * @param localeList The locale list used to select region-specific glyphs.
-     * @param background The background color for the text.
-     * @param textDecoration The decorations to paint on the text (e.g., an underline).
-     * @param shadow The shadow effect applied on the text.
-     * @param platformStyle Platform specific [SpanStyle] parameters.
-     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     *   around the edges.
+     * @sample androidx.compose.ui.text.samples.BaselineShiftSample
+     * @param color color to apply to the text
+     * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
+     *   style.
+     * @param fontWeight typeface thickness (e.g., bold)
+     * @param fontStyle typeface variant (e.g., italic)
+     * @param fontSynthesis font synthesis rules to fallback to bold/italic if the requested style
+     *   is missing in [fontFamily]
+     * @param fontFamily font family for rendering
+     * @param fontFeatureSettings advanced font features in CSS format (e.g., "smcp" for small caps)
+     * @param letterSpacing amount of space (in SP or EM) to add between letters. If
+     *   [TextUnit.Unspecified], inherits from parent.
+     * @param baselineShift vertical shift amount from the baseline (e.g., for superscript or
+     *   subscript)
+     * @param textGeometricTransform geometric transformation to apply
+     * @param localeList locale list for region-specific glyphs
+     * @param background color of background rectangle covering entire line height from start to end
+     * @param textDecoration decorations (e.g., underline)
+     * @param shadow shadow effect
+     * @param platformStyle platform-specific parameters
+     * @param drawStyle drawing style (fill or stroke)
      * @see AnnotatedString
      * @see TextStyle
      * @see ParagraphStyle
@@ -313,37 +319,37 @@ internal constructor(
     )
 
     /**
-     * Styling configuration for a text span. This configuration only allows character level
-     * styling, in order to set paragraph level styling such as line height, or text alignment
-     * please see [ParagraphStyle].
+     * Styling configuration for text spans.
+     *
+     * Configures character-level styles such as text brush, opacity, font size, font family,
+     * background color, and text decorations.
+     *
+     * For paragraph-level styling (e.g., alignment, line height), see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleBrushSample
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     * @param brush The brush to use when painting the text. If brush is given as null, it will be
-     *   treated as unspecified. It is equivalent to calling the alternative color constructor with
-     *   [Color.Unspecified]
-     * @param alpha Opacity to be applied to [brush] from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively.
-     * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
-     *   may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
-     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
-     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
-     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     *   or style cannot be found in the provided font family.
-     * @param fontFamily The font family to be used when rendering the text.
-     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     *   the same as the CSS font-feature-settings attribute:
-     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param letterSpacing The amount of space (in em) to add between each letter.
-     * @param baselineShift The amount by which the text is shifted up from the current baseline.
-     * @param textGeometricTransform The geometric transformation applied the text.
-     * @param localeList The locale list used to select region-specific glyphs.
-     * @param background The background color for the text.
-     * @param textDecoration The decorations to paint on the text (e.g., an underline).
-     * @param shadow The shadow effect applied on the text.
-     * @param platformStyle Platform specific [SpanStyle] parameters.
-     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     *   around the edges.
+     * @sample androidx.compose.ui.text.samples.BaselineShiftSample
+     * @param brush [Brush] for painting text, null for unspecified
+     * @param alpha opacity applied to [brush] (0.0 to 1.0)
+     * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
+     *   style.
+     * @param fontWeight typeface thickness (e.g., bold)
+     * @param fontStyle typeface variant (e.g., italic)
+     * @param fontSynthesis font synthesis rules to fallback to bold/italic if the requested style
+     *   is missing in [fontFamily]
+     * @param fontFamily font family for rendering
+     * @param fontFeatureSettings advanced font features in CSS format (e.g., "smcp" for small caps)
+     * @param letterSpacing amount of space (in SP or EM) to add between letters. If
+     *   [TextUnit.Unspecified], inherits from parent.
+     * @param baselineShift vertical shift amount from the baseline (e.g., for superscript or
+     *   subscript)
+     * @param textGeometricTransform geometric transformation to apply
+     * @param localeList locale list for region-specific glyphs
+     * @param background color of background rectangle covering entire line height from start to end
+     * @param textDecoration decorations (e.g., underline)
+     * @param shadow shadow effect
+     * @param platformStyle platform-specific parameters
+     * @param drawStyle drawing style (fill or stroke)
      * @see AnnotatedString
      * @see TextStyle
      * @see ParagraphStyle
@@ -408,6 +414,8 @@ internal constructor(
      * style are _filled_ by the properties of this style.
      *
      * If the given span style is null, returns this span style.
+     *
+     * @param other style to merge
      */
     @Stable
     fun merge(other: SpanStyle? = null): SpanStyle {
