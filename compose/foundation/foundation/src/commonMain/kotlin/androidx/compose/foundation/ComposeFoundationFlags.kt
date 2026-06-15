@@ -231,6 +231,16 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isLinkMinimumTouchTargetSizeZeroEnabled: Boolean = false
+
+    /**
+     * This flag controls the fix where draggable was ignoring and not consuming zero delta events.
+     * This caused issues with the gesture pickup feature. When this flag is enabled, zero delta
+     * events will be consumed (after a drag gesture has started).
+     */
+    // TODO: Remove this flag once it has soaked (b/524219039)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isDraggableZeroDeltaConsumptionEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

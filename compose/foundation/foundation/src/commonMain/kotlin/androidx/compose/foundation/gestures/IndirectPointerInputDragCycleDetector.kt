@@ -17,6 +17,7 @@
 package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ComposeFoundationFlags.isDraggableZeroDeltaConsumptionEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureState
 import androidx.compose.foundation.gestures.DragEvent.DragCancelled
@@ -412,6 +413,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun processDraggingState(
         indirectPointerInputEvent: IndirectPointerEvent,
         pass: PointerEventPass,
@@ -442,18 +444,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
             if (dragEvent.isConsumed) {
                 sendDragCancelled()
             } else {
-                val positionChange =
-                    dragEvent.positionChangeIgnoreConsumed(
-                        node.orientation,
-                        indirectPointerInputEvent.primaryDirectionalMotionAxis,
-                    )
-
-                /**
-                 * During the gesture pickup we can pickup events at any direction so disable the
-                 * orientation lock.
-                 */
-                val motionChange = positionChange.getDistance()
-                if (motionChange != 0.0f) {
+                if (isDraggableZeroDeltaConsumptionEnabled) {
                     val positionChange =
                         dragEvent.positionChange(
                             node.orientation,
@@ -465,6 +456,31 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                         positionChange,
                     )
                     dragEvent.consume()
+                } else {
+                    val positionChange =
+                        dragEvent.positionChangeIgnoreConsumed(
+                            node.orientation,
+                            indirectPointerInputEvent.primaryDirectionalMotionAxis,
+                        )
+
+                    /**
+                     * During the gesture pickup we can pickup events at any direction so disable
+                     * the orientation lock.
+                     */
+                    val motionChange = positionChange.getDistance()
+                    if (motionChange != 0.0f) {
+                        val positionChange =
+                            dragEvent.positionChange(
+                                node.orientation,
+                                indirectPointerInputEvent.primaryDirectionalMotionAxis,
+                            )
+                        sendDragEvent(
+                            dragEvent,
+                            indirectPointerInputEvent.primaryDirectionalMotionAxis,
+                            positionChange,
+                        )
+                        dragEvent.consume()
+                    }
                 }
             }
         }

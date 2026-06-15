@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.ComposeFoundationFlags.isDraggableZeroDeltaConsumptionEnabled
 import androidx.compose.foundation.gestures.DraggableGestureConnection
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
@@ -89,6 +90,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertThrows
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -2592,6 +2594,139 @@ class DraggableTest {
         rule.runOnIdle {
             assertThat(node.getParentDraggableGestureConnection()?.orientation)
                 .isEqualTo(Orientation.Horizontal)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun drag_zeroDeltas_shouldConsumeEvents() {
+        Assume.assumeTrue(isDraggableZeroDeltaConsumptionEnabled)
+        var outerDrag = 0f
+        var innerDrag = 0f
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(
+                modifier =
+                    Modifier.size(300.dp)
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(pass = PointerEventPass.Final)
+                                    val change = event.changes.first()
+                                    if (
+                                        !change.changedToUpIgnoreConsumed() &&
+                                            !change.changedToDownIgnoreConsumed()
+                                    ) {
+                                        assertThat(change.isConsumed).isTrue()
+                                    }
+                                }
+                            }
+                        }
+                        .draggable(orientation = Orientation.Vertical) { outerDrag += it }
+            ) {
+                Box(
+                    modifier =
+                        Modifier.size(300.dp).draggable(orientation = Orientation.Vertical) {
+                            innerDrag += it
+                        }
+                )
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 2 * touchSlop))
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isNonZero()
+            assertThat(outerDrag).isZero()
+            innerDrag = 0f
+            outerDrag = 0f
+        }
+
+        rule.onRoot().performTouchInput {
+            moveBy(Offset(0f, 0f))
+            moveBy(Offset(0f, 0f))
+            moveBy(Offset(0f, touchSlop))
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isNonZero()
+            assertThat(outerDrag).isZero()
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun drag_zeroDeltas_shouldConsumeEvents_indirectTouch() {
+        Assume.assumeTrue(isDraggableZeroDeltaConsumptionEnabled)
+        var outerDrag = 0f
+        var innerDrag = 0f
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(
+                modifier =
+                    Modifier.size(300.dp)
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(pass = PointerEventPass.Final)
+                                    val change = event.changes.first()
+                                    if (
+                                        !change.changedToUpIgnoreConsumed() &&
+                                            !change.changedToDownIgnoreConsumed()
+                                    ) {
+                                        assertThat(change.isConsumed).isTrue()
+                                    }
+                                }
+                            }
+                        }
+                        .draggable(orientation = Orientation.Vertical) { outerDrag += it }
+            ) {
+                Box(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .draggable(orientation = Orientation.Vertical) { innerDrag += it }
+                            .focusRequester(focusRequester)
+                            .focusTarget()
+                )
+            }
+        }
+
+        rule.runOnIdle { assertTrue(focusRequester.requestFocus()) }
+
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(0, Offset(0f, 0f))
+            moveBy(Offset(2 * touchSlop, 0f))
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isNonZero()
+            assertThat(outerDrag).isZero()
+            innerDrag = 0f
+            outerDrag = 0f
+        }
+
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            moveBy(Offset(0f, 0f))
+            moveBy(Offset(0f, 0f))
+            moveBy(Offset(2 * touchSlop, 0f))
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isNonZero()
+            assertThat(outerDrag).isZero()
         }
     }
 

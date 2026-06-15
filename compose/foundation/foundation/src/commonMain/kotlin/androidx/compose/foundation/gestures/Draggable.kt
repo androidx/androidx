@@ -19,6 +19,7 @@ package androidx.compose.foundation.gestures
 import androidx.annotation.FloatRange
 import androidx.collection.LongSparseArray
 import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ComposeFoundationFlags.isDraggableZeroDeltaConsumptionEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
 import androidx.compose.foundation.GestureState
@@ -1083,17 +1084,23 @@ internal abstract class DragGestureNode(
             if (dragEvent.isConsumed) {
                 sendDragCancelled()
             } else {
-                val positionChange = dragEvent.positionChangeIgnoreConsumed()
-
-                /**
-                 * During the gesture pickup we can pickup events at any direction so disable the
-                 * orientation lock.
-                 */
-                val motionChange = positionChange.getDistance()
-                if (motionChange != 0.0f) {
+                if (isDraggableZeroDeltaConsumptionEnabled) {
                     val positionChange = dragEvent.positionChange()
                     sendDragEvent(dragEvent, positionChange)
                     dragEvent.consume()
+                } else {
+                    val positionChange = dragEvent.positionChangeIgnoreConsumed()
+
+                    /**
+                     * During the gesture pickup we can pickup events at any direction so disable
+                     * the orientation lock.
+                     */
+                    val motionChange = positionChange.getDistance()
+                    if (motionChange != 0.0f) {
+                        val positionChange = dragEvent.positionChange()
+                        sendDragEvent(dragEvent, positionChange)
+                        dragEvent.consume()
+                    }
                 }
             }
         }
