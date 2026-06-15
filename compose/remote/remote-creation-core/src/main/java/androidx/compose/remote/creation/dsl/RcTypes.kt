@@ -95,6 +95,19 @@ public fun animationTime(): RcFloat = RcFloat(null, floatArrayOf(Rc.Time.ANIMATI
 public fun touchTime(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.TOUCH_EVENT_TIME))
 
 /**
+ * The current touch X position, as an [RcFloat] expression. This is in window/event pixels; scale
+ * it into your drawing space (e.g. `touchPosX() * componentWidth() / windowWidth()`) when the
+ * document is rendered at a different size than the window. Use it as the touch input expression
+ * of.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun touchPosX(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.POSITION_X))
+
+/** The current touch Y position, as an [RcFloat] expression. See [touchPosX]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun touchPosY(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.POSITION_Y))
+
+/**
  * Type-safe reference for remote integer/long variables or expressions.
  *
  * Carries an optional [RemoteComposeWriter] reference so that arithmetic operators (`+`, `-`, `*`,

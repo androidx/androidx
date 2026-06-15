@@ -61,6 +61,16 @@ import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslEnumsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dAnnotationDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dBarDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dDistributionDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dExtraDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dFinancialDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dIntervalDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dLineDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dMoreDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dPolarDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dRelationDemosKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.DemoMemorySkipKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
@@ -188,6 +198,100 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         Bitmap bitmap = simpleBitmap(100);
+        boolean graph2d = true;
+
+        if (graph2d) {
+            return new ArrayList<>(Arrays.asList(
+                    // Annotation Demos
+                    get("1/000/annotations/basic", Graph2dAnnotationDemosKt::graph2dAnnotations),
+                    get("1/001/annotations/dualAxis", Graph2dAnnotationDemosKt::graph2dDualAxis),
+                    get("1/002/annotations/logScale", Graph2dAnnotationDemosKt::graph2dLogScale),
+                    get("1/003/annotations/timeAxis", Graph2dAnnotationDemosKt::graph2dTimeAxis),
+                    get("1/004/annotations/styleExtras",
+                            Graph2dAnnotationDemosKt::graph2dStyleExtras),
+
+                    // Bar Demos
+                    get("1/005/bar/basic", Graph2dBarDemosKt::graph2dBarBasic),
+                    get("1/006/bar/horizontal", Graph2dBarDemosKt::graph2dBarHorizontal),
+                    get("1/007/bar/grouped", Graph2dBarDemosKt::graph2dBarGrouped),
+                    get("1/008/bar/stacked", Graph2dBarDemosKt::graph2dBarStacked),
+                    get("1/009/bar/percentStacked", Graph2dBarDemosKt::graph2dBarPercentStacked),
+                    get("1/000/bar/lollipop", Graph2dBarDemosKt::graph2dBarLollipop),
+                    get("1/011/bar/diverging", Graph2dBarDemosKt::graph2dBarDiverging),
+                    get("1/012/bar/dark", Graph2dBarDemosKt::graph2dBarDark),
+                    get("1/013/bar/animated", Graph2dBarDemosKt::graph2dBarAnimated),
+                    get("1/014/bar/themeCustom", Graph2dBarDemosKt::graph2dThemeCustom),
+                    get("1/015/bar/combo", Graph2dBarDemosKt::graph2dCombo),
+                    get("1/016/bar/showcase", Graph2dBarDemosKt::graph2dBarShowcase),
+
+                    // Distribution Demos
+                    get("1/017/distribution/histogram",
+                            Graph2dDistributionDemosKt::graph2dHistogram),
+                    get("1/018/distribution/density", Graph2dDistributionDemosKt::graph2dDensity),
+                    get("1/019/distribution/ecdf", Graph2dDistributionDemosKt::graph2dEcdf),
+                    get("1/020/distribution/boxPlot", Graph2dDistributionDemosKt::graph2dBoxPlot),
+                    get("1/021/distribution/violin", Graph2dDistributionDemosKt::graph2dViolin),
+                    get("1/022/distribution/strip", Graph2dDistributionDemosKt::graph2dStrip),
+                    // Extra Demos
+                    get("1/023/extra/heatmap", Graph2dExtraDemosKt::graph2dHeatmap),
+                    get("1/024/extra/waffle", Graph2dExtraDemosKt::graph2dWaffle),
+                    get("1/025/extra/dotPlot", Graph2dExtraDemosKt::graph2dDotPlot),
+                    get("1/026/extra/dumbbell", Graph2dExtraDemosKt::graph2dDumbbell),
+                    get("1/027/extra/slope", Graph2dExtraDemosKt::graph2dSlope),
+                    get("1/028/extra/pyramid", Graph2dExtraDemosKt::graph2dPyramid),
+                    get("1/029/extra/candlestick", Graph2dExtraDemosKt::graph2dCandlestick),
+                    get("1/030/extra/regression", Graph2dExtraDemosKt::graph2dRegression),
+                    get("1/031/extra/roc", Graph2dExtraDemosKt::graph2dRoc),
+
+                    // Financial Demos
+                    get("1/032/financial/waterfall", Graph2dFinancialDemosKt::graph2dWaterfall),
+                    get("1/033/financial/funnel", Graph2dFinancialDemosKt::graph2dFunnel),
+                    get("1/034/financial/bullet", Graph2dFinancialDemosKt::graph2dBullet),
+                    get("1/035/financial/pareto", Graph2dFinancialDemosKt::graph2dPareto),
+                    // Interval Demos
+                    get("1/036/interval/band", Graph2dIntervalDemosKt::graph2dBand),
+                    get("1/037/interval/fan", Graph2dIntervalDemosKt::graph2dFan),
+                    get("1/038/interval/errorBar", Graph2dIntervalDemosKt::graph2dErrorBar),
+                    get("1/039/interval/forest", Graph2dIntervalDemosKt::graph2dForest),
+
+                    // Line Demos
+                    get("1/030/line/basic", Graph2dLineDemosKt::graph2dLineBasic),
+                    get("1/031/line/multi", Graph2dLineDemosKt::graph2dLineMulti),
+                    get("1/032/line/spline", Graph2dLineDemosKt::graph2dLineSpline),
+                    get("1/033/line/step", Graph2dLineDemosKt::graph2dLineStep),
+                    get("1/034/line/areaBasic", Graph2dLineDemosKt::graph2dAreaBasic),
+                    get("1/035/line/areaStacked", Graph2dLineDemosKt::graph2dAreaStacked),
+                    get("1/036/line/areaPercent", Graph2dLineDemosKt::graph2dAreaPercent),
+                    get("1/037/line/dark", Graph2dLineDemosKt::graph2dLineDark),
+                    get("1/038/line/animated", Graph2dLineDemosKt::graph2dLineAnimated),
+                    get("1/039/line/interactive", Graph2dLineDemosKt::graph2dLineInteractive),
+
+                    // More Demos
+                    get("1/040/more/treemap", Graph2dMoreDemosKt::graph2dTreemap),
+                    get("1/041/more/confusion", Graph2dMoreDemosKt::graph2dConfusion),
+                    get("1/042/more/quadrant", Graph2dMoreDemosKt::graph2dQuadrant),
+                    get("1/043/more/function", Graph2dMoreDemosKt::graph2dFunction),
+                    get("1/044/more/qq", Graph2dMoreDemosKt::graph2dQQ),
+                    get("1/045/more/gantt", Graph2dMoreDemosKt::graph2dGantt),
+                    get("1/046/more/ridgeline", Graph2dMoreDemosKt::graph2dRidgeline),
+                    get("1/047/more/likert", Graph2dMoreDemosKt::graph2dLikert),
+
+                    // Polar Demos
+                    get("1/048/polar/gauge", Graph2dPolarDemosKt::graph2dGauge),
+                    get("1/049/polar/radialBar", Graph2dPolarDemosKt::graph2dRadialBar),
+                    get("1/050/polar/rose", Graph2dPolarDemosKt::graph2dRose),
+                    get("1/051/polar/bar", Graph2dPolarDemosKt::graph2dPolarBar),
+
+                    // Relation Demos
+                    get("1/052/relation/pie", Graph2dRelationDemosKt::graph2dPie),
+                    get("1/053/relation/donut", Graph2dRelationDemosKt::graph2dDonut),
+                    get("1/054/relation/radar", Graph2dRelationDemosKt::graph2dRadar),
+                    get("1/055/relation/scatter", Graph2dRelationDemosKt::graph2dScatter),
+                    get("1/056/relation/bubble", Graph2dRelationDemosKt::graph2dBubble),
+                    get("1/057/relation/connectedScatter",
+                            Graph2dRelationDemosKt::graph2dConnectedScatter)
+            ));
+        }
         boolean dsl = true;
         if (dsl) {
             return new ArrayList<>(Arrays.asList(

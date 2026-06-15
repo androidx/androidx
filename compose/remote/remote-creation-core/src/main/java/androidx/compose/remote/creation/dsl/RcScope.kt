@@ -1486,6 +1486,35 @@ public interface RcCanvasScope : RcScope {
             easing,
             *expressions,
         )
+
+    /**
+     * [addTouch] with **reactive** [min]/[max] bounds and an [RcFloat] touch input [expression].
+     * The expression (typically built from [touchPosX]/[touchPosY], e.g. `touchPosX() *
+     * componentWidth() / windowWidth()`) is evaluated each event to produce the value, which is
+     * then clamped to `[min, max]`. Both bounds may be live expressions (e.g. plot edges).
+     */
+    public fun addTouch(
+        defaultValue: Float,
+        min: RcFloat,
+        max: RcFloat,
+        stopMode: RcTouchStopMode,
+        expression: RcFloat,
+        velocity: Float = 0f,
+        notchHaptic: RcHaptic = RcHaptic.NoHaptics,
+        notches: FloatArray? = null,
+        easing: FloatArray? = null,
+    ): RcFloat =
+        addTouch(
+            defaultValue,
+            min.toFloat(),
+            max.toFloat(),
+            stopMode.value,
+            velocity,
+            notchHaptic.value,
+            notches,
+            easing,
+            *expression.toArray(),
+        )
 }
 
 /** Internal helper to convert the new [Modifier] chain to the legacy [RecordingModifier]. */
