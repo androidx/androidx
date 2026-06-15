@@ -20,7 +20,7 @@ import androidx.appsearch.annotation.Document
 import androidx.appsearch.app.AppSearchSchema
 import com.android.extensions.appfunctions.AppFunctionManager
 
-/** A mirror Document class of [android.app.appfunctions.AppFunctionRuntimeMetadata]. */
+/** A mirror Document class of android.app.appfunctions.AppFunctionRuntimeMetadata. */
 @Document
 internal data class AppFunctionRuntimeMetadata(
     @Document.Id val id: String,
