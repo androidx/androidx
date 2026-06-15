@@ -89,6 +89,12 @@ public class TestEmbeddedPhotoPickerSession(
     public var lastExpandedState: Boolean? = null
         private set
 
+    /** The last visibility state received by this session via [notifyVisibilityChanged]. */
+    @Volatile
+    @Suppress("AutoBoxing")
+    public var lastNotifiedVisibility: Boolean? = null
+        private set
+
     private val _view: View
     private val _host: SurfaceControlViewHost
 
@@ -134,8 +140,9 @@ public class TestEmbeddedPhotoPickerSession(
         _host.relayout(width, height)
     }
 
-    /* NoOp for test implementation. */
-    override fun notifyVisibilityChanged(isVisible: Boolean) {}
+    override fun notifyVisibilityChanged(isVisible: Boolean) {
+        lastNotifiedVisibility = isVisible
+    }
 
     override fun requestRevokeUriPermission(uris: List<Uri>) {
         _selectedUris.removeAll(uris)

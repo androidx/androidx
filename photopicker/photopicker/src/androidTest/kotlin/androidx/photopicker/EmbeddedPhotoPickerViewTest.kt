@@ -16,8 +16,10 @@
 
 package androidx.photopicker
 
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
+import android.view.View
 import android.view.ViewGroup
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerSession
@@ -55,35 +57,13 @@ class EmbeddedPhotoPickerViewTest {
     fun testEmbeddedPhotoPickerViewOpensSession() {
         val activity = activityRule.withActivity { this }
         val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
-
         val testProvider =
             TestEmbeddedPhotoPickerProvider(
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
-            object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
-
-                override fun onSessionError(throwable: Throwable) {}
-
-                override fun onUriPermissionGranted(uris: List<Uri>) {}
-
-                override fun onUriPermissionRevoked(uris: List<Uri>) {}
-
-                override fun onSelectionComplete() {}
-            }
-        )
-
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
-
-        assertThat(session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)).isNotNull()
+        val testSession = openSession(embeddedView, testProvider)
+        assertThat(testSession).isNotNull()
     }
 
     @Test
@@ -96,31 +76,8 @@ class EmbeddedPhotoPickerViewTest {
             TestEmbeddedPhotoPickerProvider(
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
-            object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
-
-                override fun onSessionError(throwable: Throwable) {}
-
-                override fun onUriPermissionGranted(uris: List<Uri>) {}
-
-                override fun onUriPermissionRevoked(uris: List<Uri>) {}
-
-                override fun onSelectionComplete() {}
-            }
-        )
-
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
-
-        // Using get with timeout to avoid hanging indefinitely if the session fails to open.
-        val testSession = session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
+        val testSession = openSession(embeddedView, testProvider)
 
         assertThat(testSession.isClosed).isFalse()
 
@@ -139,11 +96,84 @@ class EmbeddedPhotoPickerViewTest {
 
     @Test
     @ExperimentalPhotoPickerApi
+    fun testEmbeddedPhotoPickerViewResizingSync() {
+        val activity = activityRule.withActivity { this }
+        val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
+
+        val testProvider =
+            TestEmbeddedPhotoPickerProvider(
+                InstrumentationRegistry.getInstrumentation().targetContext
+            )
+
+        val testSession = openSession(embeddedView, testProvider)
+
+        val targetWidth = 500
+        val targetHeight = 800
+
+        activity.runOnUiThread {
+            val params = embeddedView.layoutParams
+            params.width = targetWidth
+            params.height = targetHeight
+            embeddedView.layoutParams = params
+        }
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        assertThat(testSession.view.width).isEqualTo(targetWidth)
+        assertThat(testSession.view.height).isEqualTo(targetHeight)
+    }
+
+    @Test
+    @ExperimentalPhotoPickerApi
+    fun testEmbeddedPhotoPickerViewVisibilitySync() {
+        val activity = activityRule.withActivity { this }
+        val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
+
+        val testProvider =
+            TestEmbeddedPhotoPickerProvider(
+                InstrumentationRegistry.getInstrumentation().targetContext
+            )
+
+        val testSession = openSession(embeddedView, testProvider)
+
+        activity.runOnUiThread { embeddedView.visibility = View.GONE }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertThat(testSession.lastNotifiedVisibility).isFalse()
+
+        activity.runOnUiThread { embeddedView.visibility = View.VISIBLE }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertThat(testSession.lastNotifiedVisibility).isTrue()
+    }
+
+    @Test
+    @ExperimentalPhotoPickerApi
+    fun testEmbeddedPhotoPickerViewConfigurationSync() {
+        val activity = activityRule.withActivity { this }
+        val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
+
+        val testProvider =
+            TestEmbeddedPhotoPickerProvider(
+                InstrumentationRegistry.getInstrumentation().targetContext
+            )
+
+        val testSession = openSession(embeddedView, testProvider)
+
+        val targetConfig =
+            Configuration().apply { orientation = Configuration.ORIENTATION_LANDSCAPE }
+
+        activity.runOnUiThread { embeddedView.dispatchConfigurationChanged(targetConfig) }
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        assertThat(testSession.lastConfiguration?.orientation).isEqualTo(targetConfig.orientation)
+    }
+
+    @Test
+    @ExperimentalPhotoPickerApi
     fun testEmbeddedPhotoPickerViewThrowsSessionError() {
         val activity = activityRule.withActivity { this }
 
         val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
         val error: CompletableFuture<Throwable> = CompletableFuture()
 
         val throwable = RuntimeException("Test")
@@ -153,12 +183,9 @@ class EmbeddedPhotoPickerViewTest {
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
+        val listener =
             object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
+                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {}
 
                 override fun onSessionError(throwable: Throwable) {
                     error.complete(throwable)
@@ -170,14 +197,8 @@ class EmbeddedPhotoPickerViewTest {
 
                 override fun onSelectionComplete() {}
             }
-        )
 
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
-
-        val testSession = session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
+        val testSession = openSession(embeddedView, testProvider, listener = listener)
         testSession.notifySessionError(throwable)
         assertThat(error.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)).isEqualTo(throwable)
     }
@@ -188,8 +209,6 @@ class EmbeddedPhotoPickerViewTest {
         val activity = activityRule.withActivity { this }
 
         val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
-
         val grantedUris = mutableListOf<Uri>()
 
         val testProvider =
@@ -197,12 +216,9 @@ class EmbeddedPhotoPickerViewTest {
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
+        val listener =
             object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
+                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {}
 
                 override fun onSessionError(throwable: Throwable) {}
 
@@ -214,12 +230,8 @@ class EmbeddedPhotoPickerViewTest {
 
                 override fun onSelectionComplete() {}
             }
-        )
 
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
+        val testSession = openSession(embeddedView, testProvider, listener = listener)
 
         assertThat(grantedUris).isEmpty()
 
@@ -228,7 +240,6 @@ class EmbeddedPhotoPickerViewTest {
         val uri3 = Uri.fromParts("content", "8900", null)
         val uri4 = Uri.fromParts("content", "9999", null)
 
-        val testSession = session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
         testSession.selectUris(listOf(uri1, uri2))
         assertThat(grantedUris).containsExactly(uri1, uri2)
 
@@ -242,8 +253,6 @@ class EmbeddedPhotoPickerViewTest {
         val activity = activityRule.withActivity { this }
 
         val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
-
         val deselectedUris = mutableListOf<Uri>()
 
         val testProvider =
@@ -251,12 +260,9 @@ class EmbeddedPhotoPickerViewTest {
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
+        val listener =
             object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
+                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {}
 
                 override fun onSessionError(throwable: Throwable) {}
 
@@ -268,18 +274,13 @@ class EmbeddedPhotoPickerViewTest {
 
                 override fun onSelectionComplete() {}
             }
-        )
 
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
+        val testSession = openSession(embeddedView, testProvider, listener = listener)
 
         assertThat(deselectedUris).isEmpty()
 
         val uri1 = Uri.fromParts("content", "1234", null)
 
-        val testSession = session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
         testSession.deselectUris(listOf(uri1))
         assertThat(deselectedUris).containsExactly(uri1)
     }
@@ -290,7 +291,6 @@ class EmbeddedPhotoPickerViewTest {
         val activity = activityRule.withActivity { this }
 
         val embeddedView = activity.findViewById<EmbeddedPhotoPickerView>(R.id.photopicker_test)
-        val session: CompletableFuture<TestEmbeddedPhotoPickerSession> = CompletableFuture()
         val selectionComplete: CompletableFuture<Boolean> = CompletableFuture()
 
         val testProvider =
@@ -298,12 +298,9 @@ class EmbeddedPhotoPickerViewTest {
                 InstrumentationRegistry.getInstrumentation().targetContext
             )
 
-        embeddedView.addEmbeddedPhotoPickerStateChangeListener(
+        val listener =
             object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
-
-                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
-                    session.complete(newSession as TestEmbeddedPhotoPickerSession)
-                }
+                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {}
 
                 override fun onSessionError(throwable: Throwable) {}
 
@@ -315,15 +312,52 @@ class EmbeddedPhotoPickerViewTest {
                     selectionComplete.complete(true)
                 }
             }
-        )
 
-        embeddedView.setProvider(testProvider)
-        embeddedView.setEmbeddedPhotoPickerFeatureInfo(
-            EmbeddedPhotoPickerFeatureInfo.Builder().build()
-        )
-
-        val testSession = session.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
+        val testSession = openSession(embeddedView, testProvider, listener = listener)
         testSession.notifySelectionComplete()
         assertThat(selectionComplete.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @OptIn(ExperimentalPhotoPickerApi::class)
+    private fun openSession(
+        embeddedView: EmbeddedPhotoPickerView,
+        testProvider: TestEmbeddedPhotoPickerProvider,
+        featureInfo: EmbeddedPhotoPickerFeatureInfo =
+            EmbeddedPhotoPickerFeatureInfo.Builder().build(),
+        listener: EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener? = null,
+    ): TestEmbeddedPhotoPickerSession {
+        val sessionFuture = CompletableFuture<TestEmbeddedPhotoPickerSession>()
+
+        val stateListener =
+            object : EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
+                override fun onSessionOpened(newSession: EmbeddedPhotoPickerSession) {
+                    sessionFuture.complete(newSession as TestEmbeddedPhotoPickerSession)
+                    listener?.onSessionOpened(newSession)
+                }
+
+                override fun onSessionError(throwable: Throwable) {
+                    // Complete exceptionally so that if the session fails to open,
+                    // the test immediately fails with the error instead of hanging.
+                    sessionFuture.completeExceptionally(throwable)
+                    listener?.onSessionError(throwable)
+                }
+
+                override fun onUriPermissionGranted(uris: List<Uri>) {
+                    listener?.onUriPermissionGranted(uris)
+                }
+
+                override fun onUriPermissionRevoked(uris: List<Uri>) {
+                    listener?.onUriPermissionRevoked(uris)
+                }
+
+                override fun onSelectionComplete() {
+                    listener?.onSelectionComplete()
+                }
+            }
+
+        embeddedView.addEmbeddedPhotoPickerStateChangeListener(stateListener)
+        embeddedView.setProvider(testProvider)
+        embeddedView.setEmbeddedPhotoPickerFeatureInfo(featureInfo)
+        return sessionFuture.get(TIMEOUT_DURATION_SECONDS, TimeUnit.SECONDS)
     }
 }
