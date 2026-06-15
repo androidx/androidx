@@ -398,17 +398,41 @@ class NetworkRequestConstraintControllerTest {
         val state = async(Dispatchers.IO) { controller.track(buildConstraint()).first() }
         assertThat(state.await()).isEqualTo(ConstraintsMet)
     }
+
+    @Test
+    fun testSecurityExceptionDuringRegistration() {
+        val connectivityManager =
+            getApplicationContext<Context>().getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
+        val connManagerShadow =
+            Shadow.extract<ExtendedShadowConnectivityManager>(connectivityManager)
+
+        connManagerShadow.onRegisterNetworkCallback = { throw SecurityException("Test Exception") }
+
+        val controller = NetworkRequestConstraintController(connectivityManager, 10000L)
+        val constraints =
+            Constraints.Builder()
+                .setRequiredNetworkRequest(NetworkRequest.Builder().build(), NetworkType.CONNECTED)
+                .build()
+        runBlocking {
+            val constraintsState = controller.track(constraints).first()
+            assertThat(constraintsState)
+                .isEqualTo(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
+        }
+    }
 }
 
 @RequiresApi(28)
 @Implements(ConnectivityManager::class)
 class ExtendedShadowConnectivityManager : ShadowConnectivityManager() {
+    var onRegisterNetworkCallback: (() -> Unit)? = null
 
     override fun registerNetworkCallback(
         request: NetworkRequest?,
         networkCallback: ConnectivityManager.NetworkCallback?,
         handler: Handler?,
     ) {
+        onRegisterNetworkCallback?.invoke()
         super.registerNetworkCallback(request, networkCallback, handler)
         val network = activeNetwork ?: return
 
@@ -419,6 +443,7 @@ class ExtendedShadowConnectivityManager : ShadowConnectivityManager() {
     override fun registerDefaultNetworkCallback(
         networkCallback: ConnectivityManager.NetworkCallback?
     ) {
+        onRegisterNetworkCallback?.invoke()
         super.registerDefaultNetworkCallback(networkCallback)
         val network = activeNetwork ?: return
 

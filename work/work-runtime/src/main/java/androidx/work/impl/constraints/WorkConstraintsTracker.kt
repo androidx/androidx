@@ -240,6 +240,10 @@ private constructor(private val onConstraintState: OnConstraintState) :
                 Logger.get().debug(TAG, "NetworkRequestConstraintController register callback")
                 connManager.registerNetworkCallback(networkRequest, networkCallback)
                 callbackRegistered = true
+            } catch (ex: SecurityException) {
+                Logger.get()
+                    .error(TAG, "NetworkRequestConstraintController couldn't register callback", ex)
+                onConstraintState(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
             } catch (ex: RuntimeException) {
                 // Catch TooManyRequestsException since there is an app limit of 100 registered
                 // callbacks. Since the limit is shared with other libraries and app code, we try to
@@ -354,12 +358,21 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
         onConstraintState: OnConstraintState,
     ): () -> Unit {
         synchronized(requestsLock) {
-            val registerCallback = requests.isEmpty()
-            requests.put(onConstraintState, networkRequest)
-            if (registerCallback) {
+            if (requests.isEmpty()) {
                 Logger.get()
                     .debug(TAG, "NetworkRequestConstraintController register shared callback")
-                connManager.registerDefaultNetworkCallback(this)
+                try {
+                    connManager.registerDefaultNetworkCallback(this)
+                } catch (e: SecurityException) {
+                    Logger.get()
+                        .error(
+                            TAG,
+                            "NetworkRequestConstraintController couldn't register callback",
+                            e,
+                        )
+                    onConstraintState(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
+                    return {}
+                }
             } else if (capabilitiesInitialized && isBlocked != null) {
                 // onCapabilitiesChanged is only guaranteed to be called the first time we register
                 // so we need to send the current constraint state immediately for the initial
@@ -375,6 +388,7 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
                     }
                 )
             }
+            requests.put(onConstraintState, networkRequest)
         }
         return {
             synchronized(requestsLock) {
