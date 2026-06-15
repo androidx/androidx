@@ -65,7 +65,7 @@ private constructor(
             return AnimateXAsStateComposeAnimation(
                 initialState = initialState,
                 targetState = targetState,
-                toolingState = toolingOverride.state,
+                toolingState = toolingOverride,
                 animationSpec = animationSpec,
                 animationObject = animatable,
             )

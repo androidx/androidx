@@ -175,15 +175,13 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingOverride.state)
-            Assert.assertNotNull(it.toolingOverride.override)
+            Assert.assertNotNull(it.toolingOverride)
             Assert.assertNotNull(it.animatable)
             assertEquals("IntAnimation", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingOverride.state)
-            Assert.assertNotNull(it.toolingOverride.override)
+            Assert.assertNotNull(it.toolingOverride)
             Assert.assertNotNull(it.animatable)
             assertEquals("DpAnimation", it.animatable.label)
         }
@@ -214,15 +212,13 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingOverride.state)
-            Assert.assertNotNull(it.toolingOverride.override)
+            Assert.assertNotNull(it.toolingOverride)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomIntLabel", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingOverride.state)
-            Assert.assertNotNull(it.toolingOverride.override)
+            Assert.assertNotNull(it.toolingOverride)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomDpLabel", it.animatable.label)
         }

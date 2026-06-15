@@ -16,13 +16,13 @@
 
 package androidx.compose.ui.tooling.animation
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.DecayAnimation
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
+import androidx.compose.animation.core.tooling.AnimationToolingApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.tooling.AnimationDebugMutableState
@@ -281,14 +281,13 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
     }
 
     /** Search for animateXAsState() and animateValueAsState() animations. */
+    @OptIn(AnimationToolingApi::class)
     class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
         Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group)?.let {
-                findAnimatable<Any?>(it) != null &&
-                    findAnimationSpec<Any?>(it) != null &&
-                    findToolingOverride<Any?>(it) != null
+                findToolingHandle<Any?, AnimationVector>(it) != null
             } ?: false
         }
 
@@ -306,62 +305,25 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
         private fun <T> findAnimations(
             groups: Collection<Group>
         ): List<AnimateXAsStateSearchInfo<T, AnimationVector>> {
-            // How "animateXAsState" calls organized:
-            // Group with name "animateXAsState", for example animateDpAsState, animateIntAsState
-            //    children
-            //    * Group with name "animateValueAsState"
-            //          children
-            //          * Group with name "remember" and data with type Animatable
-            //
-            // To distinguish Animatable within "animateXAsState" calls from other Animatables,
-            // first "animateValueAsState" calls are found.
-            //  Find Animatable within "animateValueAsState" call.
             return groups
                 .mapNotNull { toAnimationGroup(it) }
                 .mapNotNull {
-                    val animatable = findAnimatable<T>(it)
-                    val spec = findAnimationSpec<T>(it)
-                    val toolingOverride = findToolingOverride<T>(it)
-
-                    if (animatable != null && spec != null && toolingOverride != null) {
-
-                        val toolingState =
-                            (toolingOverride.value as? ToolingState<T>)
-                                ?: ToolingState(animatable.value)
-
-                        AnimateXAsStateSearchInfo(
-                                animatable,
-                                spec,
-                                ToolingOverride(override = toolingOverride, state = toolingState),
-                            )
-                            .apply { this.attach() }
+                    val toolingHandle = findToolingHandle<T, AnimationVector>(it)
+                    if (toolingHandle != null) {
+                        AnimateXAsStateSearchInfo(toolingHandle).apply { this.attach() }
                     } else null
                 }
         }
 
         /**
-         * animateValueAsState declares a mutableStateOf<State<T>?>, starting as null, that we can
-         * use to override the animatable value in Animation Preview. We do that by getting the
-         * [MutableState] from the slot table and directly setting its value. animateValueAsState
-         * will use the tooling override if this value is not null.
+         * animateValueAsState declares a tooling handle that we can use to override the animatable
+         * value in Animation Preview. animateValueAsState will use the tooling override if this
+         * value is not null.
          */
-        private fun <T> findToolingOverride(group: Group): MutableState<State<T>?>? {
-            return group.findRememberedData<MutableState<State<T>?>>().firstOrNull()
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun <T> findAnimationSpec(group: CallGroup): AnimationSpec<T>? {
-            val rememberStates = group.children.filter { it.name == REMEMBER_UPDATED_STATE }
-            return (rememberStates + rememberStates.flatMap { it.children })
-                .flatMap { it.data }
-                .filterIsInstance<State<T>>()
-                .map { it.value }
-                .filterIsInstance<AnimationSpec<T>>()
-                .firstOrNull()
-        }
-
-        private fun <T> findAnimatable(group: CallGroup): Animatable<T, AnimationVector>? {
-            return group.findRememberedData<Animatable<T, AnimationVector>>().firstOrNull()
+        private fun <T, V : AnimationVector> findToolingHandle(
+            group: Group
+        ): AnimateValueAsStateToolingHandle<T, V>? {
+            return group.findRememberedData<AnimateValueAsStateToolingHandle<T, V>>().firstOrNull()
         }
     }
 

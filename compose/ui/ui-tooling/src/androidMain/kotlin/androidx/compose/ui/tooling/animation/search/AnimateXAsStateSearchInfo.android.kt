@@ -16,32 +16,31 @@
 
 package androidx.compose.ui.tooling.animation.search
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
+import androidx.compose.animation.core.tooling.AnimationToolingApi
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation.Companion.parse
 import androidx.compose.ui.tooling.animation.ClockInfo
-import androidx.compose.ui.tooling.animation.ToolingOverride
+import androidx.compose.ui.tooling.animation.ToolingState
 import androidx.compose.ui.tooling.animation.clock.AnimateXAsStateClock
 
-/**
- * [SearchInfo] for [androidx.compose.animation.core.animateValueAsState] animation.
- *
- * @param animatable used by [androidx.compose.animation.core.animateValueAsState]
- * @param animationSpec used by [androidx.compose.animation.core.animateValueAsState]
- * @param toolingOverride allows to override behavior of the animation
- */
+/** [SearchInfo] for [androidx.compose.animation.core.animateValueAsState] animation. */
+@OptIn(AnimationToolingApi::class)
 internal data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
-    val animatable: Animatable<T, V>,
-    val animationSpec: AnimationSpec<T>,
-    val toolingOverride: ToolingOverride<T>,
+    val toolingHandle: AnimateValueAsStateToolingHandle<T, V>
 ) : SearchInfo<AnimateXAsStateComposeAnimation<*, *>, AnimateXAsStateClock<*, *>> {
+    val toolingOverride = ToolingState(toolingHandle.animatable.value)
+    val animatable
+        get() = toolingHandle.animatable
 
-    override val animationObject: Any = animatable
+    val animationSpec
+        get() = toolingHandle.animationSpec
+
+    override val animationObject: Any = toolingHandle.animatable
 
     override val label: String
-        get() = animatable.label
+        get() = toolingHandle.animatable.label
 
     override var initialState: Any? = null
         private set
@@ -50,11 +49,11 @@ internal data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
         private set
 
     override fun setInitialStateToCurrentAnimationValue() {
-        initialState = animatable.targetValue
+        initialState = toolingHandle.animatable.targetValue
     }
 
     override fun setTargetStateToCurrentAnimationValue() {
-        targetState = animatable.targetValue
+        targetState = toolingHandle.animatable.targetValue
     }
 
     override fun createAnimation(): AnimateXAsStateComposeAnimation<*, *>? {
@@ -69,10 +68,10 @@ internal data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
     }
 
     override fun attach() {
-        toolingOverride.overrideState()
+        toolingHandle.setToolingOverrideState(toolingOverride)
     }
 
     override fun detach() {
-        toolingOverride.clearOverride()
+        toolingHandle.setToolingOverrideState(null)
     }
 }

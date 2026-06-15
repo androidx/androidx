@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -613,5 +613,76 @@ class SingleValueAnimationTest {
         rule.waitForIdle()
         // Animation is finished at this point
         assertEquals(250f, expected)
+    }
+
+    @Test
+    fun updateVisibilityThresholdTest() {
+        var duration by mutableStateOf(100)
+        var firstRun by mutableStateOf(true)
+        var visibilityThreshold by mutableStateOf(0.dp)
+        var enabled by mutableStateOf(false)
+        var expected by mutableStateOf(250.dp)
+
+        var finished = false
+        var midpoint = false
+
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            Box {
+                val animationValue by
+                    animateValueAsState(
+                        if (enabled) 50.dp else 250.dp,
+                        Dp.VectorConverter,
+                        visibilityThreshold = visibilityThreshold,
+                        animationSpec = TweenSpec(duration, easing = FastOutSlowInEasing),
+                        finishedListener = { finished = true },
+                    )
+                assertEquals(expected, animationValue)
+                if (!firstRun) {
+                    LaunchedEffect(enabled) {
+                        if (enabled) {
+                            assertEquals(100, duration)
+                        } else {
+                            assertEquals(200, duration)
+                        }
+                        val startTime = withFrameNanos { it }
+                        var frameTime = startTime
+                        do {
+                            withFrameNanos {
+                                frameTime = it
+                                val playTime =
+                                    ((frameTime - startTime) / 1_000_000L).coerceIn(
+                                        0,
+                                        duration.toLong(),
+                                    )
+                                val fraction =
+                                    FastOutSlowInEasing.transform(playTime / duration.toFloat())
+                                expected =
+                                    if (enabled) {
+                                            lerp(250f, 50f, fraction)
+                                        } else {
+                                            lerp(50f, 250f, fraction)
+                                        }
+                                        .dp
+                                if (fraction > .5f) {
+                                    midpoint = true
+                                }
+                            }
+                        } while (frameTime - startTime <= duration * 1_000_000L)
+                        expected = if (enabled) 50.dp else 250.dp
+                    }
+                }
+            }
+        }
+        rule.runOnUiThread {
+            finished = false
+            enabled = true
+            firstRun = false
+        }
+        rule.mainClock.advanceTimeUntil { midpoint }
+        rule.runOnUiThread { visibilityThreshold = 10.dp }
+        rule.mainClock.advanceTimeUntil { finished }
+        // Animation is finished at this point
+        assertEquals(50.dp, expected)
     }
 }
