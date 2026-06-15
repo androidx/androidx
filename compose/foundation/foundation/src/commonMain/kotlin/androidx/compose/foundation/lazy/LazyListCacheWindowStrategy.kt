@@ -34,7 +34,7 @@ import kotlin.math.absoluteValue
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyListCacheWindowStrategy(cacheWindow: LazyLayoutCacheWindow) :
-    CacheWindowLogic(cacheWindow), LazyListPrefetchStrategy {
+    LazyListPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
     private val cacheWindowScope = LazyListCacheWindowScope()
 
     override fun LazyListPrefetchScope.onScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {
@@ -69,7 +69,7 @@ internal class LazyListCacheWindowStrategy(cacheWindow: LazyLayoutCacheWindow) :
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListCacheWindowScope() : CacheWindowScope {
+internal class LazyListCacheWindowScope : CacheWindowScope {
     lateinit var layoutInfo: LazyListLayoutInfo
     lateinit var prefetchScope: LazyListPrefetchScope
 
@@ -79,31 +79,10 @@ internal class LazyListCacheWindowScope() : CacheWindowScope {
     override val hasVisibleItems: Boolean
         get() = layoutInfo.visibleItemsInfo.isNotEmpty()
 
-    override val mainAxisExtraSpaceStart: Int
-        get() {
-            val firstVisibleItem = layoutInfo.visibleItemsInfo.first()
-            // how much of the first item is peeking out of view at the start of the layout.
-            val firstItemOverflowOffset =
-                (firstVisibleItem.offset + layoutInfo.beforeContentPadding).coerceAtMost(0)
-            // extra space is always positive in this context
-            return firstItemOverflowOffset.absoluteValue
-        }
-
-    override val mainAxisExtraSpaceEnd: Int
-        get() {
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
-            // how much of the last item is peeking out of view at the end of the layout
-            val lastItemOverflowOffset =
-                lastVisibleItem.offset + lastVisibleItem.size + layoutInfo.mainAxisItemSpacing
-
-            // extra space is always positive in this context
-            return (lastItemOverflowOffset - layoutInfo.viewportEndOffset).absoluteValue
-        }
-
-    override val firstVisibleLineIndex: Int
+    override val firstVisibleItemIndex: Int
         get() = layoutInfo.visibleItemsInfo.first().index
 
-    override val lastVisibleLineIndex: Int
+    override val lastVisibleItemIndex: Int
         get() = layoutInfo.visibleItemsInfo.last().index
 
     override val mainAxisViewportSize: Int
@@ -112,34 +91,60 @@ internal class LazyListCacheWindowScope() : CacheWindowScope {
     override val density: Density?
         get() = (layoutInfo as? LazyListMeasureResult)?.density
 
-    override fun schedulePrefetch(
-        lineIndex: Int,
-        onItemPrefetched: (Int, Int) -> Unit,
-    ): List<PrefetchHandle> {
-        return listOf(
-            prefetchScope.schedulePrefetch(
-                lineIndex,
-                { onItemPrefetched.invoke(index, mainAxisSize) },
-            )
-        )
-    }
-
     override val visibleLineCount: Int
         get() = layoutInfo.visibleItemsInfo.size
 
-    override fun getVisibleItemSize(indexInVisibleLines: Int): Int =
-        layoutInfo.visibleItemsInfo[indexInVisibleLines].size
-
-    override fun getVisibleItemLine(indexInVisibleLines: Int): Int =
-        layoutInfo.visibleItemsInfo[indexInVisibleLines].index
-
-    override fun getLastIndexInLine(lineIndex: Int): Int = lineIndex
-
-    override fun getVisibleLineKey(indexInVisibleLines: Int): Any {
-        return layoutInfo.visibleItemsInfo[indexInVisibleLines].key
+    override fun updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace: IntArray) {
+        val firstVisibleItem = layoutInfo.visibleItemsInfo.first()
+        // how much of the first item is peeking out of view at the start of the layout.
+        val firstItemOverflowOffset =
+            (firstVisibleItem.offset + layoutInfo.beforeContentPadding).coerceAtMost(0)
+        // extra space is always positive in this context
+        perLaneMainAxisExtraStartSpace[0] = firstItemOverflowOffset.absoluteValue
     }
 
-    override fun getLastLineIndex(): Int {
+    override fun updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace: IntArray) {
+        val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
+        // how much of the last item is peeking out of view at the end of the layout
+        val lastItemOverflowOffset =
+            lastVisibleItem.offset + lastVisibleItem.size + layoutInfo.mainAxisItemSpacing
+
+        // extra space is always positive in this context
+        perLaneMainAxisExtraEndSpace[0] =
+            (lastItemOverflowOffset - layoutInfo.viewportEndOffset).absoluteValue
+    }
+
+    override fun updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex: IntArray) {
+        perLaneFirstVisibleItemIndex[0] = firstVisibleItemIndex
+    }
+
+    override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {
+        perLaneVisibleItemIndexes[0] = lastVisibleItemIndex
+    }
+
+    override fun schedulePrefetch(
+        lane: Int,
+        itemIndex: Int,
+        onItemPrefetched: (itemSize: Int) -> Unit,
+    ): List<PrefetchHandle> {
+        return listOf(prefetchScope.schedulePrefetch(itemIndex) { onItemPrefetched(mainAxisSize) })
+    }
+
+    override fun getVisibleItemSize(indexInVisibleItems: Int): Int =
+        layoutInfo.visibleItemsInfo[indexInVisibleItems].size
+
+    override fun getVisibleItemIndex(indexInVisibleItems: Int): Int =
+        layoutInfo.visibleItemsInfo[indexInVisibleItems].index
+
+    override fun lastItemIndexInLine(currentItemIndex: Int): Int = currentItemIndex
+
+    override fun getVisibleItemKey(indexInVisibleItems: Int): Any {
+        return layoutInfo.visibleItemsInfo[indexInVisibleItems].key
+    }
+
+    override fun getVisibleItemLane(indexInVisibleItems: Int): Int = 0
+
+    override fun getLastItemIndex(): Int {
         if (totalItemsCount == 0) return InvalidIndex
         return totalItemsCount - 1
     }

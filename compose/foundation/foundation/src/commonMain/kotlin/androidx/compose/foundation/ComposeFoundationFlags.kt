@@ -96,6 +96,10 @@ object ComposeFoundationFlags {
     // TODO: b/485967807
     @field:Suppress("MutableBareField") @JvmField var isCacheWindowForPagerEnabled = true
 
+    /** With this flag on, lazy layout Cache Window will support multi-lane configurations. */
+    // TODO: b/522643119
+    @field:Suppress("MutableBareField") @JvmField var isMultiLaneCacheWindowEnabled = false
+
     /**
      * With this flag enabled,
      * [androidx.compose.foundation.gestures.AnchoredDraggableState.targetValue] correctly returns

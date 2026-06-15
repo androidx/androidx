@@ -33,7 +33,7 @@ import kotlin.math.absoluteValue
 
 @ExperimentalFoundationApi
 internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheWindow) :
-    CacheWindowLogic(cacheWindow), LazyGridPrefetchStrategy {
+    LazyGridPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
     private val cacheWindowScope = LazyGridCacheWindowScope()
 
     override fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) {
@@ -70,37 +70,10 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
     override val hasVisibleItems: Boolean
         get() = layoutInfo.visibleItemsInfo.isNotEmpty()
 
-    override val mainAxisExtraSpaceStart: Int
-        get() {
-            val firstVisibleItem = layoutInfo.visibleItemsInfo.first()
-            // how much of the first item is peeking out of view at the start of the layout.
-            val firstItemOverflowOffset =
-                (firstVisibleItem.offsetOnMainAxis(layoutInfo.orientation) +
-                        layoutInfo.beforeContentPadding)
-                    .coerceAtMost(0)
-            // extra space is always positive in this context
-            return firstItemOverflowOffset.absoluteValue
-        }
+    override val firstVisibleItemIndex: Int
+        get() = layoutInfo.visibleItemsInfo.first().lineIndex
 
-    override val mainAxisExtraSpaceEnd: Int
-        get() {
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
-            // how much of the last item is peeking out of view at the end of the layout
-            val lastItemOverflowOffset =
-                lastVisibleItem.offsetOnMainAxis(layoutInfo.orientation) +
-                    lastVisibleItem.sizeOnMainAxis(orientation = layoutInfo.orientation) +
-                    layoutInfo.mainAxisItemSpacing
-
-            // extra space is always positive in this context
-            return (lastItemOverflowOffset - layoutInfo.viewportEndOffset).absoluteValue
-        }
-
-    override val firstVisibleLineIndex: Int
-        get() {
-            return layoutInfo.visibleItemsInfo.first().lineIndex
-        }
-
-    override val lastVisibleLineIndex: Int
+    override val lastVisibleItemIndex: Int
         get() = layoutInfo.visibleItemsInfo.last().lineIndex
 
     override val mainAxisViewportSize: Int
@@ -109,27 +82,63 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
     override val density: Density?
         get() = (layoutInfo as? LazyGridMeasureResult)?.density
 
+    override val visibleLineCount: Int
+        get() = lastVisibleItemIndex - firstVisibleItemIndex + 1
+
+    val LazyGridItemInfo.lineIndex: Int
+        get() = lineIndex(layoutInfo.orientation)
+
+    override fun updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace: IntArray) {
+        val firstVisibleItem = layoutInfo.visibleItemsInfo.first()
+        // how much of the first item is peeking out of view at the start of the layout.
+        val firstItemOverflowOffset =
+            (firstVisibleItem.offsetOnMainAxis(layoutInfo.orientation) +
+                    layoutInfo.beforeContentPadding)
+                .coerceAtMost(0)
+        // extra space is always positive in this context
+        perLaneMainAxisExtraStartSpace[0] = firstItemOverflowOffset.absoluteValue
+    }
+
+    override fun updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace: IntArray) {
+        val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
+        // how much of the last item is peeking out of view at the end of the layout
+        val lastItemOverflowOffset =
+            lastVisibleItem.offsetOnMainAxis(layoutInfo.orientation) +
+                lastVisibleItem.sizeOnMainAxis(orientation = layoutInfo.orientation) +
+                layoutInfo.mainAxisItemSpacing
+
+        // extra space is always positive in this context
+        perLaneMainAxisExtraEndSpace[0] =
+            (lastItemOverflowOffset - layoutInfo.viewportEndOffset).absoluteValue
+    }
+
+    override fun updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex: IntArray) {
+        perLaneFirstVisibleItemIndex[0] = firstVisibleItemIndex
+    }
+
+    override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {
+        perLaneVisibleItemIndexes[0] = lastVisibleItemIndex
+    }
+
     override fun schedulePrefetch(
-        lineIndex: Int,
-        onItemPrefetched: (Int, Int) -> Unit,
+        lane: Int,
+        itemIndex: Int,
+        onItemPrefetched: (lineSize: Int) -> Unit,
     ): List<PrefetchHandle> {
-        return prefetchScope.scheduleLinePrefetch(lineIndex) {
+        return prefetchScope.scheduleLinePrefetch(itemIndex) {
             var tallestElement = Int.MIN_VALUE
             repeat(lineItemCount) { tallestElement = maxOf(getMainAxisSize(it)) }
             if (tallestElement != Int.MIN_VALUE) {
-                onItemPrefetched(lineIndex, tallestElement)
+                onItemPrefetched(tallestElement)
             }
         }
     }
 
-    override val visibleLineCount: Int
-        get() = lastVisibleLineIndex - firstVisibleLineIndex + 1
-
-    override fun getVisibleItemSize(indexInVisibleLines: Int): Int {
-        val laneIndex = indexInVisibleLines + firstVisibleLineIndex
+    override fun getVisibleItemSize(indexInVisibleItems: Int): Int {
+        val lineIndex = indexInVisibleItems + firstVisibleItemIndex
         var tallestItemSize = 0
         layoutInfo.visibleItemsInfo
-            .fastFilter { it.lineIndex == laneIndex }
+            .fastFilter { it.lineIndex == lineIndex }
             .fastForEach {
                 tallestItemSize =
                     maxOf(it.sizeOnMainAxis(orientation = layoutInfo.orientation), tallestItemSize)
@@ -138,24 +147,23 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
         return tallestItemSize
     }
 
-    override fun getVisibleLineKey(indexInVisibleLines: Int): Any {
+    override fun getVisibleItemKey(indexInVisibleItems: Int): Any {
         // using the first item key to represent this line.
-        val laneIndex = indexInVisibleLines + firstVisibleLineIndex
+        val laneIndex = indexInVisibleItems + firstVisibleItemIndex
         return layoutInfo.visibleItemsInfo
             .fastFilter { it.lineIndex == laneIndex }
             .firstOrNull()
             ?.key ?: CachedItem.NoKey
     }
 
-    override fun getVisibleItemLine(indexInVisibleLines: Int): Int =
-        firstVisibleLineIndex + indexInVisibleLines
+    override fun getVisibleItemLane(indexInVisibleItems: Int): Int = 0
 
-    val LazyGridItemInfo.lineIndex: Int
-        get() = lineIndex(layoutInfo.orientation)
+    override fun getVisibleItemIndex(indexInVisibleItems: Int): Int =
+        firstVisibleItemIndex + indexInVisibleItems
 
-    override fun getLastIndexInLine(lineIndex: Int): Int {
+    override fun lastItemIndexInLine(currentItemIndex: Int): Int {
         val measureResult = layoutInfo as? LazyGridMeasureResult ?: return InvalidIndex
-        val itemsInLine = measureResult.prefetchInfoRetriever.invoke(lineIndex)
+        val itemsInLine = measureResult.prefetchInfoRetriever.invoke(currentItemIndex)
         return if (itemsInLine.isEmpty()) {
             InvalidIndex
         } else {
@@ -165,7 +173,7 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
         }
     }
 
-    override fun getLastLineIndex(): Int {
+    override fun getLastItemIndex(): Int {
         val measureResult = layoutInfo as? LazyGridMeasureResult ?: return InvalidIndex
         if (totalItemsCount == 0) return InvalidIndex
         return measureResult.lineIndexProvider.invoke(totalItemsCount - 1)
