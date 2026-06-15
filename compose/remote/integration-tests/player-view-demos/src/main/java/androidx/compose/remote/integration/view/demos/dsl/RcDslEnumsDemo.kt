@@ -78,27 +78,27 @@ public fun enumsDemo(): ByteArray {
             Text("Paint Styles & Caps:", fontSize = 64.rsp, fontWeight = RcFontWeight.SemiBold)
             Canvas(modifier = Modifier.size(600.rdp, 200.rdp).background(0xFFFFFFFF.toInt())) {
                 // Stroke Cap: Round
-                applyPaint {
-                    setColor(0xFFFF0000.toInt())
-                    setStrokeWidth(40f)
-                    setStrokeCap(RcStrokeCap.Round)
-                    setStyle(RcPaintStyle.Stroke)
+                paint {
+                    color(0xFFFF0000.toInt())
+                    strokeWidth(40f)
+                    strokeCap(RcStrokeCap.Round)
+                    style(RcPaintStyle.Stroke)
                 }
                 drawLine(20f, 30f, 220f, 30f)
 
                 // Stroke Cap: Square
-                applyPaint {
-                    setColor(0xFF00FF00.toInt())
-                    setStrokeCap(RcStrokeCap.Square)
+                paint {
+                    color(0xFF00FF00.toInt())
+                    strokeCap(RcStrokeCap.Square)
                 }
                 drawLine(20f, 170f, 220f, 170f)
 
                 // Paint Style: Fill and Stroke
-                applyPaint {
-                    setColor(0xFF0000FF.toInt())
-                    setStyle(RcPaintStyle.FillAndStroke)
-                    setStrokeWidth(4f)
-                    setStrokeJoin(RcStrokeJoin.Round)
+                paint {
+                    color(0xFF0000FF.toInt())
+                    style(RcPaintStyle.FillAndStroke)
+                    strokeWidth(4f)
+                    strokeJoin(RcStrokeJoin.Round)
                 }
                 drawRect(280f, 20f, 360f, 80f)
             }

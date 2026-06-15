@@ -29,9 +29,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 
 /** Type-safe reference for remote text resources. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RcText internal constructor(internal val id: Int)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline public value class RcText(public val id: Int)
 
 /** Type-safe reference for remote image resources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -81,7 +79,7 @@ public value class RcTextList internal constructor(internal val id: Float)
 /** Type-safe reference for remote custom shaders. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcShader internal constructor(internal val id: Int)
+public value class RcShader(public val id: Int)
 
 /** Returns an [RcFloat] interpolated from [array] at [position]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -501,6 +499,69 @@ public enum class RcConditionOp(internal val value: Byte) {
     Gte(Rc.Condition.GTE),
 }
 
+/** Represents a resolved logical condition between two float values. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcCondition
+internal constructor(
+    internal val op: RcConditionOp,
+    internal val a: RcFloat,
+    internal val b: RcFloat,
+)
+
+/** Infix equality comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.eq(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Eq, this, other)
+
+/** Infix inequality comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.neq(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Neq, this, other)
+
+/** Infix less-than comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.lt(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Lt, this, other)
+
+/** Infix less-than-or-equal comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.lte(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Lte, this, other)
+
+/** Infix greater-than comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.gt(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Gt, this, other)
+
+/** Infix greater-than-or-equal comparison. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.gte(other: RcFloat): RcCondition =
+    RcCondition(RcConditionOp.Gte, this, other)
+
+/** Infix equality comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.eq(other: Float): RcCondition = eq(RcFloat(this.writer, other))
+
+/** Infix inequality comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.neq(other: Float): RcCondition = neq(RcFloat(this.writer, other))
+
+/** Infix less-than comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.lt(other: Float): RcCondition = lt(RcFloat(this.writer, other))
+
+/** Infix less-than-or-equal comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.lte(other: Float): RcCondition = lte(RcFloat(this.writer, other))
+
+/** Infix greater-than comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.gt(other: Float): RcCondition = gt(RcFloat(this.writer, other))
+
+/** Infix greater-than-or-equal comparison with raw Float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public infix fun RcFloat.gte(other: Float): RcCondition = gte(RcFloat(this.writer, other))
+
 /**
  * Skip predicate for [RcScope.skip] / [RcScope.beginSkip]. Wraps `Rc.Skip.*` opcodes.
  *
@@ -889,6 +950,31 @@ public value class RcSkipToken internal constructor(internal val offset: Int)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcComponentId(public val id: Int)
+
+/** Type-safe reference for remote animation specs. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcAnimationSpec internal constructor(internal val id: Int)
+
+/** Type-safe reference for remote macros. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcMacro internal constructor(internal val id: Int)
+
+/** Type-safe reference for remote macro argument placeholders or blocks. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcMacroArg(public val paramId: Int)
+
+/** Type-safe reference for remote key-value data maps. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcDataMap internal constructor(internal val id: Int)
+
+/** Type-safe reference for remote raw font files. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcFont internal constructor(internal val id: Int)
 
 /**
  * Type-safe font-weight value (added alongside the existing [RcFontWeight] object of `Float`

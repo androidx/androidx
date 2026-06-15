@@ -39,10 +39,10 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         modifier: Modifier,
         horizontal: RcHorizontalPositioning,
         vertical: RcVerticalPositioning,
-        content: RcScope.() -> Unit,
+        content: RcBoxScope.() -> Unit,
     ) {
         writer.startBox(modifier.toRecordingModifier(), horizontal.value, vertical.value)
-        RcScopeImpl(writer).content()
+        RcBoxScopeImpl(writer).content()
         writer.endBox()
     }
 
@@ -205,8 +205,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcPath(writer.pathCombine(this.id, path2.id, op.value))
     }
 
-    override fun performHaptic(feedbackConstant: Int) {
-        writer.performHaptic(feedbackConstant)
+    override fun performHaptic(haptic: RcHaptic) {
+        writer.performHaptic(haptic.value)
     }
 
     override fun wakeIn(seconds: Float) {
@@ -1221,6 +1221,70 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcText(writer.createTextFromFloat(this, whole, decimal, flags))
     }
 
+    override infix fun RcText.merge(other: RcText): RcText {
+        return RcText(writer.textMerge(this.id, other.id))
+    }
+
+    override fun RcText.subtext(start: RcFloat, length: RcFloat): RcText {
+        return RcText(
+            writer.textSubtext(
+                this.id,
+                start.withWriter(writer).toFloat(),
+                length.withWriter(writer).toFloat(),
+            )
+        )
+    }
+
+    override fun RcText.subtext(start: Float, length: Float): RcText = subtext(start.rf, length.rf)
+
+    override val RcText.length: RcFloat
+        get() = RcFloat(writer, writer.textLength(this.id))
+
+    override fun defineMacro(
+        name: String,
+        parameters: List<String>,
+        content: RcScope.(Map<String, RcMacroArg>) -> Unit,
+    ): RcMacro {
+        val paramIds = parameters.map { writer.definePatternParameter(it) }.toIntArray()
+        val macroId = writer.definePattern(name, paramIds)
+        val argMap =
+            parameters
+                .mapIndexed { index, paramName -> paramName to RcMacroArg(paramIds[index]) }
+                .toMap()
+
+        content(argMap)
+        writer.endPatternDefine()
+        return RcMacro(macroId)
+    }
+
+    override fun RcMacro.inflate(arguments: Map<String, Any>) {
+        val argIds =
+            arguments.values
+                .map { valArg ->
+                    when (valArg) {
+                        is RcFloat -> writer.cacheData(valArg.id.toInt())
+                        is RcInteger -> writer.cacheData(valArg.id.toInt())
+                        is RcText -> valArg.id
+                        is RcColor -> valArg.id
+                        is Number -> writer.cacheData(valArg.toFloat().toInt())
+                        is String -> writer.addText(valArg)
+                        else -> writer.cacheData(valArg.hashCode())
+                    }
+                }
+                .toIntArray()
+        writer.addPatternInflation(this.id, argIds)
+    }
+
+    override fun RcMacroArg.insertArgument() {
+        writer.addPatternArgument(this.paramId)
+    }
+
+    override fun RcMacroArg.insertBlock(content: RcScope.() -> Unit) {
+        writer.addPatternBlock(this.paramId)
+        content()
+        writer.endPatternBlock()
+    }
+
     override val Int.rf: RcFloat
         get() = RcFloat(writer, this.toFloat())
 
@@ -1525,6 +1589,8 @@ private class RcImpulseScopeImpl(writer: RemoteComposeWriter) :
         )
     }
 }
+
+private class RcBoxScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcBoxScope
 
 private class RcColumnScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcColumnScope {
     override fun Modifier.weight(weight: Float): Modifier =

@@ -16,33 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.creation.dsl.Modifier
-import androidx.compose.remote.creation.dsl.RcAnimationCurve
-import androidx.compose.remote.creation.dsl.RcBorderShape
-import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
-import androidx.compose.remote.creation.dsl.RcConditionOp
-import androidx.compose.remote.creation.dsl.RcHaptic
-import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
-import androidx.compose.remote.creation.dsl.RcPoint
-import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.RcRect
-import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
-import androidx.compose.remote.creation.dsl.RcSkipKind
-import androidx.compose.remote.creation.dsl.RcTextAlign
-import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
-import androidx.compose.remote.creation.dsl.RcVerticalPositioning
-import androidx.compose.remote.creation.dsl.RcWeight
-import androidx.compose.remote.creation.dsl.background
-import androidx.compose.remote.creation.dsl.border
-import androidx.compose.remote.creation.dsl.createRcBuffer
-import androidx.compose.remote.creation.dsl.fillMaxSize
-import androidx.compose.remote.creation.dsl.fillMaxWidth
-import androidx.compose.remote.creation.dsl.height
-import androidx.compose.remote.creation.dsl.padding
-import androidx.compose.remote.creation.dsl.rcAt
-import androidx.compose.remote.creation.dsl.rcColor
-import androidx.compose.remote.creation.dsl.rdp
-import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -85,13 +59,13 @@ public fun typeSafetyDemo(): ByteArray {
             // ----------------------------------------------------------------------------
             sectionLabel("1. Geometry: RcRect + RcPoint")
             Canvas(modifier = Modifier.size(560.rdp, 200.rdp).background(0xFFFFFFFF.toInt())) {
-                applyPaint { setColor(0xFF1976D2.toInt()) }
+                paint { color(0xFF1976D2.toInt()) }
                 drawRect(RcRect.ltrb(20f, 20f, 200f, 180f))
 
-                applyPaint { setColor(0xFF388E3C.toInt()) }
+                paint { color(0xFF388E3C.toInt()) }
                 drawRoundRect(RcRect.xywh(220f, 20f, 160f, 160f), 16f, 16f)
 
-                applyPaint { setColor(0xFFFB8C00.toInt()) }
+                paint { color(0xFFFB8C00.toInt()) }
                 drawCircle(center = (480f rcAt 100f), radius = 60f)
             }
 
@@ -146,7 +120,7 @@ public fun typeSafetyDemo(): ByteArray {
             // ----------------------------------------------------------------------------
             sectionLabel("3. Conditional gating (RcConditionOp.Lt)")
             Box(modifier = Modifier.size(560.rdp, 70.rdp).background(0xFFE3F2FD.toInt())) {
-                conditionalOperations(RcConditionOp.Lt, seconds(), 30f.rf) {
+                ifTrue(seconds() lt 30f.rf) {
                     Text(
                         text = "Visible while seconds < 30",
                         weight = RcWeight.SemiBold,
@@ -213,7 +187,7 @@ public fun typeSafetyDemo(): ByteArray {
             // ----------------------------------------------------------------------------
             sectionLabel("6. Animated bar (RcAnimationCurve.EaseOutBounce)")
             Canvas(modifier = Modifier.size(560.rdp, 80.rdp).background(0xFFFFFFFF.toInt())) {
-                applyPaint { setColor(0xFF6A1B9A.toInt()) }
+                paint { color(0xFF6A1B9A.toInt()) }
                 val wobble = remoteFloat(0f).anim(2f, RcAnimationCurve.EaseOutBounce)
                 drawRect(left = wobble, top = 10f.rf, right = wobble + 80f, bottom = 70f.rf)
             }
@@ -290,11 +264,11 @@ public fun typeSafetyBeforeAfter(): ByteArray {
             // identically — proving that the typed surface is a pure ergonomic refactor.
             row("Rectangle: 4 floats vs RcRect.ltrb") {
                 Canvas(modifier = Modifier.size(220.rdp, 100.rdp).background(0xFFFFFFFF.toInt())) {
-                    applyPaint { setColor(0xFF1976D2.toInt()) }
+                    paint { color(0xFF1976D2.toInt()) }
                     drawRect(20f, 20f, 200f, 80f)
                 }
                 Canvas(modifier = Modifier.size(220.rdp, 100.rdp).background(0xFFFFFFFF.toInt())) {
-                    applyPaint { setColor(0xFF1976D2.toInt()) }
+                    paint { color(0xFF1976D2.toInt()) }
                     drawRect(RcRect.ltrb(20f, 20f, 200f, 80f))
                 }
             }
@@ -303,11 +277,11 @@ public fun typeSafetyBeforeAfter(): ByteArray {
 
             row("Circle: 3 floats vs RcPoint + radius") {
                 Canvas(modifier = Modifier.size(220.rdp, 100.rdp).background(0xFFFFFFFF.toInt())) {
-                    applyPaint { setColor(0xFF388E3C.toInt()) }
+                    paint { color(0xFF388E3C.toInt()) }
                     drawCircle(110f, 50f, 40f)
                 }
                 Canvas(modifier = Modifier.size(220.rdp, 100.rdp).background(0xFFFFFFFF.toInt())) {
-                    applyPaint { setColor(0xFF388E3C.toInt()) }
+                    paint { color(0xFF388E3C.toInt()) }
                     drawCircle(center = 110f rcAt 50f, radius = 40f)
                 }
             }

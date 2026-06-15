@@ -2172,6 +2172,11 @@ public class RemoteComposeWriter {
         return mBuffer.definePattern(id, paramIds);
     }
 
+    /** Helper to cache raw any data values into state and return unique ID. */
+    public int cacheData(@NonNull Object data) {
+        return mState.cacheData(data);
+    }
+
     /**
      * Define a pattern parameter
      *
