@@ -46,8 +46,11 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     override fun isValid(): Boolean = fenceLock.withLock { fd != -1 }
 
     /**
-     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain. This returns
-     * [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
+     * Returns the time that the fence signaled in the `CLOCK_MONOTONIC` time domain. This
+     * corresponds to [System.nanoTime] but may also be compared to
+     * [android.os.SystemClock.uptimeMillis] after adjusting for milliseconds vs. nanoseconds.
+     *
+     * This returns [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
      */
     // Relies on NDK APIs sync_file_info/sync_file_info_free which were introduced in API level 26
     @RequiresApi(Build.VERSION_CODES.O)
