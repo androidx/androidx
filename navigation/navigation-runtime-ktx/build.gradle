@@ -36,6 +36,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2018"
     description = "Android Navigation-Runtime-Ktx"
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 
 android {

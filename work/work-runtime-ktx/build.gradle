@@ -38,6 +38,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 
 android {
