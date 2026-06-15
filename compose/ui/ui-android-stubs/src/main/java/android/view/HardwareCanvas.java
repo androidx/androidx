@@ -19,7 +19,7 @@ package android.view;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Stub for HardwareCanvas on Android L

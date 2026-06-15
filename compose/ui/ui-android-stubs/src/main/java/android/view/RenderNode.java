@@ -22,8 +22,8 @@ import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Stubs for RenderNode on M-P devices.

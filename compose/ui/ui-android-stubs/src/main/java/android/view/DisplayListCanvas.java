@@ -18,7 +18,7 @@ package android.view;
 
 import android.graphics.Canvas;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Stubs for DisplayListCanvas on M-P devices.
