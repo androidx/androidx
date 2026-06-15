@@ -101,8 +101,14 @@ interface UiMediaScope {
      */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class Posture private constructor(private val description: String) {
-        override fun toString(): String = description
+    value class Posture private constructor(private val value: Int) {
+        override fun toString(): String =
+            when (this) {
+                Flat -> "Flat"
+                Tabletop -> "Tabletop"
+                Book -> "Book"
+                else -> "Unknown"
+            }
 
         companion object {
             /**
@@ -111,59 +117,72 @@ interface UiMediaScope {
              * devices, or when the window does not span across a hinge or fold (such as in
              * split-screen mode on a single panel).
              */
-            val Flat = Posture("Flat")
+            val Flat = Posture(0)
 
             /**
              * Represents a device in a semi-open state, similar to a laptop. The window spans
              * across a horizontal fold or hinge, splitting the display area into two logical parts.
              */
-            val Tabletop = Posture("Tabletop")
+            val Tabletop = Posture(1)
 
             /**
              * Represents a device in a semi-open state, folded similarly to an open book. The
              * window spans across a vertical fold or hinge, splitting the display area into two
              * logical parts.
              */
-            val Book = Posture("Book")
+            val Book = Posture(2)
         }
     }
 
     /** Describes the precision of the available pointing devices. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class PointerPrecision private constructor(private val description: String) {
-        override fun toString(): String = description
+    value class PointerPrecision private constructor(private val value: Int) {
+        override fun toString(): String =
+            when (this) {
+                Fine -> "Fine"
+                Coarse -> "Coarse"
+                Blunt -> "Blunt"
+                None -> "None"
+                else -> "Unknown"
+            }
 
         companion object {
             /**
              * Represents a pointing device with high precision, such as a mouse, trackpad, or
              * stylus.
              */
-            val Fine = PointerPrecision("Fine")
+            val Fine = PointerPrecision(0)
 
             /** Represents a pointing device with limited precision, such as a touchscreen. */
-            val Coarse = PointerPrecision("Coarse")
+            val Coarse = PointerPrecision(1)
 
             /** Represents a pointing device with low precision, such as a joystick. */
-            val Blunt = PointerPrecision("Blunt")
+            val Blunt = PointerPrecision(2)
 
             /** Indicates that no pointing device is available. */
-            val None = PointerPrecision("None")
+            val None = PointerPrecision(3)
         }
     }
 
     /** Describes the kind of keyboard available. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class KeyboardKind private constructor(private val description: String) {
-        override fun toString(): String = description
+    value class KeyboardKind private constructor(private val value: Int) {
+        override fun toString(): String =
+            when (this) {
+                Physical -> "Physical"
+                Virtual -> "Virtual"
+                None -> "None"
+                else -> "Unknown"
+            }
 
         companion object {
             /** Represents a physical hardware keyboard. */
-            val Physical = KeyboardKind("Physical")
+            val Physical = KeyboardKind(0)
 
             /** Represents an on-screen virtual keyboard (IME). */
-            val Virtual = KeyboardKind("Virtual")
+            val Virtual = KeyboardKind(1)
 
             /**
              * Indicates that no keyboard is currently available for input.
@@ -171,31 +190,37 @@ interface UiMediaScope {
              * This state occurs when no physical keyboard is connected to the device, and the
              * on-screen software keyboard (IME) is currently hidden or closed.
              */
-            val None = KeyboardKind("None")
+            val None = KeyboardKind(2)
         }
     }
 
     /** Describes the typical distance between the user and the screen. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class ViewingDistance private constructor(private val description: String) {
-        override fun toString(): String = description
+    value class ViewingDistance private constructor(private val value: Int) {
+        override fun toString(): String =
+            when (this) {
+                Near -> "Near"
+                Medium -> "Medium"
+                Far -> "Far"
+                else -> "Unknown"
+            }
 
         companion object {
             /**
              * Represents a device used within close range, such as a handheld phone, tablet,
              * laptop, or desktop monitor. This is the default for most personal devices.
              */
-            val Near = ViewingDistance("Near")
+            val Near = ViewingDistance(0)
 
             /**
              * Represents a device positioned slightly further away, such as an automotive device,
              * or a tablet in a dock mode.
              */
-            val Medium = ViewingDistance("Medium")
+            val Medium = ViewingDistance(1)
 
             /** Represents a device viewed from a significant distance, such as a television. */
-            val Far = ViewingDistance("Far")
+            val Far = ViewingDistance(2)
         }
     }
 }

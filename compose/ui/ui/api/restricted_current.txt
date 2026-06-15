@@ -298,11 +298,11 @@ package androidx.compose.ui {
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public interface UiMediaScope {
     method @InaccessibleFromKotlin public boolean getHasCamera();
     method @InaccessibleFromKotlin public boolean getHasMicrophone();
-    method @BytecodeOnly public String getKeyboardKind-J9_QTjY();
-    method @BytecodeOnly public String getPointerPrecision-fpxItnM();
-    method @BytecodeOnly public String getViewingDistance-tKro-MQ();
+    method @BytecodeOnly public int getKeyboardKind-J9_QTjY();
+    method @BytecodeOnly public int getPointerPrecision-fpxItnM();
+    method @BytecodeOnly public int getViewingDistance-tKro-MQ();
     method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getWindowHeight-D9Ej5fM();
-    method @BytecodeOnly public String getWindowPosture-m18o9QQ();
+    method @BytecodeOnly public int getWindowPosture-m18o9QQ();
     method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getWindowWidth-D9Ej5fM();
     property public abstract boolean hasCamera;
     property public abstract boolean hasMicrophone;
@@ -315,31 +315,31 @@ package androidx.compose.ui {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.KeyboardKind {
-    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.KeyboardKind! box-impl(String!);
-    method @BytecodeOnly public String! unbox-impl();
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.KeyboardKind! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.ui.UiMediaScope.KeyboardKind.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.KeyboardKind.Companion {
-    method @BytecodeOnly public String getNone-J9_QTjY();
-    method @BytecodeOnly public String getPhysical-J9_QTjY();
-    method @BytecodeOnly public String getVirtual-J9_QTjY();
+    method @BytecodeOnly public int getNone-J9_QTjY();
+    method @BytecodeOnly public int getPhysical-J9_QTjY();
+    method @BytecodeOnly public int getVirtual-J9_QTjY();
     property public androidx.compose.ui.UiMediaScope.KeyboardKind None;
     property public androidx.compose.ui.UiMediaScope.KeyboardKind Physical;
     property public androidx.compose.ui.UiMediaScope.KeyboardKind Virtual;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.PointerPrecision {
-    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.PointerPrecision! box-impl(String!);
-    method @BytecodeOnly public String! unbox-impl();
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.PointerPrecision! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.ui.UiMediaScope.PointerPrecision.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.PointerPrecision.Companion {
-    method @BytecodeOnly public String getBlunt-fpxItnM();
-    method @BytecodeOnly public String getCoarse-fpxItnM();
-    method @BytecodeOnly public String getFine-fpxItnM();
-    method @BytecodeOnly public String getNone-fpxItnM();
+    method @BytecodeOnly public int getBlunt-fpxItnM();
+    method @BytecodeOnly public int getCoarse-fpxItnM();
+    method @BytecodeOnly public int getFine-fpxItnM();
+    method @BytecodeOnly public int getNone-fpxItnM();
     property public androidx.compose.ui.UiMediaScope.PointerPrecision Blunt;
     property public androidx.compose.ui.UiMediaScope.PointerPrecision Coarse;
     property public androidx.compose.ui.UiMediaScope.PointerPrecision Fine;
@@ -347,30 +347,30 @@ package androidx.compose.ui {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.Posture {
-    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.Posture! box-impl(String!);
-    method @BytecodeOnly public String! unbox-impl();
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.Posture! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.ui.UiMediaScope.Posture.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.Posture.Companion {
-    method @BytecodeOnly public String getBook-m18o9QQ();
-    method @BytecodeOnly public String getFlat-m18o9QQ();
-    method @BytecodeOnly public String getTabletop-m18o9QQ();
+    method @BytecodeOnly public int getBook-m18o9QQ();
+    method @BytecodeOnly public int getFlat-m18o9QQ();
+    method @BytecodeOnly public int getTabletop-m18o9QQ();
     property public androidx.compose.ui.UiMediaScope.Posture Book;
     property public androidx.compose.ui.UiMediaScope.Posture Flat;
     property public androidx.compose.ui.UiMediaScope.Posture Tabletop;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.ViewingDistance {
-    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.ViewingDistance! box-impl(String!);
-    method @BytecodeOnly public String! unbox-impl();
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.ViewingDistance! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.ui.UiMediaScope.ViewingDistance.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.ViewingDistance.Companion {
-    method @BytecodeOnly public String getFar-tKro-MQ();
-    method @BytecodeOnly public String getMedium-tKro-MQ();
-    method @BytecodeOnly public String getNear-tKro-MQ();
+    method @BytecodeOnly public int getFar-tKro-MQ();
+    method @BytecodeOnly public int getMedium-tKro-MQ();
+    method @BytecodeOnly public int getNear-tKro-MQ();
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Far;
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Medium;
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Near;
