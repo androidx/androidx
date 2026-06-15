@@ -1,0 +1,150 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.ink:ink-strokes>
+open annotation class androidx.ink.strokes/ExperimentalInkEraserApi : kotlin/Annotation { // androidx.ink.strokes/ExperimentalInkEraserApi|null[0]
+    constructor <init>() // androidx.ink.strokes/ExperimentalInkEraserApi.<init>|<init>(){}[0]
+}
+
+abstract class androidx.ink.strokes/StrokeInputBatch { // androidx.ink.strokes/StrokeInputBatch|null[0]
+    final val size // androidx.ink.strokes/StrokeInputBatch.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // androidx.ink.strokes/StrokeInputBatch.size.<get-size>|<get-size>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.strokes/StrokeInputBatch.toImmutable|toImmutable(){}[0]
+    final fun get(kotlin/Int): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/StrokeInputBatch.get|get(kotlin.Int){}[0]
+    final fun getDurationMillis(): kotlin/Long // androidx.ink.strokes/StrokeInputBatch.getDurationMillis|getDurationMillis(){}[0]
+    final fun getNoiseSeed(): kotlin/Int // androidx.ink.strokes/StrokeInputBatch.getNoiseSeed|getNoiseSeed(){}[0]
+    final fun getStrokeUnitLengthCm(): kotlin/Float // androidx.ink.strokes/StrokeInputBatch.getStrokeUnitLengthCm|getStrokeUnitLengthCm(){}[0]
+    final fun getToolType(): androidx.ink.brush/InputToolType // androidx.ink.strokes/StrokeInputBatch.getToolType|getToolType(){}[0]
+    final fun hasOrientation(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasOrientation|hasOrientation(){}[0]
+    final fun hasPressure(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasPressure|hasPressure(){}[0]
+    final fun hasStrokeUnitLength(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasStrokeUnitLength|hasStrokeUnitLength(){}[0]
+    final fun hasTilt(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasTilt|hasTilt(){}[0]
+    final fun isEmpty(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.isEmpty|isEmpty(){}[0]
+    final fun populate(kotlin/Int, androidx.ink.strokes/StrokeInput): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/StrokeInputBatch.populate|populate(kotlin.Int;androidx.ink.strokes.StrokeInput){}[0]
+
+    final object Companion // androidx.ink.strokes/StrokeInputBatch.Companion|null[0]
+}
+
+final class androidx.ink.strokes/ImmutableStrokeInputBatch : androidx.ink.strokes/StrokeInputBatch { // androidx.ink.strokes/ImmutableStrokeInputBatch|null[0]
+    final fun toImmutable(): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.strokes/ImmutableStrokeInputBatch.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.strokes/ImmutableStrokeInputBatch.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.strokes/ImmutableStrokeInputBatch.Companion|null[0]
+        final val EMPTY // androidx.ink.strokes/ImmutableStrokeInputBatch.Companion.EMPTY|{}EMPTY[0]
+            final fun <get-EMPTY>(): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.strokes/ImmutableStrokeInputBatch.Companion.EMPTY.<get-EMPTY>|<get-EMPTY>(){}[0]
+    }
+}
+
+final class androidx.ink.strokes/InProgressStroke { // androidx.ink.strokes/InProgressStroke|null[0]
+    constructor <init>() // androidx.ink.strokes/InProgressStroke.<init>|<init>(){}[0]
+
+    final var brush // androidx.ink.strokes/InProgressStroke.brush|{}brush[0]
+        final fun <get-brush>(): androidx.ink.brush/Brush? // androidx.ink.strokes/InProgressStroke.brush.<get-brush>|<get-brush>(){}[0]
+
+    final fun changesWithTime(): kotlin/Boolean // androidx.ink.strokes/InProgressStroke.changesWithTime|changesWithTime(){}[0]
+    final fun clear() // androidx.ink.strokes/InProgressStroke.clear|clear(){}[0]
+    final fun enqueueInputs(androidx.ink.strokes/StrokeInputBatch, androidx.ink.strokes/StrokeInputBatch) // androidx.ink.strokes/InProgressStroke.enqueueInputs|enqueueInputs(androidx.ink.strokes.StrokeInputBatch;androidx.ink.strokes.StrokeInputBatch){}[0]
+    final fun finishInput() // androidx.ink.strokes/InProgressStroke.finishInput|finishInput(){}[0]
+    final fun getBrushCoatCount(): kotlin/Int // androidx.ink.strokes/InProgressStroke.getBrushCoatCount|getBrushCoatCount(){}[0]
+    final fun getInputCount(): kotlin/Int // androidx.ink.strokes/InProgressStroke.getInputCount|getInputCount(){}[0]
+    final fun getOutlineCount(kotlin/Int): kotlin/Int // androidx.ink.strokes/InProgressStroke.getOutlineCount|getOutlineCount(kotlin.Int){}[0]
+    final fun getOutlineVertexCount(kotlin/Int, kotlin/Int): kotlin/Int // androidx.ink.strokes/InProgressStroke.getOutlineVertexCount|getOutlineVertexCount(kotlin.Int;kotlin.Int){}[0]
+    final fun getPredictedInputCount(): kotlin/Int // androidx.ink.strokes/InProgressStroke.getPredictedInputCount|getPredictedInputCount(){}[0]
+    final fun getRealInputCount(): kotlin/Int // androidx.ink.strokes/InProgressStroke.getRealInputCount|getRealInputCount(){}[0]
+    final fun isInputFinished(): kotlin/Boolean // androidx.ink.strokes/InProgressStroke.isInputFinished|isInputFinished(){}[0]
+    final fun isUpdateNeeded(): kotlin/Boolean // androidx.ink.strokes/InProgressStroke.isUpdateNeeded|isUpdateNeeded(){}[0]
+    final fun populateInput(androidx.ink.strokes/StrokeInput, kotlin/Int): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/InProgressStroke.populateInput|populateInput(androidx.ink.strokes.StrokeInput;kotlin.Int){}[0]
+    final fun populateInputs(androidx.ink.strokes/MutableStrokeInputBatch, kotlin/Int = ..., kotlin/Int = ...): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/InProgressStroke.populateInputs|populateInputs(androidx.ink.strokes.MutableStrokeInputBatch;kotlin.Int;kotlin.Int){}[0]
+    final fun populateMeshBounds(kotlin/Int, androidx.ink.geometry/BoxAccumulator): androidx.ink.geometry/BoxAccumulator // androidx.ink.strokes/InProgressStroke.populateMeshBounds|populateMeshBounds(kotlin.Int;androidx.ink.geometry.BoxAccumulator){}[0]
+    final fun populateOutlinePosition(kotlin/Int, kotlin/Int, kotlin/Int, androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.strokes/InProgressStroke.populateOutlinePosition|populateOutlinePosition(kotlin.Int;kotlin.Int;kotlin.Int;androidx.ink.geometry.MutableVec){}[0]
+    final fun populateUpdatedRegion(androidx.ink.geometry/BoxAccumulator): androidx.ink.geometry/BoxAccumulator // androidx.ink.strokes/InProgressStroke.populateUpdatedRegion|populateUpdatedRegion(androidx.ink.geometry.BoxAccumulator){}[0]
+    final fun resetUpdatedRegion() // androidx.ink.strokes/InProgressStroke.resetUpdatedRegion|resetUpdatedRegion(){}[0]
+    final fun start(androidx.ink.brush/Brush, kotlin/Int = ...) // androidx.ink.strokes/InProgressStroke.start|start(androidx.ink.brush.Brush;kotlin.Int){}[0]
+    final fun toImmutable(): androidx.ink.strokes/Stroke // androidx.ink.strokes/InProgressStroke.toImmutable|toImmutable(){}[0]
+    final fun updateShape(kotlin/Long = ...) // androidx.ink.strokes/InProgressStroke.updateShape|updateShape(kotlin.Long){}[0]
+
+    final object Companion // androidx.ink.strokes/InProgressStroke.Companion|null[0]
+}
+
+final class androidx.ink.strokes/MutableStrokeInputBatch : androidx.ink.strokes/StrokeInputBatch { // androidx.ink.strokes/MutableStrokeInputBatch|null[0]
+    constructor <init>() // androidx.ink.strokes/MutableStrokeInputBatch.<init>|<init>(){}[0]
+
+    final fun add(androidx.ink.brush/InputToolType, kotlin/Float, kotlin/Float, kotlin/Long, kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Long;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun add(androidx.ink.strokes/StrokeInput): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.strokes.StrokeInput){}[0]
+    final fun add(androidx.ink.strokes/StrokeInputBatch): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.strokes.StrokeInputBatch){}[0]
+    final fun add(kotlin.collections/Collection<androidx.ink.strokes/StrokeInput>): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(kotlin.collections.Collection<androidx.ink.strokes.StrokeInput>){}[0]
+    final fun clear() // androidx.ink.strokes/MutableStrokeInputBatch.clear|clear(){}[0]
+    final fun setNoiseSeed(kotlin/Int) // androidx.ink.strokes/MutableStrokeInputBatch.setNoiseSeed|setNoiseSeed(kotlin.Int){}[0]
+    final fun toImmutable(): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.strokes/MutableStrokeInputBatch.toString|toString(){}[0]
+}
+
+final class androidx.ink.strokes/Stroke { // androidx.ink.strokes/Stroke|null[0]
+    constructor <init>(androidx.ink.brush/Brush, androidx.ink.strokes/StrokeInputBatch) // androidx.ink.strokes/Stroke.<init>|<init>(androidx.ink.brush.Brush;androidx.ink.strokes.StrokeInputBatch){}[0]
+    constructor <init>(androidx.ink.brush/Brush, androidx.ink.strokes/StrokeInputBatch, androidx.ink.geometry/PartitionedMesh) // androidx.ink.strokes/Stroke.<init>|<init>(androidx.ink.brush.Brush;androidx.ink.strokes.StrokeInputBatch;androidx.ink.geometry.PartitionedMesh){}[0]
+
+    final val brush // androidx.ink.strokes/Stroke.brush|{}brush[0]
+        final fun <get-brush>(): androidx.ink.brush/Brush // androidx.ink.strokes/Stroke.brush.<get-brush>|<get-brush>(){}[0]
+    final val inputs // androidx.ink.strokes/Stroke.inputs|{}inputs[0]
+        final fun <get-inputs>(): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.strokes/Stroke.inputs.<get-inputs>|<get-inputs>(){}[0]
+    final val shape // androidx.ink.strokes/Stroke.shape|{}shape[0]
+        final fun <get-shape>(): androidx.ink.geometry/PartitionedMesh // androidx.ink.strokes/Stroke.shape.<get-shape>|<get-shape>(){}[0]
+
+    final fun copy(androidx.ink.brush/Brush): androidx.ink.strokes/Stroke // androidx.ink.strokes/Stroke.copy|copy(androidx.ink.brush.Brush){}[0]
+    final fun toString(): kotlin/String // androidx.ink.strokes/Stroke.toString|toString(){}[0]
+
+    final object Companion // androidx.ink.strokes/Stroke.Companion|null[0]
+}
+
+final class androidx.ink.strokes/StrokeInput { // androidx.ink.strokes/StrokeInput|null[0]
+    constructor <init>() // androidx.ink.strokes/StrokeInput.<init>|<init>(){}[0]
+
+    final val hasOrientation // androidx.ink.strokes/StrokeInput.hasOrientation|{}hasOrientation[0]
+        final fun <get-hasOrientation>(): kotlin/Boolean // androidx.ink.strokes/StrokeInput.hasOrientation.<get-hasOrientation>|<get-hasOrientation>(){}[0]
+    final val hasPressure // androidx.ink.strokes/StrokeInput.hasPressure|{}hasPressure[0]
+        final fun <get-hasPressure>(): kotlin/Boolean // androidx.ink.strokes/StrokeInput.hasPressure.<get-hasPressure>|<get-hasPressure>(){}[0]
+    final val hasTilt // androidx.ink.strokes/StrokeInput.hasTilt|{}hasTilt[0]
+        final fun <get-hasTilt>(): kotlin/Boolean // androidx.ink.strokes/StrokeInput.hasTilt.<get-hasTilt>|<get-hasTilt>(){}[0]
+
+    final var elapsedTimeMillis // androidx.ink.strokes/StrokeInput.elapsedTimeMillis|{}elapsedTimeMillis[0]
+        final fun <get-elapsedTimeMillis>(): kotlin/Long // androidx.ink.strokes/StrokeInput.elapsedTimeMillis.<get-elapsedTimeMillis>|<get-elapsedTimeMillis>(){}[0]
+    final var orientationRadians // androidx.ink.strokes/StrokeInput.orientationRadians|{}orientationRadians[0]
+        final fun <get-orientationRadians>(): kotlin/Float // androidx.ink.strokes/StrokeInput.orientationRadians.<get-orientationRadians>|<get-orientationRadians>(){}[0]
+    final var pressure // androidx.ink.strokes/StrokeInput.pressure|{}pressure[0]
+        final fun <get-pressure>(): kotlin/Float // androidx.ink.strokes/StrokeInput.pressure.<get-pressure>|<get-pressure>(){}[0]
+    final var strokeUnitLengthCm // androidx.ink.strokes/StrokeInput.strokeUnitLengthCm|{}strokeUnitLengthCm[0]
+        final fun <get-strokeUnitLengthCm>(): kotlin/Float // androidx.ink.strokes/StrokeInput.strokeUnitLengthCm.<get-strokeUnitLengthCm>|<get-strokeUnitLengthCm>(){}[0]
+    final var tiltRadians // androidx.ink.strokes/StrokeInput.tiltRadians|{}tiltRadians[0]
+        final fun <get-tiltRadians>(): kotlin/Float // androidx.ink.strokes/StrokeInput.tiltRadians.<get-tiltRadians>|<get-tiltRadians>(){}[0]
+    final var toolType // androidx.ink.strokes/StrokeInput.toolType|{}toolType[0]
+        final fun <get-toolType>(): androidx.ink.brush/InputToolType // androidx.ink.strokes/StrokeInput.toolType.<get-toolType>|<get-toolType>(){}[0]
+    final var x // androidx.ink.strokes/StrokeInput.x|{}x[0]
+        final fun <get-x>(): kotlin/Float // androidx.ink.strokes/StrokeInput.x.<get-x>|<get-x>(){}[0]
+    final var y // androidx.ink.strokes/StrokeInput.y|{}y[0]
+        final fun <get-y>(): kotlin/Float // androidx.ink.strokes/StrokeInput.y.<get-y>|<get-y>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.strokes/StrokeInput.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.strokes/StrokeInput.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.strokes/StrokeInput.toString|toString(){}[0]
+    final fun update(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...) // androidx.ink.strokes/StrokeInput.update|update(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+
+    final object Companion { // androidx.ink.strokes/StrokeInput.Companion|null[0]
+        final const val NO_ORIENTATION // androidx.ink.strokes/StrokeInput.Companion.NO_ORIENTATION|{}NO_ORIENTATION[0]
+            final fun <get-NO_ORIENTATION>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_ORIENTATION.<get-NO_ORIENTATION>|<get-NO_ORIENTATION>(){}[0]
+        final const val NO_PRESSURE // androidx.ink.strokes/StrokeInput.Companion.NO_PRESSURE|{}NO_PRESSURE[0]
+            final fun <get-NO_PRESSURE>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_PRESSURE.<get-NO_PRESSURE>|<get-NO_PRESSURE>(){}[0]
+        final const val NO_STROKE_UNIT_LENGTH // androidx.ink.strokes/StrokeInput.Companion.NO_STROKE_UNIT_LENGTH|{}NO_STROKE_UNIT_LENGTH[0]
+            final fun <get-NO_STROKE_UNIT_LENGTH>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_STROKE_UNIT_LENGTH.<get-NO_STROKE_UNIT_LENGTH>|<get-NO_STROKE_UNIT_LENGTH>(){}[0]
+        final const val NO_TILT // androidx.ink.strokes/StrokeInput.Companion.NO_TILT|{}NO_TILT[0]
+            final fun <get-NO_TILT>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_TILT.<get-NO_TILT>|<get-NO_TILT>(){}[0]
+
+        final fun create(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/StrokeInput.Companion.create|create(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    }
+}
+
+final fun (androidx.ink.strokes/StrokeInputBatch).androidx.ink.strokes/createClosedShape(): androidx.ink.geometry/PartitionedMesh // androidx.ink.strokes/createClosedShape|createClosedShape@androidx.ink.strokes.StrokeInputBatch(){}[0]
