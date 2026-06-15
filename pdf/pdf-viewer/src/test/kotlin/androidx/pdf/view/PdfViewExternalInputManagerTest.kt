@@ -170,10 +170,46 @@ class PdfViewExternalInputManagerTest {
     }
 
     @Test
+    fun handleKeyEvent_ctrlNumpadAdd_callsZoomInAndReturnsTrue() {
+        val event = mock<KeyEvent>()
+        whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
+        whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_NUMPAD_ADD)
+        whenever(event.isCtrlPressed).thenReturn(true)
+
+        val handled = externalInputManager.handleKeyEvent(event)
+
+        assertThat(handled).isTrue()
+    }
+
+    @Test
+    fun handleKeyEvent_ctrlNumpadSubtract_callsZoomOutAndReturnsTrue() {
+        val event = mock<KeyEvent>()
+        whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
+        whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_NUMPAD_SUBTRACT)
+        whenever(event.isCtrlPressed).thenReturn(true)
+
+        val handled = externalInputManager.handleKeyEvent(event)
+
+        assertThat(handled).isTrue()
+    }
+
+    @Test
     fun handleKeyEvent_minusWithoutCtrl_isNotHandledAndReturnsFalse() {
         val event = mock<KeyEvent>()
         whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
         whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_MINUS)
+        whenever(event.isCtrlPressed).thenReturn(false)
+
+        val handled = externalInputManager.handleKeyEvent(event)
+
+        assertThat(handled).isFalse()
+    }
+
+    @Test
+    fun handleKeyEvent_numpadSubtractWithoutCtrl_isNotHandledAndReturnsFalse() {
+        val event = mock<KeyEvent>()
+        whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
+        whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_NUMPAD_SUBTRACT)
         whenever(event.isCtrlPressed).thenReturn(false)
 
         val handled = externalInputManager.handleKeyEvent(event)
@@ -198,6 +234,18 @@ class PdfViewExternalInputManagerTest {
         val event = mock<KeyEvent>()
         whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
         whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_PLUS)
+        whenever(event.isCtrlPressed).thenReturn(false)
+
+        val handled = externalInputManager.handleKeyEvent(event)
+
+        assertThat(handled).isFalse()
+    }
+
+    @Test
+    fun handleKeyEvent_numpadAddWithoutCtrl_isNotHandledAndReturnsFalse() {
+        val event = mock<KeyEvent>()
+        whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
+        whenever(event.keyCode).thenReturn(KeyEvent.KEYCODE_NUMPAD_ADD)
         whenever(event.isCtrlPressed).thenReturn(false)
 
         val handled = externalInputManager.handleKeyEvent(event)
