@@ -51,7 +51,7 @@ internal sealed class SupportSQLiteStatement(
 
     public companion object {
         public fun create(db: SupportSQLiteDatabase, sql: String): SupportSQLiteStatement {
-            val sqlString = sql.trim().uppercase()
+            val sqlString = sql.trim()
             val sqlPrefix = getStatementPrefix(sqlString)
             if (sqlPrefix == null) {
                 return OtherSQLiteStatement(db, sql)
@@ -76,31 +76,30 @@ internal sealed class SupportSQLiteStatement(
         }
 
         private fun getTransactionOperation(prefix: String, sql: String): TransactionOperation? =
-            when (prefix) {
-                "END",
-                "COM" -> TransactionOperation.END
-                "ROL" ->
-                    if (sql.contains(" TO ")) {
+            when {
+                "END".equals(prefix, ignoreCase = true) ||
+                    "COM".equals(prefix, ignoreCase = true) -> TransactionOperation.END
+                "ROL".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains(" TO ", ignoreCase = true)) {
                         null
                     } else {
                         TransactionOperation.ROLLBACK
                     }
-                "BEG" -> {
-                    if (sql.contains("EXCLUSIVE")) {
+                "BEG".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains("EXCLUSIVE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_EXCLUSIVE
-                    } else if (sql.contains("IMMEDIATE")) {
+                    } else if (sql.contains("IMMEDIATE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_IMMEDIATE
                     } else {
                         TransactionOperation.BEGIN_DEFERRED
                     }
-                }
                 else -> null
             }
 
         private fun getSpecialOperation(prefix: String, sql: String): SpecialOperation? =
-            when (prefix) {
+            when {
                 // TODO: Consider handling foreign_keys with setForeignKeyConstraintsEnabled()
-                "PRA" -> {
+                "PRA".equals(prefix, ignoreCase = true) -> {
                     if (sql.lowercase().substringAfter("journal_mode", "").contains("=")) {
                         SpecialOperation.JournalModeOperation
                     } else {
@@ -111,12 +110,9 @@ internal sealed class SupportSQLiteStatement(
             }
 
         private fun isRowStatement(prefix: String) =
-            when (prefix) {
-                "SEL",
-                "PRA",
-                "WIT" -> true
-                else -> false
-            }
+            "SEL".equals(prefix, ignoreCase = true) ||
+                "PRA".equals(prefix, ignoreCase = true) ||
+                "WIT".equals(prefix, ignoreCase = true)
 
         private enum class TransactionOperation {
             END,
