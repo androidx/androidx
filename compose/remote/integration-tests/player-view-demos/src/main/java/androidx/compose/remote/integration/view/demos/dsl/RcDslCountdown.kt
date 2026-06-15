@@ -17,9 +17,7 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.core.RemoteComposeBuffer.PAD_AFTER_ZERO
-import androidx.compose.remote.creation.RcPaint
-import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.createRawRcBuffer
+import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -52,27 +50,27 @@ fun dslCountdown(): ByteArray {
             Color.hsv(360f, 0.9f, 0.9f).toArgb(),
         )
     return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = false) {
-        applyPaint { setTextSize(50f) }
+        paint { textSize(50f) }
         val pi2 = (PI * 2).toFloat()
         val sec = continuousSeconds()
         val x = ((sec * 3f).cos() * 200f + 300f).flush()
         val y = ((sec * 3f).sin() * 200f + 300f).flush()
         val hue = (((sec * 3f) / pi2) % 1f).flush()
         // debug("hue ", hue)
-        applyPaint { setSweepGradient(300f, 300f, colors, null) }
+        paint { sweepGradient(300f, 300f, colors, null) }
 
         drawCircle(300f, 300f, 200f)
 
-        applyPaint { setShader(0) }
+        paint { shader(RcShader(0)) }
 
         val color1 = remoteColorExpression(0x8F, hue, 0.9f, 0.9f)
-        applyPaint { setColor(color1) }
+        paint { color(color1) }
         drawCircle(x, y, 100f.rf)
 
-        applyPaint {
-            setColor(Color.Blue.toArgb())
-            setTextSize(100f)
-            setTypeface(RcPaint.FONT_TYPE_MONOSPACE)
+        paint {
+            color(Color.Blue.toArgb())
+            textSize(100f)
+            typeface(RcFontType.Monospace)
         }
 
         val textId = hue.format(1, 2, PAD_AFTER_ZERO)
@@ -84,7 +82,7 @@ fun dslCountdown(): ByteArray {
 
         for (i in 0..5) {
             val color2 = remoteColorExpression(0x8F, i / 6f, 0.9f, 0.9f)
-            applyPaint { setColor(color2) }
+            paint { color(color2) }
             val angle = i * Math.PI * 2f / 6
             val cx = 300 + (cos(angle) * 200).toFloat()
             val cy = 300 + (sin(angle) * 200).toFloat()

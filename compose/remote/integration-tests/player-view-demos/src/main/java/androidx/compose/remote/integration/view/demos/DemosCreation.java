@@ -44,6 +44,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslFontAxisDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslLayoutComputeDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslModernShowcaseDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
@@ -190,6 +191,8 @@ public abstract class DemosCreation {
         boolean dsl = true;
         if (dsl) {
             return new ArrayList<>(Arrays.asList(
+                    get("0/000/ModernShowcaseDemo",
+                            DslModernShowcaseDemoKt::dslModernShowcaseDemo),
                     get("0/000/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
 
                     getpc("0/002/CubeSphereTransitionShader",

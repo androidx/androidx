@@ -223,6 +223,13 @@ public fun Modifier.fillParentMaxSize(fraction: Float = 1f): Modifier =
 public fun Modifier.border(width: Float, roundedCorner: Float, color: Int, shape: Int): Modifier =
     then(BorderModifier(width, roundedCorner, color, shape))
 
+public fun Modifier.border(
+    width: RcDp,
+    roundedCorner: RcDp,
+    color: RcColorValue,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = then(BorderModifier(width.value, roundedCorner.value, color.id, shape.value))
+
 /** dynamicBorder modifier. */
 public fun Modifier.dynamicBorder(
     width: Float,
@@ -231,12 +238,23 @@ public fun Modifier.dynamicBorder(
     shape: Int,
 ): Modifier = then(DynamicBorderModifier(width, roundedCorner, color, shape))
 
+public fun Modifier.dynamicBorder(
+    width: RcDp,
+    roundedCorner: RcDp,
+    color: RcColor,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier =
+    then(DynamicBorderModifier(width.value, roundedCorner.value, color.id.toShort(), shape.value))
+
 /** visibility modifier. */
 public fun Modifier.visibility(visible: RcInteger): Modifier = then(VisibilityModifier(visible))
 
 /** animationSpec modifier. */
 public fun Modifier.animationSpec(animationId: Int): Modifier =
     then(AnimationSpecModifier(animationId))
+
+public fun Modifier.animationSpec(spec: RcAnimationSpec): Modifier =
+    then(AnimationSpecModifier(spec.id))
 
 /** alignByBaseline modifier. */
 public fun Modifier.alignByBaseline(): Modifier = then(AlignByBaselineModifier)
@@ -272,9 +290,88 @@ public fun Modifier.marquee(
 /** zIndex modifier. */
 public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 
+/** Builder scope for [Modifier.graphicsLayer]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public class GraphicsLayerScope {
+    internal val attributes: HashMap<Int, Any> = HashMap()
+
+    public var scaleX: Float
+        get() = (attributes[0] as? Float) ?: 1f
+        set(value) {
+            attributes[0] = value
+        }
+
+    public fun scaleX(value: RcFloat) {
+        attributes[0] = value
+    }
+
+    public var scaleY: Float
+        get() = (attributes[1] as? Float) ?: 1f
+        set(value) {
+            attributes[1] = value
+        }
+
+    public fun scaleY(value: RcFloat) {
+        attributes[1] = value
+    }
+
+    public var alpha: Float
+        get() = (attributes[11] as? Float) ?: 1f
+        set(value) {
+            attributes[11] = value
+        }
+
+    public fun alpha(value: RcFloat) {
+        attributes[11] = value
+    }
+
+    public var rotationZ: Float
+        get() = (attributes[4] as? Float) ?: 0f
+        set(value) {
+            attributes[4] = value
+        }
+
+    public fun rotationZ(value: RcFloat) {
+        attributes[4] = value
+    }
+
+    public var translationX: Float
+        get() = (attributes[7] as? Float) ?: 0f
+        set(value) {
+            attributes[7] = value
+        }
+
+    public fun translationX(value: RcDp) {
+        attributes[7] = value.value
+    }
+
+    public fun translationX(value: RcFloat) {
+        attributes[7] = value
+    }
+
+    public var translationY: Float
+        get() = (attributes[8] as? Float) ?: 0f
+        set(value) {
+            attributes[8] = value
+        }
+
+    public fun translationY(value: RcDp) {
+        attributes[8] = value.value
+    }
+
+    public fun translationY(value: RcFloat) {
+        attributes[8] = value
+    }
+}
+
 /** graphicsLayer modifier. */
 public fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
     then(GraphicsLayerModifier(attributes))
+
+/** graphicsLayer modifier with type-safe builder lambda. */
+public fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
+    graphicsLayer(GraphicsLayerScope().apply(block).attributes)
 
 /** Ripple modifier for standard material design touch feedback. */
 public fun Modifier.ripple(): Modifier = then(RippleModifierElement)

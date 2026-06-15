@@ -18,18 +18,7 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.dsl.Modifier
-import androidx.compose.remote.creation.dsl.RcConditionOp
-import androidx.compose.remote.creation.dsl.RcPaintStyle
-import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.RcStrokeCap
-import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
-import androidx.compose.remote.creation.dsl.background
-import androidx.compose.remote.creation.dsl.cos
-import androidx.compose.remote.creation.dsl.createRcBuffer
-import androidx.compose.remote.creation.dsl.fillMaxSize
-import androidx.compose.remote.creation.dsl.min
-import androidx.compose.remote.creation.dsl.sin
+import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 /**
@@ -144,11 +133,11 @@ public fun dslDemoPressureGauge(): ByteArray {
             }
 
             // Draw the correct arrow based on the pressure direction.
-            conditionalOperations(RcConditionOp.Lt, 0f.rf, deltaPressure) {
+            ifTrue(0f.rf lt deltaPressure) {
                 val up = remoteText("↑")
                 drawTextAnchored(up, cx, dialY, 0f.rf, (-3f).rf, 0)
             }
-            conditionalOperations(RcConditionOp.Gte, 0f.rf, deltaPressure) {
+            ifTrue(0f.rf gte deltaPressure) {
                 val down = remoteText("↓")
                 drawTextAnchored(down, cx, dialY, 0f.rf, (-3f).rf, 0)
             }

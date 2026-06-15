@@ -91,7 +91,7 @@ fun demoAnchorText(): ByteArray {
                 val textRightBaseline = remoteText("X Right baseline X")
                 val textLeftBaseline = remoteText("X Left baseline X")
 
-                conditionalOperations(Rc.Condition.LT, t, dur.rf) {
+                ifTrue(t lt dur) {
                     drawTextAnchored(t1, v1, l1, 1f.rf, 1f.rf, 0)
                     drawTextAnchored(textLeftTop, v2, l1, (-1f).rf, 1f.rf, 0)
                     drawTextAnchored(textRightCenter, v1, l2, 1f.rf, 0f.rf, 0)
@@ -102,16 +102,16 @@ fun demoAnchorText(): ByteArray {
                     drawTextAnchored(textLeftBaseline, v2, l4, (-1f).rf, 0f.rf, flag2)
                 }
 
-                conditionalOperations(Rc.Condition.GT, t, dur.rf) {
+                ifTrue(t gt dur) {
                     drawTextAnchored(strId, v1, l1, 1f.rf, 1f.rf, 0)
                     drawTextAnchored(strId, v1, l2, 1f.rf, 0f.rf, 0)
                     drawTextAnchored(strId, v1, l3, 1f.rf, (-1f).rf, 0)
                     drawTextAnchored(strId, v1, l4, 1f.rf, 0f.rf, flag2)
 
-                    conditionalOperations(Rc.Condition.GT, t, (dur * 2f).rf) {
-                        applyPaint {
-                            setColor(Color.BLUE)
-                            setTextSize(128f)
+                    ifTrue(t gt (dur * 2f)) {
+                        paint {
+                            color(Color.BLUE)
+                            textSize(128f)
                         }
                     }
 
@@ -122,7 +122,7 @@ fun demoAnchorText(): ByteArray {
                     drawTextAnchored(strId, v2, l5, animatX, animatY, flag1)
                 }
 
-                applyPaint { setColor(Color.BLACK) }
+                paint { color(Color.BLACK) }
             }
         }
     }
