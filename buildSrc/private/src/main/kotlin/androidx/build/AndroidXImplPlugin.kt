@@ -36,6 +36,7 @@ import androidx.build.lint.ValidateLintChecks
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
+import androidx.build.sources.CreateRJavaTask
 import androidx.build.sources.configureMultiplatformSourcesForAndroid
 import androidx.build.sources.configureSourceJarForAndroid
 import androidx.build.sources.configureSourceJarForJava
@@ -560,7 +561,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 }
             }
             project.configureKmp()
-            project.configureSourceJarForMultiplatform()
+
+            // CreateRJavaTask is set up in configureWithKotlinMultiplatformAndroidPlugin
+            val rJavaSource = project.files(project.tasks.withType(CreateRJavaTask::class.java))
+            project.configureSourceJarForMultiplatform(rJavaSource)
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
             // https://youtrack.jetbrains.com/issue/KT-55881
@@ -733,6 +737,14 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             project.configureMultiplatformSourcesForAndroid(androidXExtension.samplesProjects)
             project.configureVerifyELFRegionAlignment(variant)
             variant.aarMetadata.configureMinAgpVersion()
+            if (kotlinMultiplatformAndroidTarget.androidResources.enable) {
+                // Create R.java file for the source jar.
+                CreateRJavaTask.setupTask(
+                    project,
+                    variant,
+                    kotlinMultiplatformAndroidComponentsExtension,
+                )
+            }
         }
 
         project.configureVersionFileWriter(project.multiplatformExtension!!, androidXExtension)
@@ -885,7 +897,13 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 )
             }
             if (variant.name == DEFAULT_PUBLISH_CONFIG) {
-                project.configureSourceJarForAndroid(variant, androidXExtension.samplesProjects)
+                val rJavaSource =
+                    CreateRJavaTask.setupTask(project, variant, libraryAndroidComponentsExtension)
+                project.configureSourceJarForAndroid(
+                    variant,
+                    androidXExtension.samplesProjects,
+                    rJavaSource,
+                )
                 project.configurePublicResourcesStub(variant)
                 project.configureDependencyVerification(androidXExtension) { taskProvider ->
                     taskProvider.configure { task -> task.dependsOn("compileReleaseJavaWithJavac") }
