@@ -16,6 +16,9 @@
 
 package androidx.appfunctions
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.appfunctions.metadata.AppFunctionMetadataDocument
 import androidx.appfunctions.metadata.AppFunctionName
 
@@ -95,4 +98,33 @@ constructor(
 
     private fun getOrQueryExpression(elements: Set<String>) =
         elements.joinToString(" OR ") { "\"$it\"" }
+
+    /**
+     * Converts [androidx.appfunctions.AppFunctionSearchSpec] to
+     * [android.app.appfunctions.AppFunctionSearchSpec].
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toPlatformSearchSpec(): android.app.appfunctions.AppFunctionSearchSpec {
+        return android.app.appfunctions.AppFunctionSearchSpec.Builder()
+            .setSchemaCategory(schemaCategory)
+            .setSchemaName(schemaName)
+            .setMinSchemaVersion(minSchemaVersion.toLong())
+            .setPackageNames(packageNames)
+            .apply {
+                if (functionNames != null) {
+                    setFunctionNames(
+                        functionNames
+                            .map {
+                                android.app.appfunctions.AppFunctionName(
+                                    it.packageName,
+                                    it.functionIdentifier,
+                                )
+                            }
+                            .toSet()
+                    )
+                }
+            }
+            .build()
+    }
 }

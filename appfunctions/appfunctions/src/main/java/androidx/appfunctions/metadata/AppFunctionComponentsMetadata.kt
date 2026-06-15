@@ -71,7 +71,7 @@ constructor(
 }
 
 /** Represents the persistent storage format of [AppFunctionComponentsMetadata]. */
-@Document
+@Document(name = AppFunctionComponentsMetadataDocument.SCHEMA_TYPE)
 internal data class AppFunctionComponentsMetadataDocument(
     @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
     @Document.Id val id: String = APP_FUNCTION_ID_EMPTY,
@@ -85,4 +85,8 @@ internal data class AppFunctionComponentsMetadataDocument(
                     it.name to it.dataTypeMetadata.toAppFunctionDataTypeMetadata()
                 }
         )
+
+    companion object {
+        const val SCHEMA_TYPE = "AppFunctionComponentMetadataDocument"
+    }
 }
