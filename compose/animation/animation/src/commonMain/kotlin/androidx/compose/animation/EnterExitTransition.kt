@@ -119,6 +119,8 @@ public sealed class EnterTransition {
      */
     @Stable
     public operator fun plus(enter: EnterTransition): EnterTransition {
+        if (this == None) return enter
+        if (enter == None) return this
         return EnterTransitionImpl(
             TransitionData(
                 fade = enter.data.fade ?: data.fade,
@@ -213,6 +215,8 @@ public sealed class ExitTransition {
      */
     @Stable
     public operator fun plus(exit: ExitTransition): ExitTransition {
+        if (this == None) return exit
+        if (exit == None) return this
         return ExitTransitionImpl(
             TransitionData(
                 fade = exit.data.fade ?: data.fade,
