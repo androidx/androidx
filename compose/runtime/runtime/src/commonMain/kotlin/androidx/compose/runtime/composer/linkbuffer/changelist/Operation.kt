@@ -1194,6 +1194,7 @@ internal sealed class Operation(
             errorContext: OperationErrorContext?,
         ) {
             val effectiveNodeIndex = getObject(EffectiveNodeIndex)?.element ?: 0
+            val originalLocation = slots.handle()
 
             getObject(Changes)
                 .executeAndFlushAllPendingChanges(
@@ -1207,6 +1208,10 @@ internal sealed class Operation(
                     rememberManager = rememberManager,
                     errorContext = errorContext?.withCurrentStackTrace(slots),
                 )
+
+            if (slots.handle() != originalLocation) {
+                slots.seek(originalLocation)
+            }
         }
     }
 

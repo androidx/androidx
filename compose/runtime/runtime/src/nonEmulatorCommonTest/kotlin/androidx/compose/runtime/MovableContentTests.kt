@@ -1988,6 +1988,46 @@ class MovableContentTests {
 
             validate { Linear { repeat(10) { Text("$it") } } }
         }
+
+    @Test
+    fun testUpdateMovingNestedContent() = compositionTest {
+        var moveContent by mutableStateOf(false)
+        var value by mutableIntStateOf(1)
+
+        val nestedMovable = movableContentOf { param: Int ->
+            Linear { key(1) { use(remember(param) { param }) } }
+        }
+
+        val parentMovable = movableContentOf {
+            Linear {
+                if (!moveContent) {
+                    nestedMovable(value)
+                }
+            }
+        }
+
+        compose {
+            Linear {
+                key("A") { Linear { parentMovable() } }
+
+                key("B") {
+                    Linear {
+                        if (moveContent) {
+                            nestedMovable(value)
+                        }
+                    }
+                }
+            }
+        }
+
+        value++
+        moveContent = true
+        expectChanges()
+
+        value++
+        moveContent = false
+        expectChanges()
+    }
 }
 
 @Composable
