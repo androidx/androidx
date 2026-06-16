@@ -210,7 +210,7 @@ fun GroupedMenuSample() {
                     shapes = MenuDefaults.groupShape(groupIndex, groupCount),
                     interactionSource = groupInteractionSource,
                 ) {
-                    MenuDefaults.Label { Text(label) }
+                    MenuDefaults.DropdownMenuGroupLabel { Text(label) }
                     HorizontalDivider(
                         modifier = Modifier.padding(MenuDefaults.HorizontalDividerPadding)
                     )
