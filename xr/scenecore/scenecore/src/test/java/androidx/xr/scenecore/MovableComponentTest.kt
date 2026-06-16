@@ -614,7 +614,7 @@ class MovableComponentTest {
     @Test
     fun customMovableComponent_invokesInitialListener() {
         createCustomSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             val entity = Entity.create(session, "test")
             assertThat(entity).isNotNull()
             val moveListener = FakeEntityMoveListener()
@@ -659,7 +659,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_updatesThePoseBasedOnPlanes() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -726,7 +726,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_nullParent_updatesThePoseBasedOnPlanes() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -794,7 +794,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_withNonActivityParent_updatesPoseBasedOnPlanesAndParent() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -866,7 +866,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_scaledParent_updatesThePoseBasedOnPlanes() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
@@ -937,7 +937,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_withinAnchorDistance_setsAnchorSpace() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1024,7 +1024,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_withinAnchorDistanceAboveAnchor_resetsPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1117,7 +1117,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_withIncorrectPlaneType_doesNotCreateAnchor() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1206,7 +1206,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_withinAnchorDistanceAndScale_setsAnchorEntityAndScales() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
@@ -1297,7 +1297,7 @@ class MovableComponentTest {
     @Test
     fun createAnchorable_noPlanes_keepsProposedPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1350,7 +1350,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_validPlaneButNotTracking_keepsProposedPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1415,7 +1415,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_outsideExtents_keepsProposedPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1480,7 +1480,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_resetsToScenePoseAfterAnchoring() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1590,7 +1590,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_resetsAndScaleToScenePoseAfterAnchoring() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
@@ -1708,7 +1708,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_childOfEntity_resetsToActivityPoseAfterAnchoring() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1824,7 +1824,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_shouldDispose_disposesAnchorAfterUnparenting() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -1939,7 +1939,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_shouldDispose_doeNotDisposeIfAnchorHasChildren() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -2061,7 +2061,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_nearPlane_callsSetPlanePoseWithNonNullPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -2126,7 +2126,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_awayFromPlane_callsSetPlanePoseWithNonNullPose() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
@@ -2192,7 +2192,7 @@ class MovableComponentTest {
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createAnchorable_unsupportedEntityType_throwsIllegalArgumentException() {
         createSession()
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
