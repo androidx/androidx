@@ -20,17 +20,18 @@ import androidx.xr.scenecore.Entity
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 /**
- * Asserts that the Entity associated with the current Subspace layout node is a child of the
- * [expectedParent] Entity.
+ * Asserts that the Entity associated with the current Subspace layout node is a descendant of the
+ * [expectedAncestor] Entity.
  *
- * @param expectedParent the parent entity that is expected to be found in the current hierarchy.
- * @throws AssertionError if no entity is found or the expected parent is not in the current
+ * @param expectedAncestor the ancestor entity that is expected to be found in the current
+ *   hierarchy.
+ * @throws AssertionError if no entity is found or the expected ancestor is not in the current
  *   entities' hierarchy.
  */
-// TODO(b/510822215): Deprecate assertEntityIsChildOf in favor of superior semantics matchers
+// TODO(b/510822215): Deprecate assertEntityIsDescendantOf in favor of superior semantics matchers
 @CanIgnoreReturnValue
-public fun SubspaceSemanticsNodeInteraction.assertEntityIsChildOf(
-    expectedParent: Entity
+public fun SubspaceSemanticsNodeInteraction.assertEntityIsDescendantOf(
+    expectedAncestor: Entity
 ): SubspaceSemanticsNodeInteraction {
     val entity =
         fetchSemanticsNode().semanticsEntity
@@ -38,12 +39,12 @@ public fun SubspaceSemanticsNodeInteraction.assertEntityIsChildOf(
 
     var current: Entity? = entity
     while (current != null) {
-        if (current == expectedParent) {
-            return this // Found the parent
+        if (current == expectedAncestor) {
+            return this // Found the ancestor
         }
         current = current.parent
     }
     throw AssertionError(
-        "Entity $entity of $this is not a child of the expected parent $expectedParent."
+        "Entity $entity of $this is not a descendant of the expected ancestor $expectedAncestor."
     )
 }

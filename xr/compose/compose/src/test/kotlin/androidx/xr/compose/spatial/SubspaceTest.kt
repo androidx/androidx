@@ -81,7 +81,7 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertDepthIsAtLeast
 import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertDepthIsNotEqualTo
-import androidx.xr.compose.testing.assertEntityIsChildOf
+import androidx.xr.compose.testing.assertEntityIsDescendantOf
 import androidx.xr.compose.testing.assertHeightIsAtLeast
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsNotEqualTo
@@ -946,7 +946,9 @@ class SubspaceTest {
             }
         }
 
-        composeTestRule.onSubspaceNodeWithTag("Box").assertEntityIsChildOf(assertNotNull(testNode))
+        composeTestRule
+            .onSubspaceNodeWithTag("Box")
+            .assertEntityIsDescendantOf(assertNotNull(testNode))
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -966,7 +968,7 @@ class SubspaceTest {
 
         composeTestRule
             .onSubspaceNodeWithTag("innerPanel")
-            .assertEntityIsChildOf(
+            .assertEntityIsDescendantOf(
                 assertNotNull(
                     composeTestRule
                         .onSubspaceNodeWithTag("panel")
@@ -1140,7 +1142,7 @@ class SubspaceTest {
             )
         composeTestRule
             .onSubspaceNodeWithTag("innerPanel")
-            .assertEntityIsChildOf(subspaceRootContainerEntity)
+            .assertEntityIsDescendantOf(subspaceRootContainerEntity)
 
         /*
          * (0,0)
@@ -1227,7 +1229,9 @@ class SubspaceTest {
         composeTestRule
             .onSubspaceNodeWithTag("embeddedBox")
             .assertExists()
-            .assertEntityIsChildOf(checkNotNull(composeTestRule.session?.scene?.mainPanelEntity))
+            .assertEntityIsDescendantOf(
+                checkNotNull(composeTestRule.session?.scene?.mainPanelEntity)
+            )
     }
 
     @Test
@@ -1250,7 +1254,7 @@ class SubspaceTest {
         composeTestRule
             .onSubspaceNodeWithTag(embeddedSubspaceTag)
             .assertExists()
-            .assertEntityIsChildOf(
+            .assertEntityIsDescendantOf(
                 assertNotNull(
                     composeTestRule
                         .onSubspaceNodeWithTag(parentPanelTag)
@@ -2248,7 +2252,7 @@ class SubspaceTest {
             }
         }
 
-        composeTestRule.onSubspaceNodeWithTag("panel").assertEntityIsChildOf(anchorSpace)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertEntityIsDescendantOf(anchorSpace)
     }
 
     @Test
