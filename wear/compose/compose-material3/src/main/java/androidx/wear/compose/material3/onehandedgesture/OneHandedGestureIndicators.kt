@@ -28,9 +28,7 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,11 +40,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,8 +70,6 @@ import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IndicatorImpl
 import androidx.wear.compose.material3.IndicatorState
-import androidx.wear.compose.material3.LocalContentColor
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OffsetOverscrollEffect
 import androidx.wear.compose.material3.PageIndicatorDefaults
 import androidx.wear.compose.material3.R
@@ -91,74 +85,63 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * A wrapper that replaces the [content] to indicate to the user that a gesture action is available.
  *
- * This component listens to the provided [interactionSource] to handle the visual transition
- * between the standard [content] and a gesture indicator. When a relevant gesture interaction is
- * received, the [content] is swapped out for the visual indicator. Once the indicator animation
- * sequence completes, the component automatically restores the original [content].
+ * This component manages the visual transition between the [content] and a gesture indicator. It
+ * observes the [OneHandedGestureIndicatorState] to manage its visual transition. When
+ * [indicatorState] signals that the gesture defined by [gestureConfiguration] should be displayed,
+ * the component replaces its [content] with a gesture animation. Once the animation completes, the
+ * indicator resets [OneHandedGestureIndicatorState.isIndicatorActive] back to false, restoring the
+ * original [content].
  *
  * Sample demonstrating a gesture indicator applied to a [androidx.wear.compose.material3.Button]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
- * @param interactionSource The [InteractionSource] stream to observe for incoming gesture
- *   indications. This is used to determine when and which gesture indicator should be displayed.
+ * @param gestureConfiguration The configuration of the gesture associated with this indicator.
+ * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param modifier The [Modifier] to be applied to the [OneHandedGestureIndicator] layout.
- * @param gestureIndicatorSize The size constraints for the gesture indicator icon, defaulting to
- *   [GestureIndicatorSize.Medium].
+ * @param gestureIndicatorSize The size constraints for the gesture indicator icon.
  * @param gestureIndicatorTint The color which will be used for a tint of the gesture animation
  * @param content The original component content (e.g., Text or Icon) to be displayed when no
  *   indicator is active.
  */
 @Composable
 public fun OneHandedGestureIndicator(
-    interactionSource: InteractionSource,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
     modifier: Modifier = Modifier,
-    gestureIndicatorSize: GestureIndicatorSize = GestureIndicatorSize.Medium,
-    gestureIndicatorTint: Color = LocalContentColor.current,
-    content: @Composable BoxScope.() -> Unit,
+    gestureIndicatorSize: GestureIndicatorSize = OneHandedGestureDefaults.indicatorSize,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.indicatorTint,
+    content: @Composable () -> Unit,
 ) {
     val contentAlpha = remember { Animatable(1f) }
-    var activeInteraction by remember {
-        mutableStateOf<OneHandedGestureInteraction.Indicate?>(null)
-    }
     var avdActive by remember { mutableStateOf(false) }
     val avdAnimationScale = remember { Animatable(0f) }
-    var avdDuration by remember { mutableIntStateOf(-1) }
+    val avd = gestureConfiguration.action.rememberAnimatedImageVector()
+
     Layout(
         content = {
             Box(modifier = Modifier.layoutId("icon"), contentAlignment = Alignment.Center) {
-                activeInteraction?.let { interaction ->
-                    val avd = interaction.action.rememberAnimatedImageVector()
-                    // Bridge UI-land back to the LaunchedEffect logic
-                    LaunchedEffect(avd) { avdDuration = avd.totalDuration }
-
-                    val painter =
-                        rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
-                    GestureIndicatorImage(
-                        painter = painter,
-                        size = DpSize(gestureIndicatorSize.size, gestureIndicatorSize.size),
-                        tint = gestureIndicatorTint,
-                        scaleX = { avdAnimationScale.value },
-                        scaleY = { avdAnimationScale.value },
-                    )
-                }
+                val painter =
+                    rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
+                GestureIndicatorImage(
+                    painter = painter,
+                    size = DpSize(gestureIndicatorSize.size, gestureIndicatorSize.size),
+                    tint = gestureIndicatorTint,
+                    scaleX = { avdAnimationScale.value },
+                    scaleY = { avdAnimationScale.value },
+                )
             }
             Box(
                 modifier =
                     Modifier.layoutId("content").graphicsLayer { alpha = contentAlpha.value },
-                content = content,
+                content = { content() },
             )
         },
         modifier = modifier,
@@ -183,16 +166,7 @@ public fun OneHandedGestureIndicator(
         }
     }
 
-    GestureInteractionObserver(interactionSource, false) { interaction ->
-        activeInteraction = interaction
-        // wait for UI-land to load proper AVD and update avdDuration
-        val duration =
-            withTimeoutOrNull(1_000.milliseconds) { snapshotFlow { avdDuration }.first { it >= 0 } }
-        if (duration == null) {
-            activeInteraction = null
-            return@GestureInteractionObserver
-        }
-
+    GestureIndicateEventObserver(gestureConfiguration, indicatorState, false) {
         try {
             // Animate indicator visibility in
             launch { contentAlpha.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT) }
@@ -201,7 +175,7 @@ public fun OneHandedGestureIndicator(
 
             // Play indicator animation
             avdActive = true // Start the AVD
-            delay(duration.milliseconds) // Wait for AVD duration
+            delay(avd.totalDuration.milliseconds) // Wait for AVD duration
             delay(POST_INDICATOR_ANIMATION_DELAY_MILLIS.milliseconds)
 
             // Animate indicator visibility out
@@ -215,9 +189,7 @@ public fun OneHandedGestureIndicator(
             finalScaleAnimationJob.join()
             finalButtonAnimationJob.join()
         } finally {
-            avdDuration = -1
             avdActive = false
-            activeInteraction = null
 
             withContext(NonCancellable) {
                 contentAlpha.snapTo(1f)
@@ -230,20 +202,22 @@ public fun OneHandedGestureIndicator(
 /**
  * A scroll indicator that transitions to indicate that a scroll gesture is available to the user.
  *
- * Under normal conditions, this component behaves like a standard scroll indicator, reflecting the
- * current scroll position of a [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]. It
- * listens to the provided [interactionSource] to handle the visual transition into a gesture
- * indicator. When a relevant gesture interaction is received, the indicator temporarily replaces
- * its standard visual state with a gesture animation sequence. Once the animation completes, it
- * automatically returns to its standard scroll indicator behavior.
+ * This component functions as a standard scroll indicator, reflecting the scroll position of a
+ * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]. It also observes the
+ * [OneHandedGestureIndicatorState] to manage the visual transition into a gesture indicator. When
+ * the [indicatorState] signals that the gesture defined by [gestureConfiguration] should be
+ * displayed, the indicator temporarily replaces its standard visual state with a gesture animation
+ * sequence. Once the animation completes, the indicator resets
+ * [OneHandedGestureIndicatorState.isIndicatorActive] back to false, and the component returns to
+ * its standard scroll indicator behavior.
  *
  * Sample demonstrating a gesture indicator applied to a
  * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
- * @param interactionSource The [InteractionSource] stream to observe for incoming gesture
- *   indications. This is used to determine when the gesture animation sequence should be triggered.
- * @param state The state object of the
+ * @param gestureConfiguration The configuration of the gesture associated with this indicator.
+ * @param indicatorState The state object used to synchronize the indicator visibility.
+ * @param scrollState The state object of the
  *   [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] this indicator is coupled with.
  * @param modifier The [Modifier] to be applied to the scroll indicator.
  * @param scrollIndicatorColors [ScrollIndicatorColors] that will be used to resolve the indicator
@@ -259,29 +233,32 @@ public fun OneHandedGestureIndicator(
  */
 @Composable
 public fun OneHandedGestureScrollIndicator(
-    interactionSource: InteractionSource,
-    state: TransformingLazyColumnState,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
+    scrollState: TransformingLazyColumnState,
     modifier: Modifier = Modifier,
     scrollIndicatorColors: ScrollIndicatorColors = ScrollIndicatorDefaults.colors(),
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onTertiary,
-    gestureIndicatorBackgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.scrollIndicatorTint,
+    gestureIndicatorBackgroundColor: Color =
+        OneHandedGestureDefaults.scrollIndicatorBackgroundColor,
     reverseDirection: Boolean = false,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec,
 ) {
     val overscrollEffect = rememberOverscrollEffect()?.let { it as? OffsetOverscrollEffect }
     val reduceMotionEnabled = LocalReduceMotion.current
-    val indicatorState = remember {
+    val scrollIndicatorState = remember {
         TransformingLazyColumnStateAdapter(
-            state = state,
+            state = scrollState,
             overscrollEffect = overscrollEffect,
             reduceMotionEnabled = reduceMotionEnabled,
         )
     }
 
     GestureScrollIndicator(
-        interactionSource,
-        state,
+        gestureConfiguration,
         indicatorState,
+        scrollState,
+        scrollIndicatorState,
         modifier,
         scrollIndicatorColors,
         gestureIndicatorTint,
@@ -294,21 +271,23 @@ public fun OneHandedGestureScrollIndicator(
 /**
  * A scroll indicator that transitions to indicate that a scroll gesture is available to the user.
  *
- * Under normal conditions, this component behaves like a standard scroll indicator, reflecting the
- * current scroll position of a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn]. It
- * listens to the provided [interactionSource] to handle the visual transition into a gesture
- * indicator. When a relevant gesture interaction is received, the indicator temporarily replaces
- * its standard visual state with a gesture animation sequence. Once the animation completes, it
- * automatically returns to its standard scroll indicator behavior.
+ * This component functions as a standard scroll indicator, reflecting the scroll position of a
+ * [androidx.wear.compose.foundation.lazy.ScalingLazyColumn]. It also observes the
+ * [OneHandedGestureIndicatorState] to manage the visual transition into a gesture indicator. When
+ * the [indicatorState] signals that the gesture defined by [gestureConfiguration] should be
+ * displayed, the indicator temporarily replaces its standard visual state with a gesture animation
+ * sequence. Once the animation completes, the indicator resets
+ * [OneHandedGestureIndicatorState.isIndicatorActive] back to false, and the component returns to
+ * its standard scroll indicator behavior.
  *
  * Sample demonstrating a gesture indicator applied to a
  * [androidx.wear.compose.foundation.lazy.ScalingLazyColumn]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
- * @param interactionSource The [InteractionSource] stream to observe for incoming gesture
- *   indications. This is used to determine when the gesture animation sequence should be triggered.
- * @param state The state object of the [androidx.wear.compose.foundation.lazy.ScalingLazyColumn]
- *   this indicator is coupled with.
+ * @param gestureConfiguration The configuration of the gesture associated with this indicator.
+ * @param indicatorState The state object used to synchronize the indicator visibility.
+ * @param scrollState The state object of the
+ *   [androidx.wear.compose.foundation.lazy.ScalingLazyColumn] this indicator is coupled with.
  * @param modifier The [Modifier] to be applied to the scroll indicator.
  * @param scrollIndicatorColors [ScrollIndicatorColors] that will be used to resolve the indicator
  *   and track colors for this [androidx.wear.compose.material3.ScrollIndicator].
@@ -323,29 +302,32 @@ public fun OneHandedGestureScrollIndicator(
  */
 @Composable
 public fun OneHandedGestureScrollIndicator(
-    interactionSource: InteractionSource,
-    state: ScalingLazyListState,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
+    scrollState: ScalingLazyListState,
     modifier: Modifier = Modifier,
     scrollIndicatorColors: ScrollIndicatorColors = ScrollIndicatorDefaults.colors(),
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onTertiary,
-    gestureIndicatorBackgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.scrollIndicatorTint,
+    gestureIndicatorBackgroundColor: Color =
+        OneHandedGestureDefaults.scrollIndicatorBackgroundColor,
     reverseDirection: Boolean = false,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec,
 ) {
     val overscrollEffect = rememberOverscrollEffect()?.let { it as? OffsetOverscrollEffect }
     val reduceMotionEnabled = LocalReduceMotion.current
-    val indicatorState = remember {
+    val scrollIndicatorState = remember {
         ScalingLazyColumnStateAdapter(
-            state = state,
+            state = scrollState,
             overscrollEffect = overscrollEffect,
             reduceMotionEnabled = reduceMotionEnabled,
         )
     }
 
     GestureScrollIndicator(
-        interactionSource,
-        state,
+        gestureConfiguration,
         indicatorState,
+        scrollState,
+        scrollIndicatorState,
         modifier,
         scrollIndicatorColors,
         gestureIndicatorTint,
@@ -359,18 +341,20 @@ public fun OneHandedGestureScrollIndicator(
  * A horizontal page indicator that can temporarily display a gesture indicator to demonstrate how
  * to navigate between pages using one-handed gestures.
  *
- * In its idle state, this component functions as a standard page indicator, using dots or bars to
- * represent the [pagerState]. It listens to the provided [interactionSource] to handle the visual
- * transition into a gesture indicator. When a relevant gesture interaction is received, the
- * indicator temporarily replaces its standard visual state with a gesture animation sequence. Once
- * the animation completes, it automatically returns to its standard page indicator behavior.
+ * This component functions as a standard page indicator, using dots or bars to represent the
+ * [pagerState]. It observes the [OneHandedGestureIndicatorState] to manage its visual transition
+ * into a gesture indicator. When [indicatorState] signals that the gesture defined by
+ * [gestureConfiguration] should be displayed, the indicator replaces its standard visual state with
+ * a gesture animation. Once the animation completes, the indicator resets
+ * [OneHandedGestureIndicatorState.isIndicatorActive] back to false, returning the component to its
+ * standard page indicator behavior.
  *
  * Sample demonstrating a gesture indicator applied to a
  * [androidx.wear.compose.foundation.pager.HorizontalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
- * @param interactionSource The [InteractionSource] stream to observe for incoming gesture
- *   indications. This is used to determine when the gesture animation sequence should be triggered.
+ * @param gestureConfiguration The configuration of the gesture associated with this indicator.
+ * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param pagerState The state of the [androidx.wear.compose.foundation.pager.HorizontalPager] that
  *   this indicator represents.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
@@ -384,20 +368,22 @@ public fun OneHandedGestureScrollIndicator(
  */
 @Composable
 public fun OneHandedGestureHorizontalPageIndicator(
-    interactionSource: InteractionSource,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     selectedColor: Color = PageIndicatorDefaults.selectedColor,
     unselectedColor: Color = PageIndicatorDefaults.unselectedColor,
     backgroundColor: Color = PageIndicatorDefaults.backgroundColor,
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onTertiary,
-    gestureIndicatorBackgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.pageIndicatorTint,
+    gestureIndicatorBackgroundColor: Color = OneHandedGestureDefaults.pageIndicatorBackgroundColor,
 ) {
     val transform = remember { TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 1f) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         GesturePageIndicator(
-            interactionSource = interactionSource,
+            gestureConfiguration = gestureConfiguration,
+            indicatorState = indicatorState,
             backgroundRotation = 90f,
             transform = transform,
             avdAlignment = Alignment.TopCenter,
@@ -419,18 +405,20 @@ public fun OneHandedGestureHorizontalPageIndicator(
  * A vertical page indicator that can temporarily display a gesture indicator to demonstrate how to
  * navigate between pages using one-handed gestures.
  *
- * In its idle state, this component functions as a standard page indicator, using dots or bars to
- * represent the [pagerState]. It listens to the provided [interactionSource] to handle the visual
- * transition into a gesture indicator. When a relevant gesture interaction is received, the
- * indicator temporarily replaces its standard visual state with a gesture animation sequence. Once
- * the animation completes, it automatically returns to its standard page indicator behavior.
+ * This component functions as a standard page indicator, using dots or bars to represent the
+ * [pagerState]. It observes the [OneHandedGestureIndicatorState] to manage its visual transition
+ * into a gesture indicator. When [indicatorState] signals that the gesture defined by
+ * [gestureConfiguration] should be displayed, the indicator replaces its standard visual state with
+ * a gesture animation. Once the animation completes, the indicator resets
+ * [OneHandedGestureIndicatorState.isIndicatorActive] back to false, returning the component to its
+ * standard page indicator behavior.
  *
  * Sample demonstrating a gesture indicator applied to a
  * [androidx.wear.compose.foundation.pager.VerticalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
- * @param interactionSource The [InteractionSource] stream to observe for incoming gesture
- *   indications. This is used to determine when the gesture animation sequence should be triggered.
+ * @param gestureConfiguration The configuration of the gesture associated with this indicator.
+ * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param pagerState The state of the [androidx.wear.compose.foundation.pager.VerticalPager] that
  *   this indicator represents.
  * @param modifier Modifier to be applied to the [VerticalPageIndicator]
@@ -444,14 +432,15 @@ public fun OneHandedGestureHorizontalPageIndicator(
  */
 @Composable
 public fun OneHandedGestureVerticalPageIndicator(
-    interactionSource: InteractionSource,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     selectedColor: Color = PageIndicatorDefaults.selectedColor,
     unselectedColor: Color = PageIndicatorDefaults.unselectedColor,
     backgroundColor: Color = PageIndicatorDefaults.backgroundColor,
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onTertiary,
-    gestureIndicatorBackgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.pageIndicatorTint,
+    gestureIndicatorBackgroundColor: Color = OneHandedGestureDefaults.pageIndicatorBackgroundColor,
 ) {
     val layoutDirection = LocalLayoutDirection.current
 
@@ -464,7 +453,8 @@ public fun OneHandedGestureVerticalPageIndicator(
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         GesturePageIndicator(
-            interactionSource = interactionSource,
+            gestureConfiguration = gestureConfiguration,
+            indicatorState = indicatorState,
             backgroundScale = if (isRtl) -1f else 1f,
             transform = transform,
             avdAlignment = Alignment.CenterStart,
@@ -484,7 +474,8 @@ public fun OneHandedGestureVerticalPageIndicator(
 
 @Composable
 private fun GesturePageIndicator(
-    interactionSource: InteractionSource,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
     backgroundRotation: Float = 0f,
     backgroundScale: Float = 1f,
     transform: TransformOrigin,
@@ -493,83 +484,61 @@ private fun GesturePageIndicator(
     gestureIndicatorBackgroundColor: Color,
 ) {
     var avdActive by remember { mutableStateOf(false) }
-    var activeInteraction by remember {
-        mutableStateOf<OneHandedGestureInteraction.Indicate?>(null)
-    }
-    var avdDuration by remember { mutableIntStateOf(-1) }
     val avdAnimationScale = remember { Animatable(0f) }
-
-    activeInteraction?.let { interaction ->
-        val density = LocalDensity.current
-        val avd = interaction.action.rememberAnimatedImageVector()
-        val avdPainter = rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
-        val backgroundPainter =
-            painterResource(R.drawable.wear_one_handed_gesture_indicator_pointer_background)
-        val backgroundSize =
-            remember(density) {
-                with(density) {
-                    DpSize(
-                        backgroundPainter.intrinsicSize.width.toDp(),
-                        backgroundPainter.intrinsicSize.height.toDp(),
-                    )
-                }
-            }
-        val avdSize =
-            remember(density) {
-                with(density) {
-                    DpSize(
-                        avdPainter.intrinsicSize.width.toDp(),
-                        avdPainter.intrinsicSize.height.toDp(),
-                    )
-                }
-            }
-        val largestBackgroundSide = max(backgroundSize.width, backgroundSize.height)
-
-        // Bridge UI-land back to the LaunchedEffect logic
-        LaunchedEffect(avd) { avdDuration = avd.totalDuration }
-
-        Box(
-            modifier =
-                Modifier.graphicsLayer {
-                        scaleX = avdAnimationScale.value
-                        scaleY = avdAnimationScale.value
-                        transformOrigin = transform
-                    }
-                    .size(largestBackgroundSide),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = backgroundPainter,
-                contentDescription = null,
-                tint = gestureIndicatorBackgroundColor,
-                modifier =
-                    Modifier.graphicsLayer {
-                        scaleX = backgroundScale
-                        rotationZ = backgroundRotation
-                    },
-            )
-            Box(
-                modifier = Modifier.size(backgroundSize.height).align(avdAlignment),
-                contentAlignment = Alignment.Center,
-            ) {
-                GestureIndicatorImage(
-                    painter = avdPainter,
-                    size = avdSize,
-                    tint = gestureIndicatorTint,
+    val density = LocalDensity.current
+    val avd = gestureConfiguration.action.rememberAnimatedImageVector()
+    val avdPainter = rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
+    val backgroundPainter =
+        painterResource(R.drawable.wear_one_handed_gesture_indicator_pointer_background)
+    val backgroundSize =
+        remember(backgroundPainter, density) {
+            with(density) {
+                DpSize(
+                    backgroundPainter.intrinsicSize.width.toDp(),
+                    backgroundPainter.intrinsicSize.height.toDp(),
                 )
             }
         }
+    val avdSize =
+        remember(avdPainter, density) {
+            with(density) {
+                DpSize(
+                    avdPainter.intrinsicSize.width.toDp(),
+                    avdPainter.intrinsicSize.height.toDp(),
+                )
+            }
+        }
+    val largestBackgroundSide = max(backgroundSize.width, backgroundSize.height)
+
+    Box(
+        modifier =
+            Modifier.graphicsLayer {
+                    scaleX = avdAnimationScale.value
+                    scaleY = avdAnimationScale.value
+                    transformOrigin = transform
+                }
+                .size(largestBackgroundSide),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = backgroundPainter,
+            contentDescription = null,
+            tint = gestureIndicatorBackgroundColor,
+            modifier =
+                Modifier.graphicsLayer {
+                    scaleX = backgroundScale
+                    rotationZ = backgroundRotation
+                },
+        )
+        Box(
+            modifier = Modifier.size(backgroundSize.height).align(avdAlignment),
+            contentAlignment = Alignment.Center,
+        ) {
+            GestureIndicatorImage(painter = avdPainter, size = avdSize, tint = gestureIndicatorTint)
+        }
     }
 
-    GestureInteractionObserver(interactionSource, true) { interaction ->
-        activeInteraction = interaction
-        // wait for UI-land to load proper AVD and update avdDuration
-        val duration =
-            withTimeoutOrNull(1_000.milliseconds) { snapshotFlow { avdDuration }.first { it >= 0 } }
-        if (duration == null) {
-            activeInteraction = null
-            return@GestureInteractionObserver
-        }
+    GestureIndicateEventObserver(gestureConfiguration, indicatorState, true) {
         try {
             // Animate indicator visibility in
             launch { avdAnimationScale.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
@@ -579,7 +548,7 @@ private fun GesturePageIndicator(
             avdActive = true // Start the AVD
 
             // Wait for AVD duration
-            delay((duration + POST_INDICATOR_ANIMATION_DELAY_MILLIS).milliseconds)
+            delay((avd.totalDuration + POST_INDICATOR_ANIMATION_DELAY_MILLIS).milliseconds)
 
             // Animate indicator visibility out
             val finalScaleAnimationJob = launch {
@@ -588,9 +557,7 @@ private fun GesturePageIndicator(
 
             finalScaleAnimationJob.join()
         } finally {
-            avdDuration = -1
             avdActive = false
-            activeInteraction = null
 
             withContext(NonCancellable) { avdAnimationScale.snapTo(0f) }
         }
@@ -599,15 +566,16 @@ private fun GesturePageIndicator(
 
 @Composable
 private fun GestureScrollIndicator(
-    interactionSource: InteractionSource,
+    gestureConfiguration: OneHandedGestureConfiguration,
+    gestureIndicatorState: OneHandedGestureIndicatorState,
     scrollableState: ScrollableState,
-    indicatorState: IndicatorState,
+    scrollIndicatorState: IndicatorState,
     modifier: Modifier = Modifier,
-    scrollIndicatorColors: ScrollIndicatorColors = ScrollIndicatorDefaults.colors(),
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onTertiary,
-    gestureIndicatorBackgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    scrollIndicatorColors: ScrollIndicatorColors,
+    gestureIndicatorTint: Color,
+    gestureIndicatorBackgroundColor: Color,
     reverseDirection: Boolean = false,
-    positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec,
+    positionAnimationSpec: AnimationSpec<Float>,
 ) {
     var avdActive by remember { mutableStateOf(false) }
     val avdAnimationScale = remember { Animatable(0f) }
@@ -627,13 +595,10 @@ private fun GestureScrollIndicator(
             }
         }
 
-    var activeInteraction by remember {
-        mutableStateOf<OneHandedGestureInteraction.Indicate?>(null)
-    }
     val jiggleFractionAnimatable = remember { Animatable(0f) }
     val jiggleAmount = 0.5f
     val indicatorJiggleColor = gestureIndicatorBackgroundColor.copy(alpha = 0.8f)
-    var avdDuration by remember { mutableIntStateOf(-1) }
+    val avd = gestureConfiguration.action.rememberAnimatedImageVector()
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -650,43 +615,38 @@ private fun GestureScrollIndicator(
                     .size(backgroundSize),
             contentAlignment = Alignment.CenterStart,
         ) {
-            activeInteraction?.let { interaction ->
-                val avd = interaction.action.rememberAnimatedImageVector()
-                // Bridge UI-land back to the LaunchedEffect logic
-                LaunchedEffect(avd) { avdDuration = avd.totalDuration }
-                val painter =
-                    rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
-                val avdSize =
-                    remember(density) {
-                        with(density) {
-                            DpSize(
-                                painter.intrinsicSize.width.toDp(),
-                                painter.intrinsicSize.height.toDp(),
-                            )
-                        }
+            val painter =
+                rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = avdActive)
+            val avdSize =
+                remember(painter, density) {
+                    with(density) {
+                        DpSize(
+                            painter.intrinsicSize.width.toDp(),
+                            painter.intrinsicSize.height.toDp(),
+                        )
                     }
-                Icon(
-                    painter = backgroundPainter,
-                    contentDescription = null,
-                    tint = gestureIndicatorBackgroundColor,
-                    modifier = Modifier.graphicsLayer { scaleX = if (isRtl) -1f else 1f },
-                )
-
-                Box(
-                    modifier = Modifier.size(backgroundSize.height),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    GestureIndicatorImage(
-                        painter = painter,
-                        size = avdSize,
-                        tint = gestureIndicatorTint,
-                    )
                 }
+            Icon(
+                painter = backgroundPainter,
+                contentDescription = null,
+                tint = gestureIndicatorBackgroundColor,
+                modifier = Modifier.graphicsLayer { scaleX = if (isRtl) -1f else 1f },
+            )
+
+            Box(
+                modifier = Modifier.size(backgroundSize.height),
+                contentAlignment = Alignment.Center,
+            ) {
+                GestureIndicatorImage(
+                    painter = painter,
+                    size = avdSize,
+                    tint = gestureIndicatorTint,
+                )
             }
         }
         Spacer(modifier = Modifier.width(6.dp))
         IndicatorImpl(
-            indicatorState,
+            state = scrollIndicatorState,
             indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
             indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
             paddingHorizontal = ScrollIndicatorDefaults.edgePadding,
@@ -698,15 +658,7 @@ private fun GestureScrollIndicator(
         )
     }
 
-    GestureInteractionObserver(interactionSource, true) { interaction ->
-        activeInteraction = interaction
-        // wait for UI-land to load proper AVD and update avdDuration
-        val duration =
-            withTimeoutOrNull(1_000.milliseconds) { snapshotFlow { avdDuration }.first { it >= 0 } }
-        if (duration == null) {
-            activeInteraction = null
-            return@GestureInteractionObserver
-        }
+    GestureIndicateEventObserver(gestureConfiguration, gestureIndicatorState, true) {
         try {
             // Ensure scrollbar is shown while the gesture indicator animation is on
             launch { scrollableState.animateScrollBy(0.1f) }
@@ -733,7 +685,7 @@ private fun GestureScrollIndicator(
                     jiggleAmount,
                     animationSpec = EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT,
                 ) {
-                    indicatorState.jiggleAmount = value
+                    scrollIndicatorState.jiggleAmount = value
                 }
             }
 
@@ -744,14 +696,14 @@ private fun GestureScrollIndicator(
                     0f,
                     animationSpec = EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT,
                 ) {
-                    indicatorState.jiggleAmount = value
+                    scrollIndicatorState.jiggleAmount = value
                 }
             }
 
             delay(
                 max(
                         0,
-                        (duration + POST_INDICATOR_ANIMATION_DELAY_MILLIS) -
+                        (avd.totalDuration + POST_INDICATOR_ANIMATION_DELAY_MILLIS) -
                             SCROLLBAR_DOWNWARD_JIGGLE_ANIMATION_START_DELAY_MILLIS -
                             SCROLLBAR_UPWARD_JIGGLE_ANIMATION_START_DELAY_MILLIS,
                     )
@@ -773,10 +725,8 @@ private fun GestureScrollIndicator(
             finalScaleAnimationJob.join()
             indicatorColorResetJob.join()
         } finally {
-            indicatorState.jiggleAmount = 0f
-            avdDuration = -1
+            scrollIndicatorState.jiggleAmount = 0f
             avdActive = false
-            activeInteraction = null
 
             withContext(NonCancellable) {
                 avdAnimationScale.snapTo(0f)
@@ -826,34 +776,37 @@ private fun GestureAction.rememberAnimatedImageVector(): AnimatedImageVector {
 }
 
 @Composable
-private fun GestureInteractionObserver(
-    interactionSource: InteractionSource,
+private fun GestureIndicateEventObserver(
+    gestureConfiguration: OneHandedGestureConfiguration,
+    indicatorState: OneHandedGestureIndicatorState,
     shouldRestrictFrequency: Boolean,
-    onIndicate: suspend CoroutineScope.(OneHandedGestureInteraction.Indicate) -> Unit,
+    onIndicate: suspend CoroutineScope.() -> Unit,
 ) {
-    // Use a Mutex to synchronize interaction processing. When the interactionSource changes or new
-    // Interaction is emitted, the previous LaunchedEffect is canceled. However, because suspension
-    // functions in a withContext(NonCancellable) block can yield execution, a race condition could
-    // occur where the old cleanup and new initialization overlap.
-    // The Mutex ensures that cleanup must fully complete before the next interaction begins.
+    // Use a Mutex to synchronize event processing. When the state changes, the previous
+    // LaunchedEffect is canceled. However, because suspension functions in onIndicate() have a
+    // withContext(NonCancellable) block which can yield execution, a race condition could occur
+    // where the old cleanup and new initialization overlap.
+    // The Mutex ensures that cleanup must fully complete before the next event begins.
     val gestureMutex = remember { Mutex() }
     val gestureManager = LocalGestureManager.current
-    LaunchedEffect(interactionSource, gestureManager) {
-        interactionSource.interactions
-            .filterIsInstance<OneHandedGestureInteraction.Indicate>()
-            .filter { interaction ->
+    if (indicatorState.isIndicatorActive) {
+        LaunchedEffect(gestureManager, gestureConfiguration, shouldRestrictFrequency) {
+            if (
                 gestureManager.shouldShowGestureIndicator(
-                    interaction.action,
-                    interaction.key,
+                    gestureConfiguration,
                     shouldRestrictFrequency,
                 )
-            }
-            .collectLatest { interaction ->
+            ) {
                 gestureMutex.withLock {
-                    onIndicate(interaction)
-                    gestureManager.notifyIndicatorShown(interaction.action, interaction.key)
+                    try {
+                        onIndicate()
+                        gestureManager.notifyIndicatorShown(gestureConfiguration)
+                    } finally {
+                        indicatorState.isIndicatorActive = false
+                    }
                 }
             }
+        }
     }
 }
 

@@ -59,29 +59,35 @@ import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEna
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 
 @Sampled
 @Composable
 fun OneHandedGestureButtonSample() {
     var label by remember { mutableStateOf("Gesturable Button") }
-    val onClick = remember { { label = "Clicked/Gestured" } }
+    val onClick = { label = "Clicked/Gestured" }
     val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(
             onClick = onClick,
             interactionSource = interactionSource,
             modifier =
                 Modifier.oneHandedGesture(
-                    action = GestureAction.Primary,
+                    gestureConfiguration = gestureConfig,
                     interactionSource = interactionSource,
                     gestureLabel = "activate the button",
+                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
                 ),
         ) {
-            OneHandedGestureIndicator(interactionSource = interactionSource) { Text(label) }
+            OneHandedGestureIndicator(gestureConfig, indicatorState) { Text(label) }
         }
     }
 }
@@ -99,18 +105,22 @@ fun OneHandedGestureDisableButtonSample() {
             }
             Spacer(modifier = Modifier.height(6.dp))
             CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+                val indicatorState = remember { OneHandedGestureIndicatorState() }
                 Button(
                     onClick = {},
                     interactionSource = interactionSource,
                     modifier =
                         Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
+                            gestureConfiguration = gestureConfig,
                             interactionSource = interactionSource,
                             gestureLabel = "increase the counter",
+                            onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { counter++ },
                         ),
                 ) {
-                    OneHandedGestureIndicator(interactionSource = interactionSource) {
+                    OneHandedGestureIndicator(gestureConfig, indicatorState) {
                         Text("Gestured $counter times")
                     }
                 }
@@ -127,8 +137,19 @@ fun OneHandedGestureTransformingLazyColumnSample() {
         remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
     val scrollState = rememberTransformingLazyColumnState()
     val buttonInteractionSource = remember { MutableInteractionSource() }
-    val scrollInteractionSource = remember { MutableInteractionSource() }
+    val buttonGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Clickable,
+        )
+    val buttonIndicatorState = remember { OneHandedGestureIndicatorState() }
 
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Scrollable,
+        )
+    val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
     ScreenScaffold(
         scrollState = scrollState,
         edgeButton = {
@@ -142,10 +163,10 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                         // Apply the one-handed gesture modifier only when the container cannot
                         // scroll further, ensuring the EdgeButton is fully visible and interactive
                         Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
-                            priority = GesturePriority.Clickable,
+                            gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
                             gestureLabel = "close",
+                            onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
                     } then
@@ -156,15 +177,16 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                             overscrollEffect = rememberOverscrollEffect(),
                         ),
             ) {
-                OneHandedGestureIndicator(interactionSource = buttonInteractionSource) {
+                OneHandedGestureIndicator(buttonGestureConfig, buttonIndicatorState) {
                     Text("Close")
                 }
             }
         },
         scrollIndicator = {
             OneHandedGestureScrollIndicator(
-                interactionSource = scrollInteractionSource,
-                state = scrollState,
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         },
@@ -175,10 +197,9 @@ fun OneHandedGestureTransformingLazyColumnSample() {
             modifier =
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
-                        priority = GesturePriority.Scrollable,
-                        interactionSource = scrollInteractionSource,
+                        gestureConfiguration = scrollGestureConfig,
                         gestureLabel = "scroll",
+                        onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
         ) {
@@ -193,61 +214,73 @@ fun OneHandedGestureScalingLazyColumnSample() {
     val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val onClick =
         remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
-    val slcState = rememberScalingLazyListState()
+    val scrollState = rememberScalingLazyListState()
     val buttonInteractionSource = remember { MutableInteractionSource() }
-    val slcInteractionSource = remember { MutableInteractionSource() }
+    val buttonGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Clickable,
+        )
+    val buttonIndicatorState = remember { OneHandedGestureIndicatorState() }
+
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Scrollable,
+        )
+    val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
 
     ScreenScaffold(
-        scrollState = slcState,
+        scrollState = scrollState,
         edgeButton = {
             EdgeButton(
                 onClick = onClick,
                 interactionSource = buttonInteractionSource,
                 modifier =
-                    if (slcState.canScrollForward) {
+                    if (scrollState.canScrollForward) {
                         Modifier
                     } else {
                         // Apply the one-handed gesture modifier only when the container cannot
                         // scroll further, ensuring the EdgeButton is fully visible and interactive
                         Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
-                            priority = GesturePriority.Clickable,
+                            gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
                             gestureLabel = "close",
+                            onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
                     } then
                         Modifier.scrollable(
-                            state = slcState,
+                            state = scrollState,
                             orientation = Orientation.Vertical,
                             reverseDirection = true,
                             overscrollEffect = rememberOverscrollEffect(),
                         ),
             ) {
-                OneHandedGestureIndicator(interactionSource = buttonInteractionSource) {
+                OneHandedGestureIndicator(buttonGestureConfig, buttonIndicatorState) {
                     Text("Close")
                 }
             }
         },
         scrollIndicator = {
             OneHandedGestureScrollIndicator(
-                interactionSource = slcInteractionSource,
-                state = slcState,
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         },
     ) { contentPadding ->
         ScalingLazyColumn(
-            state = slcState,
+            state = scrollState,
             contentPadding = contentPadding,
             modifier =
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
-                        priority = GesturePriority.Scrollable,
-                        interactionSource = slcInteractionSource,
+                        gestureConfiguration = scrollGestureConfig,
                         gestureLabel = "scroll",
-                        onGesture = { OneHandedGestureDefaults.scrollDown(slcState) },
+                        onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
+                        onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
             autoCentering = null,
         ) {
@@ -264,7 +297,19 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
         remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
     val scrollState = rememberTransformingLazyColumnState()
     val buttonInteractionSource = remember { MutableInteractionSource() }
-    val scrollInteractionSource = remember { MutableInteractionSource() }
+    val buttonGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Clickable,
+        )
+    val buttonIndicatorState = remember { OneHandedGestureIndicatorState() }
+
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Scrollable,
+        )
+    val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
 
     ScreenScaffold(
         scrollState = scrollState,
@@ -279,10 +324,10 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                         // Apply the one-handed gesture modifier only when the container cannot
                         // scroll further, ensuring the EdgeButton is fully visible and interactive
                         Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
-                            priority = GesturePriority.Clickable,
+                            gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
                             gestureLabel = "close",
+                            onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
                     } then
@@ -293,15 +338,16 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                             overscrollEffect = rememberOverscrollEffect(),
                         ),
             ) {
-                OneHandedGestureIndicator(interactionSource = buttonInteractionSource) {
+                OneHandedGestureIndicator(buttonGestureConfig, buttonIndicatorState) {
                     Text("Close")
                 }
             }
         },
         scrollIndicator = {
             OneHandedGestureScrollIndicator(
-                interactionSource = scrollInteractionSource,
-                state = scrollState,
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         },
@@ -312,9 +358,8 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
             modifier =
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
-                        priority = GesturePriority.Scrollable,
-                        interactionSource = scrollInteractionSource,
+                        gestureConfiguration = scrollGestureConfig,
+                        onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
         ) {
@@ -329,60 +374,72 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
     val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val onClick =
         remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
-    val slcState = rememberScalingLazyListState()
+    val scrollState = rememberScalingLazyListState()
     val buttonInteractionSource = remember { MutableInteractionSource() }
-    val slcInteractionSource = remember { MutableInteractionSource() }
+    val buttonGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Clickable,
+        )
+    val buttonIndicatorState = remember { OneHandedGestureIndicatorState() }
+
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = GestureAction.Primary,
+            priority = GesturePriority.Scrollable,
+        )
+    val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
 
     ScreenScaffold(
-        scrollState = slcState,
+        scrollState = scrollState,
         edgeButton = {
             EdgeButton(
                 onClick = onClick,
                 interactionSource = buttonInteractionSource,
                 modifier =
-                    if (slcState.canScrollForward) {
+                    if (scrollState.canScrollForward) {
                         Modifier
                     } else {
                         // Apply the one-handed gesture modifier only when the container cannot
                         // scroll further, ensuring the EdgeButton is fully visible and interactive
                         Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
-                            priority = GesturePriority.Clickable,
+                            gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
                             gestureLabel = "close",
+                            onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
                     } then
                         Modifier.scrollable(
-                            state = slcState,
+                            state = scrollState,
                             orientation = Orientation.Vertical,
                             reverseDirection = true,
                             overscrollEffect = rememberOverscrollEffect(),
                         ),
             ) {
-                OneHandedGestureIndicator(interactionSource = buttonInteractionSource) {
+                OneHandedGestureIndicator(buttonGestureConfig, buttonIndicatorState) {
                     Text("Close")
                 }
             }
         },
         scrollIndicator = {
             OneHandedGestureScrollIndicator(
-                interactionSource = slcInteractionSource,
-                state = slcState,
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         },
     ) { contentPadding ->
         ScalingLazyColumn(
-            state = slcState,
+            state = scrollState,
             contentPadding = contentPadding,
             modifier =
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
-                        priority = GesturePriority.Scrollable,
-                        interactionSource = slcInteractionSource,
-                        onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(slcState) },
+                        gestureConfiguration = scrollGestureConfig,
+                        onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
+                        onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
             autoCentering = null,
         ) {
@@ -395,13 +452,15 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
 @Composable
 fun OneHandedGestureHorizontalPagerSample() {
     val pagerState = rememberPagerState(pageCount = { 10 })
-    val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
 
     HorizontalPagerScaffold(
         pagerState = pagerState,
         pageIndicator = {
             OneHandedGestureHorizontalPageIndicator(
-                interactionSource = interactionSource,
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
                 pagerState = pagerState,
             )
         },
@@ -410,9 +469,9 @@ fun OneHandedGestureHorizontalPagerSample() {
             state = pagerState,
             modifier =
                 Modifier.oneHandedGesture(
-                    action = GestureAction.Primary,
-                    interactionSource = interactionSource,
+                    gestureConfiguration = gestureConfig,
                     gestureLabel = "scroll to the next page",
+                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)
                 },
@@ -438,13 +497,15 @@ fun OneHandedGestureHorizontalPagerSample() {
 @Composable
 fun OneHandedGestureVerticalPagerSample() {
     val pagerState = rememberPagerState(pageCount = { 10 })
-    val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
 
     VerticalPagerScaffold(
         pagerState = pagerState,
         pageIndicator = {
             OneHandedGestureVerticalPageIndicator(
-                interactionSource = interactionSource,
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
                 pagerState = pagerState,
             )
         },
@@ -453,9 +514,9 @@ fun OneHandedGestureVerticalPagerSample() {
             state = pagerState,
             modifier =
                 Modifier.oneHandedGesture(
-                    action = GestureAction.Primary,
-                    interactionSource = interactionSource,
+                    gestureConfiguration = gestureConfig,
                     gestureLabel = "scroll to the next page",
+                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)
                 },
