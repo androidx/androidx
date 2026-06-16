@@ -260,11 +260,6 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         return entity
     }
 
-    @Deprecated("Use createEntity instead.")
-    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
-        return createEntity(pose, name, parent)
-    }
-
     override fun createLoggingEntity(pose: Pose): LoggingEntity =
         object : LoggingEntity, FakeEntity() {}
 
