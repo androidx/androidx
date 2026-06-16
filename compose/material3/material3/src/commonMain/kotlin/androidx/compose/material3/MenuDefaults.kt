@@ -41,9 +41,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 
 /** Contains default values used for [DropdownMenu] and [DropdownMenuItem]. */
 object MenuDefaults {
+    /** The default [PopupProperties] used in [DropdownMenu] and [DropdownMenuPopup] */
+    val DefaultMenuProperties: PopupProperties = PopupProperties(focusable = true)
+
     /** The default tonal elevation for a menu. */
     val TonalElevation = ElevationTokens.Level0
 
@@ -294,8 +298,33 @@ object MenuDefaults {
      * @param padding the padding applied to the label's content.
      * @param content the content of the label.
      */
+    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @Composable
     fun Label(
+        contentAlignment: Alignment = Alignment.CenterStart,
+        padding: PaddingValues = DropdownMenuGroupLabelHorizontalPadding,
+        content: @Composable () -> Unit,
+    ) =
+        DropdownMenuGroupLabel(
+            modifier = Modifier,
+            contentAlignment = contentAlignment,
+            padding = padding,
+            content = content,
+        )
+
+    /**
+     * The default label recommended to be used within a [DropdownMenuGroup].
+     *
+     * Labels can be used to categorize parts of the group or the entire group
+     *
+     * @param modifier the [Modifier] to be applied to this label.
+     * @param contentAlignment the alignment of the label's content.
+     * @param padding the padding applied to the label's content.
+     * @param content the content of the label.
+     */
+    @Composable
+    fun DropdownMenuGroupLabel(
+        modifier: Modifier = Modifier,
         contentAlignment: Alignment = Alignment.CenterStart,
         padding: PaddingValues = DropdownMenuGroupLabelHorizontalPadding,
         content: @Composable () -> Unit,
@@ -304,7 +333,8 @@ object MenuDefaults {
         ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             Box(
                 modifier =
-                    Modifier.sizeIn(
+                    modifier
+                        .sizeIn(
                             minWidth = DropdownMenuItemDefaultMinWidth,
                             maxWidth = DropdownMenuItemDefaultMaxWidth,
                             minHeight = DropdownMenuGroupDefaultMinHeight,
@@ -336,14 +366,30 @@ object MenuDefaults {
      * @param padding the padding applied to the label's content.
      * @param content the content of the label.
      */
+    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @Composable
     fun DropdownMenuItemTrailingLabel(
+        padding: PaddingValues = DropdownMenuItemTrailingLabelHorizontalPadding,
+        content: @Composable () -> Unit,
+    ) = DropdownMenuItemTrailingLabel(modifier = Modifier, padding = padding, content = content)
+
+    /**
+     * The default trailing label recommended to be used within a [DropdownMenuItem] which can be
+     * passed to its trailingIcon param.
+     *
+     * @param modifier the [Modifier] to be applied to this dropdown menu item trailing label.
+     * @param padding the padding applied to the label's content.
+     * @param content the content of the label.
+     */
+    @Composable
+    fun DropdownMenuItemTrailingLabel(
+        modifier: Modifier = Modifier,
         padding: PaddingValues = DropdownMenuItemTrailingLabelHorizontalPadding,
         content: @Composable () -> Unit,
     ) {
         // TODO replace the typography with token when available
         ProvideTextStyle(MaterialTheme.typography.labelLarge) {
-            Box(modifier = Modifier.padding(padding)) { content() }
+            Box(modifier = modifier.padding(padding)) { content() }
         }
     }
 
@@ -401,6 +447,7 @@ object MenuDefaults {
      * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
      *   enabled and selected
      */
+    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @Composable
     fun selectableItemColors(
         textColor: Color = Color.Unspecified,
@@ -415,12 +462,68 @@ object MenuDefaults {
         selectedLeadingIconColor: Color = Color.Unspecified,
         selectedTrailingIconColor: Color = Color.Unspecified,
     ): MenuItemColors =
+        selectableItemColors(
+            textColor = textColor,
+            containerColor = containerColor,
+            leadingIconColor = leadingIconColor,
+            trailingIconColor = trailingIconColor,
+            disabledTextColor = disabledTextColor,
+            disabledContainerColor = Color.Unspecified,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedTextColor = selectedTextColor,
+            selectedLeadingIconColor = selectedLeadingIconColor,
+            selectedTrailingIconColor = selectedTrailingIconColor,
+        )
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
+     * in a standard color variant [DropdownMenuItem]. This uses the Color.Unspecified to mean “use
+     * the value from the source”
+     *
+     * @param textColor the text color of this [DropdownMenuItem] when enabled
+     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
+     *   unselected
+     * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
+     * @param trailingIconColor the trailing icon color of this [DropdownMenuItem] when enabled
+     * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
+     * @param disabledContainerColor the container color of this [DropdownMenuItem] when not
+     *   enabled.
+     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
+     *   enabled
+     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItem] when not
+     *   enabled
+     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
+     *   selected
+     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
+     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
+     *   enabled and selected
+     * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
+     *   enabled and selected
+     */
+    @Composable
+    fun selectableItemColors(
+        textColor: Color = Color.Unspecified,
+        containerColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledTextColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
+        selectedContainerColor: Color = Color.Unspecified,
+        selectedTextColor: Color = Color.Unspecified,
+        selectedLeadingIconColor: Color = Color.Unspecified,
+        selectedTrailingIconColor: Color = Color.Unspecified,
+    ): MenuItemColors =
         MaterialTheme.colorScheme.defaultMenuSelectableItemColors.copy(
             textColor = textColor,
             containerColor = containerColor,
             leadingIconColor = leadingIconColor,
             trailingIconColor = trailingIconColor,
             disabledTextColor = disabledTextColor,
+            disabledContainerColor = disabledContainerColor,
             disabledLeadingIconColor = disabledLeadingIconColor,
             disabledTrailingIconColor = disabledTrailingIconColor,
             selectedContainerColor = selectedContainerColor,
@@ -451,6 +554,7 @@ object MenuDefaults {
      * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
      *   enabled and selected
      */
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
     fun selectableItemVibrantColors(
         textColor: Color = Color.Unspecified,
@@ -465,12 +569,68 @@ object MenuDefaults {
         selectedLeadingIconColor: Color = Color.Unspecified,
         selectedTrailingIconColor: Color = Color.Unspecified,
     ): MenuItemColors =
+        selectableItemVibrantColors(
+            textColor = textColor,
+            containerColor = containerColor,
+            leadingIconColor = leadingIconColor,
+            trailingIconColor = trailingIconColor,
+            disabledTextColor = disabledTextColor,
+            disabledContainerColor = Color.Unspecified,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedTextColor = selectedTextColor,
+            selectedLeadingIconColor = selectedLeadingIconColor,
+            selectedTrailingIconColor = selectedTrailingIconColor,
+        )
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
+     * in a vibrant color variant [DropdownMenuItem]. This uses the Color.Unspecified to mean “use
+     * the value from the source”
+     *
+     * @param textColor the text color of this [DropdownMenuItem] when enabled
+     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
+     *   unselected
+     * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
+     * @param trailingIconColor the trailing icon color of this [DropdownMenuItem] when enabled
+     * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
+     * @param disabledContainerColor the container color of this [DropdownMenuItem] when not
+     *   enabled.
+     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
+     *   enabled
+     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItem] when not
+     *   enabled
+     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
+     *   selected
+     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
+     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
+     *   enabled and selected
+     * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
+     *   enabled and selected
+     */
+    @Composable
+    fun selectableItemVibrantColors(
+        textColor: Color = Color.Unspecified,
+        containerColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledTextColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
+        selectedContainerColor: Color = Color.Unspecified,
+        selectedTextColor: Color = Color.Unspecified,
+        selectedLeadingIconColor: Color = Color.Unspecified,
+        selectedTrailingIconColor: Color = Color.Unspecified,
+    ): MenuItemColors =
         MaterialTheme.colorScheme.defaultMenuSelectableItemVibrantColors.copy(
             textColor = textColor,
             containerColor = containerColor,
             leadingIconColor = leadingIconColor,
             trailingIconColor = trailingIconColor,
             disabledTextColor = disabledTextColor,
+            disabledContainerColor = disabledContainerColor,
             disabledLeadingIconColor = disabledLeadingIconColor,
             disabledTrailingIconColor = disabledTrailingIconColor,
             selectedContainerColor = selectedContainerColor,

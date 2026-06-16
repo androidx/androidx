@@ -88,31 +88,6 @@ actual fun DropdownMenu(
     }
 }
 
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-actual fun DropdownMenuPopup(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier,
-    offset: DpOffset,
-    properties: PopupProperties,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    DropdownMenuPopup(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        popupPositionProvider =
-            MenuDefaults.rememberDropdownMenuPopupPositionProvider(
-                MenuAnchorPosition.Below,
-                offset = offset,
-            ),
-        properties = properties,
-        content = content,
-    )
-}
-
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
     replaceWith =
@@ -234,4 +209,5 @@ internal actual fun DropdownMenuPopupImpl(
     )
 }
 
-internal actual val DefaultMenuProperties = PopupProperties(focusable = true)
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
+internal actual val DefaultMenuProperties = MenuDefaults.DefaultMenuProperties
