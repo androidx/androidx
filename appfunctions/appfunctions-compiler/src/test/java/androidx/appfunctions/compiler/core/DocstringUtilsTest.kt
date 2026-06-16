@@ -42,6 +42,12 @@ class DocstringUtilsTest {
     }
 
     @Test
+    fun getPropertyDescriptionsFromKDoc_multipleTags() {
+        assertThat(getPropertyDescriptionsFromKDoc(MULTI_TAG_DOCSTRING))
+            .containsExactly("property", "description.")
+    }
+
+    @Test
     fun getParamDescriptionsFromKDoc_noParams() {
         assertThat(getParamDescriptionsFromKDoc(NO_PARAMS_DOCSTRING)).isEmpty()
     }

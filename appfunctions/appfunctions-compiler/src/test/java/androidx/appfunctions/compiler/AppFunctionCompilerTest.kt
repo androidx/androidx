@@ -1403,4 +1403,39 @@ class AppFunctionCompilerTest {
             File(testOutputLocation).deleteRecursively()
         }
     }
+
+    @Test
+    fun testKDocPropertyIndex_generateXml() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/PropertyDocPriorityService.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "property_doc_priority.xml",
+            goldenFileName = "xml/property_doc_priority.xml",
+        )
+    }
+
+    @Test
+    fun testKDocPropertyIndex_multiModule_generateXml() {
+        val libraryReport =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("serializable/valid/MultiModuleLibrarySerializable.KT")
+            )
+        assertThat(libraryReport.isSuccess).isTrue()
+
+        val appReport =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/MultiModuleAppService.KT"),
+                additionalClasspath = libraryReport.outputClasspath,
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = appReport,
+            expectGeneratedResourceFileName = "multi_module_app.xml",
+            goldenFileName = "xml/multi_module_app.xml",
+        )
+    }
 }

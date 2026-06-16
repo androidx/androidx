@@ -66,7 +66,9 @@ open class AnnotatedAppFunctionSerializable(override val classDeclaration: KSCla
                 String::class,
             )
         }
-        return docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" }
+        return sanitizeKDoc(
+            docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" }
+        )
     }
 
     /**

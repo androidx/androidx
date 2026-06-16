@@ -268,7 +268,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.NonSealedOneOfSerializable</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass </description>
+                <description>I am a KDoc for OneOfSealedClass</description>
                 <type>14</type>
             </dataTypeMetadata>
             <id>unused</id>
@@ -279,7 +279,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.NonSealedOneOfSerializable$ASubclass</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass.ASubclass </description>
+                <description>I am a KDoc for OneOfSealedClass.ASubclass</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -310,7 +310,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.NonSealedOneOfSerializable$BSubclass</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass.BSubclass </description>
+                <description>I am a KDoc for OneOfSealedClass.BSubclass</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -353,7 +353,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.OneOfSealedClass</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass </description>
+                <description>I am a KDoc for OneOfSealedClass</description>
                 <type>14</type>
             </dataTypeMetadata>
             <id>unused</id>
@@ -365,7 +365,7 @@
                     <id>unused</id>
                     <isNullable>true</isNullable>
                     <objectQualifiedName>androidx.appfunctions.AppFunctionResourceContainer</objectQualifiedName>
-                    <description>I am a KDoc for OneOfSealedClass.ASubclass </description>
+                    <description>I am a KDoc for OneOfSealedClass.ASubclass</description>
                     <properties>
                         <dataTypeMetadata>
                             <id>unused</id>
@@ -387,7 +387,7 @@
                     <id>unused</id>
                     <isNullable>true</isNullable>
                     <objectQualifiedName>com.testdata.oneofserializable.OneOfSealedClass$ASubclass</objectQualifiedName>
-                    <description>I am a KDoc for OneOfSealedClass.ASubclass </description>
+                    <description>I am a KDoc for OneOfSealedClass.ASubclass</description>
                     <properties>
                         <dataTypeMetadata>
                             <id>unused</id>
@@ -413,7 +413,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.OneOfSealedClass$ASubclass</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass.ASubclass </description>
+                <description>I am a KDoc for OneOfSealedClass.ASubclass</description>
                 <type>12</type>
             </dataTypeMetadata>
             <id>unused</id>
@@ -424,7 +424,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.oneofserializable.OneOfSealedClass$BSubclass</objectQualifiedName>
-                <description>I am a KDoc for OneOfSealedClass.BSubclass </description>
+                <description>I am a KDoc for OneOfSealedClass.BSubclass</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
