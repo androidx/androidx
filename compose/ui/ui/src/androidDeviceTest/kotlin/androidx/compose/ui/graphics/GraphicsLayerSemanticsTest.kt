@@ -230,52 +230,6 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
         }
     }
 
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun customShapeOutline_clip_boundsRespectOutlineBounds() {
-        // Arrange.
-        val customShape =
-            object : Shape {
-                override fun createOutline(
-                    size: Size,
-                    layoutDirection: LayoutDirection,
-                    density: Density,
-                ): Outline =
-                    with(density) {
-                        Outline.Rectangle(
-                            androidx.compose.ui.geometry.Rect(
-                                left = 2.dp.toPx(),
-                                top = 3.dp.toPx(),
-                                right = 7.dp.toPx(),
-                                bottom = 8.dp.toPx(),
-                            )
-                        )
-                    }
-            }
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .parameterizedGraphicsLayer(shape = customShape, clip = true)
-                    .testTag(testTag)
-            )
-        }
-        val virtualViewId = rule.onNodeWithTag(testTag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-
-        // Act.
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            info.extras
-                .getRectParcelable(ExtraDataShapeRectKey)
-                .toScreenBounds(info.boundsInScreen)
-                .subtractRootViewOffset()
-                .assertBoundsEqualTo(left = 2.dp, top = 3.dp, right = 7.dp, bottom = 8.dp)
-        }
-    }
-
     // b/479577752
     @Test
     @SdkSuppress(minSdkVersion = 26)
