@@ -54,8 +54,8 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput
 import androidx.xr.compose.subspace.media.SoundFieldExoplayerAudioOutput
@@ -144,9 +144,7 @@ class SpatialAudioActivity : ComponentActivity() {
             }
         }
 
-        SpatialPanel(
-            modifier = SubspaceModifier.width(600.dp).height(700.dp).transformingMovable()
-        ) {
+        SpatialPanel(modifier = SubspaceModifier.width(600.dp).height(700.dp).movable()) {
             CommonTestScaffold(
                 title = "Spatial Audio Tests",
                 showBottomBar = false,
@@ -230,7 +228,7 @@ class SpatialAudioActivity : ComponentActivity() {
                     .width(200.dp)
                     .height(200.dp)
                     .spatializedAudioOutput(pointSourceOutput)
-                    .transformingMovable()
+                    .movable()
         ) {
             Box(Modifier.fillMaxSize().background(Color.Red), contentAlignment = Alignment.Center) {
                 Text("Point Source", color = Color.White)
@@ -244,7 +242,7 @@ class SpatialAudioActivity : ComponentActivity() {
                     .width(200.dp)
                     .height(200.dp)
                     .spatializedAudioOutput(soundFieldOutput)
-                    .transformingMovable()
+                    .movable()
         ) {
             Box(
                 Modifier.fillMaxSize().background(Color.Blue),
@@ -261,7 +259,7 @@ class SpatialAudioActivity : ComponentActivity() {
                     .width(200.dp)
                     .height(200.dp)
                     .spatializedAudioOutput(soundEffectAudioOutput)
-                    .transformingMovable()
+                    .movable()
         ) {
             Box(
                 Modifier.fillMaxSize().background(Color.Yellow),
@@ -281,7 +279,7 @@ class SpatialAudioActivity : ComponentActivity() {
                         .spatializedAudioOutput(pointSourceOutput)
                         .spatializedAudioOutput(soundFieldOutput)
                         .spatializedAudioOutput(soundEffectAudioOutput)
-                        .transformingMovable()
+                        .movable()
             ) {
                 Box(
                     Modifier.fillMaxSize().background(Color.Magenta),

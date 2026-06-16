@@ -96,6 +96,15 @@ import kotlinx.coroutines.asExecutor
  * @sample androidx.xr.compose.samples.TransformingMovableSiblingSample
  * @see movable for implementing custom movement behaviors
  */
+@Deprecated(
+    message = "This modifier is deprecated. Use movable() with MovePolicy.default() instead.",
+    replaceWith =
+        ReplaceWith(
+            "movable(enabled = enabled, movePolicy = MovePolicy.default(scaleWithDistance = scaleWithDistance, onMove = onMove))",
+            "androidx.xr.compose.subspace.layout.MovePolicy",
+            "androidx.xr.compose.subspace.layout.movable",
+        ),
+)
 public fun SubspaceModifier.transformingMovable(
     enabled: Boolean = true,
     scaleWithDistance: Boolean = true,

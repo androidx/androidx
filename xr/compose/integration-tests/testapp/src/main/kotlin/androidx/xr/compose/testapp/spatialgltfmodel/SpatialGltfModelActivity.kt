@@ -74,6 +74,7 @@ import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -83,7 +84,6 @@ import androidx.xr.compose.subspace.layout.heightIn
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -456,9 +456,12 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 modifier
                     .offset(x = state.customX, y = state.customY, z = state.customZ)
                     .rotate(state.customRotation)
-                    .movable(scaleWithDistance = false, onMove = customMovement)
+                    .movable(
+                        movePolicy =
+                            MovePolicy.custom(scaleWithDistance = false, onMove = customMovement)
+                    )
             } else {
-                modifier.transformingMovable(scaleWithDistance = false)
+                modifier.movable(movePolicy = MovePolicy.default(scaleWithDistance = false))
             }
 
         SpatialGltfModel(state = dragonModelState, modifier = movementModifier) {

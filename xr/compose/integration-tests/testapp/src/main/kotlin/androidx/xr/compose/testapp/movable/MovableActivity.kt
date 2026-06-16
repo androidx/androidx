@@ -43,6 +43,7 @@ import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
@@ -54,7 +55,6 @@ import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.common.AnotherActivity
@@ -140,9 +140,7 @@ class MovableActivity : ComponentActivity() {
                     SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth()) {
                         PanelContent("[NOT MOVABLE]")
                     }
-                    SpatialPanel(
-                        modifier = SubspaceModifier.weight(1f).fillMaxWidth().transformingMovable()
-                    ) {
+                    SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth().movable()) {
                         PanelContent("[SYSTEM MOVABLE]")
                     }
                     AnimatedMovablePanel(modifier = SubspaceModifier.weight(1f))
@@ -164,7 +162,7 @@ class MovableActivity : ComponentActivity() {
                                 .offset(xValueMovable, yValueMovable, zValueMovable)
                                 .fillMaxWidth()
                                 .rotate(rotateValueMovable)
-                                .movable(onMove = customMovement)
+                                .movable(movePolicy = MovePolicy.custom(onMove = customMovement))
                     ) {
                         PanelContent("[MOVABLE WITH CUSTOM LISTENER]")
                     }
@@ -197,7 +195,7 @@ class MovableActivity : ComponentActivity() {
                                 .offset(x = 120.dp)
                                 .fillMaxWidth()
                                 .testTag("ActivityPanel")
-                                .transformingMovable(),
+                                .movable(),
                     )
                 }
             }
@@ -236,14 +234,17 @@ class MovableActivity : ComponentActivity() {
                 modifier
                     .offset(x = animatedOffsetX.value.dp)
                     .fillMaxWidth()
-                    .transformingMovable(
-                        onMove = { event ->
-                            if (event.type == SpatialMoveEventType.Start) {
-                                isDragging = true
-                            } else if (event.type == SpatialMoveEventType.End) {
-                                isDragging = false
-                            }
-                        }
+                    .movable(
+                        movePolicy =
+                            MovePolicy.default(
+                                onMove = { event ->
+                                    if (event.type == SpatialMoveEventType.Start) {
+                                        isDragging = true
+                                    } else if (event.type == SpatialMoveEventType.End) {
+                                        isDragging = false
+                                    }
+                                }
+                            )
                     )
         ) {
             PanelContent("[ANIMATED SYSTEM MOVABLE]")

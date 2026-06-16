@@ -53,6 +53,7 @@ import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -64,7 +65,6 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.rotateToLookAtUser
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
@@ -282,7 +282,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 TestPanelContainer(
                     title = "RotateToLookAtUser +\ntransformingMovable",
                     isFeatureOn = isFeatureOn,
-                    modifier = SubspaceModifier.transformingMovable(),
+                    modifier = SubspaceModifier.movable(),
                 ) { modifier, content ->
                     SpatialPanel(modifier = modifier, content = content)
                 }
@@ -315,7 +315,10 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                             .rotate(rotateValueMovable),
                 ) { modifier, content ->
                     SpatialPanel(
-                        modifier = modifier.movable(onMove = customMovement),
+                        modifier =
+                            modifier.movable(
+                                movePolicy = MovePolicy.custom(onMove = customMovement)
+                            ),
                         content = content,
                     )
                 }

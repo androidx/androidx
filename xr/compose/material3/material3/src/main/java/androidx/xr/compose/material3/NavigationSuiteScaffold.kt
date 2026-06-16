@@ -32,8 +32,8 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.padding
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 
 /**
@@ -71,7 +71,7 @@ public fun NavigationSuiteScaffold(
                 modifier
                     .getPaddingForLayoutType(layoutType)
                     .fillMaxSize()
-                    .transformingMovable()
+                    .movable()
                     .transformingResizable()
         ) {
             // TODO(b/395684702): Support show/hide animation

@@ -30,7 +30,7 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.transformingMovable
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.media.SoundFieldExoplayerAudioOutput
 import androidx.xr.compose.subspace.media.asSpatializedAudioOutput
@@ -71,7 +71,7 @@ fun SpatializedAudioOutputSample() {
             SubspaceModifier.width(600.dp)
                 .height(400.dp)
                 .spatializedAudioOutput(audioOutput)
-                .transformingMovable()
+                .movable()
     ) {
         // Content of the panel
     }
@@ -111,7 +111,7 @@ fun SoundFieldSpatializedAudioOutputSample() {
             SubspaceModifier.width(600.dp)
                 .height(400.dp)
                 .spatializedAudioOutput(audioOutput)
-                .transformingMovable()
+                .movable()
     ) {
         // Content of the panel
     }
@@ -145,7 +145,7 @@ fun SoundEffectPlayerSample() {
             SubspaceModifier.width(600.dp)
                 .height(400.dp)
                 .spatializedAudioOutput(soundEffectPoolComponent.asSpatializedAudioOutput())
-                .transformingMovable()
+                .movable()
     ) {
         Button(
             onClick = {

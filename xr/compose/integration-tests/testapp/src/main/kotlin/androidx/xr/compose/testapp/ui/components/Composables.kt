@@ -66,8 +66,8 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.size
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.Purple80
@@ -130,7 +130,7 @@ fun CommonTestPanel(
     onClickRecreate: (() -> Unit)? = null,
     composable: @Composable @UiComposable (padding: PaddingValues) -> Unit,
 ) {
-    SpatialPanel(modifier = SubspaceModifier.size(size).transformingMovable()) {
+    SpatialPanel(modifier = SubspaceModifier.size(size).movable()) {
         CommonTestScaffold(title, showBottomBar, "", onClickBackArrow, onClickRecreate, composable)
     }
 }

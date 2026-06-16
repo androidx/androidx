@@ -44,13 +44,13 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.draw.scale
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.components.ColumnWithCenterText
@@ -108,7 +108,7 @@ class MovableScalable : ComponentActivity() {
                         .height(200.dp)
                         .width(200.dp)
                         .scale(scaleForPanel)
-                        .movable(onMove = customMovement)
+                        .movable(movePolicy = MovePolicy.custom(onMove = customMovement))
                 ) {
                     Box(
                         modifier = Modifier.background(Purple80).fillMaxSize(),
@@ -137,10 +137,7 @@ class MovableScalable : ComponentActivity() {
                     }
                 }
                 SpatialPanel(
-                    SubspaceModifier.offset(z = offsetZ)
-                        .height(200.dp)
-                        .width(200.dp)
-                        .transformingMovable()
+                    SubspaceModifier.offset(z = offsetZ).height(200.dp).width(200.dp).movable()
                 ) {
                     Box(
                         modifier = Modifier.background(Purple80).fillMaxSize(),

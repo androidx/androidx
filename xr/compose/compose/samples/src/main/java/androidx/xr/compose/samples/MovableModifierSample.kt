@@ -26,12 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.math.Quaternion
 
@@ -40,7 +40,9 @@ import androidx.xr.runtime.math.Quaternion
 @SubspaceComposable
 @Composable
 public fun BasicMovableSample() {
-    SpatialPanel(modifier = SubspaceModifier.transformingMovable()) {
+    SpatialPanel(
+        modifier = SubspaceModifier.movable(enabled = true, movePolicy = MovePolicy.default())
+    ) {
         Text("The user can move me around!")
     }
 }
@@ -62,7 +64,10 @@ public fun CustomMovableSample() {
     }
     SpatialPanel(
         modifier =
-            SubspaceModifier.movable(onMove = customMovement)
+            SubspaceModifier.movable(
+                    enabled = true,
+                    movePolicy = MovePolicy.custom(onMove = customMovement),
+                )
                 .offset(x = offsetX, y = offsetY, z = offsetZ)
                 .rotate(rotation)
     ) {

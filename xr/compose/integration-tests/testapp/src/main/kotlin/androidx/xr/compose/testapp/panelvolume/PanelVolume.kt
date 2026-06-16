@@ -59,8 +59,8 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.draw.scale
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -81,7 +81,7 @@ class PanelVolume : ComponentActivity() {
         val panelSize = SubspaceModifier.width(550.dp).height(300.dp)
         var checked by remember { mutableStateOf(false) }
 
-        SpatialPanel(modifier = panelSize.offset((-500).dp, 0.dp, 0.dp).transformingMovable()) {
+        SpatialPanel(modifier = panelSize.offset((-500).dp, 0.dp, 0.dp).movable()) {
             CommonTestScaffold(
                 title = "Panel Volume Test case",
                 showBottomBar = true,
@@ -153,7 +153,7 @@ class PanelVolume : ComponentActivity() {
                     .height(200.dp)
                     .offset(y = panelYOffset)
                     .testTag("RootPanel")
-                    .transformingMovable()
+                    .movable()
         ) {
             Box(
                 modifier = Modifier.background(Color.LightGray).fillMaxSize(),

@@ -53,9 +53,9 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.size
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
 import kotlinx.coroutines.delay
@@ -80,13 +80,9 @@ class SpatialComposeStateTest : ComponentActivity() {
             Subspace {
                 SpatialRow {
                     if (useMainPanel) {
-                        SpatialMainPanel(
-                            modifier = SubspaceModifier.size(600.dp).transformingMovable()
-                        )
+                        SpatialMainPanel(modifier = SubspaceModifier.size(600.dp).movable())
                     } else {
-                        SpatialPanel(
-                            modifier = SubspaceModifier.size(600.dp).transformingMovable()
-                        ) {
+                        SpatialPanel(modifier = SubspaceModifier.size(600.dp).movable()) {
                             MainPanelContent("Spatial Panel")
                         }
                     }
@@ -110,8 +106,7 @@ class SpatialComposeStateTest : ComponentActivity() {
             }
             Subspace {
                 SpatialPanel(
-                    modifier =
-                        SubspaceModifier.size(200.dp).offset(x = 500.dp).transformingMovable()
+                    modifier = SubspaceModifier.size(200.dp).offset(x = 500.dp).movable()
                 ) {
                     Surface {
                         CommonTestScaffold(title = "Second\nSubspace", showBottomBar = false) {
