@@ -39,6 +39,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
@@ -374,6 +375,8 @@ public class WebViewCompat {
      */
     @AnyThread
     @Deprecated
+    @ReplaceWith(expression = "setSafeBrowsingAllowlist(new HashSet<>(hosts), callback)",
+            imports = {"java.util.HashSet"})
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,

@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.OptIn;
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.WebViewCompat.ExperimentalAsyncStartUp;
@@ -297,6 +298,7 @@ public class ProcessGlobalConfig {
      */
     @ExperimentalAsyncStartUp
     @Deprecated
+    @ReplaceWith(expression = "ProcessGlobalConfig.UI_THREAD_STARTUP_MODE_ASYNC")
     public static final int UI_THREAD_STARTUP_MODE_ASYNC_LONG_TASKS =
             UI_THREAD_STARTUP_MODE_ASYNC;
 
@@ -309,6 +311,7 @@ public class ProcessGlobalConfig {
      */
     @ExperimentalAsyncStartUp
     @Deprecated
+    @ReplaceWith(expression = "ProcessGlobalConfig.UI_THREAD_STARTUP_MODE_ASYNC")
     public static final int UI_THREAD_STARTUP_MODE_ASYNC_SHORT_TASKS =
             UI_THREAD_STARTUP_MODE_ASYNC;
 
@@ -322,6 +325,7 @@ public class ProcessGlobalConfig {
      */
     @ExperimentalAsyncStartUp
     @Deprecated
+    @ReplaceWith(expression = "ProcessGlobalConfig.UI_THREAD_STARTUP_MODE_ASYNC")
     public static final int UI_THREAD_STARTUP_MODE_ASYNC_VERY_SHORT_TASKS =
             ProcessGlobalConfigConstants.UI_THREAD_STARTUP_MODE_ASYNC_VERY_SHORT_TASKS;
 
@@ -360,6 +364,7 @@ public class ProcessGlobalConfig {
             enforcement =
                     "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     @Deprecated
+    @ReplaceWith(expression = "setUiThreadStartupModeV2(context, startupMode)")
     public @NonNull ProcessGlobalConfig setUiThreadStartupMode(
             @NonNull Context context, @UiThreadStartupMode int startupMode) {
         final StartupApiFeature.NoFramework feature =
