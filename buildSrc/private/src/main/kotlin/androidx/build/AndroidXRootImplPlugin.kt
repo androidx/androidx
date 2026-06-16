@@ -32,6 +32,7 @@ import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
+import androidx.build.uptodatedness.setupConfigurationCacheValidator
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -49,6 +50,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RelativePath
+import org.gradle.api.flow.FlowScope
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
@@ -63,6 +65,7 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinToolingSetupTask
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
     @get:Inject abstract val registry: BuildEventsListenerRegistry
     @get:Inject abstract val buildFeatures: BuildFeatures
+    @get:Inject abstract val flowScope: FlowScope
 
     override fun apply(project: Project) {
         if (!project.isRoot) {
@@ -180,6 +183,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
 
         TaskUpToDateValidator.setup(project, registry)
+        project.setupConfigurationCacheValidator(registry, buildFeatures, flowScope)
 
         /**
          * Add dependency analysis plugin and add buildHealth task to buildOnServer when
