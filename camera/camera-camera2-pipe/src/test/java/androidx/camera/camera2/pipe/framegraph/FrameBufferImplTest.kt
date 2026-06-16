@@ -1274,6 +1274,142 @@ class FrameBufferImplTest {
                 .inOrder()
             assertThat(frames[0].isClosed()).isFalse()
             assertThat(frames[1].isClosed()).isFalse()
+
+            for (frame in frames) {
+                frame.close()
+            }
+        }
+
+    @Test
+    fun peekFirst_withPredicate_returnsFirstMatchingFrame() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 2L }
+            val frame = frameBuffer.tryPeekFirst(filter)
+            frameBuffer.close()
+
+            assertThat(frame).isNotNull()
+            assertThat(frame?.isClosed()).isFalse()
+            assertThat(frame?.frameNumber).isEqualTo(frameRef2.frameNumber)
+
+            frame?.close()
+        }
+
+    @Test
+    fun peekFirst_withPredicate_noMatches_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 2L }
+            val frame = frameBuffer.tryPeekFirst(filter)
+            frameBuffer.close()
+
+            assertThat(frame).isNull()
+        }
+
+    @Test
+    fun peekLast_emptyBuffer_returnsNull() =
+        testScope.runTest { assertThat(frameBuffer.tryPeekLast()).isNull() }
+
+    @Test
+    fun peekLast_withPredicate_returnsLastMatchingFrame() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 1L }
+            val frame = frameBuffer.tryPeekLast(filter)
+            frameBuffer.close()
+
+            assertThat(frame).isNotNull()
+            assertThat(frame?.isClosed()).isFalse()
+            assertThat(frame?.frameNumber).isEqualTo(frameRef1.frameNumber)
+
+            frame?.close()
+        }
+
+    @Test
+    fun peekLast_withPredicate_noMatches_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 2L }
+            val frame = frameBuffer.tryPeekLast(filter)
+            frameBuffer.close()
+
+            assertThat(frame).isNull()
+        }
+
+    @Test
+    fun peekAll_emptyBuffer_returnsEmptyList() =
+        testScope.runTest { assertThat(frameBuffer.tryPeekAll()).isEmpty() }
+
+    @Test
+    fun peekAll_withPredicate_returnsAllMatchingFrames() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameRef3 = createTestFrame(3)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef2.close()
+            frameBuffer.onFrameStarted(frameRef3)
+            frameRef3.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value % 2 == 1L }
+            val frames = frameBuffer.tryPeekAll(filter)
+            frameBuffer.close()
+
+            assertThat(frames.map { it.frameNumber })
+                .containsExactly(frameRef1.frameNumber, frameRef3.frameNumber)
+                .inOrder()
+            assertThat(frames[0].isClosed()).isFalse()
+            assertThat(frames[1].isClosed()).isFalse()
+
+            for (frame in frames) {
+                frame.close()
+            }
+        }
+
+    @Test
+    fun peekAll_withPredicate_noMatches_returnsEmptyList() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+
+            val filter: (FrameReference) -> Boolean = { it.frameNumber.value == 2L }
+            val frames = frameBuffer.tryPeekAll(filter)
+            frameBuffer.close()
+
+            assertThat(frames).isEmpty()
         }
 
     @Test

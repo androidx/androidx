@@ -218,21 +218,45 @@ public object FrameBuffers {
     /**
      * Returns the first frame in the buffer without removing its reference, or null if the buffer
      * is empty. The acquired Frame must be closed by the caller.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the first entry is returned.
+     * @return The [Frame] associated with the first entry that matches the [predicate] filter, or
+     *   the [Frame] associated with the first entry if the predicate is null. Returns null if the
+     *   buffer is empty or no entry matches the filter or the frame cannot be acquired.
      */
+    @JvmOverloads
     @JvmStatic
-    public fun FrameBuffer.tryPeekFirst(): Frame? = this.peekFirstReference()?.tryAcquire()
+    public fun FrameBuffer.tryPeekFirst(predicate: ((FrameReference) -> Boolean)? = null): Frame? =
+        this.peekFirstReference(predicate)?.tryAcquire()
 
     /**
      * Returns the last frame in the buffer without removing its reference, or null if the buffer is
      * empty. The acquired Frame must be closed by the caller.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the last entry is returned.
+     * @return The [Frame] associated with the last entry that matches the [predicate] filter, or
+     *   the [Frame] associated with the last entry if the predicate is null. Returns null if the
+     *   buffer is empty or no entry matches the filter or the frame cannot be acquired.
      */
-    @JvmStatic public fun FrameBuffer.tryPeekLast(): Frame? = this.peekLastReference()?.tryAcquire()
+    @JvmOverloads
+    @JvmStatic
+    public fun FrameBuffer.tryPeekLast(predicate: ((FrameReference) -> Boolean)? = null): Frame? =
+        this.peekLastReference(predicate)?.tryAcquire()
 
     /**
      * Returns all frames in the buffer without removing their references, or an empty list if the
      * buffer is empty. Acquired Frames must be closed by the caller.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   all entries are returned.
+     * @return A list of [Frame]s obtainable that match the [predicate] filter, or an empty list if
+     *   the buffer is empty or no entry matches the filter.
      */
+    @JvmOverloads
     @JvmStatic
-    public fun FrameBuffer.tryPeekAll(): List<Frame> =
-        this.peekAllReferences().mapNotNull { it.tryAcquire() }
+    public fun FrameBuffer.tryPeekAll(
+        predicate: ((FrameReference) -> Boolean)? = null
+    ): List<Frame> = this.peekAllReferences(predicate).mapNotNull { it.tryAcquire() }
 }
