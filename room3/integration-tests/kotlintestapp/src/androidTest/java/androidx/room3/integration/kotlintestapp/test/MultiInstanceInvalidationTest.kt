@@ -37,6 +37,8 @@ import androidx.room3.integration.kotlintestapp.RemoteDatabaseService
 import androidx.room3.integration.kotlintestapp.database.RemoteEntity
 import androidx.room3.integration.kotlintestapp.database.RemoteSampleDatabase
 import androidx.room3.withWriteTransaction
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -45,7 +47,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.test.runTest
@@ -200,9 +204,10 @@ class MultiInstanceInvalidationTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun autoCloseDatabaseStopsService() = runTest {
+        val autoCloseAwareDriver = AutoCloseAwareDriver(AndroidSQLiteDriver())
         val autoCloseDb =
             Room.databaseBuilder<SampleDatabase>(context, "test.db")
-                .setDriver(AndroidSQLiteDriver())
+                .setDriver(autoCloseAwareDriver)
                 .enableMultiInstanceInvalidation()
                 .setAutoCloseTimeout(200, TimeUnit.MILLISECONDS)
                 .build()
@@ -213,13 +218,58 @@ class MultiInstanceInvalidationTest {
             awaitService(isRunning = true)
         }
 
+        // Await database auto-closed
+        autoCloseAwareDriver.awaitConnectionsClosed()
         // Await and assert multi-instance invalidation service is no longer running. As this
-        // function awaits, the database will be auto-closed and the service should be stopped.
+        // function awaits, the database should have auto-closed and the service should be stopped.
         awaitService(isRunning = false)
 
         autoCloseDb.close()
 
         // Assert multi-instance invalidation service is still not running.
+        awaitService(isRunning = false)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun autoCloseDatabaseInvalidateFromAnotherProcess() = runTest {
+        val autoCloseAwareDriver = AutoCloseAwareDriver(AndroidSQLiteDriver())
+        val autoCloseDb =
+            Room.databaseBuilder<RemoteSampleDatabase>(context, "test.db")
+                .setDriver(autoCloseAwareDriver)
+                .enableMultiInstanceInvalidation()
+                .setAutoCloseTimeout(200, TimeUnit.MILLISECONDS)
+                .build()
+        val service =
+            IRemoteDatabaseService.Stub.asInterface(
+                serviceRule.bindService(
+                    RemoteDatabaseService.intentFor(context = context, databaseName = "test.db")
+                )
+            )
+
+        val channel = autoCloseDb.dao().getEntityFlow(5).produceIn(this)
+
+        // Initial invalidation
+        assertThat(channel.receive()).isNull()
+
+        // Await database auto-closed
+        autoCloseAwareDriver.awaitConnectionsClosed()
+        // Assert multi-instance invalidation service is still running because there is an active
+        // flow.
+        awaitService(isRunning = true)
+
+        // Insert in second process which should also be auto-closed, causing it to reopen and then
+        // notify the primary DB process which has an active Flow.
+        service.insertEntity(5)
+
+        // Invalidation by second process
+        assertThat(channel.receive()).isEqualTo(RemoteEntity(5))
+
+        channel.cancel()
+        autoCloseDb.close()
+        serviceRule.unbindService()
+
+        // Assert multi-instance invalidation service is not running.
         awaitService(isRunning = false)
     }
 
@@ -243,6 +293,31 @@ class MultiInstanceInvalidationTest {
                     "Could not validate multi-instance service state. " +
                         "Expected for isRunning to be '$isRunning' but it was the opposite."
                 )
+        }
+    }
+
+    private class AutoCloseAwareDriver(val delegate: SQLiteDriver) : SQLiteDriver by delegate {
+
+        private val closeLatches = mutableListOf<CompletableDeferred<Unit>>()
+
+        suspend fun awaitConnectionsClosed() = closeLatches.awaitAll()
+
+        override fun open(fileName: String): SQLiteConnection {
+            return AutoCloseAwareConnection(
+                latch = CompletableDeferred<Unit>().also { closeLatches.add(it) },
+                delegate = delegate.open(fileName),
+            )
+        }
+
+        private class AutoCloseAwareConnection(
+            val latch: CompletableDeferred<Unit>,
+            val delegate: SQLiteConnection,
+        ) : SQLiteConnection by delegate {
+
+            override fun close() {
+                latch.complete(Unit)
+                delegate.close()
+            }
         }
     }
 }
