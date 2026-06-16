@@ -76,17 +76,6 @@ internal constructor(
         public val imageBasedLightingAsset: ImageBasedLightingAsset?
 
         /**
-         * Legacy property for the preferred image-based lighting for the environment based on a
-         * pre-loaded [ExrImage].
-         */
-        @Deprecated(
-            message = "ExrImage is being replaced by ImageBasedLightingAsset.",
-            replaceWith = ReplaceWith("imageBasedLightingAsset"),
-        )
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public val exrImage: ExrImage?
-
-        /**
          * The preferred geometry for the environment based on a pre-loaded [GltfModel]. The
          * geometry can include a skybox texture for the horizon of the environment.
          */
@@ -106,25 +95,7 @@ internal constructor(
             imageBasedLightingAsset: ImageBasedLightingAsset?,
             geometry: GltfModel?,
         ) {
-            this.exrImage = null
             this.imageBasedLightingAsset = imageBasedLightingAsset
-            this.geometry = geometry
-            this.geometryEntity = null
-        }
-
-        /**
-         * Legacy internal constructor for the spatial environment preference.
-         *
-         * @param exrImage The preferred image based lighting for the environment.
-         * @param geometry The preferred geometry with optional skybox texture for the environment.
-         */
-        @Deprecated(
-            message = "Use the constructor that takes an ImageBasedLightingAsset asset instead."
-        )
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public constructor(exrImage: ExrImage?, geometry: GltfModel?) {
-            this.imageBasedLightingAsset = null
-            this.exrImage = exrImage
             this.geometry = geometry
             this.geometryEntity = null
         }
@@ -136,8 +107,6 @@ internal constructor(
             geometryEntity: GltfModelEntity?,
         ) {
             this.imageBasedLightingAsset = imageBasedLightingAsset
-            // Populate the legacy property too so old clients don't read 'null'.
-            this.exrImage = imageBasedLightingAsset?.image?.let { ExrImage(null, it) }
             this.geometry = geometry
             this.geometryEntity = geometryEntity
         }
@@ -147,14 +116,12 @@ internal constructor(
             if (javaClass != other?.javaClass) return false
             other as SpatialEnvironmentPreference
             return imageBasedLightingAsset == other.imageBasedLightingAsset &&
-                exrImage == other.exrImage &&
                 geometry == other.geometry &&
                 geometryEntity == other.geometryEntity
         }
 
         override fun hashCode(): Int {
             var result = imageBasedLightingAsset?.hashCode() ?: 0
-            result = 31 * result + (exrImage?.hashCode() ?: 0)
             result = 31 * result + (geometry?.hashCode() ?: 0)
             result = 31 * result + (geometryEntity?.hashCode() ?: 0)
             return result
@@ -358,11 +325,10 @@ internal constructor(
     }
 }
 
-@Suppress("DEPRECATION")
 internal fun SpatialEnvironment.SpatialEnvironmentPreference.toRtSpatialEnvironmentPreference():
     RtSpatialEnvironmentPreference {
     return RtSpatialEnvironmentPreference(
-        imageBasedLightingAsset?.image ?: exrImage?.image,
+        imageBasedLightingAsset?.image,
         geometry?.model,
         geometryEntity?.rtGltfEntity,
     )
