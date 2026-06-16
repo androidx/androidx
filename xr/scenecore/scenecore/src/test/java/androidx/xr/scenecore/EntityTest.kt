@@ -1635,19 +1635,6 @@ class EntityTest {
     }
 
     @Test
-    fun groupEntity_garbageCollection_disposesEntity() {
-        fun createGroupEntity(): WeakReference<GroupEntity> {
-            @Suppress("DEPRECATION") val entity = GroupEntity.create(session, "test", parent = null)
-            return WeakReference(entity)
-        }
-
-        val entityRef = createGroupEntity()
-        assertThat(entityRef.get()).isNotNull()
-
-        MemoryUtils.assertGarbageCollected(entityRef)
-    }
-
-    @Test
     fun subspaceNodeEntity_garbageCollection_disposesEntity() {
         fun createSubspaceNodeEntity(): WeakReference<SubspaceNodeEntity> {
             val nodeHolder =

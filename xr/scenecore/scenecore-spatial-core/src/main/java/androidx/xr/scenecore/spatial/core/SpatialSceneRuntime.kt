@@ -480,11 +480,6 @@ private constructor(
         return entity
     }
 
-    @Deprecated("Use createEntity instead.")
-    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
-        return createEntity(pose, name, parent)
-    }
-
     override fun createLoggingEntity(pose: Pose): LoggingEntity {
         val entity = LoggingEntityImpl(checkNotNull(activity))
         entity.setPose(pose, Space.PARENT)
