@@ -31,8 +31,8 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(37) }
         namespace = "androidx.compose.material3.xr"
+        compileSdk { version = release(35) }
     }
     jvmStubs()
     linuxX64Stubs()

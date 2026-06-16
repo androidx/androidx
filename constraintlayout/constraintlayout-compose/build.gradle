@@ -29,7 +29,6 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(37) }
         namespace = "androidx.constraintlayout.compose"
         androidResources.enable = true
     }

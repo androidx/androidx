@@ -42,7 +42,7 @@ androidXMultiplatform {
     mingwX64()
     desktop()
     androidLibrary {
-        compileSdk { version = release(37) }
+        compileSdk { version = release(35) }
         namespace = "androidx.paging.compose"
     }
 
