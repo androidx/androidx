@@ -136,7 +136,7 @@ object ComposeUiFlags {
     // TODO: Remove this flag once it has soaked (b/501080937)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
+    var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = false
 
     /**
      * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
