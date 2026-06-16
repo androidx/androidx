@@ -61,7 +61,6 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(37) }
     namespace = "androidx.fragment.compose"
 }
 

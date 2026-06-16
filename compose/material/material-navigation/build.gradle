@@ -26,8 +26,8 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.material.navigation"
-        compileSdk { version = release(37) }
     }
     jvmStubs()
     linuxX64Stubs()

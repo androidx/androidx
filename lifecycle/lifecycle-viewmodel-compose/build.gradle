@@ -32,7 +32,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(37) }
+        compileSdk { version = release(35) }
         namespace = "androidx.lifecycle.viewmodel.compose"
     }
     desktop()
