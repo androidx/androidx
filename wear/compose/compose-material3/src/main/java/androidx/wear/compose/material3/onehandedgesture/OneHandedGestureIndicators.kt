@@ -74,6 +74,7 @@ import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IndicatorImpl
 import androidx.wear.compose.material3.IndicatorState
+import androidx.wear.compose.material3.LocalContentColor
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OffsetOverscrollEffect
 import androidx.wear.compose.material3.PageIndicatorDefaults
@@ -125,7 +126,7 @@ public fun OneHandedGestureIndicator(
     interactionSource: InteractionSource,
     modifier: Modifier = Modifier,
     gestureIndicatorSize: GestureIndicatorSize = GestureIndicatorSize.Medium,
-    gestureIndicatorTint: Color = MaterialTheme.colorScheme.onPrimary,
+    gestureIndicatorTint: Color = LocalContentColor.current,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val contentAlpha = remember { Animatable(1f) }
