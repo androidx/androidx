@@ -363,7 +363,7 @@ class TestRuleScenePoseTest {
 
         perceptionSpaceTester.hitTestResult = expectedHitTestResult
 
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             assertThat(perceptionSpace.hitTest(origin, direction, hitTestFilter))
                 .isEqualTo(expectedHitTestResult)
         }
@@ -381,7 +381,7 @@ class TestRuleScenePoseTest {
 
         perceptionSpaceTester.hitTestResult = expectedHitTestResult
 
-        runTest(testDispatcher) {
+        return runTest(testDispatcher) {
             assertThat(perceptionSpace.hitTest(origin, direction)).isEqualTo(expectedHitTestResult)
         }
     }
