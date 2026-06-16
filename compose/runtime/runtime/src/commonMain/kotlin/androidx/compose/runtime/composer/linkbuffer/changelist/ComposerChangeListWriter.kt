@@ -195,6 +195,8 @@ internal class ComposerChangeListWriter(
         try {
             changeList = newChangeList
             block()
+            pushPendingUpsAndDowns()
+            realizeNodeMovementOperations()
         } finally {
             changeList = previousChangeList
         }
