@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.math
 
-import kotlin.math.sign
 import kotlin.math.sqrt
 
 /**
@@ -136,15 +135,27 @@ public class Matrix3(dataToCopy: FloatArray) {
     }
 
     private fun rotation(): Quaternion {
-        val m00 = data[0]
-        val m01 = data[3]
-        val m02 = data[6]
-        val m10 = data[1]
-        val m11 = data[4]
-        val m12 = data[7]
-        val m20 = data[2]
-        val m21 = data[5]
-        val m22 = data[8]
+        // Remove scale from each (column-major) basis column before extracting the rotation;
+        // otherwise a matrix with scale != 1 yields a skewed, incorrect quaternion. We divide by
+        // the magnitude (not the signed scale): scale() derives per-axis sign from sign(diagonal),
+        // which is negative for many pure rotations (e.g. 180 degrees about any axis), and dividing
+        // by that signed value would flip the column and corrupt the rotation into a reflection. A
+        // zero scale component is replaced with 1 to avoid division by zero, mirroring the
+        // defensive `if (s == 0f)` idiom used in the branches below.
+        val scaleVec = Vector3.abs(scale)
+        val sx = if (scaleVec.x < EPSILON) 1.0f else scaleVec.x
+        val sy = if (scaleVec.y < EPSILON) 1.0f else scaleVec.y
+        val sz = if (scaleVec.z < EPSILON) 1.0f else scaleVec.z
+
+        val m00 = data[0] / sx
+        val m01 = data[3] / sy
+        val m02 = data[6] / sz
+        val m10 = data[1] / sx
+        val m11 = data[4] / sy
+        val m12 = data[7] / sz
+        val m20 = data[2] / sx
+        val m21 = data[5] / sy
+        val m22 = data[8] / sz
 
         val trace = m00 + m11 + m22
 
@@ -173,17 +184,12 @@ public class Matrix3(dataToCopy: FloatArray) {
     }
 
     private fun scale(): Vector3 {
-        // TODO: b/367780918 - Investigate why scale can have negative values when inputs were
-        // positive.
-        // We don't want it to ever return 0.
-        val signX = if (data[0] == 0.0f) 1.0f else sign(data[0])
-        val signY = if (data[4] == 0.0f) 1.0f else sign(data[4])
-        val signZ = if (data[8] == 0.0f) 1.0f else sign(data[8])
-
+        // Use either a positive or negative scale based on the rotation matrix determinant.
+        val sign = if (determinant() < 0) -1.0f else 1.0f
         return Vector3(
-            signX * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
-            signY * sqrt(data[3] * data[3] + data[4] * data[4] + data[5] * data[5]),
-            signZ * sqrt(data[6] * data[6] + data[7] * data[7] + data[8] * data[8]),
+            sign * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
+            sign * sqrt(data[3] * data[3] + data[4] * data[4] + data[5] * data[5]),
+            sign * sqrt(data[6] * data[6] + data[7] * data[7] + data[8] * data[8]),
         )
     }
 
@@ -234,6 +240,8 @@ public class Matrix3(dataToCopy: FloatArray) {
     @JvmOverloads public fun copy(data: FloatArray = this.data): Matrix3 = Matrix3(data)
 
     public companion object {
+        private const val EPSILON: Float = 1e-6f
+
         /** Returns an identity matrix. */
         @JvmField
         public val IDENTITY: Matrix3 = Matrix3(floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))

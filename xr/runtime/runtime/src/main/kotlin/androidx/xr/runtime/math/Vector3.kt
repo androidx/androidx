@@ -94,9 +94,16 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
         return Vector3(1 / this.x, 1 / this.y, 1 / this.z)
     }
 
-    /** Returns the normalized version of this vector. */
+    /**
+     * Returns the normalized version of this vector. A zero-length vector has no direction to
+     * normalize and returns [Zero] rather than a vector of NaN components.
+     */
     public fun toNormalized(): Vector3 {
-        val norm = rsqrt(lengthSquared)
+        val lenSq = lengthSquared
+        if (lenSq < EPSILON) {
+            return Zero
+        }
+        val norm = rsqrt(lenSq)
 
         return Vector3(x * norm, y * norm, z * norm)
     }
@@ -144,6 +151,7 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
     override fun toString(): String = "[x=$x, y=$y, z=$z]"
 
     public companion object {
+        private const val EPSILON: Float = 1e-15f
         /** Vector with all components set to zero. */
         @JvmField public val Zero: Vector3 = Vector3(x = 0f, y = 0f, z = 0f)
 
@@ -180,12 +188,13 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
          */
         @JvmStatic
         public fun angleBetween(vector1: Vector3, vector2: Vector3): Float {
-            val dot = vector1 dot vector2
-            val magnitude = vector1.length * vector2.length
-
-            if (magnitude < 1e-10f) {
+            val len1 = vector1.length
+            val len2 = vector2.length
+            if (len1 < EPSILON || len2 < EPSILON) {
                 return 0.0f
             }
+            val dot = vector1 dot vector2
+            val magnitude = len1 * len2
 
             // Clamp due to floating point precision errors that could cause dot to be > mag.
             // Would cause acos to return NaN.

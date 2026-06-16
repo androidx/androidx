@@ -28,7 +28,8 @@ import kotlin.math.sqrt
 
 /**
  * Represents a rotation component in three-dimensional space. Any vector can be provided and the
- * resulting quaternion will be normalized at construction time.
+ * resulting quaternion will be normalized at construction time. A zero-length input (all components
+ * zero) cannot be normalized and falls back to the identity rotation.
  *
  * @property x the x value of the quaternion
  * @property y the y value of the quaternion
@@ -49,10 +50,19 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     init {
         val length = sqrt(x * x + y * y + z * z + w * w)
-        this.x = x / length
-        this.y = y / length
-        this.z = z / length
-        this.w = w / length
+        if (length < NORMALIZE_EPSILON) {
+            // A zero-length input cannot be normalized; fall back to the identity rotation
+            // instead of producing an all-NaN quaternion via division by zero.
+            this.x = 0f
+            this.y = 0f
+            this.z = 0f
+            this.w = 1f
+        } else {
+            this.x = x / length
+            this.y = y / length
+            this.z = z / length
+            this.w = w / length
+        }
     }
 
     /** Returns a new quaternion with the inverse rotation. Assumes unit length. */
@@ -163,7 +173,9 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     /** Returns a Pair containing the axis of rotation and the angle of rotation in degrees. */
     private fun toAxisAngle(): Pair<Vector3, Float> {
-        val angleRadians = 2 * acos(this.w)
+        // Clamp before acos: float normalization can leave w marginally outside [-1, 1] for
+        // near-identity rotations, and acos of an out-of-domain argument returns NaN.
+        val angleRadians = 2 * acos(clamp(this.w, -1.0f, 1.0f))
         val sinHalfAngle = sin(angleRadians / 2)
         val axis =
             if (sinHalfAngle < 0.0001f) {
@@ -213,6 +225,9 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
     public companion object {
         private const val EULER_THRESHOLD: Float = 0.49999994f
         private const val COS_THRESHOLD: Float = 0.9995f
+        private const val CROSS_EPSILON: Float = 1e-6f
+        private const val NORMALIZE_EPSILON: Float = 1e-8f
+        private const val UP_NORMALIZED_THRESHOLD: Float = 0.999f
 
         @JvmField public val Identity: Quaternion = Quaternion()
 
@@ -238,7 +253,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                             startNorm
                         ) // pick new rotation axis as the original was parallel
                 }
-                return Quaternion.Companion.fromAxisAngle(rotationAxis, 180f)
+                return fromAxisAngle(rotationAxis, 180f)
             }
 
             val rotationAxis = startNorm.cross(endNorm)
@@ -257,7 +272,9 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             Quaternion(end * start.inverse)
 
         /**
-         * Returns a new quaternion with the specified forward and upward directions.
+         * Returns a new quaternion with the specified forward and upward directions. If [up] is
+         * parallel (or antiparallel) to [forward], an alternate up axis is chosen so the resulting
+         * orientation basis is still well-defined.
          *
          * @param forward the forward direction
          * @param up the upward direction
@@ -265,15 +282,26 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
         @JvmStatic
         public fun fromLookTowards(forward: Vector3, up: Vector3): Quaternion {
             val forwardNormalized = forward.toNormalized()
-            val right = (up cross forwardNormalized).toNormalized()
-            val upNormalized = (forwardNormalized cross right).toNormalized()
+            // Compute the right axis from the cross product of up and forward vectors.
+            val upNormalized = up.toNormalized()
+            var rightAxis = upNormalized cross forwardNormalized
+            if (rightAxis.lengthSquared < CROSS_EPSILON) {
+                // up is (anti)parallel to forward, so the cross product is degenerate. Pick an
+                // alternate up axis that is not parallel to forward.
+                val alternateUp =
+                    if (abs(forwardNormalized.y) < UP_NORMALIZED_THRESHOLD) Vector3.Up
+                    else Vector3.Right
+                rightAxis = alternateUp cross forwardNormalized
+            }
+            val right = rightAxis.toNormalized()
+            val actualUp = (forwardNormalized cross right).toNormalized()
 
             val m00 = right.x
             val m01 = right.y
             val m02 = right.z
-            val m10 = upNormalized.x
-            val m11 = upNormalized.y
-            val m12 = upNormalized.z
+            val m10 = actualUp.x
+            val m11 = actualUp.y
+            val m12 = actualUp.z
             val m20 = forwardNormalized.x
             val m21 = forwardNormalized.y
             val m22 = forwardNormalized.z

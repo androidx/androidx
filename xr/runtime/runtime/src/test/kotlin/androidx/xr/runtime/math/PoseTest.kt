@@ -364,7 +364,9 @@ class PoseTest {
             )
 
         assertTranslation(underTest.translation, 0f, 0f, 0f)
-        assertRotation(underTest.rotation, 0f, 0f, 0f, 1f)
+        assertRotation(underTest.rotation, 0f, 1f, 0f, 0f)
+        // Assert that the pose forward vector points towards the target (+Z)
+        assertThat(underTest.forward).isEqualTo(Vector3(0f, 0f, 1f))
     }
 
     private fun rotate(result: Quaternion, vector: Vector3): Vector3 {
@@ -458,7 +460,6 @@ class PoseTest {
         val angle = 30f
         val planePose = Pose(Vector3.Zero, Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), angle))
         val planeNormal = planePose.up // (0, cos(30), sin(30))
-        val entityUp = entityPose.up
 
         val resultQuat = entityPose.getUpVectorToUpRotation(planePose)
 

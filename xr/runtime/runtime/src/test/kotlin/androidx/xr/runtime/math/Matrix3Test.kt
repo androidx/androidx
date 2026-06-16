@@ -196,9 +196,7 @@ class Matrix3Test {
         val underTest = Matrix3.fromScale(scaleVec)
         val extractedScale = underTest.scale
 
-        assertThat(extractedScale.x).isEqualTo(scaleVec.x)
-        assertThat(extractedScale.y).isEqualTo(scaleVec.y)
-        assertThat(extractedScale.z).isEqualTo(scaleVec.z)
+        assertThat(extractedScale).isEqualTo(Vector3(-2f, -3f, -4f))
     }
 
     @Test
@@ -223,6 +221,55 @@ class Matrix3Test {
         assertThat(extractedRotation.y).isWithin(1e-5f).of(expectedQuaternion.y)
         assertThat(extractedRotation.z).isWithin(1e-5f).of(expectedQuaternion.z)
         assertThat(extractedRotation.w).isWithin(1e-5f).of(expectedQuaternion.w)
+    }
+
+    @Test
+    fun rotation_matrixWithNonUniformScale_returnsUnscaledRotation() {
+        val expectedQuaternion = Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), 45f)
+        // Build M = R * S so each column is scaled by the corresponding factor; rotation extraction
+        // must divide the scale back out. Uses positive non-uniform scale because the per-axis sign
+        // heuristic in scale() only recovers positive scales reliably (See [Matrix3#scale]).
+        val scaledMatrix =
+            Matrix3.fromQuaternion(expectedQuaternion) * Matrix3.fromScale(Vector3(2f, 3f, 4f))
+        val extractedRotation = scaledMatrix.rotation
+
+        assertThat(extractedRotation.x).isWithin(1e-5f).of(expectedQuaternion.x)
+        assertThat(extractedRotation.y).isWithin(1e-5f).of(expectedQuaternion.y)
+        assertThat(extractedRotation.z).isWithin(1e-5f).of(expectedQuaternion.z)
+        assertThat(extractedRotation.w).isWithin(1e-5f).of(expectedQuaternion.w)
+    }
+
+    @Test
+    fun rotation_halfTurnAboutEachAxis_returnsUnreflectedRotation() {
+        // 180-degree rotations produce a rotation matrix with two negative diagonal entries, so the
+        // per-axis sign(diagonal) heuristic in scale() reports a negative scale on those axes.
+        // Dividing the basis columns by that signed scale (rather than its magnitude) would flip
+        // the columns and collapse the rotation toward identity. These cases lock in that the
+        // extraction divides by magnitude and recovers the true half-turn.
+        for (axis in listOf(Vector3(1f, 0f, 0f), Vector3(0f, 1f, 0f), Vector3(0f, 0f, 1f))) {
+            val expectedQuaternion = Quaternion.fromAxisAngle(axis, 180f)
+            val extractedRotation = Matrix3.fromQuaternion(expectedQuaternion).rotation
+
+            // A quaternion and its negation represent the same rotation; compare so that either
+            // sign passes by aligning to the expected quaternion's hemisphere via the dot product.
+            val sign = if ((extractedRotation dot expectedQuaternion) < 0f) -1f else 1f
+
+            assertThat(sign * extractedRotation.x).isWithin(1e-5f).of(expectedQuaternion.x)
+            assertThat(sign * extractedRotation.y).isWithin(1e-5f).of(expectedQuaternion.y)
+            assertThat(sign * extractedRotation.z).isWithin(1e-5f).of(expectedQuaternion.z)
+            assertThat(sign * extractedRotation.w).isWithin(1e-5f).of(expectedQuaternion.w)
+        }
+    }
+
+    @Test
+    fun rotation_withZeroScale_doesNotReturnNaN() {
+        val zeroScaleMatrix = Matrix3.fromScale(0f)
+        val extractedRotation = zeroScaleMatrix.rotation
+
+        assertThat(extractedRotation.x.isNaN()).isFalse()
+        assertThat(extractedRotation.y.isNaN()).isFalse()
+        assertThat(extractedRotation.z.isNaN()).isFalse()
+        assertThat(extractedRotation.w.isNaN()).isFalse()
     }
 
     @Test

@@ -82,9 +82,16 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         return Vector2(1 / this.x, 1 / this.y)
     }
 
-    /** Returns a normalized version of this vector. */
+    /**
+     * Returns a normalized version of this vector. A zero-length vector has no direction to
+     * normalize and returns [Zero] rather than a vector of NaN components.
+     */
     public fun toNormalized(): Vector2 {
-        val norm = rsqrt(lengthSquared)
+        val lenSq = lengthSquared
+        if (lenSq < EPSILON) {
+            return Zero
+        }
+        val norm = rsqrt(lenSq)
 
         return Vector2(x * norm, y * norm)
     }
@@ -133,6 +140,7 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     override fun toString(): String = "[x=$x, y=$y]"
 
     public companion object {
+        private const val EPSILON: Float = 1e-15f
         /** Vector with all components set to zero. */
         @JvmField public val Zero: Vector2 = Vector2(x = 0f, y = 0f)
 

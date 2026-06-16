@@ -107,6 +107,20 @@ class Vector4Test {
     }
 
     @Test
+    fun normalized_zeroVector_returnsZero() {
+        // A zero-length vector has no direction; it must return Zero rather than NaN components.
+        assertThat(Vector4.Zero.toNormalized()).isEqualTo(Vector4.Zero)
+    }
+
+    @Test
+    fun normalized_smallVector_returnsNormalizedVector() {
+        // A vector with length smaller than 1e-3f (e.g. 1e-4f) but larger than 1e-15f
+        // should be successfully normalized instead of returning Zero.
+        val smallVector = Vector4(0.0001f, 0f, 0f, 0f)
+        assertThat(smallVector.toNormalized()).isEqualTo(Vector4(1f, 0f, 0f, 0f))
+    }
+
+    @Test
     fun multiply_returnsVectorScaledByScalar1() {
         assertThat(Vector4(3f, 4f, 5f, 6f) * 2f).isEqualTo(Vector4(6f, 8f, 10f, 12f))
     }
@@ -259,6 +273,16 @@ class Vector4Test {
         assertThat(Vector4.angleBetween(Vector4(0f, 0f, 0f, 1f), Vector4(0f, 0f, 0f, 0f)))
             .isWithin(1e-5f)
             .of(0f)
+    }
+
+    @Test
+    fun angleBetween_withSmallVectors_returnsAngle() {
+        // Two tiny vectors pointing in opposite directions.
+        // Their lengths product is 8.1e-11f (< 1e-10f).
+        val v1 = Vector4(9e-6f, 0f, 0f, 0f)
+        val v2 = Vector4(-9e-6f, 0f, 0f, 0f)
+
+        assertThat(Vector4.angleBetween(v1, v2)).isWithin(1e-5f).of(180f)
     }
 
     @Test
