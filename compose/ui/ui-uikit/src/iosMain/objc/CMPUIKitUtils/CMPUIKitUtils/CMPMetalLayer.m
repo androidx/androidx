@@ -184,23 +184,7 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
 
 - (void)presentDrawable:(CMPDrawable *)drawable
               onDisplay:(void (^)(void))displayHandler {
-    [_drawablesLock lock];
-
-    if (!CGSizeEqualToSize(drawable.textureSize, _drawableSize)) {
-        // Invalid drawable size. Ignoring.
-        [drawable dispose];
-        [_drawablesLock unlock];
-        return;
-    }
-
-    if (_lastPresentedDrawable != nil) {
-        [_availableDrawables addObject:_lastPresentedDrawable];
-    }
-
-    _lastPresentedDrawable = drawable;
     drawable.presentedTime = CACurrentMediaTime();
-
-    [_drawablesLock unlock];
 
     if ([NSThread isMainThread]) {
         [self presentOnMainThread:drawable onDisplay: displayHandler];
@@ -215,16 +199,27 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
                   onDisplay:(void (^)(void))displayHandler {
     NSAssert([NSThread isMainThread], @"presentOnMainThread - must be called on main thread");
 
+    if (!CGSizeEqualToSize(drawable.textureSize, _drawableSize)) {
+        [drawable dispose];
+        // Invalid drawable size. Disposing.
+        return;
+    }
+
     if (_lastDrawablePresentedTime > drawable.presentedTime) {
+        [self releaseDrawable:drawable];
         // Drop drawable that was scheduled before the already presented one
         return;
     }
-    if (!CGSizeEqualToSize(drawable.textureSize, _drawableSize)) {
-        // Invalid drawable size. Ignoring.
-        return;
-    }
-    
+
     _lastDrawablePresentedTime = drawable.presentedTime;
+
+    [_drawablesLock lock];
+    if (_lastPresentedDrawable != nil) {
+        [_availableDrawables addObject:_lastPresentedDrawable];
+    }
+    _lastPresentedDrawable = drawable;
+    [_drawablesLock unlock];
+
     [self setNeedsDisplay]; // Prevents frame drops during touch events
 
     [CATransaction begin];

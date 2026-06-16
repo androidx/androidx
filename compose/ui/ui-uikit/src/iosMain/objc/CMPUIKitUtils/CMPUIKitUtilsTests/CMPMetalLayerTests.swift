@@ -459,6 +459,9 @@ final class CMPMetalLayerTests: XCTestCase {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 expectation.fulfill()
             }
+            // The test blocks main thread.
+            // Perform scheduled tasks to let the layer free used buffers.
+            RunLoop.main.run(until: Date())
         }
         
         // Should not crash
