@@ -166,12 +166,14 @@ class AppFunctionLegacySchemaXmlGenerator(
                     )
                 )
             }
-            appendChild(
-                createElementWithTextNode(
-                    XmlElement.APP_FUNCTION_ENABLE_BY_DEFAULT_TAG,
-                    appFunctionMetadata.isEnabledByDefault.toString(),
+            if (appFunctionMetadata.isEnabledByDefault != null) {
+                appendChild(
+                    createElementWithTextNode(
+                        XmlElement.APP_FUNCTION_ENABLE_BY_DEFAULT_TAG,
+                        appFunctionMetadata.isEnabledByDefault.toString(),
+                    )
                 )
-            )
+            }
         }
 
     private companion object {

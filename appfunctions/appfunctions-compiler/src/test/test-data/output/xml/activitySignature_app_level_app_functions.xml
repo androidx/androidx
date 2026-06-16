@@ -2,7 +2,6 @@
 <appfunctions>
     <appfunction>
         <id>com.test.ActivitySignature#doSomething</id>
-        <enabledByDefault>false</enabledByDefault>
         <scope>activity</scope>
         <parameters>
             <dataTypeMetadata>

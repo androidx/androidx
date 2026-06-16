@@ -136,7 +136,7 @@ data class AnnotatedAppFunctionSignature(
             )
         return CompileTimeAppFunctionMetadata(
             id = getAppFunctionIdentifier(functionDeclaration),
-            isEnabledByDefault = false,
+            isEnabledByDefault = null,
             schema = null,
             parameters = parameterTypeMetadataList,
             response =
