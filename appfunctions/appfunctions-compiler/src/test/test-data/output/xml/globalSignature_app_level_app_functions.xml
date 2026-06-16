@@ -2,7 +2,6 @@
 <appfunctions>
     <appfunction>
         <id>com.test.GlobalSignature#doSomething</id>
-        <enabledByDefault>false</enabledByDefault>
         <scope>global</scope>
         <parameters>
             <dataTypeMetadata>

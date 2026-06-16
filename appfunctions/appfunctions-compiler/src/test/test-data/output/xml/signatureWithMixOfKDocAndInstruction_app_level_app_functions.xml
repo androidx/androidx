@@ -2,7 +2,6 @@
 <appfunctions>
     <appfunction>
         <id>com.test.SignatureWithMixOfKDocAndInstruction#doSomething</id>
-        <enabledByDefault>false</enabledByDefault>
         <scope>global</scope>
         <description>KDoc for method.</description>
         <parameters>

@@ -21,7 +21,7 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
 
 data class CompileTimeAppFunctionMetadata(
     val id: String,
-    val isEnabledByDefault: Boolean,
+    val isEnabledByDefault: Boolean? = null,
     val schema: AppFunctionSchemaMetadata?,
     val parameters: List<AppFunctionParameterMetadata>,
     val response: AppFunctionResponseMetadata,
@@ -49,7 +49,7 @@ data class CompileTimeAppFunctionMetadata(
 data class AppFunctionMetadataDocument(
     val namespace: String = APP_FUNCTION_NAMESPACE,
     val id: String = APP_FUNCTION_ID_EMPTY,
-    val isEnabledByDefault: Boolean,
+    val isEnabledByDefault: Boolean? = null,
     val schemaCategory: String?,
     val schemaName: String?,
     val schemaVersion: Long?,

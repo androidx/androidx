@@ -2,7 +2,6 @@
 <appfunctions>
     <appfunction>
         <id>com.test.SignatureWithDescription#doSomething</id>
-        <enabledByDefault>false</enabledByDefault>
         <scope>global</scope>
         <description>Does something cool.</description>
         <parameters>

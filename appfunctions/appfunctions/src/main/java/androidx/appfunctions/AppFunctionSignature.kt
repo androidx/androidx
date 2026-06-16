@@ -51,7 +51,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  *      <appfunction>
  *          <id>package.name.AddCurrentItemToCart#addToCart</id>
  *          <scope>activity</scope>
- *          <enabledByDefault>false</enabledByDefault>
  *          <parameters>...</parameters>
  *          <response>...</response>
  *      </appfunction>

@@ -2,7 +2,6 @@
 <appfunctions>
     <appfunction>
         <id>com.test.SignatureWithInstruction#doSomething</id>
-        <enabledByDefault>false</enabledByDefault>
         <scope>global</scope>
         <description>Instruction for method.</description>
         <parameters>
