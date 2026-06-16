@@ -25,7 +25,6 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.ExperimentalGltfComposeMethod
 import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
@@ -117,7 +116,6 @@ class GltfModelEntityTesterTest {
         assertThat(animations[1].name).isEqualTo("anim2")
     }
 
-    @OptIn(ExperimentalGltfComposeMethod::class)
     @Test
     fun setGltfModelBoundingBox_getGltfModelBoundingBox_returnsGltfModelBoundingBox() {
         assertThat(gltfModelEntity.getGltfModelBoundingBox())

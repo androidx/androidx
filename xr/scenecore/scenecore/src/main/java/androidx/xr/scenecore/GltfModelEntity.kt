@@ -140,7 +140,6 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      */
     // TODO - b/501059605: Make the property public and remove this getter.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @ExperimentalGltfComposeMethod
     public fun getGltfModelBoundingBox(): BoundingBox = gltfModelBoundingBox
 
     public companion object {
@@ -204,12 +203,3 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
             )
     }
 }
-
-// Annotation for Gltf-specific restricted LIBRARY_GROUP_PREFIX APIs that have not been finalized.
-// The annotation itself is also restricted, to match the methods being annotated.
-@RequiresOptIn(
-    "This API is experimental and used exclusively by XR Compose. It is not supported for general use. (b/501059605)"
-)
-@Retention(AnnotationRetention.BINARY)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public annotation class ExperimentalGltfComposeMethod
