@@ -124,8 +124,18 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         return sharedElementEntry.calculateTargetBounds(targetBoundsBeforeDisposed)
     }
 
+    private var resolvedTransformState: SharedMutableTransformState? = null
+
     override val modifierLocalTransformState: SharedMutableTransformState?
-        get() = if (isAttached) ModifierLocalSharedMutableTransformState.current else null
+        get() {
+            if (!isAttached) return null
+            var state = resolvedTransformState
+            if (state == null) {
+                state = ModifierLocalSharedMutableTransformState.current
+                resolvedTransformState = state
+            }
+            return state
+        }
 
     private val approachCoordinates: LayoutCoordinates
         get() = requireLayoutCoordinates()
@@ -190,6 +200,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
 
     override fun onDetach() {
         super.onDetach()
+        resolvedTransformState = null
         val rootCoords = sharedElement.scope.nullableRoot
         // If rootCoords is null, it means the shared transition root has never been placed when
         // this detaching happens. Skip the last-bounds calculation in that case.
