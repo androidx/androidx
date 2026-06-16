@@ -24,7 +24,6 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
@@ -60,7 +59,6 @@ import kotlinx.coroutines.delay
  * @property config the current [Config] of the session
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@OptIn(ExperimentalInertialTrackingApi::class)
 public class ArCoreRuntime
 internal constructor(
     private val context: Context,

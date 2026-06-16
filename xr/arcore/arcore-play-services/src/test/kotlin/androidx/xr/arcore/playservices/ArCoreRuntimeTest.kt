@@ -26,7 +26,6 @@ import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
@@ -71,7 +70,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowSensor
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalInertialTrackingApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArCoreRuntimeTest {
 
@@ -497,7 +496,7 @@ class ArCoreRuntimeTest {
         runtime._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        runtime.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL))
+        runtime.configure(Config(deviceTracking = createInertialDeviceTrackingMode()))
         runtime.resume()
 
         assertThat(shadowSensorManager.listeners).hasSize(1)
@@ -520,7 +519,7 @@ class ArCoreRuntimeTest {
         runtime._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        runtime.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL))
+        runtime.configure(Config(deviceTracking = createInertialDeviceTrackingMode()))
         runtime.resume()
         assertThat(shadowSensorManager.listeners).hasSize(1)
 
@@ -528,5 +527,12 @@ class ArCoreRuntimeTest {
         assertThat(shadowSensorManager.listeners).isEmpty()
 
         runtime.destroy()
+    }
+
+    private fun createInertialDeviceTrackingMode(): DeviceTrackingMode {
+        val constructor =
+            DeviceTrackingMode::class.java.getDeclaredConstructor(Int::class.javaPrimitiveType!!)
+        constructor.isAccessible = true
+        return constructor.newInstance(2)
     }
 }

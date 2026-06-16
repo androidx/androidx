@@ -17,14 +17,11 @@
 package androidx.xr.arcore.testapp.common
 
 import androidx.xr.arcore.TrackingState
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 
-@OptIn(ExperimentalInertialTrackingApi::class)
 public fun TrackingState.asString(): String =
     when (this) {
         TrackingState.TRACKING -> "TRACKING"
         TrackingState.PAUSED -> "PAUSED"
         TrackingState.STOPPED -> "STOPPED"
-        TrackingState.TRACKING_DEGRADED -> "TRACKING_DEGRADED"
         else -> throw IllegalStateException()
     }

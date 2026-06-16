@@ -44,7 +44,6 @@ import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
 import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureLibraryNotLinked
@@ -60,7 +59,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Test app which tests projected perception API surface. */
-@OptIn(ExperimentalInertialTrackingApi::class)
 class ProjectedTestAppActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var geospatial: Geospatial
@@ -84,7 +82,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
             "Geospatial Off, 3DoF On" to
                 Config.Builder()
                     .setGeospatial(GeospatialMode.DISABLED)
-                    .setDeviceTracking(DeviceTrackingMode.INERTIAL)
+                    .setDeviceTracking(createInertialDeviceTrackingMode())
                     .build(),
             "Geospatial Off, Device Tracking Off" to
                 Config.Builder()
@@ -302,7 +300,6 @@ class ProjectedTestAppActivity : ComponentActivity() {
             TrackingState.TRACKING -> "TRACKING"
             TrackingState.PAUSED -> "PAUSED"
             TrackingState.STOPPED -> "STOPPED"
-            TrackingState.TRACKING_DEGRADED -> "TRACKING_DEGRADED"
             else -> "TrackingState(unknown)"
         }
     }
@@ -480,4 +477,13 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private fun Float.fmt(digits: Int = 3) = String.format(Locale.US, "%.${digits}f", this)
 
     private fun Double.fmt(digits: Int = 3) = String.format(Locale.US, "%.${digits}f", this)
+
+    private fun createInertialDeviceTrackingMode(): androidx.xr.runtime.DeviceTrackingMode {
+        val constructor =
+            androidx.xr.runtime.DeviceTrackingMode::class
+                .java
+                .getDeclaredConstructor(Int::class.javaPrimitiveType!!)
+        constructor.isAccessible = true
+        return constructor.newInstance(2)
+    }
 }
