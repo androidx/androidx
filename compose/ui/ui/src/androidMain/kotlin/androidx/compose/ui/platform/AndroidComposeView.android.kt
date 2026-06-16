@@ -411,7 +411,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         // The view system does not have an API corresponding to Enter/Exit.
         if (focusDirection == Enter || focusDirection == Exit || !hasFocus()) return false
 
-        val androidViewsHandler = androidViewsHandler ?: return false
+        val androidViewsHandler = _androidViewsHandler ?: return false
 
         val direction =
             checkPreconditionNotNull(focusDirection.toAndroidFocusDirection()) {
@@ -695,9 +695,20 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             return if (SDK_INT >= 30) Api30Impl.isShowingLayoutBounds(this) else field
         }
 
-    // This is instantiated in [addAndroidView]. It otherwise remains null.
-    internal var androidViewsHandler: AndroidViewsHandler? = null
-        private set
+    private var _androidViewsHandler: AndroidViewsHandler? = null
+    internal val androidViewsHandler: AndroidViewsHandler
+        get() {
+            if (_androidViewsHandler == null) {
+                _androidViewsHandler = AndroidViewsHandler(context)
+                addView(_androidViewsHandler)
+                // Ensure that AndroidViewsHandler is measured and laid out after creation, so that
+                // it can report correct bounds on screen (for semantics, etc).
+                // Normally this is done by addView, but here we disabled it for optimization
+                // purposes.
+                requestLayout()
+            }
+            return _androidViewsHandler!!
+        }
 
     private var viewLayersContainer: DrawChildContainer? = null
 
@@ -1022,7 +1033,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      *   View to be laid out so that a subsequent requestLayout() call will trigger remeasurement.
      */
     private val layoutChildViewsIfNeeded: () -> Unit = {
-        androidViewsHandler?.let { viewsHandler ->
+        _androidViewsHandler?.let { viewsHandler ->
             for (i in 0 until viewsHandler.childCount) {
                 val child = viewsHandler.getChildAt(i) as? AndroidViewHolder ?: continue
                 if (child.isLayoutRequested) {
@@ -1584,7 +1595,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             snapshotObserver.clearInvalidObservations()
             observationClearRequested = false
         }
-        val childAndroidViews = androidViewsHandler
+        val childAndroidViews = _androidViewsHandler
         if (childAndroidViews != null) {
             clearChildInvalidObservations(childAndroidViews)
         }
@@ -1715,19 +1726,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * hierarchy.
      */
     fun addAndroidView(view: AndroidViewHolder, layoutNode: LayoutNode) {
-        val androidViewsHandler =
-            androidViewsHandler
-                ?: AndroidViewsHandler(context).also {
-                    androidViewsHandler = it
-                    addView(it)
-                    // Ensure that AndroidViewsHandler is measured and laid out after creation, so
-                    // that
-                    // it can report correct bounds on screen (for semantics, etc).
-                    // Normally this is done by addView, but here we disabled it for optimization
-                    // purposes.
-                    requestLayout()
-                }
-
         androidViewsHandler.holderToLayoutNode[view] = layoutNode
         androidViewsHandler.addView(view)
         androidViewsHandler.layoutNodeToHolder[layoutNode] = view
@@ -1810,7 +1808,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * hierarchy.
      */
     fun removeAndroidView(view: AndroidViewHolder) {
-        val androidViewsHandler = androidViewsHandler ?: return
         androidViewsHandler.removeViewInLayout(view)
         androidViewsHandler.layoutNodeToHolder.remove(
             androidViewsHandler.holderToLayoutNode.remove(view)
@@ -1820,7 +1817,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     /** Called to ask the owner to draw a child Android [View] to [canvas]. */
     fun drawAndroidView(view: AndroidViewHolder, canvas: android.graphics.Canvas) {
-        androidViewsHandler?.drawView(view, canvas)
+        androidViewsHandler.drawView(view, canvas)
     }
 
     private fun scheduleMeasureAndLayout(nodeToRemeasure: LayoutNode? = null) {
@@ -1997,8 +1994,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             measureAndLayoutDelegate.measureOnly()
             setMeasuredDimension(root.width, root.height)
 
-            val androidViewsHandler = androidViewsHandler
-            if (androidViewsHandler != null) {
+            if (_androidViewsHandler != null) {
                 trace("AndroidOwner:androidViewMeasure") {
                     androidViewsHandler.measure(
                         MeasureSpec.makeMeasureSpec(root.width, MeasureSpec.EXACTLY),
@@ -2038,8 +2034,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             // are currently wrong if you try to get the global(activity) coordinates -
             // View is not yet laid out.
             updatePositionCacheAndDispatch()
-            val androidViewsHandler = androidViewsHandler
-            if (androidViewsHandler != null) {
+            if (_androidViewsHandler != null) {
                 // Even if we laid out during onMeasure, we want to set the bounds of the
                 // AndroidViewsHandler for accessibility and for Views making assumptions based on
                 // the size of their ancestors. Usually the Views in the hierarchy will not
