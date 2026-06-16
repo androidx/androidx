@@ -63,6 +63,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 
+private val NeutralSlideOffset: (IntSize) -> IntOffset = { IntOffset.Zero }
+private val NeutralChangeSize: (IntSize) -> IntSize = { it }
+
 @RequiresOptIn(message = "This is an experimental animation API.")
 @Target(
     AnnotationTarget.CLASS,
@@ -1136,8 +1139,8 @@ internal fun Transition<EnterExitState>.trackActiveExit(
             TransitionData(
                 fade = activeExit.data.fade?.copy(alpha = 1f),
                 scale = activeExit.data.scale?.copy(scale = 1f),
-                slide = activeExit.data.slide?.copy(slideOffset = { IntOffset.Zero }),
-                changeSize = activeExit.data.changeSize?.copy(size = { it }),
+                slide = activeExit.data.slide?.copy(slideOffset = NeutralSlideOffset),
+                changeSize = activeExit.data.changeSize?.copy(size = NeutralChangeSize),
                 veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
             )
         // Generate an exit transition to sustain deferred animations that were active at handoff.
