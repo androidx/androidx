@@ -17,7 +17,6 @@
 package androidx.glance.wear.samples
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.health.connect.HealthPermissions
@@ -63,7 +62,6 @@ internal class HealthDataWidget : GlanceWearWidget() {
 }
 
 @OptIn(ExperimentalGlanceWearApi::class)
-@SuppressLint("RestrictedApiAndroidX")
 @RemoteComposable
 @Composable
 private fun HealthDataWidgetContent() {

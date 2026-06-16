@@ -1,4 +1,16 @@
 // Signature format: 4.0
+package androidx.compose.remote.creation.compose {
+
+  @SuppressCompatibility public final class RemoteComposeCreationComposeFlags {
+    property public boolean allowSendingEmptyFontAxis;
+    property public boolean isEnforceCleanRecompositionEnabled;
+    field public static final androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags INSTANCE;
+    field public static boolean allowSendingEmptyFontAxis;
+    field public static boolean isEnforceCleanRecompositionEnabled;
+  }
+
+}
+
 package androidx.compose.remote.creation.compose.action {
 
   public interface Action {

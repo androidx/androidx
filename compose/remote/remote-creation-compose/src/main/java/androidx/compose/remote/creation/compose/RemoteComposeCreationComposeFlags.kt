@@ -16,8 +16,6 @@
 
 package androidx.compose.remote.creation.compose
 
-import androidx.annotation.RestrictTo
-
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
  * "riskier" refactors or new feature support that is added to this module. These flags are always
@@ -50,7 +48,6 @@ import androidx.annotation.RestrictTo
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationComposeApi
 public object RemoteComposeCreationComposeFlags {
     /**
