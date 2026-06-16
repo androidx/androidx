@@ -311,6 +311,8 @@ internal class SharedMutableTransformState {
                 }
             } else null
 
+    val slideHandoffOffset: (IntSize) -> IntOffset = { lastSlide }
+
     private fun trackScaleVelocity(value: Float) {
         if (scaleVelocityTracker == null) {
             scaleVelocityTracker = VelocityTracker1D(isDataDifferential = false)
@@ -419,7 +421,7 @@ internal fun SharedMutableTransformState.getHandoffExit(): ExitTransition {
             newExit += fadeOut(targetAlpha = this.lastAlpha)
         }
         if (this.slideRequiresAnimation) {
-            newExit += slideOut(targetOffset = { this.lastSlide })
+            newExit += slideOut(targetOffset = this.slideHandoffOffset)
         }
         if (this.veilRequiresAnimation) {
             val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
@@ -447,7 +449,7 @@ internal fun SharedMutableTransformState.getHandoffEnter(): EnterTransition {
             newEnter += fadeIn(initialAlpha = this.lastAlpha)
         }
         if (this.slideRequiresAnimation) {
-            newEnter += slideIn(initialOffset = { this.lastSlide })
+            newEnter += slideIn(initialOffset = this.slideHandoffOffset)
         }
         if (this.veilRequiresAnimation) {
             val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
