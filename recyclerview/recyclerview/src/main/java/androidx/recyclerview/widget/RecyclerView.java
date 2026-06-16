@@ -463,6 +463,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     final Rect mTempRect = new Rect();
     private final Rect mTempRect2 = new Rect();
+    private Rect mTempRectFocusScroll;
     final RectF mTempRectF = new RectF();
     Adapter mAdapter;
     @VisibleForTesting
@@ -3615,8 +3616,52 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 (focused == null));
     }
 
+    void adjustRectForDecorationInsets(View child, Rect rect) {
+        final ViewGroup.LayoutParams lp = child.getLayoutParams();
+        if (lp instanceof LayoutParams) {
+            final LayoutParams rvLp = (LayoutParams) lp;
+            // Mirror requestChildOnScreen: avoid unsafe/outdated calculations if insets are dirty.
+            if (!rvLp.mInsetsDirty) {
+                final Rect insets = rvLp.mDecorInsets;
+                // Temporarily convert to layout-relative coordinates for boundary checking.
+                rect.offset(-child.getScrollX(), -child.getScrollY());
+                // Only expand edges that touch/match the child view bounds (to avoid expanding
+                // small sub-elements like text cursors).
+                if (rect.left <= 0) {
+                    rect.left -= insets.left;
+                }
+                if (rect.right >= child.getWidth()) {
+                    rect.right += insets.right;
+                }
+                if (rect.top <= 0) {
+                    rect.top -= insets.top;
+                }
+                if (rect.bottom >= child.getHeight()) {
+                    rect.bottom += insets.bottom;
+                }
+                // Convert back to scroll-relative coordinates expected by LayoutManager contract.
+                rect.offset(child.getScrollX(), child.getScrollY());
+            }
+        }
+    }
+
+    // Intercepts focus scroll requests on API >= 37.1 (where the platform triggers a
+    // second scroll request with un-decorated child bounds) to include item decorations.
+    // Otherwise, falls back to the legacy behavior of not including item decorations.
+    // See recyclerview/recyclerview/docs/recyclerview_focus_scroll_decor_offsets_design.md
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
+        if (SdkFullVersionCompat.isAtLeastCinnamonBunMinor1()) {
+            Rect tempRect = mTempRectFocusScroll;
+            if (tempRect == null) {
+                tempRect = new Rect();
+                mTempRectFocusScroll = tempRect;
+            }
+            tempRect.set(rect);
+            adjustRectForDecorationInsets(child, tempRect);
+            return mLayout.requestChildRectangleOnScreen(
+                    this, child, tempRect, immediate);
+        }
         return mLayout.requestChildRectangleOnScreen(this, child, rect, immediate);
     }
 

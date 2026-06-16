@@ -38,6 +38,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -62,6 +63,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -5592,4 +5594,497 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals(totalScrollDistance[0], 1000);
     }
 
+    @Test
+    public void testAdjustRectForDecorationInsets() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView rv = new RecyclerView(getActivity());
+                View child = new View(getActivity());
+                child.layout(0, 0, 100, 100);
+
+                RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(100, 100);
+                lp.mDecorInsets.set(5, 10, 15, 20);
+                lp.mInsetsDirty = false;
+                child.setLayoutParams(lp);
+
+                // Scenario 1: Rect is fully within bounds (no edges touched)
+                Rect rect = new Rect(10, 10, 90, 90);
+                rv.adjustRectForDecorationInsets(child, rect);
+                assertEquals(new Rect(10, 10, 90, 90), rect);
+
+                // Scenario 2: Rect touches all edges (no scroll)
+                rect.set(0, 0, 100, 100);
+                rv.adjustRectForDecorationInsets(child, rect);
+                assertEquals(new Rect(-5, -10, 115, 120), rect);
+
+                // Scenario 3: Rect only touches left and bottom edges
+                rect.set(0, 10, 90, 100);
+                rv.adjustRectForDecorationInsets(child, rect);
+                assertEquals(new Rect(-5, 10, 90, 120), rect);
+
+                // Scenario 4: Rect touches edges with scrollX = 20, scrollY = 30
+                child.scrollTo(20, 30);
+                rect.set(20, 30, 120, 130);
+                rv.adjustRectForDecorationInsets(child, rect);
+                assertEquals(new Rect(15, 20, 135, 150), rect);
+
+                // Scenario 5: Rect inside scrolled boundaries but not touching them
+                rect.set(25, 35, 115, 125);
+                rv.adjustRectForDecorationInsets(child, rect);
+                assertEquals(new Rect(25, 35, 115, 125), rect);
+            }
+        });
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void nestedRecyclerViewFocusScrollWithDecorations() throws Throwable {
+        assumeTrue(SdkFullVersionCompat.isAtLeastCinnamonBunMinor1());
+        final AtomicInteger outerScrollDist = new AtomicInteger(0);
+        final AtomicInteger innerScrollDist = new AtomicInteger(0);
+        final RecyclerView[] innerRvRef = new RecyclerView[1];
+        final RecyclerView[] outerRvRef = new RecyclerView[1];
+        final View[] targetRef = new View[1];
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Outer vertical RecyclerView
+                RecyclerView outerRv = createScrolledRecyclerView(
+                        LinearLayoutManager.VERTICAL,
+                        /* horizontalScrollTracker= */ null,
+                        /* verticalScrollTracker= */ outerScrollDist);
+                outerRvRef[0] = outerRv;
+                outerRv.setBackgroundColor(Color.DKGRAY);
+
+                // Add vertical item decorations to outer (40px top/bottom)
+                outerRv.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view,
+                            RecyclerView parent, RecyclerView.State state) {
+                        outRect.set(0, 40, 0, 40);
+                    }
+                });
+
+                // Inner horizontal RecyclerView (placed inside a frame to act as the
+                // child view of outer)
+                final RecyclerView innerRv = createScrolledRecyclerView(
+                        LinearLayoutManager.HORIZONTAL,
+                        /* horizontalScrollTracker= */ innerScrollDist,
+                        /* verticalScrollTracker= */ null);
+                innerRvRef[0] = innerRv;
+                innerRv.setBackgroundColor(Color.LTGRAY);
+
+                // Add horizontal item decorations to inner (50px left/right) using helper
+                innerRv.addItemDecoration(createDrawingItemDecoration(50));
+
+                // Setup adapter for inner horizontal RV (each item is 200px wide)
+                innerRv.setAdapter(new RecyclerView.Adapter() {
+                    @Override
+                    public RecyclerView.ViewHolder onCreateViewHolder(
+                            ViewGroup parent, int viewType) {
+                        return new RecyclerView.ViewHolder(
+                                createFocusableTargetView(200, 200)) {};
+                    }
+
+                    @Override
+                    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                        if (position != 1) {
+                            holder.itemView.setBackgroundColor(Color.RED);
+                        } else {
+                            holder.itemView.setBackgroundColor(Color.BLUE);
+                            targetRef[0] = holder.itemView;
+                        }
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return 10;
+                    }
+                });
+
+                // Setup adapter for outer vertical RV
+                outerRv.setAdapter(new RecyclerView.Adapter() {
+                    @Override
+                    public RecyclerView.ViewHolder onCreateViewHolder(
+                            ViewGroup parent, int viewType) {
+                        if (viewType == 0) {
+                            View placeholder = new View(getActivity());
+                            placeholder.setBackgroundColor(Color.DKGRAY);
+                            placeholder.setLayoutParams(new ViewGroup.LayoutParams(400, 300));
+                            return new RecyclerView.ViewHolder(placeholder) {};
+                        } else {
+                            // The item is the horizontal RecyclerView wrapped in a layout
+                            FrameLayout fl = new FrameLayout(getActivity());
+                            fl.setLayoutParams(new ViewGroup.LayoutParams(400, 200));
+                            fl.addView(innerRv, new FrameLayout.LayoutParams(
+                                     ViewGroup.LayoutParams.MATCH_PARENT,
+                                     ViewGroup.LayoutParams.MATCH_PARENT));
+                            return new RecyclerView.ViewHolder(fl) {};
+                        }
+                    }
+
+                    @Override
+                    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {}
+
+                    @Override
+                    public int getItemViewType(int position) {
+                        return position == 0 ? 0 : 1;
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return 2;
+                    }
+                });
+
+                setUpTestedLayoutParams(outerRv, 400, 500, 80);
+            }
+        });
+
+        // Wait for layout passes
+        getInstrumentation().waitForIdleSync();
+
+        requestFocusOnUI(targetRef[0]);
+
+        waitForIdleScroll(innerRvRef[0]);
+        waitForIdleScroll(outerRvRef[0]);
+        getInstrumentation().waitForIdleSync();
+
+        final int expectedInnerScrollDist = 200;
+        final int expectedOuterScrollDist = 160;
+
+        // Verify scroll distances
+        assertEquals(expectedInnerScrollDist, innerScrollDist.get());
+        assertEquals(expectedOuterScrollDist, outerScrollDist.get());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void focusScrollWithScrollXAndDecorations() throws Throwable {
+        assumeTrue(SdkFullVersionCompat.isAtLeastCinnamonBunMinor1());
+        final AtomicInteger scrollDist = new AtomicInteger(0);
+        final RecyclerView[] rvRef = new RecyclerView[1];
+        final View[] targetRef = new View[1];
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Create outer RV with larger size and light gray background
+                RecyclerView rv = createScrolledRecyclerView(
+                        LinearLayoutManager.HORIZONTAL,
+                        /* horizontalScrollTracker= */ scrollDist,
+                        /* verticalScrollTracker= */ null);
+                rvRef[0] = rv;
+                rv.setBackgroundColor(Color.LTGRAY);
+
+                // Add horizontal item decorations (50px left/right) using helper
+                rv.addItemDecoration(createDrawingItemDecoration(50));
+
+                rv.setAdapter(new RecyclerView.Adapter() {
+                    @Override
+                    public RecyclerView.ViewHolder onCreateViewHolder(
+                            ViewGroup parent, int viewType) {
+                        FrameLayout fl = new FrameLayout(getActivity());
+                        fl.setLayoutParams(new ViewGroup.LayoutParams(200, 200));
+                        fl.addView(createFocusableTargetView(100, 200));
+                        return new RecyclerView.ViewHolder(fl) {};
+                    }
+
+                    @Override
+                    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                        if (position != 0) {
+                            holder.itemView.setBackgroundColor(Color.RED);
+                        } else {
+                            FrameLayout fl = (FrameLayout) holder.itemView;
+                            targetRef[0] = fl.getChildAt(0);
+                            fl.scrollTo(100, 0);
+                        }
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return 10;
+                    }
+                });
+
+                setUpTestedLayoutParams(rv, 400, 250, 80);
+            }
+        });
+
+        getInstrumentation().waitForIdleSync();
+
+        // Scroll RecyclerView to the right by 100px
+        scrollByOnUI(rvRef[0], 100, 0);
+
+        // Reset scrollDist tracker before focus request so we only measure the focus scroll
+        final int initialOffset = rvRef[0].computeHorizontalScrollOffset();
+        scrollDist.set(0);
+
+        requestFocusOnUI(targetRef[0]);
+
+        waitForIdleScroll(rvRef[0]);
+        getInstrumentation().waitForIdleSync();
+
+        final int expectedScrollDist = -initialOffset;
+
+        assertEquals(expectedScrollDist, scrollDist.get());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void focusScrollWithNestedHorizontalScrollViewAndDecorations() throws Throwable {
+        assumeTrue(SdkFullVersionCompat.isAtLeastCinnamonBunMinor1());
+        final AtomicInteger scrollDist = new AtomicInteger(0);
+        final RecyclerView[] rvRef = new RecyclerView[1];
+        final View[] buttonRef = new View[1];
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Create outer RV with larger size and light gray background
+                RecyclerView rv = createScrolledRecyclerView(
+                        LinearLayoutManager.HORIZONTAL,
+                        /* horizontalScrollTracker= */ scrollDist,
+                        /* verticalScrollTracker= */ null);
+                rvRef[0] = rv;
+                rv.setBackgroundColor(Color.LTGRAY);
+
+                // Add horizontal item decorations (50px left/right) using helper
+                rv.addItemDecoration(createDrawingItemDecoration(50));
+
+                rv.setAdapter(new RecyclerView.Adapter() {
+                    @Override
+                    public RecyclerView.ViewHolder onCreateViewHolder(
+                            ViewGroup parent, int viewType) {
+                        // Create a nested SimpleScrolledViewGroup pre-scrolled by 200px
+                        final SimpleScrolledViewGroup parentView =
+                                new SimpleScrolledViewGroup(getActivity(), 200);
+                        parentView.setBackgroundColor(Color.YELLOW);
+                        parentView.setLayoutParams(new ViewGroup.LayoutParams(300, 200));
+                        parentView.addView(createFocusableTargetView(200, 200));
+                        return new RecyclerView.ViewHolder(parentView) {};
+                    }
+
+                    @Override
+                    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                        // Highlight non-focused items with Red color
+                        if (position != 0) {
+                            holder.itemView.setBackgroundColor(Color.RED);
+                        } else {
+                            SimpleScrolledViewGroup parentView =
+                                    (SimpleScrolledViewGroup) holder.itemView;
+                            buttonRef[0] = parentView.getChildAt(0);
+                        }
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return 10;
+                    }
+                });
+
+                setUpTestedLayoutParams(rv, 400, 250, 80);
+            }
+        });
+
+        getInstrumentation().waitForIdleSync();
+
+        // Scroll RecyclerView to the right by 200px so Item 0 goes off-screen to the left
+        scrollByOnUI(rvRef[0], 200, 0);
+
+        // Reset scrollDist tracker before focus request so we only measure the focus scroll
+        final int initialOffset = rvRef[0].computeHorizontalScrollOffset();
+        scrollDist.set(0);
+
+        requestFocusOnUI(buttonRef[0]);
+
+        waitForIdleScroll(rvRef[0]);
+        getInstrumentation().waitForIdleSync();
+
+        final int expectedScrollDist = -initialOffset;
+
+        assertEquals(expectedScrollDist, scrollDist.get());
+    }
+
+    private void drawDecorationPattern(Canvas c, int left, int top, int right, int bottom,
+            int position, android.graphics.Paint paint) {
+        paint.setStyle(android.graphics.Paint.Style.FILL);
+        paint.setAlpha(80);
+        c.drawRect(left, top, right, bottom, paint);
+        paint.setAlpha(255);
+        paint.setStyle(android.graphics.Paint.Style.STROKE);
+
+        int step = 10;
+        if (position % 3 == 0) {
+            for (int y = top + step; y < bottom; y += step) {
+                c.drawLine(left, y, right, y, paint);
+            }
+        } else if (position % 3 == 1) {
+            for (int x = left + step; x < right; x += step) {
+                c.drawLine(x, top, x, bottom, paint);
+            }
+        } else {
+            for (int x = left - (bottom - top); x < right; x += step) {
+                c.drawLine(x, top, x + (bottom - top), bottom, paint);
+            }
+        }
+    }
+
+    private RecyclerView.ItemDecoration createDrawingItemDecoration(final int offset) {
+        return new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view,
+                    RecyclerView parent, RecyclerView.State state) {
+                outRect.set(offset, 0, offset, 0);
+            }
+
+            @Override
+            public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
+                    RecyclerView.@NonNull State state) {
+                android.graphics.Paint paint = new android.graphics.Paint();
+                paint.setStrokeWidth(3);
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    View child = parent.getChildAt(i);
+                    int position = parent.getChildAdapterPosition(child);
+                    if (position == RecyclerView.NO_POSITION) {
+                        continue;
+                    }
+                    int seedColor = Color.argb(255,
+                            (position * 85) % 256,
+                            (position * 145) % 256,
+                            (position * 215) % 256);
+                    paint.setColor(seedColor);
+
+                    int lLeft = child.getLeft() - offset;
+                    int lRight = child.getLeft();
+                    int top = child.getTop();
+                    int bottom = child.getBottom();
+                    drawDecorationPattern(c, lLeft, top, lRight, bottom, position, paint);
+
+                    int rLeft = child.getRight();
+                    int rRight = child.getRight() + offset;
+                    drawDecorationPattern(c, rLeft, top, rRight, bottom, position, paint);
+                }
+            }
+        };
+    }
+
+    @Test
+    public void requestChildRectangleOnScreen_doesNotMutateInputRect() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView rv = new RecyclerView(getActivity());
+                rv.setLayoutManager(new TestLayoutManager() {
+                    @Override
+                    public boolean requestChildRectangleOnScreen(RecyclerView parent, View child,
+                            Rect rect, boolean immediate) {
+                        return true;
+                    }
+                });
+
+                View child = new View(getActivity());
+                rv.addView(child);
+
+                Rect inputRect = new Rect(10, 20, 30, 40);
+                Rect originalCopy = new Rect(inputRect);
+
+                rv.requestChildRectangleOnScreen(child, inputRect, false);
+
+                assertEquals(originalCopy, inputRect);
+            }
+        });
+    }
+
+    private RecyclerView createScrolledRecyclerView(
+            int orientation, final AtomicInteger horizontalScrollTracker,
+            final AtomicInteger verticalScrollTracker) {
+        RecyclerView rv = new RecyclerView(getActivity());
+        LinearLayoutManager lm = new LinearLayoutManager(getActivity(), orientation, false) {
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                int scrolled = super.scrollHorizontallyBy(dx, recycler, state);
+                if (horizontalScrollTracker != null) {
+                    horizontalScrollTracker.addAndGet(scrolled);
+                }
+                return scrolled;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                int scrolled = super.scrollVerticallyBy(dy, recycler, state);
+                if (verticalScrollTracker != null) {
+                    verticalScrollTracker.addAndGet(scrolled);
+                }
+                return scrolled;
+            }
+        };
+        rv.setLayoutManager(lm);
+        return rv;
+    }
+
+    private View createFocusableTargetView(int width, int height) {
+        final View v = new View(getActivity());
+        v.setFocusable(true);
+        v.setFocusableInTouchMode(true);
+        v.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+        v.setBackgroundColor(Color.BLUE);
+        v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                view.setBackgroundColor(hasFocus ? Color.GREEN : Color.BLUE);
+            }
+        });
+        return v;
+    }
+
+    private void requestFocusOnUI(final View view) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean focused = view.requestFocus();
+                    if (!focused) {
+                        throw new IllegalStateException("Failed to focus target child view!");
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        });
+    }
+
+    private void scrollByOnUI(final RecyclerView rv, final int dx, final int dy) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.scrollBy(dx, dy);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+    }
+
+    private void setUpTestedLayoutParams(RecyclerView rv, int width, int height, int bottomMargin) {
+        TestedFrameLayout.FullControlLayoutParams rvLp =
+                new TestedFrameLayout.FullControlLayoutParams(width, height);
+        rvLp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+        rvLp.bottomMargin = bottomMargin;
+        rv.setLayoutParams(rvLp);
+        try {
+            setRecyclerView(rv);
+        } catch (Throwable t) {
+            postExceptionToInstrumentation(t);
+        }
+    }
+
+    private static class SimpleScrolledViewGroup extends FrameLayout {
+        SimpleScrolledViewGroup(Context context, int scrollX) {
+            super(context);
+            setScrollX(scrollX);
+        }
+    }
 }
