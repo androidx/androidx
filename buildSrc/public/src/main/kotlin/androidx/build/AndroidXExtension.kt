@@ -346,9 +346,6 @@ abstract class AndroidXExtension(
 
     var bypassCoordinateValidation = false
 
-    /** Whether the project has not yet been migrated to use JSpecify annotations. */
-    var optOutJSpecify = false
-
     val additionalDeviceTestApkKeys = mutableListOf<String>()
 
     val additionalDeviceTestTags: MutableList<String> by lazy {
