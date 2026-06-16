@@ -16,7 +16,6 @@
 
 package androidx.glance.wear
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
@@ -48,7 +47,6 @@ public abstract class GlanceWearWidgetService : LifecycleService() {
     // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
     // the service.
     @CallSuper
-    @SuppressLint("RestrictedApiAndroidX")
     @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
     override fun onCreate() {
         super.onCreate()

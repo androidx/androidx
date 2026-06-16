@@ -81,7 +81,6 @@ internal constructor(
      * @param params the parameters that describe the widget for which the data is being provided.
      * @return the widget data as raw content.
      */
-    @SuppressLint("RestrictedApiAndroidX")
     @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
     internal suspend fun provideWidgetDataAsRawContentInternal(
         context: Context,

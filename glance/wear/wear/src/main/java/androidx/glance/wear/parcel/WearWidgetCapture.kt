@@ -16,7 +16,6 @@
 
 package androidx.glance.wear.parcel
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
@@ -33,8 +32,6 @@ internal object WearWidgetCapture {
     /**
      * Directly capture a RemoteCompose document and gather the pending intents used in the layout.
      */
-    // TODO: b/514955693 - Remove lint suppress once RemoteCreationDisplayInfo is public.
-    @SuppressLint("RestrictedApiAndroidX")
     internal suspend fun capture(
         context: Context,
         creationDisplayInfo: RemoteCreationDisplayInfo,
