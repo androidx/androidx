@@ -167,7 +167,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           matchOneOf = COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_ONE_OF_DATA_TYPE_MATCH_ONE_OF_LIST,
           qualifiedName = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass "
+          description = "I am a KDoc for OneOfSealedClass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP_INTERFACEPROPERTY:
@@ -202,7 +202,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           required = COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
           qualifiedName = "com.testdata.oneofserializable.NonSealedOneOfSerializable${'$'}ASubclass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.ASubclass "
+          description = "I am a KDoc for OneOfSealedClass.ASubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_BSUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP_INTEGER:
@@ -237,7 +237,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           required = COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_BSUBCLASS_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
           qualifiedName = "com.testdata.oneofserializable.NonSealedOneOfSerializable${'$'}BSubclass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.BSubclass "
+          description = "I am a KDoc for OneOfSealedClass.BSubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ONE_OF_DATA_TYPE_MATCH_ONE_OF_LIST_ITEM_0:
@@ -265,7 +265,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           matchOneOf = COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ONE_OF_DATA_TYPE_MATCH_ONE_OF_LIST,
           qualifiedName = "com.testdata.oneofserializable.OneOfSealedClass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass "
+          description = "I am a KDoc for OneOfSealedClass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_0_PROPERTIES_MAP_RESOURCES_REFERENCE_ITEM_TYPE:
@@ -297,7 +297,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           required = COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_0_REQUIRED_PROPERTIES_LIST,
           qualifiedName = "androidx.appfunctions.AppFunctionResourceContainer",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.ASubclass "
+          description = "I am a KDoc for OneOfSealedClass.ASubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_1_PROPERTIES_MAP_INTERFACEPROPERTY:
@@ -332,7 +332,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           required = COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_1_REQUIRED_PROPERTIES_LIST,
           qualifiedName = "com.testdata.oneofserializable.OneOfSealedClass${'$'}ASubclass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.ASubclass "
+          description = "I am a KDoc for OneOfSealedClass.ASubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST:
@@ -346,7 +346,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           matchAll = COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST,
           qualifiedName = "com.testdata.oneofserializable.OneOfSealedClass${'$'}ASubclass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.ASubclass "
+          description = "I am a KDoc for OneOfSealedClass.ASubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_BSUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP_INTEGER:
@@ -381,7 +381,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           required = COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_BSUBCLASS_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
           qualifiedName = "com.testdata.oneofserializable.OneOfSealedClass${'$'}BSubclass",
           isNullable = true,
-          description = "I am a KDoc for OneOfSealedClass.BSubclass "
+          description = "I am a KDoc for OneOfSealedClass.BSubclass"
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDINTERFACE_ONE_OF_DATA_TYPE_MATCH_ONE_OF_LIST_ITEM_0:

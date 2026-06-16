@@ -106,9 +106,11 @@ class AnnotatedParameterizedAppFunctionSerializable(
                 String::class,
             )
         }
-        return docString.ifEmpty {
-            sharedDataTypeDescriptionMap[unparameterizedJvmQualifiedName] ?: ""
-        }
+        return sanitizeKDoc(
+            docString.ifEmpty {
+                sharedDataTypeDescriptionMap[unparameterizedJvmQualifiedName] ?: ""
+            }
+        )
     }
 
     /**

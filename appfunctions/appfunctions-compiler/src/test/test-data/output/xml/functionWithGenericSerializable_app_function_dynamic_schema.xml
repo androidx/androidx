@@ -41,7 +41,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.Attachment</objectQualifiedName>
-                <description>An attachment for a note entity. </description>
+                <description>An attachment for a note entity.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -62,7 +62,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SetField&lt;kotlin.Int&gt;</objectQualifiedName>
-                <description>An example generic AppFunctionSerializable. </description>
+                <description>An example generic AppFunctionSerializable.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -83,7 +83,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SetField&lt;kotlin.String&gt;</objectQualifiedName>
-                <description>An example generic AppFunctionSerializable. </description>
+                <description>An example generic AppFunctionSerializable.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -104,7 +104,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SetField&lt;kotlin.String?&gt;</objectQualifiedName>
-                <description>An example generic AppFunctionSerializable. </description>
+                <description>An example generic AppFunctionSerializable.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -125,7 +125,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SetField&lt;kotlin.collections.List&lt;com.testdata.Attachment&gt;&gt;</objectQualifiedName>
-                <description>An example generic AppFunctionSerializable. </description>
+                <description>An example generic AppFunctionSerializable.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -152,7 +152,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SetField&lt;kotlin.collections.List&lt;com.testdata.Attachment&gt;?&gt;</objectQualifiedName>
-                <description>An example generic AppFunctionSerializable. </description>
+                <description>An example generic AppFunctionSerializable.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -179,7 +179,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.UpdateNoteParams</objectQualifiedName>
-                <description>Parameters to update a note entity. </description>
+                <description>Parameters to update a note entity.</description>
                 <properties>
                     <dataTypeMetadata>
                         <dataTypeReference>com.testdata.SetField&lt;kotlin.String&gt;</dataTypeReference>

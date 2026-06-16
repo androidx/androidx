@@ -73,7 +73,7 @@ interface AppFunctionSerializableType {
     val isDescribedByKDoc: Boolean
 
     fun getDescription(sharedDataTypeDescriptionMap: Map<String, String> = mapOf()): String =
-        docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" }
+        sanitizeKDoc(docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" })
 
     fun validate(allowSerializableInterfaceTypes: Boolean = false): AppFunctionSerializableType
 
@@ -180,6 +180,20 @@ interface AppFunctionSerializableType {
         val allProperties: Map<String, KSPropertyDeclaration> =
             classDeclaration.getAllProperties().associateBy { (it.simpleName.asString()) }
 
+        val classKDoc = classDeclaration.docString ?: ""
+        val classPropertyDescriptions =
+            if (isDescribedByKDoc) {
+                getPropertyDescriptionsFromKDoc(classKDoc)
+            } else {
+                emptyMap()
+            }
+        val classParamDescriptions =
+            if (isDescribedByKDoc) {
+                getParamDescriptionsFromKDoc(classKDoc)
+            } else {
+                emptyMap()
+            }
+
         return primaryConstructorProperties.mapNotNull { valueParameter ->
             allProperties[valueParameter.name?.asString()]?.let {
                 AppFunctionPropertyDeclaration.create(
@@ -187,6 +201,8 @@ interface AppFunctionSerializableType {
                     isDescribedByKDoc = isDescribedByKDoc,
                     isRequired = !valueParameter.hasDefault,
                     sharedDataTypeDescriptionMap = sharedDataTypeDescriptionMap,
+                    properTagDescriptions = classPropertyDescriptions,
+                    paramTagDescriptions = classParamDescriptions,
                 )
             }
         }

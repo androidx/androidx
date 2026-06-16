@@ -174,7 +174,7 @@
                     <id>unused</id>
                     <isNullable>true</isNullable>
                     <objectQualifiedName>com.testdata.DerivedInputToFakeFreeFormFunction</objectQualifiedName>
-                    <description>A child class of [InputToFakeFreeFormFunction]. </description>
+                    <description>A child class of [InputToFakeFreeFormFunction].</description>
                     <properties>
                         <dataTypeMetadata>
                             <id>unused</id>
@@ -191,7 +191,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.DerivedInputToFakeFreeFormFunction</objectQualifiedName>
-                <description>A child class of [InputToFakeFreeFormFunction]. </description>
+                <description>A child class of [InputToFakeFreeFormFunction].</description>
                 <type>12</type>
             </dataTypeMetadata>
             <id>unused</id>
@@ -202,7 +202,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.InputToFakeFreeFormFunction</objectQualifiedName>
-                <description>A test input class to the free-form function. </description>
+                <description>A test input class to the free-form function.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -224,7 +224,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.InputWithParametrizedTypes</objectQualifiedName>
-                <description>An input class with parametrized types </description>
+                <description>An input class with parametrized types</description>
                 <properties>
                     <dataTypeMetadata>
                         <dataTypeReference>com.testdata.Optional&lt;kotlin.Int&gt;</dataTypeReference>
@@ -283,7 +283,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.InputWithRepeatedTypes</objectQualifiedName>
-                <description>An input class with repeated params. </description>
+                <description>An input class with repeated params.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -363,7 +363,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.Optional&lt;com.testdata.InputToFakeFreeFormFunction&gt;</objectQualifiedName>
-                <description>A generic serializable class. </description>
+                <description>A generic serializable class.</description>
                 <properties>
                     <dataTypeMetadata>
                         <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
@@ -386,7 +386,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.Optional&lt;com.testdata.InputToFakeFreeFormFunction?&gt;</objectQualifiedName>
-                <description>A generic serializable class. </description>
+                <description>A generic serializable class.</description>
                 <properties>
                     <dataTypeMetadata>
                         <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
@@ -409,7 +409,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.Optional&lt;kotlin.Int&gt;</objectQualifiedName>
-                <description>A generic serializable class. </description>
+                <description>A generic serializable class.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>
@@ -431,7 +431,7 @@
                 <id>unused</id>
                 <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.Optional&lt;kotlin.Int?&gt;</objectQualifiedName>
-                <description>A generic serializable class. </description>
+                <description>A generic serializable class.</description>
                 <properties>
                     <dataTypeMetadata>
                         <id>unused</id>

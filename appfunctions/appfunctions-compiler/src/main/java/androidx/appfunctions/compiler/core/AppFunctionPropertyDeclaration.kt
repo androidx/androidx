@@ -41,6 +41,8 @@ data class AppFunctionPropertyDeclaration(
             isDescribedByKDoc: Boolean,
             isRequired: Boolean,
             sharedDataTypeDescriptionMap: Map<String, String>,
+            properTagDescriptions: Map<String, String> = emptyMap(),
+            paramTagDescriptions: Map<String, String> = emptyMap(),
         ): AppFunctionPropertyDeclaration {
             val instruction =
                 property.annotations
@@ -50,12 +52,19 @@ data class AppFunctionPropertyDeclaration(
                         String::class,
                     )
 
+            val docString = property.docString
+            val propertyName = checkNotNull(property.simpleName).asString()
             val description =
                 instruction
                     ?: if (isDescribedByKDoc) {
-                        property.docString?.ifEmpty {
-                            sharedDataTypeDescriptionMap[property.getQualifiedName()]
-                        } ?: ""
+                        if (!docString.isNullOrEmpty()) {
+                            docString
+                        } else {
+                            properTagDescriptions[propertyName]
+                                ?: paramTagDescriptions[propertyName]
+                                ?: sharedDataTypeDescriptionMap[property.getQualifiedName()]
+                                ?: ""
+                        }
                     } else {
                         ""
                     }
