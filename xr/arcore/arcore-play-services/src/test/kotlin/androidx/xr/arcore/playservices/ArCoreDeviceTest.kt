@@ -21,7 +21,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.runtime.TrackingState as RuntimeTrackingState
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -38,7 +37,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowSensor
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalInertialTrackingApi::class)
 class ArCoreDeviceTest {
     private lateinit var underTest: ArCoreDevice
     private lateinit var mockSession: ArCore1xSession
@@ -82,7 +80,7 @@ class ArCoreDeviceTest {
             )
         )
 
-        underTest.configureTracking(DeviceTrackingMode.INERTIAL, context)
+        underTest.configureTracking(createInertialDeviceTrackingMode(), context)
         underTest.resume()
 
         val eventValues = floatArrayOf(0f, 0f, 0f, 1f)
@@ -113,7 +111,7 @@ class ArCoreDeviceTest {
     fun update_withInertialModeAndSensorMissing_returnsIdentityAndStopped() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        underTest.configureTracking(DeviceTrackingMode.INERTIAL, context)
+        underTest.configureTracking(createInertialDeviceTrackingMode(), context)
         underTest.resume()
 
         underTest.update(mockFrame)
@@ -135,7 +133,7 @@ class ArCoreDeviceTest {
             )
         )
 
-        underTest.configureTracking(DeviceTrackingMode.INERTIAL, context)
+        underTest.configureTracking(createInertialDeviceTrackingMode(), context)
         underTest.resume()
 
         val eventValues = floatArrayOf(0f, 0f, 0f, 1f)
@@ -172,7 +170,7 @@ class ArCoreDeviceTest {
             )
         )
 
-        underTest.configureTracking(DeviceTrackingMode.INERTIAL, context)
+        underTest.configureTracking(createInertialDeviceTrackingMode(), context)
         underTest.resume()
 
         assertThat(shadowSensorManager.listeners).hasSize(1)
@@ -190,10 +188,17 @@ class ArCoreDeviceTest {
             )
         )
 
-        underTest.configureTracking(DeviceTrackingMode.INERTIAL, context)
+        underTest.configureTracking(createInertialDeviceTrackingMode(), context)
         underTest.resume()
         underTest.pause()
 
         assertThat(shadowSensorManager.listeners).isEmpty()
+    }
+
+    private fun createInertialDeviceTrackingMode(): DeviceTrackingMode {
+        val constructor =
+            DeviceTrackingMode::class.java.getDeclaredConstructor(Int::class.javaPrimitiveType!!)
+        constructor.isAccessible = true
+        return constructor.newInstance(2)
     }
 }

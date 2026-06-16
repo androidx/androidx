@@ -27,7 +27,6 @@ import androidx.xr.arcore.runtime.Trackable
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
@@ -188,14 +187,13 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     }
 
     /** Sets TrackingStates to STOPPED for any corresponding config mode that has been disabled. */
-    @OptIn(ExperimentalInertialTrackingApi::class)
     @SuppressWarnings("RestrictedApiAndroidX")
     internal fun updateTrackingStates(config: Config) {
         fakeArDevice.trackingState =
             when (config.deviceTracking) {
+                DeviceTrackingMode.DISABLED -> TrackingState.PAUSED
                 DeviceTrackingMode.SPATIAL -> TrackingState.TRACKING
-                DeviceTrackingMode.INERTIAL -> TrackingState.TRACKING_DEGRADED
-                else -> TrackingState.PAUSED
+                else -> TrackingState.TRACKING // ASSUMED INERTIAL
             }
         if (config.planeTracking == PlaneTrackingMode.DISABLED) {
             trackables.filterIsInstance<FakeRuntimePlane>().forEach {

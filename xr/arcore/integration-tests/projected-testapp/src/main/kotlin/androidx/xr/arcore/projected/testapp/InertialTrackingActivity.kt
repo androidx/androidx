@@ -48,7 +48,6 @@ import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.TrackingState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import java.util.Locale
@@ -56,10 +55,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** Activity to test 3DoF Inertial Tracking Mode on projected devices. */
-@OptIn(
-    androidx.xr.projected.experimental.ExperimentalProjectedApi::class,
-    ExperimentalInertialTrackingApi::class,
-)
+@OptIn(androidx.xr.projected.experimental.ExperimentalProjectedApi::class)
 class InertialTrackingActivity : ComponentActivity() {
     private lateinit var session: Session
 
@@ -72,7 +68,9 @@ class InertialTrackingActivity : ComponentActivity() {
                     val createdSession = result.session
                     try {
                         createdSession.configure(
-                            Config.Builder().setDeviceTracking(DeviceTrackingMode.INERTIAL).build()
+                            Config.Builder()
+                                .setDeviceTracking(createInertialDeviceTrackingMode())
+                                .build()
                         )
                         session = createdSession
 
@@ -116,7 +114,7 @@ class InertialTrackingActivity : ComponentActivity() {
                             val newConfig =
                                 Config.Builder(session.config)
                                     .setDeviceTracking(
-                                        if (isTrackingInertial) DeviceTrackingMode.INERTIAL
+                                        if (isTrackingInertial) createInertialDeviceTrackingMode()
                                         else DeviceTrackingMode.SPATIAL
                                     )
                                     .build()
@@ -138,7 +136,8 @@ class InertialTrackingActivity : ComponentActivity() {
                                 val newConfig =
                                     Config.Builder(session.config)
                                         .setDeviceTracking(
-                                            if (isTrackingInertial) DeviceTrackingMode.INERTIAL
+                                            if (isTrackingInertial)
+                                                createInertialDeviceTrackingMode()
                                             else DeviceTrackingMode.SPATIAL
                                         )
                                         .build()
@@ -186,12 +185,19 @@ class InertialTrackingActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalInertialTrackingApi::class)
 private fun TrackingState.toFriendlyString(): String =
     when (this) {
         TrackingState.TRACKING -> "TRACKING"
         TrackingState.PAUSED -> "PAUSED"
         TrackingState.STOPPED -> "STOPPED"
-        TrackingState.TRACKING_DEGRADED -> "TRACKING_DEGRADED"
         else -> "UNKNOWN"
     }
+
+private fun createInertialDeviceTrackingMode(): androidx.xr.runtime.DeviceTrackingMode {
+    val constructor =
+        androidx.xr.runtime.DeviceTrackingMode::class
+            .java
+            .getDeclaredConstructor(Int::class.javaPrimitiveType!!)
+    constructor.isAccessible = true
+    return constructor.newInstance(2)
+}

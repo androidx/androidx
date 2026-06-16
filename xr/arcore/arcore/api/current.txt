@@ -736,14 +736,12 @@ package androidx.xr.arcore {
     field public static final androidx.xr.arcore.TrackingState PAUSED;
     field public static final androidx.xr.arcore.TrackingState STOPPED;
     field public static final androidx.xr.arcore.TrackingState TRACKING;
-    field @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public static final androidx.xr.arcore.TrackingState TRACKING_DEGRADED;
   }
 
   public static final class TrackingState.Companion {
     property public androidx.xr.arcore.TrackingState PAUSED;
     property public androidx.xr.arcore.TrackingState STOPPED;
     property public androidx.xr.arcore.TrackingState TRACKING;
-    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public androidx.xr.arcore.TrackingState TRACKING_DEGRADED;
   }
 
   public final class VpsAvailabilityAvailable extends androidx.xr.arcore.VpsAvailabilityResult {

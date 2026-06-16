@@ -21,7 +21,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.manifest.HEAD_TRACKING
@@ -92,10 +91,12 @@ class ArDeviceTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalInertialTrackingApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun pose_InertialLastKnown_onlyTracksRotation() {
-        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.INERTIAL).build())
+        session.configure(
+            Config.Builder().setDeviceTracking(createInertialDeviceTrackingMode()).build()
+        )
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
             arCoreTestRule.deviceTester.pose = expectedPose
@@ -117,5 +118,12 @@ class ArDeviceTest {
         runTest(testDispatcher) {
             assertFailsWith<IllegalStateException> { ArDevice.getInstance(session) }
         }
+    }
+
+    private fun createInertialDeviceTrackingMode(): DeviceTrackingMode {
+        val constructor =
+            DeviceTrackingMode::class.java.getDeclaredConstructor(Int::class.javaPrimitiveType!!)
+        constructor.isAccessible = true
+        return constructor.newInstance(2)
     }
 }

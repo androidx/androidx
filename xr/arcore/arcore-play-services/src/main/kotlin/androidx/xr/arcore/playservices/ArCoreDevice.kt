@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalInertialTrackingApi::class)
-
 package androidx.xr.arcore.playservices
 
 import android.content.Context
@@ -27,7 +25,6 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.ArDevice
 import androidx.xr.arcore.runtime.TrackingState as RuntimeTrackingState
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -83,7 +80,11 @@ public class ArCoreDevice internal constructor() : ArDevice {
 
     private fun updateSensorListener() {
         synchronized(this) {
-            if (!isResumed || deviceTrackingMode != DeviceTrackingMode.INERTIAL) {
+            if (
+                !isResumed ||
+                    (deviceTrackingMode == DeviceTrackingMode.DISABLED ||
+                        deviceTrackingMode == DeviceTrackingMode.SPATIAL)
+            ) {
                 sensorListener?.let { sensorManager?.unregisterListener(it) }
                 sensorListener = null
                 return
@@ -136,7 +137,20 @@ public class ArCoreDevice internal constructor() : ArDevice {
                 devicePose = Pose()
                 trackingState = RuntimeTrackingState.STOPPED
             }
-            DeviceTrackingMode.INERTIAL -> {
+            DeviceTrackingMode.SPATIAL -> {
+                devicePose = frame.camera.pose.toRuntimePose()
+                val currentTrackingState: TrackingState? = frame.camera.trackingState
+                val mappedState =
+                    when (currentTrackingState) {
+                        TrackingState.TRACKING -> RuntimeTrackingState.TRACKING
+                        TrackingState.PAUSED -> RuntimeTrackingState.PAUSED
+                        TrackingState.STOPPED,
+                        null -> RuntimeTrackingState.STOPPED
+                    }
+                this.trackingState = mappedState
+            }
+            else -> {
+                // INERTIAL (assumed)
                 val currentRotation = latestSensorRotation
                 if (!isSensorAvailable) {
                     devicePose = Pose()
@@ -153,19 +167,6 @@ public class ArCoreDevice internal constructor() : ArDevice {
                         Pose(translation = calculatedTranslation, rotation = currentRotation)
                     trackingState = RuntimeTrackingState.TRACKING
                 }
-            }
-            else -> {
-                // Handles DeviceTrackingMode.SPATIAL (the default ARCore tracking)
-                devicePose = frame.camera.pose.toRuntimePose()
-                val currentTrackingState: TrackingState? = frame.camera.trackingState
-                val mappedState =
-                    when (currentTrackingState) {
-                        TrackingState.TRACKING -> RuntimeTrackingState.TRACKING
-                        TrackingState.PAUSED -> RuntimeTrackingState.PAUSED
-                        TrackingState.STOPPED,
-                        null -> RuntimeTrackingState.STOPPED
-                    }
-                this.trackingState = mappedState
             }
         }
     }
