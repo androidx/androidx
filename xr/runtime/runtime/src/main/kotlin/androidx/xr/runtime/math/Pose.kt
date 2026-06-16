@@ -152,7 +152,7 @@ constructor(
         if (forwardDirection.lengthSquared < EPSILON) {
             forwardDirection = newPose.forward
         }
-        return Quaternion.fromLookTowards(forwardDirection, otherPoseUp)
+        return fromLookTowards(forwardDirection, otherPoseUp)
     }
 
     /**
@@ -198,7 +198,10 @@ constructor(
         @JvmOverloads
         public fun fromLookAt(eye: Vector3, target: Vector3, up: Vector3 = Vector3.Up): Pose {
             val forward = (target - eye).toNormalized()
-            val rotation = Quaternion.fromLookTowards(forward, up)
+            // Since Quaternion.fromLookTowards aligns the local +Z axis (Vector3.Backward) with the
+            // target, we must pass the opposite direction to align local -Z (Vector3.Forward) with
+            // it, matching the Pose.forward definition.
+            val rotation = fromLookTowards(-forward, up)
 
             return Pose(eye, rotation)
         }
@@ -211,7 +214,7 @@ constructor(
          */
         @JvmStatic
         public fun distance(lhs: Pose, rhs: Pose): Float =
-            Vector3.Companion.distance(lhs.translation, rhs.translation)
+            Vector3.distance(lhs.translation, rhs.translation)
 
         /**
          * Returns a new pose that is linearly interpolated between [start] and [end] using the
@@ -226,15 +229,14 @@ constructor(
          */
         @JvmStatic
         public fun lerp(start: Pose, end: Pose, ratio: Float): Pose {
-            val interpolatedPosition =
-                Vector3.Companion.lerp(start.translation, end.translation, ratio)
+            val interpolatedPosition = Vector3.lerp(start.translation, end.translation, ratio)
 
             val interpolatedRotation =
                 if (start.rotation.dot(end.rotation) < 0.9995f) { // Check if angle is large
-                    Quaternion.Companion.slerp(start.rotation, end.rotation, ratio)
+                    Quaternion.slerp(start.rotation, end.rotation, ratio)
                 } else {
                     // If the angle is small, lerp can be used for efficiency.
-                    Quaternion.Companion.lerp(start.rotation, end.rotation, ratio)
+                    Quaternion.lerp(start.rotation, end.rotation, ratio)
                 }
 
             return Pose(interpolatedPosition, interpolatedRotation)

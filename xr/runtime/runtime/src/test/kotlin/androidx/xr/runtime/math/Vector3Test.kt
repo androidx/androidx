@@ -102,6 +102,27 @@ class Vector3Test {
     }
 
     @Test
+    fun normalized_zeroVector_returnsZero() {
+        // A zero-length vector has no direction; it must return Zero rather than NaN components.
+        assertThat(Vector3.Zero.toNormalized()).isEqualTo(Vector3.Zero)
+    }
+
+    @Test
+    fun normalized_smallVector_returnsNormalizedVector() {
+        // A vector with length smaller than 1e-3f (e.g. 1e-4f) but larger than 1e-15f
+        // should be successfully normalized instead of returning Zero.
+        val smallVector = Vector3(0.0001f, 0f, 0f)
+        assertThat(smallVector.toNormalized()).isEqualTo(Vector3(1f, 0f, 0f))
+    }
+
+    @Test
+    fun normalized_subThresholdVector_returnsZero() {
+        // A vector with length squared less than EPSILON (1e-30f) is treated as Zero.
+        val subThresholdVector = Vector3(1e-16f, 0f, 0f)
+        assertThat(subThresholdVector.toNormalized()).isEqualTo(Vector3.Zero)
+    }
+
+    @Test
     fun multiply_returnsVectorScaledByScalar() {
         assertThat(Vector3(3f, 4f, 5f) * 2f).isEqualTo(Vector3(6f, 8f, 10f))
 
@@ -205,6 +226,16 @@ class Vector3Test {
         assertThat(Vector3.angleBetween(Vector3(2f, 2f, 0f), Vector3(0f, 3f, 0f)))
             .isWithin(1e-5f)
             .of(45f)
+    }
+
+    @Test
+    fun angleBetweenVectors_withSmallVectors_returnsAngle() {
+        // Two tiny vectors pointing in opposite directions.
+        // Their lengths product is 8.1e-11f (< 1e-10f).
+        val v1 = Vector3(9e-6f, 0f, 0f)
+        val v2 = Vector3(-9e-6f, 0f, 0f)
+
+        assertThat(Vector3.angleBetween(v1, v2)).isWithin(1e-5f).of(180f)
     }
 
     @Test
