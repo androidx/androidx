@@ -36,6 +36,7 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.toMeter
@@ -293,7 +294,9 @@ public fun SpatialExternalSurface(
  * mainly used to protect DRM video content.
  *
  * @param modifier SubspaceModifiers to apply to the hemisphere. A sphere's measured size is
- *   automatically inferred from [radius] and does not need to be set through a modifier.
+ *   automatically inferred from [radius] and does not need to be set through a modifier. Note: the
+ *   [movable] modifier should not be used with this composable due to its similarity with the
+ *   environment and not having any layout size.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
  * @param radius The radius of the dome displaying the video.
@@ -358,7 +361,9 @@ public fun SpatialExternalSurfaceHemisphere(
  * mainly used to protect DRM video content.
  *
  * @param modifier SubspaceModifiers to apply to the sphere. A sphere's measured size is
- *   automatically inferred from [radius] and does not need to be set through a modifier.
+ *   automatically inferred from [radius] and does not need to be set through a modifier. Note: the
+ *   [movable] modifier should not be used with this composable due to its similarity with the
+ *   environment and not having any layout size.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
  * @param radius The radius of the dome displaying the video.

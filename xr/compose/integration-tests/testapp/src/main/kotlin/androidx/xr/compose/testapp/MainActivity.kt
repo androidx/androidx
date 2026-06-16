@@ -69,7 +69,7 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.transformingMovable
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.accessibility.AccessibilityActivity
@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     modifier =
                         SubspaceModifier.width(800.dp)
                             .height(1000.dp)
-                            .transformingMovable()
+                            .movable()
                             .transformingResizable()
                 ) {
                     IntegrationTestsAppTheme {

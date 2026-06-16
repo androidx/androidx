@@ -62,11 +62,11 @@ import androidx.xr.compose.subspace.layout.SpatialResizeEventType
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.size
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
@@ -205,7 +205,7 @@ class ResizablePanel : ComponentActivity() {
                                 .width(300.dp)
                                 .height(300.dp)
                                 .testTag("ActivityPanel")
-                                .transformingMovable()
+                                .movable()
                                 .transformingResizable(),
                     )
                 }

@@ -96,9 +96,9 @@ import androidx.xr.compose.subspace.layout.SpatialInputEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.requiredSizeIn
-import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput
@@ -367,7 +367,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             }
         } else {
             SpatialColumn {
-                SpatialPanel(SubspaceModifier.height(600.dp).width(600.dp).transformingMovable()) {
+                SpatialPanel(SubspaceModifier.height(600.dp).width(600.dp).movable()) {
                     CommonTestScaffold(
                         title = "Video Player Tests",
                         showBottomBar = true,
@@ -777,7 +777,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             modifier =
                 SubspaceModifier.width(600.dp)
                     .height(600.dp)
-                    .transformingMovable()
+                    .movable()
                     .spatializedAudioOutput(audioOutput)
         ) {
             AndroidExternalSurface {
@@ -938,7 +938,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
                     .spatializedAudioOutput(audioOutput)
-                    .transformingMovable()
+                    .movable()
                     .transformingResizable(),
             interactionPolicy =
                 InteractionPolicy.clickable {
