@@ -52,6 +52,7 @@ class SemanticsModifierTest {
         }
 
         composeTestRule.onSubspaceNode(hasContentDescription("Standard Description")).assertExists()
+        composeTestRule.onSubspaceNode(hasContentDescription("Standard")).assertExists()
     }
 
     // TODO(b/518020831): Remove deprecated semantics modifier.
