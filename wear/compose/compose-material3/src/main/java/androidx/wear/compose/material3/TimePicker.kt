@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -297,11 +298,11 @@ public fun TimePicker(
                         TimePickerSelection.Second -> secondString
                         TimePickerSelection.None ->
                             if (touchExplorationServicesEnabled) instructionHeadingString else ""
-                        else -> ""
+                        else -> null
                     }
 
                 FadeLabel(
-                    text = heading,
+                    text = heading ?: "",
                     animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
                     modifier =
                         Modifier.height(headingHeight)
@@ -311,7 +312,13 @@ public fun TimePicker(
                             )
                             .fillMaxWidth()
                             .align(Alignment.CenterHorizontally)
-                            .semantics(mergeDescendants = true) { heading() },
+                            .then(
+                                if (heading != null) {
+                                    Modifier.semantics(mergeDescendants = true) { heading() }
+                                } else {
+                                    Modifier.drawWithContent {}.clearAndSetSemantics {}
+                                }
+                            ),
                     color = colors.pickerLabelColor,
                     style = layoutConfig.labelTextStyle,
                     maxLines = maxTextLines,

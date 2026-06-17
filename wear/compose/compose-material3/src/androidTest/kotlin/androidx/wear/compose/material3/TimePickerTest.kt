@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsDisplayed
@@ -783,6 +785,37 @@ class TimePickerTest {
         }
 
         rule.confirmButton().assertIsFocused()
+    }
+
+    @Test
+    fun timePicker_period_selected_clears_semantics() {
+        val initialTime = LocalTime.of(10, 23) // AM
+        val locale = Locale.getDefault()
+        val amString = DateTimeFormatter.ofPattern("a", locale).format(LocalTime.of(0, 0))
+
+        rule.setContentWithTheme {
+            TimePicker(
+                onTimePicked = {},
+                initialTime = initialTime,
+                timePickerType = TimePickerType.HoursMinutesAmPm12H,
+            )
+        }
+
+        // Verify hour heading exists initially
+        val resources = InstrumentationRegistry.getInstrumentation().context.resources
+        val hourHeadingString = resources.getString(Strings.TimePickerHour.value)
+        rule.onNodeWithText(hourHeadingString).assertExists()
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).assertExists()
+
+        // Click on AM/PM picker (which is AM) to select it
+        rule.onNodeWithContentDescription(amString).performClick()
+        rule.waitForIdle()
+
+        // Verify hour heading no longer exists
+        rule.onNodeWithText(hourHeadingString).assertDoesNotExist()
+
+        // Verify no heading exists
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).assertDoesNotExist()
     }
 
     private fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
