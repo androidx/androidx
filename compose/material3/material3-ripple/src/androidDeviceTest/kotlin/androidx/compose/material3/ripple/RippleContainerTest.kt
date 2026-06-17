@@ -171,15 +171,18 @@ class RippleContainerTest {
         override fun create(interactionSource: InteractionSource): DelegatableNode {
             return createRippleModifierNode(
                 interactionSource = interactionSource,
-                bounded = true,
-                radius = Dp.Unspecified,
-                color = { Color.Red },
-                rippleNodeConfig = {
-                    RippleNodeConfig(
-                        press = RippleNodeConfig.Press.Opacity(0.2f),
-                        focus = RippleNodeConfig.Focus.Opacity(0.2f),
-                        hover = RippleNodeConfig.Hover.Opacity(0.2f),
-                        drag = RippleNodeConfig.Drag.Opacity(0.2f),
+                rippleNodeConfiguration = {
+                    RippleNodeConfiguration(
+                        isBounded = true,
+                        radius = Dp.Unspecified,
+                        color = { Color.Red },
+                        pressConfiguration =
+                            RippleNodeConfiguration.PressConfiguration.Opacity(0.2f),
+                        focusConfiguration =
+                            RippleNodeConfiguration.FocusConfiguration.Opacity(0.2f),
+                        hoverConfiguration =
+                            RippleNodeConfiguration.HoverConfiguration.Opacity(0.2f),
+                        dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.2f),
                     )
                 },
             )

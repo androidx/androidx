@@ -21,32 +21,28 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.unit.Dp
@@ -59,18 +55,19 @@ import kotlinx.coroutines.launch
 /**
  * Creates a Ripple node using the values provided.
  *
- * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s by
- * drawing ripple animations and state layers.
+ * A Ripple is a Material 3 node that expresses different [Interaction]s by drawing ripple
+ * animations, and state layers, and other graphical effects.
  *
  * A Ripple responds to [PressInteraction.Press] by starting a new [RippleAnimation], and responds
  * to other [Interaction]s by showing a fixed state layer with varying alpha values depending on the
- * [Interaction].
+ * [Interaction], or an inset ring for [FocusInteraction], depending on the supplied
+ * [RippleNodeConfiguration].
  *
  * This Ripple node is a low level building block for building IndicationNodeFactory implementations
- * that use a Ripple - higher level design system libraries such as material and material3 provide
- * [Indication] implementations using this node internally. In most cases you should use those
- * factories directly: this node exists for design system libraries to delegate their Ripple
- * implementation to, after querying any required theme values for customizing the Ripple.
+ * that use a Ripple - higher level design system libraries such as material3 provide ripple
+ * implementations using this node internally. In most cases you should use those factories
+ * directly: this node exists for design system libraries to delegate their Ripple implementation
+ * to, after querying any required theme values for customizing the Ripple.
  *
  * NOTE: when using this factory with [DelegatingNode.delegate], ensure that the node is created
  * once or [DelegatingNode.undelegate] is called in [Modifier.Node.onDetach]. Repeatedly delegating
@@ -78,24 +75,15 @@ import kotlinx.coroutines.launch
  * will result in multiple ripple nodes being attached to the node.
  *
  * @param interactionSource the [InteractionSource] used to determine the state of the ripple.
- * @param bounded if true, ripples are clipped by the bounds of the target layout. Unbounded ripples
- *   always animate from the target layout center, bounded ripples animate from the touch position.
- * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
- *   calculated based on the target layout size.
- * @param color the color of the ripple. This color is usually the same color used by the text or
- *   iconography in the component. This color will then have [rippleNodeConfig] applied to calculate
- *   the final color used to draw the ripple.
- * @param rippleNodeConfig the [RippleNodeConfig] that will be applied to the [color] depending on
- *   the state of the ripple.
+ * @param rippleNodeConfiguration the [RippleNodeConfiguration] that will be applied to the ripple
+ *   depending on the state of the ripple. This lambda may be invoked repeatedly, so consider
+ *   caching values of configuration when they haven't changed.
  */
-internal fun createRippleModifierNode(
+public fun createRippleModifierNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleNodeConfig: () -> RippleNodeConfig,
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
 ): DelegatableNode {
-    return RippleModifierNode(interactionSource, bounded, radius, color, rippleNodeConfig)
+    return RippleModifierNode(interactionSource, rippleNodeConfiguration)
 }
 
 /**
@@ -103,25 +91,17 @@ internal fun createRippleModifierNode(
  */
 internal class RippleModifierNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleNodeConfig: () -> RippleNodeConfig,
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
 ) : DelegatingNode() {
     init {
-        delegate(
-            createPlatformRippleNode(interactionSource, bounded, radius, color, rippleNodeConfig)
-        )
+        delegate(createPlatformRippleNode(interactionSource, rippleNodeConfiguration))
     }
 }
 
 /** Creates the platform specific [RippleNode] implementation. */
 internal expect fun createPlatformRippleNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleNodeConfig: () -> RippleNodeConfig,
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
 ): DelegatableNode
 
 /**
@@ -131,27 +111,21 @@ internal expect fun createPlatformRippleNode(
  */
 internal abstract class RippleNode(
     private val interactionSource: InteractionSource,
-    protected val bounded: Boolean,
-    private val radius: Dp,
-    private val color: ColorProducer,
-    protected val rippleNodeConfig: () -> RippleNodeConfig,
-) :
-    Modifier.Node(),
-    CompositionLocalConsumerModifierNode,
-    DrawModifierNode,
-    LayoutAwareModifierNode {
+    /**
+     * The producer of a [RippleNodeConfiguration]. Inside this node, use
+     * [resolveRippleNodeConfiguration] instead to cache the value.
+     */
+    private val rippleNodeConfiguration: () -> RippleNodeConfiguration,
+) : Modifier.Node(), ObserverModifierNode, DrawModifierNode, LayoutAwareModifierNode {
     final override val shouldAutoInvalidate: Boolean = false
 
-    // The following are calculated inside onRemeasured(). These must be initialized before adding
-    // a ripple.
+    // The following are calculated inside updateTargetRadius(). These must be initialized before
+    // adding a ripple.
 
     protected var targetRadius: Float = 0f
     // The size is needed for Android to update ripple bounds if the size changes
     protected var rippleSize: Size = Size.Zero
         private set
-
-    val rippleColor: Color
-        get() = color()
 
     // Track interactions that were emitted before we have been placed - we need to wait until we
     // have a valid size in order to set the radius and size correctly.
@@ -160,40 +134,108 @@ internal abstract class RippleNode(
 
     private val animatedAlpha = Animatable(0f)
 
-    private val interactions: MutableList<Interaction> = mutableListOf()
-    private var currentInteraction: Interaction? = null
-
     private val animatedFocusRingInterpolation = Animatable(0f)
-
-    private var isFocused by mutableStateOf(false)
 
     private var focusedBorderLogic: BorderLogicLayerDelegate? = null
 
+    private var _rippleNodeConfiguration: RippleNodeConfiguration? = null
+
+    /**
+     * Resolves and caches the ripple node configuration.
+     *
+     * @return the up-to-date [RippleNodeConfiguration].
+     */
+    protected fun resolveRippleNodeConfiguration(): RippleNodeConfiguration =
+        getRippleNodeConfiguration(forceConfigurationRefresh = false)
+
+    private fun getRippleNodeConfiguration(
+        forceConfigurationRefresh: Boolean = false
+    ): RippleNodeConfiguration {
+        // Retrieve the currently set ripple node configuration (if any)
+        val currentConfiguration = _rippleNodeConfiguration
+        lateinit var resolvedConfiguration: RippleNodeConfiguration
+
+        val refreshRippleNodeConfiguration =
+            forceConfigurationRefresh || currentConfiguration == null
+        val rippleNodeConfigurationChanged: Boolean
+
+        if (refreshRippleNodeConfiguration) {
+            // In practice, this branch will only be reached from `onObservedReadsChanged` or
+            // `onAttach`. This avoids running the rippleNodeConfiguration() from an observable
+            // scope like draw
+            observeReads { resolvedConfiguration = rippleNodeConfiguration() }
+            rippleNodeConfigurationChanged = resolvedConfiguration != currentConfiguration
+        } else {
+            resolvedConfiguration = currentConfiguration
+            rippleNodeConfigurationChanged = false
+        }
+        _rippleNodeConfiguration = resolvedConfiguration
+
+        if (rippleNodeConfigurationChanged) {
+            updateTargetRadius(resolvedConfiguration)
+            invalidateDraw()
+        }
+
+        return resolvedConfiguration
+    }
+
+    /**
+     * Updates the target radius using the given [configuration].
+     *
+     * @return true if the target radius changed
+     */
+    private fun updateTargetRadius(configuration: RippleNodeConfiguration): Boolean {
+        if (hasValidSize) {
+            val newTargetRadius =
+                with(requireDensity()) {
+                    if (configuration.radius.isUnspecified) {
+                        // Explicitly calculate the radius instead of using
+                        // RippleDrawable.RADIUS_AUTO on Android since the latest spec does not
+                        // match with the existing radius calculation in the framework.
+                        getRippleEndRadius(configuration.isBounded, rippleSize)
+                    } else {
+                        configuration.radius.toPx()
+                    }
+                }
+            val targetRadiusChanged = targetRadius != newTargetRadius
+            if (targetRadiusChanged) {
+                targetRadius = newTargetRadius
+            }
+            return targetRadiusChanged
+        } else {
+            return false
+        }
+    }
+
+    override fun onObservedReadsChanged() {
+        getRippleNodeConfiguration(forceConfigurationRefresh = true)
+    }
+
     override fun onRemeasured(size: IntSize) {
         hasValidSize = true
-        val density = requireDensity()
         rippleSize = size.toSize()
-        targetRadius =
-            with(density) {
-                if (radius.isUnspecified) {
-                    // Explicitly calculate the radius instead of using RippleDrawable.RADIUS_AUTO
-                    // on
-                    // Android since the latest spec does not match with the existing radius
-                    // calculation
-                    // in the framework.
-                    getRippleEndRadius(bounded, rippleSize)
-                } else {
-                    radius.toPx()
-                }
-            }
+        // Force a target radius refresh, to calculate a new target radius
+        if (updateTargetRadius(resolveRippleNodeConfiguration())) {
+            invalidateDraw()
+        }
         // Flush any pending interactions that were waiting for measurement
         pendingInteractions.forEach { handlePressInteraction(it) }
         pendingInteractions.clear()
     }
 
     override fun onAttach() {
+        // Resolve the ripple node configuration immediately, to observe reads from an otherwise
+        // non-observable function
+        resolveRippleNodeConfiguration()
+
         coroutineScope.launch {
+            val interactions: MutableList<Interaction> = mutableListOf()
+            var currentInteraction: Interaction? = null
+
+            var isFocused = false
+
             interactionSource.interactions.collect { interaction ->
+                val wasFocused = isFocused
                 if (interaction is PressInteraction) {
                     if (hasValidSize) {
                         handlePressInteraction(interaction)
@@ -202,8 +244,6 @@ internal abstract class RippleNode(
                         pendingInteractions += interaction
                     }
                 }
-
-                val wasFocused = isFocused
 
                 when (interaction) {
                     is HoverInteraction.Enter -> {
@@ -237,29 +277,33 @@ internal abstract class RippleNode(
                 // The most recent interaction is the one we want to show
                 val newInteraction = interactions.lastOrNull()
 
-                val rippleNodeConfig = rippleNodeConfig()
+                val config = resolveRippleNodeConfiguration()
                 if (currentInteraction != newInteraction) {
                     if (newInteraction != null) {
                         val targetAlpha =
                             when (newInteraction) {
                                 is HoverInteraction.Enter -> {
-                                    when (rippleNodeConfig.hover) {
-                                        is RippleNodeConfig.Hover.Opacity ->
-                                            rippleNodeConfig.hover.alpha
+                                    when (config.hoverConfiguration) {
+                                        is RippleNodeConfiguration.HoverConfiguration.Opacity ->
+                                            config.hoverConfiguration.alpha
+                                        is RippleNodeConfiguration.HoverConfiguration.None -> 0f
                                         else -> 0f
                                     }
                                 }
                                 is FocusInteraction.Focus -> {
-                                    when (rippleNodeConfig.focus) {
-                                        is RippleNodeConfig.Focus.Opacity ->
-                                            rippleNodeConfig.focus.alpha
+                                    when (config.focusConfiguration) {
+                                        is RippleNodeConfiguration.FocusConfiguration.Opacity ->
+                                            config.focusConfiguration.alpha
+                                        is RippleNodeConfiguration.FocusConfiguration.InsetRing,
+                                        is RippleNodeConfiguration.FocusConfiguration.None -> 0f
                                         else -> 0f
                                     }
                                 }
                                 is DragInteraction.Start -> {
-                                    when (rippleNodeConfig.drag) {
-                                        is RippleNodeConfig.Drag.Opacity ->
-                                            rippleNodeConfig.drag.alpha
+                                    when (config.dragConfiguration) {
+                                        is RippleNodeConfiguration.DragConfiguration.Opacity ->
+                                            config.dragConfiguration.alpha
+                                        is RippleNodeConfiguration.DragConfiguration.None -> 0f
                                         else -> 0f
                                     }
                                 }
@@ -276,25 +320,27 @@ internal abstract class RippleNode(
                         launch { animatedAlpha.animateTo(0f, outgoingAnimationSpec) }
                     }
 
-                    when (rippleNodeConfig.focus) {
-                        is RippleNodeConfig.Focus.InsetRing -> {
-                            // Only launch the focus ring animation if the state changed
-                            if (wasFocused != isFocused) {
-                                val isFocusing = newInteraction is FocusInteraction.Focus
-                                launch {
-                                    animatedFocusRingInterpolation.animateTo(
-                                        if (isFocusing) 1f else 0f,
-                                        if (isFocusing) {
-                                            rippleNodeConfig.focus.focusingAnimationSpec
-                                        } else {
-                                            rippleNodeConfig.focus.unfocusingAnimationSpec
-                                        },
-                                    )
+                    if (interaction is FocusInteraction) {
+                        when (config.focusConfiguration) {
+                            is RippleNodeConfiguration.FocusConfiguration.InsetRing -> {
+                                // Only launch the focus ring animation if the state changed
+                                if (wasFocused != isFocused) {
+                                    val targetValue = if (isFocused) 1f else 0f
+                                    launch {
+                                        animatedFocusRingInterpolation.animateTo(
+                                            targetValue,
+                                            if (isFocused) {
+                                                config.focusConfiguration.focusingAnimationSpec
+                                            } else {
+                                                config.focusConfiguration.unfocusingAnimationSpec
+                                            },
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        else -> {
-                            launch { animatedFocusRingInterpolation.snapTo(0f) }
+                            else -> {
+                                launch { animatedFocusRingInterpolation.snapTo(0f) }
+                            }
                         }
                     }
 
@@ -306,6 +352,12 @@ internal abstract class RippleNode(
 
     override fun onDetach() {
         focusedBorderLogic?.release()
+        focusedBorderLogic = null
+        _rippleNodeConfiguration = null
+        hasValidSize = false
+        rippleSize = Size.Zero
+        targetRadius = 0f
+        pendingInteractions.clear()
     }
 
     private fun handlePressInteraction(pressInteraction: PressInteraction) {
@@ -326,9 +378,10 @@ internal abstract class RippleNode(
         val alpha = animatedAlpha.value
 
         if (alpha > 0f) {
-            val modulatedColor = color().copy(alpha = alpha)
+            val config = resolveRippleNodeConfiguration()
+            val modulatedColor = config.color().copy(alpha = alpha)
 
-            if (bounded) {
+            if (config.isBounded) {
                 clipRect { drawCircle(modulatedColor, targetRadius) }
             } else {
                 drawCircle(modulatedColor, targetRadius)
@@ -337,7 +390,10 @@ internal abstract class RippleNode(
 
         if (animatedFocusRingInterpolation.value > 0f) {
             focusedBorderLogic = focusedBorderLogic ?: BorderLogicLayerDelegate()
-            val insetRing = rippleNodeConfig().focus as? RippleNodeConfig.Focus.InsetRing ?: return
+            val config = resolveRippleNodeConfiguration()
+            val insetRing =
+                config.focusConfiguration as? RippleNodeConfiguration.FocusConfiguration.InsetRing
+                    ?: return
 
             val outline =
                 insetRing.shape.createOutline(

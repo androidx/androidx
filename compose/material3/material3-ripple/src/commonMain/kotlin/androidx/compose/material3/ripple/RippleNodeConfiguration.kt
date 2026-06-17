@@ -16,7 +16,9 @@
 
 package androidx.compose.material3.ripple
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
@@ -24,72 +26,96 @@ import androidx.compose.ui.unit.Dp
 /**
  * The configuration for the ripple node created by [createRippleModifierNode].
  *
- * @param press the configuration for the press indication.
- * @param focus the configuration for the focus indication.
- * @param hover the configuration for the hover indication.
- * @param drag the configuration for the drag indication.
+ * @param isBounded if true, ripples are clipped by the bounds of the target layout. Unbounded
+ *   ripples always animate from the target layout center, bounded ripples animate from the touch
+ *   position.
+ * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
+ *   calculated based on the target layout size.
+ * @param color the main color of the ripple. This color is usually the same color used by the text
+ *   or iconography in the component. This color will then have the various interaction type
+ *   configurations applied to calculate the final color used to draw the ripple.
+ * @param pressConfiguration the configuration for the visual representation of a press.
+ * @param focusConfiguration the configuration for the visual representation of focus.
+ * @param hoverConfiguration the configuration for the visual representation of hover.
+ * @param dragConfiguration the configuration for the visual representation of drag.
  */
-internal class RippleNodeConfig(
-    public val press: Press,
-    public val focus: Focus,
-    public val hover: Hover,
-    public val drag: Drag,
+@Immutable
+public class RippleNodeConfiguration(
+    public val isBounded: Boolean,
+    public val radius: Dp,
+    public val color: ColorProducer,
+    public val pressConfiguration: PressConfiguration,
+    public val focusConfiguration: FocusConfiguration,
+    public val hoverConfiguration: HoverConfiguration,
+    public val dragConfiguration: DragConfiguration,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is RippleNodeConfig) return false
+        if (other !is RippleNodeConfiguration) return false
 
-        if (press != other.press) return false
-        if (focus != other.focus) return false
-        if (hover != other.hover) return false
-        if (drag != other.drag) return false
+        if (isBounded != other.isBounded) return false
+        if (radius != other.radius) return false
+        if (color != other.color) return false
+        if (pressConfiguration != other.pressConfiguration) return false
+        if (focusConfiguration != other.focusConfiguration) return false
+        if (hoverConfiguration != other.hoverConfiguration) return false
+        if (dragConfiguration != other.dragConfiguration) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = press.hashCode()
-        result = 31 * result + focus.hashCode()
-        result = 31 * result + hover.hashCode()
-        result = 31 * result + drag.hashCode()
+        var result = isBounded.hashCode()
+        result = 31 * result + radius.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + pressConfiguration.hashCode()
+        result = 31 * result + focusConfiguration.hashCode()
+        result = 31 * result + hoverConfiguration.hashCode()
+        result = 31 * result + dragConfiguration.hashCode()
         return result
     }
 
-    /** The possible configurations for the press indication. */
-    internal abstract class Press private constructor() {
-        /** No press indication - the created ripple will not show anything for press. */
-        internal object None : Press()
+    /** Represents the configuration for the visual representation of a press */
+    public sealed interface PressConfiguration {
+        /** No press visual - the created ripple will not show anything for press. */
+        public object None : PressConfiguration
 
         /**
-         * An opacity-based press indication - the created ripple will show a layer with the given
+         * An opacity-based press visual - the created ripple will show a layer with the given
          * [alpha] on a press.
-         */
-        internal class Opacity(val alpha: Float) : Press() {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other !is Opacity) return false
-
-                if (alpha != other.alpha) return false
-                return true
-            }
-
-            override fun hashCode(): Int {
-                return alpha.hashCode()
-            }
-        }
-    }
-
-    /** The possible configurations for the focus indication. */
-    internal abstract class Focus private constructor() {
-        /** No focus indication - the created ripple will not show anything for press. */
-        internal object None : Focus()
-
-        /**
-         * An opacity-based focus indication.
          *
          * @param alpha the alpha to apply to the layer.
          */
-        internal class Opacity(val alpha: Float) : Focus() {
+        public class Opacity(@param:FloatRange(0.0, 1.0) public val alpha: Float) :
+            PressConfiguration {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is Opacity) return false
+
+                if (alpha != other.alpha) return false
+                return true
+            }
+
+            override fun hashCode(): Int {
+                return alpha.hashCode()
+            }
+        }
+
+        private object NonExhaustive : PressConfiguration
+    }
+
+    /** Represents the configuration for the visual representation of focus */
+    public sealed interface FocusConfiguration {
+        /** No focus visual - the created ripple will not show anything for focus. */
+        public object None : FocusConfiguration
+
+        /**
+         * An opacity-based focus visual.
+         *
+         * @param alpha the alpha to apply to the layer.
+         */
+        public class Opacity(@param:FloatRange(0.0, 1.0) public val alpha: Float) :
+            FocusConfiguration {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is Opacity) return false
@@ -104,7 +130,7 @@ internal class RippleNodeConfig(
         }
 
         /**
-         * An inset ring focus indication - the created ripple will show an inset focus ring.
+         * An inset ring focus visual - the created ripple will show an inset focus ring.
          *
          * @param shape the shape of the focus ring.
          * @param outerStrokeInset the inset from the edge of the shape's outline to the outer edge
@@ -118,17 +144,17 @@ internal class RippleNodeConfig(
          * @param focusingAnimationSpec the animation spec used when gaining focus.
          * @param unfocusingAnimationSpec the animation spec used when losing focus.
          */
-        internal class InsetRing(
-            val shape: Shape,
-            val outerStrokeInset: Dp,
-            val outerStrokeWidth: Dp,
-            val outerStrokeColor: ColorProducer,
-            val innerStrokeInset: Dp,
-            val innerStrokeWidth: Dp,
-            val innerStrokeColor: ColorProducer,
-            val focusingAnimationSpec: FiniteAnimationSpec<Float>,
-            val unfocusingAnimationSpec: FiniteAnimationSpec<Float>,
-        ) : Focus() {
+        public class InsetRing(
+            public val shape: Shape,
+            public val outerStrokeInset: Dp,
+            public val outerStrokeWidth: Dp,
+            public val outerStrokeColor: ColorProducer,
+            public val innerStrokeInset: Dp,
+            public val innerStrokeWidth: Dp,
+            public val innerStrokeColor: ColorProducer,
+            public val focusingAnimationSpec: FiniteAnimationSpec<Float>,
+            public val unfocusingAnimationSpec: FiniteAnimationSpec<Float>,
+        ) : FocusConfiguration {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is InsetRing) return false
@@ -159,19 +185,22 @@ internal class RippleNodeConfig(
                 return result
             }
         }
+
+        private object NonExhaustive : FocusConfiguration
     }
 
-    /** The possible configurations for the hover indication. */
-    internal abstract class Hover private constructor() {
-        /** No hover indication - the created ripple will not show anything for hover. */
-        internal object None : Hover()
+    /** Represents the configuration for the visual representation of hover */
+    public sealed interface HoverConfiguration {
+        /** No hover visual - the created ripple will not show anything for hover. */
+        public object None : HoverConfiguration
 
         /**
-         * An opacity-based hover indication.
+         * An opacity-based hover visual.
          *
          * @param alpha the alpha to apply to the layer.
          */
-        internal class Opacity(val alpha: Float) : Hover() {
+        public class Opacity(@param:FloatRange(0.0, 1.0) public val alpha: Float) :
+            HoverConfiguration {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is Opacity) return false
@@ -184,19 +213,22 @@ internal class RippleNodeConfig(
                 return alpha.hashCode()
             }
         }
+
+        private object NonExhaustive : HoverConfiguration
     }
 
-    /** The possible configurations for the drag indication. */
-    internal abstract class Drag private constructor() {
-        /** No hover indication - the created ripple will not show anything for hover. */
-        internal object None : Drag()
+    /** Represents the configuration for the visual representation of drag */
+    public sealed interface DragConfiguration {
+        /** No drag visual - the created ripple will not show anything for drag. */
+        public object None : DragConfiguration
 
         /**
-         * An opacity-based drag indication.
+         * An opacity-based drag visual.
          *
          * @param alpha the alpha to apply to the layer.
          */
-        internal class Opacity(val alpha: Float) : Drag() {
+        public class Opacity(@param:FloatRange(0.0, 1.0) public val alpha: Float) :
+            DragConfiguration {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is Opacity) return false
@@ -209,5 +241,7 @@ internal class RippleNodeConfig(
                 return alpha.hashCode()
             }
         }
+
+        private object NonExhaustive : DragConfiguration
     }
 }

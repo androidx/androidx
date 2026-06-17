@@ -20,27 +20,23 @@ import androidx.collection.MutableScatterMap
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.node.invalidateDraw
-import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.launch
 
 internal class CommonRippleNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleIndicationConfig: () -> RippleNodeConfig,
-) : RippleNode(interactionSource, bounded, radius, color, rippleIndicationConfig) {
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
+) : RippleNode(interactionSource, rippleNodeConfiguration) {
     private val ripples = MutableScatterMap<PressInteraction.Press, RippleAnimation>()
 
     override fun addRipple(interaction: PressInteraction.Press, size: Size, targetRadius: Float) {
         // Finish existing ripples
         ripples.forEach { _, ripple -> ripple.finish() }
-        val origin = if (bounded) interaction.pressPosition else null
+        val config = resolveRippleNodeConfiguration()
+        val origin = if (config.isBounded) interaction.pressPosition else null
         val rippleAnimation =
-            RippleAnimation(origin = origin, radius = targetRadius, bounded = bounded)
+            RippleAnimation(origin = origin, radius = targetRadius, bounded = config.isBounded)
         ripples[interaction] = rippleAnimation
         coroutineScope.launch {
             try {
@@ -58,17 +54,22 @@ internal class CommonRippleNode(
     }
 
     override fun DrawScope.drawRipples() {
+        val config = resolveRippleNodeConfiguration()
         val alpha =
-            when (val pressConfig = rippleNodeConfig().press) {
-                is RippleNodeConfig.Press.Opacity -> pressConfig.alpha
+            when (val pressConfig = config.pressConfiguration) {
+                is RippleNodeConfiguration.PressConfiguration.Opacity -> pressConfig.alpha
+                is RippleNodeConfiguration.PressConfiguration.None -> 0f
                 else -> 0f
             }
         if (alpha != 0f) {
-            ripples.forEach { _, ripple -> with(ripple) { draw(rippleColor.copy(alpha = alpha)) } }
+            ripples.forEach { _, ripple ->
+                with(ripple) { draw(config.color().copy(alpha = alpha)) }
+            }
         }
     }
 
     override fun onDetach() {
         ripples.clear()
+        super.onDetach()
     }
 }

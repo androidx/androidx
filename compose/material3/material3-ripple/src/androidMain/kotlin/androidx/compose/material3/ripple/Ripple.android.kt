@@ -22,15 +22,14 @@ import android.view.ViewGroup
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Dp
 import kotlin.math.roundToInt
 
 /**
@@ -43,11 +42,8 @@ import kotlin.math.roundToInt
  */
 internal actual fun createPlatformRippleNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleNodeConfig: () -> RippleNodeConfig,
-): DelegatableNode = AndroidRippleNode(interactionSource, bounded, radius, color, rippleNodeConfig)
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
+): DelegatableNode = AndroidRippleNode(interactionSource, rippleNodeConfiguration)
 
 /**
  * Android specific [RippleNode]. This uses a [RippleHostView] provided by [rippleContainer] to draw
@@ -55,11 +51,11 @@ internal actual fun createPlatformRippleNode(
  */
 internal class AndroidRippleNode(
     interactionSource: InteractionSource,
-    bounded: Boolean,
-    radius: Dp,
-    color: ColorProducer,
-    rippleNodeConfig: () -> RippleNodeConfig,
-) : RippleNode(interactionSource, bounded, radius, color, rippleNodeConfig), RippleHostKey {
+    rippleNodeConfiguration: () -> RippleNodeConfiguration,
+) :
+    RippleNode(interactionSource, rippleNodeConfiguration),
+    CompositionLocalConsumerModifierNode,
+    RippleHostKey {
     /**
      * [RippleContainer] attached to the nearest [ViewGroup]. If it hasn't already been created by a
      * another ripple, we will create it and attach it to the hierarchy.
@@ -76,6 +72,8 @@ internal class AndroidRippleNode(
     override fun DrawScope.drawRipples() {
         drawIntoCanvas { canvas ->
             rippleHostView?.run {
+                val config = resolveRippleNodeConfiguration()
+
                 // We set these inside addRipple() already, but they may change during the ripple
                 // animation, so update them here too.
                 // Note that changes to color / alpha will not be reflected in any
@@ -95,15 +93,17 @@ internal class AndroidRippleNode(
                 // Note that for this to work the radius _must_ be set before we update bounds, as
                 // changing the radius on its own won't do anything.
                 val alpha =
-                    when (val pressIndicationConfig = rippleNodeConfig().press) {
-                        is RippleNodeConfig.Press.Opacity -> pressIndicationConfig.alpha
+                    when (val pressIndicationConfig = config.pressConfiguration) {
+                        is RippleNodeConfiguration.PressConfiguration.Opacity ->
+                            pressIndicationConfig.alpha
+                        is RippleNodeConfiguration.PressConfiguration.None -> 0f
                         else -> 0f
                     }
 
                 setRippleProperties(
                     size = rippleSize,
                     radius = targetRadius.roundToInt(),
-                    color = rippleColor,
+                    color = config.color(),
                     alpha = alpha,
                 )
 
@@ -116,17 +116,21 @@ internal class AndroidRippleNode(
         rippleHostView =
             with(getOrCreateRippleContainer()) {
                 getRippleHostView().apply {
+                    val config = resolveRippleNodeConfiguration()
+
                     val alpha =
-                        when (val pressIndicationConfig = rippleNodeConfig().press) {
-                            is RippleNodeConfig.Press.Opacity -> pressIndicationConfig.alpha
+                        when (val pressIndicationConfig = config.pressConfiguration) {
+                            is RippleNodeConfiguration.PressConfiguration.Opacity ->
+                                pressIndicationConfig.alpha
+                            is RippleNodeConfiguration.PressConfiguration.None -> 0f
                             else -> 0f
                         }
                     addRipple(
                         interaction = interaction,
-                        bounded = bounded,
+                        bounded = config.isBounded,
                         size = size,
                         radius = targetRadius.roundToInt(),
-                        color = rippleColor,
+                        color = config.color(),
                         alpha = alpha,
                         onInvalidateRipple = { invalidateDraw() },
                     )
@@ -140,6 +144,7 @@ internal class AndroidRippleNode(
 
     override fun onDetach() {
         rippleContainer?.run { disposeRippleIfNeeded() }
+        super.onDetach()
     }
 
     override fun onResetRippleHostView() {
