@@ -86,12 +86,17 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
 @Target(AnnotationTarget.CLASS)
 public annotation class AppFunctionSignature(
     /**
-     * Specifies the lifecycle scope of this app function. See
-     * [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_GLOBAL] and
-     * [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY] for details on how scope
-     * affects registration and execution.
+     * The scope of the app function.
+     *
+     * The scope determines the function's lifecycle and uniqueness rules. Depending on the scope,
+     * there could be at most one or multiple functions registered in the system with the same
+     * [androidx.appfunctions.metadata.AppFunctionName].
+     *
+     * Possible values:
+     * - [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_GLOBAL]
+     * - [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY]
      */
-    @AppFunctionScope public val scope: String,
+    @AppFunctionScope public val scope: Int,
 
     /**
      * The name of the XML resource file containing the app function metadata definition represented

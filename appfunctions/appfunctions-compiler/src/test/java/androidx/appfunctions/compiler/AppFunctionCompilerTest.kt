@@ -191,22 +191,7 @@ class AppFunctionCompilerTest {
 
         compilationTestHelper.assertErrorWithMessage(
             report,
-            expectedErrorMessage =
-                "Invalid scope: \"invalid_scope\". Supported scopes are \"global\" and \"activity\".",
-        )
-    }
-
-    @Test
-    fun testAppFunctionSignature_wrongCaseScope_hasCompileError() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames = listOf("signatures/invalid/WrongCaseScopeSignature.KT")
-            )
-
-        compilationTestHelper.assertErrorWithMessage(
-            report,
-            expectedErrorMessage =
-                "Invalid scope: \"Global\". Supported scopes are \"global\" and \"activity\".",
+            expectedErrorMessage = "Invalid scope: \"100\". Supported scopes are \"0\" and \"1\".",
         )
     }
 

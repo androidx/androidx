@@ -78,16 +78,18 @@ data class AnnotatedAppFunctionSignature(
         val declaredScope =
             appFunctionSignatureAnnotation.requirePropertyValueOfType(
                 IntrospectionHelper.AppFunctionSignatureAnnotation.PROPERTY_SCOPE,
-                String::class,
+                Int::class,
             )
 
-        if (declaredScope !in SUPPORTED_SCOPES) {
-            throw ProcessingException(
-                "Invalid scope: \"$declaredScope\". Supported scopes are \"${AppFunctionMetadataClass.SCOPE_GLOBAL}\" and \"${AppFunctionMetadataClass.SCOPE_ACTIVITY}\".",
-                classDeclaration,
-            )
+        when (declaredScope) {
+            AppFunctionMetadataClass.SCOPE_GLOBAL -> "global"
+            AppFunctionMetadataClass.SCOPE_ACTIVITY -> "activity"
+            else ->
+                throw ProcessingException(
+                    "Invalid scope: \"$declaredScope\". Supported scopes are \"${AppFunctionMetadataClass.SCOPE_GLOBAL}\" and \"${AppFunctionMetadataClass.SCOPE_ACTIVITY}\".",
+                    classDeclaration,
+                )
         }
-        declaredScope
     }
 
     /** Whether the app function is described by KDoc. */
@@ -245,10 +247,5 @@ data class AnnotatedAppFunctionSignature(
         } else {
             ""
         }
-    }
-
-    companion object {
-        private val SUPPORTED_SCOPES =
-            setOf(AppFunctionMetadataClass.SCOPE_GLOBAL, AppFunctionMetadataClass.SCOPE_ACTIVITY)
     }
 }
