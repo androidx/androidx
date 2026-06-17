@@ -111,18 +111,14 @@ public class ProcessGlobalConfig {
      * This is a compatibility method for
      * {@link android.webkit.WebView#setDataDirectorySuffix(String)}
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
-     * {@link WebViewFeature#STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX}.
-     *
      * @param context a Context to access application assets This value cannot be null.
      * @param suffix The directory name suffix to be used for the current
      *               process. Must not contain a path separator and should not be empty.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if the
-     *                              {@link WebViewFeature#STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isStartupFeatureSupported}.
      * @throws IllegalArgumentException if the suffix contains a path separator or is empty.
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
@@ -171,18 +167,14 @@ public class ProcessGlobalConfig {
      * initialization, along with any missing parent directories. In such a case, the directory
      * in which WebView creates missing directories must be readable and writable by the
      * current process.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
-     * {@link WebViewFeature#STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS}.
      *
      * @param context a Context to access application assets. This value cannot be null.
      * @param dataDirectoryBasePath the absolute base path for the WebView data directory.
      * @param cacheDirectoryBasePath the absolute base path for the WebView cache directory.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if the
-     *                               {@link WebViewFeature#STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isStartupFeatureSupported}.
      * @throws IllegalArgumentException if the paths supplied do not have the right permissions
      * @deprecated Deprecated due to the lack of usage and the added maintenance complexity. In
      *     order to support more than one process running WebView,
@@ -224,17 +216,13 @@ public class ProcessGlobalConfig {
      * <p>
      * This is enabled for WebView M114 and above.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
-     * {@link WebViewFeature#STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES}.
-     *
      * @param context a Context to access application assets. This value cannot be null.
      * @param isEnabled whether partitioned cookies should be enabled.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if the
-     *                          {@link WebViewFeature#STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isStartupFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES,
             enforcement =
@@ -345,17 +333,14 @@ public class ProcessGlobalConfig {
      * {@code UI_THREAD_STARTUP_MODE_*}. Note that is API does not support
      * {@code UI_THREAD_STARTUP_MODE_ASYNC_WITHOUT_MULTI_PROCESS_STARTUP}
      * startup mode.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
-     * {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE}.
      *
      * @param context a Context to access application assets. This value cannot be null.
      * @param startupMode the mode to run WebView's UI thread initialization in.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if the
-     *                             {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isStartupFeatureSupported}.
      * @deprecated Use {@link #setUiThreadStartupModeV2(Context, int)} instead.
      */
     @ExperimentalAsyncStartUp
@@ -381,17 +366,14 @@ public class ProcessGlobalConfig {
     /**
      * Configures how WebView's UI thread initialization should be run. See the different modes in
      * {@code UI_THREAD_STARTUP_MODE_*}.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
-     * {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2}.
      *
      * @param context a Context to access application assets. This value cannot be null.
      * @param startupMode the mode to run WebView's UI thread initialization in.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if the
-     *                          {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isStartupFeatureSupported}.
      */
     @ExperimentalAsyncStartUp
     @RequiresFeature(

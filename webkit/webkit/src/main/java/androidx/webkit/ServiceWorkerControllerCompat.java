@@ -53,15 +53,10 @@ public abstract class ServiceWorkerControllerCompat {
      * only one ServiceWorkerController instance for all WebView instances,
      * however this restriction may be relaxed in the future.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#SERVICE_WORKER_BASIC_USAGE}.
-     *
      * @return the default ServiceWorkerController instance
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#SERVICE_WORKER_BASIC_USAGE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#SERVICE_WORKER_BASIC_USAGE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

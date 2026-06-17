@@ -56,14 +56,10 @@ public class BackForwardCacheSettings {
     /**
      * Returns the timeout for pages in the back-forward cache, in seconds.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}.
-     *
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -80,15 +76,11 @@ public class BackForwardCacheSettings {
     /**
      * Sets the timeout for pages in the back-forward cache.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}.
-     *
      * @param timeoutSeconds The timeout in seconds.
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -105,14 +97,10 @@ public class BackForwardCacheSettings {
     /**
      * Returns the maximum number of pages that can be stored in the back-forward cache.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}.
-     *
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -129,15 +117,11 @@ public class BackForwardCacheSettings {
     /**
      * Sets the maximum number of pages that can be stored in the back-forward cache.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}.
-     *
      * @param maxPagesInCache The maximum number of pages.
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -153,14 +137,11 @@ public class BackForwardCacheSettings {
 
     /**
      * Returns whether to keep forward cache entries when the back-forward cache is enabled.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4}.
      *
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -177,15 +158,12 @@ public class BackForwardCacheSettings {
 
     /**
      * Sets whether to keep forward cache entries when the back-forward cache is enabled.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4}.
      *
      * @param keepForwardEntries Whether to keep forward cache entries.
      * @throws UnsupportedOperationException if the
-     *                            {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

@@ -254,19 +254,9 @@ public final class UserAgentMetadata {
      * <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors">spec</a>
      * for more details.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#USER_AGENT_METADATA_FORM_FACTORS}.
-     *
      * @return A list of strings to indicate the form factors of the user-agent.
-     * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#USER_AGENT_METADATA_FORM_FACTORS}
-     *                                       feature is not supported.
      * @see Builder#setFormFactors
      */
-    @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public @NonNull @FormFactors List<String> getFormFactors() {
         return mFormFactors;
     }
@@ -677,17 +667,12 @@ public final class UserAgentMetadata {
          * <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors">spec</a>
          * for more details.
          *
-         * <p>
-         * This method should only be called if
-         * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-         * {@link WebViewFeature#USER_AGENT_METADATA_FORM_FACTORS}.
-         *
          * @param formFactors The form factors is used to generate user-agent client hint
          *                    {@code sec-ch-ua-form-factors}.
          * @throws IllegalArgumentException if the list contains an invalid form factor string.
          * @throws UnsupportedOperationException if the
-         *                                   {@link WebViewFeature#USER_AGENT_METADATA_FORM_FACTORS}
-         *                                       feature is not supported.
+         *     {@link WebViewFeature#USER_AGENT_METADATA_FORM_FACTORS} feature is not supported.
+         *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
          */
         @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS,
                 enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

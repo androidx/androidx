@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import androidx.annotation.RequiresFeature;
 import androidx.annotation.UiThread;
 
 /**
@@ -29,14 +28,8 @@ import androidx.annotation.UiThread;
 public interface ScriptHandler {
     /**
      * Removes the corresponding script, it will take effect from next page load.
-     *
-     * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#DOCUMENT_START_SCRIPT}
-     *                                       feature is not supported.
      */
     // UI thread not currently enforced, but required
     @UiThread
-    @RequiresFeature(name = WebViewFeature.DOCUMENT_START_SCRIPT,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     void remove();
 }

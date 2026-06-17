@@ -203,16 +203,11 @@ public final class Navigation {
     /**
      * Navigation error information for the navigation load.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#NAVIGATION_LISTENER}.
-     *
      * @return The {@link WebResourceErrorCompat} object, or {@code null} if there is no
      * error for this navigation.
      * @throws UnsupportedOperationException if the
-     *                                      {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

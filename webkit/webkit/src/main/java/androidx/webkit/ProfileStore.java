@@ -48,15 +48,10 @@ public interface ProfileStore {
     /**
      * Returns the production instance of ProfileStore.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#MULTI_PROFILE}.
-     *
      * @return ProfileStore instance to use for managing profiles.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#MULTI_PROFILE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#MULTI_PROFILE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -75,16 +70,11 @@ public interface ProfileStore {
      * Returns the associated Profile with this name, if there's no match with this name it
      * will create a new Profile instance.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#MULTI_PROFILE}.
-     *
      * @param name name of the profile to retrieve.
      * @return instance of {@link Profile} matching this name.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#MULTI_PROFILE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#MULTI_PROFILE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -96,16 +86,11 @@ public interface ProfileStore {
      * Returns the associated Profile with this name, if there's no Profile with this name or the
      * Profile was deleted by {@link ProfileStore#deleteProfile(String)} it will return null.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#MULTI_PROFILE}.
-     *
      * @param name the name of the profile to retrieve.
      * @return instance of {@link Profile} matching this name, null otherwise if there's no match.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#MULTI_PROFILE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#MULTI_PROFILE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -116,15 +101,10 @@ public interface ProfileStore {
      * <p>
      * Default profile name will be included in this list.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#MULTI_PROFILE}.
-     *
      * @return profile names as a list.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#MULTI_PROFILE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#MULTI_PROFILE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -139,11 +119,6 @@ public interface ProfileStore {
      * Some data may be deleted async and is not guaranteed to be cleared from disk by the time
      * this method returns.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#MULTI_PROFILE}.
-     *
      * @param name the profile name to be deleted.
      * @return {@code true} if profile exists and its data is to be deleted, otherwise {@code
      * false}.
@@ -153,8 +128,8 @@ public interface ProfileStore {
      * {@link ProfileStore#getProfile(String)}.
      * @throws IllegalArgumentException if you are trying to delete the default Profile.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#MULTI_PROFILE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#MULTI_PROFILE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

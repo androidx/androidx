@@ -58,15 +58,10 @@ public abstract class WebResourceErrorCompat {
      * Gets the error code of the error. The code corresponds to one
      * of the {@code ERROR_*} constants in {@link WebViewClient}.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_CODE}.
-     *
      * @return The error code of the error
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_CODE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_CODE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -76,15 +71,10 @@ public abstract class WebResourceErrorCompat {
      * Internal error code that may not be stable over time.
      * Intended purely for debugging purposes.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR}.
-     *
      * @return The internal error code
      * @throws UnsupportedOperationException if the
-     *                                      {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -94,15 +84,10 @@ public abstract class WebResourceErrorCompat {
      * Gets the string describing the error. Descriptions are localized,
      * and thus can be used for communicating the problem to the user.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_DESCRIPTION}.
-     *
      * @return The description of the error
      * @throws UnsupportedOperationException if the
-     *                                     {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_DESCRIPTION}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_DESCRIPTION} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

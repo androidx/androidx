@@ -42,17 +42,12 @@ public class CookieManagerCompat {
      * <a href="https://httpwg.org/specs/rfc6265.html#sane-set-cookie-syntax">the RFC6265 spec.</a>
      *  eg. "name=value; domain=.example.com; path=/"
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#GET_COOKIE_INFO}.
-     *
      * @param cookieManager The CookieManager instance to get info from.
      * @param url the URL for which the API retrieves all available cookies.
      * @return the cookies as a list of strings.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#GET_COOKIE_INFO}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#GET_COOKIE_INFO} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.GET_COOKIE_INFO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

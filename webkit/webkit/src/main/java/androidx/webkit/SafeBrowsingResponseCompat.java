@@ -28,15 +28,10 @@ public abstract class SafeBrowsingResponseCompat {
     /**
      * Display the default interstitial.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL}.
-     *
      * @param allowReporting {@code true} if the interstitial should show a reporting checkbox.
      * @throws UnsupportedOperationException if the
-     *                               {@link WebViewFeature#SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -45,15 +40,10 @@ public abstract class SafeBrowsingResponseCompat {
     /**
      * Act as if the user clicked the "visit this unsafe site" button.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_PROCEED}.
-     *
      * @param report {@code true} to enable Safe Browsing reporting.
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#SAFE_BROWSING_RESPONSE_PROCEED}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#SAFE_BROWSING_RESPONSE_PROCEED} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -62,15 +52,10 @@ public abstract class SafeBrowsingResponseCompat {
     /**
      * Act as if the user clicked the "back to safety" button.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY}.
-     *
      * @param report {@code true} to enable Safe Browsing reporting.
      * @throws UnsupportedOperationException if the
-     *                                  {@link WebViewFeature#SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

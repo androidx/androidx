@@ -218,15 +218,10 @@ public class WebResourceResponseCompat {
      * values. A {@code Set-Cookie} value in the header map will also only be used according to the
      * restrictions mentioned above.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#COOKIE_INTERCEPT}.
-     *
      * @param cookies List of valid {@code Set-Cookie} header values
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#COOKIE_INTERCEPT}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#COOKIE_INTERCEPT} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.COOKIE_INTERCEPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -241,14 +236,9 @@ public class WebResourceResponseCompat {
     /**
      * Get the list of cookies set by {@link #setCookies(List)} or an empty list.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#COOKIE_INTERCEPT}.
-     *
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#COOKIE_INTERCEPT}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#COOKIE_INTERCEPT} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.COOKIE_INTERCEPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
