@@ -98,6 +98,9 @@ import kotlin.String
  *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
  *   visualize the gesture state (e.g., showing a ripple, custom pressed state or gesture indicator)
  *   when the one-handed gesture is being interacted with.
+ * @param gestureLabel Semantic label used by accessibility services to describe the purpose of this
+ *   gesture. This is highly recommended for ensuring that users with screen readers understand what
+ *   action will be performed.
  * @param onGesture The callback invoked when the gesture is triggered.
  */
 @Composable
@@ -106,6 +109,7 @@ public fun Modifier.oneHandedGesture(
     priority: GesturePriority = GesturePriority.Unspecified,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
+    gestureLabel: String? = null,
     onGesture: suspend () -> Unit,
 ): Modifier {
     val hash = currentCompositeKeyHashCode
@@ -123,6 +127,7 @@ public fun Modifier.oneHandedGesture(
             priority = priority,
             enabledInAmbient = enabledInAmbient,
             interactionSource = interactionSource,
+            gestureLabel = gestureLabel,
             onGesture = onGesture,
         )
     )
@@ -195,6 +200,9 @@ public fun Modifier.oneHandedGesture(
  *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
  *   visualize the gesture state (e.g., showing a ripple, custom pressed state or gesture indicator)
  *   when the one-handed gesture is being interacted with.
+ * @param gestureLabel Semantic label used by accessibility services to describe the purpose of this
+ *   gesture. This is highly recommended for ensuring that users with screen readers understand what
+ *   action will be performed.
  * @param onGesture The callback invoked when the gesture is triggered.
  */
 public fun Modifier.oneHandedGesture(
@@ -203,12 +211,14 @@ public fun Modifier.oneHandedGesture(
     priority: GesturePriority = GesturePriority.Unspecified,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
+    gestureLabel: String? = null,
     onGesture: suspend () -> Unit,
 ): Modifier {
     return then(
         GestureElement(
             GestureConfig(
                 action = action,
+                gestureLabel = gestureLabel,
                 key = key,
                 priority = priority.value,
                 enabledInAmbient = enabledInAmbient,

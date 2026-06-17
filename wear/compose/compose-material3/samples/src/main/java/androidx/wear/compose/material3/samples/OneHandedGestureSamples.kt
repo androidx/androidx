@@ -77,6 +77,7 @@ fun OneHandedGestureButtonSample() {
                 Modifier.oneHandedGesture(
                     action = GestureAction.Primary,
                     interactionSource = interactionSource,
+                    gestureLabel = "activate the button",
                     onGesture = onClick,
                 ),
         ) {
@@ -105,6 +106,7 @@ fun OneHandedGestureDisableButtonSample() {
                         Modifier.oneHandedGesture(
                             action = GestureAction.Primary,
                             interactionSource = interactionSource,
+                            gestureLabel = "increase the counter",
                             onGesture = { counter++ },
                         ),
                 ) {
@@ -143,6 +145,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                             action = GestureAction.Primary,
                             priority = GesturePriority.Clickable,
                             interactionSource = buttonInteractionSource,
+                            gestureLabel = "close",
                             onGesture = onClick,
                         )
                     } then
@@ -175,6 +178,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = scrollInteractionSource,
+                        gestureLabel = "scroll",
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
         ) {
@@ -209,6 +213,7 @@ fun OneHandedGestureScalingLazyColumnSample() {
                             action = GestureAction.Primary,
                             priority = GesturePriority.Clickable,
                             interactionSource = buttonInteractionSource,
+                            gestureLabel = "close",
                             onGesture = onClick,
                         )
                     } then
@@ -241,6 +246,7 @@ fun OneHandedGestureScalingLazyColumnSample() {
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = slcInteractionSource,
+                        gestureLabel = "scroll",
                         onGesture = { OneHandedGestureDefaults.scrollDown(slcState) },
                     ),
             autoCentering = null,
@@ -276,6 +282,7 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                             action = GestureAction.Primary,
                             priority = GesturePriority.Clickable,
                             interactionSource = buttonInteractionSource,
+                            gestureLabel = "close",
                             onGesture = onClick,
                         )
                     } then
@@ -342,6 +349,7 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
                             action = GestureAction.Primary,
                             priority = GesturePriority.Clickable,
                             interactionSource = buttonInteractionSource,
+                            gestureLabel = "close",
                             onGesture = onClick,
                         )
                     } then
@@ -404,6 +412,7 @@ fun OneHandedGestureHorizontalPagerSample() {
                 Modifier.oneHandedGesture(
                     action = GestureAction.Primary,
                     interactionSource = interactionSource,
+                    gestureLabel = "scroll to the next page",
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)
                 },
@@ -446,6 +455,7 @@ fun OneHandedGestureVerticalPagerSample() {
                 Modifier.oneHandedGesture(
                     action = GestureAction.Primary,
                     interactionSource = interactionSource,
+                    gestureLabel = "scroll to the next page",
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)
                 },
