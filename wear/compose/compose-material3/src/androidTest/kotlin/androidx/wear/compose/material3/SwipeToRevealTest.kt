@@ -1662,18 +1662,18 @@ class SwipeToRevealTest {
     }
 
     @Test
-    fun offsetOfLeftRevealValue_inRtl_isNaN() {
+    fun positionOfLeftRevealValue_inRtl_isNaN() {
         lateinit var revealState: RevealState
         rule.setContent {
             revealState = rememberRevealState()
             SwipeToRevealWithDefaults(revealState = revealState, revealDirection = RightToLeft)
         }
-        assertTrue(revealState.offsetOf(LeftRevealing).isNaN())
-        assertTrue(revealState.offsetOf(LeftRevealed).isNaN())
+        assertTrue(revealState.positionOf(LeftRevealing).isNaN())
+        assertTrue(revealState.positionOf(LeftRevealed).isNaN())
     }
 
     @Test
-    fun offsetOfRevealedValues_equalsToScreenWidth() {
+    fun positionOfRevealedValues_equalsToScreenWidth() {
         lateinit var revealState: RevealState
         val smallScreenWidthPx: Float = with(rule.density) { SMALL_SCREEN_WIDTH_DP.dp.toPx() }
         rule.setContent {
@@ -1685,12 +1685,12 @@ class SwipeToRevealTest {
                 )
             }
         }
-        assertEquals(revealState.offsetOf(LeftRevealed), smallScreenWidthPx)
-        assertEquals(revealState.offsetOf(RightRevealed), -smallScreenWidthPx)
+        assertEquals(revealState.positionOf(LeftRevealed), smallScreenWidthPx)
+        assertEquals(revealState.positionOf(RightRevealed), -smallScreenWidthPx)
     }
 
     @Test
-    fun offsetOfRevealingsValues_noPartiallyRevealedState_isNaN() {
+    fun positionOfRevealingsValues_noPartiallyRevealedState_isNaN() {
         lateinit var revealState: RevealState
         rule.setContent {
             revealState = rememberRevealState()
@@ -1700,8 +1700,8 @@ class SwipeToRevealTest {
                 hasPartiallyRevealedState = false,
             )
         }
-        assertTrue(revealState.offsetOf(LeftRevealing).isNaN())
-        assertTrue(revealState.offsetOf(RightRevealing).isNaN())
+        assertTrue(revealState.positionOf(LeftRevealing).isNaN())
+        assertTrue(revealState.positionOf(RightRevealing).isNaN())
     }
 
     @Test

@@ -1465,10 +1465,10 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
      * Get the offset position for an associated [RevealValue]
      *
      * @param revealValue The value to look up
-     * @return The offset of the revealValue, or [Float.NaN] if the revealValue does not exist or
-     *   not supported by current SwipeToReveal and RevealState instance
+     * @return The offset position of the revealValue, or [Float.NaN] if the revealValue does not
+     *   exist or not supported by current SwipeToReveal and RevealState instance
      */
-    public fun offsetOf(revealValue: RevealValue): Float {
+    public fun positionOf(revealValue: RevealValue): Float {
         return anchoredDraggableState.anchors.positionOf(revealValue)
     }
 
