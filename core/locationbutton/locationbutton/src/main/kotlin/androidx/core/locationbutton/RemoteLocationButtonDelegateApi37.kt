@@ -37,6 +37,7 @@ internal class RemoteLocationButtonDelegateApi37(
 ) : RemoteLocationButtonDelegate {
     private var provider: LocationButtonProvider? = null
     private var session: LocationButtonSession? = null
+    private var compositionOrder = LocationButton.DEFAULT_COMPOSITION_ORDER
 
     init {
         provider = LocationButtonProviderFactory.create(context)
@@ -151,7 +152,9 @@ internal class RemoteLocationButtonDelegateApi37(
                         surfaceView.apply {
                             visibility = View.VISIBLE
                             setChildSurfacePackage(openedSession.surfacePackage)
-                            setCompositionOrder(LocationButton.DEFAULT_COMPOSITION_ORDER)
+                            setCompositionOrder(
+                                this@RemoteLocationButtonDelegateApi37.getCompositionOrder()
+                            )
                             invalidate()
                         }
                         view.localButtonView.visibility = View.INVISIBLE
@@ -172,10 +175,11 @@ internal class RemoteLocationButtonDelegateApi37(
     }
 
     override fun setCompositionOrder(order: Int) {
+        compositionOrder = order
         view.surfaceView?.setCompositionOrder(order)
     }
 
     override fun getCompositionOrder(): Int {
-        return view.surfaceView?.getCompositionOrder() ?: LocationButton.DEFAULT_COMPOSITION_ORDER
+        return compositionOrder
     }
 }
