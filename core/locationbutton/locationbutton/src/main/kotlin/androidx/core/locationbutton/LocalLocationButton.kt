@@ -54,14 +54,19 @@ constructor(
     private var iconTint = 0
     private var backgroundColor = 0
     private var textColor = 0
-    private var cornerRadius = 0f
+    private var cornerRadius = -1f
     private var strokeColor = 0
     private var strokeWidth = 0
-    private var pressedCornerRadius = 0f
+    private var pressedCornerRadius = -1f
 
     private var backgroundDrawable: StateListDrawable? = null
     private var iconDrawable: Drawable? = null
     private var isConfigDirty = true
+
+    // Internal cache of the resolved corner radiuses after applying M3 Expressive tokens.
+    // These are dynamically calculated during measurement and used to build the background.
+    private var resolvedCornerRadius = -1f
+    private var resolvedPressedCornerRadius = -1f
 
     // Internal cache of the last applied hardware metrics to prevent redundant layout requests
     private var textSizeSp = -1f
@@ -144,7 +149,7 @@ constructor(
         val defaultDrawable =
             GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                this.cornerRadius = this@LocalLocationButton.cornerRadius
+                cornerRadius = this@LocalLocationButton.resolvedCornerRadius
                 setColor(backgroundColor)
                 if (strokeWidth > 0) setStroke(strokeWidth, strokeColor)
             }
@@ -152,12 +157,14 @@ constructor(
         backgroundDrawable =
             StateListDrawable().apply {
                 // Apply M3 Expressive pressed-state shape morphing if requested
-                // TODO: Implement actual shape morphing.
-                if (pressedCornerRadius > 0f && pressedCornerRadius != cornerRadius) {
+                if (
+                    resolvedPressedCornerRadius >= 0f &&
+                        resolvedPressedCornerRadius != resolvedCornerRadius
+                ) {
                     val pressedDrawable =
                         GradientDrawable().apply {
                             shape = GradientDrawable.RECTANGLE
-                            this.cornerRadius = pressedCornerRadius
+                            cornerRadius = resolvedPressedCornerRadius
                             setColor(backgroundColor)
                             if (strokeWidth > 0) setStroke(strokeWidth, strokeColor)
                         }
@@ -324,6 +331,22 @@ constructor(
         if (minHeight != requiredMinHeight) {
             minHeight = requiredMinHeight
         }
+
+        // Resolve corner radiuses dynamically if they were not explicitly set
+        val targetCornerRadius = if (cornerRadius >= 0f) cornerRadius else referenceHeight / 2f
+        val targetPressedCornerRadius =
+            if (pressedCornerRadius >= 0f) pressedCornerRadius
+            else tokens.pressedCornerRadiusDp * density
+
+        if (
+            resolvedCornerRadius != targetCornerRadius ||
+                resolvedPressedCornerRadius != targetPressedCornerRadius
+        ) {
+            resolvedCornerRadius = targetCornerRadius
+            resolvedPressedCornerRadius = targetPressedCornerRadius
+            isConfigDirty = true
+            updateBackgroundIfDirty()
+        }
     }
 
     private fun getTextForType(textType: Int): String {
@@ -402,6 +425,7 @@ private data class ButtonTokens(
     val trailingSpaceDp: Float,
     // Android View Specific: Required to center content within standard layout bounds
     val verticalPaddingDp: Float,
+    val pressedCornerRadiusDp: Float,
 )
 
 /** Threshold mapping to determine the correct M3 Expressive layout tier. */
@@ -416,6 +440,7 @@ private object ButtonDefaults {
             leadingSpaceDp = 16f,
             trailingSpaceDp = 16f,
             verticalPaddingDp = 6f,
+            pressedCornerRadiusDp = 8f,
         )
 
     private val Small =
@@ -427,6 +452,7 @@ private object ButtonDefaults {
             leadingSpaceDp = 16f,
             trailingSpaceDp = 16f,
             verticalPaddingDp = 10f,
+            pressedCornerRadiusDp = 8f,
         )
 
     private val Medium =
@@ -438,6 +464,7 @@ private object ButtonDefaults {
             leadingSpaceDp = 24f,
             trailingSpaceDp = 24f,
             verticalPaddingDp = 16f,
+            pressedCornerRadiusDp = 12f,
         )
 
     private val Large =
@@ -449,6 +476,7 @@ private object ButtonDefaults {
             leadingSpaceDp = 48f,
             trailingSpaceDp = 48f,
             verticalPaddingDp = 32f,
+            pressedCornerRadiusDp = 16f,
         )
 
     private val ExtraLarge =
@@ -460,6 +488,7 @@ private object ButtonDefaults {
             leadingSpaceDp = 64f,
             trailingSpaceDp = 64f,
             verticalPaddingDp = 48f,
+            pressedCornerRadiusDp = 16f,
         )
 
     /** Translates the available reference height into the appropriate sizing tier. */

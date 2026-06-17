@@ -19,8 +19,6 @@
         <item name="backgroundColor">?colorPrimary</item>
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="iconTint">?android:textColorPrimary</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="pressedCornerRadius">0dp</item>
         <item name="locationButtonTextType">precise_location</item>
         <item name="android:maxLines">1</item>
         <item name="android:textAllCaps">false</item>
