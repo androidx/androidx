@@ -1234,4 +1234,67 @@ class DeferredAnimatedContentTest {
             positionAfterNewGesture.x < 100,
         )
     }
+
+    @Test
+    fun deferAfterExitFinishedRecoversExitStateTest() {
+        val state = DeferredTransitionState("A")
+        var positionA = IntOffset.Zero
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    slideInHorizontally(tween(100000, easing = LinearEasing)) { 100 } togetherWith
+                        slideOutHorizontally(tween(100, easing = LinearEasing)) { -100 }
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        initialContentTransform {}
+                        targetContentTransform {}
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned {
+                        if (target == "A") {
+                            val pos = it.positionInRoot()
+                            positionA = IntOffset(pos.x.toInt(), pos.y.toInt())
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { state.animateTo("B") }
+
+        // Advance time enough for A to fully exit (since exit duration is 100ms, it finishes
+        // quickly)
+        rule.mainClock.advanceTimeBy(5000)
+        rule.waitForIdle()
+
+        val offScreenPositionA = positionA.x
+        // Ensure A has moved fully off-screen (should be around -100, absolute -96)
+        assertTrue(
+            "A should be fully off-screen, but was $offScreenPositionA",
+            offScreenPositionA < -90,
+        )
+
+        // Defer to A (simulate predictive back gesture)
+        rule.runOnIdle { state.defer("A") }
+
+        // Advance clock by 1ms to trigger recomposition and layout
+        rule.mainClock.advanceTimeBy(1)
+        rule.waitForIdle()
+
+        // Without the fix, A's exit is neutralized during active mutations (like defer),
+        // causing it to instantly jump to 0 offset (absolute position 4).
+        // With the fix, it remains at its off-screen position -100 (absolute position -96).
+        assertTrue(
+            "A jumped! Expected to remain off-screen (around -96), but was ${positionA.x}",
+            positionA.x < -90,
+        )
+    }
 }

@@ -1137,20 +1137,29 @@ internal fun Transition<EnterExitState>.trackActiveExit(
         // This ensures seamless animations without jump cuts and prevents old exit animations
         // from bleeding into the new exit transition (e.g. preventing a previous `scaleOut`
         // from mistakenly combining with a new `slideOut`).
-        val neutralData =
-            TransitionData(
-                fade = activeExit.data.fade?.copy(alpha = 1f),
-                scale = activeExit.data.scale?.copy(scale = 1f),
-                slide = activeExit.data.slide?.copy(slideOffset = NeutralSlideOffset),
-                changeSize = activeExit.data.changeSize?.copy(size = NeutralChangeSize),
-                veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
-            )
+        val neutralizedExit =
+            if (activeMutableState?.isMutating == true) {
+                // Manual transforms are applied on top of any potentially still running animations.
+                // Therefore, we shouldn't neutralize in this case and continue the running
+                // animation.
+                activeExit
+            } else {
+                ExitTransitionImpl(
+                    TransitionData(
+                        fade = activeExit.data.fade?.copy(alpha = 1f),
+                        scale = activeExit.data.scale?.copy(scale = 1f),
+                        slide = activeExit.data.slide?.copy(slideOffset = NeutralSlideOffset),
+                        changeSize = activeExit.data.changeSize?.copy(size = NeutralChangeSize),
+                        veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
+                    )
+                )
+            }
         // Generate an exit transition to sustain deferred animations that were active at handoff.
         // User-specified `exit` properties will automatically override these sustained values
         // when combined via the `+` operator below.
         val handoffExit = activeMutableState?.getHandoffExit() ?: ExitTransition.None
 
-        activeExit = ExitTransitionImpl(neutralData) + handoffExit + exit
+        activeExit = neutralizedExit + handoffExit + exit
     }
     return activeExit
 }
