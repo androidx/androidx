@@ -1,0 +1,84 @@
+name: 'Setup iOS Instrumented Test Environment'
+inputs:
+  xcode-path:
+    description: 'Path to the Xcode app bundle to select.'
+    required: true
+  xcode-cache-key-suffix:
+    description: 'Suffix appended to the DerivedData cache key.'
+    required: true
+  simulator-device:
+    description: 'Display name of the simulator device to boot.'
+    required: true
+  simulator-os:
+    description: 'Simulator runtime version to select.'
+    required: true
+outputs:
+  simulator-id:
+    description: 'UDID of the configured iOS Simulator.'
+    value: ${{ steps.resolve-simulator.outputs.simulator-id }}
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Prerequisites
+      uses: ./.github/actions/setup-prerequisites
+
+    - name: Setup Xcode
+      uses: ./.github/actions/setup-xcode
+      with:
+        xcode-path: ${{ inputs.xcode-path }}
+        cache-key-suffix: ${{ inputs.xcode-cache-key-suffix }}
+
+    - name: Resolve Simulator UDID
+      id: resolve-simulator
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        DEVICE_NAME="${{ inputs.simulator-device }}"
+        DEVICE_VERSION="${{ inputs.simulator-os }}"
+        DEVICE_DASH="${DEVICE_VERSION//./-}"
+
+        echo "Looking for device: '$DEVICE_NAME' ($DEVICE_VERSION)"
+
+        SIMULATOR_ID=$(xcrun simctl list devices available -j \
+          | jq -r --arg device "$DEVICE_NAME" --arg vdot "$DEVICE_VERSION" --arg vdash "$DEVICE_DASH" '
+              .devices
+              | to_entries[]
+              | select(.key | (contains($vdot) or contains($vdash)))
+              | .value[]
+              | select(.name == $device)
+              | .udid
+            ' | head -n 1)
+
+        if [ -z "$SIMULATOR_ID" ]; then
+          echo "Simulator not found for $DEVICE_NAME ($DEVICE_VERSION)"
+          echo "Available runtimes and matching devices:"
+          xcrun simctl list devices available -j | jq -r '
+            .devices
+            | to_entries[]
+            | "\(.key):\n  " + ([.value[] | "\(.name) \(.udid) \(.state)"] | join("\n  "))
+          '
+          exit 1
+        fi
+
+        echo "Found simulator ID: $SIMULATOR_ID"
+        echo "simulator-id=$SIMULATOR_ID" >> "$GITHUB_OUTPUT"
+
+    - name: Configure Simulator
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        SIMULATOR_ID="${{ steps.resolve-simulator.outputs.simulator-id }}"
+
+        xcrun simctl boot "$SIMULATOR_ID"
+        xcrun simctl bootstatus "$SIMULATOR_ID" -b
+
+        # Write the accessibility flags inside the Simulator.
+        xcrun simctl spawn "$SIMULATOR_ID" defaults write com.apple.Accessibility AccessibilityEnabled -bool true
+        xcrun simctl spawn "$SIMULATOR_ID" defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true
+        xcrun simctl spawn "$SIMULATOR_ID" defaults write com.apple.Accessibility AutomationEnabled -bool true
+
+        # Restart SpringBoard so system services pick up the change.
+        xcrun simctl spawn "$SIMULATOR_ID" launchctl stop com.apple.SpringBoard
+        xcrun simctl shutdown "$SIMULATOR_ID"

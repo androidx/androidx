@@ -112,71 +112,54 @@ jobs:
           path: compose/ui/ui-uikit/src/iosMain/objc/CMPUIKitUtils/TestResults.xcresult
 
   compose-ios-instrumented-tests:
-    runs-on: macos-26-xlarge
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        device: [ 'iPhone 17', 'iPad Pro 11-inch (M5)' ]
-    name: Compose iOS Instrumented Tests ${{ matrix.device }}
+        runtime: [ 'ios18', 'ios26' ]
+        device_type: [ 'phone', 'tablet' ]
+        include:
+          # Resolve runtime-specific Xcode and runner configuration.
+          - runtime: 'ios18'
+            runtime_name: 'iOS 18.6'
+            runner: macos-15-xlarge
+            simulator_os: '18.6'
+            xcode_path: '/Applications/Xcode_26.3.app'
+            xcode_cache_key_suffix: '26.3'
+          - runtime: 'ios26'
+            runtime_name: 'iOS 26.5'
+            runner: macos-26-xlarge
+            simulator_os: '26.5'
+            xcode_path: '/Applications/Xcode_26.5.app'
+            xcode_cache_key_suffix: '26.5'
+          # Resolve runtime/device_type combinations to concrete simulator devices.
+          - runtime: 'ios18'
+            device_type: 'phone'
+            device: 'iPhone 16'
+          - runtime: 'ios18'
+            device_type: 'tablet'
+            device: 'iPad Pro 11-inch (M4)'
+          - runtime: 'ios26'
+            device_type: 'phone'
+            device: 'iPhone 17'
+          - runtime: 'ios26'
+            device_type: 'tablet'
+            device: 'iPad Pro 11-inch (M5)'
+    name: Compose iOS Instrumented Tests ${{ matrix.runtime_name }} / ${{ matrix.device }}
     env:
       GRADLE_OPTS: -Xmx12g -Dorg.gradle.daemon=false
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Prerequisites
-        uses: ./.github/actions/setup-prerequisites
-
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-
-      - name: Get iOS Simulator UDID
-        id: get-simulator-udid
-        shell: bash
-        run: |
-          DEVICE_NAME="${{ matrix.device }}"
-          DEVICE_VERSION="26.5"
-
-          DEVICE_DASH="${DEVICE_VERSION//./-}"   # e.g. 26.5 -> 26-5
-          
-          echo "Looking for device: '$DEVICE_NAME' ($DEVICE_VERSION)"
-
-          SIMULATOR_ID=$(xcrun simctl list devices available -j \
-          | jq -r --arg device "$DEVICE_NAME" --arg vdot "$DEVICE_VERSION" --arg vdash "$DEVICE_DASH" '
-          .devices
-          | to_entries[]
-          | select(.key | (contains($vdot) or contains($vdash)))
-          | .value[]
-          | select(.name == $device)
-          | .udid
-          ' | head -n 1)
-          
-          if [ -z "$SIMULATOR_ID" ]; then
-          echo "Simulator not found for $DEVICE_NAME ($DEVICE_VERSION)"
-          echo "Available runtimes and matching devices:"
-          xcrun simctl list devices available -j | jq -r '
-          .devices | to_entries[] | "\(.key):\n  " + ( [.value[] | "\(.name) \(.udid) \(.state)"] | join("\n  ") )
-          '
-          exit 1
-          fi
-          
-          echo "Found simulator ID: $SIMULATOR_ID"
-
-          # make available to later steps
-          echo "simulator-id=$SIMULATOR_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Configure Simulator
-        run: |
-          xcrun simctl boot "${{ steps.get-simulator-udid.outputs.simulator-id }}"
-
-          # Write the accessibility flags inside the Simulator:
-          xcrun simctl spawn booted defaults write com.apple.Accessibility AccessibilityEnabled -bool true
-          xcrun simctl spawn booted defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true
-          xcrun simctl spawn booted defaults write com.apple.Accessibility AutomationEnabled -bool true
-
-          # Restart SpringBoard (so system services pick up the change)
-          xcrun simctl spawn booted launchctl stop com.apple.SpringBoard
-          xcrun simctl shutdown all
+      - name: Setup iOS Instrumented Test Environment
+        id: setup-ios-instrumented-test-environment
+        uses: ./.github/actions/setup-ios-instrumented-test-environment
+        with:
+          xcode-path: ${{ matrix.xcode_path }}
+          xcode-cache-key-suffix: ${{ matrix.xcode_cache_key_suffix }}
+          simulator-device: ${{ matrix.device }}
+          simulator-os: ${{ matrix.simulator_os }}
 
       - name: Run iOS Instrumented Tests
         timeout-minutes: 30
@@ -187,13 +170,13 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             -scheme Launcher \
             -project Launcher.xcodeproj \
-            -destination 'platform=iOS Simulator,id=${{ steps.get-simulator-udid.outputs.simulator-id }}'
+            -destination 'platform=iOS Simulator,id=${{ steps.setup-ios-instrumented-test-environment.outputs.simulator-id }}'
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: TestResults-${{ github.run_number }}.xcresult
+          name: TestResults-${{ github.run_number }}-${{ matrix.runtime }}-${{ matrix.device_type }}.xcresult
           path: compose/ui/ui/src/uikitInstrumentedTest/launcher/TestResults.xcresult
 
       - name: Test Summary
