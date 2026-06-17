@@ -687,6 +687,71 @@ class SessionTest {
             .inOrder()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_lifecycleOwnerDestroyedBeforeRegistration_destroysSession() =
+        runTest(testDispatcher) {
+            activityController.create().start()
+            val result = Session.create(context = activity, coroutineContext = testDispatcher)
+            assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+            val session = (result as SessionCreateSuccess).session
+
+            // Destroy the activity before the registration coroutine executes on main thread.
+            activityController.destroy()
+
+            // Run the registration coroutine on the main thread.
+            shadowOf(Looper.getMainLooper()).idle()
+            advanceUntilIdle()
+
+            // Verify that the session has been destroyed.
+            val stubRuntime = session.runtimes.filterIsInstance<StubPerceptionRuntime>().first()
+            assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
+
+            // Check that configure throws IllegalStateException because the session is destroyed.
+            assertFailsWith<IllegalStateException> { session.configure(Config.Builder().build()) }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_distinctContextDestroyed_destroysSessionAndRemovesObservers() =
+        runTest(testDispatcher) {
+            activityController.create().start()
+            // Create a custom LifecycleOwner to act as the distinct lifecycleOwner,
+            // while the activity is the context.
+            val customLifecycleOwner =
+                object : LifecycleOwner {
+                    override val lifecycle = LifecycleRegistry(this)
+                }
+            customLifecycleOwner.lifecycle.currentState = Lifecycle.State.CREATED
+
+            val result =
+                Session.create(
+                    context = activity,
+                    coroutineContext = testDispatcher,
+                    lifecycleOwner = customLifecycleOwner,
+                )
+            assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+            val session = (result as SessionCreateSuccess).session
+
+            // Let the registration coroutine run.
+            shadowOf(Looper.getMainLooper()).idle()
+            advanceUntilIdle()
+
+            // At this point, the session should be active.
+            val stubRuntime = session.runtimes.filterIsInstance<StubPerceptionRuntime>().first()
+            assertThat(stubRuntime.state).isNotEqualTo(StubPerceptionRuntime.State.DESTROYED)
+
+            // Destroy the context (activity).
+            activityController.destroy()
+            shadowOf(Looper.getMainLooper()).idle()
+
+            // The session should now be destroyed.
+            assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
+
+            // And verify that configuring throws IllegalStateException.
+            assertFailsWith<IllegalStateException> { session.configure(Config.Builder().build()) }
+        }
+
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
         val result = runBlocking {
             Session.create(context = activity, coroutineContext = coroutineDispatcher)

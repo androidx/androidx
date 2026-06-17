@@ -2588,6 +2588,7 @@ class SubspaceTest {
             Session(
                 context = composeTestRule.activity,
                 runtimes = listOf(originalSceneRuntime, renderingRuntime, perceptionRuntime),
+                coroutineScope = kotlinx.coroutines.CoroutineScope(Dispatchers.Main.immediate),
                 lifecycleOwner = customOwner,
             )
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
@@ -2610,6 +2611,7 @@ class SubspaceTest {
         composeTestRule.runOnUiThread {
             (customOwner.lifecycle).handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         }
+        composeTestRule.waitForIdle()
 
         assertThat(session.scene.activitySpace.isDisposed).isTrue()
     }
