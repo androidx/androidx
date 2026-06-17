@@ -17,15 +17,6 @@ fi
 
 deleteOldOutDir
 
-function deleteStaleCache() {
-   rm -rf "$OUT_DIR/androidx/appfunctions/"
-   # Remove when we upgrade Wire
-   rm -rf "$OUT_DIR/androidx/glance/wear/wear/"
-   rm -rf "$OUT_DIR/androidx/glance/wear/wear-core/"
-}
-
-deleteStaleCache
-
 # Before we start the build, remove temporary directory contents, needs to match gradlew TMPDIR
 rm -fr "$OUT_DIR/tmp"
 
