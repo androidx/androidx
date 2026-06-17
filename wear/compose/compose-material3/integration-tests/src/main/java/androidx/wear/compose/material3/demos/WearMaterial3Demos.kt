@@ -291,9 +291,6 @@ val WearMaterial3Demos =
                             TransformingLazyColumnExpandableCardSample()
                         },
                         ComposableDemo("TLC Buttons and Cards") { SurfaceTransformationDemo() },
-                        ComposableDemo("Request Anchor Demo") {
-                            TransformingLazyColumnRequestAnchorItemDemo()
-                        },
                         ComposableDemo("Animation Demo") {
                             TransformingLazyColumnAnimationSample()
                         },
