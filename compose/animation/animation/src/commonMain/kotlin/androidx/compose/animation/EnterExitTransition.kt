@@ -51,7 +51,8 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.modifier.modifierLocalProvider
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -1030,10 +1031,7 @@ internal fun Transition<EnterExitState>.createModifier(
     val graphicsLayerBlock =
         createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label)
 
-    return Modifier.modifierLocalProvider(ModifierLocalSharedMutableTransformState) {
-            activeMutableState
-        }
-        .then(if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
+    return (if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
         .then(Modifier.graphicsLayer { clip = !disableClip && isEnabled() })
         .then(
             EnterExitTransitionElement(
@@ -1307,13 +1305,27 @@ private class EnterExitTransitionModifierNode(
     var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
     var enter: EnterTransition,
     var exit: ExitTransition,
-    var mutableTransformState: SharedMutableTransformState,
+    mutableTransformState: SharedMutableTransformState,
     var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
-) : LayoutModifierNodeWithPassThroughIntrinsics(), LayoutAwareModifierNode {
+) :
+    LayoutModifierNodeWithPassThroughIntrinsics(),
+    LayoutAwareModifierNode,
+    ModifierLocalModifierNode {
+
+    var mutableTransformState: SharedMutableTransformState = mutableTransformState
+        set(value) {
+            if (field != value) {
+                field = value
+                provide(ModifierLocalSharedMutableTransformState, value)
+            }
+        }
+
+    override val providedValues =
+        modifierLocalMapOf(ModifierLocalSharedMutableTransformState to mutableTransformState)
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
-        mutableTransformState.parentLayoutCoordinates = coordinates
+        this.mutableTransformState.parentLayoutCoordinates = coordinates
     }
 
     private var lookaheadConstraintsAvailable = false
