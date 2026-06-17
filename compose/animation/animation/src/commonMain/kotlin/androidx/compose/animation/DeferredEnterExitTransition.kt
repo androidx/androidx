@@ -210,7 +210,7 @@ internal class SharedMutableTransformState {
     var isHandoffActive by mutableStateOf(false)
         private set
 
-    private var lastMutableData: MutableTransform? = null
+    var lastMutableData: MutableTransform? = null
 
     var mutableData: MutableTransform? = null
         set(value) {
@@ -412,24 +412,24 @@ internal class SharedMutableTransformState {
  */
 @OptIn(ExperimentalAnimationApi::class)
 internal fun SharedMutableTransformState.getHandoffExit(): ExitTransition {
-    var newExit = ExitTransition.None
-    if (this.isHandoffActive) {
-        if (this.scaleRequiresAnimation) {
-            newExit += scaleOut(targetScale = this.lastScale)
+    var handoffExit = ExitTransition.None
+    if (this.lastMutableData?.block != null && this.isHandoffActive) {
+        if (this.transformScope.isScaleMutated) {
+            handoffExit += scaleOut(targetScale = this.lastScale)
         }
-        if (this.alphaRequiresAnimation) {
-            newExit += fadeOut(targetAlpha = this.lastAlpha)
+        if (this.transformScope.isAlphaMutated) {
+            handoffExit += fadeOut(targetAlpha = this.lastAlpha)
         }
-        if (this.slideRequiresAnimation) {
-            newExit += slideOut(targetOffset = this.slideHandoffOffset)
+        if (this.transformScope.isOffsetMutated) {
+            handoffExit += slideOut(targetOffset = this.slideHandoffOffset)
         }
-        if (this.veilRequiresAnimation) {
+        if (this.transformScope.isVeilMutated) {
             val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
-            newExit += veilOut(targetColor = this.lastVeil, matchParentSize = matchParentSize)
+            handoffExit += veilOut(targetColor = this.lastVeil, matchParentSize = matchParentSize)
         }
     }
 
-    return newExit
+    return handoffExit
 }
 
 /**
@@ -440,22 +440,23 @@ internal fun SharedMutableTransformState.getHandoffExit(): ExitTransition {
  */
 @OptIn(ExperimentalAnimationApi::class)
 internal fun SharedMutableTransformState.getHandoffEnter(): EnterTransition {
-    var newEnter = EnterTransition.None
-    if (this.isHandoffActive) {
-        if (this.scaleRequiresAnimation) {
-            newEnter += scaleIn(initialScale = this.lastScale)
+    var handoffEnter = EnterTransition.None
+    if (this.lastMutableData?.block != null && this.isHandoffActive) {
+        if (this.transformScope.isScaleMutated) {
+            handoffEnter += scaleIn(initialScale = this.lastScale)
         }
-        if (this.alphaRequiresAnimation) {
-            newEnter += fadeIn(initialAlpha = this.lastAlpha)
+        if (this.transformScope.isAlphaMutated) {
+            handoffEnter += fadeIn(initialAlpha = this.lastAlpha)
         }
-        if (this.slideRequiresAnimation) {
-            newEnter += slideIn(initialOffset = this.slideHandoffOffset)
+        if (this.transformScope.isOffsetMutated) {
+            handoffEnter += slideIn(initialOffset = this.slideHandoffOffset)
         }
-        if (this.veilRequiresAnimation) {
+        if (this.transformScope.isVeilMutated) {
             val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
-            newEnter += unveilIn(initialColor = this.lastVeil, matchParentSize = matchParentSize)
+            handoffEnter +=
+                unveilIn(initialColor = this.lastVeil, matchParentSize = matchParentSize)
         }
     }
 
-    return newEnter
+    return handoffEnter
 }
