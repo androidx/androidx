@@ -639,9 +639,9 @@ package androidx.compose.foundation.gestures {
   public static final class BringIntoViewSpec.Companion {
   }
 
-  @SuppressCompatibility public final class BringIntoViewSpec_androidKt {
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> getLocalBringIntoViewSpec();
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> LocalBringIntoViewSpec;
+  public final class BringIntoViewSpec_androidKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> getLocalBringIntoViewSpec();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> LocalBringIntoViewSpec;
   }
 
   public interface Drag2DScope {
