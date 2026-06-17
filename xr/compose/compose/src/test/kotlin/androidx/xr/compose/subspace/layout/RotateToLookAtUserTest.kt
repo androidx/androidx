@@ -19,10 +19,12 @@ package androidx.xr.compose.subspace.layout
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
@@ -33,7 +35,7 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertRotationInRootIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.compose.unit.metersToDp
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -341,10 +343,15 @@ class RotateToLookAtUserTest {
             }
 
             composeTestRule.setContent {
+                val density = LocalDensity.current
+                val pixelDensity =
+                    checkNotNull(LocalSession.current) { "Session must be initialized" }
+                        .scene
+                        .virtualPixelDensity
                 Subspace {
                     // Nest inside a container offset by exactly 1.0m to provide the parent
                     // translation.
-                    SpatialBox(SubspaceModifier.offset(x = 1.meters.toDp())) {
+                    SpatialBox(SubspaceModifier.offset(x = 1f.metersToDp(density, pixelDensity))) {
                         // Node has no local offset. It should perfectly inherit the parent offset.
                         SpatialPanel(SubspaceModifier.testTag("TheWatcher").rotateToLookAtUser()) {
                             Text(text = "Panel")

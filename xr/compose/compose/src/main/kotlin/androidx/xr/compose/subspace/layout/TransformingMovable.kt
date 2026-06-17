@@ -34,6 +34,8 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
 import androidx.xr.scenecore.MovableComponent
+import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.scene
 import java.util.concurrent.Executor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -173,6 +175,9 @@ private class TransformingMovableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     private var component: MovableComponent? = null
 
     /** The scale of this entity when it is moved. */
@@ -207,7 +212,7 @@ private class TransformingMovableNode(
 
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
-        component?.size = coordinates.size.toDimensionsInMeters(density)
+        component?.size = coordinates.size.toDimensionsInMeters(pixelDensity)
         // Update the cached layout size of the composable.
         currentLayoutSize = coordinates.size
     }
@@ -287,10 +292,10 @@ private class TransformingMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Start,
-                pose = initialPose.convertMetersToPixels(density),
+                pose = initialPose.metersToPx(pixelDensity),
                 scale = initialScale,
                 size = currentLayoutSize,
-                previousPose = initialPose.convertMetersToPixels(density),
+                previousPose = initialPose.metersToPx(pixelDensity),
                 previousScale = initialScale,
             )
 
@@ -310,10 +315,10 @@ private class TransformingMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Moving,
-                pose = currentPose.convertMetersToPixels(density),
+                pose = currentPose.metersToPx(pixelDensity),
                 scale = currentScale,
                 size = currentLayoutSize,
-                previousPose = previousPose.convertMetersToPixels(density),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 previousScale = previousScale,
             )
 
@@ -334,10 +339,10 @@ private class TransformingMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.End,
-                pose = finalPose.convertMetersToPixels(density),
+                pose = finalPose.metersToPx(pixelDensity),
                 scale = finalScale,
                 size = currentLayoutSize,
-                previousPose = previousPose.convertMetersToPixels(density),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 previousScale = previousScale,
             )
 
@@ -360,7 +365,7 @@ private class TransformingMovableNode(
         }
 
         // SceneCore uses meters, Compose XR uses pixels
-        val parentFromDraggedNodePixels = parentFromDraggedNodeMeters.convertMetersToPixels(density)
+        val parentFromDraggedNodePixels = parentFromDraggedNodeMeters.metersToPx(pixelDensity)
         val parentFromLayoutNodePixels = node.coordinator?.poseInParent ?: Pose.Identity
         val layoutNodeFromParentPixels = parentFromLayoutNodePixels.inverse
         layoutNodeFromDraggedNodePixels =

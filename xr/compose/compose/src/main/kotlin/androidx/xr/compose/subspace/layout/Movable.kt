@@ -42,8 +42,10 @@ import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.PlaneOrientation as SceneCorePlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType as SceneCorePlaneSemantic
+import androidx.xr.scenecore.scene
 import java.util.concurrent.Executor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -229,6 +231,9 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     private var component: MovableComponent? = null
 
     /** The current layout size of this entity, captured during placement. */
@@ -319,7 +324,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
 
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
-        component?.size = coordinates.size.toDimensionsInMeters(density)
+        component?.size = coordinates.size.toDimensionsInMeters(pixelDensity)
         // Update the cached layout size of the composable.
         currentLayoutSize = coordinates.size
     }
@@ -435,10 +440,10 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Start,
-                pose = initialPose.convertMetersToPixels(density),
+                pose = initialPose.metersToPx(pixelDensity),
                 scale = initialScale,
                 size = currentLayoutSize,
-                previousPose = initialPose.convertMetersToPixels(density),
+                previousPose = initialPose.metersToPx(pixelDensity),
                 previousScale = initialScale,
             )
 
@@ -469,10 +474,10 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Moving,
-                pose = currentPose.convertMetersToPixels(density),
+                pose = currentPose.metersToPx(pixelDensity),
                 scale = currentScale,
                 size = currentLayoutSize,
-                previousPose = previousPose.convertMetersToPixels(density),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 previousScale = previousScale,
             )
 
@@ -509,10 +514,10 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.End,
-                pose = finalPose.convertMetersToPixels(density),
+                pose = finalPose.metersToPx(pixelDensity),
                 scale = finalScale,
                 size = currentLayoutSize,
-                previousPose = previousPose.convertMetersToPixels(density),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 previousScale = previousScale,
             )
 
@@ -547,7 +552,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         }
 
         // SceneCore uses meters, Compose XR uses pixels
-        val parentFromDraggedNodePixels = parentFromDraggedNodeMeters.convertMetersToPixels(density)
+        val parentFromDraggedNodePixels = parentFromDraggedNodeMeters.metersToPx(pixelDensity)
         val parentFromLayoutNodePixels = node.coordinator?.poseInParent ?: Pose.Identity
         val layoutNodeFromParentPixels = parentFromLayoutNodePixels.inverse
         layoutNodeFromDraggedNodePixels =
@@ -669,6 +674,9 @@ private class DeprecatedCustomMovableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     private var component: MovableComponent? = null
 
     /** The previous pose of this entity from the last MoveEvent. */
@@ -694,7 +702,7 @@ private class DeprecatedCustomMovableNode(
 
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
-        component?.size = coordinates.size.toDimensionsInMeters(density)
+        component?.size = coordinates.size.toDimensionsInMeters(pixelDensity)
         // Update the cached layout size of the composable.
         currentLayoutSize = coordinates.size
     }
@@ -756,8 +764,8 @@ private class DeprecatedCustomMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Start,
-                pose = initialPose.convertMetersToPixels(density),
-                previousPose = initialPose.convertMetersToPixels(density),
+                pose = initialPose.metersToPx(pixelDensity),
+                previousPose = initialPose.metersToPx(pixelDensity),
                 scale = initialScale,
                 previousScale = initialScale,
                 size = currentLayoutSize,
@@ -776,8 +784,8 @@ private class DeprecatedCustomMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Moving,
-                pose = currentPose.convertMetersToPixels(density),
-                previousPose = previousPose.convertMetersToPixels(density),
+                pose = currentPose.metersToPx(pixelDensity),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 scale = currentScale,
                 previousScale = previousScale,
                 size = currentLayoutSize,
@@ -797,8 +805,8 @@ private class DeprecatedCustomMovableNode(
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.End,
-                pose = finalPose.convertMetersToPixels(density),
-                previousPose = previousPose.convertMetersToPixels(density),
+                pose = finalPose.metersToPx(pixelDensity),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 scale = finalScale,
                 previousScale = previousScale,
                 size = currentLayoutSize,
@@ -941,6 +949,9 @@ internal class DeprecatedMovableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     /** The previous pose of this entity from the last MoveEvent. */
     private var previousPose: Pose = Pose.Identity
 
@@ -980,7 +991,7 @@ internal class DeprecatedMovableNode(
 
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
-        component?.size = coordinates.size.toDimensionsInMeters(density)
+        component?.size = coordinates.size.toDimensionsInMeters(pixelDensity)
     }
 
     /** Updates the movable state of this CoreEntity. */
@@ -1052,14 +1063,14 @@ internal class DeprecatedMovableNode(
         previousScale = initialScale
         val initialSize: IntVolumeSize =
             when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
+                is PanelEntity -> entity.size.to3d().toIntVolumeSize(pixelDensity)
                 else -> IntVolumeSize.Zero
             }
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Start,
-                pose = initialPose.convertMetersToPixels(density),
-                previousPose = initialPose.convertMetersToPixels(density),
+                pose = initialPose.metersToPx(pixelDensity),
+                previousPose = initialPose.metersToPx(pixelDensity),
                 scale = initialScale,
                 previousScale = initialScale,
                 size = initialSize,
@@ -1079,7 +1090,7 @@ internal class DeprecatedMovableNode(
             previousScale,
             currentScale,
             when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
+                is PanelEntity -> entity.size.to3d().toIntVolumeSize(pixelDensity)
                 else -> IntVolumeSize.Zero
             },
         )
@@ -1096,14 +1107,14 @@ internal class DeprecatedMovableNode(
     ) {
         val finalSize: IntVolumeSize =
             when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
+                is PanelEntity -> entity.size.to3d().toIntVolumeSize(pixelDensity)
                 else -> IntVolumeSize.Zero
             }
         val event =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.End,
-                pose = finalPose.convertMetersToPixels(density),
-                previousPose = previousPose.convertMetersToPixels(density),
+                pose = finalPose.metersToPx(pixelDensity),
+                previousPose = previousPose.metersToPx(pixelDensity),
                 scale = finalScale,
                 previousScale = previousScale,
                 size = finalSize,
@@ -1125,8 +1136,8 @@ internal class DeprecatedMovableNode(
             return
         }
         // SceneCore uses meters, Compose XR uses pixels.
-        val previousCorePose = previousPose.convertMetersToPixels(density)
-        val corePose = nextPose.convertMetersToPixels(density)
+        val previousCorePose = previousPose.metersToPx(pixelDensity)
+        val corePose = nextPose.metersToPx(pixelDensity)
         val spatialMoveEvent =
             SpatialMoveEvent(
                 type = SpatialMoveEventType.Moving,

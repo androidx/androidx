@@ -26,9 +26,9 @@ import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.currentValueOf
 import androidx.xr.compose.unit.DpVolumeSize
-import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.constrain
+import androidx.xr.compose.unit.roundMetersToPx
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
@@ -250,21 +250,21 @@ private class RecommendedSizeNode :
 
         val finalMaxWidth =
             if (constraints.maxWidth == VolumeConstraints.INFINITY) {
-                Meter(recommendedSizeMeters.width).roundToPx(density)
+                recommendedSizeMeters.width.roundMetersToPx(session.scene.virtualPixelDensity)
             } else {
                 constraints.maxWidth
             }
 
         val finalMaxHeight =
             if (constraints.maxHeight == VolumeConstraints.INFINITY) {
-                Meter(recommendedSizeMeters.height).roundToPx(density)
+                recommendedSizeMeters.height.roundMetersToPx(session.scene.virtualPixelDensity)
             } else {
                 constraints.maxHeight
             }
 
         val finalMaxDepth =
             if (constraints.maxDepth == VolumeConstraints.INFINITY) {
-                Meter(recommendedSizeMeters.depth).roundToPx(density)
+                recommendedSizeMeters.depth.roundMetersToPx(session.scene.virtualPixelDensity)
             } else {
                 constraints.maxDepth
             }

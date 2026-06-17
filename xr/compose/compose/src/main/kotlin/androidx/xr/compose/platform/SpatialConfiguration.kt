@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.compose.unit.toDpVolumeSize
@@ -145,7 +146,8 @@ internal class SessionSpatialConfiguration(
     override val hasXrSpatialFeature: Boolean = true
 
     override val bounds: DpVolumeSize
-        get() = boundsState.toDpVolumeSize()
+        get() =
+            boundsState.toDpVolumeSize(Density(session.context), session.scene.virtualPixelDensity)
 
     /**
      * The recommended pose for the application, provided by the system.

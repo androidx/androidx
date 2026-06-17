@@ -16,17 +16,41 @@
 
 package androidx.xr.compose.unit
 
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DpVolumeSizeTest {
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
+    private lateinit var session: Session
+
+    @Before
+    fun setUp() {
+        session = composeTestRule.configureFakeSession()
+    }
+
     @Test
     fun dpVolumeSize_isCreated() {
         val dpVolumeSize = DpVolumeSize(0.dp, 0.dp, 0.dp)
@@ -47,14 +71,17 @@ class DpVolumeSizeTest {
     fun toDimensionsInMeter_returnsCorrectDimensions() {
         val dpVolumeSize = DpVolumeSize(1000.dp, 1000.dp, 1000.dp)
 
-        val dimensions = dpVolumeSize.toDimensionsInMeters()
+        val dimensions =
+            dpVolumeSize.toDimensionsInMeters(UNIT_DENSITY, session.scene.virtualPixelDensity)
 
         assertThat(dimensions).isEqualTo(FloatSize3d(0.5f, 0.5f, 0.5f))
     }
 
     @Test
     fun dpVolumeSize_fromMeters_returnsCorrectDpVolumeSize() {
-        val dpVolumeSize = FloatSize3d(0.5f, 0.5f, 0.5f).toDpVolumeSize()
+        val dpVolumeSize =
+            FloatSize3d(0.5f, 0.5f, 0.5f)
+                .toDpVolumeSize(UNIT_DENSITY, session.scene.virtualPixelDensity)
 
         assertThat(dpVolumeSize).isEqualTo(DpVolumeSize(1000.dp, 1000.dp, 1000.dp))
     }
@@ -70,8 +97,10 @@ class DpVolumeSizeTest {
     fun toDimensionsInMeters_andFromMeters_returnsCorrectDpVolumeSize() {
         val testDpVolumeSize = DpVolumeSize(1111.11f.dp, 1111.11f.dp, 1111.11f.dp)
 
-        val dimensions = testDpVolumeSize.toDimensionsInMeters()
-        val fromMetersDpVolumeSize = dimensions.toDpVolumeSize()
+        val dimensions =
+            testDpVolumeSize.toDimensionsInMeters(UNIT_DENSITY, session.scene.virtualPixelDensity)
+        val fromMetersDpVolumeSize =
+            dimensions.toDpVolumeSize(UNIT_DENSITY, session.scene.virtualPixelDensity)
 
         assertThat(fromMetersDpVolumeSize)
             .isEqualTo(DpVolumeSize(1111.11f.dp, 1111.11f.dp, 1111.11f.dp))
@@ -81,8 +110,10 @@ class DpVolumeSizeTest {
     fun toDimensionsInMetersAndFromMeters_whenInfinite_returnsCorrectDpVolumeSize() {
         val testDpVolumeSize = DpVolumeSize(Dp.Infinity, Dp.Infinity, Dp.Infinity)
 
-        val floatSize3d = testDpVolumeSize.toDimensionsInMeters()
-        val fromMetersDpVolumeSize = floatSize3d.toDpVolumeSize()
+        val floatSize3d =
+            testDpVolumeSize.toDimensionsInMeters(UNIT_DENSITY, session.scene.virtualPixelDensity)
+        val fromMetersDpVolumeSize =
+            floatSize3d.toDpVolumeSize(UNIT_DENSITY, session.scene.virtualPixelDensity)
 
         assertThat(floatSize3d)
             .isEqualTo(

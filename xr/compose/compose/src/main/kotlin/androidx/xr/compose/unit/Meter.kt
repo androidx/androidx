@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "DEPRECATION")
 
 package androidx.xr.compose.unit
 
@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isFinite
 import androidx.compose.ui.unit.isSpecified
+import androidx.xr.scenecore.ActivitySpace
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.runtime.TypeHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import com.android.extensions.xr.XrExtensions
@@ -37,6 +39,10 @@ import kotlin.math.roundToInt
  */
 @Immutable
 @JvmInline
+@Deprecated(
+    "Use LocalSession.current?.scene?.virtualPixelDensity instead. See " +
+        "androidx.xr.compose.samples.SceneCoreEntitySample for an example."
+)
 public value class Meter(public val value: Float) : Comparable<Meter> {
 
     /**
@@ -282,6 +288,10 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
  * @return the equivalent value in meters, or [Meter.NaN] if the [Dp] is unspecified, or
  *   [Meter.Infinity] if the [Dp] is infinite.
  */
+@Deprecated(
+    "Use LocalSession.current?.scene?.virtualPixelDensity instead. See " +
+        "androidx.xr.compose.samples.SceneCoreEntitySample for an example."
+)
 public inline fun Dp.toMeter(): Meter {
     if (!isSpecified) {
         return Meter.NaN
@@ -292,6 +302,30 @@ public inline fun Dp.toMeter(): Meter {
     return Meter(this.value / Meter.DP_PER_METER)
 }
 
+/** Converts a Float value representing meters in [ActivitySpace] to virtual pixels. */
+internal fun Float.metersToPx(pixelDensity: PixelDensity): Float =
+    pixelDensity.convertMetersToPixels(this)
+
+/** Converts a Float value representing virtual pixels to meters in [ActivitySpace]. */
+internal fun Float.pxToMeters(pixelDensity: PixelDensity): Float =
+    pixelDensity.convertPixelsToMeters(this)
+
+/** Converts an Int value representing virtual pixels to meters in [ActivitySpace]. */
+internal fun Int.pxToMeters(pixelDensity: PixelDensity): Float =
+    this.toFloat().pxToMeters(pixelDensity)
+
+/** Converts a Float value representing meters in [ActivitySpace] to rounded virtual pixels. */
+internal fun Float.roundMetersToPx(pixelDensity: PixelDensity): Int =
+    metersToPx(pixelDensity).roundToInt()
+
+/** Uses [density] to convert a [Dp] value to meters in [ActivitySpace]. */
+internal fun Dp.toMeters(density: Density, pixelDensity: PixelDensity): Float =
+    with(density) { toPx().pxToMeters(pixelDensity) }
+
+/** Uses [density] to convert a Float value representing meters in [ActivitySpace] to [Dp]. */
+internal fun Float.metersToDp(density: Density, pixelDensity: PixelDensity): Dp =
+    with(density) { metersToPx(pixelDensity).toDp() }
+
 // Operator functions for performing arithmetic operations between numeric types and Meter
 
 /**
@@ -300,6 +334,7 @@ public inline fun Dp.toMeter(): Meter {
  * @param other the [Meter] value to multiply by.
  * @return a new [Meter] representing the product.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Int.times(other: Meter): Meter = Meter(this * other.value)
 
 /**
@@ -308,6 +343,7 @@ public inline operator fun Int.times(other: Meter): Meter = Meter(this * other.v
  * @param other the [Meter] value to multiply by.
  * @return a new [Meter] representing the product.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Float.times(other: Meter): Meter = Meter(this * other.value)
 
 /**
@@ -316,6 +352,7 @@ public inline operator fun Float.times(other: Meter): Meter = Meter(this * other
  * @param other the [Meter] value to multiply by.
  * @return a new [Meter] representing the product.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Double.times(other: Meter): Meter = Meter(this.toFloat() * other.value)
 
 /**
@@ -324,6 +361,7 @@ public inline operator fun Double.times(other: Meter): Meter = Meter(this.toFloa
  * @param other the [Meter] value to divide by.
  * @return a new [Meter] representing the quotient.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Int.div(other: Meter): Meter = Meter(this / other.value)
 
 /**
@@ -332,6 +370,7 @@ public inline operator fun Int.div(other: Meter): Meter = Meter(this / other.val
  * @param other the [Meter] value to divide by.
  * @return a new [Meter] representing the quotient.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Float.div(other: Meter): Meter = Meter(this / other.value)
 
 /**
@@ -340,4 +379,5 @@ public inline operator fun Float.div(other: Meter): Meter = Meter(this / other.v
  * @param other the [Meter] value to divide by.
  * @return a new [Meter] representing the quotient.
  */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Double.div(other: Meter): Meter = Meter(this.toFloat() / other.value)

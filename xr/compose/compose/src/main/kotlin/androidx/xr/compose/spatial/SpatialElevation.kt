@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -54,6 +55,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.scene
 
 /**
@@ -86,7 +88,9 @@ public fun SpatialElevation(
 @Composable
 private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Unit) {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val pixelDensity = session.scene.virtualPixelDensity
     val context = LocalContext.current
+    val density = LocalDensity.current
     val compositionContext = rememberCompositionContext()
     val localId = currentCompositeKeyHashCode
 
@@ -105,13 +109,14 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
     val parentEntity = findNearestParentEntity()
 
     val holder =
-        remember(parentView) {
+        remember(parentView, session) {
             SpatialElevationRenderer(
                 context = context,
                 parentView = parentView,
                 compositionContext = compositionContext,
                 session = session,
                 localId = localId,
+                pixelDensity = pixelDensity,
             )
         }
 
@@ -136,7 +141,14 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
             holder.alpha = if (coordinates?.boundsInWindow()?.isEmpty == false) 1f else 0f
             coordinates?.positionInRoot()?.let {
                 holder.poseInMeters =
-                    calculatePose(it, holder.parentViewSize, size, this@Layout, elevation)
+                    calculatePose(
+                        it,
+                        holder.parentViewSize,
+                        size,
+                        density,
+                        zDepth = elevation,
+                        pixelDensity = pixelDensity,
+                    )
             }
         }
     }
@@ -163,6 +175,7 @@ private class SpatialElevationRenderer(
     private var compositionContext: CompositionContext,
     private var session: Session,
     private var localId: Long,
+    internal val pixelDensity: PixelDensity,
 ) : RememberObserver {
     var measuredContentSize: IntSize by mutableStateOf(IntSize.Zero)
         private set
@@ -204,13 +217,15 @@ private class SpatialElevationRenderer(
 
         panelEntity =
             CorePanelEntity(
-                    PanelEntity.create(
-                        session = session,
-                        view = view,
-                        pixelDimensions = IntSize2d(0, 0),
-                        name = "SpatialElevation:${view.id}",
-                        parent = session.scene.activitySpace,
-                    )
+                    pixelDensity = pixelDensity,
+                    entity =
+                        PanelEntity.create(
+                            session = session,
+                            view = view,
+                            pixelDimensions = IntSize2d(0, 0),
+                            name = "SpatialElevation:${view.id}",
+                            parent = session.scene.activitySpace,
+                        ),
                 )
                 .apply {
                     enabled = false

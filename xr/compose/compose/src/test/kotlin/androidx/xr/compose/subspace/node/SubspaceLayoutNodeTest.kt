@@ -38,6 +38,7 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -67,10 +68,11 @@ class SubspaceLayoutNodeTest {
         entity: Entity,
         content: @Composable @SubspaceComposable () -> Unit = {},
     ) {
+        val session = checkNotNull(LocalSession.current) { "session must be initialized" }
         SubspaceLayout(
             content = content,
             modifier = modifier,
-            coreEntity = CoreGroupEntity(entity),
+            coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, entity),
         ) { _, _ ->
             layout(0, 0, 0) {}
         }

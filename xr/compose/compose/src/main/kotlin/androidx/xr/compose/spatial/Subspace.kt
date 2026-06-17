@@ -67,8 +67,8 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.recommendedSizeIfUnbounded
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.compose.unit.metersToDp
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -203,6 +203,7 @@ private fun Subspace(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val session = LocalSession.current ?: return
+    val density = LocalDensity.current
     val compositionContext = rememberCompositionContext()
     val subspaceRoot = remember {
         Entity.create(
@@ -221,7 +222,7 @@ private fun Subspace(
                 context = context,
                 jxrSession = session,
                 parentCompositionContext = compositionContext,
-                rootEntity = CoreGroupEntity(subspaceRoot),
+                rootEntity = CoreGroupEntity(session.scene.virtualPixelDensity, subspaceRoot),
             )
         ) {
             it.dispose()
@@ -230,8 +231,8 @@ private fun Subspace(
                     session.scene.mainPanelEntity.setEnabled(true)
                 }
             } catch (_: IllegalStateException) {
-                // TODO(b/450063142) The shutdown order of Impress, SceneCore, and Compose should be
-                //  fixed to avoid having to catch this exception here.
+                // TODO(b/450063142) The shutdown order of Impress, SceneCore, and Compose
+                // should be fixed to avoid having to catch this exception here.
                 // When this Composable is disposed, it's possible the Activity is already
                 // being destroyed, which also destroys the underlying session. Accessing
                 // `session.scene` would then throw an IllegalStateException, as checked
@@ -291,6 +292,7 @@ public fun PlanarEmbeddedSubspace(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val session = LocalSession.current ?: return
+    val pixelDensity = session.scene.virtualPixelDensity
     val compositionContext = rememberCompositionContext()
     val coreEntity =
         checkNotNull(findNearestParentEntity()) { "CoreEntity unavailable for subspace" }
@@ -300,11 +302,12 @@ public fun PlanarEmbeddedSubspace(
     val planarEmbeddedSubspaceRootContainer by remember {
         disposableValueOf(
             CoreGroupEntity(
+                    pixelDensity,
                     Entity.create(
                         session = session,
                         name = SubspaceConstants.PLANAR_EMBEDDED_SUBSPACE_ROOT_CONTAINER_NAME,
                         parent = session.scene.activitySpace,
-                    )
+                    ),
                 )
                 .apply {
                     enabled = false
@@ -317,11 +320,12 @@ public fun PlanarEmbeddedSubspace(
     val scene by remember {
         val planarEmbeddedSubspaceRoot =
             CoreGroupEntity(
+                    pixelDensity,
                     Entity.create(
                         session = session,
                         name = SubspaceConstants.PLANAR_EMBEDDED_SUBSPACE_ROOT_CONTAINER_NAME,
                         parent = session.scene.activitySpace,
-                    )
+                    ),
                 )
                 .apply { parent = planarEmbeddedSubspaceRootContainer }
         disposableValueOf(
@@ -401,7 +405,13 @@ public fun PlanarEmbeddedSubspace(
             if (measuredPlaceholderSize != IntSize.Zero && parentSize != IntSize.Zero) {
                 val contentOffset = coordinates?.positionInRoot() ?: return@layout
                 val nextPose =
-                    calculatePose(contentOffset, parentSize, measuredPlaceholderSize, density)
+                    calculatePose(
+                        contentOffset,
+                        parentSize,
+                        measuredPlaceholderSize,
+                        density,
+                        pixelDensity = pixelDensity,
+                    )
                 planarEmbeddedSubspaceRootContainer.poseInMeters = nextPose
                 planarEmbeddedSubspaceRootContainer.enabled = true
             }
@@ -500,6 +510,7 @@ public fun FollowingSubspace(
     // If not in XR, do nothing
     if (!LocalSpatialConfiguration.current.hasXrSpatialFeature) return
     val session = LocalSession.current ?: return
+    val pixelDensity = session.scene.virtualPixelDensity
 
     if (!validateFollowingSubspaceConfiguration(target, behavior, session.config)) return
 
@@ -531,7 +542,9 @@ public fun FollowingSubspace(
     LaunchedEffect(scale) { subspaceRootNode.setScale(scale) }
 
     val subspaceTrailingEntity by remember {
-        disposableValueOf(CoreGroupEntity(subspaceRootNode).apply { enabled = false }) {
+        disposableValueOf(
+            CoreGroupEntity(pixelDensity, subspaceRootNode).apply { enabled = false }
+        ) {
             it.dispose()
         }
     }
@@ -554,6 +567,7 @@ public fun FollowingSubspace(
     }
 
     val offsetPose = getInitialSubspaceOffset(target)
+    val density = LocalDensity.current
 
     Subspace(
         modifier = modifier,
@@ -563,9 +577,9 @@ public fun FollowingSubspace(
         SpatialBox(
             modifier =
                 SubspaceModifier.offset(
-                        Meter(offsetPose.translation.x).toDp(),
-                        Meter(offsetPose.translation.y).toDp(),
-                        Meter(offsetPose.translation.z).toDp(),
+                        offsetPose.translation.x.metersToDp(density, pixelDensity),
+                        offsetPose.translation.y.metersToDp(density, pixelDensity),
+                        offsetPose.translation.z.metersToDp(density, pixelDensity),
                     )
                     .rotate(offsetPose.rotation),
             content = content,

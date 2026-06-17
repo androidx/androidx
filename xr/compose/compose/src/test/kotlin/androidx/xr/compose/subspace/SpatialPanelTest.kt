@@ -69,7 +69,7 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.compose.unit.metersToDp
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.android.extensions.xr.ShadowXrExtensions
@@ -391,7 +391,13 @@ class SpatialPanelTest {
 
         val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
         val panelEntity = panelNode.semanticsEntity as? PanelEntity
-        assertThat(checkNotNull(panelEntity).cornerRadius.meters.toDp()).isEqualTo(32.dp)
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        assertThat(
+                checkNotNull(panelEntity)
+                    .cornerRadius
+                    .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
+            )
+            .isEqualTo(32.dp)
     }
 
     @Test
@@ -453,7 +459,13 @@ class SpatialPanelTest {
 
         val panelNode = composeTestRule.onSubspaceNodeWithTag("mainPanel").fetchSemanticsNode()
         val panelEntity = panelNode.semanticsEntity as? PanelEntity
-        assertThat(checkNotNull(panelEntity).cornerRadius.meters.toDp()).isEqualTo(16.dp)
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        assertThat(
+                checkNotNull(panelEntity)
+                    .cornerRadius
+                    .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
+            )
+            .isEqualTo(16.dp)
     }
 
     @Test
@@ -469,7 +481,13 @@ class SpatialPanelTest {
 
         val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
         val panelEntity = panelNode.semanticsEntity as? PanelEntity
-        assertThat(checkNotNull(panelEntity).cornerRadius.meters.toDp()).isEqualTo(100.dp)
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        assertThat(
+                checkNotNull(panelEntity)
+                    .cornerRadius
+                    .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
+            )
+            .isEqualTo(100.dp)
     }
 
     @Test
@@ -522,12 +540,12 @@ class SpatialPanelTest {
                 },
             )
         }
-        val session = composeTestRule.session
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
 
         // Verify the initial set of PanelEntities in the scene before the dialog is shown:
         // Activity Panel
         // Main PanelEntity
-        assertThat(session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.size).isEqualTo(2)
+        assertThat(session.scene.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(2)
 
         showDialog.value = true
         composeTestRule.waitForIdle()
@@ -537,7 +555,7 @@ class SpatialPanelTest {
         // Main PanelEntity
         // SpatialDialog
         // Activity Scrim Panel
-        assertThat(session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.size).isEqualTo(4)
+        assertThat(session.scene.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(4)
     }
 
     @Test
@@ -565,14 +583,14 @@ class SpatialPanelTest {
                 },
             )
         }
-        val session = composeTestRule.session
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
 
         // Verify the set of PanelEntities before the SpatialDialog is dismissed:
         // SpatialDialog
         // Activity Scrim Panel
         // Activity Panel
         // Main PanelEntity
-        assertThat(session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.size).isEqualTo(4)
+        assertThat(session.scene.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(4)
 
         showDialog.value = false
         composeTestRule.waitForIdle()
@@ -581,7 +599,7 @@ class SpatialPanelTest {
         // Activity Panel
         // Main PanelEntity
         assertThat(
-                session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.count {
+                session.scene.getEntitiesOfType(PanelEntity::class.java).count {
                     it.parent != null || it == session.scene.mainPanelEntity
                 }
             )

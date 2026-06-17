@@ -64,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,7 +107,6 @@ import androidx.xr.compose.subspace.media.spatializedAudioOutput
 import androidx.xr.compose.testapp.common.isDrmSupported
 import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
-import androidx.xr.compose.unit.Meter
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -259,12 +259,15 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
         if (videoPlaying && surfaceType == SpatialExternalSurfaceType.HEMISPHERE) {
             SpatialBox {
+                val density = LocalDensity.current
+                val pixelDensity = session.scene.virtualPixelDensity
                 // Simple animation to verify radius recomposition is efficient.
                 val animatedRadius = remember { Animatable(500f) }
                 val animatedOffset = remember { Animatable(initialValue = -1000f) }
                 LaunchedEffect(Unit) {
                     animatedRadius.animateTo(
-                        targetValue = Meter(15f).toDp().value,
+                        targetValue =
+                            with(density) { pixelDensity.convertMetersToPixels(15f).toDp().value },
                         animationSpec = tween(durationMillis = 2000, easing = FastOutLinearInEasing),
                     )
                 }

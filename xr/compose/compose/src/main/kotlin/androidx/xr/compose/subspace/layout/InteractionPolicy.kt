@@ -27,9 +27,9 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InputEvent.Action
 import androidx.xr.scenecore.InteractableComponent
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.scene
 import java.util.function.Consumer
-import kotlin.hashCode
 
 /**
  * Defines the interaction policy for a spatial object. This policy enables reacting to a user's
@@ -114,6 +114,9 @@ internal class InteractableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Interactable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     private var component: InteractableComponent? = null
 
     override fun CoreEntityScope.modifyCoreEntity() {
@@ -172,7 +175,7 @@ internal class InteractableNode(
                 if (hitPosition != null) {
                     session.scene.activitySpace
                         .transformPoseTo(Pose(translation = hitPosition), hitInfo.inputEntity)
-                        .convertMetersToPixels(density)
+                        .metersToPx(pixelDensity)
                         .translation
                 } else {
                     null
@@ -190,8 +193,8 @@ internal class InteractableNode(
                 pointerType = event.pointerType,
                 timestamp = event.timestamp,
                 hitPosition = localizedHitPosition,
-                origin = event.origin.convertMetersToPixels(density),
-                direction = event.direction.convertMetersToPixels(density),
+                origin = event.origin.metersToPx(pixelDensity),
+                direction = event.direction.metersToPx(pixelDensity),
             )
         )
     }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.layout.AdaptableCoreEntity
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
@@ -35,10 +36,10 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEn
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasurePolicy
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.scene
 import kotlin.math.max
 
 /**
@@ -56,6 +57,7 @@ import kotlin.math.max
  *   rendered entity size. This adapter implementation will likely be different for every entity and
  *   some SceneCore entities may not require sizing at all (this may be null).
  * @param content the children of this [Entity].
+ * @sample androidx.xr.compose.samples.SceneCoreEntitySample
  * @see SceneCoreEntitySizeAdapter for more information on how compose sizes SceneCore entities.
  */
 @Composable
@@ -68,12 +70,15 @@ public fun <T : Entity> SceneCoreEntity(
     content: @Composable @SubspaceComposable () -> Unit = {},
 ) {
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
+    val session = checkNotNull(LocalSession.current) { "Session must be initialized" }
     val entity = remember(factory)
 
     ComposeNode<ComposeSubspaceNode, Applier<Any>>(
         factory = {
             ComposeSubspaceNode.Constructor().apply {
-                SetCoreEntity(AdaptableCoreEntity(entity, sizeAdapter))
+                SetCoreEntity(
+                    AdaptableCoreEntity(session.scene.virtualPixelDensity, entity, sizeAdapter)
+                )
             }
         },
         update = {
@@ -104,8 +109,9 @@ public fun <T : Entity> SceneCoreEntity(
  * the size of the entity, or (3) remove the adapter from the [SceneCoreEntity] as without an
  * adapter compose will not try to control the size of this entity.
  *
- * Note that many SceneCore entities accept sizes in meter units instead of pixels. The [Meter] type
- * may be used to convert from pixels to meters.
+ * Note that many SceneCore entities accept sizes in meter units instead of pixels.
+ * [androidx.xr.scenecore.Scene.virtualPixelDensity] can be used to convert between pixels and
+ * meters.
  *
  * @sample androidx.xr.compose.samples.SceneCoreEntitySizeAdapterSample
  */
@@ -136,11 +142,12 @@ public interface SceneCoreEntitySizeAdapter<T : Entity> {
  * control the size of the entity, or (3) remove the adapter from the [SceneCoreEntity] as without
  * an adapter compose will not try to control the size of this entity.
  *
- * Note that many SceneCore entities accept sizes in meter units instead of pixels. The [Meter] type
- * may be used to convert from pixels to meters.
+ * Note that many SceneCore entities accept sizes in meter units instead of pixels.
+ * [androidx.xr.scenecore.Scene.virtualPixelDensity] can be used to convert between pixels and
+ * meters.
  *
  * ```kotlin
- * Meter.fromPixel(px, density).toM()
+ * pixelDensity.convertPixelsToMeters(px)
  * ```
  *
  * Deprecated constructor function to maintain backwards compatibility after changing

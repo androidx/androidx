@@ -18,7 +18,6 @@
 
 package androidx.xr.compose.spatial
 
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -93,9 +92,9 @@ import androidx.xr.compose.testing.assertWidthIsNotEqualTo
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.unit.Meter
-import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.compose.unit.metersToDp
+import androidx.xr.compose.unit.roundMetersToPx
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
@@ -381,9 +380,20 @@ class SubspaceTest {
 
         assertNotNull(density)
         assertThat(density.density).isEqualTo(2f)
-        val expectedWidthPx = Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(density)
-        val expectedHeightPx = Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(density)
-        val expectedDepthPx = Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(density)
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
+        val expectedWidthPx =
+            DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
+        val expectedHeightPx =
+            DefaultTestRecommendedBoxSize.HEIGHT_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
+        val expectedDepthPx =
+            DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
         composeTestRule
             .onSubspaceNodeWithTag("box")
             .assertWidthIsEqualTo(
@@ -399,53 +409,61 @@ class SubspaceTest {
 
     @Test
     fun subspace_withFillMaxSize_respectsRecommendedBoxConstraints() {
-        var density: Density? = null
         configureSessionWithRecommendedBox()
         composeTestRule.setContent {
-            density = LocalDensity.current
             Subspace { SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {} }
         }
 
-        assertNotNull(density)
-        val expectedWidthPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this) }
-        val expectedHeightPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
-        val expectedDepthPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+        val density = composeTestRule.density
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
+        val expectedWidthDp =
+            DefaultTestRecommendedBoxSize.WIDTH_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
+        val expectedHeightDp =
+            DefaultTestRecommendedBoxSize.HEIGHT_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
+        val expectedDepthDp =
+            DefaultTestRecommendedBoxSize.DEPTH_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
         composeTestRule
             .onSubspaceNodeWithTag("box")
             .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
-            .assertWidthIsEqualTo(
-                with(composeTestRule.density) { expectedWidthPx.toFloat().toDp() }
-            )
-            .assertHeightIsEqualTo(
-                with(composeTestRule.density) { expectedHeightPx.toFloat().toDp() }
-            )
-            .assertDepthIsEqualTo(
-                with(composeTestRule.density) { expectedDepthPx.toFloat().toDp() }
-            )
+            .assertWidthIsEqualTo(expectedWidthDp)
+            .assertHeightIsEqualTo(expectedHeightDp)
+            .assertDepthIsEqualTo(expectedDepthDp)
     }
 
     @Test
     fun subspace_withFillMaxSizeModifierAndFraction_shouldRespectRecommendedContentBox() {
-        var density: Density? = null
         configureSessionWithRecommendedBox()
 
         composeTestRule.setContent {
-            density = LocalDensity.current
             Subspace(modifier = SubspaceModifier.fillMaxSize(0.5f)) {
                 SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
             }
         }
 
-        assertNotNull(density)
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
         val fullWidthPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this) }
+            DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
         val fullHeightPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
+            DefaultTestRecommendedBoxSize.HEIGHT_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
         val fullDepthPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+            DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
 
         val expectedWidthPx = (fullWidthPx * 0.5f).toInt()
         val expectedHeightPx = (fullHeightPx * 0.5f).toInt()
@@ -508,27 +526,26 @@ class SubspaceTest {
     fun subspace_whenAllowUnbounded_isUnbounded() {
         var density: Density? = null
         configureSessionWithRecommendedBox()
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
         composeTestRule.setContent {
             density = LocalDensity.current
             // This large width is explicitly bigger than the recommended box width.
             val widthLargerThanRecommendedBox =
-                with(LocalDensity.current) {
-                    Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS + 1000000.0f)
-                        .roundToPx(this)
-                        .toDp()
-                }
+                (DefaultTestRecommendedBoxSize.WIDTH_METERS + 1000000.0f).metersToDp(
+                    density,
+                    session.scene.virtualPixelDensity,
+                )
             val heightLargerThanRecommendedBox =
-                with(LocalDensity.current) {
-                    Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS + 100000.0f)
-                        .roundToPx(this)
-                        .toDp()
-                }
+                (DefaultTestRecommendedBoxSize.HEIGHT_METERS + 100000.0f).metersToDp(
+                    density,
+                    session.scene.virtualPixelDensity,
+                )
             val depthLargerThanRecommendedBox =
-                with(LocalDensity.current) {
-                    Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS + 100000.0f)
-                        .roundToPx(this)
-                        .toDp()
-                }
+                (DefaultTestRecommendedBoxSize.DEPTH_METERS + 100000.0f).metersToDp(
+                    density,
+                    session.scene.virtualPixelDensity,
+                )
             Subspace(
                 modifier =
                     SubspaceModifier.requiredSizeIn(
@@ -546,51 +563,60 @@ class SubspaceTest {
             }
         }
 
-        val recommendedWidthPx =
-            with(assertNotNull(density)) {
-                Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this)
-            }
-        val recommendedHeightPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
-        val recommendedDepthPx =
-            with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+        checkNotNull(density) { "density is null" }
+        val recommendedWidthDp =
+            DefaultTestRecommendedBoxSize.WIDTH_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
+        val recommendedHeightDp =
+            DefaultTestRecommendedBoxSize.HEIGHT_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
+        val recommendedDepthDp =
+            DefaultTestRecommendedBoxSize.DEPTH_METERS.metersToDp(
+                density,
+                session.scene.virtualPixelDensity,
+            )
 
         composeTestRule
             .onSubspaceNodeWithTag("panel")
-            .assertWidthIsAtLeast(
-                with(composeTestRule.density) { recommendedWidthPx.toFloat().toDp() }
-            )
-            .assertHeightIsAtLeast(
-                with(composeTestRule.density) { recommendedHeightPx.toFloat().toDp() }
-            )
-            .assertDepthIsAtLeast(
-                with(composeTestRule.density) { recommendedDepthPx.toFloat().toDp() }
-            )
+            .assertWidthIsAtLeast(recommendedWidthDp)
+            .assertHeightIsAtLeast(recommendedHeightDp)
+            .assertDepthIsAtLeast(recommendedDepthDp)
     }
 
     @Test
     fun subspace_withLargerThanDefaultModifier_isConstrainedToRecommendedBox() {
         val largeSize = 500000000.dp
         configureSessionWithRecommendedBox()
-        var expectedWidth: Dp = 0.dp
-        var expectedHeight: Dp = 0.dp
-        var expectedDepth: Dp = 0.dp
+        val density = composeTestRule.density
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
+        val expectedWidth =
+            with(density) {
+                DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(
+                        session.scene.virtualPixelDensity
+                    )
+                    .toDp()
+            }
+        val expectedHeight =
+            with(density) {
+                DefaultTestRecommendedBoxSize.HEIGHT_METERS.roundMetersToPx(
+                        session.scene.virtualPixelDensity
+                    )
+                    .toDp()
+            }
+        val expectedDepth =
+            with(density) {
+                DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
+                        session.scene.virtualPixelDensity
+                    )
+                    .toDp()
+            }
 
         composeTestRule.setContent {
-            val density = LocalDensity.current
-            expectedWidth =
-                with(density) {
-                    Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this).toDp()
-                }
-            expectedHeight =
-                with(density) {
-                    Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this).toDp()
-                }
-            expectedDepth =
-                with(density) {
-                    Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this).toDp()
-                }
-
             // The user provides a modifier bigger than the recommended box.
             Subspace(modifier = SubspaceModifier.size(largeSize)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
@@ -1171,11 +1197,14 @@ class SubspaceTest {
         val expectedZOffset = 0.dp
 
         val actualXOffsetMeters = subspaceRootContainerEntity.getPose().translation.x
-        val actualXOffsetDp: Dp = Meter(actualXOffsetMeters).toDp()
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val pixelDensity = session.scene.virtualPixelDensity
+
+        val actualXOffsetDp = actualXOffsetMeters.metersToDp(composeTestRule.density, pixelDensity)
         val actualYOffsetMeters = subspaceRootContainerEntity.getPose().translation.y
-        val actualYOffsetDp: Dp = Meter(actualYOffsetMeters).toDp()
+        val actualYOffsetDp = actualYOffsetMeters.metersToDp(composeTestRule.density, pixelDensity)
         val actualZOffsetMeters = subspaceRootContainerEntity.getPose().translation.z
-        val actualZOffsetDp: Dp = Meter(actualZOffsetMeters).toDp()
+        val actualZOffsetDp = actualZOffsetMeters.metersToDp(composeTestRule.density, pixelDensity)
 
         assertThat(actualXOffsetDp).isEqualTo(expectedXOffset)
         assertThat(actualYOffsetDp).isEqualTo(expectedYOffset)
@@ -1434,7 +1463,6 @@ class SubspaceTest {
             var density: Density? = null
 
             composeTestRule.setContent {
-                density = LocalDensity.current
                 FollowingSubspace(
                     target = FollowTarget.ArDevice(session),
                     behavior = FollowBehavior.Soft(),
@@ -1444,14 +1472,13 @@ class SubspaceTest {
                 }
             }
             testDispatcher.scheduler.advanceUntilIdle()
-
-            assertNotNull(density)
+            val pixelDensity = session.scene.virtualPixelDensity
             val fullWidthPx =
-                with(density) { Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this) }
+                DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(pixelDensity)
             val fullHeightPx =
-                with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
+                DefaultTestRecommendedBoxSize.HEIGHT_METERS.roundMetersToPx(pixelDensity)
             val fullDepthPx =
-                with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+                DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(pixelDensity)
 
             val expectedWidthPx = (fullWidthPx * 0.5f).toInt()
             val expectedHeightPx = (fullHeightPx * 0.5f).toInt()
@@ -2175,9 +2202,18 @@ class SubspaceTest {
 
         assertNotNull(density)
         assertThat(density.density).isEqualTo(2f)
-        val expectedWidthPx = Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(density)
-        val expectedHeightPx = Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(density)
-        val expectedDepthPx = Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(density)
+        val expectedWidthPx =
+            DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
+        val expectedHeightPx =
+            DefaultTestRecommendedBoxSize.HEIGHT_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
+        val expectedDepthPx =
+            DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
+                session.scene.virtualPixelDensity
+            )
         composeTestRule
             .onSubspaceNodeWithTag("box")
             .assertWidthIsEqualTo(
@@ -2219,7 +2255,10 @@ class SubspaceTest {
             .assertPositionInRootIsEqualTo(
                 0.dp,
                 0.dp,
-                ArDeviceTarget.DEFAULT_OFFSET.translation.z.meters.toDp(),
+                ArDeviceTarget.DEFAULT_OFFSET.translation.z.metersToDp(
+                    composeTestRule.density,
+                    session.scene.virtualPixelDensity,
+                ),
             )
             .assertWidthIsNotEqualTo(
                 with(composeTestRule.density) { VolumeConstraints().maxWidth.toDp() }
