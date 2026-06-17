@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(
+    androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
+    androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi::class,
+)
+
 package androidx.xr.compose.testapp.spatialcompose
 
 import android.content.Intent
@@ -467,7 +472,7 @@ class SpatialCompose : ComponentActivity() {
                 )
 
             dragonEntity.value?.let { entity ->
-                val animation = entity.animations.find { it.name == "Fast_Flying" }
+                val animation = entity.getAnimations().find { it.name == "Fast_Flying" }
                 animation?.start(GltfAnimationStartOptions(shouldLoop = true))
                 dragonAnimationState.value = animation?.animationState ?: AnimationState.STOPPED
             }
@@ -477,7 +482,7 @@ class SpatialCompose : ComponentActivity() {
         LaunchedEffect(dragonEntity.value) {
             val entity = dragonEntity.value
             if (entity != null) {
-                val animation = entity.animations.find { it.name == "Fast_Flying" }
+                val animation = entity.getAnimations().find { it.name == "Fast_Flying" }
                 while (true) {
                     val currentState = animation?.animationState ?: AnimationState.STOPPED
 

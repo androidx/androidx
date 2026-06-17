@@ -330,6 +330,9 @@ package androidx.xr.compose.subspace {
   public abstract class DragPolicy {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialGltfAnimationApi {
+  }
+
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract sealed nonexhaustive class FollowBehavior {
     field public static final androidx.xr.compose.subspace.FollowBehavior.Companion Companion;
     field public static final int DEFAULT_SOFT_DURATION_MS = 1500; // 0x5dc
@@ -467,7 +470,7 @@ package androidx.xr.compose.subspace {
     method public void onSurfaceDestroyed(kotlin.jvm.functions.Function1<? super android.view.Surface,kotlin.Unit> onSurfaceDestroyed);
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class SpatialGltfModelAnimation implements java.lang.AutoCloseable {
+  @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi public final class SpatialGltfModelAnimation implements java.lang.AutoCloseable {
     method public void close();
     method @BytecodeOnly public int getAnimationState-ynpOhdo();
     method @BytecodeOnly public long getDuration-UwyO8pc();
@@ -487,13 +490,13 @@ package androidx.xr.compose.subspace {
     property public float playbackSpeed;
   }
 
-  @kotlin.jvm.JvmInline public static final value class SpatialGltfModelAnimation.AnimationState {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi @kotlin.jvm.JvmInline public static final value class SpatialGltfModelAnimation.AnimationState {
     method @BytecodeOnly public static androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState.Companion Companion;
   }
 
-  public static final class SpatialGltfModelAnimation.AnimationState.Companion {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi public static final class SpatialGltfModelAnimation.AnimationState.Companion {
     method @BytecodeOnly public int getPaused-ynpOhdo();
     method @BytecodeOnly public int getPlaying-ynpOhdo();
     method @BytecodeOnly public int getStopped-ynpOhdo();
@@ -526,10 +529,9 @@ package androidx.xr.compose.subspace {
   public final class SpatialGltfModelState implements java.lang.AutoCloseable {
     ctor public SpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource source);
     method public void close();
-    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.O) public java.util.List<androidx.xr.compose.subspace.SpatialGltfModelAnimation> getAnimations();
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi public java.util.List<androidx.xr.compose.subspace.SpatialGltfModelAnimation> getAnimations();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.GltfModelNode> getNodes();
     method @InaccessibleFromKotlin public androidx.xr.compose.subspace.SpatialGltfModelStatus getStatus();
-    property @RequiresApi(android.os.Build.VERSION_CODES.O) public java.util.List<androidx.xr.compose.subspace.SpatialGltfModelAnimation> animations;
     property public java.util.List<androidx.xr.scenecore.GltfModelNode> nodes;
     property public androidx.xr.compose.subspace.SpatialGltfModelStatus status;
   }

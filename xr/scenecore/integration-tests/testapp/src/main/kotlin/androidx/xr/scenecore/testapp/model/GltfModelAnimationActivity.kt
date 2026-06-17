@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
+
 package androidx.xr.scenecore.testapp.model
 
 import android.annotation.SuppressLint
@@ -271,7 +273,7 @@ class GltfModelAnimationActivity : AppCompatActivity() {
 
         if (gltfModelEntity != null) {
 
-            animations = gltfModelEntity!!.animations
+            animations = gltfModelEntity!!.getAnimations()
             Log.w(TAG, "Animation total count is ${animations.size - 1}")
 
             // setup spinner item to show options in spinner

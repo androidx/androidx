@@ -73,6 +73,7 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
         }
 
     @delegate:RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalGltfAnimationApi::class)
     private val _animations: List<GltfAnimation> by lazy {
         // The unique identifier of an animation is their index so we first get the
         // count of the nodes in the model from the native side.
@@ -109,13 +110,13 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * order of elements in this list is guaranteed to match the order of animations in the glTF
      * file's `animations` array.
      */
-    @get:RequiresApi(Build.VERSION_CODES.O)
-    public val animations: List<GltfAnimation>
-        @MainThread
-        get() {
-            checkNotDisposed()
-            return _animations
-        }
+    @MainThread
+    @RequiresApi(Build.VERSION_CODES.O)
+    @ExperimentalGltfAnimationApi
+    public fun getAnimations(): List<GltfAnimation> {
+        checkNotDisposed()
+        return _animations
+    }
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the

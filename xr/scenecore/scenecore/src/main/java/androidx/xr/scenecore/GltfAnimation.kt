@@ -45,6 +45,7 @@ import kotlinx.coroutines.asExecutor
  */
 @Suppress("NotCloseable")
 @RequiresApi(Build.VERSION_CODES.O)
+@ExperimentalGltfAnimationApi
 public class GltfAnimation
 internal constructor(
     private val rtGltfEntity: RtGltfEntity,

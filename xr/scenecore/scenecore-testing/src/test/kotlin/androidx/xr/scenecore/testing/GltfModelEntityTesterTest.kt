@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
+
 package androidx.xr.scenecore.testing
 
 import android.os.Build
@@ -109,7 +111,7 @@ class GltfModelEntityTesterTest {
         tester.addAnimation(animation1)
         tester.addAnimation(animation2)
 
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
 
         assertThat(animations).hasSize(2)
         assertThat(animations[0].name).isEqualTo("anim1")
@@ -136,7 +138,7 @@ class GltfModelEntityTesterTest {
         tester.addAnimation(animation)
 
         // Act
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
         gltfAnimation.start(
             GltfAnimationStartOptions(
                 shouldLoop = true,
@@ -159,7 +161,7 @@ class GltfModelEntityTesterTest {
         tester.addAnimation(animation)
 
         // Act
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
         gltfAnimation.start()
         gltfAnimation.setSpeed(3.0f)
 
@@ -175,7 +177,7 @@ class GltfModelEntityTesterTest {
         tester.addAnimation(animation)
 
         // Act
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
         gltfAnimation.start()
         gltfAnimation.seekTo(2.0.seconds.toJavaDuration())
 

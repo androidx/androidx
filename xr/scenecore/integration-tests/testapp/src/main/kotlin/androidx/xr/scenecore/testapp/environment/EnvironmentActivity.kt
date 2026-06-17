@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
+
 package androidx.xr.scenecore.testapp.environment
 
 import android.annotation.SuppressLint
@@ -266,7 +268,8 @@ class EnvironmentActivity : AppCompatActivity() {
             geometryEntity = dragonEntity
             dragonEntity.setEnabled(false)
             dragonEntity.nodes.find { it.name == "Dragon" }?.setMaterialOverride(khronosPbrMaterial)
-            dragonEntity.animations
+            dragonEntity
+                .getAnimations()
                 .find { it.name == "Fast_Flying" }
                 ?.start(GltfAnimationStartOptions(shouldLoop = true))
 

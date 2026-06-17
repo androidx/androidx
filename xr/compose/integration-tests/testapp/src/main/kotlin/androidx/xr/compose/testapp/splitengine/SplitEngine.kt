@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
+
 package androidx.xr.compose.testapp.splitengine
 
 import android.annotation.SuppressLint
@@ -331,7 +333,7 @@ class SplitEngine : ComponentActivity() {
                                     )
                             }
                             glimmerEntity.value!!
-                                .animations
+                                .getAnimations()
                                 .firstOrNull()
                                 ?.start(GltfAnimationStartOptions(shouldLoop = false))
                         }
@@ -414,13 +416,15 @@ class SplitEngine : ComponentActivity() {
                         val modifier = Modifier.weight(1F)
                         ApiButton("Animate Dragon Entity", modifier) {
                             dragonEntity.value!!
-                                .animations
+                                .getAnimations()
                                 .find { it.name == "Fast_Flying" }
                                 ?.start(GltfAnimationStartOptions(shouldLoop = false))
                         }
                         ApiButton("Loop Animate Dragon Entity", modifier) {
                             val fastFlyingAnim =
-                                dragonEntity.value!!.animations.find { it.name == "Fast_Flying" }
+                                dragonEntity.value!!.getAnimations().find {
+                                    it.name == "Fast_Flying"
+                                }
                             fastFlyingAnim?.start(GltfAnimationStartOptions(shouldLoop = true))
 
                             dragonAnimationState.value =
@@ -428,7 +432,7 @@ class SplitEngine : ComponentActivity() {
                                     ?: GltfAnimation.AnimationState.STOPPED
                         }
                         ApiButton("Stop Animate Dragon Entity", modifier) {
-                            dragonEntity.value!!.animations.forEach { anim ->
+                            dragonEntity.value!!.getAnimations().forEach { anim ->
                                 if (anim.animationState == GltfAnimation.AnimationState.PLAYING) {
                                     anim.stop()
                                 }

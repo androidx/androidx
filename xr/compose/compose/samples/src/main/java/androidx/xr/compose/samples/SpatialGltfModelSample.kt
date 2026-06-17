@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi::class)
+
 package androidx.xr.compose.samples
 
 import android.net.Uri
@@ -109,7 +111,7 @@ public fun SpatialGltfModelAnimationSample() {
         rememberSpatialGltfModelState(
             source = SpatialGltfModelSource.fromPath(Paths.get("models", "Biped.gltf"))
         )
-    val animation = modelState.animations.find { it.name == "Walk" }
+    val animation = modelState.getAnimations().find { it.name == "Walk" }
 
     animation?.animationState?.let { state ->
         LaunchedEffect(state) {

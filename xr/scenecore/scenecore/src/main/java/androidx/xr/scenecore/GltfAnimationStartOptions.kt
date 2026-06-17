@@ -49,6 +49,7 @@ import java.time.Duration
  * @throws IllegalArgumentException if [seekStartTime] is negative.
  */
 @RequiresApi(Build.VERSION_CODES.O)
+@ExperimentalGltfAnimationApi
 public class GltfAnimationStartOptions
 @JvmOverloads
 constructor(
