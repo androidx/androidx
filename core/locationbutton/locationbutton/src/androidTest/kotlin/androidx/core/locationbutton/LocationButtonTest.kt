@@ -555,4 +555,26 @@ public class LocationButtonTest {
         val compositionOrder = button.surfaceView!!.compositionOrder
         assertThat(compositionOrder).isEqualTo(LocationButton.DEFAULT_COMPOSITION_ORDER)
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testLocationButtonCustomCompositionOrderIsPreserved() {
+        val provider = TestLocationButtonProvider.create()
+        lateinit var button: LocationButton
+
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    setLocationButtonProvider(provider)
+                    setCompositionOrder(2)
+                    activity.setContentView(this)
+                }
+        }
+
+        instrumentation.waitForIdleSync()
+
+        val surfaceView = checkNotNull(button.surfaceView)
+        val compositionOrder = surfaceView.compositionOrder
+        assertThat(compositionOrder).isEqualTo(2)
+    }
 }
