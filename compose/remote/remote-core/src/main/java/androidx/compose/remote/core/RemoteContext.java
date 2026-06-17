@@ -537,7 +537,7 @@ public abstract class RemoteContext {
         return mPaintContext;
     }
 
-    public void setPaintContext(@NonNull PaintContext paintContext) {
+    public void setPaintContext(@Nullable PaintContext paintContext) {
         this.mPaintContext = paintContext;
     }
 

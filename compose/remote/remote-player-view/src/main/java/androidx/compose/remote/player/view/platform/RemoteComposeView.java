@@ -270,6 +270,7 @@ public class RemoteComposeView extends FrameLayout
         }
 
         mDocument = value;
+        mARContext.setPaintContext(null);
         if (mPatternCallback != null) {
             mDocument.getDocument().setMacroCallback(mPatternCallback);
         }
@@ -869,73 +870,91 @@ public class RemoteComposeView extends FrameLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (mDocument == null) {
+        if (mDocument == null || mDisable) {
+            int w =
+                    mDocument == null
+                            ? 0
+                            : measureDimension(widthMeasureSpec, mDocument.getWidth());
+            int h =
+                    mDocument == null
+                            ? 0
+                            : measureDimension(heightMeasureSpec, mDocument.getHeight());
+            setMeasuredDimension(w, h);
             return;
         }
-        int preWidth = getWidth();
-        int preHeight = getHeight();
+        try {
+            int preWidth = getWidth();
+            int preHeight = getHeight();
 
-        int w;
-        int h;
+            int w;
+            int h;
 
-        if (!mDocument.useFeature(Header.FEATURE_PAINT_MEASURE)) {
-            int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-            int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-            int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-            float maxWidth = Float.MAX_VALUE;
-            float maxHeight = Float.MAX_VALUE;
-            switch (widthMode) {
-                case MeasureSpec.EXACTLY:
-                    maxWidth = widthSize;
-                    break;
-                case MeasureSpec.AT_MOST:
-                    maxWidth = widthSize;
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                    break;
-            }
-            switch (heightMode) {
-                case MeasureSpec.EXACTLY:
-                    maxHeight = heightSize;
-                    break;
-                case MeasureSpec.AT_MOST:
-                    maxHeight = heightSize;
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                    break;
-            }
-
-            if (mARContext.getPaintContext() != null) {
-                mDocument.getDocument().measure(mARContext, 0, maxWidth, 0, maxHeight);
-            }
-
-            w = measureDimension(widthMeasureSpec, mDocument.getWidth());
-            h = measureDimension(heightMeasureSpec, mDocument.getHeight());
-
-            if (mARContext.getPaintContext() == null) {
-                if (w == 0) {
-                    w = (int) maxWidth;
+            if (!mDocument.useFeature(Header.FEATURE_PAINT_MEASURE)) {
+                int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+                int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+                int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+                int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+                float maxWidth = Float.MAX_VALUE;
+                float maxHeight = Float.MAX_VALUE;
+                switch (widthMode) {
+                    case MeasureSpec.EXACTLY:
+                        maxWidth = widthSize;
+                        break;
+                    case MeasureSpec.AT_MOST:
+                        maxWidth = widthSize;
+                        break;
+                    case MeasureSpec.UNSPECIFIED:
+                        break;
                 }
-                if (h == 0) {
-                    h = (int) maxHeight;
+                switch (heightMode) {
+                    case MeasureSpec.EXACTLY:
+                        maxHeight = heightSize;
+                        break;
+                    case MeasureSpec.AT_MOST:
+                        maxHeight = heightSize;
+                        break;
+                    case MeasureSpec.UNSPECIFIED:
+                        break;
+                }
+
+                if (mARContext.getPaintContext() != null) {
+                    mDocument.getDocument().measure(mARContext, 0, maxWidth, 0, maxHeight);
+                }
+
+                w = measureDimension(widthMeasureSpec, mDocument.getWidth());
+                h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+
+                if (mARContext.getPaintContext() == null) {
+                    if (w == 0) {
+                        w = (int) maxWidth;
+                    }
+                    if (h == 0) {
+                        h = (int) maxHeight;
+                    }
+                }
+            } else {
+                w = measureDimension(widthMeasureSpec, mDocument.getWidth());
+                h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+            }
+
+            if (!USE_VIEW_AREA_CLICK) {
+                if (mDocument.getDocument().getContentSizing()
+                        == RootContentBehavior.SIZING_SCALE) {
+                    mDocument.getDocument().computeScale(w, h, sScaleOutput);
+                    w = (int) (mDocument.getWidth() * sScaleOutput[0]);
+                    h = (int) (mDocument.getHeight() * sScaleOutput[1]);
                 }
             }
-        } else {
-            w = measureDimension(widthMeasureSpec, mDocument.getWidth());
-            h = measureDimension(heightMeasureSpec, mDocument.getHeight());
-        }
-
-        if (!USE_VIEW_AREA_CLICK) {
-            if (mDocument.getDocument().getContentSizing() == RootContentBehavior.SIZING_SCALE) {
-                mDocument.getDocument().computeScale(w, h, sScaleOutput);
-                w = (int) (mDocument.getWidth() * sScaleOutput[0]);
-                h = (int) (mDocument.getHeight() * sScaleOutput[1]);
+            setMeasuredDimension(w, h);
+            if (preWidth != w || preHeight != h) {
+                mDocument.getDocument().invalidateMeasure();
             }
-        }
-        setMeasuredDimension(w, h);
-        if (preWidth != w || preHeight != h) {
-            mDocument.getDocument().invalidateMeasure();
+        } catch (Throwable t) {
+            mDisable = true;
+            mErrorMessage = t.getMessage();
+            int w = measureDimension(widthMeasureSpec, mDocument.getWidth());
+            int h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+            setMeasuredDimension(w, h);
         }
     }
 
