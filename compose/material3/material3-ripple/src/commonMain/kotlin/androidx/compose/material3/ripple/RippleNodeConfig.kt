@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal.ripple
+package androidx.compose.material3.ripple
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.ui.graphics.ColorProducer

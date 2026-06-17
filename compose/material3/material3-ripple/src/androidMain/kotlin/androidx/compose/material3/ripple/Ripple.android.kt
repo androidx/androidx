@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal.ripple
+package androidx.compose.material3.ripple
 
 import android.graphics.drawable.RippleDrawable
 import android.view.View

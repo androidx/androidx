@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal.ripple
+package androidx.compose.material3.ripple
 
 import androidx.collection.MutableScatterMap
 import androidx.compose.foundation.interaction.InteractionSource

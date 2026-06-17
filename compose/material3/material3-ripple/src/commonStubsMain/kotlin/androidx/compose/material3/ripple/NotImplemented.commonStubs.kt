@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal.ripple
+package androidx.compose.material3.ripple
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun implementedInJetBrainsFork(): Nothing =
