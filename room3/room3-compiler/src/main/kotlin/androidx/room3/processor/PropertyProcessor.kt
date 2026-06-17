@@ -20,6 +20,7 @@ import androidx.room3.ColumnInfo
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
+import androidx.room3.ext.getAnnotationOnPropertyOrField
 import androidx.room3.parser.Collate
 import androidx.room3.parser.SQLTypeAffinity
 import androidx.room3.vo.EmbeddedProperty
@@ -39,7 +40,7 @@ class PropertyProcessor(
 
     fun process(): Property {
         val member = element.asMemberOf(containing)
-        val columnInfoAnnotation = element.getAnnotation(ColumnInfo::class)
+        val columnInfoAnnotation = element.getAnnotationOnPropertyOrField(ColumnInfo::class)
         val elementName = element.name
         val annotationColumnName = columnInfoAnnotation?.get("name")?.asString()
         val rawCName =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,75 +18,67 @@ package androidx.room3.compiler.processing.javac
 
 import androidx.room3.compiler.processing.XAnnotation
 import androidx.room3.compiler.processing.XFieldElement
-import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.javac.kotlin.KmPropertyContainer
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
 import androidx.room3.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.VariableElement
+import kotlin.reflect.KClass
 
-internal class JavacFieldElement(env: JavacProcessingEnv, element: VariableElement) :
-    JavacVariableElement(env, element), XFieldElement {
-    override val name: String
-        get() = kotlinMetadata?.name ?: element.simpleName.toString()
-
-    override fun getAllAnnotations(): List<XAnnotation> {
-        return buildList {
-            addAll(super.getAllAnnotations())
-            // For kotlin sources, annotations placed on properties will appear on synthetic
-            // "$annotations" methods in the KAPT stub rather than on the field so we append these
-            // annotations to match KSP. Note that the synthetic "$annotations" method isn't
-            // accessible on precompiled classes in KAPT due to
-            // https://youtrack.jetbrains.com/issue/KT-34684, so they will still be missing in that
-            // case, but there's nothing we can really do about that.
-            syntheticMethodForAnnotations?.let { methodForAnnotations ->
-                addAll(
-                    methodForAnnotations
-                        .getAllAnnotations()
-                        .filter { it.qualifiedName != "java.lang.Deprecated" }
-                        .toList()
-                )
-            }
-        }
-    }
-
-    override val kotlinMetadata: KmPropertyContainer? by lazy {
-        enclosingElement.kotlinMetadata?.getPropertyMetadata(element)
-            // If the metadata isn't in the enclosing class, check the companion object next.
-            ?: enclosingElement.companionObject?.kotlinMetadata?.getPropertyMetadata(element)
-    }
-
-    private val syntheticMethodForAnnotations: JavacMethodElement? by lazy {
-        enclosingElement.getSyntheticMethodsForAnnotations().singleOrNull {
-            it.name == kotlinMetadata?.syntheticMethodForAnnotations?.name
-        }
-    }
-
-    override val kotlinType: KmTypeContainer?
-        get() = kotlinMetadata?.type
-
-    override val enclosingElement: JavacTypeElement by lazy { element.requireEnclosingType(env) }
-
-    override val closestMemberContainer: JavacTypeElement
-        get() = enclosingElement
+internal class JavacFieldElement(
+    env: JavacProcessingEnv,
+    element: VariableElement,
+    override val owner: JavacPropertyElement,
+) : JavacVariableElement(env, element), XFieldElement {
 
     override val jvmDescriptor: String
         get() = element.descriptor(env.delegate)
 
-    override val getter: XMethodElement? by lazy {
-        kotlinMetadata?.getter?.let { getterMetadata ->
-            enclosingElement
-                .getDeclaredMethods()
-                .filter { it.isKotlinPropertyMethod() }
-                .firstOrNull { method -> method.jvmName == getterMetadata.jvmName }
+    override fun <T : Annotation> getAnnotations(
+        annotation: KClass<T>,
+        containerAnnotation: KClass<out Annotation>?,
+    ): List<XAnnotation> = buildList {
+        if (env.config.includePropertyAnnotationsInFields) {
+            addAll(owner.getAnnotations(annotation, containerAnnotation))
         }
+        addAll(super<JavacVariableElement>.getAnnotations(annotation, containerAnnotation))
     }
 
-    override val setter: XMethodElement? by lazy {
-        kotlinMetadata?.setter?.let { setterMetadata ->
-            enclosingElement
-                .getDeclaredMethods()
-                .filter { it.isKotlinPropertyMethod() }
-                .firstOrNull { method -> method.jvmName == setterMetadata.jvmName }
+    override fun getAllAnnotations(): List<XAnnotation> = buildList {
+        if (env.config.includePropertyAnnotationsInFields) {
+            addAll(owner.getAllAnnotations())
         }
+        addAll(super.getAllAnnotations())
     }
+
+    override fun hasAnnotation(
+        annotation: KClass<out Annotation>,
+        containerAnnotation: KClass<out Annotation>?,
+    ): Boolean {
+        val ownerHasAnnotation =
+            if (env.config.includePropertyAnnotationsInFields) {
+                owner.hasAnnotation(annotation, containerAnnotation)
+            } else {
+                false
+            }
+        return ownerHasAnnotation ||
+            super<JavacVariableElement>.hasAnnotation(annotation, containerAnnotation)
+    }
+
+    override val kotlinType: KmTypeContainer?
+        get() = owner.kotlinType
+
+    override val kotlinMetadata: KmPropertyContainer?
+        get() = owner.kotlinMetadata
+
+    override val name: String
+        get() = owner.name
+
+    override val fallbackLocationText: String
+        get() = owner.fallbackLocationText
+
+    override val enclosingElement: JavacTypeElement
+        get() = owner.enclosingElement
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = owner.closestMemberContainer
 }

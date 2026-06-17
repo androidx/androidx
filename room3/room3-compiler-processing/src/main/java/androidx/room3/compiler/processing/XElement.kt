@@ -92,6 +92,12 @@ fun XElement.isField(): Boolean {
     return this is XFieldElement
 }
 
+/** Checks whether this element represents an [XPropertyElement]. */
+fun XElement.isProperty(): Boolean {
+    contract { returns(true) implies (this@isProperty is XPropertyElement) }
+    return this is XPropertyElement
+}
+
 /** Checks whether this element represents an [XMethodElement]. */
 fun XElement.isMethod(): Boolean {
     contract { returns(true) implies (this@isMethod is XMethodElement) }

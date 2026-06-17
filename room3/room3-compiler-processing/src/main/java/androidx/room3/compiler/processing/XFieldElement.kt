@@ -16,13 +16,27 @@
 
 package androidx.room3.compiler.processing
 
-/**
- * Property in an [XTypeElement].
- *
- * Note that the difference between this type and [XPropertyElement] is that a property might not
- * have a backing field if in Kotlin. Java properties always have a field.
- */
-interface XFieldElement : XPropertyElement {
+/** Field backing an [XPropertyElement]. */
+interface XFieldElement : XVariableElement, XHasModifiers {
+    /** The property that owns this field. */
+    val owner: XPropertyElement
+
     /** The descriptor of this field in JVM. */
     val jvmDescriptor: String
+
+    override val enclosingElement: XMemberContainer
+
+    @Deprecated(
+        "Moved to owner property.",
+        replaceWith = ReplaceWith(expression = "this.owner.getter"),
+    )
+    val getter: XMethodElement?
+        get() = owner.getter
+
+    @Deprecated(
+        "Moved to owner property.",
+        replaceWith = ReplaceWith(expression = "this.owner.setter"),
+    )
+    val setter: XMethodElement?
+        get() = owner.setter
 }

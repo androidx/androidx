@@ -32,10 +32,8 @@ import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
@@ -265,24 +263,6 @@ internal class JavacProcessingEnv(
         }
     }
 
-    internal fun wrapAnnotatedElement(element: Element, annotationName: String): XElement {
-        return when (element) {
-            is VariableElement -> {
-                wrapVariableElement(element)
-            }
-            is TypeElement -> {
-                wrapTypeElement(element)
-            }
-            is ExecutableElement -> {
-                wrapExecutableElement(element)
-            }
-            is PackageElement -> {
-                JavacPackageElement(this, element)
-            }
-            else -> error("Unsupported element $element with annotation $annotationName")
-        }
-    }
-
     fun wrapExecutableElement(element: ExecutableElement): JavacExecutableElement {
         return when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
@@ -303,7 +283,7 @@ internal class JavacProcessingEnv(
                     param.element.simpleName == element.simpleName
                 } ?: error("Unable to create variable element for $element")
             }
-            is TypeElement -> JavacFieldElement(this, element)
+            is TypeElement -> JavacPropertyElement(this, element)
             else -> error("Unsupported enclosing type $enclosingElement for $element")
         }
     }

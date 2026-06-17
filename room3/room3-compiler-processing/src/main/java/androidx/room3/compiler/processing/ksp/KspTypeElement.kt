@@ -20,7 +20,6 @@ import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.processing.XAnnotated
 import androidx.room3.compiler.processing.XConstructorElement
 import androidx.room3.compiler.processing.XEnumTypeElement
-import androidx.room3.compiler.processing.XFieldElement
 import androidx.room3.compiler.processing.XHasModifiers
 import androidx.room3.compiler.processing.XMemberContainer
 import androidx.room3.compiler.processing.XMethodElement
@@ -147,13 +146,7 @@ internal sealed class KspTypeElement(
 
     private val allMethods = MemoizedSequence { collectAllMethods(this) }
 
-    private val allFieldsIncludingPrivateSupers = MemoizedSequence {
-        collectPropertiesIncludingPrivateSupers(this) { it.getDeclaredFields() }
-    }
-
     override fun getAllMethods(): Sequence<XMethodElement> = allMethods
-
-    override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
 
     @OptIn(KspExperimental::class)
     protected val _enclosedElements: List<KspElement> by lazy {
@@ -203,10 +196,6 @@ internal sealed class KspTypeElement(
                 .filterIsInstance<KspPropertyElement>()
                 .filter { it.name != "_hashCode" }
         }
-    }
-
-    private val _declaredFields: List<KspFieldElement> by lazy {
-        _declaredProperties.filterIsInstance<KspFieldElement>()
     }
 
     override fun isNested(): Boolean {
@@ -269,10 +258,6 @@ internal sealed class KspTypeElement(
 
     private val allPropertiesIncludingPrivateSupers = MemoizedSequence {
         collectPropertiesIncludingPrivateSupers(this) { it.getDeclaredProperties() }
-    }
-
-    override fun getDeclaredFields(): List<XFieldElement> {
-        return _declaredFields
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {

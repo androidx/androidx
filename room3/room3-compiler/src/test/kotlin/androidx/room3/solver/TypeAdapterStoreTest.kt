@@ -215,7 +215,7 @@ class TypeAdapterStoreTest {
                 )
             val subject = invocation.processingEnv.requireTypeElement("EntityWithValueClass")
             results =
-                subject.getAllFieldsIncludingPrivateSupers().associate { field ->
+                subject.getAllPropertiesIncludingPrivateSupers().associate { field ->
                     val columnAdapter =
                         typeAdapterStore.findColumnTypeAdapter(
                             out = field.type,
@@ -688,7 +688,7 @@ class TypeAdapterStoreTest {
                 )
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             val results =
-                subject.getAllFieldsIncludingPrivateSupers().associate { field ->
+                subject.getAllPropertiesIncludingPrivateSupers().associate { field ->
                     val binder =
                         typeAdapterStore.findStatementValueBinder(
                             input = field.type,
@@ -862,7 +862,7 @@ class TypeAdapterStoreTest {
                 )
         ) { invocation ->
             val subjectTypeElement = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
-            subjectTypeElement.getAllFieldsIncludingPrivateSupers().forEach { field ->
+            subjectTypeElement.getAllPropertiesIncludingPrivateSupers().forEach { field ->
                 assertThat(field.type.implementsEqualsAndHashcode()).isTrue()
             }
         }
@@ -887,7 +887,7 @@ class TypeAdapterStoreTest {
         runKspTest(sources = listOf(source)) { invocation ->
             val subjectTypeElement = invocation.processingEnv.requireTypeElement("Subject")
 
-            subjectTypeElement.getDeclaredFields().forEach {
+            subjectTypeElement.getDeclaredProperties().forEach {
                 assertThat(it.type.implementsEqualsAndHashcode()).isTrue()
             }
         }

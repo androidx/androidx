@@ -51,7 +51,16 @@ internal class KspRoundEnv(
         return buildSet {
                 env.resolver.getSymbolsWithAnnotation(annotationQualifiedName).forEach { symbol ->
                     when (symbol) {
-                        is KSPropertyDeclaration -> add(env.wrapPropertyDeclaration(symbol))
+                        is KSPropertyDeclaration ->
+                            env.wrapPropertyDeclaration(symbol).let { property ->
+                                if (property.hasAnnotation(annotationQualifiedName)) {
+                                    add(property)
+                                }
+                                val field = property.backingField
+                                if (field != null && field.hasAnnotation(annotationQualifiedName)) {
+                                    add(field)
+                                }
+                            }
                         is KSClassDeclaration -> add(env.wrapClassDeclaration(symbol))
                         is KSFunctionDeclaration ->
                             env.wrapFunctionDeclaration(symbol).let { method ->

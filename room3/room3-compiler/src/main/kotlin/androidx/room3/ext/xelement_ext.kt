@@ -16,14 +16,39 @@
 
 package androidx.room3.ext
 
+import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.processing.XConstructorElement
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XExecutableElement
 import androidx.room3.compiler.processing.XExecutableParameterElement
 import androidx.room3.compiler.processing.XMethodElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import kotlin.contracts.contract
+import kotlin.reflect.KClass
+
+fun XPropertyElement.hasAnnotationOnPropertyOrField(annotation: KClass<out Annotation>) =
+    hasAnnotation(annotation) || (backingField?.hasAnnotation(annotation) ?: false)
+
+fun <T : Annotation> XPropertyElement.getAnnotationOnPropertyOrField(annotation: KClass<T>) =
+    getAnnotation(annotation) ?: backingField?.getAnnotation(annotation)
+
+fun XPropertyElement.hasAnyAnnotationOnPropertyOrField(vararg annotations: KClass<out Annotation>) =
+    annotations.any { hasAnnotationOnPropertyOrField(it) }
+
+fun <T : Annotation> XPropertyElement.requireAnnotationOnPropertyOrField(annotation: KClass<T>) =
+    requireNotNull(getAnnotationOnPropertyOrField(annotation)) {
+        "Missing annotation $annotation on $this"
+    }
+
+fun XPropertyElement.requireAnnotationOnPropertyOrField(annotationName: XClassName) =
+    requireNotNull(getAnnotationOnPropertyOrField(annotationName)) {
+        "Missing annotation $annotationName on $this"
+    }
+
+fun XPropertyElement.getAnnotationOnPropertyOrField(annotationName: XClassName) =
+    getAnnotation(annotationName) ?: backingField?.getAnnotation(annotationName)
 
 fun XElement.isEntityElement(): Boolean {
     contract { returns(true) implies (this@isEntityElement is XTypeElement) }

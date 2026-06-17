@@ -20,7 +20,7 @@ import COMMON
 import androidx.kruth.assertThat
 import androidx.room3.Embedded
 import androidx.room3.compiler.codegen.XClassName
-import androidx.room3.compiler.processing.XFieldElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
 import androidx.room3.compiler.processing.util.runKspTest
@@ -1125,7 +1125,7 @@ class DataClassProcessorTest {
             assertThat(dataClass5, sameInstance(dataClass4))
 
             val type = invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
-            val mockElement = mock(XFieldElement::class.java)
+            val mockElement = mock(XPropertyElement::class.java)
             doReturn(type).`when`(mockElement).type
             val fakeProperty =
                 Property(

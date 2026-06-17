@@ -20,6 +20,10 @@ import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XRoundEnv
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.PackageElement
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import kotlin.reflect.KClass
 
 internal class JavacRoundEnv(private val env: JavacProcessingEnv, val delegate: RoundEnvironment) :
@@ -29,7 +33,7 @@ internal class JavacRoundEnv(private val env: JavacProcessingEnv, val delegate: 
 
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         val elements = delegate.getElementsAnnotatedWith(klass.java)
-        return wrapAnnotatedElements(elements, klass.java.canonicalName)
+        return getElementsAnnotatedWith(elements, klass.java.canonicalName)
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
@@ -39,13 +43,33 @@ internal class JavacRoundEnv(private val env: JavacProcessingEnv, val delegate: 
         val annotationTypeElement =
             env.elementUtils.getTypeElement(annotationQualifiedName) ?: return emptySet()
         val elements = delegate.getElementsAnnotatedWith(annotationTypeElement)
-        return wrapAnnotatedElements(elements, annotationQualifiedName)
+        return getElementsAnnotatedWith(elements, annotationQualifiedName)
     }
 
-    private fun wrapAnnotatedElements(
+    private fun getElementsAnnotatedWith(
         elements: Set<Element>,
         annotationName: String,
-    ): Set<XElement> {
-        return elements.map { env.wrapAnnotatedElement(it, annotationName) }.toSet()
+    ): Set<XElement> = buildSet {
+        elements.forEach { element ->
+            when (element) {
+                is VariableElement ->
+                    env.wrapVariableElement(element).let { variableElement ->
+                        if (variableElement is JavacPropertyElement) {
+                            if (variableElement.hasAnnotation(annotationName)) {
+                                add((variableElement))
+                            }
+                            if (variableElement.backingField.hasAnnotation(annotationName)) {
+                                add(variableElement.backingField)
+                            }
+                        } else {
+                            add(variableElement)
+                        }
+                    }
+                is TypeElement -> add(env.wrapTypeElement(element))
+                is ExecutableElement -> add(env.wrapExecutableElement(element))
+                is PackageElement -> add(JavacPackageElement(env, element))
+                else -> error("Unsupported element $element with annotation $annotationName")
+            }
+        }
     }
 }

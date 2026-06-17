@@ -34,6 +34,7 @@ import androidx.room3.compiler.processing.util.getDeclaredField
 import androidx.room3.compiler.processing.util.getField
 import androidx.room3.compiler.processing.util.getMethodByJvmName
 import androidx.room3.compiler.processing.util.getParameter
+import androidx.room3.compiler.processing.util.getProperty
 import androidx.room3.compiler.processing.util.kspProcessingEnv
 import androidx.room3.compiler.processing.util.kspResolver
 import androidx.room3.compiler.processing.util.runProcessorTest
@@ -325,6 +326,10 @@ class XElementTest {
                 assertThat(method.hasAnnotation(Test::class)).isTrue()
                 assertThat(method.hasAnnotation(Override::class)).isFalse()
                 assertThat(method.hasAnnotationWithPackage("org.junit")).isTrue()
+            }
+            element.getProperty("testField").let { field ->
+                assertThat(field.hasAnnotation(OtherAnnotation::class)).isFalse()
+                assertThat(field.hasAnnotation(Test::class)).isFalse()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAnnotation(OtherAnnotation::class)).isTrue()
@@ -1115,11 +1120,11 @@ class XElementTest {
                 it.getDeclaredField("p").let {
                     assertThat(it.closestMemberContainer.isFromJava()).isFalse()
                     assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
-                    it.setter!!.let {
+                    it.owner.setter!!.let {
                         assertThat(it.closestMemberContainer.isFromJava()).isFalse()
                         assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
                     }
-                    it.getter!!.let {
+                    it.owner.getter!!.let {
                         assertThat(it.closestMemberContainer.isFromJava()).isFalse()
                         assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
                     }

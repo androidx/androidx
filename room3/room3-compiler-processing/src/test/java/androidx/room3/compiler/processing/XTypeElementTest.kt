@@ -2907,7 +2907,7 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
 
             // Check property names and corresponding accessors
             assertThat(
-                    subject.getDeclaredFields().map {
+                    subject.getDeclaredProperties().map {
                         it.name to listOf(it.getter?.name, it.setter?.name)
                     }
                 )

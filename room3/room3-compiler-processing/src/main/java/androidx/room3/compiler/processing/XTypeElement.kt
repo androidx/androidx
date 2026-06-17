@@ -120,10 +120,14 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     fun getAllPropertiesIncludingPrivateSupers(): Sequence<XPropertyElement>
 
     /** Fields declared in this type includes all instance/static fields in this */
-    fun getDeclaredFields(): List<XFieldElement>
+    fun getDeclaredFields(): List<XFieldElement> {
+        return getDeclaredProperties().mapNotNull { it.backingField }
+    }
 
     /** All fields, including private supers. Room only ever reads fields this way. */
-    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement>
+    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement> {
+        return getAllPropertiesIncludingPrivateSupers().mapNotNull { it.backingField }
+    }
 
     /**
      * Returns the primary constructor for the type, if it exists.

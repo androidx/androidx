@@ -17,17 +17,26 @@
 package androidx.room3.processor
 
 import androidx.room3.compiler.processing.XElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.vo.Warning
+import kotlin.reflect.KClass
 
 /** A visitor that reads SuppressWarnings annotations and keeps the ones we know about. */
 object SuppressWarningProcessor {
 
     fun getSuppressedWarnings(element: XElement): Set<Warning> = buildSet {
-        element.getAnnotation(SuppressWarnings::class)?.let {
+        element.getAnnotationOnElementOrField(SuppressWarnings::class)?.let {
             addAll(it.getAsStringList("value").mapNotNull(Warning.Companion::fromPublicKey))
         }
-        element.getAnnotation(Suppress::class)?.let {
+        element.getAnnotationOnElementOrField(Suppress::class)?.let {
             addAll(it.getAsStringList("names").mapNotNull(Warning.Companion::fromPublicKey))
         }
     }
+
+    private fun <T : Annotation> XElement.getAnnotationOnElementOrField(annotation: KClass<T>) =
+        if (this is XPropertyElement) {
+            getAnnotation(annotation) ?: backingField?.getAnnotation(annotation)
+        } else {
+            getAnnotation(annotation)
+        }
 }

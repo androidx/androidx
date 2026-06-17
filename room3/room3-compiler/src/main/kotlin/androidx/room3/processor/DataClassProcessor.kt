@@ -27,8 +27,12 @@ import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XVariableElement
 import androidx.room3.compiler.processing.isVoid
+import androidx.room3.ext.getAnnotationOnPropertyOrField
+import androidx.room3.ext.hasAnnotationOnPropertyOrField
+import androidx.room3.ext.hasAnyAnnotationOnPropertyOrField
 import androidx.room3.ext.isCollection
 import androidx.room3.ext.isNotVoid
+import androidx.room3.ext.requireAnnotationOnPropertyOrField
 import androidx.room3.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_PROPERTY
 import androidx.room3.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_PROPERTY
 import androidx.room3.processor.autovalue.AutoValueDataClassProcessorDelegate
@@ -133,10 +137,10 @@ private constructor(
             element
                 .getAllPropertiesIncludingPrivateSupers()
                 .filter {
-                    !it.hasAnnotation(Ignore::class) &&
+                    !it.hasAnnotationOnPropertyOrField(Ignore::class) &&
                         !it.isStatic() &&
                         (!it.isTransient() ||
-                            it.hasAnyAnnotation(
+                            it.hasAnyAnnotationOnPropertyOrField(
                                 ColumnInfo::class,
                                 Embedded::class,
                                 Relation::class,
@@ -144,13 +148,15 @@ private constructor(
                 }
                 .groupBy { property ->
                     context.checker.check(
-                        PROCESSED_ANNOTATIONS.count { property.hasAnnotation(it) } < 2,
+                        PROCESSED_ANNOTATIONS.count {
+                            property.hasAnnotationOnPropertyOrField(it)
+                        } < 2,
                         property,
                         ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_PROPERTY_ANNOTATION,
                     )
-                    if (property.hasAnnotation(Embedded::class)) {
+                    if (property.hasAnnotationOnPropertyOrField(Embedded::class)) {
                         Embedded::class
-                    } else if (property.hasAnnotation(Relation::class)) {
+                    } else if (property.hasAnnotationOnPropertyOrField(Relation::class)) {
                         Relation::class
                     } else {
                         null
@@ -468,7 +474,7 @@ private constructor(
             return null
         }
 
-        val embeddedAnnotation = variableElement.getAnnotation(Embedded::class)
+        val embeddedAnnotation = variableElement.getAnnotationOnPropertyOrField(Embedded::class)
         val propertyPrefix = embeddedAnnotation?.get("prefix")?.asString() ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
         val embeddedProperty =
@@ -502,7 +508,7 @@ private constructor(
         container: XType,
         relationElement: XPropertyElement,
     ): androidx.room3.vo.Relation? {
-        val annotation = relationElement.requireAnnotation(Relation::class)
+        val annotation = relationElement.requireAnnotationOnPropertyOrField(Relation::class)
 
         val parentColumnNames = annotation["parentColumns"]?.asStringList() ?: emptyList()
         if (parentColumnNames.isEmpty()) {
@@ -1019,7 +1025,7 @@ private constructor(
         assignFromMethod: (DataClassFunction) -> Unit,
         reportAmbiguity: (List<String>) -> Unit,
     ): Boolean {
-        if (property.element.isPublic()) {
+        if (property.element.backingField?.isPublic() == true) {
             assignFromField()
             return true
         }

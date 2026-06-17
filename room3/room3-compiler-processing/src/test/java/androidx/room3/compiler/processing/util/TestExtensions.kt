@@ -17,14 +17,25 @@
 package androidx.room3.compiler.processing.util
 
 import androidx.room3.compiler.processing.XExecutableElement
+import androidx.room3.compiler.processing.XFieldElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 
-fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map { it.name }.toList()
+fun XTypeElement.getAllFieldNames() =
+    getAllFieldsIncludingPrivateSupers().map { it.owner.name }.toList()
 
-fun XTypeElement.getDeclaredField(name: String) = getDeclaredFields().first { it.name == name }
+fun XTypeElement.getDeclaredProperty(name: String): XPropertyElement =
+    getDeclaredProperties().first { it.name == name }
 
-fun XTypeElement.getField(name: String) =
+fun XTypeElement.getProperty(name: String) =
+    getAllPropertiesIncludingPrivateSupers().first { it.name == name }
+
+fun XTypeElement.getDeclaredField(name: String): XFieldElement =
+    getDeclaredProperty(name).backingField
+        ?: throw AssertionError("cannot find field with name $name")
+
+fun XTypeElement.getField(name: String): XFieldElement =
     getAllFieldsIncludingPrivateSupers().first { it.name == name }
 
 fun XTypeElement.getDeclaredMethodByJvmName(jvmName: String) =
