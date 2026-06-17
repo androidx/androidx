@@ -163,7 +163,6 @@ class PdfAutofillHandlerTest {
             parentId = parentId,
             virtualId = getVirtualFormWidgetId(pageNumber = 1, widgetIndex = 0),
             text = text1,
-            hint = unknownHintText,
         )
     }
 
@@ -200,7 +199,7 @@ class PdfAutofillHandlerTest {
     }
 
     @Test
-    fun applyAutofillValues_updatesCurrentEdit() {
+    fun applyAutofillValues_setSelectionForCurrentEdit_withoutMaxLength() {
         val oldText = "old text"
         val newText = "new text"
         val widgetInfo = createTextField(oldText)
@@ -213,6 +212,27 @@ class PdfAutofillHandlerTest {
         handler.applyAutofillValues(values, currentEdit, null)
 
         assertThat(editText.text.toString()).isEqualTo(newText)
+        assertThat(editText.selectionStart).isEqualTo(newText.length)
+        assertThat(editText.selectionEnd).isEqualTo(newText.length)
+    }
+
+    @Test
+    fun applyAutofillValues_setSelectionForCurrentEdit_withMaxLength() {
+        val oldText = "text"
+        val newText = "new text"
+        val maxLength = 5
+        val widgetInfo = createTextField(oldText, maxLength = maxLength)
+        val editText = EditText(context)
+        val currentEdit = FormFillingEditText(editText, 12f, 0, widgetInfo)
+        val virtualId = getVirtualFormWidgetId(PAGE_INDEX, WIDGET_INDEX)
+        val values =
+            SparseArray<AutofillValue>().apply { put(virtualId, AutofillValue.forText(newText)) }
+
+        handler.applyAutofillValues(values, currentEdit, null)
+
+        assertThat(editText.text.toString()).isEqualTo(newText)
+        assertThat(editText.selectionStart).isEqualTo(maxLength)
+        assertThat(editText.selectionEnd).isEqualTo(maxLength)
     }
 
     @Test
@@ -246,13 +266,11 @@ class PdfAutofillHandlerTest {
         virtualId: Int,
         text: String,
         autofillHint: String? = null,
-        hint: String? = null,
     ) {
         verify(this).setAutofillId(parentId, virtualId)
         verify(this).setAutofillType(View.AUTOFILL_TYPE_TEXT)
         verify(this).setAutofillValue(AutofillValue.forText(text))
         autofillHint?.let { verify(this).setAutofillHints(arrayOf(it)) }
-        hint?.let { verify(this).hint = it }
     }
 
     private fun createTextField(
@@ -261,6 +279,7 @@ class PdfAutofillHandlerTest {
         accessibilityLabel: String = "label",
         isReadOnly: Boolean = false,
         rect: Rect = WIDGET_RECT,
+        maxLength: Int = 100,
     ): FormWidgetInfo {
         return FormWidgetInfo.createTextField(
             widgetIndex = index,
@@ -270,7 +289,7 @@ class PdfAutofillHandlerTest {
             isReadOnly = isReadOnly,
             isEditableText = true,
             isMultiLineText = false,
-            maxLength = 100,
+            maxLength = maxLength,
             fontSize = 12f,
         )
     }

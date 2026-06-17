@@ -302,6 +302,11 @@ class AutofillHintDetectorTest {
             .doesNotContain(HintConstants.AUTOFILL_HINT_POSTAL_ADDRESS_REGION)
         assertThat(detector.detectHints("history state"))
             .doesNotContain(HintConstants.AUTOFILL_HINT_POSTAL_ADDRESS_REGION)
+
+        assertThat(detector.detectHints("First Person's state"))
+            .doesNotContain(HintConstants.AUTOFILL_HINT_PERSON_NAME_GIVEN)
+        assertThat(detector.detectHints("Second Person's city"))
+            .doesNotContain(HintConstants.AUTOFILL_HINT_PERSON_NAME_FAMILY)
     }
 
     @Test
