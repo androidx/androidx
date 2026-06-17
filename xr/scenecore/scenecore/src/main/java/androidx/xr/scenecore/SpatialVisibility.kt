@@ -33,13 +33,4 @@ public class SpatialVisibility private constructor(private val value: Int) {
         /** The content is fully within the user's field of view. */
         @JvmField public val WITHIN_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(4)
     }
-
-    override fun toString(): String =
-        when (this) {
-            UNKNOWN -> "UNKNOWN"
-            OUTSIDE_FIELD_OF_VIEW -> "OUTSIDE_FIELD_OF_VIEW"
-            PARTIALLY_WITHIN_FIELD_OF_VIEW -> "PARTIALLY_WITHIN_FIELD_OF_VIEW"
-            WITHIN_FIELD_OF_VIEW -> "WITHIN_FIELD_OF_VIEW"
-            else -> "UNKNOWN ($value)"
-        }
 }

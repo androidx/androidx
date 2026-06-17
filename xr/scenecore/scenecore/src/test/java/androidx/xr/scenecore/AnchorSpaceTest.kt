@@ -474,12 +474,4 @@ class AnchorSpaceTest {
         timeSource += duration
         delay(duration)
     }
-
-    @Test
-    fun anchorSpaceState_toString() {
-        assertThat(AnchorSpace.State.UNANCHORED.toString()).isEqualTo("UNANCHORED")
-        assertThat(AnchorSpace.State.ANCHORED.toString()).isEqualTo("ANCHORED")
-        assertThat(AnchorSpace.State.TIMED_OUT.toString()).isEqualTo("TIMED_OUT")
-        assertThat(AnchorSpace.State.ERROR.toString()).isEqualTo("ERROR")
-    }
 }

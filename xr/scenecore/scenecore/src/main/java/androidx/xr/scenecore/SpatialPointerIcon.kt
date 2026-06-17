@@ -35,12 +35,4 @@ public class SpatialPointerIcon private constructor(private val value: Int) {
         /** Renders the icon for the pointer as a circle. */
         @JvmField public val CIRCLE: SpatialPointerIcon = SpatialPointerIcon(2)
     }
-
-    override fun toString(): String =
-        when (this) {
-            NONE -> "NONE"
-            DEFAULT -> "DEFAULT"
-            CIRCLE -> "CIRCLE"
-            else -> "UNKNOWN ($value)"
-        }
 }

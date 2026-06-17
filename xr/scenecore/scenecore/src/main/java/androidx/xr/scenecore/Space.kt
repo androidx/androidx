@@ -39,13 +39,4 @@ public class Space private constructor(private val value: Int) {
         @JvmField
         public val REAL_WORLD: Space = Space(3)
     }
-
-    @Suppress("DEPRECATION")
-    override fun toString(): String =
-        when (this) {
-            PARENT -> "PARENT"
-            ACTIVITY -> "ACTIVITY"
-            REAL_WORLD -> "REAL_WORLD"
-            else -> "UNKNOWN ($value)"
-        }
 }
