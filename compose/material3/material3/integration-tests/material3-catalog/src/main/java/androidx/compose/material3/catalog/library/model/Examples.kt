@@ -227,6 +227,9 @@ import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
 import androidx.compose.material3.samples.RangeSliderWithCustomComponents
+import androidx.compose.material3.samples.RichTimeInputSample
+import androidx.compose.material3.samples.RichTimePickerSample
+import androidx.compose.material3.samples.RichTimePickerSwitchableSample
 import androidx.compose.material3.samples.RichTooltipSample
 import androidx.compose.material3.samples.RichTooltipWithCaretSample
 import androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
@@ -2652,6 +2655,30 @@ val TimePickerExamples =
             isExpressive = false,
         ) {
             TimePickerSwitchableSample()
+        },
+        Example(
+            name = "RichTimePickerSample",
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl,
+            isExpressive = true,
+        ) {
+            RichTimePickerSample()
+        },
+        Example(
+            name = "RichTimeInputSample",
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl,
+            isExpressive = true,
+        ) {
+            RichTimeInputSample()
+        },
+        Example(
+            name = "RichTimePickerSwitchableSample",
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl,
+            isExpressive = true,
+        ) {
+            RichTimePickerSwitchableSample()
         },
     )
 
