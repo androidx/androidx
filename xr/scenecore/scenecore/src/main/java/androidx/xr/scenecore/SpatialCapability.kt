@@ -38,4 +38,15 @@ public class SpatialCapability private constructor(private val value: Int) {
         /** The activity can spatially embed another activity. */
         @JvmField public val EMBED_ACTIVITY: SpatialCapability = SpatialCapability(6)
     }
+
+    override fun toString(): String =
+        when (this) {
+            SPATIAL_UI -> "SPATIAL_UI"
+            SPATIAL_3D_CONTENT -> "SPATIAL_3D_CONTENT"
+            PASSTHROUGH_CONTROL -> "PASSTHROUGH_CONTROL"
+            APP_ENVIRONMENT -> "APP_ENVIRONMENT"
+            SPATIAL_AUDIO -> "SPATIAL_AUDIO"
+            EMBED_ACTIVITY -> "EMBED_ACTIVITY"
+            else -> "UNKNOWN ($value)"
+        }
 }
