@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonGroup
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
@@ -183,7 +184,7 @@ fun TransformationSpecButtonRowSample() {
     val transformationSpec = rememberTransformationSpec()
 
     TransformingLazyColumn(
-        contentPadding = PaddingValues(20.dp),
+        contentPadding = PaddingValues(),
         modifier = Modifier.background(Color.Black),
     ) {
         items(count = 100) {
@@ -199,6 +200,9 @@ fun TransformationSpecButtonRowSample() {
                             }
                         }
                         .transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        )
             ) {
                 Button(
                     onClick = {},
