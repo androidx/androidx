@@ -154,11 +154,6 @@ public fun TransformingLazyColumn(
                 graphicsContext = graphicsContext,
                 itemAnimator = state.animator,
                 isScrollInProgress = { isScrollingState.value },
-                requestedAnchorKey = { state.requestedAnchorKey },
-                requestedAnchorType = { state.requestedAnchorType },
-                onClearRequestedAnchor = {
-                    state.requestAnchorItem(null, TransformingLazyColumnAnchorType.ItemTop)
-                },
                 reverseLayout = reverseLayout,
             )
         }
