@@ -270,6 +270,113 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(called)
     }
 
+    @Test
+    @MediumTest
+    fun testListenerCanModifyListDuringRunOnExecuted() {
+        var firstListenerCalled = false
+        var secondListenerCalled = false
+
+        val secondListener = ExecutionListener { id, needsReschedule ->
+            secondListenerCalled = true
+        }
+
+        val firstListener =
+            object : ExecutionListener {
+                override fun onExecuted(id: WorkGenerationalId, needsReschedule: Boolean) {
+                    firstListenerCalled = true
+                    processor.removeExecutionListener(this)
+                    processor.addExecutionListener(secondListener)
+                }
+            }
+
+        processor.addExecutionListener(firstListener)
+
+        // 1. Test runOnExecuted pathway (startWork on non-existent work spec)
+        val nonExistentToken = StartStopToken(WorkGenerationalId("non-existent-id", 0))
+        assertFalse(processor.startWork(nonExistentToken))
+        assertTrue(firstListenerCalled)
+        // secondListener was added during the dispatch, so it shouldn't be called in the current
+        // dispatch pass
+        assertFalse(secondListenerCalled)
+
+        // Reset state to verify secondListener is now active and firstListener is removed
+        firstListenerCalled = false
+        secondListenerCalled = false
+
+        // 2. Test runOnExecuted pathway subsequent dispatch (to verify secondListener is now active
+        // and firstListener is removed)
+        val anotherNonExistentToken =
+            StartStopToken(WorkGenerationalId("another-non-existent-id", 0))
+        assertFalse(processor.startWork(anotherNonExistentToken))
+        assertTrue(secondListenerCalled)
+        assertFalse(firstListenerCalled)
+    }
+
+    @Test
+    @MediumTest
+    fun testListenerCanModifyListDuringOnExecuted() {
+        var firstListenerCalled = false
+        var secondListenerCalled = false
+
+        val secondListener = ExecutionListener { id, needsReschedule ->
+            secondListenerCalled = true
+        }
+
+        val firstListener =
+            object : ExecutionListener {
+                override fun onExecuted(id: WorkGenerationalId, needsReschedule: Boolean) {
+                    firstListenerCalled = true
+                    processor.removeExecutionListener(this)
+                    processor.addExecutionListener(secondListener)
+                }
+            }
+
+        processor.addExecutionListener(firstListener)
+
+        // 1. Test onExecuted pathway
+        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request)
+        val token = StartStopToken(WorkGenerationalId(request.workSpec.id, 0))
+        assertTrue(processor.startWork(token))
+        val worker = factory.awaitWorker(request.id)
+
+        // Use a CountDownLatch to block the test thread until the asynchronous worker completes
+        // and all preceding execution listeners (including the ones under test) have finished
+        // running.
+        val executionFinished = CountDownLatch(1)
+        processor.addExecutionListener { _, _ -> executionFinished.countDown() }
+
+        (worker as LatchWorker).mLatch.countDown()
+        assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
+
+        assertTrue(firstListenerCalled)
+        // secondListener was added during the dispatch, so it shouldn't be called in the current
+        // dispatch pass
+        assertFalse(secondListenerCalled)
+
+        // 2. Test onExecuted pathway subsequent dispatch (to verify secondListener is now active
+        // and firstListener is removed)
+        firstListenerCalled = false
+        secondListenerCalled = false
+
+        val request2 = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request2)
+        val token2 = StartStopToken(WorkGenerationalId(request2.workSpec.id, 0))
+
+        assertTrue(processor.startWork(token2))
+        val worker2 = factory.awaitWorker(request2.id)
+
+        // Block until the second worker completes and all listeners have finished running
+        val executionFinished2 = CountDownLatch(1)
+        processor.addExecutionListener { _, _ -> executionFinished2.countDown() }
+
+        (worker2 as LatchWorker).mLatch.countDown()
+        assertTrue(executionFinished2.await(3, TimeUnit.SECONDS))
+
+        assertTrue(secondListenerCalled)
+        assertFalse(firstListenerCalled)
+    }
+
     @After
     fun tearDown() {
         defaultExecutor.shutdownNow()
