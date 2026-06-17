@@ -60,7 +60,12 @@ fun OneHandedGestureTwoButtonsSamePriorityDemo() {
         repeat(2) { idx ->
             var label by remember { mutableStateOf("Gesturable Button $idx") }
 
-            OneHandedGestureButton(onClick = { label = "Clicked/Gestured $idx" }) { Text(label) }
+            OneHandedGestureButton(
+                gestureLabel = "activate the button",
+                onClick = { label = "Clicked/Gestured $idx" },
+            ) {
+                Text(label)
+            }
         }
     }
 }
@@ -93,6 +98,7 @@ fun OneHandedGesturePrimaryDismissButtons() {
                         Modifier.oneHandedGesture(
                             action = GestureAction.Dismiss,
                             interactionSource = dismissInteractionSource,
+                            gestureLabel = "dismiss",
                             onGesture = dismissOnClick,
                         ),
                 ) {
@@ -108,6 +114,7 @@ fun OneHandedGesturePrimaryDismissButtons() {
                         Modifier.oneHandedGesture(
                             action = GestureAction.Primary,
                             interactionSource = primaryInteractionSource,
+                            gestureLabel = "confirm",
                             onGesture = primaryOnClick,
                         ),
                 ) {
@@ -132,7 +139,10 @@ fun OneHandedGestureSwipeDismissableNavHostDemo() {
             ) {
                 Text("First screen")
                 Spacer(Modifier.height(4.dp))
-                OneHandedGestureButton(onClick = { navController.navigate("second") }) {
+                OneHandedGestureButton(
+                    gestureLabel = "move to the second screen",
+                    onClick = { navController.navigate("second") },
+                ) {
                     Text("Go to Second screen")
                 }
             }
@@ -145,7 +155,10 @@ fun OneHandedGestureSwipeDismissableNavHostDemo() {
             ) {
                 Text("Second screen")
                 Spacer(Modifier.height(4.dp))
-                OneHandedGestureButton(onClick = { navController.popBackStack() }) {
+                OneHandedGestureButton(
+                    gestureLabel = "move to the first screen",
+                    onClick = { navController.popBackStack() },
+                ) {
                     Text("Go to Previous screen")
                 }
             }
@@ -179,6 +192,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = scrollInteractionSource,
+                        gestureLabel = "scroll",
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
         ) {
@@ -198,6 +212,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                     action = GestureAction.Primary,
                                     priority = GesturePriority.Clickable,
                                     interactionSource = buttonInteractionSource,
+                                    gestureLabel = "click",
                                     onGesture = onClick,
                                 )
                             } else {
@@ -214,7 +229,11 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
 }
 
 @Composable
-private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
+private fun OneHandedGestureButton(
+    gestureLabel: String,
+    onClick: () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Button(
@@ -224,6 +243,7 @@ private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable Box
             Modifier.oneHandedGesture(
                 action = GestureAction.Primary,
                 interactionSource = interactionSource,
+                gestureLabel = gestureLabel,
                 onGesture = onClick,
             ),
     ) {

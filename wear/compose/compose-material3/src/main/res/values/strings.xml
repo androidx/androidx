@@ -51,4 +51,8 @@
     <string description="State description of Switch components when their state is off." name="wear_m3c_capital_off_state_description">OFF</string>
     <string description="State description of Checkbox components when their state is checked." name="wear_m3c_checked_state_description">checked</string>
     <string description="State description of Checkbox components when their state is not checked." name="wear_m3c_not_checked_state_description">not checked</string>
+    <!-- Accessibility text for primary gesture -->
+    <string name="one_handed_gesture_primary_action_accessibility_text">Double-pinch gesture to %s</string>
+    <!-- Accessibility text for dismiss gesture -->
+    <string name="one_handed_gesture_dismiss_action_accessibility_text">Wrist-turn gesture to %s</string>
 </resources>

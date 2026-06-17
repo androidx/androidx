@@ -62,6 +62,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
@@ -114,6 +122,7 @@ class OneHandedGestureTest {
         var textSize: IntSize = IntSize.Zero
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
+        val gestureLabel = "click"
 
         rule.setContentWithTheme {
             val interactionSource = remember { MutableInteractionSource() }
@@ -124,6 +133,7 @@ class OneHandedGestureTest {
                         Modifier.onSizeChanged { textSize = it }
                             .oneHandedGesture(
                                 action = GestureAction.Primary,
+                                gestureLabel = gestureLabel,
                                 interactionSource = interactionSource,
                             ) {
                                 gestured = true
@@ -149,6 +159,15 @@ class OneHandedGestureTest {
             assertThat(hapticResults).hasSize(1)
             assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
         }
+
+        // Verify that correct content description is set for a11y
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                gestureLabel,
+            )
+        onView(withContentDescription(expectedText)).checkExists()
     }
 
     /** Verifies that gesture isn't triggered when LocalOneHandedGestureEnabled is false */
@@ -157,6 +176,7 @@ class OneHandedGestureTest {
         var gestured = false
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
+        val gestureLabel = "click"
 
         rule.setContentWithTheme {
             MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
@@ -165,7 +185,10 @@ class OneHandedGestureTest {
                     Text(
                         "Clickable",
                         modifier =
-                            Modifier.oneHandedGesture(action = GestureAction.Primary) {
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                gestureLabel = gestureLabel,
+                            ) {
                                 gestured = true
                             },
                     )
@@ -178,6 +201,15 @@ class OneHandedGestureTest {
             assertEquals(false, gestured)
             assertThat(hapticResults).hasSize(0)
         }
+
+        // Verify that correct content description is not set for a11y if gestures are disabled
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                gestureLabel,
+            )
+        onView(withContentDescription(expectedText)).checkDoesNotExist()
     }
 
     /** Verifies simple Dismiss gesture */
@@ -189,6 +221,7 @@ class OneHandedGestureTest {
         var textSize: IntSize = IntSize.Zero
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
+        val gestureLabel = "dismiss"
 
         rule.setContentWithTheme {
             val interactionSource = remember { MutableInteractionSource() }
@@ -199,6 +232,7 @@ class OneHandedGestureTest {
                         Modifier.onSizeChanged { textSize = it }
                             .oneHandedGesture(
                                 action = GestureAction.Dismiss,
+                                gestureLabel = gestureLabel,
                                 interactionSource = interactionSource,
                             ) {
                                 gestured = true
@@ -224,6 +258,15 @@ class OneHandedGestureTest {
             assertThat(hapticResults).hasSize(1)
             assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
         }
+
+        // Verify that correct content description is set
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedText =
+            context.getString(
+                R.string.one_handed_gesture_dismiss_action_accessibility_text,
+                gestureLabel,
+            )
+        onView(withContentDescription(expectedText)).checkExists()
     }
 
     /** Verifies that Clickable priority is higher than Scrollable */
@@ -234,6 +277,7 @@ class OneHandedGestureTest {
         var tlcIndicatorAction: GestureAction? = null
         var textIndicatorAction: GestureAction? = null
         val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val buttonGestureLabel = "click"
 
         rule.setContentWithTheme {
             val tlcInteractionSource = remember { MutableInteractionSource() }
@@ -244,6 +288,7 @@ class OneHandedGestureTest {
                         Modifier.oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Scrollable,
+                            gestureLabel = "scroll",
                             interactionSource = tlcInteractionSource,
                         ) {
                             tlcGestured = true
@@ -256,6 +301,7 @@ class OneHandedGestureTest {
                                 Modifier.oneHandedGesture(
                                     action = GestureAction.Primary,
                                     priority = GesturePriority.Clickable,
+                                    gestureLabel = buttonGestureLabel,
                                     interactionSource = textInteractionSource,
                                 ) {
                                     textGestured = true
@@ -284,6 +330,15 @@ class OneHandedGestureTest {
             assertEquals(GestureAction.Primary, textIndicatorAction)
             assertEquals(true, textGestured)
         }
+
+        // Verify that correct content description is set
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                buttonGestureLabel,
+            )
+        onView(withContentDescription(expectedText)).checkExists()
     }
 
     /** Verifies that all gestures with the same priority are triggered */
@@ -1018,6 +1073,118 @@ class OneHandedGestureTest {
         }
     }
 
+    @Test
+    fun test_accessibility_primary_dismiss() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val primaryLabel = "primary"
+        val dismissLabel = "dismiss"
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Text(
+                    "Primary",
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            gestureLabel = primaryLabel,
+                        ) {},
+                )
+
+                Text(
+                    "Dismiss",
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Dismiss,
+                            gestureLabel = dismissLabel,
+                        ) {},
+                )
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+        rule.waitForIdle()
+
+        // Verify that correct content description is set for a11y
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val primaryExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                primaryLabel,
+            )
+        val dismissExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_dismiss_action_accessibility_text,
+                dismissLabel,
+            )
+        onView(withContentDescription(primaryExpectedText)).checkExists()
+        onView(withContentDescription(dismissExpectedText)).checkExists()
+    }
+
+    @Test
+    fun test_accessibility_change_priority() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val primaryLabelScrollable = "primary scroll"
+        val primaryLabelClickable = "primary button"
+        var showClickable by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Text(
+                    "Primary",
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            gestureLabel = primaryLabelScrollable,
+                            priority = GesturePriority.Scrollable,
+                        ) {},
+                )
+
+                if (showClickable) {
+                    Text(
+                        "Dismiss",
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                gestureLabel = primaryLabelClickable,
+                                priority = GesturePriority.Clickable,
+                            ) {},
+                    )
+                }
+            }
+        }
+
+        // It takes at least a second for accessibility to trigger. Fast-forward 3s to allow some
+        // delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val primaryExpectedClickableText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                primaryLabelClickable,
+            )
+        val primaryExpectedScrollableText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                primaryLabelScrollable,
+            )
+        onView(withContentDescription(primaryExpectedClickableText)).checkExists()
+        onView(withContentDescription(primaryExpectedScrollableText)).checkDoesNotExist()
+
+        // Hide Button with Clickable priority and test that a11y text was updated to Scrollable
+        showClickable = false
+        rule.mainClock.advanceTimeBy(3000)
+        onView(withContentDescription(primaryExpectedClickableText)).checkDoesNotExist()
+        onView(withContentDescription(primaryExpectedScrollableText)).checkExists()
+
+        // Show Button with Clickable priority and test that a11y text was updated back to Clickable
+        showClickable = true
+        rule.mainClock.advanceTimeBy(3000)
+        onView(withContentDescription(primaryExpectedClickableText)).checkExists()
+        onView(withContentDescription(primaryExpectedScrollableText)).checkDoesNotExist()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun ComposeContentTestRule.verifyColors(
         interactionSource: MutableInteractionSource,
@@ -1110,6 +1277,11 @@ class OneHandedGestureTest {
 
         private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
     }
+
+    private fun ViewInteraction.checkExists(): ViewInteraction =
+        this.check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+
+    private fun ViewInteraction.checkDoesNotExist(): ViewInteraction = this.check(doesNotExist())
 
     /* Copy from com.google.wear.input.GestureEvent class */
     private val sdkActionDismiss = 2
