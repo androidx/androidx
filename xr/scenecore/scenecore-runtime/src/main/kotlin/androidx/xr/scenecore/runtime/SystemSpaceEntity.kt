@@ -32,6 +32,6 @@ public interface SystemSpaceEntity : Entity {
     public fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?)
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val poseInOpenXrReferenceSpace: Pose?
+    public val poseInPlatformReferenceSpace: Pose?
         get() = null
 }

@@ -23,21 +23,21 @@ import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
 
-// TODO: b/496641320 - Rename the class to something more generic like "ReferenceScenePose"
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class OpenXrScenePose(
+public class PlatformReferenceScenePose(
     private val activitySpace: ActivitySpace,
     private val perceptionPose: Pose?,
 ) : BaseScenePose() {
 
-    private val openXrScenePoseHelper: OpenXrScenePoseHelper = OpenXrScenePoseHelper(activitySpace)
+    private val platformReferenceScenePoseHelper: PlatformReferenceScenePoseHelper =
+        PlatformReferenceScenePoseHelper(activitySpace)
 
     override val activitySpacePose: Pose
-        get() = openXrScenePoseHelper.getActivitySpacePose(poseInOpenXrReferenceSpace)
+        get() = platformReferenceScenePoseHelper.getActivitySpacePose(poseInPlatformReferenceSpace)
 
-    // This WorldPose is assumed to always have a scale of 1.0f in the OpenXR reference space.
+    // This WorldPose is assumed to always have a scale of 1.0f in the reference space.
     override val activitySpaceScale: Vector3
-        get() = openXrScenePoseHelper.getActivitySpaceScale(Vector3(1f, 1f, 1f))
+        get() = platformReferenceScenePoseHelper.getActivitySpaceScale(Vector3(1f, 1f, 1f))
 
     override suspend fun hitTest(
         origin: Vector3,
@@ -46,7 +46,7 @@ public class OpenXrScenePose(
     ): HitTestResult =
         activitySpace.hitTestRelativeToActivityPose(origin, direction, hitTestFilter, this)
 
-    /** Returns the pose relative to the OpenXR reference space (may be null if not ready). */
-    public val poseInOpenXrReferenceSpace: Pose?
+    /** Returns the pose relative to the reference space (may be null if not ready). */
+    public val poseInPlatformReferenceSpace: Pose?
         get() = perceptionPose
 }

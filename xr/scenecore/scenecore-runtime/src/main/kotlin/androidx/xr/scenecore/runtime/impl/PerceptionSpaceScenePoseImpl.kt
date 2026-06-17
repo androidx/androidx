@@ -22,17 +22,20 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 
-/** A ScenePose representing the origin of the OpenXR reference space. */
+/**
+ * A ScenePose representing the origin of the underlying platform reference space that is used when
+ * subscribing to node positions on the platform.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PerceptionSpaceScenePoseImpl(activitySpace: ActivitySpace) :
     BaseScenePose(), PerceptionSpaceScenePose {
-    private val openXrScenePoseHelper: OpenXrScenePoseHelper = OpenXrScenePoseHelper(activitySpace)
+    private val platformReferenceScenePoseHelper: PlatformReferenceScenePoseHelper =
+        PlatformReferenceScenePoseHelper(activitySpace)
 
     override val activitySpacePose: Pose
-        get() = openXrScenePoseHelper.getActivitySpacePose(Pose())
+        get() = platformReferenceScenePoseHelper.getActivitySpacePose(Pose())
 
     override val activitySpaceScale: Vector3
-        // This ScenePose is assumed to always have a scale of 1.0f in the OpenXR reference
-        // space.
-        get() = openXrScenePoseHelper.getActivitySpaceScale(Vector3(1f, 1f, 1f))
+        // This ScenePose is assumed to always have a scale of 1.0f in the reference space.
+        get() = platformReferenceScenePoseHelper.getActivitySpaceScale(Vector3(1f, 1f, 1f))
 }

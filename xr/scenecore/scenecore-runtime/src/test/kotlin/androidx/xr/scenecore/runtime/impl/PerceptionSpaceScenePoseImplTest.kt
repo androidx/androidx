@@ -51,7 +51,8 @@ class PerceptionSpaceScenePoseImplTest {
                 fromEulerAngles(Vector3(0f, 0f, 90f)),
                 Vector3(1.0f, 1.0f, 1.0f),
             )
-        whenever(activitySpace.poseInOpenXrReferenceSpace).thenReturn(activitySpaceMatrix.toPose())
+        whenever(activitySpace.poseInPlatformReferenceSpace)
+            .thenReturn(activitySpaceMatrix.toPose())
 
         val activitySpacePose = perceptionSpaceScenePose.activitySpacePose
 
@@ -64,7 +65,8 @@ class PerceptionSpaceScenePoseImplTest {
     fun transformPoseTo_returnsCorrectPose() {
         val activitySpaceMatrix =
             fromTrs(Vector3(4.0f, 5.0f, 6.0f), fromEulerAngles(Vector3(90f, 0f, 0f)), Vector3.One)
-        whenever(activitySpace.poseInOpenXrReferenceSpace).thenReturn(activitySpaceMatrix.toPose())
+        whenever(activitySpace.poseInPlatformReferenceSpace)
+            .thenReturn(activitySpaceMatrix.toPose())
         val entity = mock<BaseEntity>()
         whenever(entity.activitySpacePose).thenReturn(Pose.Identity)
         whenever(entity.activitySpaceScale).thenReturn(Vector3.One)
@@ -80,7 +82,8 @@ class PerceptionSpaceScenePoseImplTest {
     fun transformPoseTo_toScaledEntity_returnsCorrectPose() {
         val activitySpaceMatrix =
             fromTrs(Vector3(4.0f, 5.0f, 6.0f), fromEulerAngles(Vector3(90f, 0f, 0f)), Vector3.One)
-        whenever(activitySpace.poseInOpenXrReferenceSpace).thenReturn(activitySpaceMatrix.toPose())
+        whenever(activitySpace.poseInPlatformReferenceSpace)
+            .thenReturn(activitySpaceMatrix.toPose())
 
         val entity = mock<BaseEntity>()
         whenever(entity.activitySpacePose).thenReturn(Pose.Identity)

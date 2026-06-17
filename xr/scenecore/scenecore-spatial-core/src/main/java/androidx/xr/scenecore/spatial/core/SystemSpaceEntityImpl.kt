@@ -49,8 +49,8 @@ internal constructor(
     sceneNodeRegistry: SceneNodeRegistry,
     executor: ScheduledExecutorService,
 ) : AndroidXrEntity(context, node, extensions, sceneNodeRegistry, executor), SystemSpaceEntity {
-    // Transform for this space's origin in OpenXR reference space.
-    internal val openXrReferenceSpaceTransform = AtomicReference<Matrix4?>(null)
+    // Transform for this space's origin in the underlying platform reference space.
+    internal val platformReferenceSpaceTransform = AtomicReference<Matrix4?>(null)
     @VisibleForTesting internal var _worldSpaceScale: Vector3 = Vector3(1f, 1f, 1f)
     // Visible for testing.
     public lateinit var nodeTransformCloseable: Closeable
@@ -92,34 +92,34 @@ internal constructor(
         originChangedExecutor = executor ?: scheduledExecutor
     }
 
-    public override val poseInOpenXrReferenceSpace: Pose?
+    public override val poseInPlatformReferenceSpace: Pose?
         /**
-         * Returns the pose relative to an OpenXR reference space.
+         * Returns the pose relative to a platform reference space.
          *
-         * The OpenXR reference space is the space returned by
+         * The underlying platform reference space is the space returned by
          * [XrExtensions.getOpenXrWorldReferenceSpaceType]
          */
-        get() = openXrReferenceSpaceTransform.get()?.unscaled()?.toPose()
+        get() = platformReferenceSpaceTransform.get()?.unscaled()?.toPose()
 
     /**
-     * Sets the pose and scale of the entity in an OpenXR reference space and should call the
+     * Sets the pose and scale of the entity in a platform reference space and should call the
      * onOriginChanged() callback to signal a change in the underlying space.
      *
-     * @param openXrReferenceSpaceTransform 4x4 transformation matrix of the entity in an OpenXR
-     *   reference space. The OpenXR reference space is of the type defined by the
+     * @param platformReferenceSpaceTransform 4x4 transformation matrix of the entity in a platform
+     *   reference space. The platform reference space is of the type defined by the
      *   [XrExtensions.getOpenXrWorldReferenceSpaceType] method.
      */
-    public fun setOpenXrReferenceSpaceTransform(openXrReferenceSpaceTransform: Matrix4) {
-        if (openXrReferenceSpaceTransform == Matrix4.Zero) {
+    public fun setPlatformReferenceSpaceTransform(platformReferenceSpaceTransform: Matrix4) {
+        if (platformReferenceSpaceTransform == Matrix4.Zero) {
             return
         }
-        this.openXrReferenceSpaceTransform.set(openXrReferenceSpaceTransform)
+        this.platformReferenceSpaceTransform.set(platformReferenceSpaceTransform)
         // TODO: b/353511649 - Make SystemSpaceEntityImpl thread safe.
         // Matrix4.scale returns either a positive or negative scale based on the rotation
         // matrix determinant, but we keep it positive for now to avoid any unexpected issues.
         // SpaceFlinger might apply a scale to the task node, for example if the user caused the
         // main panel to scale in Homespace mode.
-        val actualScale = openXrReferenceSpaceTransform.scale
+        val actualScale = platformReferenceSpaceTransform.scale
         // TODO: b/367780918 - Use the original scale, when the new matrix decomposition is tested
         // thoroughly.
         _worldSpaceScale = abs(actualScale)
@@ -129,7 +129,7 @@ internal constructor(
 
     /**
      * Subscribes to the node's transform update events and caches the pose by calling
-     * setOpenXrReferenceSpacePose().
+     * setPlatformReferenceSpaceTransform().
      *
      * @param node The node to subscribe to.
      * @param executor The executor to run the callback on.
@@ -140,7 +140,9 @@ internal constructor(
             node.subscribeToTransform(executor) { transform: NodeTransform ->
                 weakThis
                     .get()
-                    ?.setOpenXrReferenceSpaceTransform(RuntimeUtils.getMatrix(transform.transform))
+                    ?.setPlatformReferenceSpaceTransform(
+                        RuntimeUtils.getMatrix(transform.transform)
+                    )
             }
         systemSpaceCleanupAction.nodeTransformCloseable = nodeTransformCloseable
     }
