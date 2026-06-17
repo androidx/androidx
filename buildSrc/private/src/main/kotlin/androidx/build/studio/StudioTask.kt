@@ -184,10 +184,7 @@ abstract class StudioTask : DefaultTask() {
 
     private fun installKtfmtPlugin() {
         if (
-            File(
-                    studioPluginDir,
-                    "ktfmt_idea_plugin/lib/ktfmt_idea_plugin-$studioKtfmtPluginVersion.jar",
-                )
+            File(studioPluginDir, "ktfmt_idea_plugin/lib/idea_plugin-$studioKtfmtPluginVersion.jar")
                 .exists()
         ) {
             return
