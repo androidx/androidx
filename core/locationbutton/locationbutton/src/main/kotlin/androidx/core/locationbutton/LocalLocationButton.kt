@@ -327,10 +327,7 @@ constructor(
     }
 
     private fun getTextForType(textType: Int): String {
-        if (textType == LocationButtonSession.TEXT_TYPE_NONE) {
-            return ""
-        }
-        return context.getString(
+        val resId =
             when (textType) {
                 LocationButtonSession.TEXT_TYPE_PRECISE_LOCATION ->
                     R.string.location_button_precise_location
@@ -342,9 +339,9 @@ constructor(
                     R.string.location_button_near_my_precise_location
                 LocationButtonSession.TEXT_TYPE_NEAR_YOUR_PRECISE_LOCATION ->
                     R.string.location_button_near_your_precise_location
-                else -> R.string.location_button_precise_location
+                else -> return ""
             }
-        )
+        return context.getString(resId)
     }
 
     companion object {
