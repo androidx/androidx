@@ -17,43 +17,61 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.curvedText
 
 @Sampled
 @Preview
 @Composable
 fun ListHeaderSample() {
-    val scrollState = rememberScalingLazyListState()
+    val scrollState = rememberTransformingLazyColumnState()
 
-    ScreenScaffold(scrollState = scrollState, modifier = Modifier.background(Color.Black)) {
-        contentPadding ->
-        ScalingLazyColumn(
+    ScreenScaffold(
+        scrollState = scrollState,
+        timeText = { TimeText { time -> curvedText(time) } },
+    ) { contentPadding ->
+        TransformingLazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = contentPadding,
         ) {
-            item { ListHeader { Text("Settings") } }
+            item {
+                ListHeader(
+                    modifier =
+                        Modifier.minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                ) {
+                    Text("Settings")
+                }
+            }
             item {
                 ListSubHeader(
+                    modifier =
+                        Modifier.minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        ),
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_connectivity),
@@ -65,7 +83,11 @@ fun ListHeaderSample() {
             }
             item {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            ),
                     onClick = {},
                     icon = {
                         Icon(
@@ -80,7 +102,11 @@ fun ListHeaderSample() {
             }
             item {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            ),
                     onClick = {},
                     icon = {
                         Icon(
@@ -93,13 +119,41 @@ fun ListHeaderSample() {
                     Text("Wifi")
                 }
             }
-            item { ListSubHeader { Text("Display") } }
             item {
-                Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+                ListSubHeader(
+                    modifier =
+                        Modifier.minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                ) {
+                    Text("Display")
+                }
+            }
+            item {
+                Button(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            ),
+                    onClick = {},
+                ) {
                     Text("Change Watchface")
                 }
             }
-            item { Button(modifier = Modifier.fillMaxWidth(), onClick = {}) { Text("Brightness") } }
+            item {
+                Button(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            ),
+                    onClick = {},
+                ) {
+                    Text("Brightness")
+                }
+            }
         }
     }
 }

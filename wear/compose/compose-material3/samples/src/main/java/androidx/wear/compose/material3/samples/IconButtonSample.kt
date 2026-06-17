@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
@@ -106,8 +107,8 @@ fun IconButtonWithCornerAnimationSample(
 @Composable
 @Sampled
 fun IconButtonWithImageSample(
-    painter: Painter,
-    enabled: Boolean,
+    painter: Painter = painterResource(R.drawable.card_content_image),
+    enabled: Boolean = true,
     shapes: IconButtonShapes = IconButtonDefaults.shapes(),
 ) {
     IconButton(onClick = { /* Do something */ }, shapes = shapes, enabled = enabled) {

@@ -36,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -344,6 +343,14 @@ fun CardFillContentSample() {
         // Constrains the card to fill background up to the intrinsic height.
         modifier = Modifier.height(IntrinsicSize.Min),
     ) {
-        Text("Card", modifier = Modifier.fillMaxHeight().background(Color.Red))
+        Text(
+            "Filled Content",
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier =
+                Modifier.fillMaxHeight()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .wrapContentSize(Alignment.Center),
+        )
     }
 }
