@@ -49,7 +49,7 @@ import androidx.wear.compose.material3.scrollAway
 
 val ScrollAwayDemos =
     listOf(
-        ComposableDemo("Scaling Lazy Column") { ScrollAwaySample() },
+        ComposableDemo("Transforming Lazy Column") { ScrollAwaySample() },
         ComposableDemo("LazyColumn") { Centralize { ScrollAwayLazyColumn() } },
         ComposableDemo("Column") { Centralize { ScrollAwayColumn() } },
     )
