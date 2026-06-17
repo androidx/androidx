@@ -101,20 +101,25 @@ internal class RemoteLocationButtonDelegateApi37(
     }
 
     fun createButtonRequest(): LocationButtonRequest {
-        return LocationButtonRequest.Builder(view.width, view.height, view.resources.configuration)
-            .setPaddingLeft(view.safePaddingLeft)
-            .setPaddingTop(view.safePaddingTop)
-            .setPaddingRight(view.safePaddingRight)
-            .setPaddingBottom(view.safePaddingBottom)
-            .setBackgroundColor(view.backgroundColor)
-            .setStrokeColor(view.strokeColor)
-            .setStrokeWidth(view.strokeWidth)
-            .setCornerRadius(view.cornerRadius)
-            .setIconTint(view.iconTint)
-            .setTextType(view.textType)
-            .setTextColor(view.textColor)
-            .setPressedCornerRadius(view.pressedCornerRadius)
-            .build()
+        val builder =
+            LocationButtonRequest.Builder(view.width, view.height, view.resources.configuration)
+                .setPaddingLeft(view.safePaddingLeft)
+                .setPaddingTop(view.safePaddingTop)
+                .setPaddingRight(view.safePaddingRight)
+                .setPaddingBottom(view.safePaddingBottom)
+                .setBackgroundColor(view.backgroundColor)
+                .setStrokeColor(view.strokeColor)
+                .setStrokeWidth(view.strokeWidth)
+                .setIconTint(view.iconTint)
+                .setTextType(view.textType)
+                .setTextColor(view.textColor)
+        if (view.cornerRadius >= 0f) {
+            builder.setCornerRadius(view.cornerRadius)
+        }
+        if (view.pressedCornerRadius >= 0f) {
+            builder.setPressedCornerRadius(view.pressedCornerRadius)
+        }
+        return builder.build()
     }
 
     override fun openSession(activity: Activity, displayId: Int, surfaceView: SurfaceView) {

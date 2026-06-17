@@ -144,8 +144,8 @@ constructor(
     internal var textColor = 0
     internal var backgroundColor = 0
     internal var iconTint = 0
-    internal var cornerRadius = 0f
-    internal var pressedCornerRadius = 0f
+    internal var cornerRadius = -1f
+    internal var pressedCornerRadius = -1f
     internal var strokeColor = 0
     internal var strokeWidth = 0
     internal var textType = TEXT_TYPE_PRECISE_LOCATION
@@ -355,9 +355,9 @@ constructor(
                 iconTint = a.getColor(R.styleable.LocationButton_iconTint, textColor)
                 strokeColor = a.getColor(R.styleable.LocationButton_strokeColor, 0)
                 strokeWidth = a.getDimensionPixelSize(R.styleable.LocationButton_strokeWidth, 0)
-                cornerRadius = a.getDimension(R.styleable.LocationButton_cornerRadius, 0f)
+                cornerRadius = a.getDimension(R.styleable.LocationButton_cornerRadius, -1f)
                 pressedCornerRadius =
-                    a.getDimension(R.styleable.LocationButton_pressedCornerRadius, 0f)
+                    a.getDimension(R.styleable.LocationButton_pressedCornerRadius, -1f)
                 textType =
                     a.getInt(
                         R.styleable.LocationButton_locationButtonTextType,
