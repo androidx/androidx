@@ -60,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -103,7 +104,6 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
-import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.math.FloatSize3d
@@ -133,12 +133,20 @@ class SpatialCompose : ComponentActivity() {
 
             // 3D Content
             Subspace {
+                val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+                val density = LocalDensity.current
+                val pixelDensity = session.scene.virtualPixelDensity
                 PanelGrid()
                 XyzArrows(
-                    SubspaceModifier.width(.5.meters.toDp())
-                        .height(0.5.meters.toDp())
-                        .depth(0.5.meters.toDp())
-                        .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp())
+                    with(density) {
+                        SubspaceModifier.width(pixelDensity.convertMetersToPixels(0.5f).toDp())
+                            .height(pixelDensity.convertMetersToPixels(0.5f).toDp())
+                            .depth(pixelDensity.convertMetersToPixels(0.5f).toDp())
+                            .offset(
+                                x = pixelDensity.convertMetersToPixels(1f).toDp(),
+                                z = pixelDensity.convertMetersToPixels(-0.5f).toDp(),
+                            )
+                    }
                 )
                 DragonEntity()
             }
@@ -487,12 +495,18 @@ class SpatialCompose : ComponentActivity() {
         }
 
         if (dragonEntity.value != null) {
+            val density = LocalDensity.current
+            val pixelDensity = session.scene.virtualPixelDensity
             SceneCoreEntity(
                 factory = { dragonEntity.value!! },
                 modifier =
-                    SubspaceModifier.width(entitySize.width.meters.toDp())
-                        .height(entitySize.height.meters.toDp())
-                        .depth(entitySize.depth.meters.toDp()),
+                    with(density) {
+                        SubspaceModifier.width(
+                                pixelDensity.convertMetersToPixels(entitySize.width).toDp()
+                            )
+                            .height(pixelDensity.convertMetersToPixels(entitySize.height).toDp())
+                            .depth(pixelDensity.convertMetersToPixels(entitySize.depth).toDp())
+                    },
             )
         }
     }

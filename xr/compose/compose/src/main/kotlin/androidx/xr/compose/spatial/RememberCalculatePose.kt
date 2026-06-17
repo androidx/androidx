@@ -25,11 +25,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.unit.Meter
-import androidx.xr.compose.unit.Meter.Companion.meters
-import androidx.xr.compose.unit.toMeter
+import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.unit.pxToMeters
+import androidx.xr.compose.unit.toMeters
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.scene
 
 /** Calculate a [Pose] in 3D space based on the relative offset within the 2D space of a Panel. */
 @Composable
@@ -40,8 +42,16 @@ internal fun rememberCalculatePose(
     zDepth: Dp = 0.dp,
 ): Pose {
     val density = LocalDensity.current
+    val session = LocalSession.current ?: return Pose.Identity
     return remember(contentOffset, parentViewSize, contentSize, zDepth) {
-        calculatePose(contentOffset, parentViewSize, contentSize, density, zDepth)
+        calculatePose(
+            contentOffset,
+            parentViewSize,
+            contentSize,
+            density,
+            zDepth,
+            session.scene.virtualPixelDensity,
+        )
     }
 }
 
@@ -64,31 +74,14 @@ internal fun calculatePose(
     contentSize: IntSize,
     density: Density,
     zDepth: Dp = 0.dp,
+    pixelDensity: PixelDensity,
 ): Pose {
     // Convert the 2D pixel offset to a 3D meter-based position, then add depth.
-    val positionInMeters =
-        contentOffset.toMeterPosition(parentViewSize, contentSize, density) +
-            MeterPosition(z = zDepth.toMeter())
+    val translation =
+        contentOffset.toMeterPosition(parentViewSize, contentSize, pixelDensity) +
+            Vector3(z = zDepth.toMeters(density, pixelDensity))
 
-    return Pose(translation = positionInMeters.toVector3())
-}
-
-/** A 3D vector where each coordinate is [Meter]s. */
-internal data class MeterPosition(
-    val x: Meter = 0.meters,
-    val y: Meter = 0.meters,
-    val z: Meter = 0.meters,
-) {
-    /**
-     * Adds this [MeterPosition] to the [other] one.
-     *
-     * @param other the other [MeterPosition] to add.
-     * @return a new [MeterPosition] representing the sum of the two positions.
-     */
-    operator fun plus(other: MeterPosition) =
-        MeterPosition(x = x + other.x, y = y + other.y, z = z + other.z)
-
-    fun toVector3() = Vector3(x = x.toM(), y = y.toM(), z = z.toM())
+    return Pose(translation = translation)
 }
 
 /**
@@ -100,8 +93,8 @@ internal data class MeterPosition(
 private fun Offset.toMeterPosition(
     parentViewSize: IntSize,
     contentSize: IntSize,
-    density: Density,
-): MeterPosition {
+    pixelDensity: PixelDensity,
+): Vector3 {
     // Find the center of the content in the parent's coordinate space (in pixels).
     val centerXInPixels =
         x.fromTopLeftToCenterAnchor(
@@ -116,9 +109,9 @@ private fun Offset.toMeterPosition(
 
     // The Y-axis is negated to convert from Compose's 2D pixel-based coordinate system (Y-down)
     // to the Spatial Scene Graphs's meter-based coordinate system (Y-up).
-    return MeterPosition(
-        x = Meter.fromPixel(centerXInPixels, density),
-        y = Meter.fromPixel(-centerYInPixels, density),
+    return Vector3(
+        x = centerXInPixels.pxToMeters(pixelDensity),
+        y = (-centerYInPixels).pxToMeters(pixelDensity),
     )
 }
 

@@ -36,8 +36,10 @@ import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.AnchorPlacement
 import androidx.xr.scenecore.MovableComponent
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.PlaneOrientation as SceneCorePlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType as SceneCorePlaneSemantic
+import androidx.xr.scenecore.scene
 
 /**
  * When the anchorable modifier is present and enabled, draggable UI controls will be shown that
@@ -142,6 +144,9 @@ internal class AnchorableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     /** The scale of this entity when it is moved. */
     private var scaleFromMovement: Float = 1.0F
     private var component: MovableComponent? = null
@@ -166,15 +171,13 @@ internal class AnchorableNode(
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height, placeable.depth) {
             // Place at the position calculated by SceneCore
-            placeable.place(
-                coreEntity.poseInMeters.convertMetersToPixels(currentValueOf(LocalDensity))
-            )
+            placeable.place(coreEntity.poseInMeters.metersToPx(pixelDensity))
         }
     }
 
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
-        component?.size = coordinates.size.toDimensionsInMeters(density)
+        component?.size = coordinates.size.toDimensionsInMeters(pixelDensity)
     }
 
     /** Updates the anchorable state of this CoreEntity. */

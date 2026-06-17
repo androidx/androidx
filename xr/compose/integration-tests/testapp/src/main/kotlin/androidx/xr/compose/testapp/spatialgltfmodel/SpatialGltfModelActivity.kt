@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
@@ -87,7 +88,6 @@ import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
-import androidx.xr.compose.unit.Meter
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -95,6 +95,8 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.KhronosPbrMaterial
+import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.scene
 import java.nio.file.Paths
 import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.milliseconds
@@ -422,6 +424,8 @@ class SpatialGltfModelActivity : ComponentActivity() {
     @Composable
     @SubspaceComposable
     fun DragonModel(state: DragonControlState, modifier: SubspaceModifier = SubspaceModifier) {
+        val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+        val pixelDensity = remember { session.scene.virtualPixelDensity }
         val dragonModelState =
             rememberSpatialGltfModelState(
                 source = SpatialGltfModelSource.fromPath(Paths.get("models", "Dragon_Evolved.gltf"))
@@ -442,9 +446,9 @@ class SpatialGltfModelActivity : ComponentActivity() {
             val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
 
             with(density) {
-                state.customX += deltaX.toDp()
-                state.customY += deltaY.toDp()
-                state.customZ += deltaZ.toDp()
+                state.customX += pixelDensity.convertMetersToPixels(deltaX).toDp()
+                state.customY += pixelDensity.convertMetersToPixels(deltaY).toDp()
+                state.customZ += pixelDensity.convertMetersToPixels(deltaZ).toDp()
             }
             state.customRotation *= deltaRot
         }
@@ -470,6 +474,8 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 val nodeOffset =
                     createSpatialOffset(
                         translation = selectedNode.modelPose.translation,
+                        pixelDensity = pixelDensity,
+                        density = density,
                         rotation = if (state.useRotation) selectedNode.modelPose.rotation else null,
                     )
 
@@ -495,6 +501,23 @@ class SpatialGltfModelActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    /** Converts a 3D translation to a SubspaceOffset. */
+    fun createSpatialOffset(
+        translation: Vector3,
+        pixelDensity: PixelDensity,
+        density: Density,
+        rotation: Quaternion? = null,
+    ): SubspaceModifier {
+        return with(density) {
+            SubspaceModifier.offset(
+                    x = pixelDensity.convertMetersToPixels(translation.x).toDp(),
+                    y = pixelDensity.convertMetersToPixels(translation.y).toDp(),
+                    z = pixelDensity.convertMetersToPixels(translation.z).toDp(),
+                )
+                .let { if (rotation != null) it.rotate(rotation) else it }
         }
     }
 
@@ -628,16 +651,6 @@ class SpatialGltfModelActivity : ComponentActivity() {
             node.localPose = Pose(translation, rotationQuat)
             node.localScale = scale
         }
-    }
-
-    /** Converts a 3D translation to a SubspaceOffset. */
-    fun createSpatialOffset(translation: Vector3, rotation: Quaternion? = null): SubspaceModifier {
-        return SubspaceModifier.offset(
-                x = Meter(translation.x).toDp(),
-                y = Meter(translation.y).toDp(),
-                z = Meter(translation.z).toDp(),
-            )
-            .let { if (rotation != null) it.rotate(rotation) else it }
     }
 }
 

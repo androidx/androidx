@@ -14,23 +14,45 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.compose.unit
 
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.unit.Meter.Companion.centimeters
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.Meter.Companion.millimeters
+import androidx.xr.runtime.Session
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 class MeterTest {
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
     private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
+    private lateinit var session: Session
+
+    @Before
+    fun setUp() {
+        session = composeTestRule.configureFakeSession()
+    }
 
     @Test
     fun meter_toDp() {
@@ -200,5 +222,36 @@ class MeterTest {
     fun px_toMeter_toPx() {
         val density = Density(2.789f)
         assertThat(Meter.fromPixel(28.9f, density).toPx(density)).isWithin(1.0e-5f).of(28.9f)
+    }
+
+    @Test
+    fun float_metersToPx() {
+        assertThat(1f.metersToPx(session.scene.virtualPixelDensity)).isEqualTo(2000f)
+    }
+
+    @Test
+    fun float_pxToMeters() {
+        assertThat(2000f.pxToMeters(session.scene.virtualPixelDensity)).isEqualTo(1f)
+    }
+
+    @Test
+    fun int_pxToMeters() {
+        assertThat(2000.pxToMeters(session.scene.virtualPixelDensity)).isEqualTo(1f)
+    }
+
+    @Test
+    fun float_roundMetersToPx() {
+        assertThat(1.5f.roundMetersToPx(session.scene.virtualPixelDensity)).isEqualTo(3000)
+    }
+
+    @Test
+    fun dp_toMeters() {
+        assertThat(2000.dp.toMeters(UNIT_DENSITY, session.scene.virtualPixelDensity)).isEqualTo(1f)
+    }
+
+    @Test
+    fun float_metersToDp() {
+        assertThat(1f.metersToDp(UNIT_DENSITY, session.scene.virtualPixelDensity))
+            .isEqualTo(2000.dp)
     }
 }

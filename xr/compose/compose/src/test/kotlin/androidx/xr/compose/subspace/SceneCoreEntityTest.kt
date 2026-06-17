@@ -18,14 +18,11 @@ package androidx.xr.compose.subspace
 
 import android.view.View
 import androidx.compose.material3.Text
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.platform.LocalSession
@@ -518,67 +515,6 @@ class SceneCoreEntityTest {
                     .sizeInPixels
             )
             .isEqualTo(IntSize2d(1000, 1000))
-    }
-
-    @Test
-    fun sceneCoreEntity_withSizeModifierAndDensityChange_sizeChangesWithDensity() {
-        var testEntity by mutableStateOf<PanelEntity?>(null)
-        var targetSize by mutableStateOf(500.dp)
-
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(2.0f)) {
-                Subspace {
-                    val session = checkNotNull(LocalSession.current)
-                    testEntity = remember {
-                        PanelEntity.create(
-                            session,
-                            View(composeTestRule.activity),
-                            IntSize2d(100, 100),
-                            "TestPanel",
-                        )
-                    }
-                    SceneCoreEntity(
-                        factory = { testEntity!! },
-                        sizeAdapter =
-                            SceneCoreEntitySizeAdapter({
-                                sizeInPixels = IntSize2d(it.width, it.height)
-                            }),
-                        modifier = SubspaceModifier.size(targetSize).testTag("mainPanel"),
-                    )
-                }
-            }
-        }
-
-        // Subsequent tests assume that density is 2.0
-        composeTestRule
-            .onSubspaceNodeWithTag("mainPanel")
-            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
-            .assertWidthIsEqualTo(1000.dp)
-            .assertHeightIsEqualTo(1000.dp)
-        assertThat(
-                (composeTestRule
-                        .onSubspaceNodeWithTag("mainPanel")
-                        .fetchSemanticsNode()
-                        .semanticsEntity as PanelEntity)
-                    .sizeInPixels
-            )
-            .isEqualTo(IntSize2d(1000, 1000))
-
-        targetSize = 1000.dp
-
-        composeTestRule
-            .onSubspaceNodeWithTag("mainPanel")
-            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
-            .assertWidthIsEqualTo(2000.dp)
-            .assertHeightIsEqualTo(2000.dp)
-        assertThat(
-                (composeTestRule
-                        .onSubspaceNodeWithTag("mainPanel")
-                        .fetchSemanticsNode()
-                        .semanticsEntity as PanelEntity)
-                    .sizeInPixels
-            )
-            .isEqualTo(IntSize2d(2000, 2000))
     }
 
     @Test

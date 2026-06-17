@@ -24,7 +24,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.subspace.SpatialExternalSurfaceDefaults.SPHERE_RADIUS_METERS
 import androidx.xr.compose.subspace.draw.SpatialFeatheringEffect
 import androidx.xr.compose.subspace.layout.CoreSphereSurfaceEntity
 import androidx.xr.compose.subspace.layout.CoreSurfaceEntity
@@ -37,9 +39,8 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.movable
-import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
-import androidx.xr.compose.unit.toMeter
+import androidx.xr.compose.unit.toMeters
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
@@ -48,7 +49,7 @@ import androidx.xr.scenecore.scene
 internal object SpatialExternalSurfaceDefaults {
 
     /** Default radius for spheres. */
-    internal val sphereRadius: Dp = Meter(15f).toDp()
+    internal const val SPHERE_RADIUS_METERS: Float = 15f
 }
 
 /**
@@ -235,7 +236,7 @@ public fun SpatialExternalSurface(
 ) {
     val finalModifier =
         buildSpatialPanelModifier(modifier, dragPolicy, resizePolicy, interactionPolicy)
-    val session = LocalSession.current
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val density = LocalDensity.current
 
     // When surface protection changes, the surface entity has to be recreated because protection is
@@ -243,13 +244,15 @@ public fun SpatialExternalSurface(
     val coreSurfaceEntity =
         remember(surfaceProtection, superSamplingPattern) {
             CoreSurfaceEntity(
-                SurfaceEntity.create(
-                    session = checkNotNull(session) { "Session is required" },
-                    stereoMode = stereoMode.value,
-                    surfaceProtection = surfaceProtection.value,
-                    superSampling = superSamplingPattern.value,
-                    parent = session.scene.activitySpace,
-                ),
+                pixelDensity = session.scene.virtualPixelDensity,
+                surfaceEntity =
+                    SurfaceEntity.create(
+                        session = session,
+                        stereoMode = stereoMode.value,
+                        surfaceProtection = surfaceProtection.value,
+                        superSampling = superSamplingPattern.value,
+                        parent = session.scene.activitySpace,
+                    ),
                 localDensity = density,
             )
         }
@@ -299,7 +302,8 @@ public fun SpatialExternalSurface(
  *   environment and not having any layout size.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
- * @param radius The radius of the dome displaying the video.
+ * @param radius The radius of the dome displaying the video. If unspecified, the radius will be a
+ *   dp value equivalent to 15 meters. See [androidx.xr.scenecore.PixelDensity] for conversions.
  * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
  *   from [SpatialExternalSurfaceScope.onSurfaceCreated]. For hemisphere domes, vertical feathering
  *   applies to the top and bottom poles of the dome, while horizontal feathering applies to the
@@ -319,7 +323,7 @@ public fun SpatialExternalSurface(
 public fun SpatialExternalSurfaceHemisphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
-    radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
+    radius: Dp = Dp.Unspecified,
     featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
@@ -366,7 +370,8 @@ public fun SpatialExternalSurfaceHemisphere(
  *   environment and not having any layout size.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
- * @param radius The radius of the dome displaying the video.
+ * @param radius The radius of the dome displaying the video. If unspecified, the radius will be a
+ *   dp value equivalent to 15 meters. See [androidx.xr.scenecore.PixelDensity] for conversions.
  * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
  *   from [SpatialExternalSurfaceScope.onSurfaceCreated]. For sphere domes, vertical feathering
  *   applies to the top and bottom poles of the dome, while horizontal feathering applies to the
@@ -386,7 +391,7 @@ public fun SpatialExternalSurfaceHemisphere(
 public fun SpatialExternalSurfaceSphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
-    radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
+    radius: Dp = Dp.Unspecified,
     featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
@@ -412,7 +417,7 @@ private fun SpatialExternalSurfaceBaseSphere(
     stereoMode: StereoMode,
     isHemisphere: Boolean,
     modifier: SubspaceModifier = SubspaceModifier,
-    radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
+    radius: Dp = Dp.Unspecified,
     featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy?,
@@ -420,28 +425,35 @@ private fun SpatialExternalSurfaceBaseSphere(
     onSurface: SpatialExternalSurfaceScope.() -> Unit,
 ) {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val pixelDensity = session.scene.virtualPixelDensity
     val density = LocalDensity.current
-
-    val meterRadius = radius.toMeter().value
+    val meterRadius =
+        if (radius.isSpecified) {
+            radius.toMeters(density, pixelDensity)
+        } else {
+            SPHERE_RADIUS_METERS
+        }
     val finalModifier = buildSpatialPanelModifier(modifier, null, null, interactionPolicy)
 
     val coreSurfaceEntity =
         remember(surfaceProtection, superSamplingPattern) {
             CoreSphereSurfaceEntity(
-                SurfaceEntity.create(
-                    session = checkNotNull(session) { "Session is required" },
-                    stereoMode = stereoMode.value,
-                    surfaceProtection = surfaceProtection.value,
-                    superSampling = superSamplingPattern.value,
-                    parent = session.scene.activitySpace,
-                    shape =
-                        if (isHemisphere) {
-                            SurfaceEntity.Shape.Hemisphere(meterRadius)
-                        } else {
-                            SurfaceEntity.Shape.Sphere(meterRadius)
-                        },
-                ),
-                density,
+                pixelDensity = pixelDensity,
+                surfaceEntity =
+                    SurfaceEntity.create(
+                        session = session,
+                        stereoMode = stereoMode.value,
+                        surfaceProtection = surfaceProtection.value,
+                        superSampling = superSamplingPattern.value,
+                        parent = session.scene.activitySpace,
+                        shape =
+                            if (isHemisphere) {
+                                SurfaceEntity.Shape.Hemisphere(meterRadius)
+                            } else {
+                                SurfaceEntity.Shape.Sphere(meterRadius)
+                            },
+                    ),
+                initialDensity = density,
             )
         }
 

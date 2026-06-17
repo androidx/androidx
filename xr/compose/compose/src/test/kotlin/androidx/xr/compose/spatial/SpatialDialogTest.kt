@@ -50,6 +50,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.platform.DefaultDialogManager
@@ -63,7 +64,8 @@ import androidx.xr.compose.testing.ShadowActivityEmbeddingController
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.unit.toMeter
+import androidx.xr.compose.testing.session
+import androidx.xr.compose.unit.toMeters
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
@@ -344,18 +346,50 @@ class SpatialDialogTest {
             composeTestRule.onNodeWithText("Dialog at $elevation").assertExists()
         }
 
-        assertThat(SpatialElevationLevel.DialogDefault.toMeter().toM())
-            .isEqualTo(SpatialElevationLevel.Level5.toMeter().toM())
-        assertThat(SpatialElevationLevel.DialogDefault.toMeter().toM())
-            .isGreaterThan(SpatialElevationLevel.Level4.toMeter().toM())
-        assertThat(SpatialElevationLevel.Level4.toMeter().toM())
-            .isGreaterThan(SpatialElevationLevel.Level3.toMeter().toM())
-        assertThat(SpatialElevationLevel.Level3.toMeter().toM())
-            .isGreaterThan(SpatialElevationLevel.Level2.toMeter().toM())
-        assertThat(SpatialElevationLevel.Level2.toMeter().toM())
-            .isGreaterThan(SpatialElevationLevel.Level1.toMeter().toM())
-        assertThat(SpatialElevationLevel.Level1.toMeter().toM())
-            .isGreaterThan(SpatialElevationLevel.Level0.toMeter().toM())
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val density = Density(1.0f)
+        assertThat(
+                SpatialElevationLevel.DialogDefault.toMeters(
+                    density,
+                    session.scene.virtualPixelDensity,
+                )
+            )
+            .isEqualTo(
+                SpatialElevationLevel.Level5.toMeters(density, session.scene.virtualPixelDensity)
+            )
+        assertThat(
+                SpatialElevationLevel.DialogDefault.toMeters(
+                    density,
+                    session.scene.virtualPixelDensity,
+                )
+            )
+            .isGreaterThan(
+                SpatialElevationLevel.Level4.toMeters(density, session.scene.virtualPixelDensity)
+            )
+        assertThat(
+                SpatialElevationLevel.Level4.toMeters(density, session.scene.virtualPixelDensity)
+            )
+            .isGreaterThan(
+                SpatialElevationLevel.Level3.toMeters(density, session.scene.virtualPixelDensity)
+            )
+        assertThat(
+                SpatialElevationLevel.Level3.toMeters(density, session.scene.virtualPixelDensity)
+            )
+            .isGreaterThan(
+                SpatialElevationLevel.Level2.toMeters(density, session.scene.virtualPixelDensity)
+            )
+        assertThat(
+                SpatialElevationLevel.Level2.toMeters(density, session.scene.virtualPixelDensity)
+            )
+            .isGreaterThan(
+                SpatialElevationLevel.Level1.toMeters(density, session.scene.virtualPixelDensity)
+            )
+        assertThat(
+                SpatialElevationLevel.Level1.toMeters(density, session.scene.virtualPixelDensity)
+            )
+            .isGreaterThan(
+                SpatialElevationLevel.Level0.toMeters(density, session.scene.virtualPixelDensity)
+            )
     }
 
     @Composable

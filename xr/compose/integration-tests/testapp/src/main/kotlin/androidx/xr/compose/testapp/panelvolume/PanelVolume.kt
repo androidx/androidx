@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -64,7 +65,6 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
-import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
@@ -139,6 +139,8 @@ class PanelVolume : ComponentActivity() {
             arrows = GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
         }
 
+        val density = LocalDensity.current
+        val pixelDensity = session.scene.virtualPixelDensity
         val infiniteTransition = rememberInfiniteTransition()
         val panelYOffset by
             infiniteTransition.animateValue(
@@ -167,7 +169,16 @@ class PanelVolume : ComponentActivity() {
                                 factory = { gltfEntity },
                                 modifier =
                                     SubspaceModifier.scale(.3f)
-                                        .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp()),
+                                        .offset(
+                                            x =
+                                                with(density) {
+                                                    pixelDensity.convertMetersToPixels(1f).toDp()
+                                                },
+                                            z =
+                                                with(density) {
+                                                    pixelDensity.convertMetersToPixels(-0.5f).toDp()
+                                                },
+                                        ),
                             )
                         }
                     }

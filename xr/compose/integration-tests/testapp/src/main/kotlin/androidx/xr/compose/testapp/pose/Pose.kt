@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +55,6 @@ import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
-import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
@@ -86,20 +86,32 @@ class Pose : ComponentActivity() {
 
         setContent {
             IntegrationTestsAppTheme {
+                val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+                val density = LocalDensity.current
+                val pixelDensity = session.scene.virtualPixelDensity
                 Subspace(
                     modifier =
-                        SubspaceModifier.sizeIn(
-                            maxWidth = 20.meters.toDp(),
-                            maxHeight = 20.meters.toDp(),
-                        )
+                        with(density) {
+                            SubspaceModifier.sizeIn(
+                                maxWidth = pixelDensity.convertMetersToPixels(20f).toDp(),
+                                maxHeight = pixelDensity.convertMetersToPixels(20f).toDp(),
+                            )
+                        }
                 ) {
                     SpatialRow(
                         modifier =
-                            SubspaceModifier.offset(
-                                y = (-0.5).meters.toDp(),
-                                z = (-5.0).meters.toDp(),
-                            ),
-                        horizontalArrangement = SpatialArrangement.spacedBy(0.1.meters.toDp()),
+                            with(density) {
+                                SubspaceModifier.offset(
+                                    y = pixelDensity.convertMetersToPixels(-0.5f).toDp(),
+                                    z = pixelDensity.convertMetersToPixels(-5.0f).toDp(),
+                                )
+                            },
+                        horizontalArrangement =
+                            with(density) {
+                                SpatialArrangement.spacedBy(
+                                    pixelDensity.convertMetersToPixels(0.1f).toDp()
+                                )
+                            },
                     ) {
                         // Case 1: Initial State
                         //
@@ -241,11 +253,16 @@ class Pose : ComponentActivity() {
 @Composable
 @SubspaceComposable
 fun LabelPanel(text: String) {
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val density = LocalDensity.current
+    val pixelDensity = session.scene.virtualPixelDensity
     SpatialPanel(
         modifier =
-            SubspaceModifier.width(2.3.meters.toDp())
-                .height(1.8.meters.toDp())
-                .offset(y = 1.0.meters.toDp())
+            with(density) {
+                SubspaceModifier.width(pixelDensity.convertMetersToPixels(2.3f).toDp())
+                    .height(pixelDensity.convertMetersToPixels(1.8f).toDp())
+                    .offset(y = pixelDensity.convertMetersToPixels(1.0f).toDp())
+            }
     ) {
         Box(
             modifier = Modifier.fillMaxSize().background(Color.DarkGray.copy(alpha = 0.8f)),
@@ -275,7 +292,9 @@ fun LabelPanel(text: String) {
 fun StaticXyzArrow(modifier: SubspaceModifier = SubspaceModifier) {
     val session = LocalSession.current ?: return
     var gltfModel by remember { mutableStateOf<GltfModel?>(null) }
-    val modelSize = 0.5.meters.toDp()
+    val density = LocalDensity.current
+    val pixelDensity = session.scene.virtualPixelDensity
+    val modelSize = with(density) { pixelDensity.convertMetersToPixels(0.5f).toDp() }
 
     // Load the model just once
     LaunchedEffect(Unit) {

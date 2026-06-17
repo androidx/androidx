@@ -32,6 +32,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
@@ -40,8 +41,9 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.DpVolumeSize
-import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.compose.unit.metersToDp
 import androidx.xr.scenecore.ResizableComponent
+import androidx.xr.scenecore.scene
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -59,9 +61,12 @@ class ResizePolicyTest {
     // See API docs for details.
     @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
+    private var session: androidx.xr.runtime.Session? = null
+
     @Test
     fun resizePolicy_noComponentByDefault() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace { SpatialPanel(SubspaceModifier.testTag("panel")) { Text(text = "Panel") } }
         }
 
@@ -77,6 +82,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_componentIsNotNullAndOnlyContainsSingleResizable() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel"), resizePolicy = ResizePolicy()) {
                     Text(text = "Panel")
@@ -90,6 +96,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierIsDisabledAndComponentDoesNotExist() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel"),
@@ -106,6 +113,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierDoesNotChangeAndComponentDoesNotUpdate() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var panelWidth by remember { mutableStateOf(50.dp) }
                 SpatialPanel(
@@ -133,6 +141,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierEnabledToDisabledAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -160,6 +169,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var onSizeReturnValue by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -188,6 +198,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierDisableWithOnSizeChangeUpdateAndComponentRemoved() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(true) }
                 var onSizeReturnValue by remember { mutableStateOf(true) }
@@ -223,6 +234,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierEnabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(false) }
                 var onSizeReturnValue by remember { mutableStateOf(true) }
@@ -258,6 +270,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierDisabledThenEnabledAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -290,6 +303,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierOnSizeChangeTwiceUpdateAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var onSizeReturnValue by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -323,6 +337,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierDisabledThenEnabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(true) }
                 var onSizeReturnValue by remember { mutableStateOf(true) }
@@ -363,6 +378,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierEnabledThenDisabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 var resizableEnabled by remember { mutableStateOf(false) }
                 var onSizeReturnValue by remember { mutableStateOf(true) }
@@ -404,6 +420,7 @@ class ResizePolicyTest {
     fun resizePolicy_modifierMaxSizeIsSet() {
         val maxSize = DpVolumeSize(500.dp, 500.dp, 500.dp)
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel"),
@@ -417,6 +434,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierMaxSizeIsNotSet() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel"), resizePolicy = ResizePolicy()) {}
             }
@@ -428,6 +446,7 @@ class ResizePolicyTest {
     fun resizePolicy_modifierMinSizeIsSet() {
         val minSize = DpVolumeSize(100.dp, 100.dp, 100.dp)
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel"),
@@ -441,6 +460,7 @@ class ResizePolicyTest {
     @Test
     fun resizePolicy_modifierMinSizeIsNotSet() {
         composeTestRule.setContent {
+            session = LocalSession.current
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel"), resizePolicy = ResizePolicy()) {}
             }
@@ -467,28 +487,46 @@ class ResizePolicyTest {
         testTag: String = "panel",
         size: DpVolumeSize,
     ) {
+        val session = checkNotNull(session) { "session must be initialized" }
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
                 .fetchSemanticsNode()
                 .getLastComponent<ResizableComponent>()
 
-        val maxWidth = resizableComponent.maximumEntitySize.width.meters.toDp()
-        val maxHeight = resizableComponent.maximumEntitySize.height.meters.toDp()
+        val maxWidth =
+            resizableComponent.maximumEntitySize.width.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+        val maxHeight =
+            resizableComponent.maximumEntitySize.height.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
 
         assertEquals(size.width, maxWidth)
         assertEquals(size.height, maxHeight)
     }
 
     private fun assertResizableComponentMaxSizeIsNotSet(testTag: String = "panel") {
+        val session = checkNotNull(session) { "session must be initialized" }
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
                 .fetchSemanticsNode()
                 .getLastComponent<ResizableComponent>()
 
-        val maxWidth = resizableComponent.maximumEntitySize.width.meters.toDp()
-        val maxHeight = resizableComponent.maximumEntitySize.height.meters.toDp()
+        val maxWidth =
+            resizableComponent.maximumEntitySize.width.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+        val maxHeight =
+            resizableComponent.maximumEntitySize.height.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
 
         assertEquals(Dp.Infinity, maxWidth)
         assertEquals(Dp.Infinity, maxHeight)
@@ -498,28 +536,46 @@ class ResizePolicyTest {
         testTag: String = "panel",
         size: DpVolumeSize,
     ) {
+        val session = checkNotNull(session) { "session must be initialized" }
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
                 .fetchSemanticsNode()
                 .getLastComponent<ResizableComponent>()
 
-        val minWidth = resizableComponent.minimumEntitySize.width.meters.toDp()
-        val minHeight = resizableComponent.minimumEntitySize.height.meters.toDp()
+        val minWidth =
+            resizableComponent.minimumEntitySize.width.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+        val minHeight =
+            resizableComponent.minimumEntitySize.height.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
 
         assertEquals(size.width, minWidth)
         assertEquals(size.height, minHeight)
     }
 
     private fun assertResizableComponentMinSizeIsNotSet(testTag: String = "panel") {
+        val session = checkNotNull(session) { "session must be initialized" }
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
                 .fetchSemanticsNode()
                 .getLastComponent<ResizableComponent>()
 
-        val minWidth = resizableComponent.minimumEntitySize.width.meters.toDp()
-        val minHeight = resizableComponent.minimumEntitySize.height.meters.toDp()
+        val minWidth =
+            resizableComponent.minimumEntitySize.width.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+        val minHeight =
+            resizableComponent.minimumEntitySize.height.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
 
         assertEquals(DpVolumeSize.Zero.width, minWidth)
         assertEquals(DpVolumeSize.Zero.height, minHeight)

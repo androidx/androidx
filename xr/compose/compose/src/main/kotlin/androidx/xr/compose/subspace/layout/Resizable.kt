@@ -32,8 +32,10 @@ import androidx.xr.compose.unit.toDimensionsInMeters
 import androidx.xr.compose.unit.toIntVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.ResizeEvent
+import androidx.xr.scenecore.scene
 import java.util.concurrent.Executor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -268,6 +270,9 @@ internal class ResizableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Resizable requires a Session." }
 
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
     private var component: ResizableComponent? = null
 
     /**
@@ -302,8 +307,8 @@ internal class ResizableNode(
         }
 
         component?.let {
-            it.minimumEntitySize = minimumSize.toDimensionsInMeters()
-            it.maximumEntitySize = maximumSize.toDimensionsInMeters()
+            it.minimumEntitySize = minimumSize.toDimensionsInMeters(density, pixelDensity)
+            it.maximumEntitySize = maximumSize.toDimensionsInMeters(density, pixelDensity)
         }
     }
 
@@ -346,7 +351,7 @@ internal class ResizableNode(
                 ResizeEvent.ResizeState.ONGOING -> SpatialResizeEventType.Resizing
                 ResizeEvent.ResizeState.END -> {
                     if (policy is DefaultResizePolicy) {
-                        val nextSize = resizeEvent.newSize.toIntVolumeSize(density)
+                        val nextSize = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
                         userSize = nextSize
                         invalidateMeasurement()
                     }
@@ -355,7 +360,7 @@ internal class ResizableNode(
                 else -> return
             }
 
-        val size = resizeEvent.newSize.toIntVolumeSize(density)
+        val size = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
         val event = SpatialResizeEvent(eventType, size)
 
         when (policy) {
@@ -392,7 +397,7 @@ internal class ResizableNode(
 
         component?.affordanceSize =
             IntVolumeSize(placeable.width, placeable.height, placeable.depth)
-                .toDimensionsInMeters(this@ResizableNode.density)
+                .toDimensionsInMeters(pixelDensity)
 
         val layoutWidth = if (isSystemHandled) originalSize.width else placeable.width
         val layoutHeight = if (isSystemHandled) originalSize.height else placeable.height
@@ -491,11 +496,11 @@ internal class DeprecatedResizableNode(
     CompositionLocalConsumerSubspaceModifierNode,
     CoreEntityNode,
     SubspaceLayoutModifierNode {
-    private inline val density: Density
-        get() = currentValueOf(LocalDensity)
-
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Expected Session to be available." }
+
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
 
     /** Size based on user adjustments from ResizeEvents from SceneCore. */
     private var userSize: IntVolumeSize? = null
@@ -534,12 +539,13 @@ internal class DeprecatedResizableNode(
             isComponentAttached = true
         }
 
-        minimumSize.toDimensionsInMeters().let {
+        val currentDensity = currentValueOf(LocalDensity)
+        minimumSize.toDimensionsInMeters(currentDensity, pixelDensity).let {
             if (component.minimumEntitySize != it) {
                 component.minimumEntitySize = it
             }
         }
-        maximumSize.toDimensionsInMeters().let {
+        maximumSize.toDimensionsInMeters(currentDensity, pixelDensity).let {
             if (component.maximumEntitySize != it) {
                 component.maximumEntitySize = it
             }
@@ -566,12 +572,12 @@ internal class DeprecatedResizableNode(
         when (resizeEvent.resizeState) {
             ResizeEvent.ResizeState.START -> {
                 component.isFixedAspectRatioEnabled = maintainAspectRatio
-                onResizeStart(resizeEvent.newSize.toIntVolumeSize(density))
+                onResizeStart(resizeEvent.newSize.toIntVolumeSize(pixelDensity))
             }
             ResizeEvent.ResizeState.ONGOING ->
-                onResizeUpdate(resizeEvent.newSize.toIntVolumeSize(density))
+                onResizeUpdate(resizeEvent.newSize.toIntVolumeSize(pixelDensity))
             ResizeEvent.ResizeState.END -> {
-                val nextSize = resizeEvent.newSize.toIntVolumeSize(density)
+                val nextSize = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
                 if (!onResizeEnd(nextSize)) {
                     userSize = nextSize
                     invalidateMeasurement()
@@ -611,7 +617,7 @@ internal class DeprecatedResizableNode(
 
         component.affordanceSize =
             IntVolumeSize(placeable.width, placeable.height, placeable.depth)
-                .toDimensionsInMeters(Density(density))
+                .toDimensionsInMeters(pixelDensity)
 
         // We use the original size of the component here, before any user changes were made. This
         // allows us to maintain the same size in the parent layout.

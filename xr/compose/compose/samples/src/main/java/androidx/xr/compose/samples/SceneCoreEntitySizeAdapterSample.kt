@@ -18,25 +18,18 @@ package androidx.xr.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
 import androidx.xr.compose.subspace.SceneCoreEntitySizeAdapter
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.compose.unit.Meter
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.PanelEntity
 
 @Composable
 @Sampled
 fun SceneCoreEntitySizeAdapterSample() {
-    val density = LocalDensity.current
     val panelSizeAdapter =
         object : SceneCoreEntitySizeAdapter<PanelEntity> {
             override fun onLayoutSizeChanged(entity: PanelEntity, size: IntVolumeSize) {
-                entity.sizeInPixels =
-                    IntSize2d(
-                        Meter.fromPixel(size.width.toFloat(), density).toM().toInt(),
-                        Meter.fromPixel(size.height.toFloat(), density).toM().toInt(),
-                    )
+                entity.sizeInPixels = IntSize2d(size.width, size.height)
             }
 
             override fun currentSize(entity: PanelEntity): IntVolumeSize {

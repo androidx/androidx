@@ -125,7 +125,7 @@ internal fun rememberOpaqueEntity(
     entityFactory: @DisallowComposableCalls Session.() -> Entity
 ): OpaqueEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    return remember { CoreGroupEntity(session.entityFactory()) }
+    return remember { CoreGroupEntity(session.scene.virtualPixelDensity, session.entityFactory()) }
 }
 
 /**

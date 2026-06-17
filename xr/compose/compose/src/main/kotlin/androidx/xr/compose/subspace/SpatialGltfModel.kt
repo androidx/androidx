@@ -108,7 +108,7 @@ public fun SpatialGltfModel(
     content: @Composable @SubspaceComposable () -> Unit = {},
 ) {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val coreModelEntity = remember { CoreModelEntity() }
+    val coreModelEntity = remember { CoreModelEntity(session.scene.virtualPixelDensity) }
 
     LaunchedEffect(state, session, coreModelEntity) { state.load(session, coreModelEntity) }
 

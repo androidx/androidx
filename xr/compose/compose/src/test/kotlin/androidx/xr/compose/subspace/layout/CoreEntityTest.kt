@@ -46,6 +46,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import org.junit.Ignore
@@ -75,12 +76,11 @@ class CoreEntityTest {
         var mutableSizeCount = 0
 
         composeTestRule.setContent {
+            val session = assertNotNull(composeTestRule.session)
             val coreEntity = remember {
                 CoreGroupEntity(
-                        Entity.create(
-                            session = assertNotNull(composeTestRule.session),
-                            name = "Test",
-                        )
+                        session.scene.virtualPixelDensity,
+                        Entity.create(session = session, name = "Test"),
                     )
                     .apply { this.size = IntVolumeSize(size, size, size) }
             }
@@ -219,7 +219,7 @@ class CoreEntityTest {
     fun attachEntity_onExistingCoreEntity_replacesAndDisposesOldEntity() {
         val session = composeTestRule.configureFakeSession()
         val initialEntity = Entity.create(session = session, name = "Initial")
-        val coreEntity = CoreGroupEntity(initialEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, initialEntity)
         val newEntity = Entity.create(session = session, name = "New")
 
         coreEntity.attachEntity(newEntity)
@@ -233,9 +233,9 @@ class CoreEntityTest {
     fun parent_setParent_updatesEntityParent() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val parentCoreEntity = CoreGroupEntity(testEntity)
+        val parentCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val childEntity = Entity.create(session = assertNotNull(session), name = "Child")
-        val childCoreEntity = CoreGroupEntity(childEntity)
+        val childCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, childEntity)
 
         childCoreEntity.parent = parentCoreEntity
 
@@ -246,10 +246,10 @@ class CoreEntityTest {
     fun parent_setParentToNull_restoresOriginalParent() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = session, name = "Initial")
-        val parentCoreEntity = CoreGroupEntity(testEntity)
+        val parentCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val childEntity = Entity.create(session = session, name = "Child")
         val originalParent = childEntity.parent
-        val childCoreEntity = CoreGroupEntity(childEntity)
+        val childCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, childEntity)
 
         childCoreEntity.parent = parentCoreEntity
         assertThat(childEntity.parent).isNotEqualTo(originalParent)
@@ -262,7 +262,7 @@ class CoreEntityTest {
     fun poseInMeters_setPose_updatesEntityPose() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val newPose = Pose(Vector3(5f, 5f, 5f))
 
         coreEntity.poseInMeters = newPose
@@ -274,7 +274,7 @@ class CoreEntityTest {
     fun poseInMeters_setSamePose_doesNotUpdateEntity() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = session, name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val initialPose = testEntity.getPose()
 
         // We can't directly check if setPose was called, but we can ensure
@@ -288,7 +288,7 @@ class CoreEntityTest {
     fun enabled_setEnabled_updatesEntityEnabledState() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         testEntity.setEnabled(true)
 
         coreEntity.enabled = false
@@ -300,7 +300,7 @@ class CoreEntityTest {
     fun scale_setScale_updatesEntityScale() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val newScale = 2.5f
 
         coreEntity.scale = newScale
@@ -312,7 +312,7 @@ class CoreEntityTest {
     fun alpha_setAlpha_updatesEntityAlpha() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val newAlpha = 0.5f
 
         coreEntity.alpha = newAlpha
@@ -324,7 +324,7 @@ class CoreEntityTest {
     fun contentDescription_setContentDescription_updatesEntityContentDescription() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
         val description = "Test Description"
 
         coreEntity.contentDescription = description
@@ -337,7 +337,7 @@ class CoreEntityTest {
     fun contentDescription_setNull_updatesEntityWithEmptyStringAndReturnsNull() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
 
         coreEntity.contentDescription = null
 
@@ -349,7 +349,7 @@ class CoreEntityTest {
     fun contentDescription_returnsNull_whenUnderlyingEntityHasEmptyString() {
         val session = composeTestRule.configureFakeSession()
         val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
-        val coreEntity = CoreGroupEntity(testEntity)
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
 
         testEntity.contentDescription = ""
 

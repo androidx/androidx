@@ -83,7 +83,6 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.compose.unit.Meter.Companion.millimeters
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
@@ -91,6 +90,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.scene
 
 private const val DEFAULT_SIZE_PX = 400
 
@@ -421,16 +421,19 @@ private fun <T : View> AndroidViewPanel(
     val view = remember { factory(context) }
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val density = LocalDensity.current
+
     val corePanelEntity: CorePanelEntity = remember {
         CorePanelEntity(
-                PanelEntity.create(
-                    session = session,
-                    view = view,
-                    dimensions = SpatialPanelDimensions.minimumPanelDimension,
-                    name = "ViewPanel:${view.id}",
-                    pose = Pose.Identity,
-                    parent = null,
-                )
+                pixelDensity = session.scene.virtualPixelDensity,
+                entity =
+                    PanelEntity.create(
+                        session = session,
+                        view = view,
+                        dimensions = SpatialPanelDimensions.minimumPanelDimension,
+                        name = "ViewPanel:${view.id}",
+                        pose = Pose.Identity,
+                        parent = null,
+                    ),
             )
             .also {
                 it.setShape(shape, density)
@@ -759,6 +762,7 @@ public fun SpatialActivityPanel(
             interactionPolicy = interactionPolicy,
         )
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val pixelDensity = session.scene.virtualPixelDensity
     val dialogManager = LocalDialogManager.current
     val density = LocalDensity.current
 
@@ -774,7 +778,7 @@ public fun SpatialActivityPanel(
     }
 
     val corePanelEntity: CoreActivityPanelEntity = remember {
-        CoreActivityPanelEntity(activityPanelEntity).apply { enabled = false }
+        CoreActivityPanelEntity(pixelDensity, activityPanelEntity).apply { enabled = false }
     }
 
     SideEffect { corePanelEntity.setShape(shape, density) }
@@ -798,22 +802,24 @@ public fun SpatialActivityPanel(
 
             val entityName = "ScrimPanel"
             val scrimPanelEntity by
-                remember(session, scrimView) {
+                remember(scrimView) {
                     disposableValueOf(
                         CorePanelEntity(
-                                PanelEntity.create(
-                                    session = session,
-                                    view = scrimView,
-                                    pixelDimensions =
-                                        corePanelEntity.size.run { IntSize2d(width, height) },
-                                    name = entityName,
-                                    pose = Pose.Identity,
-                                    parent = activityPanelEntity,
-                                )
+                                pixelDensity = pixelDensity,
+                                entity =
+                                    PanelEntity.create(
+                                        session = session,
+                                        view = scrimView,
+                                        pixelDimensions =
+                                            corePanelEntity.size.run { IntSize2d(width, height) },
+                                        name = entityName,
+                                        pose = Pose.Identity,
+                                        parent = activityPanelEntity,
+                                    ),
                             )
                             .apply {
-                                poseInMeters =
-                                    Pose(translation = Vector3(0f, 0f, 10.millimeters.toM()))
+                                parent = corePanelEntity
+                                poseInMeters = Pose(translation = Vector3(0f, 0f, 0.01f))
                             }
                     ) {
                         it.dispose()
