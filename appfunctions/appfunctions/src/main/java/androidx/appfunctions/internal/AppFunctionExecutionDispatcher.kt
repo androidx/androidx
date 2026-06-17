@@ -17,6 +17,7 @@
 package androidx.appfunctions.internal
 
 import android.os.Build
+import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionAppUnknownException
@@ -25,12 +26,49 @@ import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import java.util.function.Consumer
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /** Helper class for generated AppFunction services to execute an AppFunction. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public object AppFunctionExecutionDispatcher {
+    /**
+     * Dispatches the execution of an AppFunction.
+     *
+     * @param coroutineScope The [CoroutineScope] used to launch the execution coroutine.
+     * @param request The [ExecuteAppFunctionRequest] to execute.
+     * @param inventory The [AppFunctionInventory] to look up
+     *   [androidx.appfunctions.metadata.AppFunctionMetadata] for [request].
+     * @param cancellationSignal The [CancellationSignal] used to cancel the execution.
+     * @param callback The [Consumer] to receive the [ExecuteAppFunctionResponse].
+     * @param block The block of code to execute. The block will be invoked with a map of parameter
+     *   names to their extracted values.
+     */
+    public fun dispatchExecuteAppFunction(
+        coroutineScope: CoroutineScope,
+        request: ExecuteAppFunctionRequest,
+        inventory: AppFunctionInventory,
+        cancellationSignal: CancellationSignal,
+        callback: Consumer<ExecuteAppFunctionResponse>,
+        block: suspend (Map<String, Any?>) -> Any?,
+    ) {
+        val job =
+            coroutineScope.launch {
+                val response =
+                    try {
+                        executeAppFunction(inventory, request, block)
+                    } catch (e: AppFunctionException) {
+                        ExecuteAppFunctionResponse.Error(e)
+                    }
+                // We don't check isActive here since AppFunction implementation is expected
+                // to return ERROR_CANCELLED when the operation is caneled.
+                callback.accept(response)
+            }
+        cancellationSignal.setOnCancelListener { job.cancel() }
+    }
 
     /**
      * Executes an AppFunction with the given request.
@@ -47,7 +85,7 @@ public object AppFunctionExecutionDispatcher {
      * @throws AppFunctionException if an explicit AppFunctionException is thrown during execution.
      * @throws AppFunctionAppUnknownException if any other exception is thrown during execution.
      */
-    public suspend fun executeAppFunction(
+    private suspend fun executeAppFunction(
         inventory: AppFunctionInventory,
         request: ExecuteAppFunctionRequest,
         block: suspend (Map<String, Any?>) -> Any?,

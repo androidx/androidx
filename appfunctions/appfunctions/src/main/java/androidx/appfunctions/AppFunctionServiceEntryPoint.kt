@@ -19,7 +19,7 @@ package androidx.appfunctions
 /**
  * Annotation to mark [AppFunctionService] as an entry point.
  *
- * This annotation helps generate a service, bridging [AppFunctionService.executeFunction] and
+ * This annotation helps generate a service, bridging [AppFunctionService.onExecuteFunction] and
  * [AppFunction]-annotated methods defined in the same class.
  *
  * ### Example
@@ -63,12 +63,12 @@ package androidx.appfunctions
  * artifacts:
  * - **A concrete service implementation:** The compiler generates a subclass of your abstract class
  *   (`BaseMyAppFunctionService` in the example above) with the name specified in the [serviceName]
- *   parameter. In addition to the generated `executeFunction` implementation, the function IDs that
- *   can be used with [AppFunctionManager.setAppFunctionEnabled] are also available in the companion
- *   object. The generated service has the following structure:
+ *   parameter. In addition to the generated `onExecuteFunction` implementation, the function IDs
+ *   that can be used with [AppFunctionManager.setAppFunctionEnabled] are also available in the
+ *   companion object. The generated service has the following structure:
  * ```
  * public class MyAppFunctionService : BaseMyAppFunctionService() {
- *   override suspend fun executeFunction(
+ *   override suspend fun onExecuteFunction(
  *     request: ExecuteAppFunctionRequest
  *   ): ExecuteAppFunctionResponse {
  *     return when (request.functionIdentifier) {

@@ -18,6 +18,7 @@ package androidx.appfunctions.compiler.core
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 /** Helper class to introspect AppFunction symbols. */
 object IntrospectionHelper {
@@ -219,9 +220,19 @@ object IntrospectionHelper {
     object AppFunctionServiceClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionService")
 
+        object OnCreateMethod {
+            const val METHOD_NAME = "onCreate"
+        }
+
+        object OnDestroyMethod {
+            const val METHOD_NAME = "onDestroy"
+        }
+
         object ExecuteFunctionMethod {
-            const val METHOD_NAME = "executeFunction"
+            const val METHOD_NAME = "onExecuteFunction"
             const val REQUEST_PARAM_NAME = "request"
+            const val CANCELLATION_SIGNAL_PARAM_NAME = "cancellationSignal"
+            const val CALLBACK_PARAM_NAME = "callback"
         }
     }
 
@@ -233,13 +244,21 @@ object IntrospectionHelper {
         val CLASS_NAME =
             ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionExecutionDispatcher")
 
-        object ExecuteAppFunctionMethod {
-            const val METHOD_NAME = "executeAppFunction"
+        object DispatchExecuteAppFunctionMethod {
+            const val METHOD_NAME = "dispatchExecuteAppFunction"
         }
     }
 
     object ExecuteAppFunctionRequestClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionRequest")
+
+        const val PROPERTY_FUNCTION_IDENTIFIER = "functionIdentifier"
+    }
+
+    object DispatchersClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "Dispatchers")
+
+        const val PROPERTY_MAIN = "Main"
     }
 
     object ExecuteAppFunctionResponseClass {
@@ -364,6 +383,21 @@ object IntrospectionHelper {
         object BuilderClass {
             val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionData", "Builder")
         }
+    }
+
+    object CancellationSignalClass {
+        val CLASS_NAME = ClassName("android.os", "CancellationSignal")
+    }
+
+    object ConsumerClass {
+        val CLASS_NAME = ClassName("java.util.function", "Consumer")
+    }
+
+    object CoroutineScopeClass {
+        val CLASS_NAME = ClassName("kotlinx.coroutines", "CoroutineScope")
+
+        val CANCEL_EXTENSION_METHOD_NAME = MemberName("kotlinx.coroutines", "cancel")
+        val SUPERVISOR_JOB_METHOD_NAME = MemberName("kotlinx.coroutines", "SupervisorJob")
     }
 
     /** [AnnotationSpec] for @RequiresApi(33) */

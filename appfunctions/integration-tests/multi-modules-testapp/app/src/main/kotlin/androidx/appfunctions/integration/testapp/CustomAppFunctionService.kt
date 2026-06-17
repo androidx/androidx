@@ -17,6 +17,7 @@
 package androidx.appfunctions.integration.testapp
 
 import android.os.Build
+import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
@@ -26,30 +27,39 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
+import java.util.function.Consumer
 
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 class CustomAppFunctionService : AppFunctionService() {
-    override suspend fun executeFunction(
-        request: ExecuteAppFunctionRequest
-    ): ExecuteAppFunctionResponse {
-        return when (request.functionIdentifier) {
+    override fun onExecuteFunction(
+        request: ExecuteAppFunctionRequest,
+        cancellationSignal: CancellationSignal,
+        callback: Consumer<ExecuteAppFunctionResponse>,
+    ) {
+        when (request.functionIdentifier) {
             "androidx.appfunctions.integration.testapp.CustomAppFunctionService#add" -> {
                 val a = request.functionParameters.getInt("a")
                 val b = request.functionParameters.getInt("b")
-                ExecuteAppFunctionResponse.Success(
-                    AppFunctionData.Builder(
-                            AppFunctionResponseMetadata(
-                                AppFunctionIntTypeMetadata(isNullable = false)
-                            ),
-                            AppFunctionComponentsMetadata(),
-                        )
-                        .setInt(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, a + b)
-                        .build()
+                callback.accept(
+                    ExecuteAppFunctionResponse.Success(
+                        AppFunctionData.Builder(
+                                AppFunctionResponseMetadata(
+                                    AppFunctionIntTypeMetadata(isNullable = false)
+                                ),
+                                AppFunctionComponentsMetadata(),
+                            )
+                            .setInt(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, a + b)
+                            .build()
+                    )
                 )
             }
             else -> {
-                throw AppFunctionFunctionNotFoundException(
-                    "Unable to find ${request.functionIdentifier}"
+                callback.accept(
+                    ExecuteAppFunctionResponse.Error(
+                        AppFunctionFunctionNotFoundException(
+                            "Unable to find ${request.functionIdentifier}"
+                        )
+                    )
                 )
             }
         }
