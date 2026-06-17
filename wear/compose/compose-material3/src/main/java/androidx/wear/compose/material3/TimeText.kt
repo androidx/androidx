@@ -77,6 +77,9 @@ import kotlinx.coroutines.flow.flowOn
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextClockOnly
  *
+ * ![TimeTextClockOnly Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextClockOnly_CompositeImage.png)
+ *
  * A [TimeText] with a short app status message shown:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatus
@@ -84,6 +87,10 @@ import kotlinx.coroutines.flow.flowOn
  * A [TimeText] with a long status message, that needs ellipsizing:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
+ *
+ * ![TimeTextWithStatusEllipsized Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextWithStatusEllipsized_CompositeImage.png)
+ *
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.

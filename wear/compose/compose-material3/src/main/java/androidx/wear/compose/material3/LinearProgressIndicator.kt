@@ -57,6 +57,10 @@ import kotlinx.coroutines.flow.collectLatest
  * [LinearProgressIndicator] sample:
  *
  * @sample androidx.wear.compose.material3.samples.LinearProgressIndicatorSample
+ *
+ * ![LinearProgressIndicatorSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_LinearProgressIndicatorSample_CompositeImage.png)
+ *
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion. Values outside of this range are coerced into the range 0..1. Progress
  *   value changes will be animated.
