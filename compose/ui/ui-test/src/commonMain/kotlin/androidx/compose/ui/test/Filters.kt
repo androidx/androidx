@@ -27,7 +27,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.util.fastAny
 import kotlin.js.JsName
 
 /**
@@ -515,17 +514,9 @@ fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
  */
 fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
-    //  it might be too much to show. But we could at least warn if there were no ancestors found.
-    fun checkIfSubtreeMatches(matcher: SemanticsMatcher, node: SemanticsNode): Boolean {
-        if (matcher.matchesAny(node.children)) {
-            return true
-        }
-
-        return node.children.fastAny { checkIfSubtreeMatches(matcher, it) }
-    }
-
+    //  it might be too much to show. But we could at least warn if there were no descendants found.
     return SemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {
-        checkIfSubtreeMatches(matcher, it)
+        matcher.matchesAny(it.descendants)
     }
 }
 
@@ -542,6 +533,35 @@ internal val SemanticsNode.ancestors: Iterable<SemanticsNode>
 
                     override fun next(): SemanticsNode {
                         return next!!.also { next = it.parent }
+                    }
+                }
+            }
+        }
+
+internal val SemanticsNode.descendants: Iterable<SemanticsNode>
+    get() =
+        object : Iterable<SemanticsNode> {
+            override fun iterator(): Iterator<SemanticsNode> {
+                return object : Iterator<SemanticsNode> {
+                    private val stack =
+                        ArrayDeque<SemanticsNode>().apply {
+                            val rootChildren = children
+                            for (i in rootChildren.lastIndex downTo 0) {
+                                addLast(rootChildren[i])
+                            }
+                        }
+
+                    override fun hasNext(): Boolean = stack.isNotEmpty()
+
+                    override fun next(): SemanticsNode {
+                        if (!hasNext()) throw NoSuchElementException()
+
+                        val nextNode = stack.removeLast()
+                        val children = nextNode.children
+                        for (i in children.lastIndex downTo 0) {
+                            stack.addLast(children[i])
+                        }
+                        return nextNode
                     }
                 }
             }
