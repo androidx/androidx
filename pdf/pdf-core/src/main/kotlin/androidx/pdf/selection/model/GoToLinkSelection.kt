@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,10 @@ package androidx.pdf.selection.model
 
 import android.os.Parcel
 import android.text.TextUtils
+import androidx.annotation.RestrictTo
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.LinkSelection
-import androidx.pdf.view.pdfRectFromParcel
-import androidx.pdf.view.writeToParcel
+import androidx.pdf.writeToParcel
 
 /**
  * A [androidx.pdf.selection.Selection] for a goto link.
@@ -87,7 +87,8 @@ public class GoToLinkSelection(
     }
 
     /** Writes a [GoToLinkSelection] to [dest]. */
-    internal fun writeToParcel(dest: Parcel, flags: Int) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(destination.pageNumber)
         dest.writeFloat(destination.xCoordinate)
         dest.writeFloat(destination.yCoordinate)
@@ -98,26 +99,4 @@ public class GoToLinkSelection(
             bound.writeToParcel(dest)
         }
     }
-}
-
-/**
- * Reads a [GoToLinkSelection] from [source].
- *
- * Not part of the public API because public APIs cannot be [android.os.Parcelable]
- */
-internal fun goToLinkSelectionFromParcel(source: Parcel): GoToLinkSelection {
-    val destination =
-        GoToLinkSelection.Destination(
-            source.readInt(),
-            source.readFloat(),
-            source.readFloat(),
-            source.readFloat(),
-        )
-    val text = requireNotNull(TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source))
-    val boundsSize = source.readInt()
-    val bounds = mutableListOf<PdfRect>()
-    for (i in 0 until boundsSize) {
-        bounds.add(pdfRectFromParcel(source))
-    }
-    return GoToLinkSelection(destination, text, bounds.toList())
 }

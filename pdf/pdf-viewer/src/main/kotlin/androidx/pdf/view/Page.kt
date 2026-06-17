@@ -28,6 +28,7 @@ import android.os.RemoteException
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.exceptions.RequestFailedException

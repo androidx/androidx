@@ -1,1 +1,624 @@
 // Signature format: 4.0
+package androidx.pdf {
+
+  public interface EditablePdfDocument extends androidx.pdf.PdfDocument {
+    method public suspend Object? applyEdit(androidx.pdf.models.FormEditInfo record, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? applyEdits(androidx.pdf.EditsDraft editsDraft, kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
+    method public androidx.pdf.PdfWriteHandle createWriteHandle();
+  }
+
+  public class EditsDraft {
+    method public final kotlin.Pair<androidx.pdf.EditsDraft,androidx.pdf.EditsDraft> splitAt(int index);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPdfApi {
+  }
+
+  public final class Highlight {
+    ctor public Highlight(androidx.pdf.PdfRect area, @ColorInt int color);
+    method @InaccessibleFromKotlin public androidx.pdf.PdfRect getArea();
+    method @InaccessibleFromKotlin public int getColor();
+    property public androidx.pdf.PdfRect area;
+    property public int color;
+  }
+
+  public final class MutableEditsDraft extends androidx.pdf.EditsDraft {
+    ctor public MutableEditsDraft();
+    method public void insert(androidx.pdf.annotation.content.PdfAnnotation annotation);
+    method public void remove(String annotationId, int pageNum);
+    method public androidx.pdf.EditsDraft toEditsDraft();
+    method public void update(String annotationId, androidx.pdf.annotation.content.PdfAnnotation annotation);
+  }
+
+  public interface PdfDocument extends java.io.Closeable {
+    method public default void addOnEditAppliedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnEditAppliedListener listener);
+    method public void addOnPdfContentInvalidatedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
+    method public suspend Object? getAnnotationsForPage(int pageNum, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation>>);
+    method @InaccessibleFromKotlin public int getFormType();
+    method public suspend Object? getFormWidgetInfos(int pageNum, optional long types, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.models.FormWidgetInfo>>);
+    method @BytecodeOnly public static Object! getFormWidgetInfos$default(androidx.pdf.PdfDocument!, int, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @InaccessibleFromKotlin public int getLinearizationStatus();
+    method public androidx.pdf.PdfDocument.BitmapSource getPageBitmapSource(int pageNumber);
+    method public suspend Object? getPageContent(int pageNumber, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument.PdfPageContent?>);
+    method @InaccessibleFromKotlin public int getPageCount();
+    method public suspend Object? getPageInfo(int pageNumber, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument.PageInfo>);
+    method public suspend Object? getPageInfo(int pageNumber, optional long pageInfoFlags, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument.PageInfo>);
+    method @BytecodeOnly public static Object! getPageInfo$default(androidx.pdf.PdfDocument!, int, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public suspend Object? getPageInfos(kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.PdfDocument.PageInfo>>);
+    method public suspend Object? getPageInfos(kotlin.ranges.IntRange pageRange, optional long pageInfoFlags, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.PdfDocument.PageInfo>>);
+    method @BytecodeOnly public static Object! getPageInfos$default(androidx.pdf.PdfDocument!, kotlin.ranges.IntRange!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public suspend Object? getPageLinks(int pageNumber, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument.PdfPageLinks>);
+    method @InaccessibleFromKotlin public androidx.pdf.RenderParams getRenderParams();
+    method public suspend Object? getSelectionBounds(int pageNumber, android.graphics.PointF start, android.graphics.PointF stop, kotlin.coroutines.Continuation<? super androidx.pdf.content.PageSelection?>);
+    method @InaccessibleFromKotlin public android.net.Uri getUri();
+    method public default void removeOnEditAppliedListener(androidx.pdf.PdfDocument.OnEditAppliedListener listener);
+    method public void removeOnPdfContentInvalidatedListener(androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
+    method public suspend Object? searchDocument(String query, kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super android.util.SparseArray<java.util.List<androidx.pdf.content.PageMatchBounds>>>);
+    property public abstract int formType;
+    property public abstract int linearizationStatus;
+    property public abstract int pageCount;
+    property public abstract androidx.pdf.RenderParams renderParams;
+    property public abstract android.net.Uri uri;
+    field public static final androidx.pdf.PdfDocument.Companion Companion;
+    field public static final long FORM_WIDGET_INCLUDE_ALL_TYPES = -1L; // 0xffffffffffffffffL
+    field public static final long FORM_WIDGET_INCLUDE_CHECKBOX_TYPE = 4L; // 0x4L
+    field public static final long FORM_WIDGET_INCLUDE_COMBOBOX_TYPE = 16L; // 0x10L
+    field public static final long FORM_WIDGET_INCLUDE_LISTBOX_TYPE = 32L; // 0x20L
+    field public static final long FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE = 2L; // 0x2L
+    field public static final long FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE = 8L; // 0x8L
+    field public static final long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE = 128L; // 0x80L
+    field public static final long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE = 64L; // 0x40L
+    field public static final long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE = 1L; // 0x1L
+    field public static final int LINEARIZATION_STATUS_LINEARIZED = 1; // 0x1
+    field public static final int LINEARIZATION_STATUS_NOT_LINEARIZED = 0; // 0x0
+    field public static final int LINEARIZATION_STATUS_UNKNOWN = 2; // 0x2
+    field public static final long PAGE_INFO_EXCLUDE_FORM_WIDGETS = 0L; // 0x0L
+    field public static final long PAGE_INFO_INCLUDE_FORM_WIDGET = 1L; // 0x1L
+    field public static final int PDF_FORM_TYPE_ACRO_FORM = 1; // 0x1
+    field public static final int PDF_FORM_TYPE_NONE = 0; // 0x0
+    field public static final int PDF_FORM_TYPE_XFA_FOREGROUND = 3; // 0x3
+    field public static final int PDF_FORM_TYPE_XFA_FULL = 2; // 0x2
+  }
+
+  public static interface PdfDocument.BitmapSource extends java.io.Closeable {
+    method public suspend Object? getBitmap(android.util.Size scaledPageSizePx, optional android.graphics.Rect? tileRegion, kotlin.coroutines.Continuation<? super android.graphics.Bitmap>);
+    method @BytecodeOnly public static Object! getBitmap$default(androidx.pdf.PdfDocument.BitmapSource!, android.util.Size!, android.graphics.Rect!, kotlin.coroutines.Continuation!, int, Object!);
+    method @InaccessibleFromKotlin public int getPageNumber();
+    property public abstract int pageNumber;
+  }
+
+  public static final class PdfDocument.Companion {
+    property public static long FORM_WIDGET_INCLUDE_ALL_TYPES;
+    property public static long FORM_WIDGET_INCLUDE_CHECKBOX_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_COMBOBOX_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_LISTBOX_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE;
+    property public static long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE;
+    property public static int LINEARIZATION_STATUS_LINEARIZED;
+    property public static int LINEARIZATION_STATUS_NOT_LINEARIZED;
+    property public static int LINEARIZATION_STATUS_UNKNOWN;
+    property public static long PAGE_INFO_EXCLUDE_FORM_WIDGETS;
+    property public static long PAGE_INFO_INCLUDE_FORM_WIDGET;
+    property public static int PDF_FORM_TYPE_ACRO_FORM;
+    property public static int PDF_FORM_TYPE_NONE;
+    property public static int PDF_FORM_TYPE_XFA_FOREGROUND;
+    property public static int PDF_FORM_TYPE_XFA_FULL;
+    field public static final long FORM_WIDGET_INCLUDE_ALL_TYPES = -1L; // 0xffffffffffffffffL
+    field public static final long FORM_WIDGET_INCLUDE_CHECKBOX_TYPE = 4L; // 0x4L
+    field public static final long FORM_WIDGET_INCLUDE_COMBOBOX_TYPE = 16L; // 0x10L
+    field public static final long FORM_WIDGET_INCLUDE_LISTBOX_TYPE = 32L; // 0x20L
+    field public static final long FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE = 2L; // 0x2L
+    field public static final long FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE = 8L; // 0x8L
+    field public static final long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE = 128L; // 0x80L
+    field public static final long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE = 64L; // 0x40L
+    field public static final long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE = 1L; // 0x1L
+    field public static final int LINEARIZATION_STATUS_LINEARIZED = 1; // 0x1
+    field public static final int LINEARIZATION_STATUS_NOT_LINEARIZED = 0; // 0x0
+    field public static final int LINEARIZATION_STATUS_UNKNOWN = 2; // 0x2
+    field public static final long PAGE_INFO_EXCLUDE_FORM_WIDGETS = 0L; // 0x0L
+    field public static final long PAGE_INFO_INCLUDE_FORM_WIDGET = 1L; // 0x1L
+    field public static final int PDF_FORM_TYPE_ACRO_FORM = 1; // 0x1
+    field public static final int PDF_FORM_TYPE_NONE = 0; // 0x0
+    field public static final int PDF_FORM_TYPE_XFA_FOREGROUND = 3; // 0x3
+    field public static final int PDF_FORM_TYPE_XFA_FULL = 2; // 0x2
+  }
+
+  public static interface PdfDocument.OnEditAppliedListener {
+    method public void onEditApplied(int pageNum, String editId);
+  }
+
+  public static interface PdfDocument.OnPdfContentInvalidatedListener {
+    method public void onPdfContentInvalidated(int pageNumber, java.util.List<android.graphics.Rect> dirtyAreas);
+  }
+
+  public static final class PdfDocument.PageInfo {
+    ctor @BytecodeOnly public PdfDocument.PageInfo(int, int, int, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public PdfDocument.PageInfo(int pageNum, int height, int width, optional java.util.List<androidx.pdf.models.FormWidgetInfo> formWidgetInfos);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.models.FormWidgetInfo> getFormWidgetInfos();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public int getPageNum();
+    method @InaccessibleFromKotlin public int getWidth();
+    property public java.util.List<androidx.pdf.models.FormWidgetInfo> formWidgetInfos;
+    property public int height;
+    property public int pageNum;
+    property public int width;
+  }
+
+  public static final class PdfDocument.PdfPageContent {
+    ctor public PdfDocument.PdfPageContent(java.util.List<androidx.pdf.content.PdfPageTextContent> textContents, java.util.List<androidx.pdf.content.PdfPageImageContent> imageContents);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageImageContent> getImageContents();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageTextContent> getTextContents();
+    property public java.util.List<androidx.pdf.content.PdfPageImageContent> imageContents;
+    property public java.util.List<androidx.pdf.content.PdfPageTextContent> textContents;
+  }
+
+  public static final class PdfDocument.PdfPageLinks {
+    ctor public PdfDocument.PdfPageLinks(java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> gotoLinks, java.util.List<androidx.pdf.content.PdfPageLinkContent> externalLinks);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageLinkContent> getExternalLinks();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> getGotoLinks();
+    property public java.util.List<androidx.pdf.content.PdfPageLinkContent> externalLinks;
+    property public java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> gotoLinks;
+  }
+
+  public final class PdfEditApplyException extends java.lang.Exception {
+    ctor public PdfEditApplyException(int failureIndex, java.util.List<java.lang.String> appliedEditIds, Throwable cause);
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getAppliedEditIds();
+    method @InaccessibleFromKotlin public int getFailureIndex();
+    property public java.util.List<java.lang.String> appliedEditIds;
+    property public int failureIndex;
+  }
+
+  public interface PdfLoader {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, android.os.ParcelFileDescriptor fileDescriptor, optional String? password, optional androidx.pdf.RenderParams renderParams, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, optional String? password, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, android.os.ParcelFileDescriptor!, String!, androidx.pdf.RenderParams!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, String!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
+  }
+
+  public final class PdfPasswordException extends java.lang.SecurityException {
+    ctor public PdfPasswordException(String message);
+  }
+
+  public final class PdfPoint {
+    ctor public PdfPoint(int pageNum, android.graphics.PointF pagePoint);
+    ctor public PdfPoint(int pageNum, float x, float y);
+    method @InaccessibleFromKotlin public int getPageNum();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    property public int pageNum;
+    property public float x;
+    property public float y;
+  }
+
+  public final class PdfRect {
+    ctor public PdfRect(int pageNum, android.graphics.RectF pageRect);
+    ctor public PdfRect(int pageNum, float left, float top, float right, float bottom);
+    method @InaccessibleFromKotlin public float getBottom();
+    method @InaccessibleFromKotlin public float getLeft();
+    method @InaccessibleFromKotlin public int getPageNum();
+    method @InaccessibleFromKotlin public float getRight();
+    method @InaccessibleFromKotlin public float getTop();
+    property public float bottom;
+    property public float left;
+    property public int pageNum;
+    property public float right;
+    property public float top;
+  }
+
+  public interface PdfWriteHandle extends java.io.Closeable {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? writeTo(android.os.ParcelFileDescriptor destination, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws java.io.IOException;
+  }
+
+  public final class RenderParams implements android.os.Parcelable {
+    ctor public RenderParams(int renderMode, optional int renderFlags, optional int renderFormContentMode);
+    ctor @BytecodeOnly public RenderParams(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int describeContents();
+    method @InaccessibleFromKotlin public int getRenderFlags();
+    method @InaccessibleFromKotlin public int getRenderFormContentMode();
+    method @InaccessibleFromKotlin public int getRenderMode();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public int renderFlags;
+    property public int renderFormContentMode;
+    property public int renderMode;
+    field public static final android.os.Parcelable.Creator<androidx.pdf.RenderParams> CREATOR;
+    field public static final androidx.pdf.RenderParams.Companion Companion;
+    field public static final int FLAG_RENDER_FREETEXT = 16; // 0x10
+    field public static final int FLAG_RENDER_HIGHLIGHT_ANNOTATIONS = 4; // 0x4
+    field public static final int FLAG_RENDER_NONE = 0; // 0x0
+    field public static final int FLAG_RENDER_STAMP_ANNOTATIONS = 8; // 0x8
+    field public static final int FLAG_RENDER_TEXT_ANNOTATIONS = 2; // 0x2
+    field public static final int RENDER_FORM_CONTENT_DISABLED = 2; // 0x2
+    field public static final int RENDER_FORM_CONTENT_ENABLED = 1; // 0x1
+    field public static final int RENDER_MODE_FOR_DISPLAY = 1; // 0x1
+    field public static final int RENDER_MODE_FOR_PRINT = 2; // 0x2
+  }
+
+  public static final class RenderParams.Companion {
+    property public android.os.Parcelable.Creator<androidx.pdf.RenderParams> CREATOR;
+    property public static int FLAG_RENDER_FREETEXT;
+    property public static int FLAG_RENDER_HIGHLIGHT_ANNOTATIONS;
+    property public static int FLAG_RENDER_NONE;
+    property public static int FLAG_RENDER_STAMP_ANNOTATIONS;
+    property public static int FLAG_RENDER_TEXT_ANNOTATIONS;
+    property public static int RENDER_FORM_CONTENT_DISABLED;
+    property public static int RENDER_FORM_CONTENT_ENABLED;
+    property public static int RENDER_MODE_FOR_DISPLAY;
+    property public static int RENDER_MODE_FOR_PRINT;
+  }
+
+}
+
+package androidx.pdf.annotation.content {
+
+  public final class HighlightAnnotation extends androidx.pdf.annotation.content.PdfAnnotation {
+    ctor public HighlightAnnotation(int pageNum, java.util.List<? extends android.graphics.RectF> bounds, int color);
+    method @InaccessibleFromKotlin public java.util.List<android.graphics.RectF> getBounds();
+    method @InaccessibleFromKotlin public int getColor();
+    property public java.util.List<android.graphics.RectF> bounds;
+    property public int color;
+  }
+
+  public final class ImagePdfObject implements androidx.pdf.annotation.content.PdfObject {
+    ctor public ImagePdfObject(android.graphics.Bitmap bitmap, android.graphics.RectF bounds);
+    method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
+    method @InaccessibleFromKotlin public android.graphics.RectF getBounds();
+    property public android.graphics.Bitmap bitmap;
+    property public android.graphics.RectF bounds;
+  }
+
+  public final class KeyedPdfAnnotation {
+    ctor public KeyedPdfAnnotation(String key, androidx.pdf.annotation.content.PdfAnnotation annotation);
+    method @InaccessibleFromKotlin public androidx.pdf.annotation.content.PdfAnnotation getAnnotation();
+    method @InaccessibleFromKotlin public String getKey();
+    property public androidx.pdf.annotation.content.PdfAnnotation annotation;
+    property public String key;
+  }
+
+  public final class KeyedPdfObject {
+    ctor public KeyedPdfObject(String key, androidx.pdf.annotation.content.PdfObject pdfObject);
+    method @InaccessibleFromKotlin public String getKey();
+    method @InaccessibleFromKotlin public androidx.pdf.annotation.content.PdfObject getPdfObject();
+    property public String key;
+    property public androidx.pdf.annotation.content.PdfObject pdfObject;
+  }
+
+  public final class PathPdfObject implements androidx.pdf.annotation.content.PdfObject {
+    ctor public PathPdfObject(int brushColor, float brushWidth, java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs);
+    method @InaccessibleFromKotlin public int getBrushColor();
+    method @InaccessibleFromKotlin public float getBrushWidth();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> getInputs();
+    property public int brushColor;
+    property public float brushWidth;
+    property public java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs;
+  }
+
+  public static final class PathPdfObject.PathInput {
+    ctor public PathPdfObject.PathInput(float x, float y, int command);
+    method @InaccessibleFromKotlin public int getCommand();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    property public int command;
+    property public float x;
+    property public float y;
+    field public static final androidx.pdf.annotation.content.PathPdfObject.PathInput.Companion Companion;
+    field public static final int LINE_TO = 1; // 0x1
+    field public static final int MOVE_TO = 0; // 0x0
+  }
+
+  public static final class PathPdfObject.PathInput.Companion {
+    property public static int LINE_TO;
+    property public static int MOVE_TO;
+  }
+
+  public abstract class PdfAnnotation {
+    method @InaccessibleFromKotlin public int getPageNum();
+    property public int pageNum;
+  }
+
+  public sealed exhaustive interface PdfObject {
+  }
+
+  public final class StampAnnotation extends androidx.pdf.annotation.content.PdfAnnotation {
+    ctor public StampAnnotation(int pageNum, android.graphics.RectF bounds, java.util.List<? extends androidx.pdf.annotation.content.PdfObject> pdfObjects);
+    method @InaccessibleFromKotlin public android.graphics.RectF getBounds();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.annotation.content.PdfObject> getPdfObjects();
+    property public android.graphics.RectF bounds;
+    property public java.util.List<androidx.pdf.annotation.content.PdfObject> pdfObjects;
+  }
+
+}
+
+package androidx.pdf.content {
+
+  public final class ExternalLink {
+    ctor public ExternalLink(android.net.Uri uri);
+    method @InaccessibleFromKotlin public android.net.Uri getUri();
+    property public android.net.Uri uri;
+  }
+
+  public final class PageMatchBounds {
+    ctor public PageMatchBounds(java.util.List<? extends android.graphics.RectF> bounds, int textStartIndex);
+    method @InaccessibleFromKotlin public java.util.List<android.graphics.RectF> getBounds();
+    method @InaccessibleFromKotlin public int getTextStartIndex();
+    property public java.util.List<android.graphics.RectF> bounds;
+    property public int textStartIndex;
+  }
+
+  public final class PageSelection {
+    ctor public PageSelection(int page, androidx.pdf.content.SelectionBoundary start, androidx.pdf.content.SelectionBoundary stop, java.util.List<? extends androidx.pdf.content.PdfPageContent> selectedContents);
+    method @InaccessibleFromKotlin public int getPage();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.content.PdfPageContent> getSelectedContents();
+    method @InaccessibleFromKotlin public androidx.pdf.content.SelectionBoundary getStart();
+    method @InaccessibleFromKotlin public androidx.pdf.content.SelectionBoundary getStop();
+    property public int page;
+    property public java.util.List<androidx.pdf.content.PdfPageContent> selectedContents;
+    property public androidx.pdf.content.SelectionBoundary start;
+    property public androidx.pdf.content.SelectionBoundary stop;
+  }
+
+  public abstract class PdfPageContent {
+    method @InaccessibleFromKotlin public final java.util.List<android.graphics.RectF> getBounds();
+    property public final java.util.List<android.graphics.RectF> bounds;
+  }
+
+  public final class PdfPageGotoLinkContent extends androidx.pdf.content.PdfPageContent {
+    ctor public PdfPageGotoLinkContent(java.util.List<? extends android.graphics.RectF> bounds, androidx.pdf.content.PdfPageGotoLinkContent.Destination destination);
+    method @InaccessibleFromKotlin public androidx.pdf.content.PdfPageGotoLinkContent.Destination getDestination();
+    property public androidx.pdf.content.PdfPageGotoLinkContent.Destination destination;
+  }
+
+  public static final class PdfPageGotoLinkContent.Destination {
+    ctor public PdfPageGotoLinkContent.Destination(int pageNumber, float xCoordinate, float yCoordinate, float zoom);
+    method @InaccessibleFromKotlin public int getPageNumber();
+    method @InaccessibleFromKotlin public float getXCoordinate();
+    method @InaccessibleFromKotlin public float getYCoordinate();
+    method @InaccessibleFromKotlin public float getZoom();
+    property public int pageNumber;
+    property public float xCoordinate;
+    property public float yCoordinate;
+    property public float zoom;
+  }
+
+  public final class PdfPageImageContent {
+    ctor public PdfPageImageContent(String altText);
+    method @InaccessibleFromKotlin public String getAltText();
+    property public String altText;
+  }
+
+  public final class PdfPageLinkContent extends androidx.pdf.content.PdfPageContent {
+    ctor public PdfPageLinkContent(java.util.List<? extends android.graphics.RectF> bounds, android.net.Uri uri);
+    method @InaccessibleFromKotlin public android.net.Uri getUri();
+    property public android.net.Uri uri;
+  }
+
+  public final class PdfPageTextContent extends androidx.pdf.content.PdfPageContent {
+    ctor public PdfPageTextContent(java.util.List<? extends android.graphics.RectF> bounds, String text);
+    method @InaccessibleFromKotlin public String getText();
+    property public String text;
+  }
+
+  public final class SelectionBoundary {
+    ctor public SelectionBoundary();
+    ctor public SelectionBoundary(optional int index, optional android.graphics.Point? point, optional boolean isRtl);
+    ctor @BytecodeOnly public SelectionBoundary(int, android.graphics.Point!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getIndex();
+    method @InaccessibleFromKotlin public android.graphics.Point? getPoint();
+    method @InaccessibleFromKotlin public boolean isRtl();
+    property public int index;
+    property public boolean isRtl;
+    property public android.graphics.Point? point;
+  }
+
+}
+
+package androidx.pdf.models {
+
+  public final class FormEditInfo implements android.os.Parcelable {
+    method public static androidx.pdf.models.FormEditInfo createClick(@IntRange(from=0L) int widgetIndex, androidx.pdf.PdfPoint clickPoint);
+    method public static androidx.pdf.models.FormEditInfo createSetIndices(@IntRange(from=0L) int pageNumber, @IntRange(from=0L) int widgetIndex, int[] selectedIndices);
+    method public static androidx.pdf.models.FormEditInfo createSetText(@IntRange(from=0L) int pageNumber, @IntRange(from=0L) int widgetIndex, String text);
+    method public int describeContents();
+    method @InaccessibleFromKotlin public androidx.pdf.PdfPoint? getClickPoint();
+    method @InaccessibleFromKotlin public int getPageNumber();
+    method public int getSelectedIndexAt(int index);
+    method @InaccessibleFromKotlin public int getSelectedIndexCount();
+    method @InaccessibleFromKotlin public String? getText();
+    method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public int getWidgetIndex();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public androidx.pdf.PdfPoint? clickPoint;
+    property public int pageNumber;
+    property public int selectedIndexCount;
+    property public String? text;
+    property public int type;
+    property public int widgetIndex;
+    field public static final android.os.Parcelable.Creator<androidx.pdf.models.FormEditInfo> CREATOR;
+    field public static final androidx.pdf.models.FormEditInfo.Companion Companion;
+    field public static final int EDIT_TYPE_CLICK = 0; // 0x0
+    field public static final int EDIT_TYPE_SET_INDICES = 1; // 0x1
+    field public static final int EDIT_TYPE_SET_TEXT = 2; // 0x2
+  }
+
+  public static final class FormEditInfo.Companion {
+    method public androidx.pdf.models.FormEditInfo createClick(@IntRange(from=0L) int widgetIndex, androidx.pdf.PdfPoint clickPoint);
+    method public androidx.pdf.models.FormEditInfo createSetIndices(@IntRange(from=0L) int pageNumber, @IntRange(from=0L) int widgetIndex, int[] selectedIndices);
+    method public androidx.pdf.models.FormEditInfo createSetText(@IntRange(from=0L) int pageNumber, @IntRange(from=0L) int widgetIndex, String text);
+    property public android.os.Parcelable.Creator<androidx.pdf.models.FormEditInfo> CREATOR;
+    property public static int EDIT_TYPE_CLICK;
+    property public static int EDIT_TYPE_SET_INDICES;
+    property public static int EDIT_TYPE_SET_TEXT;
+  }
+
+  public final class FormWidgetInfo implements android.os.Parcelable {
+    method public static androidx.pdf.models.FormWidgetInfo createCheckbox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public static androidx.pdf.models.FormWidgetInfo createComboBox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isEditableText, @FloatRange(from=0.0) float fontSize, java.util.List<androidx.pdf.models.ListItem> listItems);
+    method public static androidx.pdf.models.FormWidgetInfo createListBox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isMultiSelect, java.util.List<androidx.pdf.models.ListItem> listItems);
+    method public static androidx.pdf.models.FormWidgetInfo createPushButton(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public static androidx.pdf.models.FormWidgetInfo createRadioButton(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public static androidx.pdf.models.FormWidgetInfo createSignature(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public static androidx.pdf.models.FormWidgetInfo createTextField(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isEditableText, boolean isMultiLineText, @IntRange(from=0L) int maxLength, @FloatRange(from=0.0) float fontSize);
+    method public int describeContents();
+    method @InaccessibleFromKotlin public String? getAccessibilityLabel();
+    method @InaccessibleFromKotlin public float getFontSize();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.models.ListItem> getListItems();
+    method @InaccessibleFromKotlin public int getMaxLength();
+    method @InaccessibleFromKotlin public String? getTextValue();
+    method @InaccessibleFromKotlin public int getWidgetIndex();
+    method @InaccessibleFromKotlin public android.graphics.Rect getWidgetRect();
+    method @InaccessibleFromKotlin public int getWidgetType();
+    method @InaccessibleFromKotlin public boolean isEditableText();
+    method @InaccessibleFromKotlin public boolean isMultiLineText();
+    method @InaccessibleFromKotlin public boolean isMultiSelect();
+    method @InaccessibleFromKotlin public boolean isReadOnly();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public String? accessibilityLabel;
+    property public float fontSize;
+    property public boolean isEditableText;
+    property public boolean isMultiLineText;
+    property public boolean isMultiSelect;
+    property public boolean isReadOnly;
+    property public java.util.List<androidx.pdf.models.ListItem> listItems;
+    property public int maxLength;
+    property public String? textValue;
+    property public int widgetIndex;
+    property public android.graphics.Rect widgetRect;
+    property public int widgetType;
+    field public static final android.os.Parcelable.Creator<androidx.pdf.models.FormWidgetInfo> CREATOR;
+    field public static final androidx.pdf.models.FormWidgetInfo.Companion Companion;
+    field public static final int WIDGET_TYPE_CHECKBOX = 2; // 0x2
+    field public static final int WIDGET_TYPE_COMBOBOX = 4; // 0x4
+    field public static final int WIDGET_TYPE_LISTBOX = 5; // 0x5
+    field public static final int WIDGET_TYPE_PUSHBUTTON = 1; // 0x1
+    field public static final int WIDGET_TYPE_RADIOBUTTON = 3; // 0x3
+    field public static final int WIDGET_TYPE_SIGNATURE = 7; // 0x7
+    field public static final int WIDGET_TYPE_TEXTFIELD = 6; // 0x6
+    field public static final int WIDGET_TYPE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class FormWidgetInfo.Companion {
+    method public androidx.pdf.models.FormWidgetInfo createCheckbox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public androidx.pdf.models.FormWidgetInfo createComboBox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isEditableText, @FloatRange(from=0.0) float fontSize, java.util.List<androidx.pdf.models.ListItem> listItems);
+    method public androidx.pdf.models.FormWidgetInfo createListBox(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isMultiSelect, java.util.List<androidx.pdf.models.ListItem> listItems);
+    method public androidx.pdf.models.FormWidgetInfo createPushButton(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public androidx.pdf.models.FormWidgetInfo createRadioButton(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public androidx.pdf.models.FormWidgetInfo createSignature(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly);
+    method public androidx.pdf.models.FormWidgetInfo createTextField(@IntRange(from=0L) int widgetIndex, android.graphics.Rect widgetRect, String? textValue, String? accessibilityLabel, boolean isReadOnly, boolean isEditableText, boolean isMultiLineText, @IntRange(from=0L) int maxLength, @FloatRange(from=0.0) float fontSize);
+    property public android.os.Parcelable.Creator<androidx.pdf.models.FormWidgetInfo> CREATOR;
+    property public static int WIDGET_TYPE_CHECKBOX;
+    property public static int WIDGET_TYPE_COMBOBOX;
+    property public static int WIDGET_TYPE_LISTBOX;
+    property public static int WIDGET_TYPE_PUSHBUTTON;
+    property public static int WIDGET_TYPE_RADIOBUTTON;
+    property public static int WIDGET_TYPE_SIGNATURE;
+    property public static int WIDGET_TYPE_TEXTFIELD;
+    property public static int WIDGET_TYPE_UNKNOWN;
+  }
+
+  public final class ListItem implements android.os.Parcelable {
+    ctor public ListItem(String label, boolean isSelected);
+    method public int describeContents();
+    method @InaccessibleFromKotlin public String getLabel();
+    method @InaccessibleFromKotlin public boolean isSelected();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public boolean isSelected;
+    property public String label;
+    field public static final android.os.Parcelable.Creator<androidx.pdf.models.ListItem> CREATOR;
+    field public static final androidx.pdf.models.ListItem.Companion Companion;
+  }
+
+  public static final class ListItem.Companion {
+    property public android.os.Parcelable.Creator<androidx.pdf.models.ListItem> CREATOR;
+  }
+
+}
+
+package androidx.pdf.selection {
+
+  public abstract class ContextMenuComponent {
+    method @InaccessibleFromKotlin public final Object getKey();
+    property public final Object key;
+  }
+
+  public interface LinkSelection extends androidx.pdf.selection.Selection {
+    method @InaccessibleFromKotlin public CharSequence getLinkText();
+    property public abstract CharSequence linkText;
+  }
+
+  public final class PdfSelectionMenuKeys {
+    property public Object CopyKey;
+    property public Object CopyLinkKey;
+    property public Object GoToKey;
+    property public Object SelectAllKey;
+    property public Object SmartActionKey;
+    field public static final Object CopyKey;
+    field public static final Object CopyLinkKey;
+    field public static final Object GoToKey;
+    field public static final androidx.pdf.selection.PdfSelectionMenuKeys INSTANCE;
+    field public static final Object SelectAllKey;
+    field public static final Object SmartActionKey;
+  }
+
+  public interface Selection {
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    property public abstract java.util.List<androidx.pdf.PdfRect> bounds;
+  }
+
+}
+
+package androidx.pdf.selection.model {
+
+  public final class GoToLinkSelection implements androidx.pdf.selection.LinkSelection {
+    ctor public GoToLinkSelection(androidx.pdf.selection.model.GoToLinkSelection.Destination destination, CharSequence linkText, java.util.List<androidx.pdf.PdfRect> bounds);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    method @InaccessibleFromKotlin public androidx.pdf.selection.model.GoToLinkSelection.Destination getDestination();
+    method @InaccessibleFromKotlin public CharSequence getLinkText();
+    property public java.util.List<androidx.pdf.PdfRect> bounds;
+    property public androidx.pdf.selection.model.GoToLinkSelection.Destination destination;
+    property public CharSequence linkText;
+  }
+
+  public static final class GoToLinkSelection.Destination {
+    ctor public GoToLinkSelection.Destination(int pageNumber, float xCoordinate, float yCoordinate, float zoom);
+    method @InaccessibleFromKotlin public int getPageNumber();
+    method @InaccessibleFromKotlin public float getXCoordinate();
+    method @InaccessibleFromKotlin public float getYCoordinate();
+    method @InaccessibleFromKotlin public float getZoom();
+    property public int pageNumber;
+    property public float xCoordinate;
+    property public float yCoordinate;
+    property public float zoom;
+  }
+
+  public final class HyperLinkSelection implements androidx.pdf.selection.LinkSelection {
+    ctor public HyperLinkSelection(android.net.Uri link, CharSequence linkText, java.util.List<androidx.pdf.PdfRect> bounds);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    method @InaccessibleFromKotlin public android.net.Uri getLink();
+    method @InaccessibleFromKotlin public CharSequence getLinkText();
+    property public java.util.List<androidx.pdf.PdfRect> bounds;
+    property public android.net.Uri link;
+    property public CharSequence linkText;
+  }
+
+  public final class ImageSelection implements java.lang.AutoCloseable androidx.pdf.selection.Selection {
+    method public void close();
+    method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    method @InaccessibleFromKotlin public boolean isPlaceholder();
+    method @InaccessibleFromKotlin public void setPlaceholder(boolean);
+    property public android.graphics.Bitmap bitmap;
+    property public java.util.List<androidx.pdf.PdfRect> bounds;
+  }
+
+  public final class TextSelection implements androidx.pdf.selection.Selection {
+    ctor public TextSelection(CharSequence text, java.util.List<androidx.pdf.PdfRect> bounds);
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    method @InaccessibleFromKotlin public CharSequence getText();
+    property public java.util.List<androidx.pdf.PdfRect> bounds;
+    property public CharSequence text;
+  }
+
+}
+

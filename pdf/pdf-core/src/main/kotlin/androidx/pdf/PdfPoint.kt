@@ -16,10 +16,7 @@
 
 package androidx.pdf
 
-import android.graphics.Point
 import android.graphics.PointF
-import android.graphics.RectF
-import kotlin.math.roundToInt
 
 /**
  * Represents a point in PDF coordinates, where [pageNum] indicates a 0-indexed PDF page, and ([x],
@@ -54,16 +51,4 @@ public class PdfPoint(public val pageNum: Int, public val x: Float, public val y
     override fun toString(): String {
         return "PdfPoint: page $pageNum pagePoint ($x, $y)"
     }
-}
-
-/** Maps a [PdfPoint] to a [Point] within the local coordinate space of an image. */
-internal fun PdfPoint.toImagePoint(imageRect: RectF, bitmapSize: Dimension): Point {
-    val imageWidth = imageRect.right - imageRect.left
-    val imageHeight = imageRect.bottom - imageRect.top
-    require(imageWidth > 0 && imageHeight > 0) {
-        "Invalid image dimensions: $imageWidth x $imageHeight"
-    }
-    val relativeX = (x - imageRect.left) / imageWidth
-    val relativeY = (y - imageRect.top) / imageHeight
-    return Point((relativeX * bitmapSize.x).roundToInt(), (relativeY * bitmapSize.y).roundToInt())
 }

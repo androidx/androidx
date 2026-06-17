@@ -24,6 +24,7 @@ import android.util.SparseArray
 import androidx.core.util.isEmpty
 import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
+import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfPoint
 import androidx.pdf.models.FormWidgetInfo

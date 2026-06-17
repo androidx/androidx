@@ -147,7 +147,6 @@ private constructor(
          * @param widgetIndex The index of the widget that was edited.
          * @param clickPoint The point on the [pageNumber] in PDF coordinates where the click
          *   occurred. Note: The origin exists at the top left corner of the page.
-         * @see [androidx.pdf.view.PdfView.viewToPdfPoint]
          */
         @JvmStatic
         public fun createClick(

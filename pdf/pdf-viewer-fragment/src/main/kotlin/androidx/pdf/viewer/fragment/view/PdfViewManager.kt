@@ -18,8 +18,8 @@ package androidx.pdf.viewer.fragment.view
 
 import android.graphics.PointF
 import androidx.annotation.ColorInt
+import androidx.pdf.Highlight
 import androidx.pdf.PdfPoint
-import androidx.pdf.view.Highlight
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.model.HighlightData
 

@@ -22,6 +22,7 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.RemoteException
+import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfRect

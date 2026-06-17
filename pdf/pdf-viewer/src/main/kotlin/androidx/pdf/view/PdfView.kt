@@ -60,6 +60,7 @@ import androidx.core.util.Pools
 import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
 import androidx.core.view.ViewCompat
+import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
