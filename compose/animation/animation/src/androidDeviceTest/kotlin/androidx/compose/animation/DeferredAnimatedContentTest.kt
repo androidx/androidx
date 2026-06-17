@@ -1072,4 +1072,85 @@ class DeferredAnimatedContentTest {
         rule.onNodeWithTag("content_A").assertDoesNotExist()
         rule.onNodeWithTag("content_B").assertDoesNotExist()
     }
+
+    @Test
+    fun nonMutatingNodeDoesNotReceiveStaleMutations() {
+        val state = DeferredTransitionState("A")
+        var positionA = IntOffset.Zero
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    (fadeIn(tween(1000, easing = LinearEasing)) +
+                        slideIn(tween(1000, easing = LinearEasing)) { IntOffset.Zero }) togetherWith
+                        (fadeOut(tween(1000, easing = LinearEasing)) +
+                            slideOut(tween(1000, easing = LinearEasing)) { IntOffset.Zero })
+                },
+                mutableTransformSpec = {
+                    if (initialState == "A" && targetState == "B") {
+                        MutableContentTransform {
+                            initialContentTransform {
+                                // Mutate A's offset by 100 pixels
+                                this.offset = IntOffset(100, 100)
+                            }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned {
+                        if (target == "A")
+                            positionA =
+                                it.positionInRoot().let { pos ->
+                                    IntOffset(pos.x.toInt(), pos.y.toInt())
+                                }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Start gesture from A -> B
+        rule.runOnIdle { state.defer("B") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // A should be mutated by the gesture and shifted by 100, 100.
+        rule.runOnIdle { assertEquals(IntOffset(100, 100), positionA) }
+
+        // 2. Gesture ends, animation starts.
+        rule.runOnIdle { state.animateTo("B") }
+
+        // Advance time a bit (100ms) so A starts animating back towards 0,0
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        // At 10% of 1000ms LinearEasing, the slide transition value should be around 90, 90.
+        val positionBeforeNewGesture = positionA
+        assertTrue(
+            "Position should be animating back to 0,0. Current: $positionBeforeNewGesture",
+            positionBeforeNewGesture.x in 80..95,
+        )
+
+        // 3. Start a NEW gesture B -> C
+        rule.runOnIdle { state.defer("C") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // 4. Verify A's position did not abruptly jump.
+        // Because A is not involved in the new B -> C gesture, it should not be considered as
+        // actively mutating and any stale mutations from the previous gesture should not be
+        // applied. Its position should continue to smoothly animate along its current transition
+        // value (~90,90) without jumping abruptly.
+        val positionAfterNewGesture = positionA
+        assertTrue(
+            "Position abruptly jumped! Expected to be around $positionBeforeNewGesture, but was $positionAfterNewGesture. " +
+                "This indicates stale mutations were applied.",
+            positionAfterNewGesture.x < 100,
+        )
+    }
 }
