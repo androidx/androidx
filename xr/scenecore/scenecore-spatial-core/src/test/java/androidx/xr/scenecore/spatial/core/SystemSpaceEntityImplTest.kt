@@ -88,8 +88,8 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
     }
 
     @Test
-    fun getPoseInOpenXrReferenceSpace_defaultsToNull() {
-        Truth.assertThat(this.systemSpaceEntityImpl.poseInOpenXrReferenceSpace).isNull()
+    fun getPoseInPlatformReferenceSpace_defaultsToNull() {
+        Truth.assertThat(this.systemSpaceEntityImpl.poseInPlatformReferenceSpace).isNull()
     }
 
     @Test
@@ -158,7 +158,7 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
     }
 
     @Test
-    fun getPoseInOpenXrReferenceSpace_returnsPoseFromSubscribeToNodeTransform() {
+    fun getPoseInPlatformReferenceSpace_returnsPoseFromSubscribeToNodeTransform() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         // Column major, right-handed 4x4 Transformation Matrix with translation of (4, 8, 12) and
         // rotation 90 (@) around Z axis
@@ -190,7 +190,7 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
 
         val expectedPose = Pose(Vector3(4f, 8f, 12f), fromAxisAngle(Vector3(0f, 0f, 1f), 90f))
 
-        assertPose(systemSpaceEntity.poseInOpenXrReferenceSpace!!, expectedPose)
+        assertPose(systemSpaceEntity.poseInPlatformReferenceSpace!!, expectedPose)
     }
 
     private fun sendTransformEvent(node: Node?, nodeTransform: NodeTransform?) {
@@ -278,32 +278,32 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
         val expectedPose = Pose(Vector3.One, Quaternion.Identity)
         val expectedScale = Vector3(4f, 5f, 6f)
 
-        systemSpaceEntity.openXrReferenceSpaceTransform.set(fromPose(expectedPose))
+        systemSpaceEntity.platformReferenceSpaceTransform.set(fromPose(expectedPose))
         systemSpaceEntity._worldSpaceScale = expectedScale
         systemSpaceEntity.setOnOriginChangedListener(listener, executor)
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(Matrix4.Zero)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(Matrix4.Zero)
         executor.runAll()
 
-        Truth.assertThat(systemSpaceEntity.poseInOpenXrReferenceSpace).isEqualTo(expectedPose)
+        Truth.assertThat(systemSpaceEntity.poseInPlatformReferenceSpace).isEqualTo(expectedPose)
         Truth.assertThat(systemSpaceEntity.worldSpaceScale).isEqualTo(expectedScale)
         verify(listener, never()).run()
     }
 
     @Test
-    fun setPoseInOpenXrReferenceSpace_callsOnOriginChanged() {
+    fun setPlatformReferenceSpaceTransform_callsOnOriginChanged() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         val listener = mock<Runnable>()
         val executor = FakeScheduledExecutorService()
 
         systemSpaceEntity.setOnOriginChangedListener(listener, executor)
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(Matrix4.Identity)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(Matrix4.Identity)
         executor.runAll()
 
         verify(listener).run()
     }
 
     @Test
-    fun setPoseInOpenXrReferenceSpace_updatesPose() {
+    fun setPlatformReferenceSpaceTransform_updatesPose() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         // Column major, right-handed 4x4 Transformation Matrix with translation of (4, 8, 12)
         // and rotation 90 (@) around Z axis
@@ -330,12 +330,12 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
             )
         val pose = Pose(Vector3(4f, 8f, 12f), fromAxisAngle(Vector3(0f, 0f, 1f), 90f))
 
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(matrix)
-        assertPose(systemSpaceEntity.poseInOpenXrReferenceSpace!!, pose)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
+        assertPose(systemSpaceEntity.poseInPlatformReferenceSpace!!, pose)
     }
 
     @Test
-    open fun setPoseInOpenXrReferenceSpace_updatesScale() {
+    open fun setPlatformReferenceSpaceTransform_updatesScale() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         // Column major, right-handed 4x4 Transformation Matrix with translation of (4, 8, 12) and
         // rotation 90 (@) around Z axis, and scale of 3.3.
@@ -362,7 +362,7 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
             )
         val scale = Vector3(3.3f, 3.3f, 3.3f)
 
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(matrix)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
         // Updated to expect scale, so AnchorEntityImpl passes. ActivitySpaceImpl overrides this.
         assertVector3(systemSpaceEntity.activitySpaceScale, scale)
         assertVector3(systemSpaceEntity.worldSpaceScale, scale)

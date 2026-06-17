@@ -213,7 +213,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     @Test
     fun getActivitySpaceScale_returnsUnitScale() {
         val activitySpaceImpl = activitySpace
-        activitySpaceImpl.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(5f))
+        activitySpaceImpl.setPlatformReferenceSpaceTransform(Matrix4.fromScale(5f))
         assertVector3(activitySpaceImpl.activitySpaceScale, Vector3(1f, 1f, 1f))
     }
 
@@ -514,13 +514,13 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     }
 
     @Test
-    fun getPoseInOpenXrReferenceSpace_returnsUnscaledPose() {
+    fun getPoseInPlatformReferenceSpace_returnsUnscaledPose() {
         testRuntime = createTestSceneRuntime()
         activitySpace = testRuntime.activitySpace as ActivitySpaceImpl
         val initialRotation = Quaternion.fromEulerAngles(45f, 0f, 0f)
         val newTransform = Matrix4.fromTrs(Vector3.One, initialRotation, Vector3(2f, 2f, 2f))
-        activitySpace.setOpenXrReferenceSpaceTransform(newTransform)
-        val pose = activitySpace.poseInOpenXrReferenceSpace
+        activitySpace.setPlatformReferenceSpaceTransform(newTransform)
+        val pose = activitySpace.poseInPlatformReferenceSpace
         assertThat(pose).isNotNull()
         assertPose(pose!!, Pose(Vector3.One, initialRotation))
     }
@@ -533,23 +533,23 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         val expectedPose = Pose(Vector3.One, Quaternion.Identity)
         val expectedScale = Vector3(4f, 5f, 6f)
 
-        systemSpaceEntity.openXrReferenceSpaceTransform.set(fromPose(expectedPose))
+        systemSpaceEntity.platformReferenceSpaceTransform.set(fromPose(expectedPose))
         systemSpaceEntity._worldSpaceScale = expectedScale
         systemSpaceEntity.setOnOriginChangedListener(listener, executor)
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(Matrix4.Zero)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(Matrix4.Zero)
         executor.runAll()
 
-        assertThat(systemSpaceEntity.poseInOpenXrReferenceSpace).isEqualTo(expectedPose)
+        assertThat(systemSpaceEntity.poseInPlatformReferenceSpace).isEqualTo(expectedPose)
         // ActivitySpace always returns Vector3.One
         assertThat(systemSpaceEntity.worldSpaceScale).isEqualTo(Vector3.One)
         verify(listener, never()).run()
     }
 
     @Test
-    override fun setPoseInOpenXrReferenceSpace_updatesScale() {
+    override fun setPlatformReferenceSpaceTransform_updatesScale() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         val matrix = Matrix4.fromScale(3.3f)
-        systemSpaceEntity.setOpenXrReferenceSpaceTransform(matrix)
+        systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
         assertVector3(systemSpaceEntity.activitySpaceScale, Vector3.One)
         // ActivitySpace always returns Vector3.One
         assertVector3(systemSpaceEntity.worldSpaceScale, Vector3.One)
@@ -573,7 +573,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     }
 
     @Test
-    fun handleOriginUpdate_handlesIndependentlyOfOpenXrReferenceSpaceTransform() {
+    fun handleOriginUpdate_handlesIndependentlyOfPlatformReferenceSpaceTransform() {
         val handler = TestSpatialModeChangeListener()
         testRuntime = createTestSceneRuntime()
         activitySpace = testRuntime.activitySpace as ActivitySpaceImpl
@@ -586,9 +586,9 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         activitySpace.handleOriginUpdate(newTransform)
         assertThat(handler.updateCount).isEqualTo(1)
 
-        // Asynchronously the underlying OpenXR reference space transform might be updated
+        // Asynchronously the underlying platform reference space transform might be updated
         // by the node transform listener. This should NOT affect handleOriginUpdate's debouncing.
-        activitySpace.setOpenXrReferenceSpaceTransform(anotherTransform)
+        activitySpace.setPlatformReferenceSpaceTransform(anotherTransform)
 
         // Applying the same transform via handleOriginUpdate should be debounced.
         activitySpace.handleOriginUpdate(newTransform)

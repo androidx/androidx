@@ -27,7 +27,7 @@ import java.util.concurrent.Executor
  */
 internal open class FakeSystemSpaceEntity : FakeEntity(), SystemSpaceEntity {
 
-    private var openXrReferenceSpaceTransform: Matrix4? = null
+    private var platformReferenceSpaceTransform: Matrix4? = null
 
     var onOriginChangedListener: Runnable? = null
         private set
@@ -60,11 +60,11 @@ internal open class FakeSystemSpaceEntity : FakeEntity(), SystemSpaceEntity {
         }
     }
 
-    fun setOpenXrReferenceSpaceTransform(fromTrs: Matrix4) {
-        openXrReferenceSpaceTransform = fromTrs
+    fun setPlatformReferenceSpaceTransform(fromTrs: Matrix4) {
+        platformReferenceSpaceTransform = fromTrs
         setScale(fromTrs.scale)
     }
 
-    override val poseInOpenXrReferenceSpace: Pose?
-        get() = openXrReferenceSpaceTransform?.toPose()
+    override val poseInPlatformReferenceSpace: Pose?
+        get() = platformReferenceSpaceTransform?.toPose()
 }

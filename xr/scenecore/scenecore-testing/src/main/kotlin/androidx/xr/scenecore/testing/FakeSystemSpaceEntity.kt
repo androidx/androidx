@@ -37,7 +37,7 @@ internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
 
     public constructor() : this(InternalFakeSystemSpaceEntity())
 
-    private var openXrReferenceSpaceTransform: Matrix4? = null
+    private var platformReferenceSpaceTransform: Matrix4? = null
 
     public val onOriginChangedListener: Runnable?
         get() = (fakeInternal as InternalFakeSystemSpaceEntity).onOriginChangedListener
@@ -68,11 +68,11 @@ internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
         (fakeInternal as InternalFakeSystemSpaceEntity).onOriginChanged()
     }
 
-    public fun setOpenXrReferenceSpaceTransform(fromTrs: Matrix4) {
-        openXrReferenceSpaceTransform = fromTrs
+    public fun setPlatformReferenceSpaceTransform(fromTrs: Matrix4) {
+        platformReferenceSpaceTransform = fromTrs
         setScale(fromTrs.scale)
     }
 
-    override val poseInOpenXrReferenceSpace: Pose?
-        get() = openXrReferenceSpaceTransform?.toPose()
+    override val poseInPlatformReferenceSpace: Pose?
+        get() = platformReferenceSpaceTransform?.toPose()
 }

@@ -79,8 +79,8 @@ import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.runtime.TypeHolder
-import androidx.xr.scenecore.runtime.impl.OpenXrScenePose
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
+import androidx.xr.scenecore.runtime.impl.PlatformReferenceScenePose
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertPerceivedResolution
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertSpatialCapabilities
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertSpatialVisibility
@@ -276,7 +276,7 @@ private constructor(
     }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
-        return OpenXrScenePose(activitySpace, pose)
+        return PlatformReferenceScenePose(activitySpace, pose)
     }
 
     override fun createPanelEntity(

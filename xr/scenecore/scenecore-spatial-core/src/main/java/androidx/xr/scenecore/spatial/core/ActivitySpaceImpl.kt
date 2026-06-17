@@ -182,7 +182,7 @@ public class ActivitySpaceImpl(
      * Handles the updates to scene core root transform.
      * <pre>
      * Hierarchy:
-     * OpenXR Unbounded Reference Space Origin
+     * Platform Reference Space Origin (OpenXR Unbounded in XROS)
      * └── Scene Parent Node (Intermediate system-managed node)
      * └── Scene Root Node (ActivitySpace Node)
      *
@@ -193,14 +193,15 @@ public class ActivitySpaceImpl(
      * </pre>
      * <p>By inverting the inherited scale and roll and pitch rotations of the scene parent
      * transform, SceneCore effectively re-orients the ActivitySpace to be unscaled and
-     * gravity-aligned like its grandparent OpenXR unbounded space, while preserving its yaw
-     * rotation (i.e. facing user direction).
+     * gravity-aligned like its grandparent platform unbounded space (OpenXR Unbounded in XROS),
+     * while preserving its yaw rotation (i.e. facing user direction).
      *
      * <p>To maintain continuity when entering FSM, SceneCore provides the original rotation and
      * scale of the scene parent transform via the onSpatialModeChanged callback. This ensures FSM
      * continuity when spatial modes change.
      *
-     * @param newTransform New scene parent transform relative to OpenXR unbounded reference space.
+     * @param newTransform New scene parent transform relative to platform reference space (OpenXR
+     *   Unbounded in XROS).
      */
     public fun handleOriginUpdate(newTransform: Matrix4) {
         if (lastSceneParentTransform.getAndSet(newTransform) == newTransform) {

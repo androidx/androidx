@@ -23,7 +23,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.TrackableComponent
-import androidx.xr.scenecore.runtime.impl.OpenXrScenePose
+import androidx.xr.scenecore.runtime.impl.PlatformReferenceScenePose
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -60,7 +60,8 @@ internal class TrackableComponentImpl(
     }
 
     private fun updatePerceptionPose(pose: Pose) {
-        val activitySpacePose = OpenXrScenePose(activitySpaceImpl, pose).activitySpacePose
+        val activitySpacePose =
+            PlatformReferenceScenePose(activitySpaceImpl, pose).activitySpacePose
         entity?.setPose(activitySpacePose, Space.ACTIVITY)
     }
 }

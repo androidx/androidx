@@ -26,7 +26,7 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
-import androidx.xr.scenecore.runtime.impl.OpenXrScenePoseHelper
+import androidx.xr.scenecore.runtime.impl.PlatformReferenceScenePoseHelper
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import java.util.concurrent.ScheduledExecutorService
@@ -48,7 +48,7 @@ internal class AnchorEntityImpl(
     sceneNodeRegistry: SceneNodeRegistry,
     executor: ScheduledExecutorService,
 ) : SystemSpaceEntityImpl(context, node, extensions, sceneNodeRegistry, executor), AnchorEntity {
-    private val openXrScenePoseHelper = OpenXrScenePoseHelper(activitySpace)
+    private val platformReferenceScenePoseHelper = PlatformReferenceScenePoseHelper(activitySpace)
     private var onStateChangedListener: AnchorEntity.OnStateChangedListener? = null
     private var _state: @AnchorEntity.State Int = AnchorEntity.State.UNANCHORED
     override val state: @AnchorEntity.State Int
@@ -152,7 +152,9 @@ internal class AnchorEntityImpl(
                 if (_state != AnchorEntity.State.ANCHORED) {
                     return Pose()
                 }
-                return openXrScenePoseHelper.getActivitySpacePose(poseInOpenXrReferenceSpace)
+                return platformReferenceScenePoseHelper.getActivitySpacePose(
+                    poseInPlatformReferenceSpace
+                )
             }
         }
 
@@ -163,7 +165,7 @@ internal class AnchorEntityImpl(
     }
 
     override val activitySpaceScale: Vector3
-        get() = openXrScenePoseHelper.getActivitySpaceScale(worldSpaceScale)
+        get() = platformReferenceScenePoseHelper.getActivitySpaceScale(worldSpaceScale)
 
     override var parent: Entity? = null
         set(_) {

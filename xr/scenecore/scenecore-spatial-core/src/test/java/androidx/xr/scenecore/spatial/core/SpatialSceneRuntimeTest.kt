@@ -1371,7 +1371,7 @@ class SpatialSceneRuntimeTest {
         val gltfEntity = createGltfEntity(pose) as GltfEntityImpl
         val entity = createEntity(pose) as AndroidXrEntity
         val activitySpace: ActivitySpace = testRuntime.activitySpace
-        (activitySpace as ActivitySpaceImpl).setOpenXrReferenceSpaceTransform(
+        (activitySpace as ActivitySpaceImpl).setPlatformReferenceSpaceTransform(
             fromTrs(Vector3(5f, 6f, 7f), fromEulerAngles(22f, 33f, 44f), Vector3(2f, 2f, 2f))
         )
         panelEntity.parent = activitySpace

@@ -83,8 +83,9 @@ class SceneNodeRegistryTest {
         val currentTimeMillis = 1000000000L
         SystemClock.setCurrentTimeMillis(currentTimeMillis)
 
-        // By default, set the activity space to the root of the underlying OpenXR reference space.
-        activitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity)
+        // By default, set the activity space to the root of the underlying platform reference
+        // space.
+        activitySpace.setPlatformReferenceSpaceTransform(Matrix4.Identity)
     }
 
     @After
