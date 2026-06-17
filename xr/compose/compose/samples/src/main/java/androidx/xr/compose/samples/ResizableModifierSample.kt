@@ -27,11 +27,29 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.ResizePolicy
 import androidx.xr.compose.subspace.layout.SpatialResizeEventType
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.unit.DpVolumeSize
+
+/** A sample demonstrating a simple resizable component where the system manages the layout. */
+@Sampled
+@SubspaceComposable
+@Composable
+public fun BasicResizableSample() {
+    SpatialPanel(
+        modifier =
+            SubspaceModifier.resizable(
+                minimumSize = DpVolumeSize(100.dp, 100.dp, 0.dp),
+                maximumSize = DpVolumeSize(800.dp, 800.dp, 0.dp),
+            )
+    ) {
+        Text("Basic Resizable")
+    }
+}
 
 /**
  * A sample demonstrating a resizable component where the developer manages the state and applies
@@ -50,16 +68,18 @@ public fun ResizableWithStateSample() {
             SubspaceModifier.width(panelWidth)
                 .height(panelHeight)
                 .resizable(
-                    onResize = { event ->
-                        // The developer decides when and how to apply the new size.
-                        // In this example, we update our state when the resize interaction ends.
-                        if (event.type == SpatialResizeEventType.End) {
-                            with(density) {
-                                panelWidth = event.size.width.toDp()
-                                panelHeight = event.size.height.toDp()
+                    resizePolicy =
+                        ResizePolicy.custom { event ->
+                            // The developer decides when and how to apply the new size.
+                            // In this example, we update our state when the resize interaction
+                            // ends.
+                            if (event.type == SpatialResizeEventType.End) {
+                                with(density) {
+                                    panelWidth = event.size.width.toDp()
+                                    panelHeight = event.size.height.toDp()
+                                }
                             }
                         }
-                    }
                 )
     ) {
         Text("Resizable with size state.")

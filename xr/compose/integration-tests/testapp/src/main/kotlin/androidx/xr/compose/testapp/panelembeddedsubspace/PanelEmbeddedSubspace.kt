@@ -77,9 +77,9 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.size
-import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -98,10 +98,7 @@ class PanelEmbeddedSubspace : ComponentActivity() {
             Subspace {
                 SpatialRow {
                     SpatialPanel(
-                        SubspaceModifier.height(400.dp)
-                            .width(800.dp)
-                            .movable()
-                            .transformingResizable()
+                        SubspaceModifier.height(400.dp).width(800.dp).movable().resizable()
                     ) {
                         Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                             Box(

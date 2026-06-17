@@ -107,7 +107,7 @@ public sealed interface MovePolicy {
         public fun default(
             scaleWithDistance: Boolean = true,
             onMove: ((SpatialMoveEvent) -> Unit)? = null,
-        ): MovePolicy = Default(scaleWithDistance = scaleWithDistance, onMove = onMove)
+        ): MovePolicy = DefaultMovePolicy(scaleWithDistance = scaleWithDistance, onMove = onMove)
 
         /**
          * A policy that accepts move events and reports the calculated pose updates via a callback,
@@ -132,7 +132,7 @@ public sealed interface MovePolicy {
         public fun custom(
             scaleWithDistance: Boolean = false,
             onMove: ((SpatialMoveEvent) -> Unit),
-        ): MovePolicy = Custom(scaleWithDistance = scaleWithDistance, onMove = onMove)
+        ): MovePolicy = CustomMovePolicy(scaleWithDistance = scaleWithDistance, onMove = onMove)
 
         /**
          * A policy that enables anchoring the movable element to detected real-world planes.
@@ -167,13 +167,15 @@ public sealed interface MovePolicy {
     }
 }
 
-internal data class Default(
+internal data class DefaultMovePolicy(
     val scaleWithDistance: Boolean,
     val onMove: ((SpatialMoveEvent) -> Unit)?,
 ) : MovePolicy
 
-internal data class Custom(val scaleWithDistance: Boolean, val onMove: (SpatialMoveEvent) -> Unit) :
-    MovePolicy
+internal data class CustomMovePolicy(
+    val scaleWithDistance: Boolean,
+    val onMove: (SpatialMoveEvent) -> Unit,
+) : MovePolicy
 
 internal data class Anchor(
     val anchorPlaneOrientations: Set<PlaneOrientation>,
@@ -269,13 +271,13 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val componentUpdateNeeded =
             policyTypeChanged ||
                 when (movePolicy) {
-                    is Default -> {
+                    is DefaultMovePolicy -> {
                         movePolicy.scaleWithDistance !=
-                            (this.movePolicy as Default).scaleWithDistance
+                            (this.movePolicy as DefaultMovePolicy).scaleWithDistance
                     }
-                    is Custom -> {
+                    is CustomMovePolicy -> {
                         movePolicy.scaleWithDistance !=
-                            (this.movePolicy as Custom).scaleWithDistance
+                            (this.movePolicy as CustomMovePolicy).scaleWithDistance
                     }
                     is Anchor -> {
                         val oldAnchor = this.movePolicy as Anchor
@@ -327,19 +329,19 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         check(component == null) { "MovableComponent already enabled." }
 
         when (movePolicy) {
-            is Default -> {
+            is DefaultMovePolicy -> {
                 component =
                     MovableComponent.createSystemMovable(
                             session = session,
-                            scaleInZ = (movePolicy as Default).scaleWithDistance,
+                            scaleInZ = (movePolicy as DefaultMovePolicy).scaleWithDistance,
                         )
                         .also { it.addMoveListener(MainExecutor, this) }
             }
-            is Custom -> {
+            is CustomMovePolicy -> {
                 component =
                     MovableComponent.createCustomMovable(
                         session = session,
-                        scaleInZ = (movePolicy as Custom).scaleWithDistance,
+                        scaleInZ = (movePolicy as CustomMovePolicy).scaleWithDistance,
                         executor = MainExecutor,
                         entityMoveListener = this,
                     )
@@ -443,12 +445,12 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         previousPose = initialPose
         previousScale = initialScale
         when (val policy = movePolicy) {
-            is Default -> {
+            is DefaultMovePolicy -> {
                 layoutNode?.markSystemMoveOngoing(true)
                 policy.onMove?.invoke(event)
             }
 
-            is Custom -> {
+            is CustomMovePolicy -> {
                 policy.onMove.invoke(event)
             }
 
@@ -475,7 +477,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             )
 
         when (val policy = movePolicy) {
-            is Default -> {
+            is DefaultMovePolicy -> {
                 updatePoseOnMoveEvent(
                     parentFromDraggedNodeMeters = currentPose,
                     scale = currentScale,
@@ -484,7 +486,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                 previousScale = currentScale
                 policy.onMove?.invoke(event)
             }
-            is Custom -> {
+            is CustomMovePolicy -> {
                 previousPose = currentPose
                 previousScale = currentScale
                 policy.onMove.invoke(event)
@@ -515,14 +517,14 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             )
 
         when (val policy = movePolicy) {
-            is Default -> {
+            is DefaultMovePolicy -> {
                 updatePoseOnMoveEvent(parentFromDraggedNodeMeters = finalPose, scale = finalScale)
                 policy.onMove?.invoke(event)
                 layoutNode?.markSystemMoveOngoing(false)
                 previousPose = Pose.Identity
                 previousScale = 1.0F
             }
-            is Custom -> {
+            is CustomMovePolicy -> {
                 previousPose = Pose.Identity
                 previousScale = 1.0F
                 policy.onMove.invoke(event)

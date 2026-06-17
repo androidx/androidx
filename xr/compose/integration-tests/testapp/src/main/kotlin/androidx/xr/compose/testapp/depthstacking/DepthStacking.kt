@@ -55,7 +55,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.onGloballyPositioned
-import androidx.xr.compose.subspace.layout.transformingResizable
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -156,7 +156,7 @@ class DepthStacking : ComponentActivity() {
                     .offset(y = (-100).dp)
                     .testTag("Back Panel")
                     .movable()
-                    .transformingResizable()
+                    .resizable()
         ) {
             PanelContent(Color.Red, "Back Panel")
         }
@@ -169,7 +169,7 @@ class DepthStacking : ComponentActivity() {
                     .scale(0.9f)
                     .testTag("Middle Panel")
                     .movable()
-                    .transformingResizable()
+                    .resizable()
         ) {
             PanelContent(Color.White, "Middle Panel")
         }
@@ -184,7 +184,7 @@ class DepthStacking : ComponentActivity() {
                     .offset(y = 100.dp)
                     .testTag("Front Panel")
                     .movable()
-                    .transformingResizable()
+                    .resizable()
         ) {
             PanelContent(Color.Blue, "Front Panel")
         }

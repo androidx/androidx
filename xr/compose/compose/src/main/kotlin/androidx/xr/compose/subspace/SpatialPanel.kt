@@ -261,7 +261,7 @@ public class MovePolicy(
  *   the size change, and the API should proceed with changing the size of the object itself. If the
  *   callback is `null` (the default), the API will change the size of the object.
  */
-@Deprecated("Use SubspaceModifier.transformingResizable() or SubspaceModifier.resizable() instead.")
+@Deprecated("Use SubspaceModifier.resizable() instead.")
 @Suppress("DEPRECATION")
 public class ResizePolicy(
     public val isEnabled: Boolean = true,

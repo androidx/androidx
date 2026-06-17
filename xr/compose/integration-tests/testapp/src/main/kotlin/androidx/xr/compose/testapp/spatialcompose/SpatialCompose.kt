@@ -82,6 +82,7 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.PlaneOrientation
+import androidx.xr.compose.subspace.layout.ResizePolicy
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialResizeEventType
@@ -95,8 +96,8 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
@@ -268,7 +269,7 @@ class SpatialCompose : ComponentActivity() {
                             SubspaceModifier.fillMaxHeight(0.7f)
                                 .fillMaxWidth()
                                 .movable()
-                                .transformingResizable()
+                                .resizable()
                     )
                     val intent = remember {
                         Intent(this@SpatialCompose, AnotherActivity::class.java)
@@ -310,15 +311,16 @@ class SpatialCompose : ComponentActivity() {
                     .testTag(text)
                     .alpha(alpha)
                     .movable(enabled = !moveResizeLocked)
-                    .transformingResizable(
+                    .resizable(
                         enabled = !moveResizeLocked,
-                        onResize = { event ->
-                            when (event.type) {
-                                SpatialResizeEventType.Start -> alpha = 0f
-                                SpatialResizeEventType.End -> alpha = 1f
-                                else -> {}
-                            }
-                        },
+                        resizePolicy =
+                            ResizePolicy.default { event ->
+                                when (event.type) {
+                                    SpatialResizeEventType.Start -> alpha = 0f
+                                    SpatialResizeEventType.End -> alpha = 1f
+                                    else -> {}
+                                }
+                            },
                     )
         ) {
             PanelContent { Text(text) }
