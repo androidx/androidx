@@ -26,3 +26,14 @@ import android.content.Intent
  */
 public fun DeepLinkRequest.Companion.fromIntent(intent: Intent): DeepLinkRequest =
     DeepLinkRequest(uri = intent.data, mimeType = intent.type, action = intent.action)
+
+/**
+ * Creates a [DeepLinkMatcher.Filter] that filters a [DeepLinkRequest] with the action defined on
+ * the [DeepLinkMatcher]. Matching is not case-sensitive.
+ *
+ * @param action the action the filter by
+ * @return true if the action matches the [DeepLinkMatcher]'s action or if the matcher did not
+ *   define any actions, false otherwise.
+ */
+public fun DeepLinkMatcher.Companion.actionFilter(action: String): DeepLinkMatcher.Filter =
+    DeepLinkMatcher.Filter { request -> action.equals(request.action, true) }

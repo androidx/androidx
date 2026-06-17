@@ -145,6 +145,11 @@ package androidx.navigation3.runtime.deeplink {
     ctor public DeepLinkMatcher(optional java.util.List<? extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter> filters);
     method public final androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T>? match(androidx.navigation3.runtime.deeplink.DeepLinkRequest request);
     method protected abstract androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T>? matchRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest request);
+    field public static final androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Companion Companion;
+  }
+
+  public static final class DeepLinkMatcher.Companion {
+    method public androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter mimeTypeFilter(String mimeType);
   }
 
   public static fun interface DeepLinkMatcher.Filter {
@@ -184,6 +189,7 @@ package androidx.navigation3.runtime.deeplink {
   }
 
   public final class DeepLinkRequest_androidKt {
+    method public static androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter actionFilter(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Companion, String action);
     method public static androidx.navigation3.runtime.deeplink.DeepLinkRequest fromIntent(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion, android.content.Intent intent);
   }
 
