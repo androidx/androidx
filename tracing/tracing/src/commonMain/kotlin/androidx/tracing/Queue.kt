@@ -18,6 +18,7 @@ package androidx.tracing
 
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 
 internal const val QUEUE_INITIAL_CAPACITY = 64
 
@@ -58,5 +59,10 @@ public class Queue<T>(capacity: Int = QUEUE_INITIAL_CAPACITY) {
 
     public fun removeFirst() {
         return synchronized(queue) { queue.removeFirst() }
+    }
+
+    @VisibleForTesting
+    public operator fun get(index: Int): T {
+        return synchronized(queue) { queue[index] }
     }
 }

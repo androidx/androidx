@@ -126,7 +126,9 @@ internal constructor(
             // This is only used to eagerly create the ThreadTrack for the main thread.
             // On Android, pid == tid for main thread.
             val longPid = pid.toLong()
-            val processName = getProcessName(context = contextProvider().applicationContext)
+            // Don't call contextProvider().applicationContext, because this code might be
+            // running prior to Application.onCreate().
+            val processName = getProcessName(context = contextProvider())
             // Eagerly populate a process track
             this.context.createProcessTrack(id = pid, name = processName)
             // Eager populate the main thread track

@@ -41,7 +41,7 @@ import okio.BufferedSink
  * This implementation converts [androidx.tracing.TraceEvent]s into binary protos using
  * [the Wire library](https://square.github.io/wire/).
  *
- * The outputs created by `WireTraceSync` can be visualized with
+ * The outputs created by [TraceSink] can be visualized with
  * [ui.perfetto.dev](https://ui.perfetto.dev/), and queried by
  * [TraceProcessor](https://developer.android.com/reference/androidx/benchmark/traceprocessor/TraceProcessor)
  * from the `androidx.benchmark:benchmark-traceprocessor` library, the
@@ -50,8 +50,6 @@ import okio.BufferedSink
  *
  * As binary protos embed strings as UTF-8, note that any strings serialized by TraceSink will be
  * serialized as UTF-8.
- *
- * To create a TraceSink for a File, you can use `File("myFile").appendingSink().buffer()`.
  */
 public class TraceSink(
     /**
@@ -65,13 +63,36 @@ public class TraceSink(
      */
     @param:IntRange(from = 1) private val sequenceId: Int,
 
-    /** Output [BufferedSink] the trace will be written to. */
-    private val bufferedSink: BufferedSink,
+    /**
+     * Provide the [BufferedSink] the trace will be written to.
+     *
+     * Note: Sometimes trying to obtain a buffered sink might fail. For e.g. on Android, calling
+     * `context.filesDir` will throw a `NullPointerException` prior to `Application.onCreate()`.
+     */
+    private val sinkProvider: () -> BufferedSink,
 
     /** Coroutine context to execute the serialization on. */
     private val coroutineContext: CoroutineContext = NonCancellable + Dispatchers.IO,
 ) : AbstractTraceSink() {
-    private val protoWriter = ProtoWriter(bufferedSink)
+
+    /**
+     * Constructs an instance of [TraceSink].
+     *
+     * @param sequenceId ID which uniquely identifies the trace capture system. Value must be
+     *   greater than 0.
+     * @param bufferedSink The [BufferedSink] that the trace will be written to.
+     * @param coroutineContext The [CoroutineContext] to execute the serialization on.
+     */
+    public constructor(
+        @IntRange(from = 1) sequenceId: Int,
+        bufferedSink: BufferedSink,
+        coroutineContext: CoroutineContext,
+    ) : this(
+        sequenceId = sequenceId,
+        sinkProvider = { bufferedSink },
+        coroutineContext = coroutineContext,
+    )
+
     private val wireTraceEventSerializer = WireTraceEventSerializer(sequenceId)
 
     // There are 2 distinct mechanisms for thread safety here, and they are not necessarily in sync.
@@ -81,10 +102,15 @@ public class TraceSink(
     // drain request; or on flush() prior to the close() of the Sink.
     // No packets are lost or dropped; and therefore we are still okay with this small
     // compromise with thread safety.
-    private val queue = Queue<PooledTracePacketArray>()
+    internal val queue = Queue<PooledTracePacketArray>()
 
     private val drainLock = Any() // Lock used to keep drainRequested, resumeDrain in sync.
 
+    // We are guarding the creation of bufferedSink, protoWriter with a lock because
+    // enqueue() can be called from any Thread. However, the actual act of draining the queue,
+    // is effectively single threaded. So reads don't have to be guarded.
+    @GuardedBy("drainLock") private var bufferedSink: BufferedSink? = null
+    @GuardedBy("drainLock") private var protoWriter: ProtoWriter? = null
     @GuardedBy("drainLock") private var drainRequested = false
 
     // Once the sink is marked as closed. No more enqueue()'s are allowed. This way we can never
@@ -135,16 +161,28 @@ public class TraceSink(
 
     override fun flush() {
         makeDrainRequest()
-        while (queue.isNotEmpty()) {
+        while (protoWriter != null && queue.isNotEmpty()) {
             // Await completion of the drain.
         }
-        bufferedSink.flush()
+        bufferedSink?.flush()
     }
 
     private fun makeDrainRequest() {
         // Only make a request if one is not already ongoing
         synchronized(drainLock) {
-            if (!drainRequested) {
+            if (protoWriter == null) {
+                // Try and obtain a buffered sink from the provider. Be graceful, given the provider
+                // may not be ready.
+                val result = runCatching { sinkProvider() }
+                if (result.isSuccess) {
+                    val bufferedSink = result.getOrThrow()
+                    this.bufferedSink = bufferedSink
+                    protoWriter = ProtoWriter(sink = bufferedSink)
+                }
+            }
+            // Even though drainQueue() will do nothing, if the protoWriter is not ready.
+            // This prevents us for scheduling unnecessary work on the Coroutine scheduler.
+            if (protoWriter != null && !drainRequested) {
                 drainRequested = true
                 resumeDrain.resume(Unit)
             }
@@ -153,6 +191,7 @@ public class TraceSink(
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun drainQueue() {
+        val protoWriter = protoWriter ?: return
         while (queue.isNotEmpty()) {
             // We are not trying to be accurate about exactly which specific event has the
             // dropped flag set.
@@ -193,6 +232,6 @@ public class TraceSink(
         // Flushing and closing of the underlying BufferedSink are still allowed.
         closed = true
         flush()
-        bufferedSink.close()
+        bufferedSink?.close()
     }
 }

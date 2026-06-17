@@ -29,6 +29,7 @@ import androidx.tracing.wire.protos.MutableTracePacket
 import androidx.tracing.wire.protos.MutableTrackDescriptor
 import androidx.tracing.wire.protos.MutableTrackEvent
 import kotlin.concurrent.thread
+import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -46,7 +47,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.blackholeSink
 import okio.buffer
-import org.junit.Before
 
 class TestSink : AbstractTraceSink() {
     internal val packets = mutableListOf<MutableTracePacket>()
@@ -106,7 +106,7 @@ class TracingTest {
     lateinit var driver: TraceDriver
     lateinit var tracer: Tracer
 
-    @Before
+    @BeforeTest
     internal fun setUp() {
         sink.packets.clear()
         driver = TraceDriver(sink = sink, isGloballyEnabled = true)
