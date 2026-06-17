@@ -194,4 +194,14 @@ class PointerCaptureComponentTest {
         entity.removeComponent(pointerCaptureComponent)
         assertThat(rtEntity?.getComponents()).hasSize(0)
     }
+
+    @Test
+    fun pointerCaptureState_toString() {
+        assertThat(PointerCaptureComponent.PointerCaptureState.PAUSED.toString())
+            .isEqualTo("PAUSED")
+        assertThat(PointerCaptureComponent.PointerCaptureState.ACTIVE.toString())
+            .isEqualTo("ACTIVE")
+        assertThat(PointerCaptureComponent.PointerCaptureState.STOPPED.toString())
+            .isEqualTo("STOPPED")
+    }
 }

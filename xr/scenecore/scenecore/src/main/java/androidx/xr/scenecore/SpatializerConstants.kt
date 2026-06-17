@@ -33,6 +33,14 @@ public interface SpatializerConstants {
             /** Specifies spatial rendering using Third Order Ambisonics */
             @JvmField public val THIRD_ORDER: AmbisonicsOrder = AmbisonicsOrder(3)
         }
+
+        override fun toString(): String =
+            when (this) {
+                FIRST_ORDER -> "FIRST_ORDER"
+                SECOND_ORDER -> "SECOND_ORDER"
+                THIRD_ORDER -> "THIRD_ORDER"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /** Represents the type of spatialization for an audio source. */
@@ -49,6 +57,14 @@ public interface SpatializerConstants {
             /** The sound source is an ambisonics sound field. */
             @JvmField public val SOUND_FIELD: SourceType = SourceType(3)
         }
+
+        override fun toString(): String =
+            when (this) {
+                DEFAULT -> "DEFAULT"
+                POINT_SOURCE -> "POINT_SOURCE"
+                SOUND_FIELD -> "SOUND_FIELD"
+                else -> "UNKNOWN ($value)"
+            }
     }
 }
 
