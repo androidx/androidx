@@ -2394,6 +2394,13 @@ package androidx.wear.compose.material3.lazy {
     property public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress androidx.compose.ui.graphics.drawscope.DrawScope.scrollProgress;
   }
 
+  public final class TransformingLazyColumnFirstLayoutItemProviderKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider rememberTransformingLazyColumnFirstLayoutItemProvider(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, kotlin.jvm.functions.Function0<? extends java.lang.Object!>, kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemEdge!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider rememberTransformingLazyColumnFirstLayoutItemProvider(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, kotlin.jvm.functions.Function0<java.lang.Object?> itemKey, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemEdge> itemEdge);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider rememberTransformingLazyColumnFirstVisibleItemProvider(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider rememberTransformingLazyColumnFirstVisibleItemProvider(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, androidx.compose.runtime.Composer?, int);
+  }
+
 }
 
 package androidx.wear.compose.material3.onehandedgesture {
