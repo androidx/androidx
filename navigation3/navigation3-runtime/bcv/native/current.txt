@@ -36,6 +36,10 @@ abstract class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/DeepLinkMa
 
         open fun compareTo(androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A1>): kotlin/Int // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.compareTo|compareTo(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<1:0>){}[0]
     }
+
+    final object Companion { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Companion|null[0]
+        final fun mimeTypeFilter(kotlin/String): androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Companion.mimeTypeFilter|mimeTypeFilter(kotlin.String){}[0]
+    }
 }
 
 abstract class androidx.navigation3.runtime.deeplink/DeepLinkUri { // androidx.navigation3.runtime.deeplink/DeepLinkUri|null[0]

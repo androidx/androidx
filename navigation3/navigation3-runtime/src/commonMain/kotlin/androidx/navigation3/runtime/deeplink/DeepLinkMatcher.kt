@@ -93,4 +93,18 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter>
          */
         public override fun compareTo(other: MatchResult<T>): Int = 0
     }
+
+    public companion object {
+        /**
+         * Creates a [DeepLinkMatcher.Filter] that filters a [DeepLinkRequest] with the mimeType
+         * defined on the [DeepLinkMatcher]. Matching is not case-sensitive.
+         *
+         * @param mimeType the action the filter by
+         * @return true if the mimeType exactly matches the [DeepLinkMatcher]'s action or if the
+         *   matcher did not define any actions, false otherwise.
+         */
+        public fun mimeTypeFilter(mimeType: String): Filter = Filter { request ->
+            mimeType.equals(request.mimeType, true)
+        }
+    }
 }

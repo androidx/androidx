@@ -94,6 +94,33 @@ class DeepLinkMatcherTest {
         assertThat(result1.compareTo(result2)).isEqualTo(0)
     }
 
+    @Test
+    fun match_mimeTypeFilter() {
+        val matcher =
+            TestDeepLinkMatcher(filters = listOf(DeepLinkMatcher.mimeTypeFilter("image/test")))
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = "image/TEST")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+
+        val request2 =
+            DeepLinkRequest.fromUriString("https://example.com", mimeType = "wrongMimeType")
+        val result2 = matcher.match(request2)
+        assertThat(result2).isNull()
+    }
+
+    @Test
+    fun match_actionFilter() {
+        val matcher =
+            TestDeepLinkMatcher(filters = listOf(DeepLinkMatcher.actionFilter("ACTION.TEST")))
+        val request = DeepLinkRequest.fromUriString("https://example.com", action = "ACTION.test")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+
+        val request2 = DeepLinkRequest.fromUriString("https://example.com", action = "wrongAction")
+        val result2 = matcher.match(request2)
+        assertThat(result2).isNull()
+    }
+
     private object First : NavKey
 
     private object Second : NavKey
