@@ -1361,8 +1361,8 @@ package androidx.wear.compose.material3 {
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getOffset();
     method @BytecodeOnly public int getTargetValue-OMiAi4w();
     method @InaccessibleFromKotlin public boolean isAnimationRunning();
-    method @KotlinOnly public float offsetOf(androidx.wear.compose.material3.RevealValue revealValue);
-    method @BytecodeOnly public float offsetOf-MpxWM6I(int);
+    method @KotlinOnly public float positionOf(androidx.wear.compose.material3.RevealValue revealValue);
+    method @BytecodeOnly public float positionOf-MpxWM6I(int);
     method @KotlinOnly public suspend Object? snapTo(androidx.wear.compose.material3.RevealValue targetValue, kotlin.coroutines.Continuation<? super java.lang.Void>);
     method @BytecodeOnly public Object? snapTo-1PKuNuk(int, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
     property public androidx.wear.compose.material3.RevealValue currentValue;
