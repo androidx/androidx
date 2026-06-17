@@ -535,4 +535,42 @@ class ArCoreRuntimeTest {
         constructor.isAccessible = true
         return constructor.newInstance(2)
     }
+
+    @Test
+    fun parseSessionFeaturesFromManifest_withFeatures_returnsArray() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val shadowPackageManager = shadowOf(context.packageManager)
+        val packageInfo = android.content.pm.PackageInfo()
+        packageInfo.packageName = context.packageName
+        val appInfo = android.content.pm.ApplicationInfo()
+        appInfo.packageName = context.packageName
+        appInfo.metaData =
+            android.os.Bundle().apply {
+                putString("com.google.ar.core.SESSION_FEATURES", "MOTION_TRACKING_ODOMETRY")
+            }
+        packageInfo.applicationInfo = appInfo
+        shadowPackageManager.installPackage(packageInfo)
+
+        val features = ArCoreRuntime.parseSessionFeaturesFromManifest(context)
+
+        // 6 corresponds to com.google.ar.core.Session.Feature.MOTION_TRACKING_ODOMETRY
+        assertThat(features).asList().containsExactly(6, 0).inOrder()
+    }
+
+    @Test
+    fun parseSessionFeaturesFromManifest_withoutFeatures_returnsEmptyArray() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val shadowPackageManager = shadowOf(context.packageManager)
+        val packageInfo = android.content.pm.PackageInfo()
+        packageInfo.packageName = context.packageName
+        val appInfo = android.content.pm.ApplicationInfo()
+        appInfo.packageName = context.packageName
+        // Intentionally leave metaData null
+        packageInfo.applicationInfo = appInfo
+        shadowPackageManager.installPackage(packageInfo)
+
+        val features = ArCoreRuntime.parseSessionFeaturesFromManifest(context)
+
+        assertThat(features).isEmpty()
+    }
 }
