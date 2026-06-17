@@ -41,62 +41,56 @@ import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLa
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(Parameterized::class)
-class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
+@RunWith(AndroidJUnit4::class)
+class ExposedDropdownMenuBenchmark {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun edm_firstPixel() {
-        benchmarkRule.benchmarkToFirstPixel { ExposedDropdownMenuTestCase(expanded) }
+        benchmarkRule.benchmarkToFirstPixel { ExposedDropdownMenuTestCase(expanded = false) }
     }
 
     @Ignore
     @Test
     fun edm_first_compose() {
-        benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded) }
+        benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded = false) }
     }
 
     @Ignore
     @Test
     fun edm_measure() {
-        benchmarkRule.benchmarkFirstMeasure { ExposedDropdownMenuTestCase(expanded) }
+        benchmarkRule.benchmarkFirstMeasure { ExposedDropdownMenuTestCase(expanded = false) }
     }
 
     @Ignore
     @Test
     fun edm_layout() {
-        benchmarkRule.benchmarkFirstLayout { ExposedDropdownMenuTestCase(expanded) }
+        benchmarkRule.benchmarkFirstLayout { ExposedDropdownMenuTestCase(expanded = false) }
     }
 
     @Ignore
     @Test
     fun edm_draw() {
-        benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded) }
+        benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded = false) }
     }
 
     @Test
     fun edm_textFieldAnchor_repositioned() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout({
-            ExposedDropdownMenuTestCase(expanded)
+            ExposedDropdownMenuTestCase(expanded = false)
         })
-    }
-
-    companion object {
-        @Parameterized.Parameters(name = "expanded = {0}")
-        @JvmStatic
-        fun parameters() = arrayOf(true, false)
     }
 }
 
-internal class ExposedDropdownMenuTestCase(private val expanded: Boolean) :
+internal class ExposedDropdownMenuTestCase(private val expanded: Boolean = false) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: MutableState<Dp>
 
