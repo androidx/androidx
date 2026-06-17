@@ -158,6 +158,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.ColorFilter;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.DashedArcLine;
+import androidx.wear.protolayout.proto.LayoutElementProto.DashedLinePattern;
 import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontFeatureSetting;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontSetting;
@@ -6495,6 +6496,28 @@ public class ProtoLayoutInflaterTest {
                                 .build()));
 
         assertThat(lineView.getColor()).isEqualTo(Color.MAGENTA);
+    }
+
+    @Test
+    public void inflate_dashedArcLine_withLargeGapSize_noCrash() {
+        // Large gap size that results in an empty segments list.
+        DashedArcLine dashedArcLine =
+                DashedArcLine.newBuilder()
+                        .setLength(degrees(10))
+                        .setThickness(dp(5))
+                        .setLinePattern(
+                                DashedLinePattern.newBuilder()
+                                        .setGapSize(dp(100000f))
+                                        .addGapLocations(degrees(0))
+                                        .build())
+                        .build();
+
+        // The inflateDashedArcLine helper triggers a full inflation and layout pass.
+        // This call should completes without crashing.
+        WearDashedArcLineView dashedLineView = inflateDashedArcLine(dashedArcLine);
+
+        assertThat(dashedLineView).isNotNull();
+        assertThat(dashedLineView.getGapSize()).isEqualTo(100000);
     }
 
     private WearDashedArcLineView inflateDashedArcLine(DashedArcLine dashedArcLine) {

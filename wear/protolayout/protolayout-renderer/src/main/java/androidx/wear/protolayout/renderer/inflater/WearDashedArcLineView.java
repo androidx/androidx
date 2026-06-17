@@ -83,7 +83,7 @@ public class WearDashedArcLineView extends View implements Widget {
     }
 
     private void updatePath() {
-        if (this.getMeasuredWidth() <= 0) {
+        if (this.getMeasuredWidth() <= 0 || mSegments.isEmpty()) {
             return;
         }
 
