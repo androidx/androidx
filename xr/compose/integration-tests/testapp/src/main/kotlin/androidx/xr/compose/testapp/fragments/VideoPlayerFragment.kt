@@ -58,7 +58,7 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.transformingResizable
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.common.isDrmSupported
 
@@ -108,7 +108,7 @@ class VideoPlayerFragment : Fragment() {
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
                     .movable()
-                    .transformingResizable(),
+                    .resizable(),
             interactionPolicy =
                 InteractionPolicy.clickable {
                     exoPlayer?.let {

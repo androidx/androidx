@@ -889,10 +889,20 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public final class ResizableKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier resizable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional androidx.xr.compose.unit.DpVolumeSize minimumSize, optional androidx.xr.compose.unit.DpVolumeSize maximumSize, optional boolean maintainAspectRatio, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
+    method public static androidx.xr.compose.subspace.layout.SubspaceModifier resizable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional androidx.xr.compose.unit.DpVolumeSize minimumSize, optional androidx.xr.compose.unit.DpVolumeSize maximumSize, optional boolean maintainAspectRatio, optional androidx.xr.compose.subspace.layout.ResizePolicy resizePolicy);
     method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier resizable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional androidx.xr.compose.unit.DpVolumeSize minimumSize, optional androidx.xr.compose.unit.DpVolumeSize maximumSize, optional boolean maintainAspectRatio, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.unit.IntVolumeSize,kotlin.Unit> onResizeStart, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.unit.IntVolumeSize,kotlin.Unit> onResizeUpdate, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.unit.IntVolumeSize,java.lang.Boolean> onResizeEnd);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! resizable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, androidx.xr.compose.unit.DpVolumeSize!, androidx.xr.compose.unit.DpVolumeSize!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! resizable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, androidx.xr.compose.unit.DpVolumeSize!, androidx.xr.compose.unit.DpVolumeSize!, boolean, androidx.xr.compose.subspace.layout.ResizePolicy!, int, Object!);
     method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! resizable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, androidx.xr.compose.unit.DpVolumeSize!, androidx.xr.compose.unit.DpVolumeSize!, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public sealed nonexhaustive interface ResizePolicy {
+    field public static final androidx.xr.compose.subspace.layout.ResizePolicy.Companion Companion;
+  }
+
+  public static final class ResizePolicy.Companion {
+    method public androidx.xr.compose.subspace.layout.ResizePolicy custom(kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
+    method public androidx.xr.compose.subspace.layout.ResizePolicy default(optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.ResizePolicy! default$default(androidx.xr.compose.subspace.layout.ResizePolicy.Companion!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class RotateKt {
@@ -1385,11 +1395,6 @@ package androidx.xr.compose.subspace.layout {
   public final class TransformingMovableKt {
     method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier transformingMovable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMove);
     method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! transformingMovable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-  }
-
-  public final class TransformingResizableKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier transformingResizable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional androidx.xr.compose.unit.DpVolumeSize minimumSize, optional androidx.xr.compose.unit.DpVolumeSize maximumSize, optional boolean maintainAspectRatio, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! transformingResizable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, androidx.xr.compose.unit.DpVolumeSize!, androidx.xr.compose.unit.DpVolumeSize!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @Deprecated public typealias SpatialMoveEndEvent = androidx.xr.compose.subspace.layout.SpatialMoveEvent;

@@ -99,7 +99,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.requiredSizeIn
-import androidx.xr.compose.subspace.layout.transformingResizable
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput
 import androidx.xr.compose.subspace.media.spatializedAudioOutput
@@ -939,7 +939,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     )
                     .spatializedAudioOutput(audioOutput)
                     .movable()
-                    .transformingResizable(),
+                    .resizable(),
             interactionPolicy =
                 InteractionPolicy.clickable {
                     if (isPaused) exoPlayer?.play() else exoPlayer?.pause()
