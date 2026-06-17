@@ -94,8 +94,9 @@ fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = o
  *   |-B1
  *   |-B2 <- this node
  *   |-B3
- * Returns B1, B3
  * ```
+ *
+ * Returns B1, B3
  */
 @CheckResult
 fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
@@ -133,8 +134,9 @@ fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
  * |-A
  *   |-B
  *     |-C <- this node
- * Returns B, A
  * ```
+ *
+ * Returns B, A
  */
 @CheckResult
 fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
@@ -142,6 +144,30 @@ fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
         testContext,
         useUnmergedTree,
         selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() },
+    )
+}
+
+/**
+ * Returns all the descendants of this node in Depth-First Search order.
+ *
+ * Example: For the following tree
+ *
+ * ```
+ * |-A <- this node
+ *   |-B
+ *     |-C
+ *   |-D
+ *     |-E
+ * ```
+ *
+ * Returns B, C, D, E
+ */
+@CheckResult
+fun SemanticsNodeInteraction.onDescendants(): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(
+        testContext,
+        useUnmergedTree,
+        selector.addSelectionFromSingleNode("descendants") { it.descendants.toList() },
     )
 }
 
