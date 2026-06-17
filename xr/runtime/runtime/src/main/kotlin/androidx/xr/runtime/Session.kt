@@ -26,7 +26,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -45,6 +44,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * A session is the main entrypoint to features provided by ARCore for Jetpack XR. It manages the
@@ -196,6 +197,11 @@ public constructor(
             check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
                 "Cannot create a new session on a destroyed lifecycleOwner."
             }
+            if (context is LifecycleOwner) {
+                check(context.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    "Cannot create a new session on a destroyed context."
+                }
+            }
 
             val coroutineScope = CoroutineScope(coroutineContext)
 
@@ -299,19 +305,25 @@ public constructor(
                     sessionResultProvider,
                 )
 
-            lifecycleOwner.lifecycleScope.launch {
+            // Register the session as lifecycle observer on main thread.
+            withContext(Dispatchers.Main.immediate) {
+                if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                    session.destroy()
+                    return@withContext
+                }
                 lifecycleOwner.lifecycle.addObserver(session.lifecycleObserver)
-                // Scope the session to the context if it is an Activity.
+
+                // Also scope the session to the context if it is a distinct LifecycleOwner.
                 if (context is LifecycleOwner && lifecycleOwner != context) {
-                    context.lifecycle.addObserver(
-                        observer =
-                            LifecycleEventObserver { _, event ->
-                                when (event) {
-                                    Lifecycle.Event.ON_DESTROY -> session.destroy()
-                                    else -> {}
-                                }
-                            }
-                    )
+                    if (context.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                        session.destroy()
+                        return@withContext
+                    }
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_DESTROY) session.destroy()
+                    }
+                    session.contextLifecycleObserver = observer
+                    context.lifecycle.addObserver(observer)
                 }
             }
 
@@ -361,12 +373,16 @@ public constructor(
     /** A [StateFlow] of the current state. */
     public val state: StateFlow<CoreState> = _state.asStateFlow()
 
+    @Volatile private var isDestroyed = false
+    private var contextLifecycleObserver: LifecycleEventObserver? = null
+
     private var updateJob: Job? = null
 
-    private val lock = Mutex()
+    private val configurationMutex = Mutex()
+    private val lifecycleLock = Any()
 
     /** The current state of the runtime configuration. */
-    @GuardedBy("lock")
+    @GuardedBy("configurationMutex")
     public var config: Config = DEFAULT_CONFIG
         private set
 
@@ -383,13 +399,13 @@ public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val activity: Activity
         get() {
+            // Check internal session state first to verify if destroy() has been called.
+            check(!isDestroyed) { "Session has been destroyed." }
+            // Check framework-level lifecycle state to verify if the owner is already dead.
             check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED)
             check(context is Activity)
             return context
         }
-
-    private val Activity.lifecycle: Lifecycle
-        get() = (this as LifecycleOwner).lifecycle
 
     /**
      * Sets or changes the [Config] to use for the Session.
@@ -422,6 +438,8 @@ public constructor(
      *   application for the provided configuration.
      */
     public fun configure(config: Config): SessionConfigureResult {
+        // Fast-path framework check: fail fast outside runBlocking if the lifecycle is already
+        // dead.
         check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             "Session has been destroyed."
         }
@@ -429,7 +447,9 @@ public constructor(
             return it
         }
         return runBlocking {
-            lock.withLock {
+            configurationMutex.withLock {
+                // Thread-safe internal check: verify session was not destroyed concurrently.
+                check(!isDestroyed) { "Session has been destroyed." }
                 val runtimesConfigured: MutableList<JxrRuntime> = mutableListOf()
                 try {
                     for (runtime in runtimes) {
@@ -481,13 +501,7 @@ public constructor(
         }
     }
 
-    /**
-     * Destroys the session, releasing any resources acquired by the session. Objects tracked by the
-     * system will not receive updates.
-     */
-    private fun destroy() {
-        contextSessionMap.remove(context)
-        coroutineScope.cancel()
+    private fun destroyRuntimes() {
         for (sessionConnector in sessionConnectors.asReversed()) {
             sessionConnector.close()
         }
@@ -499,15 +513,56 @@ public constructor(
         }
     }
 
+    /**
+     * Destroys the session, releasing any resources acquired by the session. Objects tracked by the
+     * system will not receive updates.
+     */
+    private fun destroy() {
+        synchronized(lifecycleLock) {
+            if (isDestroyed) return
+            isDestroyed = true
+        }
+        contextSessionMap.remove(context)
+        coroutineScope.cancel()
+
+        // Remove lifecycle observers immediately on the main thread to prevent memory leaks.
+        lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        contextLifecycleObserver?.let { observer ->
+            (context as? LifecycleOwner)?.lifecycle?.removeObserver(observer)
+        }
+        contextLifecycleObserver = null
+
+        // Fast-path: If the configuration lock is available, destroy the runtimes synchronously.
+        // This ensures GL/EGL contexts and surface resources are released before onDestroy()
+        // returns.
+        // Fallback-path: If the lock is held, launch a Main-thread coroutine to clean up
+        // asynchronously.
+        // We cannot block the Main thread waiting for the lock here, as that would risk ANRs in
+        // production and cause deadlocks in single-threaded test environments where the lock owner
+        // needs the Main thread to release.
+        if (configurationMutex.tryLock()) {
+            try {
+                destroyRuntimes()
+            } finally {
+                configurationMutex.unlock()
+            }
+        } else {
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                configurationMutex.withLock { destroyRuntimes() }
+            }
+        }
+    }
+
     private suspend fun updateLoop() {
         while (lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED) {
-            lock.withLock { update() }
+            configurationMutex.withLock { update() }
         }
     }
 
     /** Produces the latest [CoreState] so it can be emitted downstream. */
-    @GuardedBy("lock")
+    @GuardedBy("configurationMutex")
     private suspend fun update() {
+        if (isDestroyed) return
         var timeMark: ComparableTimeMark? = null
         for (runtime in runtimes) {
             runtime.update()?.let { timeMark = it }
