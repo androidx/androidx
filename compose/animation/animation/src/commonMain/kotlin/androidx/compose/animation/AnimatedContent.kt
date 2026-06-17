@@ -784,6 +784,16 @@ internal constructor(
 private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
 /**
+ * The maximum number of interrupted states to keep in the composition tree at once.
+ *
+ * This limit is only applied to [DeferredTransition] based [AnimatedContent]. It ensures that the
+ * most recent states in a transition chain (e.g. A -> B -> C) stay visible and finish their exit
+ * animations gracefully, while preventing an infinite "pile-up" of scenes in the composition tree
+ * during rapid interruptions.
+ */
+private const val MaxInterruptionRetention = 3
+
+/**
  * An object that allows manual manipulation of both entering and exiting content during the
  * deferred phase (initiated by [DeferredTransitionState.defer]) of an [AnimatedContent] transition.
  *
@@ -1218,6 +1228,12 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                                 else -> null
                             }
                         },
+                    forceVisible =
+                        this@AnimatedContentImpl is DeferredTransition &&
+                            currentlyVisible.indexOf(stateForContent).let { index ->
+                                index >= 0 &&
+                                    index >= currentlyVisible.size - MaxInterruptionRetention
+                            },
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
                     DisposableEffect(this, stateForContent) {
