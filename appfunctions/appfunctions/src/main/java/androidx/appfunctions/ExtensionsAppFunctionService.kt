@@ -25,18 +25,18 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
-import androidx.appfunctions.internal.Dispatchers
 import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppFunctionException
 import com.android.extensions.appfunctions.AppFunctionService
 import com.android.extensions.appfunctions.ExecuteAppFunctionRequest as ExtensionExecuteAppFunctionRequest
 import com.android.extensions.appfunctions.ExecuteAppFunctionResponse as ExtensionExecuteAppFunctionResponse
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Abstract base class to provide app functions to the system for Android versions 14-16
@@ -66,7 +66,7 @@ public abstract class ExtensionsAppFunctionService :
 
     /**
      * Implements [AppFunctionService.onExecuteFunction] and delegates the execution to
-     * [executeFunction] when called by the system.
+     * [onExecuteFunction] when called by the system.
      *
      * @param request The function execution request.
      * @param callingPackage The package name of the app that is requesting the execution. It is
@@ -83,110 +83,83 @@ public abstract class ExtensionsAppFunctionService :
         callback:
             OutcomeReceiver<ExtensionExecuteAppFunctionResponse, ExtensionAppFunctionException>,
     ) {
+        // Create a delegator cancellation signal to ensure that it would propagate to
+        // [executeFunction] for subclass to receive too.
+        val delegateCancellationSignal = CancellationSignal()
         // Just delegate to the suspend version
         val functionExecutionJob =
             workerCoroutineScope.launch {
-                val result =
-                    try {
-                        val appFunctionMetadata =
-                            getAppFunctionMetadata(
-                                this@ExtensionsAppFunctionService,
-                                resolveInventory(),
-                                request.functionIdentifier,
+                val appFunctionMetadata =
+                    getAppFunctionMetadata(
+                        this@ExtensionsAppFunctionService,
+                        resolveInventory(),
+                        request.functionIdentifier,
+                    )
+                if (appFunctionMetadata == null) {
+                    callback.onError(
+                        AppFunctionFunctionNotFoundException(
+                                "No function found with identifier: " +
+                                    "${request.functionIdentifier} in package: " +
+                                    "${this@ExtensionsAppFunctionService.packageName}"
                             )
-                                ?: throw AppFunctionFunctionNotFoundException(
-                                    "No function found with identifier: ${request.functionIdentifier} in package: ${this@ExtensionsAppFunctionService.packageName}"
+                            .toPlatformExtensionsClass()
+                    )
+                    return@launch
+                }
+                this@ExtensionsAppFunctionService.mainExecutor.execute {
+                    onExecuteFunction(
+                        ExecuteAppFunctionRequest.fromPlatformExtensionClass(
+                            request,
+                            appFunctionMetadata,
+                        ),
+                        delegateCancellationSignal,
+                    ) { response ->
+                        when (response) {
+                            is ExecuteAppFunctionResponse.Success -> {
+                                response.grantUriAccess(
+                                    context = this@ExtensionsAppFunctionService,
+                                    callingPackageName = callingPackage,
                                 )
-                        withContext(Dispatchers.Main) {
-                            executeFunction(
-                                ExecuteAppFunctionRequest.fromPlatformExtensionClass(
-                                    request,
-                                    appFunctionMetadata,
-                                )
-                            )
+                                callback.onResult(response.toPlatformExtensionClass())
+                            }
+                            is ExecuteAppFunctionResponse.Error ->
+                                callback.onError(response.error.toPlatformExtensionsClass())
                         }
-                    } catch (e: AppFunctionException) {
-                        ExecuteAppFunctionResponse.Error(e)
                     }
-
-                when (result) {
-                    is ExecuteAppFunctionResponse.Success -> {
-                        result.grantUriAccess(
-                            context = this@ExtensionsAppFunctionService,
-                            callingPackageName = callingPackage,
-                        )
-                        callback.onResult(result.toPlatformExtensionClass())
-                    }
-                    is ExecuteAppFunctionResponse.Error ->
-                        callback.onError(result.error.toPlatformExtensionsClass())
                 }
             }
         // Handle cancellation
-        cancellationSignal.setOnCancelListener { functionExecutionJob.cancel() }
+        cancellationSignal.setOnCancelListener {
+            delegateCancellationSignal.cancel()
+            functionExecutionJob.cancel()
+        }
     }
 
     /**
-     * Called by the system to execute a specific app function.
+     * Called by the system following an [AppFunctionManager.executeAppFunction] call that targets
+     * an app function identifier referenced by the XML asset associated with this service.
      *
-     * This method is the entry point for handling all app function requests in an app. When the
-     * system needs your AppFunctionService to perform a function, it will invoke this method.
-     *
-     * Each function you've registered is identified by a unique identifier. This identifier doesn't
-     * need to be globally unique, but it must be unique within your app. For example, a function to
-     * order food could be identified as "orderFood".
-     *
-     * You can determine which function to execute by using
+     * You can determine which function to execute using
      * [ExecuteAppFunctionRequest.functionIdentifier]. This allows your service to route the
-     * incoming request to the appropriate logic for handling the specific function.
+     * incoming request to the appropriate logic for handling the specific function. See
+     * [ExecuteAppFunctionRequest] for how to retrieve the function's arguments.
      *
      * This method is always triggered in the main thread. You should run heavy tasks on a worker
-     * thread.
+     * thread and dispatch the result with the given callback. You should always report back the
+     * result using the callback, no matter if the execution was successful or not.
      *
-     * ### Exception Handling
-     *
-     * When an error occurs during execution, implementations have two options to report the
-     * failure:
-     * 1. Throw an appropriate [androidx.appfunctions.AppFunctionException].
-     * 2. Return an [ExecuteAppFunctionResponse.Error] by wrapping an
-     *    [androidx.appfunctions.AppFunctionException].
-     *
-     * This allows the agent to better understand the cause of the failure. For example, if an input
-     * argument is invalid, throw or wrap an
-     * [androidx.appfunctions.AppFunctionInvalidArgumentException] with a detailed message
-     * explaining why it is invalid.
-     *
-     * Any unhandled exception other than [androidx.appfunctions.AppFunctionException] will be
-     * reported as [androidx.appfunctions.AppFunctionAppUnknownException].
-     *
-     * ### Cancellation
-     *
-     * The agent app can cancel the execution of an app function at any time. When this happens, the
-     * coroutine executing this `executeFunction` will be canceled. Therefore, the implementation is
-     * recommended to handle coroutine cancellation gradefully.
-     *
-     * For example:
-     * ```kotlin
-     * override suspend fun executeFunction(
-     *     request: ExecuteAppFunctionRequest
-     * ): ExecuteAppFunctionResponse {
-     *     return withContext(backgroundDispatcher) {
-     *         // Perform CPU-intensive work cooperatively
-     *         val data = request.functionParameters.getStringList("myData") ?: emptyList()
-     *         val results = mutableListOf<String>()
-     *         for (item in data) {
-     *             ensureActive()
-     *             // Process item...
-     *         }
-     *         ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
-     *     }
-     * }
+     * The implementation should try to respect the provided [CancellationSignal], if possible.
      *
      * @param request The function execution request.
+     * @param cancellationSignal A signal to cancel the execution.
+     * @param callback A callback to report back the result or error.
      */
     @MainThread
-    public abstract suspend fun executeFunction(
-        request: ExecuteAppFunctionRequest
-    ): ExecuteAppFunctionResponse
+    public abstract fun onExecuteFunction(
+        request: ExecuteAppFunctionRequest,
+        cancellationSignal: CancellationSignal,
+        callback: Consumer<ExecuteAppFunctionResponse>,
+    )
 
     /**
      * Implementing class can override this method to perform setup but should always call the
@@ -196,7 +169,8 @@ public abstract class ExtensionsAppFunctionService :
     override fun onCreate() {
         super.onCreate()
         workerExecutor = Executors.newSingleThreadExecutor()
-        workerCoroutineScope = CoroutineScope(workerExecutor.asCoroutineDispatcher())
+        workerCoroutineScope =
+            CoroutineScope(SupervisorJob() + workerExecutor.asCoroutineDispatcher())
     }
 
     /**

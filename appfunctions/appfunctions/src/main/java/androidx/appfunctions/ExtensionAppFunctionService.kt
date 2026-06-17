@@ -17,11 +17,17 @@
 package androidx.appfunctions
 
 import android.annotation.SuppressLint
+import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AppFunctionInventory
 import androidx.appfunctions.internal.Dependencies
 import androidx.appfunctions.internal.Dispatchers
 import com.android.extensions.appfunctions.AppFunctionService
+import java.util.function.Consumer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /** The implementation of [AppFunctionService] from extension library. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -30,8 +36,11 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
 
     private lateinit var delegate: AppFunctionServiceDelegate
 
+    private lateinit var scope: CoroutineScope
+
     override fun onCreate() {
         super.onCreate()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         delegate =
             AppFunctionServiceDelegate(
                 this@ExtensionAppFunctionService,
@@ -42,7 +51,27 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
             )
     }
 
-    override suspend fun executeFunction(
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
+    }
+
+    override fun onExecuteFunction(
+        request: ExecuteAppFunctionRequest,
+        cancellationSignal: CancellationSignal,
+        callback: Consumer<ExecuteAppFunctionResponse>,
+    ) {
+        val job =
+            scope.launch {
+                val response = executeFunction(request)
+                // We don't check isActive here since AppFunction implementation is expected
+                // to return ERROR_CANCELLED when the operation is caneled.
+                callback.accept(response)
+            }
+        cancellationSignal.setOnCancelListener { job.cancel() }
+    }
+
+    private suspend fun executeFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse =
         try {

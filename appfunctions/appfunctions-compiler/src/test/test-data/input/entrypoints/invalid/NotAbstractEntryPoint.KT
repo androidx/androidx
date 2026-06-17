@@ -9,7 +9,7 @@ import androidx.appfunctions.AppFunction
 @AppFunctionServiceEntryPoint("MySimpleService", "app_functions_v2.xml")
 class NotAbstractEntryPoint: AppFunctionService() {
     @AppFunction fun simpleFunction() {}
-    override suspend fun executeFunction(
+    override suspend fun onExecuteFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse {
       TODO()

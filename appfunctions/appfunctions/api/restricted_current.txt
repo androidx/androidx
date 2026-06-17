@@ -241,8 +241,8 @@ package androidx.appfunctions {
 
   @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public abstract class AppFunctionService extends android.app.appfunctions.AppFunctionService {
     ctor public AppFunctionService();
-    method @MainThread public abstract suspend Object? executeFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
     method public final void onExecuteFunction(android.app.appfunctions.ExecuteAppFunctionRequest request, String callingPackage, android.content.pm.SigningInfo signingInfo, android.os.CancellationSignal cancellationSignal, android.os.OutcomeReceiver<android.app.appfunctions.ExecuteAppFunctionResponse,android.app.appfunctions.AppFunctionException> callback);
+    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionServiceEntryPoint {
