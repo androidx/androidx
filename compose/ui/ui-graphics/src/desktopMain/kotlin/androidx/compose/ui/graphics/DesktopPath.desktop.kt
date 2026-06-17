@@ -20,6 +20,6 @@ package androidx.compose.ui.graphics
 @Deprecated(
     message = "Use asSkiaPath()",
     replaceWith = ReplaceWith("asSkiaPath()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 inline fun Path.asDesktopPath(): org.jetbrains.skia.Path = asSkiaPath()

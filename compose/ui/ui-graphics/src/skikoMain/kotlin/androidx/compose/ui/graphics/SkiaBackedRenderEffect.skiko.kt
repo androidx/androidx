@@ -50,6 +50,7 @@ actual sealed class RenderEffect actual constructor() {
     @Deprecated(
         message = "Use [RenderEffect.skiaImageFilter] extension instead",
         replaceWith = ReplaceWith("skiaImageFilter", "androidx.compose.ui.graphics.skiaImageFilter"),
+        level = DeprecationLevel.ERROR,
     )
     fun asSkiaImageFilter(): ImageFilter = internalSkiaImageFilter
 

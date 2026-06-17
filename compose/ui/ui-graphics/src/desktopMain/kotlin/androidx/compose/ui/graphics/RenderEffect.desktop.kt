@@ -21,6 +21,7 @@ import org.jetbrains.skia.ImageFilter
 @Deprecated(
     message = "Use asSkiaImageFilter()",
     replaceWith = ReplaceWith("asSkiaImageFilter()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
+@Suppress("DEPRECATION_ERROR")
 fun RenderEffect.asDesktopImageFilter(): ImageFilter = asSkiaImageFilter()

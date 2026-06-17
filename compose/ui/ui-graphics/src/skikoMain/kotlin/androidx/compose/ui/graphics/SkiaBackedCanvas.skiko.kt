@@ -38,6 +38,7 @@ import org.jetbrains.skia.impl.use
 @Deprecated(
     message = "Use direct reference to org.jetbrains.skia.Canvas instead of typealias",
     replaceWith = ReplaceWith("Canvas", "org.jetbrains.skia.Canvas"),
+    level = DeprecationLevel.ERROR,
 )
 actual typealias NativeCanvas = SkCanvas
 
@@ -71,8 +72,7 @@ val Canvas.skiaCanvas: SkCanvas
     message = "Naming alignment to avoid ambiguity: use [Canvas.skiaCanvas] extension instead",
     replaceWith = ReplaceWith("skiaCanvas", "androidx.compose.ui.graphics.skiaCanvas"),
 )
-@Suppress("DEPRECATION")
-val Canvas.nativeCanvas: NativeCanvas
+val Canvas.nativeCanvas: SkCanvas
     get() = skiaCanvas
 
 // This was added for internal usage from old render layers (another submodule),

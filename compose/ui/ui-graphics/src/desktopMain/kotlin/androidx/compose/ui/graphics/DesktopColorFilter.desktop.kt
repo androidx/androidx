@@ -24,7 +24,7 @@ import org.jetbrains.skia.ColorFilter as SkColorFilter
 @Deprecated(
     message = "Use asSkiaColorFilter()",
     replaceWith = ReplaceWith("asSkiaColorFilter()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun ColorFilter.asDesktopColorFilter(): SkColorFilter = nativeColorFilter
 
@@ -34,6 +34,6 @@ fun ColorFilter.asDesktopColorFilter(): SkColorFilter = nativeColorFilter
 @Deprecated(
     message = "Use asComposeColorFilter()",
     replaceWith = ReplaceWith("asComposeColorFilter()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun SkColorFilter.toComposeColorFilter(): ColorFilter = ColorFilter(this)

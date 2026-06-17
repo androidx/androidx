@@ -24,6 +24,7 @@ import org.jetbrains.skia.PaintStrokeJoin as SkPaintStrokeJoin
 @Deprecated(
     message = "Use org.jetbrains.skia.Paint directly instead",
     replaceWith = ReplaceWith("org.jetbrains.skia.Paint"),
+    level = DeprecationLevel.ERROR,
 )
 actual typealias NativePaint = SkPaint
 
@@ -55,6 +56,7 @@ internal class SkiaBackedPaint(
     @Deprecated(
         message = "Use [Paint.nativePaint] extension instead",
         replaceWith = ReplaceWith("skiaPaint", "androidx.compose.ui.graphics.skiaPaint"),
+        level = DeprecationLevel.ERROR,
     )
     override fun asFrameworkPaint(): SkPaint = internalSkiaPaint
 

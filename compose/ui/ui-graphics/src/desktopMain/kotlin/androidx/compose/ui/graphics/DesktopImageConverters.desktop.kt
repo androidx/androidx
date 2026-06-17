@@ -51,7 +51,7 @@ import org.jetbrains.skia.ImageInfo
 @Deprecated(
     message = "Use toPainter",
     replaceWith = ReplaceWith("toPainter()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun BufferedImage.asPainter(): Painter = BufferedImagePainter(this)
 
@@ -94,7 +94,7 @@ private class BufferedImagePainter(val image: BufferedImage) : Painter() {
 @Deprecated(
     "Use toAwtImage",
     replaceWith = ReplaceWith("toAwtImage(density, layoutDirection, size)"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun Painter.asAwtImage(
     density: Density,
@@ -212,7 +212,7 @@ private class PainterImage(
 @Deprecated(
     message = "use toAwtImage",
     replaceWith = ReplaceWith("toAwtImage"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun ImageBitmap.asAwtImage(): BufferedImage = toAwtImage()
 

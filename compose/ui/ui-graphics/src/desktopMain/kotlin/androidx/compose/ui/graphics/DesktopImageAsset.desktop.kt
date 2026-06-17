@@ -29,7 +29,7 @@ import org.jetbrains.skia.Image
 @Deprecated(
     message = "Use asComposeImageBitmap",
     replaceWith = ReplaceWith("asComposeImageBitmap()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun Bitmap.asImageBitmap(): ImageBitmap = asComposeImageBitmap()
 
@@ -39,7 +39,7 @@ fun Bitmap.asImageBitmap(): ImageBitmap = asComposeImageBitmap()
 @Deprecated(
     message = "Use toComposeImageBitmap",
     replaceWith = ReplaceWith("toComposeImageBitmap()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun Image.asImageBitmap(): ImageBitmap = toComposeImageBitmap()
 
@@ -50,7 +50,7 @@ fun Image.asImageBitmap(): ImageBitmap = toComposeImageBitmap()
 @Deprecated(
     message = "Use asSkiaBitmap()",
     replaceWith = ReplaceWith("asSkiaBitmap()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.HIDDEN,
 )
 fun ImageBitmap.asDesktopBitmap(): Bitmap = asSkiaBitmap()
 

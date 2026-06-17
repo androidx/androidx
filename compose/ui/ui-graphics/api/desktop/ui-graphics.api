@@ -316,21 +316,21 @@ public final class androidx/compose/ui/graphics/DegreesKt {
 }
 
 public final class androidx/compose/ui/graphics/DesktopColorFilter_desktopKt {
-	public static final fun asDesktopColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)Lorg/jetbrains/skia/ColorFilter;
-	public static final fun toComposeColorFilter (Lorg/jetbrains/skia/ColorFilter;)Landroidx/compose/ui/graphics/ColorFilter;
+	public static final synthetic fun asDesktopColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)Lorg/jetbrains/skia/ColorFilter;
+	public static final synthetic fun toComposeColorFilter (Lorg/jetbrains/skia/ColorFilter;)Landroidx/compose/ui/graphics/ColorFilter;
 }
 
 public final class androidx/compose/ui/graphics/DesktopImageAsset_desktopKt {
-	public static final fun asDesktopBitmap (Landroidx/compose/ui/graphics/ImageBitmap;)Lorg/jetbrains/skia/Bitmap;
-	public static final fun asImageBitmap (Lorg/jetbrains/skia/Bitmap;)Landroidx/compose/ui/graphics/ImageBitmap;
-	public static final fun asImageBitmap (Lorg/jetbrains/skia/Image;)Landroidx/compose/ui/graphics/ImageBitmap;
+	public static final synthetic fun asDesktopBitmap (Landroidx/compose/ui/graphics/ImageBitmap;)Lorg/jetbrains/skia/Bitmap;
+	public static final synthetic fun asImageBitmap (Lorg/jetbrains/skia/Bitmap;)Landroidx/compose/ui/graphics/ImageBitmap;
+	public static final synthetic fun asImageBitmap (Lorg/jetbrains/skia/Image;)Landroidx/compose/ui/graphics/ImageBitmap;
 }
 
 public final class androidx/compose/ui/graphics/DesktopImageConverters_desktopKt {
-	public static final fun asAwtImage (Landroidx/compose/ui/graphics/ImageBitmap;)Ljava/awt/image/BufferedImage;
-	public static final fun asAwtImage-Ug5Nnss (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;J)Ljava/awt/Image;
+	public static final synthetic fun asAwtImage (Landroidx/compose/ui/graphics/ImageBitmap;)Ljava/awt/image/BufferedImage;
+	public static final synthetic fun asAwtImage-Ug5Nnss (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;J)Ljava/awt/Image;
 	public static synthetic fun asAwtImage-Ug5Nnss$default (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;JILjava/lang/Object;)Ljava/awt/Image;
-	public static final fun asPainter (Ljava/awt/image/BufferedImage;)Landroidx/compose/ui/graphics/painter/Painter;
+	public static final synthetic fun asPainter (Ljava/awt/image/BufferedImage;)Landroidx/compose/ui/graphics/painter/Painter;
 	public static final fun toAwtImage (Landroidx/compose/ui/graphics/ImageBitmap;)Ljava/awt/image/BufferedImage;
 	public static final fun toAwtImage-Ug5Nnss (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;J)Ljava/awt/Image;
 	public static synthetic fun toAwtImage-Ug5Nnss$default (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;JILjava/lang/Object;)Ljava/awt/Image;
@@ -340,11 +340,11 @@ public final class androidx/compose/ui/graphics/DesktopImageConverters_desktopKt
 }
 
 public final class androidx/compose/ui/graphics/DesktopPathEffect_desktopKt {
-	public static final fun asDesktopPathEffect (Landroidx/compose/ui/graphics/PathEffect;)Lorg/jetbrains/skia/PathEffect;
+	public static final synthetic fun asDesktopPathEffect (Landroidx/compose/ui/graphics/PathEffect;)Lorg/jetbrains/skia/PathEffect;
 }
 
 public final class androidx/compose/ui/graphics/DesktopPath_desktopKt {
-	public static final fun asDesktopPath (Landroidx/compose/ui/graphics/Path;)Lorg/jetbrains/skia/Path;
+	public static final synthetic fun asDesktopPath (Landroidx/compose/ui/graphics/Path;)Lorg/jetbrains/skia/Path;
 }
 
 public abstract interface annotation class androidx/compose/ui/graphics/ExperimentalGraphicsApi : java/lang/annotation/Annotation {
@@ -959,7 +959,7 @@ public final class androidx/compose/ui/graphics/RenderEffectKt {
 }
 
 public final class androidx/compose/ui/graphics/RenderEffect_desktopKt {
-	public static final fun asDesktopImageFilter (Landroidx/compose/ui/graphics/RenderEffect;)Lorg/jetbrains/skia/ImageFilter;
+	public static final synthetic fun asDesktopImageFilter (Landroidx/compose/ui/graphics/RenderEffect;)Lorg/jetbrains/skia/ImageFilter;
 }
 
 public final class androidx/compose/ui/graphics/Shader {
