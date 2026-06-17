@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
 
 package androidx.xr.scenecore
 
@@ -1360,7 +1361,7 @@ class EntityTest {
         gltfModelEntityTester.addAnimation(animation1)
         gltfModelEntityTester.addAnimation(animation2)
 
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
 
         assertThat(animations).hasSize(2)
         assertThat(animations[0].name).isEqualTo("anim1")
@@ -1372,7 +1373,7 @@ class EntityTest {
     fun gltfModelEntity_startAnimation_startsAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1385,7 +1386,7 @@ class EntityTest {
     fun gltfModelEntity_startAnimation_withOptions_startsAnimationWithOptions() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start(
@@ -1406,7 +1407,7 @@ class EntityTest {
     fun gltfAnimation_startAnimation_negativeSeekTime_throwsException() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
 
         assertThrows(IllegalArgumentException::class.java) {
             gltfAnimation.start(
@@ -1420,7 +1421,7 @@ class EntityTest {
     fun gltfModelEntity_stopAnimation_stopsAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1434,7 +1435,7 @@ class EntityTest {
     fun gltfModelEntity_pauseAnimation_pausesAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1448,7 +1449,7 @@ class EntityTest {
     fun gltfModelEntity_resumeAnimation_resumesAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1463,7 +1464,7 @@ class EntityTest {
     fun gltfModelEntity_setSpeed_setsAnimationSpeed() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1477,7 +1478,7 @@ class EntityTest {
     fun gltfModelEntity_seekTo_seeksAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.animations
+        val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
@@ -1491,7 +1492,7 @@ class EntityTest {
     fun gltfAnimation_seekTo_negativeTime_throwsException() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
 
         gltfAnimation.start()
         assertThrows(IllegalArgumentException::class.java) {
@@ -1504,7 +1505,7 @@ class EntityTest {
     fun gltfAnimation_animationStateListener_receivesUpdates() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
 
         var state: GltfAnimation.AnimationState? = null
         gltfAnimation.addAnimationStateListener { state = it }
@@ -1527,7 +1528,7 @@ class EntityTest {
     fun gltfAnimation_removeAnimationStateListener_stopsUpdates() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
-        val gltfAnimation = gltfModelEntity.animations[0]
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
 
         var state: GltfAnimation.AnimationState? = null
         val listener = java.util.function.Consumer<GltfAnimation.AnimationState> { state = it }

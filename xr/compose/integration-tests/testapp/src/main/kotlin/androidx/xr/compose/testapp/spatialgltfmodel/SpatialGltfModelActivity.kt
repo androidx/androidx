@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(
+    androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
+    androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi::class,
+)
+
 package androidx.xr.compose.testapp.spatialgltfmodel
 
 import android.annotation.SuppressLint
@@ -533,7 +538,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
             get() = dragonModelState?.nodes ?: emptyList()
 
         val animations: List<SpatialGltfModelAnimation>
-            get() = dragonModelState?.animations ?: emptyList()
+            get() = dragonModelState?.getAnimations() ?: emptyList()
 
         var selectedNode by mutableStateOf<GltfModelNode?>(null)
 

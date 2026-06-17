@@ -15,6 +15,10 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:kotlin.OptIn(
+    androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
+    ExperimentalSpatialGltfAnimationApi::class,
+)
 
 package androidx.xr.compose.subspace
 
@@ -1042,7 +1046,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         assertThat(animation.animationState)
             .isEqualTo(SpatialGltfModelAnimation.AnimationState.Stopped)
 
@@ -1091,7 +1095,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         assertThat(animation.animationState)
             .isEqualTo(SpatialGltfModelAnimation.AnimationState.Stopped)
 
@@ -1137,7 +1141,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         assertThat(animation.animationState)
             .isEqualTo(SpatialGltfModelAnimation.AnimationState.Stopped)
 
@@ -1187,7 +1191,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         assertThat(animation.animationState)
             .isEqualTo(SpatialGltfModelAnimation.AnimationState.Stopped)
 
@@ -1228,7 +1232,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         animation.start()
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
@@ -1278,7 +1282,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
 
         // Seek while stopped sets the start time
         animation.seekTo(5.seconds)
@@ -1322,7 +1326,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
 
         // Seek to a specific time while stopped.
         animation.seekTo(7.seconds)
@@ -1379,7 +1383,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
 
         // When the animation is stopped, setting the speed property does not update the speed
         // of the underlying scene core animation.
@@ -1436,12 +1440,12 @@ class SpatialGltfModelTest {
             }
 
             if (state.status is Loaded) {
-                state.animations[0].playbackSpeed = speed
+                state.getAnimations()[0].playbackSpeed = speed
             }
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
         animation.start()
         assertThat(fakeAnimation?.speed).isEqualTo(2.0f)
 
@@ -1481,7 +1485,7 @@ class SpatialGltfModelTest {
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        val animation = state.animations[0]
+        val animation = state.getAnimations()[0]
 
         assertFailsWith<IllegalArgumentException> { animation.seekTo((-1).seconds) }
     }

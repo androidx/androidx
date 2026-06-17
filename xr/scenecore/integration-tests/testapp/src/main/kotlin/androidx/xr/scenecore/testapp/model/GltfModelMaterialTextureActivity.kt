@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
+
 package androidx.xr.scenecore.testapp.model
 
 import android.annotation.SuppressLint
@@ -243,7 +245,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
         findViewById<Button>(R.id.gltf_model_button4_3).setOnClickListener {
             val entity = dragonModelEntity
             if (entity != null) {
-                val animation = entity.animations.find { it.name == ANIMATION_NAME }
+                val animation = entity.getAnimations().find { it.name == ANIMATION_NAME }
                 if (animation?.animationState == GltfAnimation.AnimationState.PLAYING) {
                     animation.stop()
                 } else {

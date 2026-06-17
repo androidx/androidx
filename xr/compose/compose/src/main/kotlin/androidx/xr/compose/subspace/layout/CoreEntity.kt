@@ -576,8 +576,9 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
                 ?.times(2)
                 ?.toIntVolumeSize(pixelDensity) ?: IntVolumeSize.Zero
 
+    @OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
     val animations: List<GltfAnimation>?
-        @RequiresApi(Build.VERSION_CODES.O) get() = (entity as? GltfModelEntity)?.animations
+        @RequiresApi(Build.VERSION_CODES.O) get() = (entity as? GltfModelEntity)?.getAnimations()
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
         onEntityAttached { entity -> (entity as GltfModelEntity).action() }
