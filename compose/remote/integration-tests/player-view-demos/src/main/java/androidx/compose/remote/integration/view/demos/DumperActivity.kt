@@ -195,6 +195,7 @@ fun DumperControlPanel(
 }
 
 @Composable
+@Suppress("COMPOSE_APPLIER_PARAMETER_MISMATCH", "COMPOSE_APPLIER_CALL_MISMATCH")
 fun DumperPreviewSection(
     context: Context,
     renderMode: RenderMode,
