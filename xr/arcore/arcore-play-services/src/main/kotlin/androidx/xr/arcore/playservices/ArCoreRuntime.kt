@@ -17,6 +17,7 @@
 package androidx.xr.arcore.playservices
 
 import android.content.Context
+import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -83,9 +84,41 @@ internal constructor(
 
     override fun initialize() {
         checkARCoreSupportedAndUpToDate(context)
-        _session = Session(context)
+        _session = createSessionWithManifestFeatures(context)
         perceptionManager.session = _session
         perceptionManager.geospatial.arCoreSession = _session
+    }
+
+    // TODO(b/524367345): Replace Reflection with a proper API once it is available (hopefully in
+    // 1.56).
+    @Suppress("BanUncheckedReflection")
+    private fun createSessionWithManifestFeatures(context: android.content.Context): Session {
+        val requestedFeatures = parseSessionFeaturesFromManifest(context)
+
+        if (requestedFeatures.isEmpty()) {
+            return Session(context)
+        }
+
+        // Ensure the native library is loaded before calling the native reflection method,
+        // otherwise it will throw an UnsatisfiedLinkError because Session(context) hasn't
+        // been called yet to load it naturally.
+        runCatching { System.loadLibrary("arcore_sdk_c") }
+
+        val getSessionMethod =
+            com.google.ar.core.Session::class
+                .java
+                .getDeclaredMethod(
+                    "nativeCreateSessionAndWrapperWithFeatures",
+                    android.content.Context::class.java,
+                    IntArray::class.java,
+                )
+        getSessionMethod.isAccessible = true
+        val nativeHandle = getSessionMethod.invoke(null, context, requestedFeatures) as Long
+
+        val constructor =
+            com.google.ar.core.Session::class.java.getDeclaredConstructor(Long::class.java)
+        constructor.isAccessible = true
+        return constructor.newInstance(nativeHandle)
     }
 
     override fun resume() {
@@ -332,5 +365,52 @@ internal constructor(
         private const val ARCORE_GEOSPATIAL_MODE_INERTIAL =
             3 /* com.google.ar.core.Config.GeospatialMode.INERTIAL */
         private const val ARCORE_PACKAGE_NAME = "com.google.ar.core"
+        private const val SESSION_FEATURES_META_DATA_KEY = "com.google.ar.core.SESSION_FEATURES"
+
+        @androidx.annotation.VisibleForTesting
+        internal fun parseSessionFeaturesFromManifest(context: android.content.Context): IntArray {
+            var requestedFeatures = IntArray(0)
+            try {
+                val appInfo =
+                    context.packageManager.getApplicationInfo(
+                        context.packageName,
+                        android.content.pm.PackageManager.GET_META_DATA,
+                    )
+                val metaData = appInfo.metaData
+                if (metaData == null || !metaData.containsKey(SESSION_FEATURES_META_DATA_KEY)) {
+                    return requestedFeatures
+                }
+
+                val featuresString = metaData.getString(SESSION_FEATURES_META_DATA_KEY)
+                val featuresList = mutableListOf<Int>()
+                featuresString?.split(",")?.forEach { featureName ->
+                    parseFeatureNameToNativeCode(featureName)?.let { nativeCode ->
+                        featuresList.add(nativeCode)
+                    }
+                }
+
+                if (featuresList.isNotEmpty()) {
+                    featuresList.add(0) // MUST end with 0 (Feature.END_OF_LIST.nativeCode)
+                    requestedFeatures = featuresList.toIntArray()
+                }
+            } catch (e: NameNotFoundException) {
+                // Ignore parsing errors and return empty features
+            }
+            return requestedFeatures
+        }
+
+        @Suppress("BanUncheckedReflection", "UNCHECKED_CAST")
+        private fun parseFeatureNameToNativeCode(featureName: String): Int? {
+            val trimmedName = featureName.trim().uppercase()
+            if (trimmedName == "MOTION_TRACKING_ODOMETRY") {
+                // 6 matches Feature.MOTION_TRACKING_ODOMETRY.nativeCode in ARCore.
+                return 6
+            }
+            val featureClass = Class.forName("com.google.ar.core.Session\$Feature")
+            val featureEnum =
+                java.lang.Enum.valueOf(featureClass as Class<out Enum<*>>, trimmedName)
+            val nativeCodeMethod = featureClass.getMethod("getNativeCode")
+            return nativeCodeMethod.invoke(featureEnum) as Int
+        }
     }
 }
