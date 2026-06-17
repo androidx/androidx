@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 package androidx.compose.ui.test.v2
 
-import androidx.compose.ui.test.ComposeUiTest
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.implementedInJetBrainsFork
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.input.InputMode
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
-import kotlinx.coroutines.test.TestResult
 
-@ExperimentalTestApi
-actual fun runComposeUiTest(
-    effectContext: CoroutineContext,
-    runTestContext: CoroutineContext,
-    testTimeout: Duration,
-    block: suspend ComposeUiTest.() -> Unit,
-): TestResult = implementedInJetBrainsFork()
-
-@ExperimentalTestApi
-actual fun runComposeUiTest(
-    config: ComposeTestConfig,
-    block: suspend ComposeUiTest.() -> Unit,
-): TestResult = implementedInJetBrainsFork()
+@Immutable
+actual class ComposeTestConfig
+actual constructor(
+    actual val effectContext: CoroutineContext,
+    actual val runTestContext: CoroutineContext,
+    actual val testTimeout: Duration,
+    actual val inputMode: InputMode,
+)

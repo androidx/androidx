@@ -208,6 +208,19 @@ sealed interface androidx.compose.ui.test/MultiModalInjectionScope : androidx.co
     abstract fun trackpad(kotlin/Function1<androidx.compose.ui.test/TrackpadInjectionScope, kotlin/Unit>) // androidx.compose.ui.test/MultiModalInjectionScope.trackpad|trackpad(kotlin.Function1<androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>){}[0]
 }
 
+final class androidx.compose.ui.test.v2/ComposeTestConfig { // androidx.compose.ui.test.v2/ComposeTestConfig|null[0]
+    constructor <init>(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/CoroutineContext = ..., kotlin.time/Duration = ..., androidx.compose.ui.input/InputMode = ...) // androidx.compose.ui.test.v2/ComposeTestConfig.<init>|<init>(kotlin.coroutines.CoroutineContext;kotlin.coroutines.CoroutineContext;kotlin.time.Duration;androidx.compose.ui.input.InputMode){}[0]
+
+    final val effectContext // androidx.compose.ui.test.v2/ComposeTestConfig.effectContext|{}effectContext[0]
+        final fun <get-effectContext>(): kotlin.coroutines/CoroutineContext // androidx.compose.ui.test.v2/ComposeTestConfig.effectContext.<get-effectContext>|<get-effectContext>(){}[0]
+    final val inputMode // androidx.compose.ui.test.v2/ComposeTestConfig.inputMode|{}inputMode[0]
+        final fun <get-inputMode>(): androidx.compose.ui.input/InputMode // androidx.compose.ui.test.v2/ComposeTestConfig.inputMode.<get-inputMode>|<get-inputMode>(){}[0]
+    final val runTestContext // androidx.compose.ui.test.v2/ComposeTestConfig.runTestContext|{}runTestContext[0]
+        final fun <get-runTestContext>(): kotlin.coroutines/CoroutineContext // androidx.compose.ui.test.v2/ComposeTestConfig.runTestContext.<get-runTestContext>|<get-runTestContext>(){}[0]
+    final val testTimeout // androidx.compose.ui.test.v2/ComposeTestConfig.testTimeout|{}testTimeout[0]
+        final fun <get-testTimeout>(): kotlin.time/Duration // androidx.compose.ui.test.v2/ComposeTestConfig.testTimeout.<get-testTimeout>|<get-testTimeout>(){}[0]
+}
+
 final class androidx.compose.ui.test/ComposeTimeoutException : kotlin/Throwable { // androidx.compose.ui.test/ComposeTimeoutException|null[0]
     constructor <init>(kotlin/String?) // androidx.compose.ui.test/ComposeTimeoutException.<init>|<init>(kotlin.String?){}[0]
 }
@@ -335,6 +348,7 @@ final value class androidx.compose.ui.test/TrackpadButton { // androidx.compose.
 }
 
 final val androidx.compose.ui.test.internal/androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop // androidx.compose.ui.test.internal/androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop|#static{}androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop[0]
+final val androidx.compose.ui.test.v2/androidx_compose_ui_test_v2_ComposeTestConfig$stableprop // androidx.compose.ui.test.v2/androidx_compose_ui_test_v2_ComposeTestConfig$stableprop|#static{}androidx_compose_ui_test_v2_ComposeTestConfig$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_ComposeTimeoutException$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_ComposeTimeoutException$stableprop|#static{}androidx_compose_ui_test_ComposeTimeoutException$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_ComposeUiTestFlags$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_ComposeUiTestFlags$stableprop|#static{}androidx_compose_ui_test_ComposeUiTestFlags$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_GestureScope$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_GestureScope$stableprop|#static{}androidx_compose_ui_test_GestureScope$stableprop[0]
@@ -601,6 +615,7 @@ final fun (androidx.compose.ui.unit/Dp).androidx.compose.ui.test/assertIsEqualTo
 final fun <#A: kotlin/Function<kotlin/Boolean>> (androidx.compose.ui.test/SemanticsNodeInteraction).androidx.compose.ui.test/performSemanticsAction(androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.semantics/AccessibilityAction<#A>>, kotlin/Function1<#A, kotlin/Unit>): androidx.compose.ui.test/SemanticsNodeInteraction // androidx.compose.ui.test/performSemanticsAction|performSemanticsAction@androidx.compose.ui.test.SemanticsNodeInteraction(androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<0:0>>;kotlin.Function1<0:0,kotlin.Unit>){0§<kotlin.Function<kotlin.Boolean>>}[0]
 final fun <#A: kotlin/Function<kotlin/Boolean>> (androidx.compose.ui.test/SemanticsNodeInteraction).androidx.compose.ui.test/performSemanticsActionUnit(androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.semantics/AccessibilityAction<#A>>, kotlin/Function1<#A, kotlin/Unit>) // androidx.compose.ui.test/performSemanticsActionUnit|performSemanticsActionUnit@androidx.compose.ui.test.SemanticsNodeInteraction(androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<0:0>>;kotlin.Function1<0:0,kotlin.Unit>){0§<kotlin.Function<kotlin.Boolean>>}[0]
 final fun androidx.compose.ui.test.internal/androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop_getter(): kotlin/Int // androidx.compose.ui.test.internal/androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop_getter|androidx_compose_ui_test_internal_DelayPropagatingContinuationInterceptorWrapper$stableprop_getter(){}[0]
+final fun androidx.compose.ui.test.v2/androidx_compose_ui_test_v2_ComposeTestConfig$stableprop_getter(): kotlin/Int // androidx.compose.ui.test.v2/androidx_compose_ui_test_v2_ComposeTestConfig$stableprop_getter|androidx_compose_ui_test_v2_ComposeTestConfig$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/DeviceConfigurationOverride(androidx.compose.ui.test/DeviceConfigurationOverride, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.ui.test/DeviceConfigurationOverride|DeviceConfigurationOverride(androidx.compose.ui.test.DeviceConfigurationOverride;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_ComposeTimeoutException$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_ComposeTimeoutException$stableprop_getter|androidx_compose_ui_test_ComposeTimeoutException$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_ComposeUiTestFlags$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_ComposeUiTestFlags$stableprop_getter|androidx_compose_ui_test_ComposeUiTestFlags$stableprop_getter(){}[0]

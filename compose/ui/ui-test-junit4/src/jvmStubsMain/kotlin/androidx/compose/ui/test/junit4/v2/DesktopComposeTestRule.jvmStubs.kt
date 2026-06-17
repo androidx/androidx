@@ -18,7 +18,11 @@ package androidx.compose.ui.test.junit4.v2
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.implementedInJetBrainsFork
+import androidx.compose.ui.test.v2.ComposeTestConfig
 import kotlin.coroutines.CoroutineContext
 
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
+    implementedInJetBrainsFork()
+
+actual fun createComposeRule(config: ComposeTestConfig): ComposeContentTestRule =
     implementedInJetBrainsFork()

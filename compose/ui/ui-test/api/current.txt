@@ -38,10 +38,10 @@ package androidx.compose.ui.test {
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public abstract class AndroidComposeUiTestEnvironment<A extends androidx.activity.ComponentActivity> {
     ctor public AndroidComposeUiTestEnvironment();
+    ctor public AndroidComposeUiTestEnvironment(androidx.compose.ui.test.v2.ComposeTestConfig config);
     ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext);
     ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public <A extends androidx.activity.ComponentActivity> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout);
-    ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public final void cancelAndRecreateRecomposer();
@@ -1079,16 +1079,34 @@ package androidx.compose.ui.test.junit4.android {
 
 }
 
-package @SuppressCompatibility androidx.compose.ui.test.v2 {
+package androidx.compose.ui.test.v2 {
+
+  @androidx.compose.runtime.Immutable public final class ComposeTestConfig {
+    ctor @KotlinOnly public ComposeTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode);
+    ctor @BytecodeOnly public ComposeTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public ComposeTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getEffectContext();
+    method @BytecodeOnly public int getInputMode-aOaMEAU();
+    method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getRunTestContext();
+    method @BytecodeOnly public long getTestTimeout-UwyO8pc();
+    property public kotlin.coroutines.CoroutineContext effectContext;
+    property public androidx.compose.ui.input.InputMode inputMode;
+    property public kotlin.coroutines.CoroutineContext runTestContext;
+    property public kotlin.time.Duration testTimeout;
+  }
 
   @SuppressCompatibility public final class ComposeUiTest_androidKt {
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> AndroidComposeUiTestEnvironment(androidx.compose.ui.test.v2.ComposeTestConfig config, kotlin.jvm.functions.Function0<? extends A?> activityProvider);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function0<A?> activityProvider);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> AndroidComposeUiTestEnvironment-exY8QGI(kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function0<? extends A>);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.AndroidComposeUiTestEnvironment! AndroidComposeUiTestEnvironment-exY8QGI$default(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function0!, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <reified A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(androidx.compose.ui.test.v2.ComposeTestConfig config, kotlin.jvm.functions.Function2<androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(Class<A> activityClass, androidx.compose.ui.test.v2.ComposeTestConfig config, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <reified A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest-zkXUZaI(Class<A>, kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.AndroidComposeUiTest<A>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runAndroidComposeUiTest-zkXUZaI$default(Class!, kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function2!, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(androidx.compose.ui.test.v2.ComposeTestConfig config, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.ComposeUiTest,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.ComposeUiTest,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest-exY8QGI(kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.ComposeUiTest!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest-exY8QGI$default(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function2!, int, Object!);

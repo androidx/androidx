@@ -18,6 +18,7 @@ package androidx.compose.ui.test.junit4.v2
 
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.v2.ComposeTestConfig
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -51,3 +52,26 @@ import kotlinx.coroutines.test.TestDispatcher
 expect fun createComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeContentTestRule
+
+/**
+ * Factory method to provide an implementation of [ComposeContentTestRule].
+ *
+ * This method is useful for tests in compose libraries where it is irrelevant where the compose
+ * content is hosted (e.g. an Activity on Android). Such tests typically set compose content
+ * themselves via [setContent][ComposeContentTestRule.setContent] and only instrument and assert
+ * that content.
+ *
+ * For Android this will use the default Activity (android.app.Activity). You need to add a
+ * reference to this activity into the manifest file of the corresponding tests (usually in
+ * androidTest/AndroidManifest.xml). If your Android test requires a specific Activity to be
+ * launched, see [createAndroidComposeRule].
+ *
+ * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Touch].
+ *
+ * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
+ *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
+ *   settings.
+ */
+expect fun createComposeRule(config: ComposeTestConfig): ComposeContentTestRule
