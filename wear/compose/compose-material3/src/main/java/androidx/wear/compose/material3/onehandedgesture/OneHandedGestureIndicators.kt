@@ -632,7 +632,7 @@ private fun GestureScrollIndicator(
     }
     val jiggleFractionAnimatable = remember { Animatable(0f) }
     val jiggleAmount = 0.5f
-    val indicatorJiggleColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
+    val indicatorJiggleColor = gestureIndicatorBackgroundColor.copy(alpha = 0.8f)
     var avdDuration by remember { mutableIntStateOf(-1) }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
