@@ -116,8 +116,9 @@ public class ImageLayout extends LayoutManager implements VariableSupport {
             @NonNull MeasurePass measure,
             @NonNull Size size) {
 
-        BitmapData bitmapData = (BitmapData) context.getContext().getObject(mBitmapId);
-        if (bitmapData != null) {
+        Object obj = context.getContext().getObject(mBitmapId);
+        if (obj instanceof BitmapData) {
+            BitmapData bitmapData = (BitmapData) obj;
             size.setWidth(bitmapData.getWidth());
             size.setHeight(bitmapData.getHeight());
         }

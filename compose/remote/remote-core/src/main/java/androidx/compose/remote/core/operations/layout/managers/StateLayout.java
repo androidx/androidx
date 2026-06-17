@@ -410,12 +410,23 @@ public class StateLayout extends LayoutManager {
         for (Component pane : mChildrenComponents) {
             if (pane instanceof LayoutComponent) {
                 if (index == idx) {
-                    return (LayoutManager) pane;
+                    if (pane instanceof LayoutManager) {
+                        return (LayoutManager) pane;
+                    } else {
+                        throw new RuntimeException("Child is not a LayoutManager");
+                    }
                 }
                 index++;
             }
         }
-        return (LayoutManager) mChildrenComponents.get(0);
+        if (mChildrenComponents.isEmpty()) {
+            throw new RuntimeException("StateLayout has no children");
+        }
+        Component firstChild = mChildrenComponents.get(0);
+        if (firstChild instanceof LayoutManager) {
+            return (LayoutManager) firstChild;
+        }
+        throw new RuntimeException("First child of StateLayout is not a LayoutManager");
     }
 
     @Override
