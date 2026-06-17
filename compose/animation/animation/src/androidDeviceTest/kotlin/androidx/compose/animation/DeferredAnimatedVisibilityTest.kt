@@ -24,6 +24,7 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -1242,5 +1244,73 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
         assertEquals(fullWidth, measuredWidth, 1f)
+    }
+
+    @OptIn(ExperimentalDeferredTransitionApi::class, ExperimentalAnimationApi::class)
+    @Test
+    fun deferredAnimatedVisibility_interruptedEnter_doesNotFreezeVeil() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var activeHandoff by mutableStateOf(false)
+        var capturedColor by mutableStateOf(Color.Unspecified)
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            state = remember { DeferredTransitionState(false) }
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                enter =
+                    unveilIn(
+                        initialColor = Color.Black,
+                        animationSpec = tween(500, easing = LinearEasing),
+                    ),
+                exit = ExitTransition.None,
+                mutableTransform =
+                    if (activeHandoff)
+                        MutableTransform {
+                            scale = 0.5f // Mutate scale, but NOT veil
+                        }
+                    else null,
+            ) {
+                // capture the veil color
+                val veilAnim = this.transition.animations.find { it.label.contains("veil") }
+                if (veilAnim != null) {
+                    capturedColor = veilAnim.value as Color
+                }
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        // Trigger enter
+        rule.runOnIdle { state.animateTo(true) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Advance 250ms -> Veil should be 50% transparent
+        rule.mainClock.advanceTimeBy(250)
+        rule.waitForIdle()
+
+        // Simulate predictive back
+        activeHandoff = true
+        rule.runOnIdle { state.defer(false) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Interrupt with exit
+        activeHandoff = false
+        rule.runOnIdle { state.animateTo(false) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        val handoffVeilAlpha = capturedColor.alpha
+
+        // Advance until end
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        // Assert that it animates towards Transparent (alpha = 0)
+        assertTrue(
+            "Expected veil alpha to animate towards 0, but it froze or increased " +
+                "(handoff alpha: $handoffVeilAlpha, current alpha: ${capturedColor.alpha})",
+            handoffVeilAlpha > capturedColor.alpha,
+        )
     }
 }
