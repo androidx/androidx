@@ -907,6 +907,7 @@ package androidx.compose.material3 {
     property public boolean isAnchoredDraggableComponentsStrictOffsetCheckEnabled;
     property public boolean isBottomSheetPartiallyExpandedDeterministicEnabled;
     property public boolean isCheckboxStylingFixEnabled;
+    property public boolean isExpressiveListItemHeightBasedOnTextLinesFixEnabled;
     property public boolean isPrecisionPointerComponentSizingEnabled;
     property public boolean isSnackbarStylingFixEnabled;
     property public boolean isUpdatedTimepickerToggleEnabled;
@@ -915,6 +916,7 @@ package androidx.compose.material3 {
     field public static boolean isAnchoredDraggableComponentsStrictOffsetCheckEnabled;
     field public static boolean isBottomSheetPartiallyExpandedDeterministicEnabled;
     field public static boolean isCheckboxStylingFixEnabled;
+    field public static boolean isExpressiveListItemHeightBasedOnTextLinesFixEnabled;
     field public static boolean isPrecisionPointerComponentSizingEnabled;
     field public static boolean isSnackbarStylingFixEnabled;
     field public static boolean isUpdatedTimepickerToggleEnabled;

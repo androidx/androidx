@@ -121,4 +121,18 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isUpdatedTimepickerToggleEnabled: Boolean = true
+
+    /**
+     * This flag affects overloads of [ListItem] and [SegmentedListItem] that use expressive
+     * styling.
+     *
+     * When true (default), list item minimum height will depend on the lines of text in its
+     * content.
+     *
+     * When false, the number of lines in a list item has no effect on its minimum height.
+     */
+    // TODO: b/524205564
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isExpressiveListItemHeightBasedOnTextLinesFixEnabled: Boolean = true
 }
