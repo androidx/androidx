@@ -26,11 +26,11 @@ private val NAME_PATTERNS =
     mapOf(
         // Name
         HintConstants.AUTOFILL_HINT_PERSON_NAME_GIVEN to
-            Regex("""\b((first|given)(.*name)?|fname|initials)\b"""),
+            Regex("""\b((first|given)(.*name)|fname|initials)\b"""),
         HintConstants.AUTOFILL_HINT_PERSON_NAME_MIDDLE to
             Regex("""\b(middle.*name|mname|middle)\b"""),
         HintConstants.AUTOFILL_HINT_PERSON_NAME_FAMILY to
-            Regex("""\b((last|family|sur|second)(.*name)?|lname|surname)\b"""),
+            Regex("""\b((last|family|sur|second)(.*name)|lname|surname)\b"""),
         HintConstants.AUTOFILL_HINT_PERSON_NAME to
             Regex(
                 """\b(name|(full|your|customer|bill|ship|contact).?name|contact.?person|receiver.?name)\b"""

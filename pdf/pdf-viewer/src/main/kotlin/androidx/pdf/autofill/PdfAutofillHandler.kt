@@ -117,7 +117,6 @@ internal class PdfAutofillHandler(
                 if (autofillHints.isNotEmpty()) {
                     setAutofillHints(autofillHints.toTypedArray())
                 }
-                hint = hintText
             }
 
             setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES)
@@ -159,7 +158,9 @@ internal class PdfAutofillHandler(
                     (currentEdit.formWidget.widgetIndex == widgetIndex)
             ) {
                 currentEdit.editText.setText(text)
-                currentEdit.editText.setSelection(text.length)
+                currentEdit.editText.setSelection(
+                    text.length.coerceAtMost(currentEdit.formWidget.maxLength)
+                )
             } else {
                 interactionHandler?.createAndRelayEditTextInfo(
                     pageNum = pageNum,
