@@ -154,7 +154,7 @@ class TransformationActivity : AppCompatActivity() {
                             if (panel == anchorDebugPanel) {
                                 anchorDebugPanel.view.setLine(
                                     "Anchor State",
-                                    anchorState.toString(),
+                                    anchorState.toFormattedString(),
                                 )
                             }
                             updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
@@ -505,6 +505,15 @@ class TransformationActivity : AppCompatActivity() {
     private fun length(position: Vector3): Float {
         return sqrt(position.x * position.x + position.y * position.y + position.z * position.z)
     }
+
+    private fun AnchorSpace.State.toFormattedString(): String =
+        when (this) {
+            AnchorSpace.State.UNANCHORED -> "UNANCHORED"
+            AnchorSpace.State.ANCHORED -> "ANCHORED"
+            AnchorSpace.State.TIMED_OUT -> "TIMED_OUT"
+            AnchorSpace.State.ERROR -> "ERROR"
+            else -> "UNKNOWN"
+        }
 
     companion object {
         var onActivitySpaceUpdatedCount = 0

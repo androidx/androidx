@@ -134,15 +134,6 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
              */
             @JvmField public val ERROR: State = State(-1)
         }
-
-        override fun toString(): String =
-            when (this) {
-                UNANCHORED -> "UNANCHORED"
-                ANCHORED -> "ANCHORED"
-                TIMED_OUT -> "TIMED_OUT"
-                ERROR -> "ERROR"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     internal data class PlaneFindingInfo(

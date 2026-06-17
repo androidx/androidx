@@ -467,12 +467,4 @@ class AnchorEntityTest {
         timeSource += duration
         delay(duration)
     }
-
-    @Test
-    fun anchorEntityState_toString() {
-        assertThat(AnchorEntity.State.UNANCHORED.toString()).isEqualTo("UNANCHORED")
-        assertThat(AnchorEntity.State.ANCHORED.toString()).isEqualTo("ANCHORED")
-        assertThat(AnchorEntity.State.TIMED_OUT.toString()).isEqualTo("TIMED_OUT")
-        assertThat(AnchorEntity.State.ERROR.toString()).isEqualTo("ERROR")
-    }
 }

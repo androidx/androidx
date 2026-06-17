@@ -63,14 +63,5 @@ public class ResizeEvent(
             /** The user has stopped dragging the resize handles. */
             @JvmField public val END: ResizeState = ResizeState(4)
         }
-
-        override fun toString(): String =
-            when (this) {
-                UNKNOWN -> "UNKNOWN"
-                START -> "START"
-                ONGOING -> "ONGOING"
-                END -> "END"
-                else -> "UNKNOWN ($value)"
-            }
     }
 }

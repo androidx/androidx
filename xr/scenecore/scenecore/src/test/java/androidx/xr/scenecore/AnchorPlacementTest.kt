@@ -140,7 +140,7 @@ class AnchorPlacementTest {
 
         assertThat(anchorPlacementString)
             .isEqualTo(
-                "AnchorPlacement(anchorablePlaneOrientations=[VERTICAL], anchorablePlaneSemanticTypes=[CEILING, TABLE])"
+                "AnchorPlacement(anchorablePlaneOrientations=[2], anchorablePlaneSemanticTypes=[3, 4])"
             )
     }
 

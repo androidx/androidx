@@ -74,14 +74,6 @@ internal constructor(
              */
             @JvmField public val PAUSED: AnimationState = AnimationState(3)
         }
-
-        override fun toString(): String =
-            when (this) {
-                PLAYING -> "PLAYING"
-                STOPPED -> "STOPPED"
-                PAUSED -> "PAUSED"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /**

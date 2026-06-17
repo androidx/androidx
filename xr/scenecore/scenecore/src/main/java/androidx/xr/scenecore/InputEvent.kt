@@ -132,17 +132,6 @@ public class InputEvent(
              */
             @JvmField public val GAZE_AND_GESTURE: Source = Source(6)
         }
-
-        override fun toString(): String =
-            when (this) {
-                UNKNOWN -> "UNKNOWN"
-                HEAD -> "HEAD"
-                CONTROLLER -> "CONTROLLER"
-                HANDS -> "HANDS"
-                MOUSE -> "MOUSE"
-                GAZE_AND_GESTURE -> "GAZE_AND_GESTURE"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /** Specifies the pointer type (e.g. left, right or default) of the input event. */
@@ -164,14 +153,6 @@ public class InputEvent(
              */
             @JvmField public val RIGHT: Pointer = Pointer(3)
         }
-
-        override fun toString(): String =
-            when (this) {
-                DEFAULT -> "DEFAULT"
-                LEFT -> "LEFT"
-                RIGHT -> "RIGHT"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /** Specifies the action (e.g. down, up, move, etc.) of the input event. */
@@ -229,18 +210,6 @@ public class InputEvent(
              */
             @JvmField public val HOVER_EXIT: Action = Action(7)
         }
-
-        override fun toString(): String =
-            when (this) {
-                DOWN -> "DOWN"
-                UP -> "UP"
-                MOVE -> "MOVE"
-                CANCEL -> "CANCEL"
-                HOVER_MOVE -> "HOVER_MOVE"
-                HOVER_ENTER -> "HOVER_ENTER"
-                HOVER_EXIT -> "HOVER_EXIT"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /**

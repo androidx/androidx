@@ -119,14 +119,6 @@ constructor(
             /** The texture infinitely repeats and mirrors in the wrap direction. */
             @JvmField public val MIRRORED_REPEAT: WrapMode = WrapMode(3)
         }
-
-        override fun toString(): String =
-            when (this) {
-                CLAMP_TO_EDGE -> "CLAMP_TO_EDGE"
-                REPEAT -> "REPEAT"
-                MIRRORED_REPEAT -> "MIRRORED_REPEAT"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /** Defines the constants for texture minification filters. */
@@ -158,17 +150,6 @@ constructor(
             @JvmField
             public val LINEAR_MIPMAP_LINEAR: MinificationFilter = MinificationFilter(6)
         }
-
-        override fun toString(): String =
-            when (this) {
-                NEAREST -> "NEAREST"
-                LINEAR -> "LINEAR"
-                NEAREST_MIPMAP_NEAREST -> "NEAREST_MIPMAP_NEAREST"
-                LINEAR_MIPMAP_NEAREST -> "LINEAR_MIPMAP_NEAREST"
-                NEAREST_MIPMAP_LINEAR -> "NEAREST_MIPMAP_LINEAR"
-                LINEAR_MIPMAP_LINEAR -> "LINEAR_MIPMAP_LINEAR"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /** Defines the constants for texture magnification filters. */
@@ -180,13 +161,6 @@ constructor(
             /** Box filtering. Weighted average of 4 neighbors is used. */
             @JvmField public val LINEAR: MagnificationFilter = MagnificationFilter(2)
         }
-
-        override fun toString(): String =
-            when (this) {
-                NEAREST -> "NEAREST"
-                LINEAR -> "LINEAR"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     /** Defines the constants for depth texture comparison modes. */
@@ -199,13 +173,6 @@ constructor(
             /** The comparison function is used. */
             @JvmField public val COMPARE_TO_TEXTURE: CompareMode = CompareMode(1)
         }
-
-        override fun toString(): String =
-            when (this) {
-                NONE -> "NONE"
-                COMPARE_TO_TEXTURE -> "COMPARE_TO_TEXTURE"
-                else -> "UNKNOWN ($value)"
-            }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -236,18 +203,5 @@ constructor(
             /** Never passes. The depth test always fails. */
             @JvmField public val NEVER: CompareFunction = CompareFunction(8)
         }
-
-        override fun toString(): String =
-            when (this) {
-                LESSER_OR_EQUAL -> "LESSER_OR_EQUAL"
-                GREATER_OR_EQUAL -> "GREATER_OR_EQUAL"
-                LESSER -> "LESSER"
-                GREATER -> "GREATER"
-                EQUAL -> "EQUAL"
-                NOT_EQUAL -> "NOT_EQUAL"
-                ALWAYS -> "ALWAYS"
-                NEVER -> "NEVER"
-                else -> "UNKNOWN ($value)"
-            }
     }
 }
