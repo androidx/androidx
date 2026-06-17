@@ -120,15 +120,10 @@ public final class NavigationParameters {
         /**
          * Use to finish building the NavigationParameters.
          *
-         * <p>
-         * This method should only be called if
-         * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-         * {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}.
-         *
          * @return built NavigationParameters object.
          * @throws UnsupportedOperationException if the
-         *         {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}
-         *         feature is not supported.
+         *     {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1} feature is not supported.
+         *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
          */
         @RequiresFeature(name = WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
                 enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

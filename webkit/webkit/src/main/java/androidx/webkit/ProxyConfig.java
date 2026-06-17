@@ -329,15 +329,11 @@ public final class ProxyConfig {
          * settings, and all other URLs will be connected to directly.
          *
          * <p>Use {@link #addBypassRule(String)} to add bypass rules.
-         * <p>
-         * This method should only be called if
-         * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-         * {@link WebViewFeature#PROXY_OVERRIDE_REVERSE_BYPASS}.
          *
          * @return This Builder object
          * @throws UnsupportedOperationException if the
-         *                                      {@link WebViewFeature#PROXY_OVERRIDE_REVERSE_BYPASS}
-         *                                       feature is not supported.
+         *     {@link WebViewFeature#PROXY_OVERRIDE_REVERSE_BYPASS} feature is not supported.
+         *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
          */
         @RequiresFeature(name = WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
                 enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

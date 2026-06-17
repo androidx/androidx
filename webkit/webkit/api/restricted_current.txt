@@ -293,7 +293,7 @@ package androidx.webkit {
   }
 
   public interface ScriptHandler {
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public void remove();
+    method @UiThread public void remove();
   }
 
   public abstract class ServiceWorkerClientCompat {
@@ -398,7 +398,7 @@ package androidx.webkit {
     method public String? getArchitecture();
     method public int getBitness();
     method public java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!> getBrandVersionList();
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public java.util.List<java.lang.String!> getFormFactors();
+    method public java.util.List<java.lang.String!> getFormFactors();
     method public String? getFullVersion();
     method public String? getModel();
     method public String? getPlatform();

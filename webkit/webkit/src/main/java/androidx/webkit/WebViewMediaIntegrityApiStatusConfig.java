@@ -41,10 +41,6 @@ import java.util.Set;
  *
  * <p>The override rules are a map from origin patterns to the desired
  * {@link WebViewMediaIntegrityApiStatus}.
- * <p>
- * This method should only be called if
- * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
- * {@link WebViewFeature#WEBVIEW_MEDIA_INTEGRITY_API_STATUS}.
  */
 @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
         enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

@@ -60,13 +60,9 @@ public abstract class TracingController {
      * Returns the default {@link TracingController} instance. At present there is
      * only one TracingController instance for all WebView instances.
      *
-     * <p>
-     * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#TRACING_CONTROLLER_BASIC_USAGE}.
-     *
      * @throws UnsupportedOperationException if the
-     *                                       {@link WebViewFeature#TRACING_CONTROLLER_BASIC_USAGE}
-     *                                       feature is not supported.
+     *     {@link WebViewFeature#TRACING_CONTROLLER_BASIC_USAGE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -88,10 +84,6 @@ public abstract class TracingController {
      * using an internal buffer and flushed to the outputStream when
      * {@link #stop(OutputStream, Executor)} is called.
      *
-     * <p>
-     * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#TRACING_CONTROLLER_BASIC_USAGE}.
-     *
      * @param tracingConfig Configuration options to use for tracing.
      *
      * @throws IllegalStateException If the system is already tracing.
@@ -106,10 +98,6 @@ public abstract class TracingController {
      * The data is sent to the specified output stream in json format typically in chunks
      * by invoking {@link OutputStream#write(byte[])}.
      * On completion the {@link OutputStream#close()} method is called.
-     *
-     * <p>
-     * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
-     * returns {@code true} for {@link WebViewFeature#TRACING_CONTROLLER_BASIC_USAGE}.
      *
      * @param outputStream The output stream the tracing data will be sent to.
      *                     If {@code null} the tracing data will be discarded.
