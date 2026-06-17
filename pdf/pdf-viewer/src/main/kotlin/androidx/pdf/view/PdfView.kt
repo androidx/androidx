@@ -951,6 +951,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     /** Selects all text on the current selected page range asynchronously. */
     internal fun selectAllText() {
         if (pdfDocument?.isFeatureSupported(PdfFeature.TEXT_SELECTION) == true) {
+            selectionStateManager?.maybeHideActionMode()
             selectionStateManager?.selectAllText()
         }
     }
