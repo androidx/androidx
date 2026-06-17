@@ -20,9 +20,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.arcore.Hand
-import androidx.xr.arcore.Trackable
+import androidx.xr.arcore.HandJointType
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.Session
@@ -31,10 +33,10 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
-import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 
 class HandTrackingTest : AppCompatActivity() {
@@ -60,21 +62,34 @@ class HandTrackingTest : AppCompatActivity() {
 
             // Set up tracking for both hands
             val currentSession = session ?: return@launch
-            setupHandTracking(Hand.left(currentSession) as Trackable<Hand.State>)
-            setupHandTracking(Hand.right(currentSession) as Trackable<Hand.State>)
+            setupHandTracking(Hand.left(currentSession))
+            setupHandTracking(Hand.right(currentSession))
         }
     }
 
     /** Creates an entity that tracks a given hand and attaches a visual model to it. */
-    private fun setupHandTracking(hand: Trackable<Hand.State>) {
+    private fun setupHandTracking(hand: Hand) {
         val session = this.session ?: return
 
         // Create a parent entity that will be moved by the perception data stream.
         val handTrackerEntity = Entity.create(session = session, parent = session.scene.keyEntity)
 
-        // Create a movable component that follows the hand's palm.
-        val movable = MovableComponent.createTrackingMovable(session = session, trackable = hand)
-        handTrackerEntity.addComponent(movable)
+        // Collect pose updates from the trackable and move the tracker entity.
+        lifecycleScope.launch {
+            // Collect pose only when the Activity state is STARTED.
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                hand.state
+                    .mapNotNull { state -> state.handJoints[HandJointType.PALM] }
+                    .collect { palmPose ->
+                        val parent = handTrackerEntity.parent ?: return@collect
+                        val activitySpacePose =
+                            session.scene.perceptionSpace
+                                .getScenePoseFromPerceptionPose(palmPose)
+                                .transformPoseTo(Pose.Identity, parent)
+                        handTrackerEntity.setPose(activitySpacePose)
+                    }
+            }
+        }
 
         // Asynchronously load and attach a 3D model to the tracking entity.
         lifecycleScope.launch {
