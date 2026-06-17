@@ -50,6 +50,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsToggleable
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -81,6 +82,127 @@ class InteractiveListTest {
     val OverlineTag = "overline"
     val SupportingTag = "supporting"
     val ContentTag = "content"
+
+    @Test
+    fun listItem_oneLine_size() {
+        val expectedHeight = ListTokens.ItemOneLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                ListItem(onClick = {}, content = { Text("Content") })
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun listItem_twoLine_size() {
+        val expectedHeight = ListTokens.ItemTwoLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                ListItem(
+                    onClick = {},
+                    content = { Text("Content") },
+                    supportingContent = { Text("Supporting") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun listItem_threeLineOverlineAndSupporting_size() {
+        val expectedHeight = ListTokens.ItemThreeLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                ListItem(
+                    onClick = {},
+                    content = { Text("Content") },
+                    overlineContent = { Text("Overline") },
+                    supportingContent = { Text("Supporting") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun listItem_threeLineSupportingMultiline_size() {
+        val expectedHeight = ListTokens.ItemThreeLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                ListItem(
+                    onClick = {},
+                    content = { Text("Content") },
+                    supportingContent = { Text("Supporting\nLine 2") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun segmentedListItem_oneLine_size() {
+        val expectedHeight = ListTokens.ItemOneLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                SegmentedListItem(
+                    onClick = {},
+                    shapes = ListItemDefaults.segmentedShapes(index = 0, count = 1),
+                    content = { Text("Content") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun segmentedListItem_twoLine_size() {
+        val expectedHeight = ListTokens.ItemTwoLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                SegmentedListItem(
+                    onClick = {},
+                    shapes = ListItemDefaults.segmentedShapes(index = 0, count = 1),
+                    content = { Text("Content") },
+                    supportingContent = { Text("Supporting") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun segmentedListItem_threeLineOverlineAndSupporting_size() {
+        val expectedHeight = ListTokens.ItemThreeLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                SegmentedListItem(
+                    onClick = {},
+                    shapes = ListItemDefaults.segmentedShapes(index = 0, count = 1),
+                    content = { Text("Content") },
+                    overlineContent = { Text("Overline") },
+                    supportingContent = { Text("Supporting") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun segmentedListItem_threeLineSupportingMultiline_size() {
+        val expectedHeight = ListTokens.ItemThreeLineContainerHeight
+        rule
+            .setMaterialContentForSizeAssertions {
+                SegmentedListItem(
+                    onClick = {},
+                    shapes = ListItemDefaults.segmentedShapes(index = 0, count = 1),
+                    content = { Text("Content") },
+                    supportingContent = { Text("Supporting\nLine 2") },
+                )
+            }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
 
     @Test
     fun clickableListItem_intrinsicSize() {

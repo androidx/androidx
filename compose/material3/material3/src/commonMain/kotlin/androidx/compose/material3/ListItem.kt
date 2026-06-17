@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.FloatProducer
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
@@ -86,6 +85,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.takeOrElse
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.jvm.JvmInline
 import kotlin.math.max
 
@@ -1421,7 +1421,6 @@ private fun InteractiveListItem(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
-                    .defaultMinSize(minHeight = ListTokens.ItemOneLineContainerHeight)
                     .minimumInteractiveComponentSize()
                     .zIndexLambda { if (shadowElevation.value > 0.dp) 1f else 0f }
                     .graphicsLayer {
@@ -1442,6 +1441,8 @@ private fun InteractiveListItem(
                     )
                     .padding(contentPadding),
             verticalAlignment = verticalAlignment,
+            verticalPadding =
+                contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding(),
             leading = {
                 LeadingDecorator(
                     startPadding = contentPadding.calculateStartPadding(layoutDirection),
@@ -1487,6 +1488,7 @@ private fun InteractiveListItem(
 private fun InteractiveListItemLayout(
     modifier: Modifier,
     verticalAlignment: Alignment.Vertical,
+    verticalPadding: Dp,
     leading: @Composable () -> Unit,
     trailing: @Composable () -> Unit,
     overline: @Composable () -> Unit,
@@ -1494,8 +1496,11 @@ private fun InteractiveListItemLayout(
     content: @Composable () -> Unit,
 ) {
     val measurePolicy =
-        remember(verticalAlignment) {
-            InteractiveListItemMeasurePolicy(verticalAlignment = verticalAlignment)
+        remember(verticalAlignment, verticalPadding) {
+            InteractiveListItemMeasurePolicy(
+                verticalAlignment = verticalAlignment,
+                verticalPadding = verticalPadding,
+            )
         }
     Layout(
         modifier = modifier,
@@ -1504,8 +1509,10 @@ private fun InteractiveListItemLayout(
     )
 }
 
-private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.Vertical) :
-    MultiContentMeasurePolicy {
+private class InteractiveListItemMeasurePolicy(
+    val verticalAlignment: Alignment.Vertical,
+    val verticalPadding: Dp,
+) : MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
         constraints: Constraints,
@@ -1558,6 +1565,17 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
                     )
                 )
 
+        val isSupportingMultiline =
+            supportingPlaceable != null &&
+                (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
+
+        val listItemType =
+            ListItemType(
+                hasOverline = overlinePlaceable != null,
+                hasSupporting = supportingPlaceable != null,
+                isSupportingMultiline = isSupportingMultiline,
+            )
+
         val width =
             calculateWidth(
                 leadingWidth = leadingPlaceable.widthOrZero,
@@ -1575,6 +1593,7 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
                 supportingHeight = supportingPlaceable.heightOrZero,
                 contentHeight = contentPlaceable.heightOrZero,
                 constraints = constraints,
+                listItemType = listItemType,
             )
 
         return place(
@@ -1631,7 +1650,7 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
         )
     }
 
-    private fun calculateIntrinsicHeight(
+    private fun Density.calculateIntrinsicHeight(
         measurables: List<List<IntrinsicMeasurable>>,
         width: Int,
         intrinsicMeasure: IntrinsicMeasurable.(width: Int) -> Int,
@@ -1669,6 +1688,14 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
             supportingMeasurable.firstOrNull()?.intrinsicMeasure(remainingWidth) ?: 0
         val contentHeight = contentMeasurable.firstOrNull()?.intrinsicMeasure(remainingWidth) ?: 0
 
+        val isSupportingMultiline = isSupportingMultilineHeuristic(supportingHeight)
+        val listItemType =
+            ListItemType(
+                hasOverline = overlineHeight > 0,
+                hasSupporting = supportingHeight > 0,
+                isSupportingMultiline = isSupportingMultiline,
+            )
+
         return calculateHeight(
             leadingHeight = leadingHeight,
             trailingHeight = trailingHeight,
@@ -1676,6 +1703,7 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
             supportingHeight = supportingHeight,
             contentHeight = contentHeight,
             constraints = Constraints(),
+            listItemType = listItemType,
         )
     }
 
@@ -1733,17 +1761,47 @@ private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.
         return leadingWidth + mainContentWidth + trailingWidth
     }
 
-    private fun calculateHeight(
+    private fun Density.calculateHeight(
         leadingHeight: Int,
         trailingHeight: Int,
         overlineHeight: Int,
         supportingHeight: Int,
         contentHeight: Int,
         constraints: Constraints,
+        listItemType: ListItemType,
     ): Int {
         val mainContentHeight = contentHeight + overlineHeight + supportingHeight
+        val calculatedHeight = maxOf(leadingHeight, mainContentHeight, trailingHeight)
 
-        return constraints.constrainHeight(maxOf(leadingHeight, mainContentHeight, trailingHeight))
+        @OptIn(ExperimentalMaterial3Api::class)
+        val defaultMinHeight =
+            if (ComposeMaterial3Flags.isExpressiveListItemHeightBasedOnTextLinesFixEnabled) {
+                when (listItemType) {
+                    ListItemType.OneLine -> ListTokens.ItemOneLineContainerHeight
+                    ListItemType.TwoLine -> ListTokens.ItemTwoLineContainerHeight
+                    else /*ListItemType.ThreeLine*/ -> ListTokens.ItemThreeLineContainerHeight
+                }
+            } else {
+                ListTokens.ItemOneLineContainerHeight
+            }
+        val defaultMinHeightNoPadding = (defaultMinHeight - verticalPadding).coerceAtLeast(0.dp)
+        // Same behavior as Modifier.defaultMinSize: only set min height if user hasn't set one.
+        val minHeight =
+            if (constraints.minHeight == 0) {
+                defaultMinHeightNoPadding.roundToPx().fastCoerceIn(0, constraints.maxHeight)
+            } else {
+                constraints.minHeight
+            }
+
+        val newConstraints =
+            Constraints(
+                minWidth = constraints.minWidth,
+                maxWidth = constraints.maxWidth,
+                minHeight = minHeight,
+                maxHeight = constraints.maxHeight,
+            )
+
+        return newConstraints.constrainHeight(calculatedHeight)
     }
 }
 
