@@ -20,10 +20,6 @@ package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.AnchorCreateSuccess
-import androidx.xr.arcore.AugmentedObject
-import androidx.xr.arcore.Eye
-import androidx.xr.arcore.Hand
-import androidx.xr.arcore.HandJointType
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.Trackable
 import androidx.xr.arcore.TrackingState
@@ -38,7 +34,6 @@ import androidx.xr.scenecore.runtime.MovableComponent as RtMovableComponent
 import androidx.xr.scenecore.runtime.MoveEventListener as RtMoveEventListener
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
-import java.util.function.Function
 import kotlin.math.max
 import kotlinx.coroutines.flow.StateFlow
 
@@ -499,76 +494,6 @@ private constructor(
                 entityRegistry = session.scene.entityRegistry,
                 systemMovable = true,
                 scaleInZ = scaleInZ,
-            )
-
-        /**
-         * Creates a [MovableComponent] that allows an entity's pose to be driven by an external
-         * ARCore [Trackable].
-         *
-         * This factory is designed for scenarios where an entity needs to continuously track a pose
-         * provided by an ARCore data source, such as the user's hand joint from [Hand].
-         *
-         * Once this component is created and attached to an entity, it will automatically start
-         * collecting pose updates. The collection operation is internally managed and tied to the
-         * component's attachment lifecycle. The provided `poseExtractor` function is invoked on the
-         * main thread during the frame update loop whenever the underlying [Trackable] emits a new
-         * state. This invocation begins when the component is attached to an [Entity] and stops
-         * when it is detached.
-         *
-         * If the `poseExtractor` returns `null` (e.g., if a valid pose cannot be extracted from the
-         * current state), the system silently does nothing and the entity's pose remains unchanged.
-         * Note that any exceptions thrown by the `poseExtractor` are not caught by the runtime and
-         * will propagate, potentially crashing the application.
-         *
-         * The default implementation of `poseExtractor` extracts a pose from the following states:
-         * [AugmentedObject.State] (using `centerPose`), [Eye.State] (using `pose`), [Plane.State]
-         * (using `centerPose`), and [Hand.State] (using the pose of the [HandJointType.PALM]
-         * joint). For any other state types, the default implementation returns null, resulting in
-         * no pose updates. You must provide a custom `poseExtractor` for unlisted types.
-         *
-         * @param T The type of the state emitted by the source [Trackable].
-         * @param session The active [Session] instance.
-         * @param trackable A [Trackable] that provides a continuous stream of state updates.
-         * @param poseExtractor A [Function] that extracts a nullable [Pose] from the given source
-         *   state `T`.
-         * @return A new instance of [MovableComponent] configured for automatic, perception-driven
-         *   movement.
-         */
-        @JvmOverloads
-        @JvmStatic
-        public fun <T : Trackable.State> createTrackingMovable(
-            session: Session,
-            trackable: Trackable<T>,
-            poseExtractor: Function<T, Pose?> = Function { state ->
-                when (state) {
-                    is AugmentedObject.State -> {
-                        state.centerPose
-                    }
-                    is Eye.State -> {
-                        state.pose
-                    }
-                    is Hand.State -> {
-                        state.handJoints[HandJointType.PALM]
-                    }
-                    is Plane.State -> {
-                        state.centerPose
-                    }
-                    else -> {
-                        null
-                    }
-                }
-            },
-        ): MovableComponent =
-            create(
-                session = session,
-                entityRegistry = session.scene.entityRegistry,
-                trackable = trackable,
-                // Suppressing UNCHECKED_CAST due to runtime type erasure.
-                // This cast is safe because the ARCore Trackable interface contract strictly
-                // guarantees that the `trackable.state` Flow will only emit objects of type `T`.
-                poseExtractor = { state ->
-                    @Suppress("UNCHECKED_CAST") poseExtractor.apply(state as T)
-                },
             )
 
         /**
