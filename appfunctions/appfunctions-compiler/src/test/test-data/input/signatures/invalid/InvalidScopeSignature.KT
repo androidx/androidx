@@ -3,7 +3,7 @@ package com.test
 import androidx.appfunctions.AppFunctionSignature
 
 @AppFunctionSignature(
-    scope = "invalid_scope",
+    scope = 100,
     appFunctionXmlFileName = "app_level_app_functions",
 )
 fun interface InvalidScopeSignature {

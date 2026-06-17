@@ -136,8 +136,8 @@ object IntrospectionHelper {
 
     object AppFunctionMetadataClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionMetadata")
-        const val SCOPE_GLOBAL = "global"
-        const val SCOPE_ACTIVITY = "activity"
+        const val SCOPE_GLOBAL = 0
+        const val SCOPE_ACTIVITY = 1
     }
 
     val APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS =

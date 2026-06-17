@@ -207,7 +207,7 @@ constructor(
 
     /** Specifies the lifecycle scope of an AppFunction. */
     @Retention(AnnotationRetention.SOURCE)
-    @androidx.annotation.StringDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
+    @androidx.annotation.IntDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class AppFunctionScope
 
@@ -218,7 +218,7 @@ constructor(
         // getAppFunctionStates, getAppFunctionActivityStates,
         // registerAppFunction
         /**
-         * Indicates it is a globally-scoped app function.
+         * A constant indicating an app function is globally-scoped.
          *
          * There can be at most one app function implementation with the same name available with
          * this scope. This is useful for functions that are tied to a singleton component, such as
@@ -242,11 +242,11 @@ constructor(
          * activity.
          */
         @Suppress("InlinedApi")
-        public const val SCOPE_GLOBAL: String =
-            android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
+        public const val SCOPE_GLOBAL: Int =
+            android.app.appfunctions.AppFunctionMetadata.SCOPE_GLOBAL
 
         /**
-         * Indicates it is an activity-scoped app function.
+         * A constant indicating an app function is activity-scoped.
          *
          * Multiple app function implementations with the same name can exist simultaneously, each
          * registered from a different [android.app.Activity] instance, which is identified by an
@@ -275,8 +275,8 @@ constructor(
          * activity.
          */
         @Suppress("InlinedApi")
-        public const val SCOPE_ACTIVITY: String =
-            android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_ACTIVITY
+        public const val SCOPE_ACTIVITY: Int =
+            android.app.appfunctions.AppFunctionMetadata.SCOPE_ACTIVITY
 
         /**
          * Converts [android.app.appfunctions.AppFunctionMetadata] to

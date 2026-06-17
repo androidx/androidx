@@ -254,13 +254,13 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
-    ctor @KotlinOnly public AppFunctionSignature(String scope, String appFunctionXmlFileName, optional boolean isDescribedByKDoc);
+    ctor @KotlinOnly public AppFunctionSignature(int scope, String appFunctionXmlFileName, optional boolean isDescribedByKDoc);
     method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
     method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
-    method @InaccessibleFromKotlin public abstract String scope();
+    method @InaccessibleFromKotlin public abstract int scope();
     property public abstract String appFunctionXmlFileName;
     property public abstract boolean isDescribedByKDoc;
-    property public abstract String scope;
+    property public abstract int scope;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
@@ -475,13 +475,13 @@ package androidx.appfunctions.metadata {
     property public androidx.appfunctions.metadata.AppFunctionResponseMetadata response;
     property public androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema;
     field public static final androidx.appfunctions.metadata.AppFunctionMetadata.Companion Companion;
-    field public static final String SCOPE_ACTIVITY = "activity";
-    field public static final String SCOPE_GLOBAL = "global";
+    field public static final int SCOPE_ACTIVITY = 1; // 0x1
+    field public static final int SCOPE_GLOBAL = 0; // 0x0
   }
 
   public static final class AppFunctionMetadata.Companion {
-    property public static String SCOPE_ACTIVITY;
-    property public static String SCOPE_GLOBAL;
+    property public static int SCOPE_ACTIVITY;
+    property public static int SCOPE_GLOBAL;
   }
 
   public final class AppFunctionName {
