@@ -32,14 +32,14 @@ class DeepLinkMatcherTest {
 
     class TestFilter(val filter: String) : DeepLinkMatcher.Filter {
         override fun filterRequest(request: DeepLinkRequest): Boolean {
-            return filter == filterString
+            return filter == request.mimeType
         }
     }
 
     @Test
     fun match_emptyFilters() {
         val matcher = TestDeepLinkMatcher()
-        val request = DeepLinkRequest.fromUriString("https://example.com")
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = filterString)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -48,7 +48,7 @@ class DeepLinkMatcherTest {
     @Test
     fun match_filterPasses() {
         val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(filterString)))
-        val request = DeepLinkRequest.fromUriString("https://example.com")
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = filterString)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -57,7 +57,7 @@ class DeepLinkMatcherTest {
     @Test
     fun match_filterFails() {
         val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter("wrongFilter")))
-        val request = DeepLinkRequest.fromUriString("https://example.com")
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = filterString)
         val result = matcher.match(request)
         assertThat(result).isNull()
     }
@@ -68,7 +68,7 @@ class DeepLinkMatcherTest {
             TestDeepLinkMatcher(
                 filters = listOf(TestFilter(filterString), TestFilter(filterString))
             )
-        val request = DeepLinkRequest.fromUriString("https://example.com")
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = filterString)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -80,7 +80,7 @@ class DeepLinkMatcherTest {
             TestDeepLinkMatcher(
                 filters = listOf(TestFilter(filterString), TestFilter("wrongFilter"))
             )
-        val request = DeepLinkRequest.fromUriString("https://example.com")
+        val request = DeepLinkRequest.fromUriString("https://example.com", mimeType = filterString)
         val result = matcher.match(request)
         assertThat(result).isNull()
     }
