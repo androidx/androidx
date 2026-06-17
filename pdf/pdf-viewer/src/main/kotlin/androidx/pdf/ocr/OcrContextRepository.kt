@@ -20,8 +20,8 @@ import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.content.ImagePdfObject
-import androidx.pdf.annotation.content.bitmapSize
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
+import androidx.pdf.util.bitmapSize
 import java.util.Collections
 import kotlin.math.abs
 import kotlinx.coroutines.sync.Mutex

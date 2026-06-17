@@ -23,12 +23,11 @@ import android.util.SparseArray
 import androidx.core.util.isEmpty
 import androidx.pdf.PdfPoint
 import androidx.pdf.content.PageSelection
-import androidx.pdf.content.toViewSelection
 import androidx.pdf.leftCenter
 import androidx.pdf.rightCenter
-import androidx.pdf.view.pdfPointFromParcel
-import androidx.pdf.view.writeToParcel
-import kotlin.collections.firstOrNull
+import androidx.pdf.util.pdfPointFromParcel
+import androidx.pdf.util.toViewSelection
+import androidx.pdf.util.writeToParcel
 
 /** Value class containing all data necessary to display UI related to content selection */
 @SuppressLint("BanParcelableUsage")

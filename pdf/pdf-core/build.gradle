@@ -22,11 +22,15 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.jspecify)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation("androidx.annotation:annotation:1.7.0")
+    implementation("androidx.core:core:1.13.0")
 }
 
 android {
     namespace = "androidx.pdf.core"
-    compileSdk { version = release(36) { sdkExtension = 19 }}
+    compileSdk { version = release(36) { sdkExtension = 19 } }
     defaultConfig {
         minSdk { version = release(28) }
     }

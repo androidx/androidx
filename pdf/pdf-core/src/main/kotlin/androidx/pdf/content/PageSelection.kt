@@ -16,10 +16,6 @@
 
 package androidx.pdf.content
 
-import androidx.pdf.PdfRect
-import androidx.pdf.selection.Selection
-import androidx.pdf.selection.model.TextSelection
-
 /**
  * Represents the list of selected content on a particular page of the PDF document. By default, the
  * selection boundary is represented from left to right.
@@ -35,20 +31,3 @@ public class PageSelection(
     public val stop: SelectionBoundary,
     public val selectedContents: List<PdfPageContent>,
 )
-
-/**
- * Returns a list of [Selection]s as exposed in the [androidx.pdf.view.PdfView] API from a
- * [PageSelection] as produced by the [androidx.pdf.PdfDocument] API
- */
-internal fun PageSelection.toViewSelection(): List<Selection> {
-    val selections = mutableListOf<Selection>()
-    selectedContents.forEach { pdfPageContent ->
-        when (pdfPageContent) {
-            is PdfPageTextContent -> {
-                val bounds = pdfPageContent.bounds.map { PdfRect(this.page, it) }
-                selections.add(TextSelection(pdfPageContent.text, bounds))
-            }
-        }
-    }
-    return selections
-}

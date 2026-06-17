@@ -19,7 +19,7 @@ package androidx.pdf.models
 import android.graphics.Bitmap
 import android.graphics.RectF
 import androidx.pdf.annotation.content.ImagePdfObject
-import androidx.pdf.annotation.content.toImageSelection
+import androidx.pdf.util.toImageSelection
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.junit.runner.RunWith

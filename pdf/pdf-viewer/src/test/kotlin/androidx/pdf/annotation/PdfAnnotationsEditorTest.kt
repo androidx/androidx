@@ -16,7 +16,6 @@
 
 package androidx.pdf.annotation
 
-import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.content.TestPdfAnnotation
 import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
 import androidx.pdf.annotation.manager.FakePdfAnnotationsManager
@@ -210,6 +209,4 @@ class PdfAnnotationsEditorTest {
         editor.undo()
         assertThat(fakeManager.getAnnotation(id)).isNull()
     }
-
-    class TestPdfAnnotation(override val pageNum: Int) : PdfAnnotation(pageNum)
 }

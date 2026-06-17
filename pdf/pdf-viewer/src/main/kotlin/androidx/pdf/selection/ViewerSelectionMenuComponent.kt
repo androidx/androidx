@@ -20,36 +20,6 @@ import android.graphics.drawable.Drawable
 import androidx.pdf.view.PdfView
 
 /**
- * Defines unique keys for the default selection menu items.
- *
- * These keys are used to identify standard actions like Copy and Select All within the selection
- * context menu.
- */
-public object PdfSelectionMenuKeys {
-    /** Key for the context menu "Copy" item. */
-    @JvmField public val CopyKey: Any = Any()
-
-    /** Key for the context menu "Copy link" item. */
-    @JvmField public val CopyLinkKey: Any = Any()
-
-    /** Key for the context menu "Jump" item. */
-    @JvmField public val GoToKey: Any = Any()
-
-    /** Key for the context menu "Select all" item. */
-    @JvmField public val SelectAllKey: Any = Any()
-
-    /** Key for all "smart actions" added by classifier in context menu. */
-    @JvmField public val SmartActionKey: Any = Any()
-}
-
-/**
- * An abstract base class for any component that can be displayed within a context menu.
- *
- * @param key A unique identifier for this component within its context menu.
- */
-public abstract class ContextMenuComponent internal constructor(public val key: Any)
-
-/**
  * Represents a clickable item with a label in a selection menu.
  *
  * @param key A unique identifier for this component.
@@ -77,9 +47,9 @@ public class SelectionMenuComponent(
  */
 internal class DefaultSelectionMenuComponent(
     key: Any,
-    public val label: String,
-    public val contentDescription: String? = null,
-    public val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
+    val label: String,
+    val contentDescription: String? = null,
+    val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
 ) : ContextMenuComponent(key)
 
 /**
@@ -95,10 +65,10 @@ internal class DefaultSelectionMenuComponent(
  */
 internal class SmartSelectionMenuComponent(
     key: Any,
-    public val label: String,
-    public val contentDescription: String? = null,
-    public val leadingIcon: Drawable? = null,
-    public val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
+    val label: String,
+    val contentDescription: String? = null,
+    val leadingIcon: Drawable? = null,
+    val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
 ) : ContextMenuComponent(key)
 
 /** Represents an active session of an open selection menu. */

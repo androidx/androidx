@@ -22,9 +22,9 @@ import androidx.pdf.Dimension
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.model.TextSelection
-import androidx.pdf.toImagePoint
 import androidx.pdf.toPdfRect
 import androidx.pdf.toRectF
+import androidx.pdf.util.toImagePoint
 
 /** Holds OCR results and the spatial data needed to map touches back to PDF pixels. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

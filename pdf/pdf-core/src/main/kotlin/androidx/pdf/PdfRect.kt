@@ -16,8 +16,11 @@
 
 package androidx.pdf
 
+import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.Parcel
+import androidx.annotation.RestrictTo
 
 /**
  * Represents a rectangle in PDF coordinates, where [pageNum] indicates a PDF page, and [left],
@@ -68,10 +71,12 @@ public class PdfRect(
 }
 
 /** Maps a [PdfRect] to a [RectF]. */
-internal fun PdfRect.toRectF(): RectF = RectF(left, top, right, bottom)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun PdfRect.toRectF(): RectF = RectF(left, top, right, bottom)
 
 /** Calculates the center point of a [PdfRect]. */
-internal val PdfRect.centerPoint: PdfPoint
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val PdfRect.centerPoint: PdfPoint
     get() {
         val x = (left + right) / 2
         val y = (top + bottom) / 2
@@ -79,11 +84,13 @@ internal val PdfRect.centerPoint: PdfPoint
     }
 
 /** The vertically centered point on the left edge of this rectangle. */
-internal val PdfRect.leftCenter: PdfPoint
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val PdfRect.leftCenter: PdfPoint
     get() = PdfPoint(pageNum, left, (top + bottom) / 2)
 
 /** The vertically centered point on the right edge of this rectangle. */
-internal val PdfRect.rightCenter: PdfPoint
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val PdfRect.rightCenter: PdfPoint
     get() = PdfPoint(pageNum, right, (top + bottom) / 2)
 
 /**
@@ -95,7 +102,8 @@ internal val PdfRect.rightCenter: PdfPoint
  * @param bitmapSize The size of the bitmap in pixels from which this [Rect] was taken.
  * @return A [PdfRect] representing the same area as this [Rect], but in PDF coordinates.
  */
-internal fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Dimension): PdfRect {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Point): PdfRect {
     val imageWidth = imageRect.right - imageRect.left
     val imageHeight = imageRect.bottom - imageRect.top
     require(bitmapSize.x > 0 && bitmapSize.y > 0) {
@@ -108,4 +116,21 @@ internal fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Dimensio
         imageRect.left + (right.toFloat() / bitmapSize.x) * imageWidth,
         imageRect.top + (bottom.toFloat() / bitmapSize.y) * imageHeight,
     )
+}
+
+internal fun PdfRect.writeToParcel(dest: Parcel) {
+    dest.writeInt(pageNum)
+    dest.writeFloat(left)
+    dest.writeFloat(top)
+    dest.writeFloat(right)
+    dest.writeFloat(bottom)
+}
+
+internal fun pdfRectFromParcel(source: Parcel): PdfRect {
+    val pageNum = source.readInt()
+    val left = source.readFloat()
+    val top = source.readFloat()
+    val right = source.readFloat()
+    val bottom = source.readFloat()
+    return PdfRect(pageNum, left, top, right, bottom)
 }

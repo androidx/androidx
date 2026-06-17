@@ -24,6 +24,7 @@ plugins {
 }
 
 dependencies {
+    api(project(":pdf:pdf-core"))
     api(libs.jspecify)
     api(libs.kotlinCoroutinesCore)
 

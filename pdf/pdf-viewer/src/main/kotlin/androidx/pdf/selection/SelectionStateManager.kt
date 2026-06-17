@@ -29,15 +29,12 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.annotation.content.ImagePdfObject
-import androidx.pdf.annotation.content.bitmapSize
-import androidx.pdf.annotation.content.toImageSelection
 import androidx.pdf.centerPoint
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageContent
 import androidx.pdf.content.PdfPageGotoLinkContent
 import androidx.pdf.content.PdfPageLinkContent
 import androidx.pdf.content.SelectionBoundary
-import androidx.pdf.content.toViewSelection
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.ocr.OcrContext
@@ -51,6 +48,9 @@ import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
+import androidx.pdf.util.bitmapSize
+import androidx.pdf.util.toImageSelection
+import androidx.pdf.util.toViewSelection
 import androidx.pdf.view.PageManager
 import androidx.pdf.view.layout.PageLayoutManager
 import kotlinx.coroutines.CoroutineScope

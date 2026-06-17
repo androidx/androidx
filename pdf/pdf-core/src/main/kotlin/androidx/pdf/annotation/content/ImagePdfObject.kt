@@ -16,18 +16,25 @@
 
 package androidx.pdf.annotation.content
 
-class TestPdfAnnotation(override val pageNum: Int) : PdfAnnotation(pageNum) {
-    override fun equals(other: Any?): Boolean {
-        if (!super.equals(other)) return false
-        if (other == null || other !is TestPdfAnnotation) return false
+import android.graphics.Bitmap
+import android.graphics.RectF
 
-        if (other.pageNum != pageNum) return false
-        return true
+/**
+ * Represents an image object within a PDF document.
+ *
+ * @property bitmap The [Bitmap] data of the image.
+ * @property bounds The rectangular boundaries of its position and size on the PDF page.
+ */
+public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF) : PdfObject {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ImagePdfObject) return false
+        return bitmap == other.bitmap && bounds == other.bounds
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + pageNum
+        var result = bitmap.hashCode()
+        result = 31 * result + bounds.hashCode()
         return result
     }
 }

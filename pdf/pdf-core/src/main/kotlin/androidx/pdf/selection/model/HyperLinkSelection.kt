@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,10 @@ package androidx.pdf.selection.model
 import android.net.Uri
 import android.os.Parcel
 import android.text.TextUtils
+import androidx.annotation.RestrictTo
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.LinkSelection
-import androidx.pdf.view.pdfRectFromParcel
-import androidx.pdf.view.writeToParcel
+import androidx.pdf.writeToParcel
 
 /**
  * A [androidx.pdf.selection.Selection] for a hyperlink.
@@ -63,7 +63,8 @@ public class HyperLinkSelection(
     }
 
     /** Writes a [HyperLinkSelection] to [dest]. */
-    internal fun writeToParcel(dest: Parcel, flags: Int) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeParcelable(link, flags)
         TextUtils.writeToParcel(linkText, dest, flags)
         dest.writeInt(bounds.size)
@@ -71,20 +72,4 @@ public class HyperLinkSelection(
             bound.writeToParcel(dest)
         }
     }
-}
-
-/**
- * Reads a [HyperLinkSelection] from [source].
- *
- * Not part of the public API because public APIs cannot be [android.os.Parcelable]
- */
-internal fun hyperLinkSelectionFromParcel(source: Parcel): HyperLinkSelection {
-    val link = requireNotNull(Uri.CREATOR.createFromParcel(source))
-    val text = requireNotNull(TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source))
-    val boundsSize = source.readInt()
-    val bounds = mutableListOf<PdfRect>()
-    for (i in 0 until boundsSize) {
-        bounds.add(pdfRectFromParcel(source))
-    }
-    return HyperLinkSelection(link, text, bounds.toList())
 }

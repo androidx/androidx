@@ -18,10 +18,10 @@ package androidx.pdf.selection.model
 
 import android.os.Parcel
 import android.text.TextUtils
+import androidx.annotation.RestrictTo
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.Selection
-import androidx.pdf.view.pdfRectFromParcel
-import androidx.pdf.view.writeToParcel
+import androidx.pdf.writeToParcel
 
 /**
  * Represents text content that has been selected.
@@ -53,26 +53,12 @@ public class TextSelection(public val text: CharSequence, override val bounds: L
     }
 
     /** Writes a [TextSelection] to [dest]. */
-    internal fun writeToParcel(dest: Parcel, flags: Int) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun writeToParcel(dest: Parcel, flags: Int) {
         TextUtils.writeToParcel(text, dest, flags)
         dest.writeInt(bounds.size)
         for (bound in bounds) {
             bound.writeToParcel(dest)
         }
     }
-}
-
-/**
- * Reads a [TextSelection] from [source].
- *
- * Not part of the public API because public APIs cannot be [android.os.Parcelable]
- */
-internal fun textSelectionFromParcel(source: Parcel): TextSelection {
-    val text = requireNotNull(TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source))
-    val boundsSize = source.readInt()
-    val bounds = mutableListOf<PdfRect>()
-    for (i in 0 until boundsSize) {
-        bounds.add(pdfRectFromParcel(source))
-    }
-    return TextSelection(text, bounds.toList())
 }

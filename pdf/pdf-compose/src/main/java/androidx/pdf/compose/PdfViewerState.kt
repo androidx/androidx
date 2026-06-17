@@ -31,9 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.core.util.keyIterator
+import androidx.pdf.Highlight
 import androidx.pdf.PdfPoint
 import androidx.pdf.selection.Selection
-import androidx.pdf.view.Highlight
 import androidx.pdf.view.PdfView
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
