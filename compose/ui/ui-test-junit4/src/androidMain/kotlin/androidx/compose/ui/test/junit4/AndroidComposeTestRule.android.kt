@@ -30,6 +30,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.onRootWithViewInteraction
+import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilDoesNotExist
 import androidx.compose.ui.test.waitUntilExactlyOneExists
@@ -361,8 +362,9 @@ private constructor(
         activityProvider: (R) -> A,
     ) : this(
         activityRule = activityRule,
-        effectContext = effectContext,
-        useStandardTestDispatcherForComposition = false,
+        config = ComposeTestConfig(effectContext = effectContext),
+        useStandardTestDispatcher = false,
+        enforceInputModeFromConfig = false,
         activityProvider = activityProvider,
     )
 
@@ -382,27 +384,30 @@ private constructor(
      * and monitor the compose content.
      *
      * @param activityRule Test rule to use to launch the Activity.
-     * @param effectContext The [CoroutineContext] used to run the composition. The context for
-     *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
-     *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
-     *   used for composition and the [MainTestClock].
+     * @param config The [ComposeTestConfig] used to configure the test environment, providing
+     *   control over the [CoroutineContext] used for composition, the test timeout, and other
+     *   environment-specific settings.
+     * @param useStandardTestDispatcher Controls the default dispatcher used for composition. If
+     *   `true`, a [StandardTestDispatcher] is used, causing composition coroutines to be queued. If
+     *   `false`, an [kotlinx.coroutines.test.UnconfinedTestDispatcher] is used, causing them to run
+     *   eagerly.
+     * @param enforceInputModeFromConfig Whether to enforce the input mode (touch or keyboard)
+     *   specified in the [config].
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
-     * @param useStandardTestDispatcherForComposition Controls the default dispatcher used for
-     *   composition when [effectContext] does not provide one. If `true`, a
-     *   [StandardTestDispatcher] is used, causing composition coroutines to be queued. If `false`,
-     *   an [kotlinx.coroutines.test.UnconfinedTestDispatcher] is used, causing them to run eagerly.
      */
     internal constructor(
         activityRule: R,
-        effectContext: CoroutineContext,
-        useStandardTestDispatcherForComposition: Boolean,
+        config: ComposeTestConfig,
+        useStandardTestDispatcher: Boolean = true,
+        enforceInputModeFromConfig: Boolean = true,
         activityProvider: (R) -> A,
     ) : this(
         activityRule = activityRule,
         environmentFactory = {
             createTestEnvironment(
-                effectContext = effectContext,
-                useStandardTestDispatcher = useStandardTestDispatcherForComposition,
+                config = config,
+                useStandardTestDispatcher = useStandardTestDispatcher,
+                enforceInputModeFromConfig = enforceInputModeFromConfig,
                 content = { activityProvider(activityRule) },
             )
         },
@@ -581,25 +586,33 @@ internal fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScena
 @Suppress("DEPRECATION")
 @ExperimentalTestApi
 private fun <A : ComponentActivity> createTestEnvironment(
-    effectContext: CoroutineContext,
+    config: ComposeTestConfig,
     useStandardTestDispatcher: Boolean,
+    enforceInputModeFromConfig: Boolean,
     content: () -> A,
 ): AndroidComposeUiTestEnvironment<A> {
-    // Since now it calls kotlinx.coroutines.test.runTest under the hood,
-    // to preserve the behaviour compatibility we set an Infinite timeout
-    val timeout = Duration.INFINITE
-
-    return if (useStandardTestDispatcher) {
+    return if (enforceInputModeFromConfig) {
         androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment(
-            effectContext = effectContext,
-            testTimeout = timeout,
+            config = config,
             activityProvider = content,
         )
     } else {
-        AndroidComposeUiTestEnvironment(
-            effectContext = effectContext,
-            testTimeout = timeout,
-            activityProvider = content,
-        )
+        // Since now it calls kotlinx.coroutines.test.runTest under the hood,
+        // to preserve the behaviour compatibility we set an Infinite timeout
+        val timeout = Duration.INFINITE
+
+        if (useStandardTestDispatcher) {
+            androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment(
+                effectContext = config.effectContext,
+                testTimeout = timeout,
+                activityProvider = content,
+            )
+        } else {
+            AndroidComposeUiTestEnvironment(
+                effectContext = config.effectContext,
+                testTimeout = timeout,
+                activityProvider = content,
+            )
+        }
     }
 }
