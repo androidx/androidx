@@ -52,6 +52,16 @@ private constructor(
      * built-in validation can be too broad.
      */
     val disableAnnotatedElementValidation: Boolean = false,
+
+    /**
+     * When set to `true`, [XFieldElement.getAllAnnotations] and similar APIs will include
+     * annotations in the owner [XPropertyElement].
+     *
+     * Historically property annotations where included in fields but that doesn't match the
+     * language model so this option is useful for backwards compatible behavior as processors
+     * migrate.
+     */
+    val includePropertyAnnotationsInFields: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -65,6 +75,9 @@ private constructor(
         if (disableAnnotatedElementValidation != other.disableAnnotatedElementValidation) {
             return false
         }
+        if (includePropertyAnnotationsInFields != other.includePropertyAnnotationsInFields) {
+            return false
+        }
 
         return true
     }
@@ -72,6 +85,7 @@ private constructor(
     override fun hashCode(): Int {
         var result = excludeMethodsWithInvalidJvmSourceNames.hashCode()
         result = 31 * result + disableAnnotatedElementValidation.hashCode()
+        result = 31 * result + includePropertyAnnotationsInFields.hashCode()
         return result
     }
 
@@ -79,6 +93,7 @@ private constructor(
         return "XProcessingEnvConfig(" +
             "excludeMethodsWithInvalidJvmSourceNames=$excludeMethodsWithInvalidJvmSourceNames, " +
             "disableAnnotatedElementValidation=$disableAnnotatedElementValidation" +
+            "includePropertyAnnotationsInFields=$includePropertyAnnotationsInFields" +
             ")"
     }
 
@@ -86,10 +101,12 @@ private constructor(
         excludeMethodsWithInvalidJvmSourceNames: Boolean =
             this.excludeMethodsWithInvalidJvmSourceNames,
         disableAnnotatedElementValidation: Boolean = this.disableAnnotatedElementValidation,
+        includePropertyAnnotationsInFields: Boolean = this.includePropertyAnnotationsInFields,
     ) =
         XProcessingEnvConfig(
             excludeMethodsWithInvalidJvmSourceNames = excludeMethodsWithInvalidJvmSourceNames,
             disableAnnotatedElementValidation = disableAnnotatedElementValidation,
+            includePropertyAnnotationsInFields = includePropertyAnnotationsInFields,
         )
 
     fun toBuilder() = Builder(this)
@@ -105,6 +122,11 @@ private constructor(
         /** @see XProcessingEnvConfig.disableAnnotatedElementValidation for docs. */
         fun disableAnnotatedElementValidation(value: Boolean) = apply {
             instance = instance.copy(disableAnnotatedElementValidation = value)
+        }
+
+        /** @see XProcessingEnvConfig.includePropertyAnnotationsInFields for docs. */
+        fun includePropertyAnnotationsInFields(value: Boolean) = apply {
+            instance = instance.copy(includePropertyAnnotationsInFields = value)
         }
 
         fun build(): XProcessingEnvConfig {

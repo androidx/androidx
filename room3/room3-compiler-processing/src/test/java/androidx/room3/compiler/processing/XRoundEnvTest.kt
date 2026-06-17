@@ -248,7 +248,7 @@ class XRoundEnvTest {
                 @set:TopLevelAnnotation
                 var myPropertySetter: Int = 0
                 @field:TopLevelAnnotation
-                var myProperty: Int = 0
+                var myField: Int = 0
                 """
                     .trimIndent(),
             )
@@ -261,13 +261,14 @@ class XRoundEnvTest {
                 annotatedElements.associateBy {
                     when (it) {
                         is XMethodElement -> it.jvmName
-                        is XFieldElement -> it.name
+                        is XPropertyElement -> "property:${it.name}"
+                        is XFieldElement -> "field:${it.name}"
                         else -> error("unexpected type $it")
                     }
                 }
             val containerClassName = XClassName.get("foo.bar", "MyCustomClass")
             assertThat(byName.keys)
-                .containsExactly("getMyPropertyGetter", "setMyPropertySetter", "myProperty")
+                .containsExactly("getMyPropertyGetter", "setMyPropertySetter", "field:myField")
             (byName["getMyPropertyGetter"] as XMethodElement).let {
                 assertThat(it.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 assertThat(it.parameters).hasSize(0)
@@ -282,7 +283,7 @@ class XRoundEnvTest {
                 assertThat(it.enclosingElement.asClassName()).isEqualTo(containerClassName)
                 assertThat(it.isStatic()).isTrue()
             }
-            (byName["myProperty"] as XFieldElement).let {
+            (byName["field:myField"] as XFieldElement).let {
                 assertThat(it.type.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 assertThat(it.enclosingElement.asClassName()).isEqualTo(containerClassName)
                 assertThat(it.isStatic()).isTrue()

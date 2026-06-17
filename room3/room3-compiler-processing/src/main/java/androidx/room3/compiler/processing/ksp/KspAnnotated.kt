@@ -21,7 +21,9 @@ import androidx.room3.compiler.processing.XAnnotation
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeAlias
+import com.google.devtools.ksp.symbol.Origin
 import java.lang.annotation.ElementType
 import kotlin.reflect.KClass
 
@@ -78,8 +80,17 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
         useSiteFilter: UseSiteFilter,
     ) : KspAnnotated(env) {
         override val ksAnnotations by lazy {
-            delegate.annotations.filter { useSiteFilter.accept(env, it) }
+            delegate.annotations.filter { useSiteFilter.accept(env, it, delegate) }
         }
+    }
+
+    private class KSAnnotatedCombinedDelegate(
+        env: KspProcessingEnv,
+        val a: KspAnnotated,
+        val b: KspAnnotated,
+    ) : KspAnnotated(env) {
+        override val ksAnnotations: Sequence<KSAnnotation>
+            get() = a.ksAnnotations + b.ksAnnotations
     }
 
     private class NotAnnotated(env: KspProcessingEnv) : KspAnnotated(env) {
@@ -99,9 +110,13 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
         NO_USE_SITE(acceptedTargets = emptySet()),
         NO_USE_SITE_OR_CONSTRUCTOR(acceptedTargets = setOf(AnnotationTarget.CONSTRUCTOR)),
         NO_USE_SITE_OR_METHOD(acceptedTargets = setOf(AnnotationTarget.FUNCTION)),
+        NO_USE_SITE_OR_PROPERTY(
+            acceptedSiteTarget = AnnotationUseSiteTarget.PROPERTY,
+            acceptedTargets = setOf(AnnotationTarget.PROPERTY),
+        ),
         NO_USE_SITE_OR_FIELD(
             acceptedSiteTarget = AnnotationUseSiteTarget.FIELD,
-            acceptedTargets = setOf(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY),
+            acceptedTargets = setOf(AnnotationTarget.FIELD),
         ),
         NO_USE_SITE_OR_METHOD_PARAMETER(
             acceptedSiteTarget = AnnotationUseSiteTarget.PARAM,
@@ -129,18 +144,31 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
             acceptNoTarget = false,
         );
 
-        fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean {
+        fun accept(env: KspProcessingEnv, annotation: KSAnnotation, owner: KSAnnotated?): Boolean {
             if (annotation.useSiteTarget != null) {
                 return acceptedSiteTarget == annotation.useSiteTarget
             }
-            return this == NO_USE_SITE ||
-                annotation.getDeclaredTargets(env).let { targets ->
-                    if (targets.isNotEmpty()) {
-                        targets.any { acceptedTargets.contains(it) }
-                    } else {
-                        acceptNoTarget
-                    }
+            if (this == NO_USE_SITE) {
+                return true
+            }
+            val targets = annotation.getDeclaredTargets(env)
+            // Special-case property declaration with a no use-site and no target annotation.
+            // * If source is Java -> Annotation will be in field but not property
+            // * If source is Kotlin -> Annotation will be in property but not in field
+            // https://kotlinlang.org/docs/annotations.html#defaults-when-no-use-site-targets-are-specified
+            if (targets.isEmpty() && owner is KSPropertyDeclaration) {
+                val isJavaOrigin = owner.origin == Origin.JAVA || owner.origin == Origin.JAVA_LIB
+                return if (isJavaOrigin) {
+                    this == NO_USE_SITE_OR_FIELD
+                } else {
+                    this == NO_USE_SITE_OR_PROPERTY
                 }
+            }
+            return if (targets.isNotEmpty()) {
+                targets.any { acceptedTargets.contains(it) }
+            } else {
+                acceptNoTarget
+            }
         }
 
         companion object {
@@ -207,6 +235,9 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
         ): KspAnnotated {
             return delegate?.let { KSAnnotatedDelegate(env, it, filter) } ?: NotAnnotated(env)
         }
+
+        operator fun KspAnnotated.plus(other: KspAnnotated): KspAnnotated =
+            KSAnnotatedCombinedDelegate(this.env, this, other)
 
         internal fun KSAnnotation.isSameAnnotationClass(
             annotationClass: KClass<out Annotation>

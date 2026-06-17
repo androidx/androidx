@@ -41,7 +41,7 @@ import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticPropertyMeth
  * For reference, see the
  * [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2).
  */
-internal fun KspFieldElement.jvmDescriptor() = name + ":" + type.jvmDescriptor()
+internal fun KspFieldElement.jvmDescriptor() = owner.name + ":" + owner.type.jvmDescriptor()
 
 /**
  * Returns the method descriptor of this KSP method element.

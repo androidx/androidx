@@ -20,9 +20,11 @@ import androidx.room3.BuiltInColumnTypeConverters
 import androidx.room3.ColumnTypeConverter
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ProvidedColumnTypeConverter
+import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.codegen.asClassName
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XMethodElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.isVoid
@@ -36,6 +38,7 @@ import androidx.room3.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room3.solver.types.CustomColumnTypeConverterWrapper
 import androidx.room3.vo.BuiltInConverterFlags
 import androidx.room3.vo.CustomColumnTypeConverter
+import kotlin.reflect.KClass
 
 /** Processes classes that are referenced in ColumnTypeConverters annotations. */
 class CustomColumnConverterProcessor(val context: Context, val element: XTypeElement) {
@@ -43,14 +46,15 @@ class CustomColumnConverterProcessor(val context: Context, val element: XTypeEle
         private fun XType.isInvalidReturnType() = isError() || isVoid() || isNone()
 
         fun findConverters(context: Context, element: XElement): ProcessResult {
-            if (!element.hasAnnotation(ColumnTypeConverters::class)) {
+            if (!element.hasAnnotationOnElementOrField(ColumnTypeConverters::class)) {
                 return ProcessResult.EMPTY
             }
             if (!element.validate()) {
                 context.reportMissingTypeReference(element.toString())
                 return ProcessResult.EMPTY
             }
-            val annotation = element.requireAnnotation(ColumnTypeConverters::class.asClassName())
+            val annotation =
+                element.requireAnnotationOnElementOrField(ColumnTypeConverters::class.asClassName())
             val classes = annotation.getAsTypeList("value").mapTo(LinkedHashSet()) { it }
             val typeElementToWrappers =
                 classes
@@ -127,6 +131,25 @@ class CustomColumnConverterProcessor(val context: Context, val element: XTypeEle
                     }
                 }
         }
+
+        private fun XElement.hasAnnotationOnElementOrField(annotation: KClass<out Annotation>) =
+            if (this is XPropertyElement) {
+                hasAnnotation(annotation) || (backingField?.hasAnnotation(annotation) ?: false)
+            } else {
+                hasAnnotation(annotation)
+            }
+
+        private fun XElement.requireAnnotationOnElementOrField(annotationName: XClassName) =
+            requireNotNull(getAnnotationOnElementOrField(annotationName)) {
+                "Missing annotation $annotationName on $this"
+            }
+
+        fun XElement.getAnnotationOnElementOrField(annotationName: XClassName) =
+            if (this is XPropertyElement) {
+                getAnnotation(annotationName) ?: backingField?.getAnnotation(annotationName)
+            } else {
+                getAnnotation(annotationName)
+            }
     }
 
     fun process(): List<CustomColumnTypeConverter> {

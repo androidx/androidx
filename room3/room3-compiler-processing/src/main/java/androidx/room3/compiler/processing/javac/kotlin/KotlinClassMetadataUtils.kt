@@ -65,6 +65,8 @@ internal interface KmData
 internal interface KmVisibility : KmData {
     val visibility: Visibility
 
+    fun isPublic() = visibility == Visibility.PUBLIC
+
     fun isInternal() = visibility == Visibility.INTERNAL
 
     fun isPrivate() = visibility == Visibility.PRIVATE

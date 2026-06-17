@@ -97,7 +97,7 @@ class InternalModifierTest {
         fun XMemberContainer.toSignature() = asClassName().java.toString()
 
         fun XFieldElement.toSignature() =
-            "${closestMemberContainer.toSignature()}.$name : ${type.toSignature()}"
+            "${owner.closestMemberContainer.toSignature()}.${owner.name} : ${owner.type.toSignature()}"
 
         fun XMethodElement.toSignature() = buildString {
             append(closestMemberContainer.toSignature())

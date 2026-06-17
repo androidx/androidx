@@ -97,7 +97,7 @@ class TypeAssignmentTest {
     }
 
     private fun XTypeElement.getField(name: String): XVariableElement {
-        return getAllFieldsIncludingPrivateSupers().first { it.name == name }
+        return getAllPropertiesIncludingPrivateSupers().first { it.name == name }
     }
 
     private fun runTest(handler: XTestInvocation.() -> Unit) {

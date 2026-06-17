@@ -24,6 +24,7 @@ import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.getDeclaredField
 import androidx.room3.compiler.processing.util.getField
 import androidx.room3.compiler.processing.util.getMethodByJvmName
+import androidx.room3.compiler.processing.util.getProperty
 import androidx.room3.compiler.processing.util.runProcessorTest
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.INT
@@ -197,11 +198,11 @@ class XTypeNameTest {
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("Foo").let { cls ->
-                cls.getField("accessorField").getter!!.let { getter ->
+                cls.getProperty("accessorField").getter!!.let { getter ->
                     assertThat(getter.returnType.asTypeName()).isEqualTo(unit)
                     assertThat(getter.asMemberOf(cls.type).returnType.asTypeName()).isEqualTo(unit)
                 }
-                cls.getField("accessorField").setter!!.let { setter ->
+                cls.getProperty("accessorField").setter!!.let { setter ->
                     assertThat(setter.returnType.asTypeName()).isEqualTo(voidUnit)
                     assertThat(setter.parameters.single().type.asTypeName()).isEqualTo(unit)
                     setter.asMemberOf(cls.type).let { setterType ->
@@ -249,14 +250,14 @@ class XTypeNameTest {
                     assertThat(fieldType).isEqualTo(List::class.asClassName().parametrizedBy(unit))
                 }
                 assertThat(
-                        cls.getField("accessorField")
+                        cls.getProperty("accessorField")
                             .getter!!
                             .asMemberOf(cls.type)
                             .returnType
                             .asTypeName()
                     )
                     .isEqualTo(unit)
-                cls.getField("accessorField").setter!!.asMemberOf(cls.type).let { setterType ->
+                cls.getProperty("accessorField").setter!!.asMemberOf(cls.type).let { setterType ->
                     assertThat(setterType.returnType.asTypeName()).isEqualTo(voidUnit)
                     assertThat(setterType.parameterTypes.single().asTypeName()).isEqualTo(unit)
                 }

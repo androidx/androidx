@@ -19,7 +19,7 @@ package androidx.room3.verifier
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XConstructorElement
 import androidx.room3.compiler.processing.XElement
-import androidx.room3.compiler.processing.XFieldElement
+import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.util.XTestInvocation
@@ -451,7 +451,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         affinity: SQLTypeAffinity,
         defaultValue: String? = null,
     ): Property {
-        val element = mock(XFieldElement::class.java)
+        val element = mock(XPropertyElement::class.java)
         doReturn(type).`when`(element).type
         val f =
             Property(

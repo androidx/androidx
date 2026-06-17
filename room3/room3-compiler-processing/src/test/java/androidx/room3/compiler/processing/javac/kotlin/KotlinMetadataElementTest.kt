@@ -820,7 +820,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             )
         simpleRun(sources = listOf(src)) { env ->
             val subject = env.requireTypeElement("Subject")
-            subject.getDeclaredFields().forEach { assertThat(it.getter).isNotNull() }
+            subject.getDeclaredProperties().forEach { assertThat(it.getter).isNotNull() }
             subject.getDeclaredMethods().forEach {
                 // A private static function was generated for the lambda passed to lazy() with K2
                 // so we filter these out.

@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.runKspTest
+import androidx.room3.compiler.processing.util.runProcessorTest
 import org.junit.Test
 
 class XPropertyElementTest {
@@ -46,7 +47,7 @@ class XPropertyElementTest {
                 """
                     .trimIndent(),
             )
-        runKspTest(sources = listOf(src), classpath = lib) {
+        runProcessorTest(sources = listOf(src), classpath = lib) {
             val nestedTypeElement =
                 it.processingEnv
                     .requireTypeElement("Subject")
@@ -86,7 +87,7 @@ class XPropertyElementTest {
                 """
                     .trimIndent(),
             )
-        runKspTest(sources = listOf(src), classpath = lib) {
+        runProcessorTest(sources = listOf(src), classpath = lib) {
             val nestedTypeElement =
                 it.processingEnv
                     .requireTypeElement("Subject")
@@ -223,6 +224,183 @@ class XPropertyElementTest {
             assertThat(backingFieldProp.getter).isNotNull()
             assertThat(backingFieldProp.getter!!.name).isEqualTo("getBackingFieldProp")
             assertThat(backingFieldProp.setter).isNull()
+        }
+    }
+
+    @Test
+    fun propertyAndFieldUseSiteAnnotationsTest() {
+        val src =
+            Source.kotlin(
+                "Subject.kt",
+                """
+                annotation class NoTargetAnno
+                @Target(AnnotationTarget.FIELD)
+                annotation class FieldTargetAnno
+                @Target(AnnotationTarget.PROPERTY)
+                annotation class PropTargetAnno
+
+                annotation class FieldSiteAnno
+                annotation class GetSiteAnno
+                annotation class SetSiteAnno
+                annotation class PropSiteAnno
+
+                class Subject {
+                    @NoTargetAnno
+                    @FieldTargetAnno
+                    @PropTargetAnno
+                    @field:FieldSiteAnno
+                    @get:GetSiteAnno
+                    @set:SetSiteAnno
+                    @property:PropSiteAnno
+                    var myProp: Int = 0
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            fun XAnnotated.hasAnno(name: String): Boolean {
+                return getAllAnnotations().any { it.name == name }
+            }
+
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+            val prop = subject.getDeclaredProperties().single { it.name == "myProp" }
+            val field = prop.backingField
+
+            assertThat(prop.hasAnno("PropSiteAnno")).isTrue()
+            assertThat(prop.hasAnno("NoTargetAnno")).isTrue()
+            assertThat(prop.hasAnno("PropTargetAnno")).isTrue()
+            assertThat(prop.hasAnno("FieldSiteAnno")).isFalse()
+            assertThat(prop.hasAnno("GetSiteAnno")).isFalse()
+            assertThat(prop.hasAnno("SetSiteAnno")).isFalse()
+
+            assertThat(field).isNotNull()
+            assertThat(field!!.hasAnno("FieldSiteAnno")).isTrue()
+            assertThat(field.hasAnno("FieldTargetAnno")).isTrue()
+            assertThat(field.hasAnno("NoTargetAnno")).isFalse()
+            assertThat(field.hasAnno("GetSiteAnno")).isFalse()
+            assertThat(field.hasAnno("SetSiteAnno")).isFalse()
+            assertThat(field.hasAnno("PropSiteAnno")).isFalse()
+
+            val getter = prop.getter
+            assertThat(getter).isNotNull()
+            assertThat(getter!!.hasAnno("GetSiteAnno")).isTrue()
+            assertThat(getter.hasAnno("FieldSiteAnno")).isFalse()
+            assertThat(getter.hasAnno("SetSiteAnno")).isFalse()
+            assertThat(getter.hasAnno("PropSiteAnno")).isFalse()
+
+            val setter = prop.setter
+            assertThat(setter).isNotNull()
+            assertThat(setter!!.hasAnno("SetSiteAnno")).isTrue()
+            assertThat(setter.hasAnno("FieldSiteAnno")).isFalse()
+            assertThat(setter.hasAnno("GetSiteAnno")).isFalse()
+            assertThat(setter.hasAnno("PropSiteAnno")).isFalse()
+        }
+    }
+
+    @Test
+    fun propertyAndFieldUseSiteAnnotationsOnJvmFieldTest() {
+        val src =
+            Source.kotlin(
+                "Subject.kt",
+                """
+                annotation class NoTargetAnno
+                @Target(AnnotationTarget.FIELD)
+                annotation class FieldTargetAnno
+                @Target(AnnotationTarget.PROPERTY)
+                annotation class PropTargetAnno
+
+                annotation class FieldSiteAnno
+                annotation class GetSiteAnno
+                annotation class SetSiteAnno
+                annotation class PropSiteAnno
+
+                class Subject {
+                    @JvmField
+                    @NoTargetAnno
+                    @FieldTargetAnno
+                    @PropTargetAnno
+                    @field:FieldSiteAnno
+                    @get:GetSiteAnno
+                    @set:SetSiteAnno
+                    @property:PropSiteAnno
+                    var myProp: Int = 0
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            fun XAnnotated.hasAnno(name: String): Boolean {
+                return getAllAnnotations().any { it.name == name }
+            }
+
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+            val prop = subject.getDeclaredProperties().single { it.name == "myProp" }
+            val field = prop.backingField
+
+            assertThat(prop.hasAnno("PropSiteAnno")).isTrue()
+            assertThat(prop.hasAnno("NoTargetAnno")).isTrue()
+            assertThat(prop.hasAnno("PropTargetAnno")).isTrue()
+            assertThat(prop.hasAnno("FieldSiteAnno")).isFalse()
+            assertThat(prop.hasAnno("GetSiteAnno")).isFalse()
+            assertThat(prop.hasAnno("SetSiteAnno")).isFalse()
+
+            assertThat(field).isNotNull()
+            assertThat(field!!.hasAnno("FieldSiteAnno")).isTrue()
+            assertThat(field.hasAnno("FieldTargetAnno")).isTrue()
+            assertThat(field.hasAnno("NoTargetAnno")).isFalse()
+            assertThat(field.hasAnno("GetSiteAnno")).isFalse()
+            assertThat(field.hasAnno("SetSiteAnno")).isFalse()
+            assertThat(field.hasAnno("PropSiteAnno")).isFalse()
+        }
+    }
+
+    @Test
+    fun propertyAndFieldVisibilityTest() {
+        val src =
+            Source.kotlin(
+                "Subject.kt",
+                """
+                class Subject {
+                    var publicProp: String = "hello"
+
+                    @JvmField
+                    var jvmFieldProp: String = "hello"
+
+                    lateinit var lateinitProp: String
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+
+            // public property (backing field is private, property is public)
+            val publicProp = subject.getDeclaredProperties().single { it.name == "publicProp" }
+            assertThat(publicProp.isPublic()).isTrue()
+            assertThat(publicProp.isPrivate()).isFalse()
+
+            val publicField = publicProp.backingField
+            assertThat(publicField).isNotNull()
+            assertThat(publicField!!.isPrivate()).isTrue()
+            assertThat(publicField.isPublic()).isFalse()
+
+            // @JvmField property (backing field is public, property is public)
+            val jvmFieldProp = subject.getDeclaredProperties().single { it.name == "jvmFieldProp" }
+            assertThat(jvmFieldProp.isPublic()).isTrue()
+
+            val jvmField = jvmFieldProp.backingField
+            assertThat(jvmField).isNotNull()
+            assertThat(jvmField!!.isPublic()).isTrue()
+            assertThat(jvmField.isPrivate()).isFalse()
+
+            // lateinit Property (backing field has setter visibility - public here)
+            val lateinitProp = subject.getDeclaredProperties().single { it.name == "lateinitProp" }
+            assertThat(lateinitProp.isPublic()).isTrue()
+
+            val lateinitField = lateinitProp.backingField
+            assertThat(lateinitField).isNotNull()
+            assertThat(lateinitField!!.isPublic()).isTrue()
+            assertThat(lateinitField.isPrivate()).isFalse()
         }
     }
 }

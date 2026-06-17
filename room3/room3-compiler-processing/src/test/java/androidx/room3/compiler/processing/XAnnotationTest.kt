@@ -40,6 +40,7 @@ import androidx.room3.compiler.processing.util.asKTypeName
 import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.getDeclaredField
 import androidx.room3.compiler.processing.util.getDeclaredMethodByJvmName
+import androidx.room3.compiler.processing.util.getDeclaredProperty
 import androidx.room3.compiler.processing.util.getField
 import androidx.room3.compiler.processing.util.getMethodByJvmName
 import androidx.room3.compiler.processing.util.getParameter
@@ -62,6 +63,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
         sources: List<Source>,
         classpath: List<File> = emptyList(),
         kotlincArgs: List<String> = emptyList(),
+        config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT,
         handler: (XTestInvocation) -> Unit,
     ) {
         if (preCompiled) {
@@ -81,6 +83,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 handler = handler,
                 classpath = compiled + classpath,
                 kotlincArguments = kotlincArgs,
+                config = config,
             )
         } else {
             runProcessorTest(
@@ -88,6 +91,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 classpath = classpath,
                 handler = handler,
                 kotlincArguments = kotlincArgs,
+                config = config,
             )
         }
     }
@@ -1378,8 +1382,16 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             assertThat(getCtorParameterAnnotationElements("valField")).doesNotContain(myAnnotation)
             assertThat(getCtorParameterAnnotationElements("varField")).doesNotContain(myAnnotation)
 
+            assertThat(subject.getDeclaredProperties().map(XPropertyElement::name))
+                .containsExactly("valField", "varField")
             assertThat(subject.getDeclaredFields().map(XFieldElement::name))
                 .containsExactly("valField", "varField")
+            fun getDeclaredPropertyAnnotationElements(fieldName: String): List<XTypeElement> {
+                return subject
+                    .getDeclaredProperty(fieldName)
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
             fun getDeclaredFieldAnnotationElements(fieldName: String): List<XTypeElement> {
                 return subject
                     .getDeclaredField(fieldName)
@@ -1392,19 +1404,30 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 // Unfortunately, synthetic methods can only be read when processing the
                 // source so it's missing on precompiled class files:
                 // https://youtrack.jetbrains.com/issue/KT-34684
-                assertThat(getDeclaredFieldAnnotationElements("valField"))
+                assertThat(getDeclaredPropertyAnnotationElements("valField"))
                     .doesNotContain(myAnnotation)
-                assertThat(getDeclaredFieldAnnotationElements("varField"))
+                assertThat(getDeclaredPropertyAnnotationElements("varField"))
                     .doesNotContain(myAnnotation)
             } else {
-                assertThat(getDeclaredFieldAnnotationElements("valField")).contains(myAnnotation)
-                assertThat(getDeclaredFieldAnnotationElements("varField")).contains(myAnnotation)
+                assertThat(getDeclaredPropertyAnnotationElements("valField")).contains(myAnnotation)
+                assertThat(getDeclaredPropertyAnnotationElements("varField")).contains(myAnnotation)
             }
+            assertThat(getDeclaredFieldAnnotationElements("valField")).doesNotContain(myAnnotation)
+            assertThat(getDeclaredFieldAnnotationElements("varField")).doesNotContain(myAnnotation)
         }
     }
 
     @Test
     fun typeAnnotations() {
+        typeAnnotations(false)
+    }
+
+    @Test
+    fun typeAnnotationsWithFieldsIncludingPropertyAnnotations() {
+        typeAnnotations(true)
+    }
+
+    private fun typeAnnotations(fieldIncludePropAnnotations: Boolean) {
         val kotlinSource =
             Source.kotlin(
                 "foo.bar.Subject.kt",
@@ -1492,9 +1515,12 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 """
                     .trimIndent(),
             )
-
+        val config =
+            XProcessingEnvConfig.DEFAULT.copy(
+                includePropertyAnnotationsInFields = fieldIncludePropAnnotations
+            )
         listOf(javaSource, kotlinSource).forEach { source ->
-            runTest(sources = listOf(source)) { invocation ->
+            runTest(sources = listOf(source), config = config) { invocation ->
                 fun XAnnotated.getAllAnnotationTypeElements(): List<XTypeElement> {
                     return getAllAnnotations()
                         .filter {
@@ -1506,6 +1532,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
                 val superClass = subject.superClass!!
                 val superInterface = subject.superInterfaces.single()
+                val property = subject.getDeclaredProperty("field")
                 val field = subject.getDeclaredField("field")
                 val method = subject.getDeclaredMethodByJvmName("method")
                 val constructor = subject.getConstructors().single()
@@ -1536,6 +1563,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 // Check the annotations on the elements
                 mapOf(
                         "class" to subject,
+                        "property" to property,
                         "field" to field,
                         "method" to method,
                         "methodParameter" to method.parameters.single(),
@@ -1543,34 +1571,62 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                         "constructorParameter" to constructor.parameters.single(),
                     )
                     .forEach { (desc, element) ->
-                        if (
-                            element == field &&
-                                !invocation.isKsp &&
-                                source == kotlinSource &&
-                                preCompiled
-                        ) {
-                            // KAPT places property annotations without targets on the property,
-                            // which
-                            // then get put onto the synthetic $annotations method in the KAPT stub.
-                            // Unfortunately, synthetic methods can only be read when processing the
-                            // source so it's missing on precompiled class files:
-                            // https://youtrack.jetbrains.com/issue/KT-34684
-                            assertWithMessage("$desc element: $element")
-                                .that(element.getAllAnnotationTypeElements())
-                                .containsExactly(b, c)
-                        } else {
-                            assertWithMessage("$desc element: $element")
-                                .that(
-                                    // TODO(bcorso): Consider automatically removing kotlin.Metadata
-                                    //  annotation so that KAPT and KSP agree, and exposing the
-                                    // metadata
-                                    //  explicitly via a property of the type/element.
-                                    // Filter out kotlin.Metadata.
-                                    element.getAllAnnotationTypeElements().filterNot {
-                                        it.qualifiedName == "kotlin.Metadata"
+                        val description =
+                            "$desc element: $element, precompiled = $preCompiled, " +
+                                "fieldIncludePropAnnotations = $fieldIncludePropAnnotations, " +
+                                "source = $source, "
+                        val annotationTypeElements =
+                            element.getAllAnnotationTypeElements().filterNot {
+                                it.qualifiedName == "kotlin.Metadata"
+                            }
+                        when (desc) {
+                            "property" ->
+                                if (source == javaSource) {
+                                    assertWithMessage(description)
+                                        .that(annotationTypeElements)
+                                        .isEmpty()
+                                } else if (!invocation.isKsp && preCompiled) {
+                                    // KAPT places property annotations without targets on the
+                                    // property, which then get put onto the synthetic
+                                    // $annotations method in the KAPT stub. Unfortunately,
+                                    // synthetic methods can only be read when processing the
+                                    // source so it's missing on precompiled class files:
+                                    // https://youtrack.jetbrains.com/issue/KT-34684
+                                    assertWithMessage(description)
+                                        .that(annotationTypeElements)
+                                        .isEmpty()
+                                } else {
+                                    assertWithMessage(description)
+                                        .that(annotationTypeElements)
+                                        .containsExactly(d)
+                                }
+                            "field" ->
+                                if (source == javaSource) {
+                                    assertWithMessage(description)
+                                        .that(annotationTypeElements)
+                                        .containsExactly(b, c, d)
+                                } else if (fieldIncludePropAnnotations) {
+                                    if (!invocation.isKsp && preCompiled) {
+                                        // Missing $annotations method from precompiled file:
+                                        // https://youtrack.jetbrains.com/issue/KT-34684
+                                        assertWithMessage(description)
+                                            .that(annotationTypeElements)
+                                            .containsExactly(b, c)
+                                    } else {
+                                        assertWithMessage(description)
+                                            .that(annotationTypeElements)
+                                            .containsExactly(b, c, d)
                                     }
-                                )
-                                .containsExactly(b, c, d)
+                                } else {
+                                    assertWithMessage(description)
+                                        .that(annotationTypeElements)
+                                        .containsExactly(b, c)
+                                }
+                            else -> {
+                                assertWithMessage(description)
+                                    .that(annotationTypeElements)
+                                    .containsExactly(b, c, d)
+                            }
                         }
                     }
 

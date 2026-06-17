@@ -105,8 +105,12 @@ sealed class KspHasModifiers(protected val declaration: KSDeclaration) : XHasMod
             return PropertyAccessorModifiers(accessor, isSyntheticStatic)
         }
 
-        fun create(declaration: KSPropertyDeclaration): XHasModifiers {
+        fun createFieldModifiers(declaration: KSPropertyDeclaration): XHasModifiers {
             return PropertyFieldModifiers(declaration)
+        }
+
+        fun createPropertyModifiers(declaration: KSPropertyDeclaration): XHasModifiers {
+            return PropertyModifiers(declaration)
         }
 
         fun create(
@@ -150,6 +154,15 @@ private class FunctionModifiers(
             declaration.isJavaStatic() ||
             declaration.isTopLevel() ||
             (declaration.hasJvmStaticAnnotation() && declaration.isEnclosedInNamedObject())
+    }
+}
+
+private class PropertyModifiers(propertyDeclaration: KSPropertyDeclaration) :
+    KspHasModifiers(propertyDeclaration) {
+    override fun isStatic(): Boolean {
+        return declaration.isJavaStatic() ||
+            declaration.isTopLevel() ||
+            declaration.isEnclosedInObject()
     }
 }
 

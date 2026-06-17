@@ -38,6 +38,13 @@ interface XPropertyElement : XVariableElement, XHasModifiers {
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
     /**
+     * Returns the field associated with this property or `null` if there isn't one.
+     *
+     * Note: This is never `null` for Java sources.
+     */
+    val backingField: XFieldElement?
+
+    /**
      * Returns the getter method associated with this property or `null` if there isn't one.
      *
      * Note: This is expected to be `null` for Java source, or if the field isn't associated with a

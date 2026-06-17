@@ -18,8 +18,8 @@ package androidx.room3.compiler.processing.ksp.synthetic
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
-import androidx.room3.compiler.processing.ksp.KspFieldElement
 import androidx.room3.compiler.processing.ksp.KspProcessingEnv
+import androidx.room3.compiler.processing.ksp.KspPropertyElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.getField
@@ -145,7 +145,7 @@ class KspSyntheticFileMemberContainerTest {
         runKspTest(sources = buildSources("app"), classpath = lib) { invocation ->
             fun runTest(qName: String) {
                 invocation.processingEnv.requireTypeElement(qName).let { target ->
-                    val field = target.getField("member") as KspFieldElement
+                    val field = target.getField("member").owner as KspPropertyElement
                     val owner = invocation.kspResolver.getOwnerJvmClassName(field.declaration)
                     assertWithMessage(qName).that(owner).isNotNull()
                     val synthetic =

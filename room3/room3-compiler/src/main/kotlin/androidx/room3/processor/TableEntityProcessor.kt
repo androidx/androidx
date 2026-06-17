@@ -19,6 +19,7 @@ package androidx.room3.processor
 import androidx.room3.PrimaryKey.Algorithm as PrimaryKeyAlgorithm
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.ext.getAnnotationOnPropertyOrField
 import androidx.room3.ext.isNotError
 import androidx.room3.ext.isNotNone
 import androidx.room3.parser.SQLTypeAffinity
@@ -384,7 +385,7 @@ internal constructor(
     ): List<PrimaryKey> {
         return properties.mapNotNull { property ->
             val primaryKeyAnnotation =
-                property.element.getAnnotation(androidx.room3.PrimaryKey::class)
+                property.element.getAnnotationOnPropertyOrField(androidx.room3.PrimaryKey::class)
                     ?: return@mapNotNull null
             if (property.parent != null) {
                 // the property in the entity that contains this error.
@@ -469,24 +470,26 @@ internal constructor(
         embeddedProperties: List<EmbeddedProperty>
     ): List<PrimaryKey> {
         return embeddedProperties.mapNotNull { embeddedProperty ->
-            embeddedProperty.property.element.getAnnotation(androidx.room3.PrimaryKey::class)?.let {
-                val autoGenerate = it["autoGenerate"]?.asBoolean() ?: false
-                val algorithm =
-                    it["algorithm"]?.asEnum()?.let { enumEntry ->
-                        PrimaryKeyAlgorithm.valueOf(enumEntry.name)
-                    } ?: PrimaryKeyAlgorithm.AUTOINCREMENT
-                context.checker.check(
-                    !autoGenerate || embeddedProperty.dataClass.properties.size == 1,
-                    embeddedProperty.property.element,
-                    ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_PROPERTIES,
-                )
-                PrimaryKey(
-                    declaredIn = embeddedProperty.property.element.enclosingElement,
-                    properties = embeddedProperty.dataClass.properties,
-                    autoGenerateId = autoGenerate,
-                    algorithm = algorithm,
-                )
-            }
+            val primaryKeyAnnotation =
+                embeddedProperty.property.element.getAnnotationOnPropertyOrField(
+                    androidx.room3.PrimaryKey::class
+                ) ?: return@mapNotNull null
+            val autoGenerate = primaryKeyAnnotation["autoGenerate"]?.asBoolean() ?: false
+            val algorithm =
+                primaryKeyAnnotation["algorithm"]?.asEnum()?.let { enumEntry ->
+                    PrimaryKeyAlgorithm.valueOf(enumEntry.name)
+                } ?: PrimaryKeyAlgorithm.AUTOINCREMENT
+            context.checker.check(
+                !autoGenerate || embeddedProperty.dataClass.properties.size == 1,
+                embeddedProperty.property.element,
+                ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_PROPERTIES,
+            )
+            PrimaryKey(
+                declaredIn = embeddedProperty.property.element.enclosingElement,
+                properties = embeddedProperty.dataClass.properties,
+                autoGenerateId = autoGenerate,
+                algorithm = algorithm,
+            )
         }
     }
 

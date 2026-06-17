@@ -16,11 +16,11 @@
 
 package androidx.room3.compiler.processing.ksp
 
-import androidx.room3.compiler.processing.XAnnotated
+import androidx.room3.compiler.processing.InternalXAnnotated
 import androidx.room3.compiler.processing.XHasModifiers
 import androidx.room3.compiler.processing.XPropertyElement
 import androidx.room3.compiler.processing.XType
-import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_FIELD
+import androidx.room3.compiler.processing.ksp.KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_PROPERTY
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
@@ -33,8 +33,8 @@ internal open class KspPropertyElement(
 ) :
     KspElement(env, declaration),
     XPropertyElement,
-    XHasModifiers by KspHasModifiers.create(declaration),
-    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
+    XHasModifiers by KspHasModifiers.createPropertyModifiers(declaration),
+    InternalXAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_PROPERTY) {
 
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
@@ -45,6 +45,14 @@ internal open class KspPropertyElement(
     override val name: String by lazy { declaration.simpleName.asString() }
 
     override val type: KspType by lazy { createAsMemberOf(closestMemberContainer.type) }
+
+    override val backingField: KspFieldElement? by lazy {
+        if (declaration.hasBackingField) {
+            KspFieldElement(env, declaration, this)
+        } else {
+            null
+        }
+    }
 
     val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
         listOfNotNull(getter, setter)
@@ -101,11 +109,7 @@ internal open class KspPropertyElement(
 
     companion object {
         fun create(env: KspProcessingEnv, declaration: KSPropertyDeclaration): KspPropertyElement {
-            return if (declaration.hasBackingField) {
-                KspFieldElement(env, declaration)
-            } else {
-                KspPropertyElement(env, declaration)
-            }
+            return KspPropertyElement(env, declaration)
         }
     }
 }

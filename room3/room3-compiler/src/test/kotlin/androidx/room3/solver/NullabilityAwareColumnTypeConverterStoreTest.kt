@@ -560,7 +560,7 @@ class NullabilityAwareColumnTypeConverterStoreTest {
             val byteArray =
                 invocation.processingEnv
                     .requireTypeElement("Subject")
-                    .getDeclaredFields()
+                    .getDeclaredProperties()
                     .first()
                     .type
                     .makeNonNullable()
