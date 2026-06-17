@@ -57,4 +57,37 @@ object RemoteStubs {
     ) : RemoteModifier
     """
         )
+
+    val AndroidCompositionLocals =
+        kotlin(
+            "src/androidx/compose/ui/platform/AndroidCompositionLocals.android.kt",
+            """
+            package androidx.compose.ui.platform
+
+            import androidx.compose.runtime.staticCompositionLocalOf
+            import androidx.compose.runtime.compositionLocalOf
+
+            class Context
+            interface Configuration
+
+            val LocalContext = staticCompositionLocalOf<Context> { error("No context") }
+            val LocalConfiguration = compositionLocalOf<Configuration> { error("No configuration") }
+            """,
+        )
+
+    val CompositionLocals =
+        kotlin(
+            "src/androidx/compose/ui/platform/CompositionLocals.kt",
+            """
+            package androidx.compose.ui.platform
+
+            import androidx.compose.runtime.staticCompositionLocalOf
+
+            interface Density
+            enum class LayoutDirection { Ltr, Rtl }
+
+            val LocalDensity = staticCompositionLocalOf<Density> { error("No density") }
+            val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> { error("No layout direction") }
+            """,
+        )
 }

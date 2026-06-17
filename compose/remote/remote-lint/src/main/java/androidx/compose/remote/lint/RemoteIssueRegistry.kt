@@ -28,7 +28,11 @@ class RemoteIssueRegistry : IssueRegistry() {
     override val api = 16
     override val minApi = CURRENT_API
     override val issues
-        get() = listOf(RemoteModifierParameterDetector.RemoteModifierParameter)
+        get() =
+            listOf(
+                RemoteModifierParameterDetector.RemoteModifierParameter,
+                RemoteCompositionLocalDetector.RemoteCompositionLocalUsage,
+            )
 
     override val vendor =
         Vendor(

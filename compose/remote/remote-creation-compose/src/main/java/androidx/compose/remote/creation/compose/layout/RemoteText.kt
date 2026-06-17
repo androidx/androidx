@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.fonts.FontStyle as AndroidFontStyle
 import android.os.Build
@@ -157,6 +158,7 @@ public fun RemoteText(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
+@SuppressLint("RemoteCompositionLocalUsage")
 public fun RemoteText(
     text: RemoteString,
     color: RemoteColor,
