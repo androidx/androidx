@@ -65,8 +65,10 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonGroup
 import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RevealDirection
@@ -865,7 +867,10 @@ fun SwipeToRevealWithTransformingLazyColumnDemo() {
                             // Is needed to disable clipping.
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
-                        },
+                        }
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 Button(
                     {},
@@ -946,7 +951,10 @@ fun SwipeToRevealTwoActionsWithTransformingLazyColumnDemo(
                             // Is needed to disable clipping.
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
-                        },
+                        }
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 Button(
                     {},
@@ -1075,7 +1083,10 @@ fun SwipeToRevealCustomDragDemo() {
                             // Is needed to disable clipping.
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
-                        },
+                        }
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 Button(
                     {},
@@ -1182,7 +1193,10 @@ fun SwipeToRevealIconOnlyWithTransformingLazyColumnDemo() {
                             // Is needed to disable clipping.
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
-                        },
+                        }
+                        .minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
                 revealState = revealState,
             ) {
                 TitleCard(
@@ -1291,7 +1305,10 @@ fun SwipeToRevealWithTransformingLazyColumnExpansionAndDeletionDemo() {
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
                         }
-                        .animateItem(),
+                        .animateItem()
+                        .minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
                 revealState = revealState,
             ) {
                 TitleCard(

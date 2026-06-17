@@ -121,9 +121,11 @@ fun TransformingLazyColumnMinimumVerticalContentPaddingSample() {
                         ListHeader(
                             modifier =
                                 Modifier.minimumVerticalContentPadding(
-                                    ListHeaderDefaults.minimumTopListContentPadding,
-                                    ListHeaderDefaults.minimumBottomListContentPadding,
-                                )
+                                        ListHeaderDefaults.minimumTopListContentPadding,
+                                        ListHeaderDefaults.minimumBottomListContentPadding,
+                                    )
+                                    .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
                         ) {
                             Text("ListHeader heading")
                         }

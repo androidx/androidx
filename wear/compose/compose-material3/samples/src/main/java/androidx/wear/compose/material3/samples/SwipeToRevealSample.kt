@@ -46,6 +46,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.RevealValue
 import androidx.wear.compose.material3.SwipeToReveal
@@ -204,7 +205,10 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
                             // Is needed to disable clipping.
                             compositingStrategy = CompositingStrategy.ModulateAlpha
                             clip = false
-                        },
+                        }
+                        .minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 TitleCard(
                     onClick = {},
