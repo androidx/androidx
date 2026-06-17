@@ -46,6 +46,18 @@ internal class PdfViewKeyboardActionHandler(pdfView: PdfView) :
         pdfView.clearCurrentSelection()
     }
 
+    fun clearSelection(): Boolean {
+        if (pdfView.currentSelection == null) {
+            return false
+        }
+        pdfView.clearCurrentSelection()
+        return true
+    }
+
+    fun selectAllText() {
+        pdfView.selectAllText()
+    }
+
     fun scrollLeftOrScrollToPreviousPage(): Boolean {
         val fitToWidthZoom =
             ZoomUtils.calculateZoomToFit(

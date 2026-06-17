@@ -54,6 +54,13 @@ internal class PdfViewExternalInputManager(pdfView: PdfView) {
                 }
                 false
             }
+            KeyEvent.KEYCODE_A -> {
+                if (event.isCtrlPressed) {
+                    keyboardActionHandler.selectAllText()
+                    return true
+                }
+                false
+            }
             KeyEvent.KEYCODE_C -> {
                 if (event.isCtrlPressed) {
                     keyboardActionHandler.copySelection()
@@ -76,6 +83,9 @@ internal class PdfViewExternalInputManager(pdfView: PdfView) {
             KeyEvent.KEYCODE_DPAD_UP -> {
                 keyboardActionHandler.scrollUp()
                 true
+            }
+            KeyEvent.KEYCODE_ESCAPE -> {
+                keyboardActionHandler.clearSelection()
             }
             KeyEvent.KEYCODE_EQUALS,
             KeyEvent.KEYCODE_PLUS,
