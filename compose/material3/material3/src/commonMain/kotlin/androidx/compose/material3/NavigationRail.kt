@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.DefaultNavigationRailOverride.NavigationRail
 import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
@@ -51,10 +50,8 @@ import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -117,7 +114,6 @@ import kotlin.math.roundToInt
  * @param windowInsets a window insets of the navigation rail.
  * @param content the content of this navigation rail, typically 3-7 [NavigationRailItem]s
  */
-@OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
 @Composable
 fun NavigationRail(
     modifier: Modifier = Modifier,
@@ -127,46 +123,22 @@ fun NavigationRail(
     windowInsets: WindowInsets = NavigationRailDefaults.windowInsets,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    with(LocalNavigationRailOverride.current) {
-        NavigationRailOverrideScope(
-                modifier = modifier,
-                containerColor = containerColor,
-                contentColor = contentColor,
-                header = header,
-                windowInsets = windowInsets,
-                content = content,
-            )
-            .NavigationRail()
-    }
-}
-
-/**
- * This override provides the default behavior of the [NavigationRail] component.
- *
- * [NavigationRailOverride] used when no override is specified.
- */
-@ExperimentalMaterial3ComponentOverrideApi
-object DefaultNavigationRailOverride : NavigationRailOverride {
-    @Composable
-    override fun NavigationRailOverrideScope.NavigationRail() {
-        Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
-            Column(
-                Modifier.fillMaxHeight()
-                    .windowInsetsPadding(windowInsets)
-                    .widthIn(min = NavigationRailCollapsedTokens.NarrowContainerWidth)
-                    .padding(vertical = NavigationRailVerticalPadding)
-                    .selectableGroup()
-                    .semantics { isTraversalGroup = true },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(NavigationRailVerticalPadding),
-            ) {
-                val header = header
-                if (header != null) {
-                    header()
-                    Spacer(Modifier.height(NavigationRailHeaderPadding))
-                }
-                content()
+    Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
+        Column(
+            Modifier.fillMaxHeight()
+                .windowInsetsPadding(windowInsets)
+                .widthIn(min = NavigationRailCollapsedTokens.NarrowContainerWidth)
+                .padding(vertical = NavigationRailVerticalPadding)
+                .selectableGroup()
+                .semantics { isTraversalGroup = true },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(NavigationRailVerticalPadding),
+        ) {
+            if (header != null) {
+                header()
+                Spacer(Modifier.height(NavigationRailHeaderPadding))
             }
+            content()
         }
     }
 }
@@ -804,46 +776,3 @@ private val IndicatorVerticalPaddingWithLabel: Dp =
 private val IndicatorVerticalPaddingNoLabel: Dp =
     (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
         NavigationRailBaselineItemTokens.IconSize) / 2
-
-/**
- * Interface that allows libraries to override the behavior of the [NavigationRail] component.
- *
- * To override this component, implement the member function of this interface, then provide the
- * implementation to [LocalNavigationRailOverride] in the Compose hierarchy.
- */
-@ExperimentalMaterial3ComponentOverrideApi
-interface NavigationRailOverride {
-    /** Behavior function that is called by the [NavigationRail] component. */
-    @Composable fun NavigationRailOverrideScope.NavigationRail()
-}
-
-/**
- * Parameters available to [NavigationRail].
- *
- * @param modifier the [Modifier] to be applied to this navigation rail
- * @param containerColor the color used for the background of this navigation rail. Use
- *   [Color.Transparent] to have no color.
- * @param contentColor the preferred color for content inside this navigation rail. Defaults to
- *   either the matching content color for [containerColor], or to the current [LocalContentColor]
- *   if [containerColor] is not a color from the theme.
- * @param header optional header that may hold a [FloatingActionButton] or a logo
- * @param windowInsets a window insets of the navigation rail.
- * @param content the content of this navigation rail, typically 3-7 [NavigationRailItem]s
- */
-@ExperimentalMaterial3ComponentOverrideApi
-class NavigationRailOverrideScope
-internal constructor(
-    val modifier: Modifier = Modifier,
-    val containerColor: Color,
-    val contentColor: Color,
-    val header: @Composable (ColumnScope.() -> Unit)?,
-    val windowInsets: WindowInsets,
-    val content: @Composable ColumnScope.() -> Unit,
-)
-
-/** CompositionLocal containing the currently-selected [NavigationRailOverride]. */
-@ExperimentalMaterial3ComponentOverrideApi
-val LocalNavigationRailOverride: ProvidableCompositionLocal<NavigationRailOverride> =
-    compositionLocalOf {
-        DefaultNavigationRailOverride
-    }
