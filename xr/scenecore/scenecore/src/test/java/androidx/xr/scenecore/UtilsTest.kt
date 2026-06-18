@@ -123,7 +123,8 @@ class UtilsTest {
         val currentInputRay = Ray(vector1, vector2)
         val entityRegistry = EntityRegistry()
         val activitySpace = mock<RtActivitySpace>()
-        entityRegistry.setEntityForRtEntity(activitySpace, mock<Entity>())
+        val mockEntity = mock<Entity>()
+        entityRegistry.setEntityForRtEntity(activitySpace, mockEntity)
         val moveEvent =
             RuntimeMoveEvent(
                     RuntimeMoveEvent.MOVE_STATE_ONGOING,
@@ -180,7 +181,8 @@ class UtilsTest {
     fun verifyRtInputEventToInputEventConversion() {
         val entityRegistry = EntityRegistry()
         val activitySpace = mock<RtActivitySpace>()
-        entityRegistry.setEntityForRtEntity(activitySpace, mock<Entity>())
+        val mockEntity = mock<Entity>()
+        entityRegistry.setEntityForRtEntity(activitySpace, mockEntity)
         val inputEvent =
             RuntimeInputEvent(
                     RuntimeInputEvent.Source.HANDS,
