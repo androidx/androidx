@@ -144,7 +144,7 @@ internal open class SnapshotMutableIntStateImpl(value: Int) :
     override var intValue: Int
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
+            next.withCurrent(this) {
                 if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
@@ -178,11 +178,11 @@ internal open class SnapshotMutableIntStateImpl(value: Int) :
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableIntState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableIntState(value=${it.value})@${hashCode()}" }
 
     @InternalComposeApi
     val debuggerDisplayValue: Int
-        @JvmName("getDebuggerDisplayValue") get() = next.withCurrent { it.value }
+        @JvmName("getDebuggerDisplayValue") get() = next.withCurrent(this) { it.value }
 
     private class IntStateStateRecord(snapshotId: SnapshotId, var value: Int) :
         StateRecord(snapshotId) {

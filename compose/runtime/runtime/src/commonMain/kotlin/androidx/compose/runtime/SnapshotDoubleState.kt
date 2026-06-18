@@ -142,7 +142,7 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     override var doubleValue: Double
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
+            next.withCurrent(this) {
                 if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
@@ -176,7 +176,7 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableDoubleState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableDoubleState(value=${it.value})@${hashCode()}" }
 
     private class DoubleStateStateRecord(snapshotId: SnapshotId, var value: Double) :
         StateRecord(snapshotId) {

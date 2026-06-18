@@ -141,7 +141,7 @@ internal open class SnapshotMutableStateImpl<T>(
     override var value: T
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
+            next.withCurrent(this) {
                 if (!policy.equivalent(it.value, value)) {
                     next.overwritable(this, it) { this.value = value }
                 }
@@ -186,7 +186,7 @@ internal open class SnapshotMutableStateImpl<T>(
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableState(value=${it.value})@${hashCode()}" }
 
     private class StateStateRecord<T>(snapshotId: SnapshotId, myValue: T) :
         StateRecord(snapshotId) {
@@ -222,7 +222,7 @@ internal open class SnapshotMutableStateImpl<T>(
      */
     @Suppress("unused")
     val debuggerDisplayValue: T
-        @JvmName("getDebuggerDisplayValue") get() = next.withCurrent { it }.value
+        @JvmName("getDebuggerDisplayValue") get() = next.withCurrent(this) { it }.value
 }
 
 /**

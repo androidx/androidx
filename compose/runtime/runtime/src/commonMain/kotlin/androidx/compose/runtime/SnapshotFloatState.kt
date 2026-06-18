@@ -142,7 +142,7 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
     override var floatValue: Float
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
+            next.withCurrent(this) {
                 if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
@@ -176,7 +176,7 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableFloatState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableFloatState(value=${it.value})@${hashCode()}" }
 
     private class FloatStateStateRecord(snapshotId: SnapshotId, var value: Float) :
         StateRecord(snapshotId) {

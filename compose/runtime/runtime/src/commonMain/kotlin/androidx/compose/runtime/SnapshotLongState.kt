@@ -141,7 +141,7 @@ internal open class SnapshotMutableLongStateImpl(value: Long) :
     override var longValue: Long
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
+            next.withCurrent(this) {
                 if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
@@ -175,7 +175,7 @@ internal open class SnapshotMutableLongStateImpl(value: Long) :
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableLongState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableLongState(value=${it.value})@${hashCode()}" }
 
     private class LongStateStateRecord(snapshotId: SnapshotId, var value: Long) :
         StateRecord(snapshotId) {

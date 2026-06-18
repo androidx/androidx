@@ -1130,7 +1130,8 @@ package androidx.compose.runtime.snapshots {
   public final class SnapshotKt {
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot);
-    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method @Deprecated public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
   }

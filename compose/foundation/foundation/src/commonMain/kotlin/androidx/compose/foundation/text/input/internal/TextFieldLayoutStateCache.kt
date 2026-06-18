@@ -169,7 +169,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         // doesn't need to be, because it's always guaranteed to return the same value for the same
         // inputs, so it's good enough to read the input states and those will invalidate the
         // caller when they change.
-        record.withCurrent { cachedRecord ->
+        record.withCurrent(this) { cachedRecord ->
             val cachedResult = cachedRecord.layoutResult
 
             if (
