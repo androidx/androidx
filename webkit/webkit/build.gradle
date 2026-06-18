@@ -37,6 +37,8 @@ dependencies {
     // Technically, there's no tests in WebKit but we need it as we run as sanity check to
     // make sure that if anyone added any tests we would still run them while running :webkit:webkit:connectedAndroidTest.
     androidTestImplementation(libs.testRunner)
+    lintPublish(project(":webkit:webkit-lint"))
+    lintChecks(project(":webkit:webkit-lint"))
 }
 
 ext {
