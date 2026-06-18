@@ -54,12 +54,13 @@ androidXMultiplatform {
             implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
             implementation("androidx.savedstate:savedstate:1.3.0")
             implementation("androidx.savedstate:savedstate-compose:1.3.0")
-            implementation("androidx.navigationevent:navigationevent-compose:1.1.1")
+            implementation("androidx.navigationevent:navigationevent-compose:1.1.2")
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinSerializationCore)
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
+            implementation("androidx.navigationevent:navigationevent-testing:1.1.2")
         }
 
         androidMain.dependencies {
