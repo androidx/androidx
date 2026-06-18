@@ -275,24 +275,32 @@ private fun ScaffoldLayout(
                 .fastMap { it.measure(looseConstraints) }
 
         layout(layoutWidth, layoutHeight) {
-            // Placing to control drawing order to match default elevation of each placeable
-            bodyContentPlaceables.fastForEach { it.place(0, 0) }
-            topBarPlaceables.fastForEach { it.place(0, 0) }
+            // Placing to have correct keyboard focus order and setting zIndex to control drawing
+            // order to match default elevation of each placeable.
+            topBarPlaceables.fastForEach { it.place(0, 0, zIndex = TopBarZIndex) }
+            bodyContentPlaceables.fastForEach { it.place(0, 0, zIndex = ContentZIndex) }
             snackbarPlaceables.fastForEach {
                 it.place(
                     (layoutWidth - snackbarWidth +
                         contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection) -
                         contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection)) / 2,
                     layoutHeight - snackbarOffsetFromBottom,
+                    zIndex = SnackbarZIndex,
                 )
             }
-            // The bottom bar is always at the bottom of the layout
-            bottomBarPlaceables.fastForEach { it.place(0, layoutHeight - (bottomBarHeight ?: 0)) }
             // Explicitly not using placeRelative here as `leftOffset` already accounts for RTL
             fabPlacement?.let { placement ->
                 fabPlaceables.fastForEach {
-                    it.place(placement.left, layoutHeight - fabOffsetFromBottom!!)
+                    it.place(
+                        placement.left,
+                        layoutHeight - fabOffsetFromBottom!!,
+                        zIndex = FabZIndex,
+                    )
                 }
+            }
+            // The bottom bar is always at the bottom of the layout
+            bottomBarPlaceables.fastForEach {
+                it.place(0, layoutHeight - (bottomBarHeight ?: 0), zIndex = BottomBarZIndex)
             }
         }
     }
@@ -356,6 +364,13 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
 
 // FAB spacing above the bottom bar / bottom of the Scaffold
 private val FabSpacing = 16.dp
+
+// Z-indices for the different scaffold layout contents
+private const val ContentZIndex = 0f
+private const val TopBarZIndex = 1f
+private const val SnackbarZIndex = 2f
+private const val BottomBarZIndex = 3f
+private const val FabZIndex = 4f
 
 private enum class ScaffoldLayoutContent {
     TopBar,
