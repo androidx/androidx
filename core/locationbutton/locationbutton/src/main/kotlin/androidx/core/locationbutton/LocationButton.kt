@@ -391,6 +391,9 @@ constructor(
     /**
      * Controls the composition order of the underlying SurfaceView.
      *
+     * This only applies on [Build.VERSION_CODES.CINNAMON_BUN] and later. On older platforms, where
+     * the library falls back to a local button, this call is a safe no-op.
+     *
      * By default, this is set on Top in Z-order, as this button is a secure system component.
      * * For developers migrating from legacy SurfaceView APIs:
      * - `setZOrderOnTop(true)` is equivalent to passing `1`.
