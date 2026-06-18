@@ -112,9 +112,9 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
     private var headPoseJob: Job? = null
     private var currentHeadPose: Pose = Pose()
 
-    @Suppress("RestrictedApiAndroidX")
     override fun onAttach() {
         super.onAttach()
+
         // Initialize the Session and ArDevice once when the node is attached
         session =
             checkNotNull(currentValueOf(LocalSession)) {
@@ -125,6 +125,7 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
         if (session.config.deviceTracking == DeviceTrackingMode.DISABLED) {
             return
         }
+
         arDevice = ArDevice.getInstance(session)
     }
 
