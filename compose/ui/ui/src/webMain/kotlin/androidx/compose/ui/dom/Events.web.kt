@@ -18,6 +18,8 @@ package androidx.compose.ui.dom
 
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.internal
+import androidx.compose.ui.input.pointer.PointerEvent
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 
 
@@ -31,3 +33,16 @@ import org.w3c.dom.events.KeyboardEvent
  */
 val KeyEvent.domEventOrNull: KeyboardEvent?
     get() = internal.nativeEvent as? KeyboardEvent?
+
+/**
+ * The original raw native DOM event.
+ *
+ * Null if:
+ * - the native event is sent by another framework (when Compose UI is embed into it)
+ * - there is no native event (in tests, for example)
+ * - the event is a synthetic event sent by Compose
+ *
+ * Always check for null, when you want to handle the native event
+ */
+val PointerEvent.domEventOrNull: Event?
+    get() = nativeEvent as? Event?
