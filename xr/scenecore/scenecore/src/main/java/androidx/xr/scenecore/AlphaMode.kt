@@ -42,4 +42,12 @@ public class AlphaMode private constructor(private val value: Int) {
          */
         @JvmField public val BLEND: AlphaMode = AlphaMode(3)
     }
+
+    override fun toString(): String =
+        when (this) {
+            OPAQUE -> "OPAQUE"
+            MASK -> "MASK"
+            BLEND -> "BLEND"
+            else -> "UNKNOWN ($value)"
+        }
 }

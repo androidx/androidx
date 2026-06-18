@@ -274,6 +274,13 @@ private constructor(
              */
             @JvmField public val PROTECTED: SurfaceProtection = SurfaceProtection(1)
         }
+
+        override fun toString(): String =
+            when (this) {
+                NONE -> "NONE"
+                PROTECTED -> "PROTECTED"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /**
@@ -292,6 +299,13 @@ private constructor(
              */
             @JvmField public val PENTAGON: SuperSampling = SuperSampling(1)
         }
+
+        override fun toString(): String =
+            when (this) {
+                NONE -> "NONE"
+                PENTAGON -> "PENTAGON"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /** Specifies the drawing mode for a [Shape.TriangleMesh]. */
@@ -305,6 +319,14 @@ private constructor(
             /** Draw the mesh as a triangle fan. */
             @JvmField public val TRIANGLE_FAN: DrawMode = DrawMode(3)
         }
+
+        override fun toString(): String =
+            when (this) {
+                TRIANGLES -> "TRIANGLES"
+                TRIANGLE_STRIP -> "TRIANGLE_STRIP"
+                TRIANGLE_FAN -> "TRIANGLE_FAN"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /**
@@ -333,6 +355,16 @@ private constructor(
             /** Multiview video, [primary, auxiliary] views will map to [right, left] eyes */
             @JvmField public val MULTIVIEW_RIGHT_PRIMARY: StereoMode = StereoMode(5)
         }
+
+        override fun toString(): String =
+            when (this) {
+                MONO -> "MONO"
+                TOP_BOTTOM -> "TOP_BOTTOM"
+                SIDE_BY_SIDE -> "SIDE_BY_SIDE"
+                MULTIVIEW_LEFT_PRIMARY -> "MULTIVIEW_LEFT_PRIMARY"
+                MULTIVIEW_RIGHT_PRIMARY -> "MULTIVIEW_RIGHT_PRIMARY"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /** Specifies the blending mode of the content. */
@@ -345,6 +377,13 @@ private constructor(
             /** Content is opaque and does not blend with the background. */
             @JvmField public val OPAQUE: MediaBlendingMode = MediaBlendingMode(2)
         }
+
+        override fun toString(): String =
+            when (this) {
+                TRANSPARENT -> "TRANSPARENT"
+                OPAQUE -> "OPAQUE"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     /**
@@ -392,6 +431,18 @@ private constructor(
                 /** Please see ADataSpace::ADATASPACE_ADOBE_RGB (0xf3) */
                 @JvmField public val ADOBE_RGB: ColorSpace = ColorSpace(0xf3)
             }
+
+            override fun toString(): String =
+                when (this) {
+                    BT709 -> "BT709"
+                    BT601_PAL -> "BT601_PAL"
+                    BT2020 -> "BT2020"
+                    BT601_525 -> "BT601_525"
+                    DISPLAY_P3 -> "DISPLAY_P3"
+                    DCI_P3 -> "DCI_P3"
+                    ADOBE_RGB -> "ADOBE_RGB"
+                    else -> "UNKNOWN ($value)"
+                }
         }
 
         /**
@@ -431,6 +482,17 @@ private constructor(
                  */
                 @JvmField public val HLG: ColorTransfer = ColorTransfer(6)
             }
+
+            override fun toString(): String =
+                when (this) {
+                    LINEAR -> "LINEAR"
+                    SRGB -> "SRGB"
+                    SDR -> "SDR"
+                    GAMMA_2_2 -> "GAMMA_2_2"
+                    ST2084 -> "ST2084"
+                    HLG -> "HLG"
+                    else -> "UNKNOWN ($value)"
+                }
         }
 
         /**
@@ -446,6 +508,13 @@ private constructor(
                 /** Please see android.media.MedaiFormat.COLOR_RANGE_LIMITED */
                 @JvmField public val LIMITED: ColorRange = ColorRange(2)
             }
+
+            override fun toString(): String =
+                when (this) {
+                    FULL -> "FULL"
+                    LIMITED -> "LIMITED"
+                    else -> "UNKNOWN ($value)"
+                }
         }
 
         public companion object {

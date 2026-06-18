@@ -62,6 +62,14 @@ private constructor(
              */
             @JvmField public val STOPPED: PointerCaptureState = PointerCaptureState(3)
         }
+
+        override fun toString(): String =
+            when (this) {
+                PAUSED -> "PAUSED"
+                ACTIVE -> "ACTIVE"
+                STOPPED -> "STOPPED"
+                else -> "UNKNOWN ($value)"
+            }
     }
 
     private var attachedEntity: Entity? = null

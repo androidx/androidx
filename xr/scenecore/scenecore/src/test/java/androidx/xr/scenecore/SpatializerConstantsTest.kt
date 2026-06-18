@@ -77,4 +77,22 @@ class SpatializerConstantsTest {
         val rtThirdOrder = SpatializerConstants.AmbisonicsOrder.THIRD_ORDER.sourceTypeToRt()
         assertThat(rtThirdOrder).isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
     }
+
+    @Test
+    fun ambisonicsOrder_toString() {
+        assertThat(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER.toString())
+            .isEqualTo("FIRST_ORDER")
+        assertThat(SpatializerConstants.AmbisonicsOrder.SECOND_ORDER.toString())
+            .isEqualTo("SECOND_ORDER")
+        assertThat(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER.toString())
+            .isEqualTo("THIRD_ORDER")
+    }
+
+    @Test
+    fun sourceType_toString() {
+        assertThat(SpatializerConstants.SourceType.DEFAULT.toString()).isEqualTo("DEFAULT")
+        assertThat(SpatializerConstants.SourceType.POINT_SOURCE.toString())
+            .isEqualTo("POINT_SOURCE")
+        assertThat(SpatializerConstants.SourceType.SOUND_FIELD.toString()).isEqualTo("SOUND_FIELD")
+    }
 }
