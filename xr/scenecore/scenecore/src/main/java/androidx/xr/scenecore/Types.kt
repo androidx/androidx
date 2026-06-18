@@ -48,7 +48,15 @@ public class PlaneOrientation private constructor(private val value: Int) {
         @JvmField public val ALL: Set<PlaneOrientation> = setOf(HORIZONTAL, VERTICAL)
     }
 
-    public override fun toString(): String = value.toString()
+    @Suppress("DEPRECATION")
+    public override fun toString(): String =
+        when (this) {
+            // TODO: b/500464864 - Remove this constant.
+            ANY -> "ANY"
+            HORIZONTAL -> "HORIZONTAL"
+            VERTICAL -> "VERTICAL"
+            else -> "UNKNOWN ($value)"
+        }
 }
 
 /**
@@ -85,5 +93,15 @@ public class PlaneSemanticType private constructor(private val value: Int) {
         @JvmField public val ALL: Set<PlaneSemanticType> = setOf(WALL, FLOOR, CEILING, TABLE)
     }
 
-    public override fun toString(): String = value.toString()
+    @Suppress("DEPRECATION")
+    public override fun toString(): String =
+        when (this) {
+            // TODO: b/500464864 - Remove this constant.
+            ANY -> "ANY"
+            WALL -> "WALL"
+            FLOOR -> "FLOOR"
+            CEILING -> "CEILING"
+            TABLE -> "TABLE"
+            else -> "UNKNOWN ($value)"
+        }
 }
