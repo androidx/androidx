@@ -269,4 +269,12 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_DATABASE_STABLENESS_LOG)
                 .isEqualTo("com.android.appsearch.flags.enable_database_stableness_log");
     }
+
+    @Test
+    public void testFlagValue_enableAccountPropertyIncompatibilityCheck() {
+        assertThat(Flags.FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_account_property_incompatibility_check");
+    }
 }

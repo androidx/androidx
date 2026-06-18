@@ -33,6 +33,7 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.appsearch.app.AppSearchAccount;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -67,6 +68,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.usagereporting.ClickAction;
 import androidx.appsearch.usagereporting.DismissAction;
@@ -14508,5 +14510,72 @@ public abstract class AppSearchSessionCtsTestBase {
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCORABLE_PROPERTY)
     public void testRankWithInvalidPropertyName() throws Exception {
         // TODO(b/379923400): Implement this test.
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    public void testSetSchema_promoteToAccountProperty_compatible() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("account",
+                                AppSearchAccount.SCHEMA_TYPE)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setShouldIndexNestedProperties(true)
+                                .build())
+                        .build(),
+                AppSearchAccount.SCHEMA);
+
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .build()).get();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .setSchemaTypeWipeoutAccountPropertyPaths(
+                        "Type", ImmutableSet.of(new PropertyPath("account")), true)
+                .build();
+
+        mDb1.setSchemaAsync(request).get();
+    }
+
+    @Test
+    @RequiresFlagsEnabled({
+            Flags.FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK,
+            Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS
+    })
+    public void testSetSchema_promoteToAccountProperty_incompatible() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("account",
+                                AppSearchAccount.SCHEMA_TYPE)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setShouldIndexNestedProperties(true)
+                                .build())
+                        .build(),
+                AppSearchAccount.SCHEMA);
+
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .build()).get();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .setSchemaTypeWipeoutAccountPropertyPaths(
+                        "Type", ImmutableSet.of(new PropertyPath("account")), true)
+                .build();
+
+        ExecutionException executionException = assertThrows(ExecutionException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_SCHEMA);
+        assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 }
