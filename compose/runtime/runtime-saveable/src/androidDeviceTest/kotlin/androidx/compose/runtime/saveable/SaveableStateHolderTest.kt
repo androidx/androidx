@@ -424,6 +424,114 @@ class SaveableStateHolderTest {
         }
     }
 
+    @Test
+    fun keysPropertyIsUpdated() {
+        var holder: SaveableStateHolder? = null
+        var keySetSize by mutableStateOf(0)
+        var activeKey by mutableStateOf<Any?>(null)
+        restorationTester.setContent {
+            val localHolder = rememberSaveableStateHolder()
+            holder = localHolder
+            // Reading the size here ensures our test recomposes when the set changes,
+            // which validates the observability of the `keys` property.
+            keySetSize = localHolder.keys.size
+            if (activeKey != null) {
+                localHolder.SaveableStateProvider(activeKey!!) {
+                    // content
+                }
+            }
+        }
+
+        // The set should be empty before any keys are provided.
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(0)
+            assertThat(holder!!.keys).isEmpty()
+        }
+
+        // Composing a key should add it to the set.
+        rule.runOnIdle { activeKey = "A" }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(1)
+            assertThat(holder!!.keys).containsExactly("A")
+        }
+
+        // Composing a new key should add it, and the previously composed key ("A")
+        // should remain in the set because it is now saved.
+        rule.runOnIdle { activeKey = "B" }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(2)
+            assertThat(holder!!.keys).containsExactly("A", "B")
+        }
+
+        // Disposing the active key ("B") should save it, but not remove it from the set.
+        // Keys should only be removed when explicitly calling `removeState`.
+        rule.runOnIdle { activeKey = null }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(2)
+            assertThat(holder!!.keys).containsExactly("A", "B")
+        }
+
+        // `removeState` must work for keys that are currently saved (not composed).
+        rule.runOnIdle { holder!!.removeState("A") }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(1)
+            assertThat(holder!!.keys).containsExactly("B")
+        }
+
+        // Re-composing "B" should just make it active again, not change the set.
+        rule.runOnIdle { activeKey = "B" }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(1)
+            assertThat(holder!!.keys).containsExactly("B")
+        }
+
+        // `removeState` must also work for keys that are currently active (composed).
+        rule.runOnIdle { holder!!.removeState("B") }
+        rule.runOnIdle {
+            assertThat(keySetSize).isEqualTo(0)
+            assertThat(holder!!.keys).isEmpty()
+        }
+    }
+
+    @Test
+    fun keysPropertyIsRestored() {
+        var holder: SaveableStateHolder? = null
+        var activeKey by mutableStateOf<Any?>(null)
+        restorationTester.setContent {
+            val localHolder = rememberSaveableStateHolder()
+            holder = localHolder
+            if (activeKey != null) {
+                localHolder.SaveableStateProvider(activeKey!!) {
+                    // Force the state to be non-empty so it survives process death
+                    // and bypasses the bundle size optimization that drops empty keys.
+                    rememberSaveable<String> { "state_for_$activeKey" }
+                }
+            }
+        }
+
+        // Set up a state where "A" is saved and "B" is active.
+        rule.runOnIdle { activeKey = "A" }
+        rule.runOnIdle { activeKey = "B" }
+
+        // Verify the pre-condition before restoration.
+        rule.runOnIdle { assertThat(holder!!.keys).containsExactly("A", "B") }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // After restoration, the new holder instance must repopulate its `keys` set
+        // from the `savedStates` map it received during its reconstruction.
+        // "B" is composed again, while "A" remains in the saved state.
+        rule.runOnIdle { assertThat(holder!!.keys).containsExactly("A", "B") }
+
+        // Verify `removeState` still works correctly on restored, saved keys.
+        rule.runOnIdle { holder!!.removeState("A") }
+        rule.runOnIdle { assertThat(holder!!.keys).containsExactly("B") }
+
+        // Verify `removeState` still works correctly on restored, active keys.
+        rule.runOnIdle { holder!!.removeState("B") }
+        rule.runOnIdle { assertThat(holder!!.keys).isEmpty() }
+    }
+
     class Activity : ComponentActivity() {
         fun doFakeSave() {
             onSaveInstanceState(Bundle())
