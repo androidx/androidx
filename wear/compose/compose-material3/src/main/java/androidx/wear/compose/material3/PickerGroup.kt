@@ -62,9 +62,16 @@ import kotlinx.coroutines.coroutineScope
  *
  * @sample androidx.wear.compose.material3.samples.PickerGroupSample
  *
+ * ![PickerGroupSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_PickerGroupSample_CompositeImage.png)
+ *
  * Example of an auto centering picker group where the total width exceeds screen's width:
  *
  * @sample androidx.wear.compose.material3.samples.AutoCenteringPickerGroup
+ *
+ * ![AutoCenteringPickerGroup Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_AutoCenteringPickerGroup_CompositeImage.png)
+ *
  * @param selectedPickerState The [PickerState] of the [Picker] that is selected. Null value means
  *   that no [Picker] is selected.
  * @param modifier [Modifier] to be applied to the [PickerGroup].

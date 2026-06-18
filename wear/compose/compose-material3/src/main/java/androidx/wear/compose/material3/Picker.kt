@@ -113,6 +113,10 @@ import kotlinx.coroutines.launch
  * Example of a sample picker group with an hour and minute picker (24 hour format):
  *
  * @sample androidx.wear.compose.material3.samples.PickerGroupSample
+ *
+ * ![PickerGroupSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_PickerGroupSample_CompositeImage.png)
+ *
  * @param state The state of the component
  * @param contentDescription A block which computes text used by accessibility services to describe
  *   what the selected option represents. This text should be localized, such as by using

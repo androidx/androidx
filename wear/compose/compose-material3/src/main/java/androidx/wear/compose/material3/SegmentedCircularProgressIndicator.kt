@@ -51,6 +51,9 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.SegmentedProgressIndicatorSample
  *
+ * ![SegmentedProgressIndicatorSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SegmentedProgressIndicatorSample_CompositeImage.png)
+ *
  * Example of smaller size [SegmentedCircularProgressIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
@@ -241,6 +244,9 @@ public fun SegmentedCircularProgressIndicator(
  * Example of [SegmentedCircularProgressIndicator] where the segments are turned on/off:
  *
  * @sample androidx.wear.compose.material3.samples.SegmentedProgressIndicatorBinarySample
+ *
+ * ![SegmentedProgressIndicatorBinarySample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SegmentedProgressIndicatorBinarySample_CompositeImage.png)
  *
  * Example of smaller size [SegmentedCircularProgressIndicator]:
  *
