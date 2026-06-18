@@ -54,12 +54,12 @@ import dagger.Module
 import dagger.multibindings.IntoSet
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /** Implementation of focus and metering controls exposed by [CameraControlInternal]. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -126,6 +126,7 @@ constructor(
 
     private var focusTimeoutJob: Job? = null
     private var autoCancelJob: Job? = null
+    private var activeFocusMetering3Result: Deferred<Result3A>? = null
 
     public fun startFocusAndMetering(
         action: FocusMeteringAction,
@@ -138,6 +139,8 @@ constructor(
             autoCancelJob?.cancel()
             cancelSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
             updateSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
+            activeFocusMetering3Result?.cancel()
+            activeFocusMetering3Result = null
 
             updateSignal = signal
 
@@ -330,6 +333,8 @@ constructor(
                     )
                 }
 
+            activeFocusMetering3Result = deferredResult3A
+
             deferredResult3A.propagateToFocusMeteringResultDeferred(
                 resultDeferred = signal,
                 shouldTriggerAf = afRectangles.isNotEmpty(),
@@ -386,7 +391,7 @@ constructor(
         autoCancelJob?.cancel()
 
         autoCancelJob =
-            threads.sequentialScope.launch {
+            threads.confineLaunch {
                 delay(delayMillis)
                 Camera2Logger.debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
                 cancelFocusAndMeteringNowAsync(requestControl, resultToCancel)
@@ -400,7 +405,7 @@ constructor(
         focusTimeoutJob?.cancel()
 
         focusTimeoutJob =
-            threads.sequentialScope.launch {
+            threads.confineLaunch {
                 delay(delayMillis)
                 Camera2Logger.debug {
                     "triggerFocusTimeout:" +
@@ -423,10 +428,22 @@ constructor(
     ) {
         invokeOnCompletion { throwable ->
             if (throwable != null) {
-                Camera2Logger.warn(throwable) {
-                    "propagateToFocusMeteringResultDeferred: completed exceptionally!"
+                if (throwable is CancellationException) {
+                    Camera2Logger.debug(throwable) {
+                        "propagateToFocusMeteringResultDeferred: completed exceptionally!"
+                    }
+                } else {
+                    Camera2Logger.warn(throwable) {
+                        "propagateToFocusMeteringResultDeferred: completed exceptionally!"
+                    }
                 }
-                resultDeferred.completeExceptionally(throwable)
+                val exception =
+                    if (throwable is CancellationException) {
+                        OperationCanceledException("Focus/metering operation cancelled.", throwable)
+                    } else {
+                        throwable
+                    }
+                resultDeferred.completeExceptionally(exception)
             } else {
                 val result3A = getCompleted()
                 Camera2Logger.debug {
@@ -498,6 +515,9 @@ constructor(
         requestControl?.let { requestControl ->
             focusTimeoutJob?.cancel()
             autoCancelJob?.cancel()
+            updateSignal?.setCancelException("Cancelled by cancelFocusAndMetering()")
+            activeFocusMetering3Result?.cancel()
+            activeFocusMetering3Result = null
             cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
             cancelSignal = signal
             cancelFocusAndMeteringNowAsync(requestControl, updateSignal).invokeOnCompletion {
