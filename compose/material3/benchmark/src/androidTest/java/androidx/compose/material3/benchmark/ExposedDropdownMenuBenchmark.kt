@@ -53,6 +53,7 @@ import org.junit.runner.RunWith
 class ExposedDropdownMenuBenchmark {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
+    @Ignore("TODO(b/519444149): Enable after it has been fixed")
     @Test
     fun edm_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel { ExposedDropdownMenuTestCase(expanded = false) }
