@@ -50,7 +50,6 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.font.FontWeight
@@ -61,7 +60,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,7 +117,7 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
         rule.setAutoFocusContent { FocusableTestList(itemsCount = 100) }
 
         val swipe = with(rule.density) { ItemHeight.toPx() * 5.5f }
-        rule.onNodeWithTag(LIST_TEST_TAG).performIndirectSwipe(rule, swipe)
+        rule.oneMoveSwipeAlongXAxis(swipe)
         rule.waitForIdle()
 
         rule.onListItem(5).assertIsFocused()
@@ -161,7 +160,7 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
             }
         }
 
-        rule.onRoot().performIndirectSwipe(rule, 1500f)
+        rule.oneMoveSwipeAlongXAxis(1500f)
 
         Truth.assertThat(downEventReceivedByParentWasConsumed).isFalse()
         Truth.assertThat(moveEventReceivedByParentWasConsumed).isFalse()
@@ -208,7 +207,7 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
         }
 
         // List is scrollable, so it will consume the move events
-        rule.onRoot().performIndirectSwipe(rule, 200f)
+        rule.oneMoveSwipeAlongXAxis(200f)
         Truth.assertThat(downEventReceivedByParentWasConsumed).isFalse()
         Truth.assertThat(moveEventReceivedByParentWasConsumed).isTrue()
         Truth.assertThat(upEventReceivedByParentWasConsumed).isFalse()
@@ -221,7 +220,7 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
         upEventReceivedByParentWasConsumed = false
 
         // List is non-scrollable now, so events must be propagated further.
-        rule.onRoot().performIndirectSwipe(rule, 200f)
+        rule.oneMoveSwipeAlongXAxis(200f)
         Truth.assertThat(downEventReceivedByParentWasConsumed).isFalse()
         Truth.assertThat(moveEventReceivedByParentWasConsumed).isFalse()
         Truth.assertThat(upEventReceivedByParentWasConsumed).isFalse()

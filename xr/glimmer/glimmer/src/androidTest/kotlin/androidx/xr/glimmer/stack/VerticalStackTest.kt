@@ -17,7 +17,6 @@
 package androidx.xr.glimmer.stack
 
 import android.os.Build
-import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.DragInteraction
@@ -44,12 +43,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.inputDeviceCenter
+import androidx.compose.ui.test.inputDeviceTopRight
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -58,10 +60,9 @@ import androidx.compose.ui.unit.size
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectMove
-import androidx.xr.glimmer.performIndirectPress
-import androidx.xr.glimmer.performIndirectRelease
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.evenlyDividedMoveX
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
+import androidx.xr.glimmer.sendIndirectPointerInput
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
@@ -350,20 +351,21 @@ class VerticalStackTest {
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
 
-        val press = performIndirectPress()
-        val moveForward =
-            performIndirectMove(distancePx = itemHeight / 2f, previousMotionEvent = press)
+        rule.sendIndirectPointerInput {
+            down(Offset.Zero)
+            evenlyDividedMoveX(itemHeight / 2f)
+        }
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isGreaterThan(0.3f)
+        rule.sendIndirectPointerInput { evenlyDividedMoveX(-itemHeight / 2f) }
 
-        val moveBackward =
-            performIndirectMove(distancePx = -itemHeight / 2f, previousMotionEvent = moveForward)
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isLessThan(0.1f)
 
-        performIndirectRelease(previousMotionEvent = moveBackward)
+        rule.sendIndirectPointerInput { up() }
+
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
@@ -506,6 +508,8 @@ class VerticalStackTest {
 
         rule.onNodeWithText("Item 1").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(1)
+        // To call performIndirectSwipe(), something must be focused.
+        rule.onNodeWithTag("Item 1").requestFocus()
         performIndirectSwipe(itemHeight)
         rule.onNodeWithText("Item 1").assertIsDisplayed() // Reached the end
         assertThat(state.topItem).isEqualTo(1)
@@ -800,7 +804,7 @@ class VerticalStackTest {
                 .isEqualTo(Color.Green)
         }
 
-        val press = performIndirectPress()
+        rule.sendIndirectPointerInput { down(inputDeviceCenter) }
 
         rule.onRoot().captureToImage().run {
             val pixels = toPixelMap()
@@ -816,7 +820,7 @@ class VerticalStackTest {
                 .isZero()
         }
 
-        performIndirectRelease(previousMotionEvent = press)
+        rule.sendIndirectPointerInput { up() }
 
         rule.onRoot().captureToImage().run {
             val pixels = toPixelMap()
@@ -972,26 +976,26 @@ class VerticalStackTest {
 
     @Test
     fun dragForwardAndBackward_sameGesture_canReachPreviousItem() = runTest {
-        var itemHeight = 0
         val state = StackState()
         rule.setContent {
-            VerticalStack(state = state) {
-                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
-            }
+            VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
         }
         runOnUiThread { state.scrollToItem(2) }
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(2)
 
-        val press = performIndirectPress()
-        val moveForward =
-            performIndirectMove(distancePx = itemHeight.toFloat() * 3, previousMotionEvent = press)
-        val moveBackward =
-            performIndirectMove(
-                distancePx = -itemHeight.toFloat() * 2,
-                previousMotionEvent = moveForward,
-            )
-        performIndirectRelease(previousMotionEvent = moveBackward)
+        rule.sendIndirectPointerInput {
+            // Start at the center to allow maximum travel forward and backward within bounds
+            down(inputDeviceCenter)
+            // Move to the far right edge
+            val forwardDistance = inputDeviceTopRight.x - inputDeviceCenter.x
+            evenlyDividedMoveX(forwardDistance)
+            // Move all the way back to the far left edge
+            val backwardDistance = -inputDeviceTopRight.x
+            evenlyDividedMoveX(backwardDistance)
+            up()
+        }
+
         rule.waitForIdle()
 
         assertThat(state.topItem).isEqualTo(1)
@@ -1065,25 +1069,9 @@ class VerticalStackTest {
         }
     }
 
-    private fun performIndirectPress() = rule.onRoot().performIndirectPress(rule)
-
-    private fun performIndirectMove(distancePx: Float, previousMotionEvent: MotionEvent) =
-        rule
-            .onRoot()
-            .performIndirectMove(
-                rule = rule,
-                distancePx = distancePx,
-                previousMotionEvent = previousMotionEvent,
-            )
-
-    private fun performIndirectRelease(previousMotionEvent: MotionEvent) =
-        rule.onRoot().performIndirectRelease(rule, previousMotionEvent)
-
     private fun performIndirectSwipe(distancePx: Int, durationMillis: Long = 200L) {
         require(distancePx != 0)
-        rule
-            .onRoot()
-            .performIndirectSwipe(rule, distancePx.toFloat(), moveDuration = durationMillis)
+        rule.oneMoveSwipeAlongXAxis(distancePx.toFloat(), durationMillis)
     }
 
     suspend fun runOnUiThread(action: suspend () -> Unit) {

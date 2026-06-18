@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-[linuxX64]: Added declaration androidx.compose.animation.core/TransitionInstance to androidx.compose.animation:animation-core
-[linuxX64]: Removed declaration <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String?) from androidx.compose.animation.core/DeferredTransition
-[linuxX64]: Removed declaration <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String?) from androidx.compose.animation.core/DeferredTransition
-[linuxX64]: modality changed from OPEN to SEALED for androidx.compose.animation.core/Transition
-[linuxX64]: Removed declaration <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String?) from androidx.compose.animation.core/Transition
-[linuxX64]: Removed declaration <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String?) from androidx.compose.animation.core/Transition

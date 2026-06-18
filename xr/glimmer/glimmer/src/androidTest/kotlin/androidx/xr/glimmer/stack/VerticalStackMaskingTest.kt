@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
@@ -840,9 +840,7 @@ class VerticalStackMaskingTest {
 
     private fun performIndirectSwipe(distancePx: Int, durationMillis: Long = 200L) {
         require(distancePx != 0)
-        rule
-            .onRoot()
-            .performIndirectSwipe(rule, distancePx.toFloat(), moveDuration = durationMillis)
+        rule.oneMoveSwipeAlongXAxis(distancePx.toFloat(), durationMillis)
     }
 
     suspend fun runOnUiThread(action: suspend () -> Unit) {

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.setGlimmerThemeContent
 import androidx.xr.glimmer.testutils.NoFlingBehavior
 import org.junit.Test
@@ -59,7 +59,7 @@ class GlimmerLazyListIndirectPointerTest :
 
         // 900 dp for scroll (9 items) and 50 dp for focus (the focus line will be in the center).
         val swipeDistance = with(density) { 950.dp.toPx() }
-        rule.onNodeWithTag(LIST_TEST_TAG).performIndirectSwipe(rule, swipeDistance)
+        rule.oneMoveSwipeAlongXAxis(swipeDistance)
 
         rule.onNodeWithText("Item-8").assertIsNotDisplayed()
         rule.onNodeWithText("Item-9").assertIsDisplayed()
@@ -86,7 +86,7 @@ class GlimmerLazyListIndirectPointerTest :
 
         // 900 dp for scroll (9 items) and 50 dp for focus (the focus line will be in the center).
         val swipeDistance = with(density) { 950.dp.toPx() }
-        rule.onNodeWithTag(LIST_TEST_TAG).performIndirectSwipe(rule, -swipeDistance)
+        rule.oneMoveSwipeAlongXAxis(-swipeDistance)
 
         rule.onNodeWithText("Item-89").assertIsNotDisplayed()
         rule.onNodeWithText("Item-90").assertIsDisplayed()

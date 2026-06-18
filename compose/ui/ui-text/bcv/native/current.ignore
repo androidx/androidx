@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop from androidx.compose.ui:ui-text
-[linuxX64]: Removed declaration androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop_getter() from androidx.compose.ui:ui-text

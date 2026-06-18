@@ -19,16 +19,17 @@ package androidx.xr.glimmer.benchmark
 import android.os.SystemClock
 import android.view.MotionEvent
 import androidx.annotation.MainThread
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.indirect.IndirectPointerEventType
+import androidx.compose.ui.input.indirect.IndirectPointerInputChange
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.node.RootForTest
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 
 /** Send the indirect swipe consisting of three events: DOWN, MOVE, and UP. */
 @MainThread
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun RootForTest.sendIndirectSwipe(
     distance: Float,
     primaryAxis: IndirectPointerEventPrimaryDirectionalMotionAxis,
@@ -43,7 +44,6 @@ internal fun RootForTest.sendIndirectSwipe(
 }
 
 @MainThread
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun RootForTest.sendIndirectSwipeEvents(
     from: Offset,
     to: Offset,
@@ -51,65 +51,88 @@ internal fun RootForTest.sendIndirectSwipeEvents(
     delayTimeMillis: Long = 16L,
 ) {
     var currentTime = SystemClock.uptimeMillis()
-    val downEvent = sendIndirectPointerPressEvent(time = currentTime, value = from, axis = axis)
-    currentTime += delayTimeMillis
-    val move =
-        sendIndirectPointerMoveEvents(
-            time = currentTime,
-            value = to,
-            axis = axis,
-            previousEvent = downEvent,
+    val downTime = currentTime
+
+    // Down event
+    val downChange =
+        IndirectPointerInputChange(
+            id = PointerId(0L),
+            uptimeMillis = currentTime,
+            position = from,
+            pressed = true,
+            pressure = 1.0f,
+            previousUptimeMillis = currentTime,
+            previousPosition = from,
+            previousPressed = false,
         )
+    val downEvent =
+        IndirectPointerEvent(
+            changes = listOf(downChange),
+            type = IndirectPointerEventType.Press,
+            primaryDirectionalMotionAxis = axis,
+            motionEvent =
+                obtainIndirectMotionEvent(downTime, currentTime, MotionEvent.ACTION_DOWN, from),
+        )
+    sendIndirectPointerEvent(downEvent)
+
     currentTime += delayTimeMillis
-    sendIndirectPointerReleaseEvent(
-        time = currentTime,
-        value = to,
-        axis = axis,
-        previousEvent = move,
-    )
+
+    // Move event
+    val moveChange =
+        IndirectPointerInputChange(
+            id = PointerId(0L),
+            uptimeMillis = currentTime,
+            position = to,
+            pressed = true,
+            pressure = 1.0f,
+            previousUptimeMillis = currentTime - delayTimeMillis,
+            previousPosition = from,
+            previousPressed = true,
+        )
+    val moveEvent =
+        IndirectPointerEvent(
+            changes = listOf(moveChange),
+            type = IndirectPointerEventType.Move,
+            primaryDirectionalMotionAxis = axis,
+            motionEvent =
+                obtainIndirectMotionEvent(downTime, currentTime, MotionEvent.ACTION_MOVE, to),
+        )
+    sendIndirectPointerEvent(moveEvent)
+
+    currentTime += delayTimeMillis
+
+    // Up event
+    val upChange =
+        IndirectPointerInputChange(
+            id = PointerId(0L),
+            uptimeMillis = currentTime,
+            position = to,
+            pressed = false,
+            pressure = 1.0f,
+            previousUptimeMillis = currentTime - delayTimeMillis,
+            previousPosition = to,
+            previousPressed = true,
+        )
+    val upEvent =
+        IndirectPointerEvent(
+            changes = listOf(upChange),
+            type = IndirectPointerEventType.Release,
+            primaryDirectionalMotionAxis = axis,
+            motionEvent =
+                obtainIndirectMotionEvent(downTime, currentTime, MotionEvent.ACTION_UP, to),
+        )
+    sendIndirectPointerEvent(upEvent)
 }
 
-@MainThread
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun RootForTest.sendIndirectPointerMoveEvents(
-    time: Long,
-    value: Offset,
-    axis: IndirectPointerEventPrimaryDirectionalMotionAxis,
-    previousEvent: MotionEvent?,
+private fun obtainIndirectMotionEvent(
+    downTime: Long,
+    eventTime: Long,
+    action: Int,
+    coordinates: Offset,
 ): MotionEvent {
-    val move = obtainIndirectMotionEvent(time, MotionEvent.ACTION_MOVE, value)
-    sendIndirectPointerEvent(IndirectPointerEvent(move, axis, previousEvent))
-    return move
-}
-
-@MainThread
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun RootForTest.sendIndirectPointerReleaseEvent(
-    time: Long,
-    value: Offset,
-    axis: IndirectPointerEventPrimaryDirectionalMotionAxis,
-    previousEvent: MotionEvent? = null,
-) {
-    val up = obtainIndirectMotionEvent(time, MotionEvent.ACTION_UP, value)
-    sendIndirectPointerEvent(IndirectPointerEvent(up, axis, previousEvent))
-}
-
-@MainThread
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun RootForTest.sendIndirectPointerPressEvent(
-    time: Long,
-    value: Offset,
-    axis: IndirectPointerEventPrimaryDirectionalMotionAxis,
-): MotionEvent {
-    val down = obtainIndirectMotionEvent(time, MotionEvent.ACTION_DOWN, value)
-    sendIndirectPointerEvent(IndirectPointerEvent(down, axis))
-    return down
-}
-
-private fun obtainIndirectMotionEvent(time: Long, action: Int, coordinates: Offset): MotionEvent {
     return MotionEvent.obtain(
-            /* downTime = */ time,
-            /* eventTime = */ time,
+            /* downTime = */ downTime,
+            /* eventTime = */ eventTime,
             /* action = */ action,
             /* x = */ coordinates.x,
             /* y = */ coordinates.y,

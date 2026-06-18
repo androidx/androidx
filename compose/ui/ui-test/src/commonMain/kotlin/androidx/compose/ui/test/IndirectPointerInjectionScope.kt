@@ -912,11 +912,15 @@ internal class IndirectPointerInjectionScopeImpl(
         get() = baseScope.inputDispatcher
 
     private fun validatePosition(position: Offset) {
-        require(
-            position.x in 0f..inputDeviceSize.width.toFloat() &&
-                position.y in 0f..inputDeviceSize.height.toFloat()
-        ) {
-            "Position $position is outside of the indirect pointer input device bounds $inputDeviceSize"
+        val x = position.x
+        val y = position.y
+        val width = inputDeviceSize.width.toFloat()
+        val height = inputDeviceSize.height.toFloat()
+        // Allow for some floating point rounding error
+        val epsilon = 0.01f
+        require(x in -epsilon..width + epsilon && y in -epsilon..height + epsilon) {
+            "Position ($x, $y) is outside of the indirect pointer input device bounds " +
+                "$inputDeviceSize"
         }
     }
 

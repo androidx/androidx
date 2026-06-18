@@ -41,11 +41,10 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.setGlimmerThemeContent
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
@@ -612,9 +611,7 @@ class GlimmerHorizontalPagerFocusTest(private val config: GlimmerPagerParamConfi
 
     private fun performIndirectSwipe(distancePx: Int, durationMillis: Long = 200L) {
         require(distancePx != 0)
-        rule
-            .onRoot()
-            .performIndirectSwipe(rule, distancePx.toFloat(), moveDuration = durationMillis)
+        rule.oneMoveSwipeAlongXAxis(distancePx.toFloat(), durationMillis)
     }
 
     suspend fun runOnUiThread(action: suspend () -> Unit) {

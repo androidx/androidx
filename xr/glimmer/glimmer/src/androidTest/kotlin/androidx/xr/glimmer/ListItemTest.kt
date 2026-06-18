@@ -17,8 +17,6 @@
 package androidx.xr.glimmer
 
 import android.os.Build
-import android.os.SystemClock
-import android.view.MotionEvent
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,7 +33,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
@@ -44,7 +41,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -54,16 +50,17 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.inputDeviceCenter
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
-import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -85,7 +82,6 @@ import org.junit.runner.RunWith
 // The expected min sdk is 35, but we test on 33 for wider device coverage (some APIs are not
 // available below 33)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalIndirectPointerApi::class)
 class ListItemTest {
     @get:Rule(0) val rule = createComposeRule(StandardTestDispatcher())
 
@@ -305,7 +301,7 @@ class ListItemTest {
             scope = rememberCoroutineScope()
             Box {
                 ListItem(
-                    modifier = Modifier.testTag("listItem").focusRequester(focusRequester),
+                    modifier = Modifier.focusRequester(focusRequester),
                     interactionSource = interactionSource,
                     onClick = {},
                 ) {
@@ -322,55 +318,26 @@ class ListItemTest {
 
         rule.runOnIdle { interactions.clear() }
 
-        val currentTime = SystemClock.uptimeMillis()
-
-        val down =
-            MotionEvent.obtain(
-                currentTime, // downTime,
-                currentTime, // eventTime,
-                MotionEvent.ACTION_DOWN,
-                0f,
-                0f,
-                0,
-            )
-        down.source = SOURCE_TOUCH_NAVIGATION
-        rule
-            .onNodeWithTag("listItem")
-            .performIndirectPointerEvent(
-                rule,
-                IndirectPointerEvent(
-                    down,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
-            )
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(inputDeviceCenter)
+        }
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
-
-        val up =
-            MotionEvent.obtain(
-                currentTime + 200L, // downTime,
-                currentTime + 200L, // eventTime,
-                MotionEvent.ACTION_UP,
-                0f,
-                0f,
-                0,
-            )
-        up.source = SOURCE_TOUCH_NAVIGATION
-        rule
-            .onNodeWithTag("listItem")
-            .performIndirectPointerEvent(
-                rule,
-                IndirectPointerEvent(
-                    up,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                    down,
-                ),
-            )
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            advanceEventTime(200L)
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(2)
