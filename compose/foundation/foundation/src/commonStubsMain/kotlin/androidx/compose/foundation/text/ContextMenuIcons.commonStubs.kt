@@ -36,6 +36,9 @@ internal actual value class ContextMenuIcons(val value: Int) {
         actual val ActionModeSelectAllDrawable: ContextMenuIcons
             get() = implementedInJetBrainsFork()
 
+        actual val ActionModeLookUpDrawable: ContextMenuIcons
+            get() = implementedInJetBrainsFork()
+
         actual val ID_NULL: ContextMenuIcons
             get() = implementedInJetBrainsFork()
     }

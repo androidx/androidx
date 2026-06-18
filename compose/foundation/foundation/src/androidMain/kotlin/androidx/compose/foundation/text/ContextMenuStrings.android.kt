@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import android.content.res.Resources
 import android.os.Build
 import androidx.compose.foundation.R
 import androidx.compose.runtime.Composable
@@ -46,6 +47,20 @@ internal actual value class ContextMenuStrings actual constructor(actual val val
                         R.string.androidx_compose_foundation_autofill
                     } else {
                         android.R.string.autofill
+                    }
+                )
+
+        actual val LookUp: ContextMenuStrings
+            get() =
+                ContextMenuStrings(
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        // TODO(b/578168517): Replace with android.R.string.lookUp once it is
+                        //  available in the compile SDK.
+                        Resources.getSystem().getIdentifier("lookUp", "string", "android").takeIf {
+                            it != Resources.ID_NULL
+                        } ?: R.string.androidx_compose_foundation_look_up
+                    } else {
+                        Resources.ID_NULL
                     }
                 )
     }

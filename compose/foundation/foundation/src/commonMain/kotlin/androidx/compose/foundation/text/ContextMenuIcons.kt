@@ -27,6 +27,7 @@ internal expect value class ContextMenuIcons(val value: Int) {
         val ActionModeCopyDrawable: ContextMenuIcons
         val ActionModePasteDrawable: ContextMenuIcons
         val ActionModeSelectAllDrawable: ContextMenuIcons
+        val ActionModeLookUpDrawable: ContextMenuIcons
         val ID_NULL: ContextMenuIcons
     }
 }

@@ -30,6 +30,7 @@ internal expect value class ContextMenuStrings(val value: Int) {
         val Paste: ContextMenuStrings
         val SelectAll: ContextMenuStrings
         val Autofill: ContextMenuStrings
+        val LookUp: ContextMenuStrings
     }
 }
 

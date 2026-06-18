@@ -19,4 +19,7 @@
     <string name="tooltip_label">show tooltip</string>
     <!-- Item on context menu. This action is used to request autofill. -->
     <string name="androidx_compose_foundation_autofill">Autofill</string>
+    <!-- TODO(b/578168517): Remove once android.R.string.lookUp is available in the compile SDK. -->
+    <!-- Item on context menu. This action is used to look up selected text. -->
+    <string name="androidx_compose_foundation_look_up">Look up</string>
 </resources>

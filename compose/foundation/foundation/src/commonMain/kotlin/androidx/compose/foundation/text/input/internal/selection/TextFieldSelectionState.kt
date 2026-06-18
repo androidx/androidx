@@ -1535,9 +1535,7 @@ internal class TextFieldSelectionState(
      *
      * Also, see [copyWithResult]
      */
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun isCopyAllowed(): Boolean =
-        !textFieldState.visualText.selection.collapsed && !isPassword
+    fun isCopyAllowed(): Boolean = !textFieldState.visualText.selection.collapsed && !isPassword
 
     /**
      * The method for copying text.

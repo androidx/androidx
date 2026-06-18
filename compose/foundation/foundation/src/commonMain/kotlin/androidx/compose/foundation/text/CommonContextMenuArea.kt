@@ -107,6 +107,8 @@ internal fun CommonContextMenuArea(
                             TextContextMenuItems.Paste -> paste()
                             TextContextMenuItems.SelectAll -> selectAll()
                             TextContextMenuItems.Autofill -> autofill()
+                            // Look Up is only offered by the new text context menu.
+                            TextContextMenuItems.LookUp -> {}
                         }
                     }
                 },
@@ -174,6 +176,11 @@ internal enum class TextContextMenuItems(
         stringId = ContextMenuStrings.Autofill,
         // Platform also doesn't have an icon for the autofill item.
         drawableId = ContextMenuIcons.ID_NULL,
+    ),
+    LookUp(
+        key = TextContextMenuKeys.LookUpKey,
+        stringId = ContextMenuStrings.LookUp,
+        drawableId = ContextMenuIcons.ActionModeLookUpDrawable,
     );
 
     @ReadOnlyComposable @Composable fun resolvedString(): String = getString(stringId)

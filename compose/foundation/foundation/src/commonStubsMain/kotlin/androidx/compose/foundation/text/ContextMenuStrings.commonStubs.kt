@@ -40,6 +40,9 @@ internal actual value class ContextMenuStrings(val value: Int) {
 
         actual val Autofill: ContextMenuStrings
             get() = implementedInJetBrainsFork()
+
+        actual val LookUp: ContextMenuStrings
+            get() = implementedInJetBrainsFork()
     }
 }
 
