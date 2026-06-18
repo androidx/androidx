@@ -92,6 +92,57 @@ class EntryProviderTest {
             assertThat(e).hasMessageThat().isEqualTo("Unknown screen something")
         }
     }
+
+    @Test
+    fun entryProvider_nestedMetadataWithLambda() {
+        // makes the lambda value stateful so that it is re-evaluated like in Android
+        val value = "First"
+        val provider = entryProvider {
+            entry<First>(metadata = { metadata { put(TestNavMetadataKey) { value } } }) {}
+        }
+
+        val entry1 = provider.invoke(First)
+        val metadata1 = entry1.metadata
+
+        val entry2 = provider.invoke(First)
+        val metadata2 = entry2.metadata
+
+        assertThat(entry1).isEqualTo(entry2)
+        assertThat(metadata1).isEqualTo(metadata2)
+    }
+
+    @Test
+    @Suppress("UNCHECKED_CAST")
+    fun entryProvider_nestedMetadataWithLambda_dynamicLambdaReturnValue() {
+        // makes the lambda value stateful so that it is re-evaluated like in Android
+        var lambdaReturnValue = "start"
+        val provider = entryProvider {
+            entry<First>(
+                metadata = { metadata { put(TestNavMetadataKey) { lambdaReturnValue } } }
+            ) {}
+        }
+
+        val entry1 = provider.invoke(First)
+        val metadata1 = entry1.metadata
+        val value1 = (metadata1.entries.first().value as () -> String).invoke()
+
+        lambdaReturnValue = "end"
+
+        val entry2 = provider.invoke(First)
+        val metadata2 = entry2.metadata
+        val value2 = (metadata2.entries.first().value as () -> String).invoke()
+
+        assertThat(value1).isEqualTo("start")
+        assertThat(value2).isEqualTo("end")
+        assertThat(entry1).isEqualTo(entry2)
+        assertThat(metadata1).isEqualTo(metadata2)
+    }
 }
+
+private object TestNavMetadataKey : NavMetadataKey<() -> String>
+
+object First
+
+object Second
 
 data class MyKey(val name: String)
