@@ -164,6 +164,7 @@ import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
+import androidx.compose.remote.core.operations.utilities.IntMap;
 import androidx.compose.remote.core.semantics.CoreSemantics;
 import androidx.compose.remote.core.types.BooleanConstant;
 import androidx.compose.remote.core.types.IntegerConstant;
@@ -182,6 +183,12 @@ public class BinaryRoundTripTest {
 
         // --- Protocol & Data Types ---
         originalOps.add(new Header(100, 100, 0, 0, 0, 1.0f, 0L));
+        IntMap<Object> properties = new IntMap<>();
+        properties.put(Header.DOC_WIDTH, 123);
+        properties.put(Header.DOC_HEIGHT, 456);
+        properties.put(Header.DOC_PROFILES, 3);
+        properties.put(Header.DOC_CONTENT_DESCRIPTION, "test description");
+        originalOps.add(new Header(1, 1, 0, properties));
         originalOps.add(new Theme(1));
         originalOps.add(new ClickArea(1, 100, 0, 0, 100, 100, -1));
         originalOps.add(new RootContentBehavior(0, 0, 0, 0));
@@ -446,5 +453,31 @@ public class BinaryRoundTripTest {
                     originalBytes[i],
                     copiedBytes[i]);
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testHeaderUnsupportedPropertyTypeThrows() {
+        IntMap<Object> properties = new IntMap<>();
+        properties.put((short) 1, true); // Boolean is unsupported
+        Header header = new Header(1, 1, 0, properties);
+        WireBuffer buffer = new WireBuffer();
+        header.write(buffer);
+    }
+
+    @Test
+    public void testHeaderForwardCompatibility() {
+        IntMap<Object> properties = new IntMap<>();
+        properties.put(Header.DOC_WIDTH, 123);
+        // Use a high future version (99.99) to test fallback behavior
+        Header headerWithProps = new Header(99, 99, 0, properties);
+        WireBuffer writeBuffer = new WireBuffer();
+        // Should not throw on future version
+        headerWithProps.write(writeBuffer);
+
+        writeBuffer.setIndex(0);
+        assertEquals(Operations.HEADER, writeBuffer.readByte());
+        // Verify it down-levels to library's version instead of writing 99.99
+        assertEquals(CoreDocument.MAJOR_VERSION | 0x048C0000, writeBuffer.readInt());
+        assertEquals(CoreDocument.MINOR_VERSION, writeBuffer.readInt());
     }
 }
