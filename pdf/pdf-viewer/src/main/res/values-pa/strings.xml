@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g> ਵਿੱਚੋਂ <xliff:g id="PAGE">%1$d</xliff:g> ਪੰਨਾ"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"ਜ਼ੂਮ <xliff:g id="FIRST">%1$d</xliff:g> ਫ਼ੀਸਦ"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF ਦ੍ਰਿਸ਼"</string>
     <string name="desc_goto" msgid="1333698934111921601">"ਇਸ \'ਤੇ ਜਾਓ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> ਪੰਨੇ \'ਤੇ ਜਾਓ"</string>
     <string name="desc_copy" msgid="385275789223074637">"ਚੁਣੀ ਹੋਈ ਸਮੱਗਰੀ ਨੂੰ ਤੁਹਾਡੇ ਕਲਿੱਪਬੋਰਡ \'ਤੇ ਕਾਪੀ ਕੀਤਾ ਜਾਂਦਾ ਹੈ"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"ਪਾਸਵਰਡ ਨਾਲ ਸੁਰੱਖਿਅਤ PDF ਸਮਰਥਿਤ ਨਹੀਂ ਹਨ।"</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"ਇਸ PDF ਦਾ ਸੰਪਾਦਨ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDF ਤੋਂ ਕਾਪੀ ਕੀਤੀ ਗਈ ਸਮੱਗਰੀ"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"ਸਕ੍ਰੋਲ ਬਾਰ"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"ਸਕ੍ਰੋਲ ਬਾਰ"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"ਤਸਦੀਕ ਕਰੋ"</string>
     <string name="form_widget" msgid="5841730047544552656">"ਵਿਜੇਟ ਤੋਂ"</string>
     <string name="form_type" msgid="1302137779809645840">"ਕਿਸਮ: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"ਮੁੱਲ: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"ਮੌਜੂਦਾ ਮੁੱਲ: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"ਵਿਜੇਟ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹੈ ਅਤੇ ਇਸ ਵਿੱਚ ਤਬਦੀਲੀ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"ਕਿਸਮ: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g> ਬਹੁ-ਚੋਣ।"</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"ਕਿਸਮ: ਬਹੁ-ਚੋਣ <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>।"</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"ਕਲਿੱਕ ਕਰਨ ਨਾਲ ਮੁੱਲ ਨੂੰ ਟੌਗਲ ਕੀਤਾ ਜਾਵੇਗਾ।"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"ਕਲਿੱਕ ਕਰਨ ਨਾਲ ਵਿਕਲਪ ਚੋਣ ਮੀਨੂ ਖੁੱਲ੍ਹ ਜਾਵੇਗਾ।"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"ਕਲਿੱਕ ਕਰਨ ਨਾਲ ਲਿਖਤ ਸੰਪਾਦਨ ਮੋਡ ਚਾਲੂ ਹੋ ਜਾਵੇਗਾ।"</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"ਵਿਉਂਤਬੱਧ ਕਰੋ"</string>
     <string name="form_unknown" msgid="6371515914365431330">"ਅਗਿਆਤ"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"ਪੁਸ਼ ਬਟਨ"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"ਚੈੱਕ-ਬਾਕਸ"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"ਰੇਡੀਓ ਬਟਨ"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"ਕੋਂਬੋ ਬਾਕਸ"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"ਸੂਚੀ ਬਾਕਸ"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"ਲਿਖਤ ਖੇਤਰ"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"ਪੁਸ਼ ਬਟਨ"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"ਚੈੱਕ-ਬਾਕਸ"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"ਰੇਡੀਓ ਬਟਨ"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"ਕੋਂਬੋ ਬਾਕਸ"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"ਸੂਚੀ ਬਾਕਸ"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"ਲਿਖਤ ਖੇਤਰ"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"ਹਸਤਾਖਰ"</string>
 </resources>

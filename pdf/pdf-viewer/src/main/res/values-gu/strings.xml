@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g>માંથી પેજ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> ટકા નાનું-મોટું કરો"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF વ્યૂ"</string>
     <string name="desc_goto" msgid="1333698934111921601">"આના પર જાઓ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"પેજ <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> પર જાઓ"</string>
     <string name="desc_copy" msgid="385275789223074637">"પસંદ કરેલા કન્ટેન્ટને તમારા ક્લિપબોર્ડ પર કૉપિ કરે છે"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"પાસવર્ડ દ્વારા સુરક્ષિત PDFsને સપોર્ટ આપવામાં આવતો નથી."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"આ PDFમાં ફેરફાર કરી શકાતો નથી"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDFમાંથી કન્ટેન્ટ કૉપિ કર્યું"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"સ્ક્રોલ બાર"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"સ્ક્રોલ બાર"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"કન્ફર્મ કરો"</string>
     <string name="form_widget" msgid="5841730047544552656">"ફોર્મનું વિજેટ"</string>
     <string name="form_type" msgid="1302137779809645840">"પ્રકાર: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"મૂલ્ય: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"વર્તમાન મૂલ્ય: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"વિજેટ માત્ર વાંચી શકાય છે અને બદલી શકાતું નથી."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"પ્રકાર: એકથી વધુ <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g> પસંદ કરો."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"પ્રકાર: એકથી વધુ <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g> પસંદ કરો."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"ક્લિક કરવાથી મૂલ્ય ટૉગલ થશે."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"ક્લિક કરવાથી પસંદગી કરવાનું મેનૂ ખૂલશે."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"ક્લિક કરવાથી ટેક્સ્ટમાં ફેરફાર કરવાના મોડમાં દાખલ થશો."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"કસ્ટમ"</string>
     <string name="form_unknown" msgid="6371515914365431330">"અજાણ"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"પુશ બટન"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"ચેકબૉક્સ"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"રેડિયો બટન"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"કૉમ્બો બૉક્સ"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"સૂચિ બૉક્સ"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"ટેક્સ્ટ ફીલ્ડ"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"પુશ બટન"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"ચેક બૉક્સ"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"રેડિયો બટન"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"કૉમ્બો બૉક્સ"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"સૂચિ બૉક્સ"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"ટેક્સ્ટ ફીલ્ડ"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"સહી"</string>
 </resources>

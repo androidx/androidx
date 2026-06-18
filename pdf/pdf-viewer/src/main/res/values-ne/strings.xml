@@ -71,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"पासवर्ड प्रयोग गरी सुरक्षित गरिएका PDF हरू प्रयोग गर्न मिल्दैनन्।"</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"यो PDF सम्पादन गर्न सकिएन"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDF बाट कपी गरिएको सामग्री"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"स्क्रोल बार"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"स्क्रोल बार"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"पुष्टि गर्नुहोस्"</string>
     <string name="form_widget" msgid="5841730047544552656">"फारमको विजेट"</string>
     <string name="form_type" msgid="1302137779809645840">"प्रकार: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>"</string>
@@ -79,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"मान: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>"</string>
     <string name="form_current_value" msgid="3883820498421821863">"हालको मान: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"विजेट पढ्न मात्र मिल्छ र यसलाई बदल्न मिल्दैन।"</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"प्रकार: एकभन्दा बढी विकल्प चयन गर्न मिल्ने <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>।"</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"प्रकार: एकभन्दा बढी विकल्प चयन गर्न मिल्ने <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>।"</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"तपाईंले क्लिक गर्नुभयो भने मान टगल हुन्छ।"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"तपाईंले क्लिक गर्नुभयो भने विकल्प चयन गर्ने मेनु खुल्ने छ।"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"तपाईंले क्लिक गर्नुभयो भने टेक्स्ट सम्पादन गर्ने मोड अन हुने छ।"</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"कस्टम"</string>
     <string name="form_unknown" msgid="6371515914365431330">"अज्ञात"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"पुस बटन"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"चेकबक्स"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"रेडियो बटन"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"कम्बो बक्स"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"सूची बक्स"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"टेक्स्ट फिल्ड"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"पुस बटन"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"जाँच बाकस"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"रेडियो बटन"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"कम्बो बाकस"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"सूची बाकस"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"टेक्स्ट फिल्ड"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"हस्ताक्षर"</string>
 </resources>

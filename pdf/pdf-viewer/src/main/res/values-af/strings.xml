@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"bladsy <xliff:g id="PAGE">%1$d</xliff:g> van <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"zoem <xliff:g id="FIRST">%1$d</xliff:g> persent"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF-aansig"</string>
     <string name="desc_goto" msgid="1333698934111921601">"Gaan na"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Gaan na bladsy <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_copy" msgid="385275789223074637">"Kopieer uitgesoekte inhoud na jou knipbord"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"Wagwoordbeskermde PDF’s word nie gesteun nie."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"Hierdie PDF kan nie geredigeer word nie"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"Inhoud gekopieer vanaf PDF"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"Rolbalk"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"Rolbalk"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"Bevestig"</string>
     <string name="form_widget" msgid="5841730047544552656">"Vormlegstuk"</string>
     <string name="form_type" msgid="1302137779809645840">"Tipe: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"Waarde: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"Huidige waarde: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"Legstuk is leesalleen en kan nie verander word nie."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"Tik: Multikies <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"Tipe: Multikies <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Klik sal waarde wissel."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Klik sal keuseseleksiekieslys oopmaak."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Klik sal in teksredigeerdermodus gaan."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"Gepasmaak"</string>
     <string name="form_unknown" msgid="6371515914365431330">"Onbekend"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"Drukknoppie"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Merkblokkie"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"Radioknoppie"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"Kombinasiekassie"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"Lyskassie"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"Teksveld"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"Deurstuurknoppie"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"Merkblokkie"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"Radioknoppie"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"Kombinasiekassie"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"Lyskassie"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"Teksveld"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"Handtekening"</string>
 </resources>

@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"பக்கம் <xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> சதவீத அளவை மாற்று"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF காட்சி"</string>
     <string name="desc_goto" msgid="1333698934111921601">"இங்கே செல்லும்"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"பக்கம் <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>க்கு செல்லும்"</string>
     <string name="desc_copy" msgid="385275789223074637">"தேர்ந்தெடுக்கப்பட்டுள்ள உள்ளடக்கத்தைக் கிளிப்போர்டுக்கு நகலெடுக்கும்"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"கடவுச்சொல் மூலம் பாதுகாக்கப்படும் PDFகள் ஆதரிக்கப்படாது."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"இந்த PDF ஃபைலில் திருத்தம் செய்ய முடியாது"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDFல் இருந்து நகலெடுக்கப்பட்ட உள்ளடக்கம்"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"ஸ்க்ரோல் பார்"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"ஸ்க்ரோல் பார்"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"உறுதிசெய்"</string>
     <string name="form_widget" msgid="5841730047544552656">"படிவ விட்ஜெட்"</string>
     <string name="form_type" msgid="1302137779809645840">"வகை: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"மதிப்பு: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"தற்போதைய மதிப்பு: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"விட்ஜெட்டைப் படிக்க மட்டுமே முடியும், மாற்ற முடியாது."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"வகை: பல தேர்வு <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"வகை: பல தேர்வு <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"கிளிக் செய்தால் மதிப்பு மாறும்."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"கிளிக் செய்தால் விருப்பத்தைத் தேர்ந்தெடுக்கும் மெனு திறக்கப்படும்."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"கிளிக் செய்தால் உரை எடிட்டர் பயன்முறைக்குச் செல்லும்."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"பிரத்தியேகப்படுத்து"</string>
     <string name="form_unknown" msgid="6371515914365431330">"தெரியவில்லை"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"புஷ் பட்டன்"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"செக்பாக்ஸ்"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"ரேடியோ பட்டன்"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"காம்போ பெட்டி"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"பட்டியல் பெட்டி"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"வார்த்தைப் பெட்டி"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"புஷ் பட்டன்"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"செக்பாக்ஸ்"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"ரேடியோ பட்டன்"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"காம்போ பெட்டி"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"பட்டியல் பெட்டி"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"வார்த்தைப் பெட்டி"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"கையொப்பம்"</string>
 </resources>
