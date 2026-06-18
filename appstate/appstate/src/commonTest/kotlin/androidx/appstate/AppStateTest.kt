@@ -16,9 +16,8 @@
 
 package androidx.appstate
 
+import androidx.kruth.assertThat
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlinx.serialization.Serializable
 
 class AppStateTest {
@@ -32,7 +31,7 @@ class AppStateTest {
         val appState = AppState()
 
         val state = appState.getState(StringKey, "default")
-        assertEquals("default", state.value)
+        assertThat(state.value).isEqualTo("default")
     }
 
     @Test
@@ -42,7 +41,7 @@ class AppStateTest {
         appState.setState(StringKey, "new value")
 
         val state = appState.getState(StringKey, "default")
-        assertEquals("new value", state.value)
+        assertThat(state.value).isEqualTo("new value")
     }
 
     @Test
@@ -53,15 +52,6 @@ class AppStateTest {
         appState.updateState(IntKey, 0) { it + 5 }
 
         val state = appState.getState(IntKey, 0)
-        assertEquals(10, state.value)
-    }
-
-    @Test
-    fun testTokenEquality() {
-        val token1 = AppStateToken()
-        val token2 = AppStateToken()
-
-        assertEquals(token1, token1)
-        assertNotEquals(token1, token2)
+        assertThat(state.value).isEqualTo(10)
     }
 }

@@ -18,8 +18,8 @@ package androidx.appstate.transform
 
 import androidx.compose.runtime.State
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlin.test.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +40,6 @@ class TransformComposeTest {
                 }
         }
         composeTestRule.waitForIdle()
-        assertEquals(20, state!!.value)
+        assertThat(state!!.value).isEqualTo(20)
     }
 }

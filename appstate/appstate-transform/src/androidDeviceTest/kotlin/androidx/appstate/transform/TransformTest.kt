@@ -20,8 +20,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,7 +65,7 @@ class TransformTest {
                 ) {
                     1
                 }
-            assertEquals(1, state.value)
+            assertThat(state.value).isEqualTo(1)
         }
 
     @Test
@@ -81,12 +81,12 @@ class TransformTest {
                     sourceState
                 }
 
-            assertEquals(0, state.value)
+            assertThat(state.value).isEqualTo(0)
 
             sourceState = 1
             runCurrent()
 
-            assertEquals(1, state.value)
+            assertThat(state.value).isEqualTo(1)
         }
 
     @Test
@@ -104,18 +104,18 @@ class TransformTest {
                     sourceState
                 }
 
-            assertEquals(0, state.value)
+            assertThat(state.value).isEqualTo(0)
 
             sourceState = 1
             runCurrent()
-            assertEquals(1, state.value)
+            assertThat(state.value).isEqualTo(1)
 
             childScope.cancel()
 
             sourceState = 2
             runCurrent()
             // Should still be 1 because the scope was cancelled.
-            assertEquals(1, state.value)
+            assertThat(state.value).isEqualTo(1)
         }
 
     @Test
@@ -131,11 +131,11 @@ class TransformTest {
                     flow.collectAsState().value
                 }
 
-            assertEquals(0, state.value)
+            assertThat(state.value).isEqualTo(0)
 
             flow.value = 1
             runCurrent()
-            assertEquals(1, state.value)
+            assertThat(state.value).isEqualTo(1)
         }
 
     @Test
@@ -157,15 +157,15 @@ class TransformTest {
                     v1 + v2 + v3
                 }
 
-            assertEquals(6, state.value)
+            assertThat(state.value).isEqualTo(6)
 
             flow1.value = 10
             runCurrent()
-            assertEquals(15, state.value)
+            assertThat(state.value).isEqualTo(15)
 
             flow2.value = 20
             flow3.value = 30
             runCurrent()
-            assertEquals(60, state.value)
+            assertThat(state.value).isEqualTo(60)
         }
 }
