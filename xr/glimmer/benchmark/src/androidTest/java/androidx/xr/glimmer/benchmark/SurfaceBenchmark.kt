@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer.benchmark
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -324,6 +325,7 @@ private class SurfaceTestCase(addSurfaceModifierEnabledByDefault: Boolean) :
                     .then(
                         if (addSurfaceModifier.value) {
                             Modifier.surface(interactionSource = interactionSource)
+                                .focusable(interactionSource = interactionSource)
                         } else Modifier
                     )
         )
