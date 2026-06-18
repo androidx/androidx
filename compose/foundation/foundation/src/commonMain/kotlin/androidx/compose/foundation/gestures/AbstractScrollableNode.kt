@@ -16,9 +16,15 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.internal.PlatformOptimizedCancellationException
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
@@ -34,10 +40,14 @@ import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollByOffset
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAny
+import kotlin.math.abs
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Base class for 1-D ([ScrollableNode]) and 2-D ([Scrollable2DNode]) scrollable nodes. */
 internal abstract class AbstractScrollableNode(
@@ -68,16 +78,13 @@ internal abstract class AbstractScrollableNode(
     private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
     private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
-    private var createdMouseWheelScrollingLogic: Boolean = false
-    private var createdTrackpadScrollingLogic: Boolean = false
-
     private var mouseWheelScrollingLogic: NonTouchScrollingLogic? = null
     private var trackpadScrollingLogic: NonTouchScrollingLogic? = null
 
-    /** Creates a new scrolling logic for mouse-wheel events, or `null` if not supported. */
-    protected abstract fun createMouseWheelScrollingLogic(): NonTouchScrollingLogic?
+    /** Creates a new scrolling logic for mouse-wheel events. */
+    protected abstract fun createMouseWheelScrollingLogic(): NonTouchScrollingLogic
 
-    /** Creates a new scrolling logic for trackpad events, or `null` if not supported. */
+    /** Creates a new scrolling logic for trackpad events. */
     protected abstract fun createTrackpadScrollingLogic(): NonTouchScrollingLogic?
 
     protected fun initializeNestedScrollingDelegation() {
@@ -122,20 +129,16 @@ internal abstract class AbstractScrollableNode(
     }
 
     private fun initializeMouseWheelScrollingLogic() {
-        if (!createdMouseWheelScrollingLogic) {
+        if (mouseWheelScrollingLogic == null) {
             mouseWheelScrollingLogic = createMouseWheelScrollingLogic()
-            createdMouseWheelScrollingLogic = true
         }
-
         mouseWheelScrollingLogic?.startReceivingEvents(coroutineScope)
     }
 
     private fun initializeTrackpadScrollingLogic() {
-        if (!createdTrackpadScrollingLogic) {
+        if (trackpadScrollingLogic == null) {
             trackpadScrollingLogic = createTrackpadScrollingLogic()
-            createdTrackpadScrollingLogic = true
         }
-
         trackpadScrollingLogic?.startReceivingEvents(coroutineScope)
     }
 
@@ -234,3 +237,92 @@ internal class ScrollableNestedScrollConnection(
 
 // TODO: provide public way to drag by mouse (especially requested for Pager)
 internal val CanDragCalculation: (PointerType) -> Boolean = { type -> type != PointerType.Mouse }
+
+/** Compatibility interface for default fling behaviors that depends on [Density]. */
+internal interface ScrollableDefaultFlingBehavior : FlingBehavior {
+    /**
+     * Update the internal parameters of FlingBehavior in accordance with the new
+     * [androidx.compose.ui.unit.Density] value.
+     *
+     * @param density new density value.
+     */
+    fun updateDensity(density: Density) = Unit
+}
+
+/**
+ * TODO: Move it to public interface Currently, default [FlingBehavior] is not triggered at all to
+ *   avoid unexpected effects during regular scrolling. However, custom one must be triggered
+ *   because it's used not only for "inertia", but also for snapping in
+ *   [androidx.compose.foundation.pager.Pager] or
+ *   [androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior].
+ */
+internal val FlingBehavior.shouldBeTriggeredByMouseWheel
+    get() = this !is ScrollableDefaultFlingBehavior
+
+internal class DefaultFlingBehavior(
+    private var flingDecay: DecayAnimationSpec<Float>,
+    private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale,
+) : ScrollableDefaultFlingBehavior {
+
+    // For Testing
+    var lastAnimationCycleCount = 0
+
+    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+        lastAnimationCycleCount = 0
+        // come up with the better threshold, but we need it since spline curve gives us NaNs
+        return withContext(motionDurationScale) {
+            if (abs(initialVelocity) > 1f) {
+                var velocityLeft = initialVelocity
+                var lastValue = 0f
+                val animationState =
+                    AnimationState(initialValue = 0f, initialVelocity = initialVelocity)
+                try {
+                    animationState.animateDecay(flingDecay) {
+                        val delta = value - lastValue
+                        val consumed = scrollBy(delta)
+                        lastValue = value
+                        velocityLeft = this.velocity
+                        // avoid rounding errors and stop if anything is unconsumed
+                        if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+                        lastAnimationCycleCount++
+                    }
+                } catch (exception: CancellationException) {
+                    velocityLeft = animationState.velocity
+                }
+                velocityLeft
+            } else {
+                initialVelocity
+            }
+        }
+    }
+
+    override fun updateDensity(density: Density) {
+        flingDecay = splineBasedDecay(density)
+    }
+}
+
+private const val DefaultScrollMotionDurationScaleFactor = 1f
+internal val DefaultScrollMotionDurationScale =
+    object : MotionDurationScale {
+        override val scaleFactor: Float
+            get() = DefaultScrollMotionDurationScaleFactor
+    }
+
+internal val UnityDensity =
+    object : Density {
+        override val density: Float
+            get() = 1f
+
+        override val fontScale: Float
+            get() = 1f
+    }
+
+/** A scroll scope for nested scrolling and overscroll support. */
+internal interface NestedScrollScope {
+    fun scrollBy(offset: Offset, source: NestedScrollSource): Offset
+
+    fun scrollByWithOverscroll(offset: Offset, source: NestedScrollSource): Offset
+}
+
+internal class FlingCancellationException :
+    PlatformOptimizedCancellationException("The fling animation was cancelled")

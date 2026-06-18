@@ -29,7 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFold
 
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig =
-    AndroidConfig(android.view.ViewConfiguration.get(requireView().context))
+    platformScrollConfig(requireView().context)
+
+internal fun platformScrollConfig(context: android.content.Context) =
+    AndroidConfig(android.view.ViewConfiguration.get(context))
 
 internal class AndroidConfig(val viewConfiguration: android.view.ViewConfiguration) : ScrollConfig {
     // 64 dp value is taken from ViewConfiguration.java, replace with better solution

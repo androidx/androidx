@@ -16,11 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ComposeFoundationFlags.isClearNestedScrollCoroutineScopeFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
@@ -29,7 +25,6 @@ import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.internal.PlatformOptimizedCancellationException
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.rememberPlatformOverscrollEffect
@@ -38,7 +33,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.focus.getFocusedRect
@@ -66,13 +60,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
-import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.math.atan2
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Configure touch scrolling and flinging for the UI element in a single [Orientation].
@@ -322,15 +311,15 @@ internal class ScrollableNode(
         )
 
     override fun createMouseWheelScrollingLogic() =
-        MouseWheelScrollingLogic(
+        MouseWheel1DScrollingLogic(
             scrollingLogic = scrollLogic,
-            mouseWheelScrollConfig = platformScrollConfig(),
+            scrollConfig = platformScrollConfig(),
             onScrollStopped = ::onMouseWheelScrollStopped,
             density = requireDensity(),
         )
 
     override fun createTrackpadScrollingLogic() =
-        TrackpadScrollingLogic(
+        Trackpad1DScrollingLogic(
             scrollingLogic = scrollLogic,
             onScrollStopped = ::onTrackpadScrollStopped,
             density = requireDensity(),
@@ -598,8 +587,8 @@ internal class ScrollingLogic(
     var scrollableState: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior,
-    private var orientation: Orientation,
-    private var reverseDirection: Boolean,
+    var orientation: Orientation,
+    var reverseDirection: Boolean,
     private var nestedScrollDispatcher: NestedScrollDispatcher,
     private var onScrollChangedDispatcher: OnScrollChangedDispatcher,
     private val isScrollableNodeAttached: () -> Boolean,
@@ -619,32 +608,6 @@ internal class ScrollingLogic(
         if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
     fun Offset.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
-
-    /**
-     * Converts this offset to a single axis delta based on the derived angle from the x and y
-     * deltas.
-     *
-     * @return Returns a single axis delta based on the angle. If the angle is mostly horizontal,
-     *   and we are in a horizontal scrollable, this will return the x component. If the angle is
-     *   mostly vertical, and we are in a vertical scrollable, this will return the y component.
-     *   Otherwise, this will return 0. Mostly horizontal means angles smaller than
-     *   [VerticalAxisThresholdAngle].
-     */
-    fun Offset.toSingleAxisDeltaFromAngle(): Float {
-        val angle = atan2(this.y.absoluteValue, this.x.absoluteValue)
-        return if (angle >= VerticalAxisThresholdAngle) {
-            if (orientation == Vertical) this.y else 0f
-        } else {
-            if (orientation == Horizontal) this.x else 0f
-        }
-    }
-
-    fun Float.toVelocity(): Velocity =
-        when {
-            this == 0f -> Velocity.Zero
-            orientation == Horizontal -> Velocity(this, 0f)
-            else -> Velocity(0f, this)
-        }
 
     private fun Velocity.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
 
@@ -877,27 +840,6 @@ internal interface ScrollLogic {
     )
 }
 
-/** Compatibility interface for default fling behaviors that depends on [Density]. */
-internal interface ScrollableDefaultFlingBehavior : FlingBehavior {
-    /**
-     * Update the internal parameters of FlingBehavior in accordance with the new
-     * [androidx.compose.ui.unit.Density] value.
-     *
-     * @param density new density value.
-     */
-    fun updateDensity(density: Density) = Unit
-}
-
-/**
- * TODO: Move it to public interface Currently, default [FlingBehavior] is not triggered at all to
- *   avoid unexpected effects during regular scrolling. However, custom one must be triggered
- *   because it's used not only for "inertia", but also for snapping in
- *   [androidx.compose.foundation.pager.Pager] or
- *   [androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior].
- */
-private val FlingBehavior.shouldBeTriggeredByMouseWheel
-    get() = this !is ScrollableDefaultFlingBehavior
-
 /**
  * This method returns [ScrollableDefaultFlingBehavior] whose density will be managed by the
  * [ScrollableElement] because it's not created inside [Composable] context. This is different from
@@ -911,71 +853,6 @@ internal expect fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultF
  * behavior.
  */
 @Composable internal expect fun rememberPlatformDefaultFlingBehavior(): FlingBehavior
-
-internal class DefaultFlingBehavior(
-    private var flingDecay: DecayAnimationSpec<Float>,
-    private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale,
-) : ScrollableDefaultFlingBehavior {
-
-    // For Testing
-    var lastAnimationCycleCount = 0
-
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        lastAnimationCycleCount = 0
-        // come up with the better threshold, but we need it since spline curve gives us NaNs
-        return withContext(motionDurationScale) {
-            if (abs(initialVelocity) > 1f) {
-                var velocityLeft = initialVelocity
-                var lastValue = 0f
-                val animationState =
-                    AnimationState(initialValue = 0f, initialVelocity = initialVelocity)
-                try {
-                    animationState.animateDecay(flingDecay) {
-                        val delta = value - lastValue
-                        val consumed = scrollBy(delta)
-                        lastValue = value
-                        velocityLeft = this.velocity
-                        // avoid rounding errors and stop if anything is unconsumed
-                        if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-                        lastAnimationCycleCount++
-                    }
-                } catch (exception: CancellationException) {
-                    velocityLeft = animationState.velocity
-                }
-                velocityLeft
-            } else {
-                initialVelocity
-            }
-        }
-    }
-
-    override fun updateDensity(density: Density) {
-        flingDecay = splineBasedDecay(density)
-    }
-}
-
-private const val DefaultScrollMotionDurationScaleFactor = 1f
-internal val DefaultScrollMotionDurationScale =
-    object : MotionDurationScale {
-        override val scaleFactor: Float
-            get() = DefaultScrollMotionDurationScaleFactor
-    }
-
-internal val UnityDensity =
-    object : Density {
-        override val density: Float
-            get() = 1f
-
-        override val fontScale: Float
-            get() = 1f
-    }
-
-/** A scroll scope for nested scrolling and overscroll support. */
-internal interface NestedScrollScope {
-    fun scrollBy(offset: Offset, source: NestedScrollSource): Offset
-
-    fun scrollByWithOverscroll(offset: Offset, source: NestedScrollSource): Offset
-}
 
 /**
  * Scroll deltas originating from the semantics system. Should be dispatched as an animation driven
@@ -996,11 +873,6 @@ private suspend fun ScrollingLogic.semanticsScrollBy(offset: Offset): Offset {
     return previousValue.toOffset()
 }
 
-internal class FlingCancellationException :
-    PlatformOptimizedCancellationException("The fling animation was cancelled")
-
 internal interface OnScrollChangedDispatcher {
     fun dispatchScrollDeltaInfo(delta: Offset)
 }
-
-private const val VerticalAxisThresholdAngle = PI / 4

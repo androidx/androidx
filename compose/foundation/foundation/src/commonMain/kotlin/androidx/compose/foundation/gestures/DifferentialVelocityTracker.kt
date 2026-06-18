@@ -34,4 +34,9 @@ internal class DifferentialVelocityTracker {
         val velocityY = yVelocityTracker.calculateVelocity(Float.MAX_VALUE)
         return Velocity(velocityX, velocityY)
     }
+
+    fun resetTracking() {
+        xVelocityTracker.resetTracking()
+        yVelocityTracker.resetTracking()
+    }
 }

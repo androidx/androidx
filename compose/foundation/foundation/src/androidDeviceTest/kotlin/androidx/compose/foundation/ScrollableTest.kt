@@ -21,8 +21,10 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
+import androidx.compose.foundation.gestures.DifferentialVelocityTracker
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollConfig
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
@@ -78,8 +80,10 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
@@ -97,8 +101,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
+import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -139,6 +143,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.collections.first
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.sign
@@ -357,7 +362,7 @@ class ScrollableTest {
             this.scroll(Offset(-100f, 0f)) // only moved horizontally
         }
 
-        var lastTotal =
+        val lastTotal =
             rule.runOnIdle {
                 assertThat(total).isGreaterThan(0)
                 total
@@ -468,7 +473,7 @@ class ScrollableTest {
             this.pan(Offset(100f, 0f)) // only moved horizontally
         }
 
-        var lastTotal =
+        val lastTotal =
             rule.runOnIdle {
                 assertThat(total).isGreaterThan(0)
                 total
@@ -1011,7 +1016,7 @@ class ScrollableTest {
             this.pan(Offset(0f, 100f)) // only moved vertically
         }
 
-        var lastTotal =
+        val lastTotal =
             rule.runOnIdle {
                 assertThat(total).isGreaterThan(0)
                 total
@@ -3990,30 +3995,18 @@ class ScrollableTest {
             )
         }
 
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyIsDefined(ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyIsDefined(ScrollByOffset))
 
         rule.runOnIdle { enabled = false }
 
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollBy))
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollByOffset))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyNotDefined(ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyNotDefined(ScrollByOffset))
 
         rule.runOnIdle { enabled = true }
 
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
-        rule
-            .onNodeWithTag(scrollableBoxTag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyIsDefined(ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag).assert(SemanticsMatcher.keyIsDefined(ScrollByOffset))
     }
 
     @Test
@@ -4109,7 +4102,7 @@ class ScrollableTest {
         outerStateDeltas = 0f
 
         rule.runOnIdle {
-            flingJob?.cancel() // cancel job mid fling
+            flingJob?.cancel() // cancel job mid-fling
 
             // try to run fling again
             scope.launch {
@@ -4213,7 +4206,7 @@ class ScrollableTest {
 }
 
 // Very low tolerance on the difference
-internal val VelocityTrackerCalculationThreshold = 1
+internal const val VelocityTrackerCalculationThreshold = 1
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
@@ -4236,6 +4229,71 @@ internal suspend fun savePointerInputEvents(
                         }
 
                         event = currentEvent
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun saveTrackpadInputEvents(
+    tracker: DifferentialVelocityTracker,
+    pointerInputScope: PointerInputScope,
+) {
+    suspend fun AwaitPointerEventScope.awaitPanEvent(): PointerEvent {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Main)
+            when (event.type) {
+                PointerEventType.PanStart,
+                PointerEventType.PanMove,
+                PointerEventType.PanEnd -> return event
+            }
+        }
+    }
+
+    with(pointerInputScope) {
+        coroutineScope {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPanEvent()
+                    val change = event.changes.firstOrNull()
+                    if (change != null) {
+                        change.historical.fastForEach {
+                            tracker.addDelta(it.uptimeMillis, it.panOffset)
+                        }
+                        tracker.addDelta(change.uptimeMillis, change.panOffset)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun saveScrollInputEvents(
+    tracker: DifferentialVelocityTracker,
+    scrollConfig: ScrollConfig,
+    pointerInputScope: PointerInputScope,
+) {
+    suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Main)
+            if (event.type == PointerEventType.Scroll) return event
+        }
+    }
+
+    with(pointerInputScope) {
+        coroutineScope {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitScrollEvent()
+                    val change = event.changes.firstOrNull() ?: continue
+                    with(scrollConfig) {
+                        tracker.addDelta(
+                            timeMillis = change.uptimeMillis,
+                            delta = calculateMouseWheelScroll(event, size),
+                        )
                     }
                 }
             }
