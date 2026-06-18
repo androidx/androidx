@@ -22,6 +22,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build.VERSION;
 import android.util.Log;
 
 import androidx.wear.protolayout.proto.ResourceProto.ImageFormat;
@@ -38,11 +39,22 @@ import java.nio.ByteBuffer;
 public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
     private static final String TAG = "InlineImageResolver";
 
+    /** Maximum size for a raw bitmap (20MB). */
+    private static final long MAX_BITMAP_RAW_SIZE_BYTES = 20L /* (MB) */ * 1024 * 1024;
+
     private final @NonNull Context mAppContext;
+    private final boolean mRestrictImageSize;
 
     /** Constructor. */
     public DefaultInlineImageResourceResolver(@NonNull Context appContext) {
+        this(appContext, /* restrictImageSize= */ false);
+    }
+
+    /** Constructor. */
+    public DefaultInlineImageResourceResolver(
+            @NonNull Context appContext, boolean restrictImageSize) {
         this.mAppContext = appContext;
+        this.mRestrictImageSize = restrictImageSize;
     }
 
     @Override
@@ -88,7 +100,7 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         return -1;
     }
 
-    private @NonNull Bitmap loadRawBitmap(@NonNull InlineImageResource inlineImage)
+     @NonNull Bitmap loadRawBitmap(@NonNull InlineImageResource inlineImage)
             throws ResourceAccessException {
         Config config = imageFormatToBitmapConfig(inlineImage.getFormat());
 
@@ -100,7 +112,24 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         int heightPx = inlineImage.getHeightPx();
 
         int bytesPerPixel = getBytesPerPixel(config);
-        int expectedDataSize = widthPx * heightPx * bytesPerPixel;
+        long expectedDataSize = (long) widthPx * heightPx * bytesPerPixel;
+        if (mRestrictImageSize
+                // Validates that the image dimensions and raw size are within allowed security
+                // limits.
+                && (widthPx <= 0
+                        || heightPx <= 0
+                        || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                        || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                        || expectedDataSize > MAX_BITMAP_RAW_SIZE_BYTES)) {
+            throw new ResourceAccessException(
+                    "InlineImage size out of bounds: "
+                            + widthPx
+                            + "x"
+                            + heightPx
+                            + "x"
+                            + bytesPerPixel);
+        }
+
         if (inlineImage.getData().size() != expectedDataSize) {
             throw new ResourceAccessException(
                     "Mismatch between image data size and dimensions in image resource.");
@@ -112,7 +141,13 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         return bitmap;
     }
 
-    private @Nullable Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
+     @Nullable Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
+        if (VERSION.SDK_INT >= 31 && mRestrictImageSize) {
+            return ConstrainedImageDecoder.decodeBitmap(
+                    inlineImage.getData().toByteArray(),
+                    inlineImage.getWidthPx(),
+                    inlineImage.getHeightPx());
+        }
         Bitmap bitmap =
                 BitmapFactory.decodeByteArray(
                         inlineImage.getData().toByteArray(), 0, inlineImage.getData().size());
