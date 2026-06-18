@@ -109,6 +109,16 @@ private object JsConfig : ScrollConfig {
         if (isFirefox) {
             return false
         }
+        // Safari/WebKit keeps the legacy wheelDelta proportional to the already-accelerated pixel
+        // delta (wheelDelta ~= -3 * delta), unlike Blink/Chrome where macOS applies the wheel
+        // acceleration curve to delta but not to wheelDelta. Because of this the acceleration
+        // heuristic in isAcceleratedMouseWheelDelta never fires in Safari, and a plain notch mouse
+        // wheel (whose fractional, accelerated deltas are also not divisible by 120) is
+        // misclassified as a trackpad. There is no reliable browser API to disambiguate a trackpad
+        // from a mouse wheel on the web;
+        if (isSafari) {
+            return false
+        }
         val wheelDeltaX = legacyWheelDeltaX(event).takeUnless { it.isNaN() }
         val wheelDeltaY = legacyWheelDeltaY(event).takeUnless { it.isNaN() }
         if (
@@ -182,6 +192,18 @@ private val PointerEvent.totalScrollDelta
 /** Whether the current browser is Firefox, detected once from the user agent. */
 private val isFirefox: Boolean by lazy {
     window.navigator.userAgent.contains("firefox", ignoreCase = true)
+}
+
+/**
+ * Whether the current browser is Safari/WebKit, detected once from the user agent. Chromium-based
+ * browsers also carry "Safari" in their user agent, so they are explicitly excluded.
+ */
+private val isSafari: Boolean by lazy {
+    val userAgent = window.navigator.userAgent
+    userAgent.contains("safari", ignoreCase = true) &&
+        !userAgent.contains("chrome", ignoreCase = true) &&
+        !userAgent.contains("chromium", ignoreCase = true) &&
+        !userAgent.contains("android", ignoreCase = true)
 }
 
 // The legacy wheelDeltaX/wheelDeltaY properties are non-standard and may be absent (e.g. in
