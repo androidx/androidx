@@ -64,7 +64,7 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val cameraFacingDirection: CameraFacingDirection,
     public val augmentedImageDatabase: AugmentedImageDatabase?,
-    public val qrCodeTracking: QrCodeTrackingMode = QrCodeTrackingMode.DISABLED,
+    public val qrCodeTracking: QrCodeTrackingMode,
     public val qrCodeSizeMeters: Float = 0f,
     private val sceneSignalTypes: Set<SceneSignalType>,
 ) {
@@ -143,6 +143,45 @@ private constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getSceneSignalTypes(): Set<SceneSignalType> = sceneSignalTypes
+
+    // TODO(b/513553206) - Remove this function when 1P apps are migrated to use Config.Builder.
+    @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public fun copy(
+        planeTracking: PlaneTrackingMode = this.planeTracking,
+        handTracking: HandTrackingMode = this.handTracking,
+        deviceTracking: DeviceTrackingMode = this.deviceTracking,
+        depthEstimation: DepthEstimationMode = this.depthEstimation,
+        anchorPersistence: AnchorPersistenceMode = this.anchorPersistence,
+        faceTracking: FaceTrackingMode = this.faceTracking,
+        geospatial: GeospatialMode = this.geospatial,
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
+        eyeTracking: EyeTrackingMode = this.eyeTracking,
+        cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
+        augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
+        qrCodeTracking: QrCodeTrackingMode = this.qrCodeTracking,
+        qrCodeSizeMeters: Float = this.qrCodeSizeMeters,
+        sceneSignalTypes: Set<SceneSignalType> = this.sceneSignalTypes,
+    ): Config {
+        val newConfig =
+            Config(
+                planeTracking = planeTracking,
+                handTracking = handTracking,
+                deviceTracking = deviceTracking,
+                depthEstimation = depthEstimation,
+                anchorPersistence = anchorPersistence,
+                faceTracking = faceTracking,
+                geospatial = geospatial,
+                augmentedObjectCategories = augmentedObjectCategories,
+                eyeTracking = eyeTracking,
+                cameraFacingDirection = cameraFacingDirection,
+                augmentedImageDatabase = augmentedImageDatabase,
+                qrCodeTracking = qrCodeTracking,
+                qrCodeSizeMeters = qrCodeSizeMeters,
+                sceneSignalTypes = sceneSignalTypes,
+            )
+        return newConfig
+    }
 
     /**
      * This class can be used to create a [Config] instance.
