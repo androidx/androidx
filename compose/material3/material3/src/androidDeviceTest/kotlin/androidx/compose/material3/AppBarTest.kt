@@ -54,8 +54,6 @@ import androidx.compose.material3.tokens.AppBarTokens
 import androidx.compose.material3.tokens.BottomAppBarTokens
 import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,7 +80,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -1615,7 +1612,7 @@ class AppBarTest {
         var appBarHeightPx = 0f
         rule.setMaterialContentForSizeAssertions {
             state = rememberLazyListState()
-            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(lazyListState = state)
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = state)
             appBarHeightPx = with(rule.density) { AppBarSmallTokens.ContainerHeight.toPx() }
             Scaffold(
                 modifier = Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.systemBars),
@@ -2194,7 +2191,7 @@ class AppBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(lazyListState = lazyListState)
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2231,7 +2228,7 @@ class AppBarTest {
             swipeUp(startY = height - 200f, endY = height - 1000f)
         }
         rule.waitForIdle()
-        rule.onNodeWithTag(TopAppBarTestTag).isNotDisplayed()
+        rule.onNodeWithTag(TopAppBarTestTag).assertIsNotDisplayed()
 
         rule.onNodeWithTag(LazyListTag).performTouchInput {
             swipeDown(startY = height - 1000f, endY = height - 800f)
@@ -2242,12 +2239,12 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledLazyColumn_setisAtStart() {
+    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledLazyColumn_setIsAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(lazyListState = lazyListState)
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2299,7 +2296,7 @@ class AppBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(lazyListState = lazyListState)
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2350,7 +2347,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(lazyListState = lazyListState)
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2402,20 +2399,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState(initialFirstVisibleItemIndex = 30)
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
-            scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2468,20 +2452,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
-            scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -2533,20 +2504,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
-            scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -2590,20 +2548,8 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2624,7 +2570,9 @@ class AppBarTest {
                         columns = GridCells.Adaptive(minSize = 100.dp),
                         contentPadding = contentPadding,
                         state = lazyGridState,
-                        modifier = Modifier.testTag(LazyGridTestTag),
+                        modifier =
+                            Modifier.testTag(LazyGridTestTag)
+                                .nestedScroll(scrollBehavior.nestedScrollConnection),
                     ) {
                         items(100) { Box(Modifier.fillMaxWidth().height(50.dp)) }
                     }
@@ -2639,7 +2587,7 @@ class AppBarTest {
             swipeUp(startY = height - 200f, endY = height - 1000f)
         }
         rule.waitForIdle()
-        rule.onNodeWithTag(TopAppBarTestTag).isNotDisplayed()
+        rule.onNodeWithTag(TopAppBarTestTag).assertIsNotDisplayed()
 
         rule.onNodeWithTag(LazyGridTestTag).performTouchInput {
             swipeDown(startY = height - 1000f, endY = height - 800f)
@@ -2654,20 +2602,8 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2730,20 +2666,8 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState(initialFirstVisibleItemIndex = 30)
-            val isScrollingContentAtStart =
-                remember(lazyGridState) {
-                    derivedStateOf {
-                        if (lazyGridState.layoutInfo.reverseLayout) {
-                            !lazyGridState.canScrollForward
-                        } else {
-                            !lazyGridState.canScrollBackward
-                        }
-                    }
-                }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(
-                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
-                )
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = lazyGridState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2796,7 +2720,8 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()
-            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(scrollState = scrollState)
+            scrollBehavior =
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2818,6 +2743,7 @@ class AppBarTest {
                             Modifier.fillMaxSize()
                                 .testTag(ScrollableContentTestTag)
                                 .padding(paddingValues)
+                                .nestedScroll(scrollBehavior.nestedScrollConnection)
                                 .verticalScroll(state = scrollState),
                         verticalArrangement = Arrangement.Bottom,
                     ) {
@@ -2838,7 +2764,7 @@ class AppBarTest {
             swipeUp(startY = height - 200f, endY = height - 1000f)
         }
         rule.waitForIdle()
-        rule.onNodeWithTag(TopAppBarTestTag).isNotDisplayed()
+        rule.onNodeWithTag(TopAppBarTestTag).assertIsNotDisplayed()
 
         rule.onNodeWithTag(ScrollableContentTestTag).performTouchInput {
             swipeDown(startY = height - 1000f, endY = height - 800f)
@@ -2854,10 +2780,7 @@ class AppBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(
-                    scrollState = scrollState,
-                    reverseScrolling = true,
-                )
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2915,10 +2838,7 @@ class AppBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState(initial = 2000)
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(
-                    scrollState = scrollState,
-                    reverseScrolling = true,
-                )
+                TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2975,7 +2895,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(lazyListState = lazyListState)
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3071,7 +2991,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(lazyListState = lazyListState)
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyListState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3117,11 +3037,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()
-            scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(
-                    scrollState = scrollState,
-                    reverseScrolling = true,
-                )
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3179,7 +3095,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollState = scrollState)
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3230,11 +3146,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState(initial = 2000)
-            scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(
-                    scrollState = scrollState,
-                    reverseScrolling = true,
-                )
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3292,7 +3204,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState(initial = 2000)
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollState = scrollState)
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = scrollState)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -3376,7 +3288,6 @@ class AppBarTest {
         rule.onNodeWithTag(BottomAppBarTestTag).assertHeightIsEqualTo(0.dp)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun MultiPageContent(scrollBehavior: TopAppBarScrollBehavior, state: LazyListState) {
         Scaffold(

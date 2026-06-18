@@ -20,7 +20,6 @@ package androidx.compose.material3.internal
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsAnchorRecoveryEnabled
 import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsInvalidationFixEnabled
 import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsStrictOffsetCheckEnabled
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -141,21 +140,7 @@ private class DraggableAnchorsNode<T>(
         if (!isLookingAhead || !didInitializeAnchors) {
             val size = IntSize(placeable.width, placeable.height)
             val (newAnchors, suggestedTarget) = anchors(size, constraints)
-
-            if (isAnchoredDraggableComponentsAnchorRecoveryEnabled) {
-                // Edge case where AnchoredDraggable target value is removed from set of available
-                // anchors before placement.
-                val validatedTarget =
-                    if (newAnchors.hasPositionFor(suggestedTarget)) {
-                        suggestedTarget
-                    } else {
-                        newAnchors.anchorAt(0) ?: suggestedTarget
-                    }
-                state.updateAnchors(newAnchors, validatedTarget)
-            } else {
-                // Previous behavior which places provided target naively.
-                state.updateAnchors(newAnchors, suggestedTarget)
-            }
+            state.updateAnchors(newAnchors, suggestedTarget)
             didInitializeAnchors = true
         }
 

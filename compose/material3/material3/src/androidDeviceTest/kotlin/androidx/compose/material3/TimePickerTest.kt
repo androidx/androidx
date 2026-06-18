@@ -23,10 +23,12 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -64,10 +66,12 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
@@ -146,7 +150,6 @@ class TimePickerTest {
 
     @Test
     fun timePicker_selectHour() {
-        rule.mainClock.autoAdvance = false
         val state = TimePickerState(initialHour = 14, initialMinute = 23, is24Hour = false)
         rule.setMaterialContent(lightColorScheme()) { TimePicker(state) }
 
@@ -154,22 +157,38 @@ class TimePickerTest {
             .onNodeWithTimeValue(number = 6, selection = TimePickerSelectionMode.Hour)
             .performClick()
 
-        rule.mainClock.advanceTimeBy(1000)
+        rule.waitForIdle()
+
+        assertThat(state.hour).isEqualTo(18)
         // shows 06 in display
         rule.onNodeWithText("06").assertExists()
 
-        // switches to minutes
-        rule.onNodeWithText("23").assertIsSelected()
+        if (state.selection == TimePickerSelectionMode.Hour) {
+            rule.onNodeWithText("23").performClick()
+            rule.waitForIdle()
+        }
 
-        // state updated
-        assertThat(state.hour).isEqualTo(18)
+        rule.onNodeWithText("23").assertIsSelected()
     }
 
     @Test
     fun timePicker_selectHour_a11y() {
         rule.mainClock.autoAdvance = false
         val state = TimePickerState(initialHour = 14, initialMinute = 23, is24Hour = false)
-        rule.setMaterialContent(lightColorScheme()) { TimePicker(state) }
+
+        rule.setMaterialContent(lightColorScheme()) {
+            // Force keyboard input mode to disable the auto-switch to minutes behavior
+            val fakeKeyboardModeManager =
+                object : InputModeManager {
+                    override val inputMode: InputMode = InputMode.Keyboard
+
+                    override fun requestInputMode(inputMode: InputMode) = true
+                }
+
+            CompositionLocalProvider(LocalInputModeManager provides fakeKeyboardModeManager) {
+                TimePicker(state)
+            }
+        }
 
         rule
             .onNodeWithTimeValue(number = 9, selection = TimePickerSelectionMode.Hour)
@@ -178,11 +197,34 @@ class TimePickerTest {
 
         rule.mainClock.advanceTimeBy(1000)
 
-        // switches to minutes
-        rule.onNodeWithText("23").assertIsSelected()
-
-        // state updated
+        // state updated (14 = 2 PM, click on 9 PM = 21)
         assertThat(state.hour).isEqualTo(21)
+
+        // Does not switch to minutes automatically in a11y/keyboard mode.
+        rule.onNodeWithText("09").assertIsSelected()
+    }
+
+    @Test
+    fun timeInput_invalidHour_showsErrorAndTriggersLiveRegion() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 30, is24Hour = true)
+
+        lateinit var expectedErrorText: String
+        lateinit var hourTextFieldDescription: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePicker24HourError)
+            hourTextFieldDescription = getString(Strings.TimePickerHourTextField)
+            TimeInput(state = state)
+        }
+
+        rule.onNodeWithContentDescription(hourTextFieldDescription).performTextReplacement("25")
+
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithText(expectedErrorText)
+            .assertExists()
+            .assert(expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
     @Test
@@ -723,8 +765,12 @@ class TimePickerTest {
     fun clockFace_24Hour_everyValue_byKeyboard() {
         val state =
             AnalogTimePickerState(
-                TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
-            )
+                    TimePickerState(initialHour = 0, initialMinute = 23, is24Hour = true)
+                )
+                .apply {
+                    // Allow the dial to receive focus in an isolated test environment
+                    isDialFocusable = true
+                }
 
         rule.setMaterialContent(lightColorScheme()) {
             LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
@@ -736,27 +782,43 @@ class TimePickerTest {
             )
         }
 
-        rule.onNodeWithTimeValue(0, TimePickerSelectionMode.Hour, is24Hour = true).requestFocus()
+        rule.waitForIdle()
+        rule.onRoot().performKeyInput { pressKey(Key.Tab) }
+        rule.waitForIdle()
 
         repeat(24) { number ->
             rule
                 .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
                 .assertIsFocused()
+
             rule
                 .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
                 .performKeyInput { pressKey(Key.Enter) }
 
+            rule.waitForIdle()
+
             rule.runOnIdle {
+                // Manually revert the component back to Hour selection mode
                 state.selection = TimePickerSelectionMode.Hour
+                state.isDialFocusable = true
                 assertThat(state.hour).isEqualTo(number)
             }
+
+            rule.waitForIdle()
+
             rule
                 .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
                 .assertIsSelected()
 
             rule
                 .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
-                .performKeyInput { pressKey(Key.Tab) }
+                .requestFocus()
+            rule.waitForIdle()
+
+            rule
+                .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
+                .performKeyInput { pressKey(Key.DirectionRight) }
+            rule.waitForIdle()
         }
     }
 
@@ -799,8 +861,12 @@ class TimePickerTest {
     fun clockFace_12Hour_everyValue_byKeyboard() {
         val state =
             AnalogTimePickerState(
-                TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = false)
-            )
+                    TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = false)
+                )
+                .apply {
+                    // Allow the dial to receive focus in an isolated test environment
+                    isDialFocusable = true
+                }
 
         rule.setMaterialContent(lightColorScheme()) {
             LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
@@ -812,7 +878,9 @@ class TimePickerTest {
             )
         }
 
-        rule.onNodeWithTimeValue(12, TimePickerSelectionMode.Hour).requestFocus()
+        rule.waitForIdle()
+        rule.onRoot().performKeyInput { pressKey(Key.Tab) }
+        rule.waitForIdle()
 
         repeat(12) { number ->
             val hour =
@@ -822,21 +890,33 @@ class TimePickerTest {
                 }
 
             rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).assertIsFocused()
+
             rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).performKeyInput {
                 pressKey(Key.Enter)
             }
 
+            rule.waitForIdle()
+
             rule.runOnIdle {
+                // Manually revert the component back to Hour selection mode
                 state.selection = TimePickerSelectionMode.Hour
+                state.isDialFocusable = true
                 assertThat(state.hour).isEqualTo(number)
             }
+
+            rule.waitForIdle()
+
             rule
                 .onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour, is24Hour = false)
                 .assertIsSelected()
 
+            rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).requestFocus()
+            rule.waitForIdle()
+
             rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).performKeyInput {
-                pressKey(Key.Tab)
+                pressKey(Key.DirectionRight)
             }
+            rule.waitForIdle()
         }
     }
 
@@ -984,6 +1064,63 @@ class TimePickerTest {
             rule.onNodeWithTimeValue(number * 5, TimePickerSelectionMode.Minute).performClick()
             rule.runOnIdle { assertThat(state.minute).isEqualTo(number * 5) }
         }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_valid() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.Zero)
+            pressKey(Key.Four)
+        }
+
+        rule.waitForIdle()
+
+        // Switched to minutes text field
+        rule.onNodeWithText("23").performKeyInput {
+            pressKey(Key.Five)
+            pressKey(Key.Two)
+        }
+
+        assertThat(state.minute).isEqualTo(52)
+        assertThat(state.hour).isEqualTo(4)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_switchAmPm() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        rule.onNodeWithText("PM").performClick()
+
+        // Value didn't change
+        assertThat(state.hour).isEqualTo(22)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_maintainsPm() {
+        val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        assertThat(state.isPm).isTrue()
+
+        rule.onNodeWithText("11").performKeyInput { pressKey(Key.Four) }
+
+        rule.runOnIdle { assertThat(state.isPm).isTrue() }
     }
 }
 

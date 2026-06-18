@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -74,16 +75,19 @@ internal fun Modifier.horizontalCenterOptically(
         val placeable = measurable.measure(constraints)
         val width = placeable.width
         val height = placeable.height
+        val size = Size(width = width.toFloat(), height = height.toFloat())
+        val density = this@layout
         val maxStartOffsetPx = -maxStartOffset.toPx()
         val maxEndOffsetPx = maxEndOffset.toPx()
         layout(width, height) {
-            val coercedOffset = shape.offset().coerceIn(maxStartOffsetPx, maxEndOffsetPx)
+            val coercedOffset =
+                shape.offset(size, density).coerceIn(maxStartOffsetPx, maxEndOffsetPx)
             placeable.placeRelative(coercedOffset.roundToInt(), 0)
         }
     }
 
 internal interface ShapeWithHorizontalCenterOptically : Shape {
-    fun offset(): Float
+    fun offset(size: Size, density: Density): Float
 }
 
 internal const val CenterOpticallyCoefficient = 0.11f

@@ -116,7 +116,7 @@ fun ToggleButtons() {
         ) {
             Icon(
                 if (checked[0]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraSmall)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraSmall)))
@@ -132,7 +132,7 @@ fun ToggleButtons() {
         ) {
             Icon(
                 if (checked[1]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(small)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(small)))
@@ -148,7 +148,7 @@ fun ToggleButtons() {
         ) {
             Icon(
                 if (checked[2]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(medium)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(medium)))
@@ -164,7 +164,7 @@ fun ToggleButtons() {
         ) {
             Icon(
                 if (checked[3]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(large)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(large)))
@@ -180,7 +180,7 @@ fun ToggleButtons() {
         ) {
             Icon(
                 if (checked[4]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraLarge)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraLarge)))
@@ -208,7 +208,7 @@ fun ElevatedToggleButtons() {
         ) {
             Icon(
                 if (checked[0]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraSmall)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraSmall)))
@@ -224,7 +224,7 @@ fun ElevatedToggleButtons() {
         ) {
             Icon(
                 if (checked[1]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(small)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(small)))
@@ -240,7 +240,7 @@ fun ElevatedToggleButtons() {
         ) {
             Icon(
                 if (checked[2]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(medium)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(medium)))
@@ -256,7 +256,7 @@ fun ElevatedToggleButtons() {
         ) {
             Icon(
                 if (checked[3]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(large)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(large)))
@@ -272,7 +272,7 @@ fun ElevatedToggleButtons() {
         ) {
             Icon(
                 if (checked[4]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraLarge)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraLarge)))
@@ -300,7 +300,7 @@ fun TonalToggleButtons() {
         ) {
             Icon(
                 if (checked[0]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraSmall)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraSmall)))
@@ -316,7 +316,7 @@ fun TonalToggleButtons() {
         ) {
             Icon(
                 if (checked[1]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(small)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(small)))
@@ -332,7 +332,7 @@ fun TonalToggleButtons() {
         ) {
             Icon(
                 if (checked[2]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(medium)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(medium)))
@@ -348,7 +348,7 @@ fun TonalToggleButtons() {
         ) {
             Icon(
                 if (checked[3]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(large)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(large)))
@@ -364,7 +364,7 @@ fun TonalToggleButtons() {
         ) {
             Icon(
                 if (checked[4]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraLarge)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraLarge)))
@@ -392,7 +392,7 @@ fun OutlinedToggleButtons() {
         ) {
             Icon(
                 if (checked[0]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraSmall)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraSmall)))
@@ -408,7 +408,7 @@ fun OutlinedToggleButtons() {
         ) {
             Icon(
                 if (checked[1]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(small)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(small)))
@@ -424,7 +424,7 @@ fun OutlinedToggleButtons() {
         ) {
             Icon(
                 if (checked[2]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(medium)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(medium)))
@@ -440,7 +440,7 @@ fun OutlinedToggleButtons() {
         ) {
             Icon(
                 if (checked[3]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(large)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(large)))
@@ -456,7 +456,7 @@ fun OutlinedToggleButtons() {
         ) {
             Icon(
                 if (checked[4]) Icons.Filled.Edit else Icons.Outlined.Edit,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.iconSizeFor(extraLarge)),
             )
             Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(extraLarge)))

@@ -89,18 +89,23 @@ import kotlinx.coroutines.CancellationException
  */
 @Stable
 @ExperimentalMaterial3Api
-class SheetState(
+class SheetState
+internal constructor(
     internal val enabledValues: Set<SheetValue>,
     internal val positionalThreshold: () -> Float,
     internal val velocityThreshold: () -> Float,
-    initialValue: SheetValue = Hidden,
-    internal val confirmValueChange: (SheetValue) -> Boolean = { true },
+    initialValue: SheetValue,
+    internal val confirmValueChange: (SheetValue) -> Boolean,
+    internal val isBottomSheetPartiallyExpandedDeterministicEnabled: Boolean,
 ) {
     /**
-     * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
-     *   enough, should be skipped. If true, the sheet will always expand to the [Expanded] state
-     *   and move to the [Hidden] state if available when hiding the sheet, either programmatically
-     *   or by user interaction.
+     * State of a sheet composable, such as [ModalBottomSheet]
+     *
+     * Contains states relating to its swipe position as well as animations between state values.
+     *
+     * @param enabledValues The set of [SheetValue]s that the bottom sheet can settle in. This is
+     *   the direct source of truth for available states; if a value is included here, the component
+     *   will attempt to create an anchor for it.
      * @param positionalThreshold The positional threshold, in px, to be used when calculating the
      *   target state while a drag is in progress and when settling after the drag ends. This is the
      *   distance from the start of a transition. It will be, depending on the direction of the
@@ -112,10 +117,23 @@ class SheetState(
      * @param initialValue The initial value of the state.
      * @param confirmValueChange Optional callback invoked to confirm or veto a pending state
      *   change.
-     * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will
-     *   always expand to the [Expanded] state and move to the [PartiallyExpanded] if available,
-     *   either programmatically or by user interaction.
      */
+    constructor(
+        enabledValues: Set<SheetValue>,
+        positionalThreshold: () -> Float,
+        velocityThreshold: () -> Float,
+        initialValue: SheetValue = Hidden,
+        confirmValueChange: (SheetValue) -> Boolean = { true },
+    ) : this(
+        enabledValues = enabledValues,
+        positionalThreshold = positionalThreshold,
+        velocityThreshold = velocityThreshold,
+        initialValue = initialValue,
+        confirmValueChange = confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled =
+            ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled,
+    )
+
     @Deprecated(
         message = "Use the primary constructor that takes a set of enabled values.",
         replaceWith =
@@ -146,6 +164,7 @@ class SheetState(
         velocityThreshold = velocityThreshold,
         initialValue = initialValue,
         confirmValueChange = confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled = false,
     )
 
     /**
@@ -384,16 +403,34 @@ class SheetState(
             positionalThreshold: () -> Float,
             velocityThreshold: () -> Float,
             confirmValueChange: (SheetValue) -> Boolean,
-        ) =
+        ): Saver<SheetState, SheetValue> =
+            Saver(
+                enabledValues = enabledValues,
+                positionalThreshold = positionalThreshold,
+                velocityThreshold = velocityThreshold,
+                confirmValueChange = confirmValueChange,
+                isBottomSheetPartiallyExpandedDeterministicEnabled =
+                    ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled,
+            )
+
+        internal fun Saver(
+            enabledValues: Set<SheetValue>,
+            positionalThreshold: () -> Float,
+            velocityThreshold: () -> Float,
+            confirmValueChange: (SheetValue) -> Boolean,
+            isBottomSheetPartiallyExpandedDeterministicEnabled: Boolean,
+        ): Saver<SheetState, SheetValue> =
             Saver<SheetState, SheetValue>(
                 save = { it.currentValue },
                 restore = { savedValue ->
                     SheetState(
-                        enabledValues,
-                        positionalThreshold,
-                        velocityThreshold,
-                        savedValue,
-                        confirmValueChange,
+                        enabledValues = enabledValues,
+                        positionalThreshold = positionalThreshold,
+                        velocityThreshold = velocityThreshold,
+                        initialValue = savedValue,
+                        confirmValueChange = confirmValueChange,
+                        isBottomSheetPartiallyExpandedDeterministicEnabled =
+                            isBottomSheetPartiallyExpandedDeterministicEnabled,
                     )
                 },
             )
@@ -427,6 +464,7 @@ class SheetState(
                 positionalThreshold = positionalThreshold,
                 velocityThreshold = velocityThreshold,
                 confirmValueChange = confirmValueChange,
+                isBottomSheetPartiallyExpandedDeterministicEnabled = false,
             )
 
         @Deprecated(
@@ -453,6 +491,7 @@ class SheetState(
                 velocityThreshold = {
                     with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
                 },
+                isBottomSheetPartiallyExpandedDeterministicEnabled = false,
             )
     }
 
@@ -474,6 +513,7 @@ class SheetState(
         velocityThreshold = { with(density) { BottomSheetDefaults.VelocityThreshold.toPx() } },
         initialValue = initialValue,
         confirmValueChange = confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled = false,
     )
 }
 
@@ -693,6 +733,8 @@ internal fun rememberSheetState(
     initialValue: SheetValue = Hidden,
     positionalThreshold: Dp = BottomSheetDefaults.PositionalThreshold,
     velocityThreshold: Dp = BottomSheetDefaults.VelocityThreshold,
+    isBottomSheetPartiallyExpandedDeterministicEnabled: Boolean =
+        ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled,
 ): SheetState {
     val density = LocalDensity.current
     val positionalThresholdToPx = { with(density) { positionalThreshold.toPx() } }
@@ -700,20 +742,25 @@ internal fun rememberSheetState(
     return rememberSaveable(
         enabledValues,
         confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled,
         saver =
             SheetState.Saver(
                 enabledValues = enabledValues,
                 positionalThreshold = positionalThresholdToPx,
                 velocityThreshold = velocityThresholdToPx,
                 confirmValueChange = confirmValueChange,
+                isBottomSheetPartiallyExpandedDeterministicEnabled =
+                    isBottomSheetPartiallyExpandedDeterministicEnabled,
             ),
     ) {
         SheetState(
-            enabledValues,
-            positionalThresholdToPx,
-            velocityThresholdToPx,
-            initialValue,
-            confirmValueChange,
+            enabledValues = enabledValues,
+            positionalThreshold = positionalThresholdToPx,
+            velocityThreshold = velocityThresholdToPx,
+            initialValue = initialValue,
+            confirmValueChange = confirmValueChange,
+            isBottomSheetPartiallyExpandedDeterministicEnabled =
+                isBottomSheetPartiallyExpandedDeterministicEnabled,
         )
     }
 }

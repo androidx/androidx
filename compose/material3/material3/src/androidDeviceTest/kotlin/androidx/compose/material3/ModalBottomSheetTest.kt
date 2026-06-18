@@ -46,7 +46,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
@@ -83,6 +82,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -272,8 +272,14 @@ class ModalBottomSheetTest {
         rule.onNodeWithTag(sheetTag).assertDoesNotExist()
     }
 
+    @After
+    fun resetFlag() {
+        ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled = true
+    }
+
     @Test
     fun modalBottomSheet_defaultStateForSmallContentIsFullExpanded() {
+        ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled = false
         lateinit var sheetState: SheetState
         var height by mutableStateOf(0.dp)
 
@@ -297,6 +303,7 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_defaultStateForLargeContentIsHalfExpanded() {
+        ComposeMaterial3Flags.isBottomSheetPartiallyExpandedDeterministicEnabled = false
         lateinit var sheetState: SheetState
         var screenHeightPx by mutableStateOf(0f)
 
@@ -438,6 +445,7 @@ class ModalBottomSheetTest {
         rule.onNodeWithTag(sheetTag).assertDoesNotExist()
     }
 
+    @Suppress("Deprecation")
     @Test
     fun modalBottomSheet_shortSheet_sizeChanges_snapsToNewTarget() {
         lateinit var state: SheetState
@@ -448,9 +456,8 @@ class ModalBottomSheetTest {
         }
 
         rule.setContent {
-            val context = LocalContext.current
             screenHeight = LocalWindowInfo.current.containerDpSize.height
-            state = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+            state = rememberModalBottomSheetState()
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = state,
@@ -493,12 +500,13 @@ class ModalBottomSheetTest {
         }
     }
 
+    @Suppress("Deprecation")
     @Test
     fun modalBottomSheet_emptySheet_expandDoesNotAnimate() {
         lateinit var state: SheetState
         lateinit var scope: CoroutineScope
         rule.setContent {
-            state = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+            state = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
 
             ModalBottomSheet(
@@ -695,6 +703,11 @@ class ModalBottomSheetTest {
             ) {
                 if (showBottomSheet) {
                     ModalBottomSheet(
+                        sheetState =
+                            rememberBottomSheetState(
+                                initialValue = SheetValue.Hidden,
+                                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+                            ),
                         onDismissRequest = { showBottomSheet = false },
                         contentWindowInsets = { WindowInsets(0) },
                     ) {

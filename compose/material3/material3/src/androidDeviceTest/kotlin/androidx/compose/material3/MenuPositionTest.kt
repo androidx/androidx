@@ -21,9 +21,7 @@ import androidx.compose.material3.internal.AnchorAlignmentOffsetPosition
 import androidx.compose.material3.internal.DropdownMenuPositionProvider
 import androidx.compose.material3.internal.MenuPosition
 import androidx.compose.material3.internal.WindowAlignmentMarginPosition
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -47,26 +45,42 @@ class MenuPositionTest {
     @Test
     fun menuPosition_horizontal_anchorAlignment_ltr() {
         assertThat(
-                MenuPosition.startToAnchorStart()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.startToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(anchorBounds.left)
 
         assertThat(
-                MenuPosition.endToAnchorEnd()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.endToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(anchorBounds.right - menuSize.width)
 
         assertThat(
-                MenuPosition.startToAnchorEnd()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.startToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(anchorBounds.right)
 
         assertThat(
-                MenuPosition.endToAnchorStart()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.endToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(anchorBounds.left - menuSize.width)
 
@@ -74,7 +88,6 @@ class MenuPositionTest {
                 AnchorAlignmentOffsetPosition.Horizontal(
                         menuAlignment = Alignment.Start,
                         anchorAlignment = Alignment.CenterHorizontally,
-                        offset = 0,
                     )
                     .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
             )
@@ -84,26 +97,42 @@ class MenuPositionTest {
     @Test
     fun menuPosition_horizontal_anchorAlignment_rtl() {
         assertThat(
-                MenuPosition.startToAnchorStart()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.startToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(anchorBounds.right - menuSize.width)
 
         assertThat(
-                MenuPosition.endToAnchorEnd()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.endToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(anchorBounds.left)
 
         assertThat(
-                MenuPosition.startToAnchorEnd()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.startToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(anchorBounds.left - menuSize.width)
 
         assertThat(
-                MenuPosition.endToAnchorStart()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.endToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(anchorBounds.right)
 
@@ -111,226 +140,238 @@ class MenuPositionTest {
                 AnchorAlignmentOffsetPosition.Horizontal(
                         menuAlignment = Alignment.Start,
                         anchorAlignment = Alignment.CenterHorizontally,
-                        offset = 0,
                     )
                     .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
             )
             .isEqualTo(anchorBounds.center.x - menuSize.width)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_horizontal_anchorAlignment_withOffset() {
-        val offset = 10
-        assertThat(
-                MenuPosition.startToAnchorStart(offset)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
-            )
-            .isEqualTo(anchorBounds.left + offset)
+        val density = Density(1f)
+        val offsetX = 10
+        val ltrPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, 0.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Ltr, menuSize)
 
-        assertThat(
-                MenuPosition.startToAnchorStart(offset)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
-            )
-            .isEqualTo(anchorBounds.right - menuSize.width - offset)
+        assertThat(ltrPosition.x).isEqualTo(anchorBounds.left + offsetX)
+
+        val rtlPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, 0.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Rtl, menuSize)
+
+        assertThat(rtlPosition.x).isEqualTo(anchorBounds.right - menuSize.width - offsetX)
     }
 
     @Test
     fun menuPosition_horizontal_windowAlignment() {
         assertThat(
-                MenuPosition.leftToWindowLeft()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.leftToWindowLeft.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(0)
 
         assertThat(
-                MenuPosition.rightToWindowRight()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+                MenuPosition.rightToWindowRight.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
             )
             .isEqualTo(windowSize.width - menuSize.width)
 
         assertThat(
-                MenuPosition.leftToWindowLeft()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.leftToWindowLeft.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(0)
 
         assertThat(
-                MenuPosition.rightToWindowRight()
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+                MenuPosition.rightToWindowRight.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
             )
             .isEqualTo(windowSize.width - menuSize.width)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_horizontal_windowAlignment_withMargin() {
+        val density = Density(1f)
         val margin = 150
-        assertThat(
-                MenuPosition.leftToWindowLeft(margin)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
-            )
-            .isEqualTo(margin)
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    horizontalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Start,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(-100, 0), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
 
-        assertThat(
-                MenuPosition.rightToWindowRight(margin)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
-            )
-            .isEqualTo(windowSize.width - menuSize.width - margin)
+        assertThat(position.x).isEqualTo(margin)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_horizontal_windowAlignment_withTooLargeMargin_centersHorizontallyInstead() {
+        val density = Density(1f)
         val margin = 220
         assertThat(margin * 2 + menuSize.width).isGreaterThan(windowSize.width)
 
-        assertThat(
-                MenuPosition.leftToWindowLeft(margin)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
-            )
-            .isEqualTo((windowSize.width - menuSize.width) / 2)
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    horizontalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Start,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(-100, 0), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
 
-        assertThat(
-                MenuPosition.rightToWindowRight(margin)
-                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
-            )
-            .isEqualTo((windowSize.width - menuSize.width) / 2)
+        assertThat(position.x).isEqualTo((windowSize.width - menuSize.width) / 2)
     }
 
     @Test
     fun menuPosition_vertical_anchorAlignment() {
         assertThat(
-                MenuPosition.topToAnchorBottom().position(anchorBounds, windowSize, menuSize.height)
+                MenuPosition.topToAnchorBottom.position(anchorBounds, windowSize, menuSize.height)
             )
             .isEqualTo(anchorBounds.bottom)
 
         assertThat(
-                MenuPosition.bottomToAnchorTop().position(anchorBounds, windowSize, menuSize.height)
+                MenuPosition.bottomToAnchorTop.position(anchorBounds, windowSize, menuSize.height)
             )
             .isEqualTo(anchorBounds.top - menuSize.height)
 
-        assertThat(
-                MenuPosition.topToAnchorTop().position(anchorBounds, windowSize, menuSize.height)
-            )
+        assertThat(MenuPosition.topToAnchorTop.position(anchorBounds, windowSize, menuSize.height))
             .isEqualTo(anchorBounds.top)
 
         assertThat(
-                MenuPosition.bottomToAnchorBottom()
-                    .position(anchorBounds, windowSize, menuSize.height)
+                MenuPosition.bottomToAnchorBottom.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.height,
+                )
             )
             .isEqualTo(anchorBounds.bottom - menuSize.height)
 
         assertThat(
-                MenuPosition.centerToAnchorTop().position(anchorBounds, windowSize, menuSize.height)
+                MenuPosition.centerToAnchorTop.position(anchorBounds, windowSize, menuSize.height)
             )
             .isEqualTo(anchorBounds.top - menuSize.height / 2)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_vertical_anchorAlignment_withOffset() {
-        val offset = 10
-        assertThat(
-                MenuPosition.topToAnchorBottom(offset)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(anchorBounds.bottom + offset)
+        val density = Density(1f)
+        val offsetY = 10
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(0.dp, offsetY.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Ltr, menuSize)
 
-        assertThat(
-                MenuPosition.bottomToAnchorTop(offset)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(anchorBounds.top - menuSize.height + offset)
-
-        assertThat(
-                MenuPosition.topToAnchorTop(offset)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(anchorBounds.top + offset)
-
-        assertThat(
-                MenuPosition.bottomToAnchorBottom(offset)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(anchorBounds.bottom - menuSize.height + offset)
-
-        assertThat(
-                MenuPosition.centerToAnchorTop(offset)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(anchorBounds.top - menuSize.height / 2 + offset)
+        assertThat(position.y).isEqualTo(anchorBounds.bottom + offsetY)
     }
 
     @Test
     fun menuPosition_vertical_windowAlignment() {
-        assertThat(
-                MenuPosition.topToWindowTop().position(anchorBounds, windowSize, menuSize.height)
-            )
+        assertThat(MenuPosition.topToWindowTop.position(anchorBounds, windowSize, menuSize.height))
             .isEqualTo(0)
 
         assertThat(
-                MenuPosition.bottomToWindowBottom()
-                    .position(anchorBounds, windowSize, menuSize.height)
+                MenuPosition.bottomToWindowBottom.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.height,
+                )
             )
             .isEqualTo(windowSize.height - menuSize.height)
 
         assertThat(
-                WindowAlignmentMarginPosition.Vertical(
-                        alignment = Alignment.CenterVertically,
-                        margin = 0,
-                    )
+                WindowAlignmentMarginPosition.Vertical(alignment = Alignment.CenterVertically)
                     .position(anchorBounds, windowSize, menuSize.height)
             )
             .isEqualTo((windowSize.height - menuSize.height) / 2)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_vertical_windowAlignment_withMargin() {
+        val density = Density(1f)
         val margin = 150
-        assertThat(
-                MenuPosition.topToWindowTop(margin)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(margin)
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    verticalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(0, -200), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
 
-        assertThat(
-                MenuPosition.bottomToWindowBottom(margin)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo(windowSize.height - menuSize.height - margin)
-
-        assertThat(
-                WindowAlignmentMarginPosition.Vertical(
-                        alignment = Alignment.CenterVertically,
-                        margin = margin,
-                    )
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo((windowSize.height - menuSize.height) / 2)
+        assertThat(position.y).isEqualTo(margin)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun menuPosition_vertical_windowAlignment_withTooLargeMargin_centersVerticallyInstead() {
+        val density = Density(1f)
         val margin = 450
         assertThat(margin * 2 + menuSize.height).isGreaterThan(windowSize.height)
 
-        assertThat(
-                MenuPosition.topToWindowTop(margin)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo((windowSize.height - menuSize.height) / 2)
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    verticalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(0, -200), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
 
-        assertThat(
-                MenuPosition.bottomToWindowBottom(margin)
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo((windowSize.height - menuSize.height) / 2)
-
-        assertThat(
-                WindowAlignmentMarginPosition.Vertical(
-                        alignment = Alignment.CenterVertically,
-                        margin = margin,
-                    )
-                    .position(anchorBounds, windowSize, menuSize.height)
-            )
-            .isEqualTo((windowSize.height - menuSize.height) / 2)
+        assertThat(position.y).isEqualTo((windowSize.height - menuSize.height) / 2)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -352,7 +393,6 @@ class MenuPositionTest {
                     density = density,
                     horizontalMargin = 0,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -370,7 +410,6 @@ class MenuPositionTest {
                     density = density,
                     horizontalMargin = 0,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -404,7 +443,6 @@ class MenuPositionTest {
                     density = density,
                     horizontalMargin = 0,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -423,7 +461,6 @@ class MenuPositionTest {
                     density = density,
                     horizontalMargin = 0,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPositionRtl, anchorSize),
@@ -455,7 +492,6 @@ class MenuPositionTest {
                     contentOffset = DpOffset.Zero,
                     density = density,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -488,7 +524,6 @@ class MenuPositionTest {
                     contentOffset = DpOffset.Zero,
                     density = density,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -505,7 +540,6 @@ class MenuPositionTest {
                     contentOffset = DpOffset.Zero,
                     density = density,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPositionRtl, anchorSize),
@@ -514,7 +548,7 @@ class MenuPositionTest {
                     popupSize,
                 )
 
-        assertThat(rtlPosition.x).isEqualTo(screenWidth - popupSize.width - horizontalMargin)
+        assertThat(rtlPosition.x).isEqualTo(windowSize.width - horizontalMargin - popupSize.width)
         assertThat(rtlPosition.y).isEqualTo(verticalMargin)
     }
 
@@ -535,10 +569,9 @@ class MenuPositionTest {
                     density = density,
                     dropdownMenuAnchorPosition =
                         MenuAnchorPosition.Custom(
-                            { anchorBounds, _, _ -> mutableIntListOf(anchorBounds.right) },
-                            { anchorBounds, _, _ -> mutableIntListOf(anchorBounds.bottom) },
+                            { mutableIntListOf(anchorBounds.right) },
+                            { mutableIntListOf(anchorBounds.bottom) },
                         ),
-                    transformOriginState = mutableStateOf(TransformOrigin.Center),
                 )
                 .calculatePosition(
                     IntRect(anchorPosition, anchorSize),
@@ -564,17 +597,18 @@ class MenuPositionTest {
         val offsetY = 40
         val popupSize = IntSize(50, 80)
 
-        var obtainedAnchorBounds = IntRect.Zero
-        var obtainedMenuBounds = IntRect.Zero
+        var callbackParentBounds = IntRect.Zero
+        var callbackMenuBounds = IntRect.Zero
+
         DropdownMenuPositionProvider(
                 contentOffset = DpOffset(offsetX.dp, offsetY.dp),
                 density = density,
                 dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                transformOriginState = mutableStateOf(TransformOrigin.Center),
-            ) { anchorBounds, menuBounds ->
-                obtainedAnchorBounds = anchorBounds
-                obtainedMenuBounds = menuBounds
-            }
+                onPositionCalculated = { parentBounds, menuBounds ->
+                    callbackParentBounds = parentBounds
+                    callbackMenuBounds = menuBounds
+                },
+            )
             .calculatePosition(
                 IntRect(anchorPosition, anchorSize),
                 windowSize,
@@ -582,8 +616,8 @@ class MenuPositionTest {
                 popupSize,
             )
 
-        assertThat(obtainedAnchorBounds).isEqualTo(IntRect(anchorPosition, anchorSize))
-        assertThat(obtainedMenuBounds)
+        assertThat(callbackParentBounds).isEqualTo(IntRect(anchorPosition, anchorSize))
+        assertThat(callbackMenuBounds)
             .isEqualTo(
                 IntRect(
                     offset =

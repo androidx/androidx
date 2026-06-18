@@ -80,7 +80,6 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,7 +170,7 @@ fun SimpleTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -294,7 +293,7 @@ fun SimpleTopAppBarWithAdaptiveActions() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -391,7 +390,7 @@ fun SimpleTopAppBarWithSubtitle() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -483,7 +482,7 @@ fun SimpleCenterAlignedTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -581,7 +580,7 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -701,7 +700,7 @@ fun PinnedTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -730,7 +729,7 @@ fun PinnedTopAppBarWithPreScrolledLazyColumn() {
     val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
     // Pass the state to ensure the top app bar color updates correctly when content is reversed or
     // pre-scrolled.
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(lazyListState = lazyListState)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyListState)
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -769,7 +768,7 @@ fun PinnedTopAppBarWithPreScrolledLazyColumn() {
         content = { innerPadding ->
             LazyColumn(
                 state = lazyListState,
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -796,22 +795,7 @@ fun PinnedTopAppBarWithPreScrolledLazyColumn() {
 @Composable
 fun PinnedTopAppBarWithReversedLazyGrid() {
     val lazyGridState = rememberLazyGridState()
-    // In a reversed grid, we need to provide a custom `isScrollingContentAtStart` to the scroll
-    // behavior to ensure the top app bar's color changes correctly.
-    val isScrollingContentAtStart =
-        remember(lazyGridState) {
-            derivedStateOf {
-                if (lazyGridState.layoutInfo.reverseLayout) {
-                    !lazyGridState.canScrollForward
-                } else {
-                    !lazyGridState.canScrollBackward
-                }
-            }
-        }
-    val scrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior(
-            isScrollingContentAtStart = { isScrollingContentAtStart.value }
-        )
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(scrollableState = lazyGridState)
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -851,7 +835,7 @@ fun PinnedTopAppBarWithReversedLazyGrid() {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp),
                 reverseLayout = true,
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 state = lazyGridState,
             ) {
                 val list = (0..75).map { it.toString() }
@@ -947,7 +931,7 @@ fun EnterAlwaysTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -974,12 +958,9 @@ fun EnterAlwaysTopAppBar() {
 fun EnterAlwaysTopAppBarWithReverseScrolling() {
     val scrollState = rememberScrollState()
     val scrollBehavior =
-        // Pass these parameters to ensure the top app bar color updates correctly when content has
+        // Pass this state to ensure the top app bar color updates correctly when content has
         // reverse scrolling.
-        TopAppBarDefaults.enterAlwaysScrollBehavior(
-            scrollState = scrollState,
-            reverseScrolling = true,
-        )
+        TopAppBarDefaults.enterAlwaysScrollBehavior(scrollableState = scrollState)
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -1111,7 +1092,7 @@ fun ExitUntilCollapsedMediumTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -1208,7 +1189,7 @@ fun ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -1300,7 +1281,7 @@ fun ExitUntilCollapsedLargeTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
@@ -1395,7 +1376,7 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
