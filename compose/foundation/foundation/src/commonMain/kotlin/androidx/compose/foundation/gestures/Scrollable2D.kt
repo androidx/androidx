@@ -32,6 +32,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserInput
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlin.math.abs
@@ -160,15 +161,26 @@ internal class Scrollable2DNode(
     override val nestedScrollConnection =
         ScrollableNestedScrollConnection(enabled = enabled, scrollingLogic = scrollLogic)
 
+    override fun createMouseWheelScrollingLogic() =
+        MouseWheel2DScrollingLogic(
+            scrollingLogic = scrollLogic,
+            scrollConfig = platformScrollConfig(),
+            onScrollStopped = ::onMouseWheelScrollStopped,
+            density = requireDensity(),
+        )
+
+    override fun createTrackpadScrollingLogic() =
+        Trackpad2DScrollingLogic(
+            scrollingLogic = scrollLogic,
+            onScrollStopped = ::onTrackpadScrollStopped,
+            density = requireDensity(),
+        )
+
     init {
         // Must be called here because in AbstractScrollableNode.init nestedScrollConnection hasn't
         // been created yet
         initializeNestedScrollingDelegation()
     }
-
-    override fun createMouseWheelScrollingLogic() = null
-
-    override fun createTrackpadScrollingLogic() = null
 
     override suspend fun drag(
         forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
@@ -182,7 +194,21 @@ internal class Scrollable2DNode(
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
         if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
-        nestedScrollDispatcher.coroutineScope.launch { scrollLogic.onScrollStopped(event.velocity) }
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollLogic.onScrollStopped(event.velocity, isMouseWheel = false)
+        }
+    }
+
+    private fun onMouseWheelScrollStopped(velocity: Velocity) {
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollLogic.onScrollStopped(velocity, isMouseWheel = true)
+        }
+    }
+
+    private fun onTrackpadScrollStopped(velocity: Velocity) {
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollLogic.onScrollStopped(velocity, isMouseWheel = false)
+        }
     }
 
     fun update(
@@ -298,7 +324,11 @@ internal class ScrollingLogic2D(
         return scrollableState.dispatchRawDelta(scroll)
     }
 
-    suspend fun onScrollStopped(initialVelocity: Velocity) {
+    suspend fun onScrollStopped(initialVelocity: Velocity, isMouseWheel: Boolean) {
+        if (isMouseWheel && !flingBehavior.shouldBeTriggeredByMouseWheel) {
+            return
+        }
+
         val availableVelocity = initialVelocity
 
         val performFling: suspend (Velocity) -> Velocity = { velocity ->
