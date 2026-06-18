@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.rememberLifecycleOwner
+import androidx.navigation3.fastToSet
 import androidx.navigation3.runtime.MetadataScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -668,10 +670,13 @@ public fun <T : Any> NavDisplay(
     val overlayScenes = sceneState.overlayScenes
     // includes overlay scenes that are already popped off backStack but still animating out
     val currentOverlayScenes = remember { SnapshotStateList<OverlayScene<T>>() }
+
     LaunchedEffect(overlayScenes) {
         // we want a unique set of overlay scenes, but it needs to be ordered to preserve z-order
         overlayScenes.fastForEach {
-            if (!currentOverlayScenes.contains(it)) currentOverlayScenes.add(it)
+            if (!currentOverlayScenes.fastMap { currScene -> currScene.key }.contains(it.key)) {
+                currentOverlayScenes.add(it)
+            }
         }
     }
 
@@ -723,7 +728,7 @@ public fun <T : Any> NavDisplay(
                     if (shouldSwapExcludedScenesFromTarget && transition.targetState != scene) {
                         put(
                             AnimatedSceneKey(scene),
-                            transition.targetState.entries.map { it.contentKey }.toSet(),
+                            transition.targetState.entries.fastMap { it.contentKey }.fastToSet(),
                         )
                     } else {
                         put(AnimatedSceneKey(scene), coveredEntryKeys.toMutableSet())
@@ -897,7 +902,7 @@ public fun <T : Any> NavDisplay(
         }
         // if the overlay scene is popped, let onRemoved finish before
         // removing from composition to ensure animations can complete
-        if (overlayScene !in overlayScenes) {
+        if (overlayScene.key !in overlayScenes.fastMap { it.key }) {
             LaunchedEffect(overlayScene.key) {
                 overlayScene.onRemove()
                 currentOverlayScenes.remove(overlayScene)

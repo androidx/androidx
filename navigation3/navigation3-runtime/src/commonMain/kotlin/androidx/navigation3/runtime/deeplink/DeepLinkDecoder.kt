@@ -109,7 +109,7 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
 
     override fun decodeInt(): Int = decodeString().toInt()
 
-    override fun decodeBoolean(): Boolean = decodeString().toBoolean()
+    override fun decodeBoolean(): Boolean = decodeString().toBooleanStrict()
 
     override fun decodeLong(): Long = decodeString().toLong()
 
@@ -168,7 +168,7 @@ internal class ListDecoder(private val values: List<String>) : AbstractDecoder()
 
     override fun decodeInt(): Int = decodeString().toInt()
 
-    override fun decodeBoolean(): Boolean = decodeString().toBoolean()
+    override fun decodeBoolean(): Boolean = decodeString().toBooleanStrict()
 
     override fun decodeLong(): Long = decodeString().toLong()
 

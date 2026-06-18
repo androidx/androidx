@@ -65,6 +65,8 @@ class AnimateOverlaySceneTest {
 
     private object Second
 
+    private object Third
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Suppress("Deprecation")
     @Test
@@ -128,12 +130,72 @@ class AnimateOverlaySceneTest {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag(testTag).assertIsNotDisplayed()
     }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Suppress("Deprecation")
+    @Test
+    fun testNestedBottomSheet() {
+        lateinit var backStack: MutableList<Any>
+        var renderCount = 0
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(First) }
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                // sheetState and onRemoved implemented here for test readability
+                // realistically it should be implemented within the scene
+                sceneStrategies =
+                    listOf(AnimatedBottomSheetSceneStrategy(onRemoved = { it.hide() })),
+                entryProvider =
+                    entryProvider {
+                        entry<First> { Text("First") }
+                        entry<Second>(
+                            metadata = AnimatedBottomSheetSceneStrategy.animatedBottomSheet()
+                        ) {
+                            Text("Second")
+                            renderCount++
+                        }
+                        entry<Third>(
+                            metadata = AnimatedBottomSheetSceneStrategy.animatedBottomSheet()
+                        ) {
+                            Text("Third")
+                        }
+                    },
+            )
+        }
+
+        composeTestRule.onNodeWithText("First").assertIsDisplayed()
+        assertThat(renderCount).isEqualTo(0)
+
+        backStack.add(Second)
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("First").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Second").assertIsDisplayed()
+        assertThat(renderCount).isEqualTo(1)
+
+        backStack.add(Third)
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("First").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Second").assertExists()
+        composeTestRule.onNodeWithText("Third").assertIsDisplayed()
+        assertThat(renderCount).isEqualTo(1)
+
+        backStack.removeLastOrNull()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("First").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Second").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Third").assertIsNotDisplayed()
+        assertThat(renderCount).isEqualTo(1)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 private class AnimatedBottomSheetSceneStrategy(
-    val sheetState: SheetState,
-    val onRemoved: suspend () -> Unit,
+    val sheetState: SheetState? = null,
+    val onRemoved: suspend (SheetState) -> Unit,
 ) : SceneStrategy<Any> {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -145,14 +207,18 @@ private class AnimatedBottomSheetSceneStrategy(
             override val key = entry.contentKey
             override val entries = listOf(entry)
             override val previousEntries = entries.dropLast(1)
-            override val overlaidEntries = previousEntries.takeLast(1)
+            override val overlaidEntries = entries.dropLast(1)
+
+            lateinit var state: SheetState
 
             override val content: @Composable (() -> Unit) = {
+                @Suppress("DEPRECATION")
+                state = sheetState ?: rememberModalBottomSheetState()
                 val minHeight = LocalWindowInfo.current.containerSize.height * 0.2 // 50% height
                 ModalBottomSheet(
                     onDismissRequest = { onBack() },
                     containerColor = Color.Blue,
-                    sheetState = sheetState,
+                    sheetState = state,
                     modifier = Modifier.heightIn(min = minHeight.dp),
                 ) {
                     entry.Content()
@@ -160,7 +226,7 @@ private class AnimatedBottomSheetSceneStrategy(
             }
 
             override suspend fun onRemove() {
-                onRemoved.invoke()
+                onRemoved.invoke(state)
             }
         }
     }
