@@ -31,24 +31,18 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 /** Provides hardware capabilities of the device. */
 public class XrDevice
-private constructor(
-    private val session: Session?,
-    private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?,
-) {
+private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?) {
 
     /**
      * Returns this XrDevice's [Lifecycle].
      *
      * The value will be the Projected device's lifecycle if its [Context] was used when calling
-     * [getCurrentDevice]. Otherwise, the [Session's][Session] lifecycle will be returned.
+     * [getCurrentDevice].
      *
      * @throws IllegalStateException if there is no lifecycle associated with this XrDevice.
      */
     public fun getLifecycle(): Lifecycle =
-        // TODO(b/461561664) : Use XrDeviceCapabilityProvider.getLifecycle() once session
-        // constructor is removed.
         xrDeviceCapabilityProvider?.lifecycle
-            ?: session?.lifecycleOwner?.lifecycle
             ?: throw IllegalStateException("No lifecycle associated with this XrDevice.")
 
     public companion object {
@@ -89,14 +83,14 @@ private constructor(
                     ),
                     features,
                 )
+            // TODO(b/525421830): Make xrDeviceCapabilityProvider non-nullable.
             val device =
                 XrDevice(
-                    session = null,
                     xrDeviceCapabilityProviderFactory?.create(
                         context,
                         coroutineContext,
                         XrInstanceManager.getProvider(context),
-                    ),
+                    )
                 )
             synchronized(deviceCache) { deviceCache[context] = device }
             return device
