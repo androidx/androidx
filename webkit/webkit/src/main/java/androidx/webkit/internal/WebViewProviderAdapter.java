@@ -40,7 +40,6 @@ import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
 
-import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
@@ -180,10 +179,8 @@ public class WebViewProviderAdapter {
      * Adapter method for {@link WebViewCompat#getProfile(WebView)}.
      */
     public @NonNull Profile getProfile() {
-        ProfileBoundaryInterface profile = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                ProfileBoundaryInterface.class, mImpl.getProfile());
-
-        return new ProfileImpl(profile);
+        return ProfileStoreImpl.getInstance()
+                .getOrCreateProfileFromBoundaryInterface(mImpl.getProfile());
     }
 
     /**
