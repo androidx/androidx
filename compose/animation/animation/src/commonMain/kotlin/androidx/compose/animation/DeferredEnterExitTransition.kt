@@ -33,7 +33,6 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.unit.IntOffset
@@ -201,8 +200,11 @@ internal class SharedMutableTransformState {
         set(value) {
             if (_isMutating.value && !value) {
                 isHandoffActive = true
+                calculateHandoffVelocities()
             } else if (value) {
                 isHandoffActive = false
+                scaleHandoffVelocity = null
+                slideHandoffVelocity = null
             }
             _isMutating.value = value
         }
@@ -286,38 +288,43 @@ internal class SharedMutableTransformState {
     val slideHandoffValue: IntOffset?
         get() = if (isHandoffActive) lastSlide else null
 
-    private var scaleVelocityTracker: VelocityTracker1D? = null
+    private var scaleVelocityTracker: VelocityTracker? = null
     private var offsetVelocityTracker: VelocityTracker? = null
 
-    val scaleHandoffVelocity: AnimationVector1D?
-        get() =
-            if (isHandoffActive) {
-                val vel = scaleVelocityTracker?.calculateVelocity()?.takeUnless { it.isNaN() } ?: 0f
-                AnimationVector1D(vel)
-            } else null
+    var scaleHandoffVelocity: AnimationVector1D? = null
+        private set
 
-    val slideHandoffVelocity: AnimationVector2D?
-        get() =
-            if (isHandoffActive) {
-                val v = lastMutableData?.offsetVelocityProvider?.invoke()
-                if (v != null && v.isSpecified) {
-                    AnimationVector2D(v.x, v.y)
-                } else {
-                    val vel = offsetVelocityTracker?.calculateVelocity() ?: Velocity.Zero
-                    AnimationVector2D(
-                        vel.x.takeUnless { it.isNaN() } ?: 0f,
-                        vel.y.takeUnless { it.isNaN() } ?: 0f,
-                    )
-                }
-            } else null
+    var slideHandoffVelocity: AnimationVector2D? = null
+        private set
+
+    private fun calculateHandoffVelocities() {
+        val scaleVel = scaleVelocityTracker?.calculateVelocity()?.x?.takeUnless { it.isNaN() } ?: 0f
+        scaleHandoffVelocity = AnimationVector1D(scaleVel)
+
+        val v = lastMutableData?.offsetVelocityProvider?.invoke()
+        slideHandoffVelocity =
+            if (v != null && v.isSpecified) {
+                AnimationVector2D(v.x, v.y)
+            } else {
+                val vel = offsetVelocityTracker?.calculateVelocity() ?: Velocity.Zero
+                AnimationVector2D(
+                    vel.x.takeUnless { it.isNaN() } ?: 0f,
+                    vel.y.takeUnless { it.isNaN() } ?: 0f,
+                )
+            }
+    }
 
     val slideHandoffOffset: (IntSize) -> IntOffset = { lastSlide }
 
     private fun trackScaleVelocity(value: Float) {
         if (scaleVelocityTracker == null) {
-            scaleVelocityTracker = VelocityTracker1D(isDataDifferential = false)
+            // The 2D VelocityTracker is used here because its Lsq2/Framework implementations better
+            // smooth out the phase jitter introduced by using TimeSource.Monotonic instead of vsync
+            // times. VelocityTracker1D uses an Impulse strategy which is very sensitive to this
+            // jitter.
+            scaleVelocityTracker = VelocityTracker()
         }
-        scaleVelocityTracker?.addDataPoint(currentMillis, value)
+        scaleVelocityTracker?.addPosition(currentMillis, Offset(value, 0f))
     }
 
     private fun trackSlideVelocity(value: IntOffset) {
@@ -400,6 +407,8 @@ internal class SharedMutableTransformState {
         lastManualScale = 1f
         lastManualSlide = IntOffset.Zero
         offsetVelocityTracker?.resetTracking()
+        scaleHandoffVelocity = null
+        slideHandoffVelocity = null
         lastMutableData = null
         mutableData = null
     }
