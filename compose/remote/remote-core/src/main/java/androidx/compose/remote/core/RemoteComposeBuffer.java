@@ -1790,12 +1790,26 @@ public class RemoteComposeBuffer {
      */
     public void addModifierBorder(
             float borderWidth, float borderRoundedCorner, int color, int shape) {
+        addModifierBorder(borderWidth, borderRoundedCorner, color, shape, true);
+    }
+
+    /**
+     * Add a border modifier
+     *
+     * @param borderWidth the border width
+     * @param borderRoundedCorner the rounded corner radius if the shape is ROUNDED_RECT
+     * @param color the color of the border
+     * @param shape the shape of the border
+     * @param useLegacy flag for enabling legacy border drawing
+     */
+    public void addModifierBorder(
+            float borderWidth, float borderRoundedCorner, int color, int shape, boolean useLegacy) {
         float r = (color >> 16 & 0xff) / 255.0f;
         float g = (color >> 8 & 0xff) / 255.0f;
         float b = (color & 0xff) / 255.0f;
         float a = (color >> 24 & 0xff) / 255.0f;
         BorderModifierOperation.apply(
-                mBuffer, 0, 0, 0, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape);
+                mBuffer, 0, 0, useLegacy ? 0 : 1, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape);
     }
 
     /**
@@ -1808,12 +1822,25 @@ public class RemoteComposeBuffer {
      */
     public void addModifierDynamicBorder(
             float borderWidth, float borderRoundedCorner, int colorId, int shape) {
+        addModifierDynamicBorder(borderWidth, borderRoundedCorner, colorId, shape, true);
+    }
 
+    /**
+     * Add a border modifier
+     *
+     * @param borderWidth the border width
+     * @param borderRoundedCorner the rounded corner radius if the shape is ROUNDED_RECT
+     * @param colorId the color of the border
+     * @param shape the shape of the border
+     * @param useLegacy flag for enabling legacy border drawing
+     */
+    public void addModifierDynamicBorder(
+            float borderWidth, float borderRoundedCorner, int colorId, int shape, boolean useLegacy) {
         BorderModifierOperation.apply(
                 mBuffer,
                 BorderModifierOperation.COLOR_REF,
                 colorId,
-                0,
+                useLegacy ? 0 : 1,
                 0,
                 borderWidth,
                 borderRoundedCorner,
