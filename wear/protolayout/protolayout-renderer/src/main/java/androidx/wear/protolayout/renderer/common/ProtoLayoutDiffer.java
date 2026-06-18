@@ -290,7 +290,8 @@ public class ProtoLayoutDiffer {
         NodeFingerprint current = second.getRoot();
         return current.getSelfTypeValue() == prev.getSelfTypeValue()
                 && current.getSelfPropsValue() == prev.getSelfPropsValue()
-                && current.getChildNodesValue() == prev.getChildNodesValue();
+                && current.getChildNodesValue() == prev.getChildNodesValue()
+                && current.getChildNodesCount() == prev.getChildNodesCount();
     }
 
     private static void addChangedNodes(
