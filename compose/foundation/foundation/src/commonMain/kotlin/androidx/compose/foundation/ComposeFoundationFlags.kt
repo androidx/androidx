@@ -98,7 +98,7 @@ object ComposeFoundationFlags {
 
     /** With this flag on, lazy layout Cache Window will support multi-lane configurations. */
     // TODO: b/522643119
-    @field:Suppress("MutableBareField") @JvmField var isMultiLaneCacheWindowEnabled = false
+    @field:Suppress("MutableBareField") @JvmField var isMultiLaneCacheWindowEnabled = true
 
     /**
      * With this flag enabled,
