@@ -558,6 +558,18 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_missingRequiredArgument() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/user?name={name}"),
+                serializer<SimpleKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=john")
+        val result = matcher.match(request)
+        assertThat(result).isNull()
+    }
+
+    @Test
     fun matchRequest_nestedObjects() {
         val matcher =
             UriDeepLinkMatcher(

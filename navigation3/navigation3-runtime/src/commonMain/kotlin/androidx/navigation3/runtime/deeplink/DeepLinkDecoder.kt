@@ -57,14 +57,18 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
                 )
             }
 
-            // If it's a primitive, an enum, or a list, we check if it's in the map
-            // If it's not in the map, we skip it and let it fallback to the default value (if any)
+            // primitive, enums, and lists expects argument to be provided in the args map
             if (
                 (kind is PrimitiveKind || kind == SerialKind.ENUM || kind == StructureKind.LIST) &&
                     !arguments.containsKey(name)
             ) {
-                currentIndex++
-                continue
+                if (descriptor.isElementOptional(currentIndex)) {
+                    // otherwise, skip deserializing this element and fall back to default value
+                    currentIndex++
+                    continue
+                } else {
+                    throw DeepLinkDecoderException("Missing argument for required field [$name]")
+                }
             }
 
             // For nested structures (classes), we always return the index.
@@ -209,4 +213,4 @@ internal class ListDecoder(private val values: List<String>) : AbstractDecoder()
     }
 }
 
-internal class DeepLinkDecoderException(msg: String? = null) : Exception(msg, null)
+internal class DeepLinkDecoderException(msg: String? = null) : SerializationException(msg, null)
