@@ -2,8 +2,11 @@
 package androidx.camera.common.testing {
 
   public final class FakeImage implements androidx.camera.common.MutableImageWrapper {
-    ctor public FakeImage(int width, int height, int format, long timestamp, optional android.hardware.HardwareBuffer? hardwareBuffer, optional android.graphics.Rect cropRect);
-    ctor @BytecodeOnly public FakeImage(int, int, int, long, android.hardware.HardwareBuffer!, android.graphics.Rect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeImage(int width, int height, int format, long timestamp);
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer);
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer, optional android.hardware.HardwareBuffer? hardwareBuffer, optional android.graphics.Rect cropRect);
+    ctor @BytecodeOnly public FakeImage(int, int, int, long, java.nio.ByteBuffer!, android.hardware.HardwareBuffer!, android.graphics.Rect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void close();
     method @InaccessibleFromKotlin public int getCloseCount();
     method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
@@ -29,6 +32,21 @@ package androidx.camera.common.testing {
     property public android.hardware.SyncFence? syncFence;
     property public long timestamp;
     property public int width;
+  }
+
+  public final class FakeImagePlane implements androidx.camera.common.ImagePlane {
+    ctor public FakeImagePlane(int rowStride);
+    ctor public FakeImagePlane(int rowStride, optional int rowCount);
+    ctor public FakeImagePlane(int rowStride, optional int rowCount, optional int pixelStride);
+    ctor public FakeImagePlane(int rowStride, optional int rowCount, optional int pixelStride, optional java.nio.ByteBuffer? buffer);
+    ctor @BytecodeOnly public FakeImagePlane(int, int, int, java.nio.ByteBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer getBuffer();
+    method @InaccessibleFromKotlin public int getPixelStride();
+    method @InaccessibleFromKotlin public int getRowStride();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public java.nio.ByteBuffer buffer;
+    property public int pixelStride;
+    property public int rowStride;
   }
 
 }
