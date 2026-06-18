@@ -20,6 +20,7 @@ import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -29,10 +30,23 @@ import java.util.HashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeasurePass {
     @NonNull HashMap<Integer, ComponentMeasure> mList = new HashMap<>();
+    @NonNull ArrayList<ComponentMeasure> mPool = new ArrayList<>();
 
-    /** Clear the MeasurePass */
+    /** Clear the MeasurePass, returning active ComponentMeasure instances to the pool */
     public void clear() {
+        for (ComponentMeasure measure : mList.values()) {
+            mPool.add(measure);
+        }
         mList.clear();
+    }
+
+    private ComponentMeasure obtain(int id, float x, float y, float w, float h, int visibility) {
+        if (!mPool.isEmpty()) {
+            ComponentMeasure measure = mPool.remove(mPool.size() - 1);
+            measure.reset(id, x, y, w, h, visibility);
+            return measure;
+        }
+        return new ComponentMeasure(id, x, y, w, h, visibility);
     }
 
     /**
@@ -65,14 +79,14 @@ public class MeasurePass {
      * @return the associated ComponentMeasure
      */
     public @NonNull ComponentMeasure get(@NonNull Component c) {
-        if (!mList.containsKey(c.getComponentId())) {
-            ComponentMeasure measure =
-                    new ComponentMeasure(
-                            c.getComponentId(), c.getX(), c.getY(), c.getWidth(), c.getHeight());
-            mList.put(c.getComponentId(), measure);
-            return measure;
+        int id = c.getComponentId();
+        ComponentMeasure measure = mList.get(id);
+        if (measure == null) {
+            measure = obtain(id, c.getX(), c.getY(), c.getWidth(), c.getHeight(),
+                    Component.Visibility.VISIBLE);
+            mList.put(id, measure);
         }
-        return mList.get(c.getComponentId());
+        return measure;
     }
 
     /**
@@ -82,12 +96,11 @@ public class MeasurePass {
      * @return the associated ComponentMeasure
      */
     public @NonNull ComponentMeasure get(int id) {
-        if (!mList.containsKey(id)) {
-            ComponentMeasure measure =
-                    new ComponentMeasure(id, 0f, 0f, 0f, 0f, Component.Visibility.GONE);
+        ComponentMeasure measure = mList.get(id);
+        if (measure == null) {
+            measure = obtain(id, 0f, 0f, 0f, 0f, Component.Visibility.GONE);
             mList.put(id, measure);
-            return measure;
         }
-        return mList.get(id);
+        return measure;
     }
 }

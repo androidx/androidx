@@ -76,13 +76,36 @@ public class ComponentMeasure {
         mAllowsAnimation = allowsAnimation;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static int sAllocationCount = 0;
+
     public ComponentMeasure(int id, float x, float y, float w, float h, int visibility) {
+        sAllocationCount++;
         this.mId = id;
         this.mX = x;
         this.mY = y;
         this.mW = w;
         this.mH = h;
         this.mVisibility = visibility;
+    }
+
+    /**
+     * Reset the values of the ComponentMeasure, allowing us to reuse the object.
+     * @param id
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param visibility
+     */
+    public void reset(int id, float x, float y, float w, float h, int visibility) {
+        this.mId = id;
+        this.mX = x;
+        this.mY = y;
+        this.mW = w;
+        this.mH = h;
+        this.mVisibility = visibility;
+        this.mAllowsAnimation = true;
     }
 
     public ComponentMeasure(int id, float x, float y, float w, float h) {

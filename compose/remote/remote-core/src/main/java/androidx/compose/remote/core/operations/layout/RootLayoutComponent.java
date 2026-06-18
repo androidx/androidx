@@ -49,6 +49,7 @@ public class RootLayoutComponent extends Component {
     private boolean mHasTouchListeners = false;
     protected float mLastReportedOriginX = Float.NaN;
     protected float mLastReportedOriginY = Float.NaN;
+    private final MeasurePass mMeasurePass = new MeasurePass();
 
     public RootLayoutComponent(
             int componentId,
@@ -160,8 +161,8 @@ public class RootLayoutComponent extends Component {
         context.mViewportWidth = newWidth;
         context.mViewportHeight = newHeight;
 
-        // TODO: reuse MeasurePass
-        MeasurePass measurePass = new MeasurePass();
+        mMeasurePass.clear();
+        MeasurePass measurePass = mMeasurePass;
         ComponentMeasure self = measurePass.get(this);
         self.setX(0f);
         self.setY(0f);
@@ -201,8 +202,8 @@ public class RootLayoutComponent extends Component {
         context.mViewportWidth = newWidth;
         context.mViewportHeight = newHeight;
 
-        // TODO: reuse MeasurePass
-        MeasurePass measurePass = new MeasurePass();
+        mMeasurePass.clear();
+        MeasurePass measurePass = mMeasurePass;
         ComponentMeasure self = measurePass.get(this);
         self.setX(0f);
         self.setY(0f);
