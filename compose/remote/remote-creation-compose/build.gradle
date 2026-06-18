@@ -38,7 +38,7 @@ android {
     defaultConfig {
         minSdk { version = release(29) }
     }
-}
+    }
 
 dependencies {
     lintChecks(project(":compose:remote:remote-lint"))

@@ -996,7 +996,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
         float a = (color >> 24 & 0xff) / 255.0f;
         addOperation(
                 new BorderModifierOperation(
-                        0, 0, 0, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape));
+                        0, 0, 1, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape));
     }
 
     @Override
