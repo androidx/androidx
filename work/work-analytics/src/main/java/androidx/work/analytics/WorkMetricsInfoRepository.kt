@@ -29,6 +29,8 @@ import androidx.work.ScheduleEventListener
 import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
 import androidx.work.analytics.impl.model.WorkMetricsSpec
+import androidx.work.analytics.impl.model.getWorkMetricsInfos
+import androidx.work.analytics.impl.utils.toRawQuery
 import java.time.Duration
 import java.util.Collections
 import java.util.UUID
@@ -162,13 +164,23 @@ internal constructor(
      * @return A list of [WorkMetricsInfo] records associated with the [workId].
      */
     public suspend fun getWorkMetricsInfoById(workId: UUID): List<WorkMetricsInfo> {
-        return dao.getWorkMetricsSpecs(workId.toString()).map { it.toWorkMetricsInfo() }
+        return dao.getWorkMetricsInfos(workId.toString())
+    }
+
+    /**
+     * Gets a list of [WorkMetricsInfo] matching the query criteria.
+     *
+     * @param query The [WorkMetricsQuery] containing filter parameters.
+     * @return A list of [WorkMetricsInfo] records matching the query parameters.
+     */
+    public suspend fun getWorkMetricsInfos(query: WorkMetricsQuery): List<WorkMetricsInfo> {
+        return dao.getWorkMetricsInfos(query.toRawQuery())
     }
 
     override suspend fun onEnqueued(workInfo: WorkInfo) {
         val spec = workInfo.toWorkMetricsSpec()
         try {
-            insertWorkMetricsSpec(spec)
+            insertWorkMetricsSpec(spec, workInfo.tags)
         } catch (e: SQLiteConstraintException) {
             throw IllegalStateException(
                 "Active WorkMetricsSpec already exists for work ${workInfo.id} " +
@@ -201,18 +213,17 @@ internal constructor(
                 state = WorkMetricsInfo.State.OBSOLETE_UPDATED,
             )
             finishedMetricsInfo =
-                dao.getWorkMetricsSpec(
-                        workId = spec.workSpecId,
-                        generation = spec.generation,
-                        periodCount = spec.periodCount,
-                    )!!
-                    .toWorkMetricsInfo()
+                dao.getWorkMetricsInfo(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                )!!
 
             var updatedSpec = updatedWorkInfo.toWorkMetricsSpec()
             if (updatedWorkInfo.state == WorkInfo.State.ENQUEUED) {
                 updatedSpec.unblockTimeMillis = currentTime
             }
-            insertWorkMetricsSpec(updatedSpec)
+            insertWorkMetricsSpec(updatedSpec, updatedWorkInfo.tags)
         }
         if (finishedMetricsInfo != null) {
             finishedMetricsInfos.emit(finishedMetricsInfo)
@@ -263,12 +274,11 @@ internal constructor(
                 state = WorkMetricsInfo.State.CANCELLED,
             )
             finishedMetricsInfo =
-                dao.getWorkMetricsSpec(
-                        workId = spec.workSpecId,
-                        generation = spec.generation,
-                        periodCount = spec.periodCount,
-                    )!!
-                    .toWorkMetricsInfo()
+                dao.getWorkMetricsInfo(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                )!!
         }
         if (finishedMetricsInfo != null) {
             finishedMetricsInfos.emit(finishedMetricsInfo)
@@ -412,17 +422,16 @@ internal constructor(
                     state = state,
                 )
                 finishedMetricsInfo =
-                    dao.getWorkMetricsSpec(
-                            workId = spec.workSpecId,
-                            generation = spec.generation,
-                            periodCount = spec.periodCount,
-                        )!!
-                        .toWorkMetricsInfo()
+                    dao.getWorkMetricsInfo(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )!!
 
                 if (isPeriodic) {
                     var newSpec = workInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
                     newSpec.state = WorkMetricsInfo.State.ENQUEUED_PENDING
-                    insertWorkMetricsSpec(newSpec)
+                    insertWorkMetricsSpec(newSpec, workInfo.tags)
                 }
             }
         }
@@ -466,12 +475,11 @@ internal constructor(
                 state = WorkMetricsInfo.State.FAILED,
             )
             finishedMetricsInfo =
-                dao.getWorkMetricsSpec(
-                        workId = spec.workSpecId,
-                        generation = spec.generation,
-                        periodCount = spec.periodCount,
-                    )!!
-                    .toWorkMetricsInfo()
+                dao.getWorkMetricsInfo(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                )!!
         }
         if (finishedMetricsInfo != null) {
             finishedMetricsInfos.emit(finishedMetricsInfo)
@@ -499,12 +507,11 @@ internal constructor(
                 state = WorkMetricsInfo.State.FAILED,
             )
             finishedMetricsInfo =
-                dao.getWorkMetricsSpec(
-                        workId = spec.workSpecId,
-                        generation = spec.generation,
-                        periodCount = spec.periodCount,
-                    )!!
-                    .toWorkMetricsInfo()
+                dao.getWorkMetricsInfo(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                )!!
         }
         if (finishedMetricsInfo != null) {
             finishedMetricsInfos.emit(finishedMetricsInfo)
@@ -520,9 +527,9 @@ internal constructor(
         }
     }
 
-    private fun insertWorkMetricsSpec(spec: WorkMetricsSpec) {
+    private fun insertWorkMetricsSpec(spec: WorkMetricsSpec, tags: Set<String>) {
         spec.enqueueTimeMillis = clock.currentTimeMillis()
-        dao.insertWorkMetricsSpec(spec)
+        dao.insertWorkMetricsSpec(spec, tags)
         pruneOldMetricsIfNecessary()
     }
 
@@ -577,7 +584,6 @@ internal constructor(
             periodCount = periodCount,
             workerClassName = this.workerClassName,
             state = this.state.toWorkMetricsState(),
-            tags = this.tags.toList(),
         )
     }
 
