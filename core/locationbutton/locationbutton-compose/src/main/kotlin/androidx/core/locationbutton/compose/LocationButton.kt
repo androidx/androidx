@@ -82,7 +82,9 @@ public value class LocationButtonTextType private constructor(public val value: 
  * @param textType The predefined [LocationButtonTextType] to display.
  * @param textColor Optional text color.
  * @param clickablePadding Optional padding between the clickable boundary and the visual button.
- * @param compositionOrder Optional Z-order for the remote surface.
+ * @param compositionOrder Optional Z-order for the remote surface. This only applies on
+ *   [Build.VERSION_CODES.CINNAMON_BUN] and later. On older platforms, where the library falls back
+ *   to a local button, this parameter is a safe no-op.
  * @param onRequestPermissions Optional callback when clicked on platforms before
  *   [Build.VERSION_CODES.CINNAMON_BUN]. If not provided, the button will automatically request
  *   location permissions using standard platform dialogs.
