@@ -57,26 +57,16 @@ internal fun XrSettingsPane(
             modifier = Modifier.padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ListItem(
-                headlineContent = {
-                    SpaceToggleButton(
-                        Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp)
-                    )
-                }
-            )
-            ListItem(
-                headlineContent = {
-                    NavigationSuiteTypeDropdown(selectedNavSuiteType, onNavSuiteTypeChanged)
-                }
-            )
-            ListItem(
-                headlineContent = {
-                    XrNavigationOrbiterPositionDropdown(
-                        selectedOrbiterPosition,
-                        onOrbiterPositionChanged,
-                    )
-                }
-            )
+            ListItem {
+                SpaceToggleButton(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp))
+            }
+            ListItem { NavigationSuiteTypeDropdown(selectedNavSuiteType, onNavSuiteTypeChanged) }
+            ListItem {
+                XrNavigationOrbiterPositionDropdown(
+                    selectedOrbiterPosition,
+                    onOrbiterPositionChanged,
+                )
+            }
         }
     }
 }

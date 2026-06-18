@@ -54,7 +54,7 @@ internal fun ListPane(navigator: ThreePaneScaffoldNavigator<Destination>) {
                         }
                     }
                 ) {
-                    ListItem(headlineContent = { Text(destination.label) })
+                    ListItem { Text(destination.label) }
                 }
             }
         }

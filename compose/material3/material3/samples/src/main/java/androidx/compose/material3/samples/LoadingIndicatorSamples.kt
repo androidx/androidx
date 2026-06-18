@@ -182,7 +182,7 @@ fun LoadingIndicatorPullToRefreshSample() {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
-                    items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
+                    items(itemCount) { ListItem { Text(text = "Item ${itemCount - it}") } }
                 }
             }
             Box(

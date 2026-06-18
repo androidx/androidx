@@ -377,7 +377,7 @@ class SheetStateTest {
             ) {
                 scope = rememberCoroutineScope()
                 LazyColumn(Modifier.testTag(sheetTag)) {
-                    items(amountOfItems) { ListItem(headlineContent = { Text("$it") }) }
+                    items(amountOfItems) { ListItem { Text("$it") } }
                 }
             }
         }

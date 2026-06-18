@@ -91,7 +91,7 @@ fun ManualModalBottomSheetSample() {
             LazyColumn {
                 items(25) {
                     ListItem(
-                        headlineContent = { Text("Item $it") },
+                        content = { Text("Item $it") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,
@@ -191,7 +191,7 @@ fun ModalBottomSheetSample() {
             LazyColumn {
                 items(25) {
                     ListItem(
-                        headlineContent = { Text("Item $it") },
+                        content = { Text("Item $it") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,
@@ -271,7 +271,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
             LazyColumn {
                 items(50) {
                     ListItem(
-                        headlineContent = { Text("Item $it") },
+                        content = { Text("Item $it") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,

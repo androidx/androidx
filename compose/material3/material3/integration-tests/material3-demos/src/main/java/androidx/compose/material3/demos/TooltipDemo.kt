@@ -114,7 +114,7 @@ fun TooltipDemo() {
 fun ListItemCard(itemName: String, onDelete: () -> Unit) {
     OutlinedCard(modifier = Modifier.fillMaxSize()) {
         ListItem(
-            headlineContent = { Text(itemName) },
+            content = { Text(itemName) },
             trailingContent = {
                 TooltipBox(
                     positionProvider =

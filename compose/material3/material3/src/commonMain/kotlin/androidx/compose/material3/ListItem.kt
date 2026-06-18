@@ -72,6 +72,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -94,8 +95,9 @@ import kotlin.math.max
  *
  * Lists are continuous, vertical indexes of text or images.
  *
- * This overload of list item does not handle any user interaction. See other overloads for handling
- * general click actions, single-selection, or multi-selection.
+ * This overload of list item uses the baseline (legacy) specifications for the component. For an
+ * updated component, use the overload with renamed parameters and a trailing content lambda. Also
+ * see other overloads for handling general click actions, single-selection, or multi-selection.
  *
  * ![Lists
  * image](https://developer.android.com/images/reference/androidx/compose/material3/lists.png)
@@ -103,19 +105,8 @@ import kotlin.math.max
  * This component can be used to achieve the list item templates existing in the spec. One-line list
  * items have a singular line of headline content. Two-line list items additionally have either
  * supporting or overline content. Three-line list items have either both supporting and overline
- * content, or extended (two-line) supporting text. For example:
- * - one-line item
+ * content, or extended (two-line) supporting text.
  *
- * @sample androidx.compose.material3.samples.OneLineListItem
- * - two-line item
- *
- * @sample androidx.compose.material3.samples.TwoLineListItem
- * - three-line item with both overline and supporting content
- *
- * @sample androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
- * - three-line item with extended supporting content
- *
- * @sample androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
  * @param headlineContent the headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param overlineContent the content displayed above the headline content
@@ -127,7 +118,24 @@ import kotlin.math.max
  * @param tonalElevation the tonal elevation of this list item
  * @param shadowElevation the shadow elevation of this list item
  */
+@Deprecated(
+    message = "Use the overload where `headlineContent` is now a trailing `content` lambda",
+    replaceWith =
+        ReplaceWith(
+            "ListItem(\n" +
+                "    modifier = modifier,\n" +
+                "    leadingContent = leadingContent,\n" +
+                "    trailingContent = trailingContent,\n" +
+                "    overlineContent = overlineContent,\n" +
+                "    supportingContent = supportingContent,\n" +
+                "    colors = colors,\n" +
+                "    elevation = ListItemDefaults.elevation(shadowElevation),\n" +
+                "    content = headlineContent,\n" +
+                ")"
+        ),
+)
 @Composable
+@Suppress("DEPRECATION")
 fun ListItem(
     headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -226,6 +234,75 @@ fun ListItem(
  *
  * Lists are continuous, vertical indexes of text or images.
  *
+ * This overload of [ListItem] does not handle any interaction events. See other overloads for
+ * handling general click actions, single-selection, or multi-selection interactions.
+ *
+ * @sample androidx.compose.material3.samples.StandardListItems
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. Note that the component does not
+ *   handle interactions internally. Nonetheless, when `false`, this component will appear visually
+ *   disabled and disabled to accessibility services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param shapes the [ListItemShapes] that will be used to resolve the shapes used for this list
+ *   item in different states. See [ListItemDefaults.shapes].
+ * @param colors the [ListItemColors] that will be used to resolve the colors used for this list
+ *   item in different states. See [ListItemDefaults.colors].
+ * @param elevation the [ListItemElevation] used to resolve the elevation for this list item in
+ *   different states. See [ListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param content the main content of this list item. Also known as the headline or label.
+ */
+@Composable
+fun ListItem(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = ListItemDefaults.verticalAlignment(),
+    shapes: ListItemShapes = ListItemDefaults.shapes(),
+    colors: ListItemColors = ListItemDefaults.colors(),
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
+    contentPadding: PaddingValues = ListItemDefaults.ContentPadding,
+    content: @Composable () -> Unit,
+) {
+    InteractiveListItem(
+        modifier = modifier,
+        content = content,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        enabled = enabled,
+        selected = false,
+        applySemantics = {
+            // Need to set it separately since there's no interaction handling.
+            if (!enabled) disabled()
+        },
+        onClick = null,
+        onLongClick = null,
+        onLongClickLabel = null,
+        interactionSource = null,
+        colors = colors,
+        shapes = shapes,
+        elevation = elevation,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * [Material Design standard list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
  * This overload of [ListItem] handles click events, calling its [onClick] lambda to trigger an
  * action. See other overloads for handling single-selection, multi-selection, or no interaction
  * handling.
@@ -260,7 +337,6 @@ fun ListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ListItem(
     onClick: () -> Unit,
@@ -339,7 +415,6 @@ fun ListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ListItem(
     selected: Boolean,
@@ -424,7 +499,6 @@ fun ListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ListItem(
     checked: Boolean,
@@ -475,6 +549,76 @@ fun ListItem(
  *
  * Lists are continuous, vertical indexes of text or images.
  *
+ * This overload of [SegmentedListItem] does not handle any interaction events. See other overloads
+ * for handling general click actions, single-selection, or multi-selection interactions.
+ *
+ * @sample androidx.compose.material3.samples.SegmentedListItems
+ * @param shapes the [ListItemShapes] used to resolve the shapes of this list item in different
+ *   states. The base shape depends on the index of the item within the overall list. See
+ *   [ListItemDefaults.segmentedShapes].
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. Note that the component does not
+ *   handle interactions internally. Nonetheless, when `false`, this component will appear visually
+ *   disabled and disabled to accessibility services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param colors the [ListItemColors] that will be used to resolve the colors used for this list
+ *   item in different states. See [ListItemDefaults.segmentedColors].
+ * @param elevation the [ListItemElevation] used to resolve the elevation for this list item in
+ *   different states. See [ListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param content the main content of this list item. Also known as the headline or label.
+ */
+@Composable
+fun SegmentedListItem(
+    shapes: ListItemShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = ListItemDefaults.verticalAlignment(),
+    colors: ListItemColors = ListItemDefaults.segmentedColors(),
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
+    contentPadding: PaddingValues = ListItemDefaults.ContentPadding,
+    content: @Composable () -> Unit,
+) {
+    InteractiveListItem(
+        modifier = modifier,
+        content = content,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        enabled = enabled,
+        selected = false,
+        applySemantics = {
+            // Need to set it separately since there's no interaction handling.
+            if (!enabled) disabled()
+        },
+        onClick = null,
+        onLongClick = null,
+        onLongClickLabel = null,
+        interactionSource = null,
+        colors = colors,
+        shapes = shapes,
+        elevation = elevation,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * [Material Design segmented list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
  * This overload of [SegmentedListItem] handles click events, calling its [onClick] lambda to
  * trigger an action. See other overloads for handling single-selection, multi-selection, or no
  * interaction handling.
@@ -508,7 +652,6 @@ fun ListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SegmentedListItem(
     onClick: () -> Unit,
@@ -589,7 +732,6 @@ fun SegmentedListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SegmentedListItem(
     selected: Boolean,
@@ -674,7 +816,6 @@ fun SegmentedListItem(
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SegmentedListItem(
     checked: Boolean,
@@ -1247,14 +1388,15 @@ private fun ContentDecorator(
  * [LaunchedEffect]. The [MutableState] parameters, if provided, will be set to the corresponding
  * state value.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun InteractionSource.CollectInteractionsAsState(
+private fun InteractionSource?.CollectInteractionsAsState(
     pressedState: MutableState<Boolean>? = null,
     focusedState: MutableState<Boolean>? = null,
     hoveredState: MutableState<Boolean>? = null,
     draggedState: MutableState<Boolean>? = null,
 ) {
+    if (this == null) return
+
     LaunchedEffect(this) {
         val pressInteractions = pressedState?.let { mutableListOf<PressInteraction.Press>() }
         val focusInteractions = focusedState?.let { mutableListOf<FocusInteraction.Focus>() }
@@ -1300,7 +1442,6 @@ private data class InteractiveListColorState(
     val dragged: Boolean,
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Suppress("ComposableLambdaParameterPosition")
 private fun InteractiveListItem(
@@ -1314,7 +1455,7 @@ private fun InteractiveListItem(
     enabled: Boolean,
     selected: Boolean,
     applySemantics: SemanticsPropertyReceiver.() -> Unit,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)?,
     onLongClickLabel: String?,
     interactionSource: MutableInteractionSource?,
@@ -1324,7 +1465,12 @@ private fun InteractiveListItem(
     contentPadding: PaddingValues,
 ) {
     @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val interactionSource =
+        if (onClick == null) {
+            null
+        } else {
+            interactionSource ?: remember { MutableInteractionSource() }
+        }
 
     val pressed = remember { mutableStateOf(false) }
     val focused = remember { mutableStateOf(false) }
@@ -1421,7 +1567,13 @@ private fun InteractiveListItem(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
-                    .minimumInteractiveComponentSize()
+                    .then(
+                        if (onClick != null) {
+                            Modifier.minimumInteractiveComponentSize()
+                        } else {
+                            Modifier
+                        }
+                    )
                     .zIndexLambda { if (shadowElevation.value > 0.dp) 1f else 0f }
                     .graphicsLayer {
                         this.shadowElevation = with(density) { shadowElevation.value.toPx() }
@@ -1430,14 +1582,21 @@ private fun InteractiveListItem(
                     }
                     .background(color = containerColor, shape = shape)
                     .clip(shape)
-                    .combinedClickable(
-                        interactionSource = interactionSource,
-                        indication =
-                            @OptIn(ExperimentalMaterial3Api::class) ripple(focusRingShape = shape),
-                        enabled = enabled,
-                        onLongClick = onLongClick,
-                        onLongClickLabel = onLongClickLabel,
-                        onClick = onClick,
+                    .then(
+                        if (onClick != null) {
+                            Modifier.combinedClickable(
+                                interactionSource = interactionSource,
+                                indication =
+                                    @OptIn(ExperimentalMaterial3Api::class)
+                                    ripple(focusRingShape = shape),
+                                enabled = enabled,
+                                onLongClick = onLongClick,
+                                onLongClickLabel = onLongClickLabel,
+                                onClick = onClick,
+                            )
+                        } else {
+                            Modifier
+                        }
                     )
                     .padding(contentPadding),
             verticalAlignment = verticalAlignment,
