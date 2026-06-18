@@ -45,6 +45,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("DEPRECATION")
 class ListItemScreenshotTest {
 
     @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())

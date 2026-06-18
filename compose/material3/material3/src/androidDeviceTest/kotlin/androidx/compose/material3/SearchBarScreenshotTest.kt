@@ -765,6 +765,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             ) {
                 repeat(4) { idx ->
                     val resultText = "Suggestion $idx"
+                    @Suppress("DEPRECATION")
                     ListItem(
                         headlineContent = { Text(resultText) },
                         supportingContent = { Text("Additional info") },
@@ -815,6 +816,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             ) {
                 repeat(4) { idx ->
                     val resultText = "Suggestion $idx"
+                    @Suppress("DEPRECATION")
                     ListItem(
                         headlineContent = { Text(resultText) },
                         supportingContent = { Text("Additional info") },

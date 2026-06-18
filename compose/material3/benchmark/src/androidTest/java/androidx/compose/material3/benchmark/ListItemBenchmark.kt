@@ -79,6 +79,7 @@ class ListItemBenchmark {
 internal class ListItemTestCase : LayeredComposeTestCase() {
 
     @Composable
+    @Suppress("DEPRECATION")
     override fun MeasuredContent() {
         ListItem(
             headlineContent = { Text(text = "List Item") },

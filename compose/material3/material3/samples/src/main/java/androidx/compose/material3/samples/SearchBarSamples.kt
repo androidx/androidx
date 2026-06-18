@@ -239,7 +239,7 @@ private fun SampleSearchResults(onResultClick: (String) -> Unit, modifier: Modif
         repeat(10) { idx ->
             val resultText = "Suggestion $idx"
             ListItem(
-                headlineContent = { Text(resultText) },
+                content = { Text(resultText) },
                 supportingContent = { Text("Additional info") },
                 leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),

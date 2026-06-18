@@ -71,7 +71,6 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class InteractiveListTest {

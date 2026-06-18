@@ -56,6 +56,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class ListItemTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())

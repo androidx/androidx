@@ -70,7 +70,7 @@ fun SwipeToDismissListItems() {
         ) {
             OutlinedCard(shape = RectangleShape) {
                 ListItem(
-                    headlineContent = { Text("Cupcake") },
+                    content = { Text("Cupcake") },
                     supportingContent = { Text("Swipe me left or right!") },
                 )
             }
