@@ -20,7 +20,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /** State constants for focus actions. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object FocusState {
     /** The focus state is inactive or unknown. */
     public const val INACTIVE: Int = 0

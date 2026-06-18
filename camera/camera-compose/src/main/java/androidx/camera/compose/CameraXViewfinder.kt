@@ -23,7 +23,6 @@ import android.content.ContextWrapper
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.view.Surface
-import androidx.annotation.RestrictTo
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraState
@@ -144,6 +143,7 @@ private const val SCREEN_FLASH_ANIMATION_DURATION_MILLIS = 1000
  *   used to fit the camera feed in the bounds of the [CameraXViewfinder]. Defaults to
  *   [ContentScale.Crop].
  */
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 public fun CameraXViewfinder(
     surfaceRequest: SurfaceRequest,
@@ -163,9 +163,9 @@ public fun CameraXViewfinder(
         contentScale = contentScale,
         onStreamStateChanged = {},
         isTapToFocusEnabled = false,
-        isPinchToZoomEnabled = false,
-        autoCancelDurationMillis = 5000L,
         onTapToFocus = { _, _ -> },
+        autoCancelDurationMillis = 5000L,
+        isPinchToZoomEnabled = false,
         onZoomRatioChanged = {},
         onScreenFlashReady = {},
     )
@@ -210,12 +210,12 @@ public fun CameraXViewfinder(
  * @param onStreamStateChanged Callback invoked when the preview stream state changes. Provides the
  *   current [Preview.StreamState].
  * @param isTapToFocusEnabled Whether the tap-to-focus gesture is enabled.
- * @param isPinchToZoomEnabled Whether the pinch-to-zoom gesture is enabled.
- * @param autoCancelDurationMillis The auto-cancel duration of focus/metering in milliseconds.
- *   Defaults to 5000L.
  * @param onTapToFocus A callback invoked when a tap-to-focus action is triggered. It provides the
  *   tap [Offset] and an integer representing the current focus state. See [FocusState] for possible
  *   values.
+ * @param autoCancelDurationMillis The auto-cancel duration of focus/metering in milliseconds.
+ *   Defaults to 5000L.
+ * @param isPinchToZoomEnabled Whether the pinch-to-zoom gesture is enabled.
  * @param onZoomRatioChanged A callback invoked when the [CameraXViewfinder]'s pinch-to-zoom gesture
  *   scales the zoom ratio, providing the updated zoom ratio. This callback is only invoked during
  *   the active zooming state.
@@ -225,7 +225,6 @@ public fun CameraXViewfinder(
  *   composition, indicating that any references to resources (like [ImageCapture.ScreenFlash])
  *   should be cleared.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun CameraXViewfinder(
     surfaceRequest: SurfaceRequest,
@@ -237,9 +236,9 @@ public fun CameraXViewfinder(
     contentScale: ContentScale = ContentScale.Crop,
     onStreamStateChanged: (@Preview.StreamState Int) -> Unit = {},
     isTapToFocusEnabled: Boolean = false,
-    isPinchToZoomEnabled: Boolean = false,
+    onTapToFocus: (Offset, @FocusStateValue Int) -> Unit = { _, _ -> },
     autoCancelDurationMillis: Long = 5000L,
-    onTapToFocus: (Offset, Int) -> Unit = { _, _ -> },
+    isPinchToZoomEnabled: Boolean = false,
     onZoomRatioChanged: (Float) -> Unit = {},
     onScreenFlashReady: (ImageCapture.ScreenFlash) -> Unit = {},
     onRelease: () -> Unit = {},
@@ -671,7 +670,7 @@ private fun Modifier.tapToFocusGesture(
     sensorToBufferTransform: Matrix?,
     coordinateTransformer: MutableCoordinateTransformer,
     meteringPointFactory: MeteringPointFactory,
-    onTapToFocus: (Offset, Int) -> Unit,
+    onTapToFocus: (Offset, @FocusStateValue Int) -> Unit,
 ): Modifier {
     if (!isTapToFocusEnabled) return this
     val coroutineScope = rememberCoroutineScope()

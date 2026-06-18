@@ -1,6 +1,20 @@
 // Signature format: 4.0
 package androidx.camera.viewfinder.core {
 
+  public final class FocusState {
+    property public static int FAILED;
+    property public static int FOCUSED;
+    property public static int INACTIVE;
+    property public static int NOT_FOCUSED;
+    property public static int STARTED;
+    field public static final int FAILED = 4; // 0x4
+    field public static final int FOCUSED = 2; // 0x2
+    field public static final int INACTIVE = 0; // 0x0
+    field public static final androidx.camera.viewfinder.core.FocusState INSTANCE;
+    field public static final int NOT_FOCUSED = 3; // 0x3
+    field public static final int STARTED = 1; // 0x1
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public fun interface FrameRenderedListener {
     method public void onFrameRendered(long timestampNanos);
   }
