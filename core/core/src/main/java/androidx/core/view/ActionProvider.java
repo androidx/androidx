@@ -61,7 +61,7 @@ import org.jspecify.annotations.Nullable;
  * </code></pre>
  * </li></ul></p>
  *
- * ### Creating a custom action provider
+ * <h3>Creating a custom action provider</h3>
  *
  * <p>To create a custom action provider, extend ActionProvider and implement
  * its callback methods as necessary. In particular, implement the following
