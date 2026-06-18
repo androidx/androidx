@@ -577,4 +577,22 @@ public class LocationButtonTest {
         val compositionOrder = surfaceView.compositionOrder
         assertThat(compositionOrder).isEqualTo(2)
     }
+
+    @Test
+    public fun testSafePaddingEnforcesMinimum() {
+        activityRule.scenario.onActivity { activity ->
+            val button = LocationButton(activity)
+
+            button.setPadding(0, 0, 0, 0)
+
+            val density = activity.resources.displayMetrics.density
+            val minPaddingPx = (4 * density).toInt()
+
+            // Padding MUST be clamped to minimum 4dp on all platforms
+            assertThat(button.safePaddingLeft).isEqualTo(minPaddingPx)
+            assertThat(button.safePaddingTop).isEqualTo(minPaddingPx)
+            assertThat(button.safePaddingRight).isEqualTo(minPaddingPx)
+            assertThat(button.safePaddingBottom).isEqualTo(minPaddingPx)
+        }
+    }
 }
