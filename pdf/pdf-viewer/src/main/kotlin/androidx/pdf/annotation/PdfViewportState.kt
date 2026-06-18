@@ -18,7 +18,6 @@ package androidx.pdf.annotation
 
 import android.graphics.RectF
 import android.util.SparseArray
-import androidx.annotation.RestrictTo
 
 /**
  * Represents the state of the viewport on which [androidx.pdf.view.PdfView] is overlaid.
@@ -28,7 +27,6 @@ import androidx.annotation.RestrictTo
  * @param pageBounds A mapping of page numbers to their bounds in view coordinates.
  * @param zoom The current zoom level of the PDF.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PdfViewportState(
     public val firstVisiblePage: Int,
     public val visiblePagesCount: Int,

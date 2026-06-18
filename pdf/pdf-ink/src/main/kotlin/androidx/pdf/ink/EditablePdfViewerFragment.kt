@@ -44,10 +44,8 @@ import androidx.pdf.PdfSandboxHandle
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.AnnotationsView
-import androidx.pdf.annotation.LocatedAnnotations
-import androidx.pdf.annotation.OnAnnotationEditListener
-import androidx.pdf.annotation.OnAnnotationLocatedListener
-import androidx.pdf.annotation.OnGestureClaimListener
+import androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener
+import androidx.pdf.annotation.AnnotationsView.OnGestureClaimListener
 import androidx.pdf.annotation.PdfViewportState
 import androidx.pdf.annotation.TextBoundsProvider
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
@@ -262,10 +260,14 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         }
 
     private val onAnnotationLocatedListener =
-        object : OnAnnotationLocatedListener {
-            override fun onAnnotationsLocated(locatedAnnotations: LocatedAnnotations) {
+        object : AnnotationsView.OnAnnotationLocatedListener {
+            override fun onAnnotationsLocated(
+                x: Float,
+                y: Float,
+                annotations: List<KeyedPdfAnnotation>,
+            ) {
                 if (documentViewModel.drawingMode.value == AnnotationDrawingMode.EraserMode) {
-                    val topAnnotation = locatedAnnotations.annotations.first()
+                    val topAnnotation = annotations.first()
                     documentViewModel.removeAnnotation(topAnnotation.key)
                 }
             }
@@ -630,7 +632,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                     AnnotationsView.AnnotationMode.Highlight(drawingMode.color)
             }
             is AnnotationDrawingMode.EraserMode -> {
-                annotationView.interactionMode = AnnotationsView.AnnotationMode.Select()
+                annotationView.interactionMode = AnnotationsView.AnnotationMode.Select
             }
         }
     }

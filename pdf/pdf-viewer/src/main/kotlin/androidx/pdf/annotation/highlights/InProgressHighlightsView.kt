@@ -28,8 +28,8 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.os.HandlerCompat
 import androidx.pdf.R
-import androidx.pdf.annotation.OnAnnotationEditListener
-import androidx.pdf.annotation.OnGestureClaimListener
+import androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener
+import androidx.pdf.annotation.AnnotationsView.OnGestureClaimListener
 import androidx.pdf.annotation.PageInfoProvider
 import androidx.pdf.annotation.TextBoundsProvider
 import androidx.pdf.annotation.content.StampAnnotation
