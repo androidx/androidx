@@ -17,6 +17,7 @@
 
 package androidx.appstate
 
+import androidx.appstate.transform.transform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -29,6 +30,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -108,8 +110,13 @@ public class AppState {
         context: CoroutineContext = Dispatchers.Default,
         listener: @Composable AppStateToken.(Map<AppStateKey<*>, State<*>>) -> Unit,
     ): AppStateToken {
-        // TODO: implement listener with transform
-        return AppStateToken()
+        val scope = CoroutineScope(context + SupervisorJob())
+        val token = AppStateToken()
+        transform(defaultValue = Unit, context = scope.coroutineContext, scope = scope) {
+            listener(token, stateStore)
+        }
+        appStateListeners[token] = scope
+        return token
     }
 
     /**
