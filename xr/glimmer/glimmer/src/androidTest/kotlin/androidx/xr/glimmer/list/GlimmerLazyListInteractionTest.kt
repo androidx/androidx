@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.setGlimmerThemeContent
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -172,10 +172,7 @@ class GlimmerLazyListInteractionTest(orientation: Orientation) :
 
         // The overscroll modifier should be added / drawn
         rule.runOnIdle { assertThat(overscroll.drawCalled).isTrue() }
-
-        rule
-            .onNodeWithTag(LIST_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = 2000f, moveDuration = 10L)
+        rule.oneMoveSwipeAlongXAxis(2000f, 10L)
 
         rule.runOnIdle {
             // The swipe will result in multiple scroll deltas

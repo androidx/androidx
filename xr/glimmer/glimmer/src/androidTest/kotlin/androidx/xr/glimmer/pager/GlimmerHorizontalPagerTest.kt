@@ -34,25 +34,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.inputDeviceTopLeft
+import androidx.compose.ui.test.inputDeviceTopRight
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectMove
-import androidx.xr.glimmer.performIndirectPress
-import androidx.xr.glimmer.performIndirectRelease
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.horizontalExternalInputDeviceSize
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.setGlimmerThemeContent
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
@@ -192,7 +194,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         val pageSize = state.layoutInfo.pageSize
         assertThat(pageSize).isGreaterThan(0)
 
-        rule.onRoot().performIndirectSwipe(rule, pageSize * 1.5f * config.scrollSign)
+        rule.oneMoveSwipeAlongXAxis(pageSize * 1.5f * config.scrollSign)
 
         rule.waitForIdle()
 
@@ -227,7 +229,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         val pageSize = state.layoutInfo.pageSize
         assertThat(pageSize).isGreaterThan(0)
 
-        rule.onRoot().performIndirectSwipe(rule, pageSize.toFloat() * config.scrollSign)
+        rule.oneMoveSwipeAlongXAxis(pageSize.toFloat() * config.scrollSign)
 
         rule.waitForIdle()
 
@@ -292,9 +294,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         assertThat(state.currentPage).isEqualTo(0)
         val pageSize = state.layoutInfo.pageSize
 
-        rule
-            .onRoot()
-            .performIndirectSwipe(rule = rule, distance = pageSize * 3f * config.scrollSign)
+        rule.oneMoveSwipeAlongXAxis(pageSize * 3f * config.scrollSign)
         rule.waitForIdle()
 
         assertThat(state.currentPage).isEqualTo(1)
@@ -311,9 +311,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         assertThat(state.currentPage).isEqualTo(3)
         val pageSize = state.layoutInfo.pageSize
 
-        rule
-            .onRoot()
-            .performIndirectSwipe(rule = rule, distance = -pageSize * 3f * config.scrollSign)
+        rule.oneMoveSwipeAlongXAxis(-pageSize * 3f * config.scrollSign)
         rule.waitForIdle()
 
         assertThat(state.currentPage).isEqualTo(2)
@@ -331,13 +329,8 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         val pageSize = state.layoutInfo.pageSize
 
         // Fling forward with a fast swipe (short duration)
-        rule
-            .onRoot()
-            .performIndirectSwipe(
-                rule = rule,
-                distance = pageSize * 2f * config.scrollSign,
-                moveDuration = FlingDuration,
-            )
+        rule.oneMoveSwipeAlongXAxis(pageSize * 2f * config.scrollSign, FlingDuration)
+
         rule.waitForIdle()
 
         assertThat(state.currentPage).isEqualTo(1)
@@ -355,13 +348,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         val pageSize = state.layoutInfo.pageSize
 
         // Fling backward with a fast swipe (short duration)
-        rule
-            .onRoot()
-            .performIndirectSwipe(
-                rule = rule,
-                distance = -pageSize * 2f * config.scrollSign,
-                moveDuration = FlingDuration,
-            )
+        rule.oneMoveSwipeAlongXAxis(-pageSize * 2f * config.scrollSign, FlingDuration)
         rule.waitForIdle()
 
         assertThat(state.currentPage).isEqualTo(2)
@@ -391,7 +378,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         assertThat(pageSize).isGreaterThan(0)
         rule.runOnIdle { assertThat(interactions).isEmpty() }
 
-        rule.onRoot().performIndirectSwipe(rule, pageSize.toFloat() * config.scrollSign)
+        rule.oneMoveSwipeAlongXAxis(pageSize.toFloat() * config.scrollSign)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(2)
@@ -424,17 +411,32 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
                 .isEqualTo(Color.Green)
         }
 
-        val pressMotionEvent = rule.onRoot().performIndirectPress(rule)
-
         val moveDistance = state.layoutInfo.pageSize * 0.5f * config.scrollSign
-        val moveMotionEvent =
-            rule
-                .onRoot()
-                .performIndirectMove(
-                    rule = rule,
-                    distancePx = moveDistance,
-                    previousMotionEvent = pressMotionEvent,
-                )
+
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start =
+                if (moveDistance < 0f) {
+                    inputDeviceTopRight
+                } else {
+                    inputDeviceTopLeft
+                }
+
+            // Clamps move distance to at most the width of the input device to avoid out of bound
+            // issues (this test isn't meant to test that).
+            val moveX =
+                if (moveDistance < 0) {
+                    moveDistance.coerceAtLeast(-horizontalExternalInputDeviceSize.width.toFloat())
+                } else {
+                    moveDistance.coerceAtMost(horizontalExternalInputDeviceSize.width.toFloat())
+                }
+
+            down(start)
+            moveBy(Offset(moveX, 0f))
+        }
 
         rule.onRoot().captureToImage().run {
             val pixels = toPixelMap()
@@ -451,8 +453,13 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
                 .isZero()
         }
 
-        rule.onRoot().performIndirectRelease(rule = rule, moveMotionEvent)
-
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            up()
+        }
         rule.waitForIdle()
 
         rule.onRoot().captureToImage().run {

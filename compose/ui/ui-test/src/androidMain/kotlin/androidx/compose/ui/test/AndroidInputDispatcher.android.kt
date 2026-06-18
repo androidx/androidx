@@ -20,6 +20,7 @@ import android.content.Context
 import android.hardware.input.InputManager
 import android.os.Build
 import android.view.Display.DEFAULT_DISPLAY
+import android.view.InputDevice
 import android.view.InputEvent
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
@@ -88,12 +89,7 @@ private fun createIndirectPointerInputChangesFromMotionEvents(
 
     val previousAction = previousMotionEvent?.actionMasked
     val previousMotionEventWasPressed =
-        when (previousAction) {
-            ACTION_DOWN,
-            ACTION_POINTER_DOWN,
-            ACTION_MOVE -> true
-            else -> false
-        }
+        previousAction?.let { isMotionEventPressed(previousAction) } ?: false
 
     val uptimeMillis = motionEvent.eventTime
     return List(motionEvent.pointerCount) { index ->
@@ -186,20 +182,11 @@ internal actual fun createInputDispatcher(
                             indirectPointerEventAdditionalInformation.previousMotionEvent
 
                         val indirectPointerEvent =
-                            IndirectPointerEvent(
-                                type =
-                                    convertActionToIndirectPointerEventType(
-                                        inputEvent.actionMasked
-                                    ),
-                                changes =
-                                    createIndirectPointerInputChangesFromMotionEvents(
-                                        inputEvent,
-                                        previousMotionEvent,
-                                    ),
-                                primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+                            createIndirectPointerEventFromMotionEvent(
                                 motionEvent = inputEvent,
+                                primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+                                previousMotionEvent = previousMotionEvent,
                             )
-
                         root.sendIndirectPointerEvent(indirectPointerEvent)
                     }
                     else ->
@@ -1570,3 +1557,41 @@ internal class AndroidInputDispatcher(
         return 0
     }
 }
+
+/**
+ * Allows creation of an [IndirectPointerEvent] from a [MotionEvent] for internal testing. IMPORTANT
+ * NOTE 1: Primary axis is determined by properties of the [InputDevice] contained within the
+ * [MotionEvent]. However, when manually creating a [MotionEvent], there is no way to set the
+ * [InputDevice]. Therefore, this function allows you to manually set the primary axis for testing.
+ * IMPORTANT NOTE 2: Since this is just a test function that doesn't maintain state for previous
+ * [MotionEvent]s (like the Android Compose system does), you can pass a separate [MotionEvent] to
+ * populate IndirectPointerInputChange's "previous" parameters (time, position, and pressed).
+ *
+ * @param motionEvent The [MotionEvent] to convert to an [IndirectPointerEvent].
+ * @param primaryDirectionalMotionAxis Primary directional motion axis for testing.
+ * @param previousMotionEvent The [MotionEvent] for previous values (time, position, and pressed).
+ */
+internal fun createIndirectPointerEventFromMotionEvent(
+    motionEvent: MotionEvent,
+    primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis,
+    previousMotionEvent: MotionEvent?,
+): IndirectPointerEvent =
+    IndirectPointerEvent(
+        type = convertActionToIndirectPointerEventType(motionEvent.actionMasked),
+        changes =
+            createIndirectPointerInputChangesFromMotionEvents(motionEvent, previousMotionEvent),
+        primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+        motionEvent = motionEvent,
+    )
+
+// Keep in sync with the [AndroidIndirectPointerEvent.android.kt] version.
+internal fun isMotionEventPressed(action: Int): Boolean =
+    when (action) {
+        ACTION_DOWN,
+        ACTION_POINTER_DOWN,
+        // Pointer up means only one of multiple pointers was lifted but another is still down,
+        // so it is still pressed.
+        ACTION_POINTER_UP,
+        ACTION_MOVE -> true
+        else -> false
+    }

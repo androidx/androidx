@@ -28,7 +28,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.testutils.NoFlingBehavior
 import androidx.xr.glimmer.testutils.setContentWithDensity
 import com.google.common.truth.Truth.assertThat
@@ -55,9 +55,7 @@ class GlimmerLazyListFocusSnapFlingBehaviorTest(orientation: Orientation) :
         rule.mainClock.withFrozenTime {
             // Slowly scroll the list to bring item-4 into focus,
             // ensuring the focus line is positioned before the center of the item.
-            rule
-                .onNodeWithTag(LIST_TEST_TAG)
-                .performIndirectSwipe(rule, 205f, moveDuration = 20_000L)
+            rule.oneMoveSwipeAlongXAxis(205f, 20_000L)
             // Allow the scroll to finish, but prevent snapping animation.
             advanceTimeByFrame()
             // Verify the item is focused and the focus line is before the center.
@@ -84,9 +82,8 @@ class GlimmerLazyListFocusSnapFlingBehaviorTest(orientation: Orientation) :
         rule.mainClock.withFrozenTime {
             // Slowly scroll the list to bring item-3 into focus,
             // ensuring the focus line is positioned after the center of the item.
-            rule
-                .onNodeWithTag(LIST_TEST_TAG)
-                .performIndirectSwipe(rule, 195f, moveDuration = 20_000L)
+            rule.oneMoveSwipeAlongXAxis(195f, 20_000L)
+
             // Allow the scroll to finish, but prevent snapping animation.
             advanceTimeByFrame()
             // Verify the item is focused and the focus line is after the center.
@@ -116,7 +113,8 @@ class GlimmerLazyListFocusSnapFlingBehaviorTest(orientation: Orientation) :
             // The initial scroll distance is set such that focus would normally land on item-3
             // without a fling, but the fling behavior should carry the focus line further.
             // Perform a quick, indirect swipe to initiate a fling.
-            rule.onNodeWithTag(LIST_TEST_TAG).performIndirectSwipe(rule, 155f, 40L)
+            rule.oneMoveSwipeAlongXAxis(155f, 40L)
+
             // Allow the scroll to occur, but prevent approach + snapping animations.
             advanceTimeByFrame()
             // Check that the focus line is within item-3 bounds immediately after the gesture ends.
@@ -145,9 +143,7 @@ class GlimmerLazyListFocusSnapFlingBehaviorTest(orientation: Orientation) :
         rule.mainClock.withFrozenTime {
             // Scroll the list to focus item-4,
             // but ensure the focus line is not centered within the item.
-            rule
-                .onNodeWithTag(LIST_TEST_TAG)
-                .performIndirectSwipe(rule, 215f, moveDuration = 20_000L)
+            rule.oneMoveSwipeAlongXAxis(215f, 20_000L)
 
             // Allow the scroll to occur, but prevent approach + snapping animations.
             advanceTimeByFrame()

@@ -17,10 +17,12 @@
 package androidx.compose.ui.input.indirect
 
 import android.content.Context
+import android.view.InputDevice.SOURCE_TOUCH_NAVIGATION
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.IndirectPointerNavigationGestureDetector
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import org.junit.Assert.assertEquals
@@ -31,7 +33,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 @RunWith(JUnit4::class)
 class IndirectPointerNavigationGestureDetectorTest {
     private lateinit var context: Context
@@ -75,14 +76,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -91,11 +88,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // 2. ACTION_MOVE events (simulating rapid movement)
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX + flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, startY),
+                    ),
+            )
         val moveEventResult1 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEventResult1)
@@ -103,11 +122,33 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X + flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, startY),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, startY),
+                    ),
+            )
         val moveEventResult2 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEventResult2)
@@ -116,10 +157,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -134,14 +182,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -150,11 +194,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // ACTION_MOVE events
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX + flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, startY),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -162,11 +228,33 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X + flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, startY),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, startY),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
@@ -176,15 +264,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // triggered.
         val down2Time = moveTime2 + timeBetweenEvents
         val down2X = move2X
+        val down2Change =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = down2Time,
+                position = Offset(down2X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, startY),
+                previousPressed = true,
+            )
         val downEvent2 =
-            MotionEvent.obtain(downTime, down2Time, MotionEvent.ACTION_DOWN, down2X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(down2Change),
+                type = IndirectPointerEventType.Press,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        down2Time,
+                        MotionEvent.ACTION_DOWN,
+                        Offset(down2X, startY),
+                    ),
+            )
         val downEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent2,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent2,
                 isConsumed = false,
             )
         assertTrue(downEvent2Result)
@@ -193,10 +299,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event
         val upTime = down2Time + timeBetweenEvents
         val upX = down2X + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = down2Time,
+                previousPosition = Offset(down2X, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -211,14 +324,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -227,11 +336,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // 2. ACTION_MOVE events (simulating rapid movement)
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX - flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, startY),
+                    ),
+            )
         val moveEventResult1 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEventResult1)
@@ -239,11 +370,33 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X - flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, startY),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, startY),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, startY, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, startY),
+                    ),
+            )
         val moveEventResult2 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEventResult2)
@@ -252,10 +405,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X - flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -270,14 +430,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -286,11 +442,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // ACTION_MOVE events
         val moveTime1 = downTime + timeBetweenEvents
         val move1Y = startY + flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(startX, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, startX, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(startX, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -298,11 +476,33 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2Y = move1Y + flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(startX, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(startX, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, startX, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(startX, move2Y),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
@@ -311,10 +511,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event
         val upTime = moveTime2 + timeBetweenEvents
         val upY = move2Y + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, startX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(startX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(startX, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -329,14 +536,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -345,11 +548,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         // ACTION_MOVE events
         val moveTime1 = downTime + timeBetweenEvents
         val move1Y = startY - flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(startX, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, startX, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(startX, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -357,11 +582,33 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2Y = move1Y - flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(startX, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(startX, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, startX, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(startX, move2Y),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
@@ -370,10 +617,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event
         val upTime = moveTime2 + timeBetweenEvents
         val upY = move2Y - flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, startX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(startX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(startX, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -388,14 +642,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -405,11 +655,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX + flingTriggeringDistanceBetweenEvents
         val move1Y = startY + flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -418,11 +690,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X + flingTriggeringDistanceBetweenEvents
         val move2Y = move1Y + flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
@@ -432,10 +726,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X + flingTriggeringDistanceBetweenEvents
         val upY = move2Y + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -450,14 +751,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -467,11 +764,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX - flingTriggeringDistanceBetweenEvents
         val move1Y = startY - flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -480,11 +799,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X - flingTriggeringDistanceBetweenEvents
         val move2Y = move1Y - flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEventResult2 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEventResult2)
@@ -494,10 +835,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X - flingTriggeringDistanceBetweenEvents
         val upY = move2Y - flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -512,14 +860,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -529,11 +873,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX + flingTriggeringDistanceBetweenEvents
         val move1Y = startY + nonFlingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -542,11 +908,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X + flingTriggeringDistanceBetweenEvents
         val move2Y = move1Y + nonFlingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
@@ -556,10 +944,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X + flingTriggeringDistanceBetweenEvents
         val upY = move2Y + nonFlingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -574,14 +969,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -591,11 +982,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX - flingTriggeringDistanceBetweenEvents
         val move1Y = startY - nonFlingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -604,11 +1017,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X - flingTriggeringDistanceBetweenEvents
         val move2Y = move1Y - nonFlingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEventResult2 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEventResult2)
@@ -618,10 +1053,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X - flingTriggeringDistanceBetweenEvents
         val upY = move2Y - nonFlingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -636,14 +1078,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -653,11 +1091,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX + nonFlingTriggeringDistanceBetweenEvents
         val move1Y = startY + flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -666,11 +1126,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X + nonFlingTriggeringDistanceBetweenEvents
         val move2Y = move1Y + flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEventResult2 =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEventResult2)
@@ -680,10 +1162,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val upTime = moveTime2 + timeBetweenEvents
         val upX = move2X + nonFlingTriggeringDistanceBetweenEvents
         val upY = move2Y + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -698,14 +1187,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -715,11 +1200,33 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime1 = downTime + timeBetweenEvents
         val move1X = startX - nonFlingTriggeringDistanceBetweenEvents
         val move1Y = startY - flingTriggeringDistanceBetweenEvents
+        val moveChange1 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime1,
+                position = Offset(move1X, move1Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+                previousPressed = true,
+            )
         val moveEvent1 =
-            MotionEvent.obtain(downTime, moveTime1, MotionEvent.ACTION_MOVE, move1X, move1Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange1),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime1,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move1X, move1Y),
+                    ),
+            )
         val moveEvent1Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent1),
+                moveEvent1,
                 isConsumed = false,
             )
         assertTrue(moveEvent1Result)
@@ -728,24 +1235,53 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime2 = moveTime1 + timeBetweenEvents
         val move2X = move1X - nonFlingTriggeringDistanceBetweenEvents
         val move2Y = move1Y - flingTriggeringDistanceBetweenEvents
+        val moveChange2 =
+            IndirectPointerInputChange(
+                id = PointerId(0L),
+                uptimeMillis = moveTime2,
+                position = Offset(move2X, move2Y),
+                pressed = true,
+                pressure = 1.0f,
+                previousUptimeMillis = moveTime1,
+                previousPosition = Offset(move1X, move1Y),
+                previousPressed = true,
+            )
         val moveEvent2 =
-            MotionEvent.obtain(downTime, moveTime2, MotionEvent.ACTION_MOVE, move2X, move2Y, 0)
+            IndirectPointerEvent(
+                changes = listOf(moveChange2),
+                type = IndirectPointerEventType.Move,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                motionEvent =
+                    obtainIndirectMotionEvent(
+                        downTime,
+                        moveTime2,
+                        MotionEvent.ACTION_MOVE,
+                        Offset(move2X, move2Y),
+                    ),
+            )
         val moveEvent2Result =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent2),
+                moveEvent2,
                 isConsumed = false,
             )
         assertTrue(moveEvent2Result)
         assertEquals(null, currentFocusDirection)
 
         // Simulate an up event
-        val upTime = moveTime1 + timeBetweenEvents
-        val upX = move1X - nonFlingTriggeringDistanceBetweenEvents
-        val upY = move1Y - flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, upY, 0)
+        val upTime = moveTime2 + timeBetweenEvents
+        val upX = move2X - nonFlingTriggeringDistanceBetweenEvents
+        val upY = move2Y - flingTriggeringDistanceBetweenEvents
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, upY),
+                previousUptimeMillis = moveTime2,
+                previousPosition = Offset(move2X, move2Y),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
         assertTrue(upEventResult)
@@ -760,14 +1296,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event that is consumed.
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = true, // The event is consumed.
             )
         assertTrue(downEventResult)
@@ -777,10 +1309,16 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime = downTime + timeBetweenEvents
         val moveX = startX + flingTriggeringDistanceBetweenEvents
         val moveEvent =
-            MotionEvent.obtain(downTime, moveTime, MotionEvent.ACTION_MOVE, moveX, startY, 0)
+            createMoveIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = moveTime,
+                position = Offset(moveX, startY),
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+            )
         val moveEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent),
+                moveEvent,
                 isConsumed = false,
             )
         assertTrue(moveEventResult)
@@ -789,10 +1327,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event that is not consumed.
         val upTime = moveTime + timeBetweenEvents
         val upX = moveX + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = moveTime,
+                previousPosition = Offset(moveX, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
 
@@ -809,14 +1354,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -826,10 +1367,16 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime = downTime + timeBetweenEvents
         val moveX = startX + flingTriggeringDistanceBetweenEvents
         val moveEvent =
-            MotionEvent.obtain(downTime, moveTime, MotionEvent.ACTION_MOVE, moveX, startY, 0)
+            createMoveIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = moveTime,
+                position = Offset(moveX, startY),
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+            )
         val moveEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent),
+                moveEvent,
                 isConsumed = true, // The event is consumed.
             )
         assertTrue(moveEventResult)
@@ -838,10 +1385,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         // Simulate an up event, which would normally trigger the fling.
         val upTime = moveTime + timeBetweenEvents
         val upX = moveX + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = moveTime,
+                previousPosition = Offset(moveX, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = false,
             )
 
@@ -858,14 +1412,10 @@ class IndirectPointerNavigationGestureDetectorTest {
 
         // Simulate a down event
         val downEvent =
-            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+            createDownIndirectPointerEvent(downTime = downTime, position = Offset(startX, startY))
         val downEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(
-                    downEvent,
-                    primaryDirectionalMotionAxis =
-                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                ),
+                downEvent,
                 isConsumed = false,
             )
         assertTrue(downEventResult)
@@ -875,11 +1425,17 @@ class IndirectPointerNavigationGestureDetectorTest {
         val moveTime = downTime + timeBetweenEvents
         val moveX = startX + flingTriggeringDistanceBetweenEvents
         val moveEvent =
-            MotionEvent.obtain(downTime, moveTime, MotionEvent.ACTION_MOVE, moveX, startY, 0)
+            createMoveIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = moveTime,
+                position = Offset(moveX, startY),
+                previousUptimeMillis = downTime,
+                previousPosition = Offset(startX, startY),
+            )
         val moveEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(moveEvent),
-                isConsumed = false, // The event is consumed.
+                moveEvent,
+                isConsumed = false,
             )
         assertTrue(moveEventResult)
         assertEquals(null, currentFocusDirection)
@@ -888,15 +1444,136 @@ class IndirectPointerNavigationGestureDetectorTest {
         // This should set the ignore flag.
         val upTime = moveTime + timeBetweenEvents
         val upX = moveX + flingTriggeringDistanceBetweenEvents
-        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, upX, startY, 0)
+        val upEvent =
+            createUpIndirectPointerEvent(
+                downTime = downTime,
+                uptimeMillis = upTime,
+                position = Offset(upX, startY),
+                previousUptimeMillis = moveTime,
+                previousPosition = Offset(moveX, startY),
+            )
         val upEventResult =
             indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                IndirectPointerEvent(upEvent),
+                upEvent,
                 isConsumed = true,
             )
 
         // Assert that the fling was ignored because an up event was consumed.
         assertTrue(upEventResult)
         assertEquals(null, currentFocusDirection)
+    }
+
+    private fun createDownIndirectPointerEvent(
+        downTime: Long,
+        position: Offset,
+        uptimeMillis: Long = downTime,
+        previousUptimeMillis: Long = downTime,
+        previousPosition: Offset = position,
+        previousPressed: Boolean = false,
+    ): IndirectPointerEvent =
+        IndirectPointerEvent(
+            changes =
+                listOf(
+                    IndirectPointerInputChange(
+                        id = PointerId(0L),
+                        uptimeMillis = uptimeMillis,
+                        position = position,
+                        pressed = true,
+                        pressure = 1.0f,
+                        previousUptimeMillis = previousUptimeMillis,
+                        previousPosition = previousPosition,
+                        previousPressed = previousPressed,
+                    )
+                ),
+            type = IndirectPointerEventType.Press,
+            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            motionEvent =
+                obtainIndirectMotionEvent(
+                    downTime = downTime,
+                    eventTime = uptimeMillis,
+                    action = MotionEvent.ACTION_DOWN,
+                    coordinates = position,
+                ),
+        )
+
+    private fun createMoveIndirectPointerEvent(
+        downTime: Long,
+        uptimeMillis: Long,
+        position: Offset,
+        previousUptimeMillis: Long,
+        previousPosition: Offset,
+    ): IndirectPointerEvent =
+        IndirectPointerEvent(
+            changes =
+                listOf(
+                    IndirectPointerInputChange(
+                        id = PointerId(0L),
+                        uptimeMillis = uptimeMillis,
+                        position = position,
+                        pressed = true,
+                        pressure = 1.0f,
+                        previousUptimeMillis = previousUptimeMillis,
+                        previousPosition = previousPosition,
+                        previousPressed = true,
+                    )
+                ),
+            type = IndirectPointerEventType.Move,
+            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            motionEvent =
+                obtainIndirectMotionEvent(
+                    downTime = downTime,
+                    eventTime = uptimeMillis,
+                    action = MotionEvent.ACTION_MOVE,
+                    coordinates = position,
+                ),
+        )
+
+    private fun createUpIndirectPointerEvent(
+        downTime: Long,
+        uptimeMillis: Long,
+        position: Offset,
+        previousUptimeMillis: Long,
+        previousPosition: Offset,
+    ): IndirectPointerEvent =
+        IndirectPointerEvent(
+            changes =
+                listOf(
+                    IndirectPointerInputChange(
+                        id = PointerId(0L),
+                        uptimeMillis = uptimeMillis,
+                        position = position,
+                        pressed = false,
+                        pressure = 1.0f,
+                        previousUptimeMillis = previousUptimeMillis,
+                        previousPosition = previousPosition,
+                        previousPressed = true,
+                    )
+                ),
+            type = IndirectPointerEventType.Release,
+            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            motionEvent =
+                obtainIndirectMotionEvent(
+                    downTime = downTime,
+                    eventTime = uptimeMillis,
+                    action = MotionEvent.ACTION_UP,
+                    coordinates = position,
+                ),
+        )
+
+    private fun obtainIndirectMotionEvent(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        coordinates: Offset,
+    ): MotionEvent {
+        return MotionEvent.obtain(
+                /* downTime = */ downTime,
+                /* eventTime = */ eventTime,
+                /* action = */ action,
+                /* x = */ coordinates.x,
+                /* y = */ coordinates.y,
+                /* metaState = */ 0,
+            )
+            .apply { source = SOURCE_TOUCH_NAVIGATION }
     }
 }

@@ -17,14 +17,6 @@
 package androidx.xr.glimmer
 
 import android.os.Build
-import android.os.SystemClock
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_MOVE
-import android.view.MotionEvent.ACTION_POINTER_DOWN
-import android.view.MotionEvent.ACTION_POINTER_INDEX_SHIFT
-import android.view.MotionEvent.ACTION_POINTER_UP
-import android.view.MotionEvent.ACTION_UP
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DraggableState
@@ -34,18 +26,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.inputDeviceCenter
+import androidx.compose.ui.test.inputDeviceCenterLeft
+import androidx.compose.ui.test.inputDeviceCenterRight
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.sendIndirectPointerInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
-import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
-import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -61,7 +59,7 @@ import org.junit.runner.RunWith
 // The expected min sdk is 35, but we test on 33 for wider device coverage (some APIs are not
 // available below 33)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalIndirectPointerApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class IndirectPointerGestureTest {
 
     @get:Rule(0) val rule = createComposeRule(StandardTestDispatcher())
@@ -70,11 +68,9 @@ class IndirectPointerGestureTest {
 
     @Test
     fun gestures_areIgnored_whenDisabled() {
-        var touchSlop = 0f
         var gestureCount = 0
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -90,13 +86,15 @@ class IndirectPointerGestureTest {
         }
 
         // Perform all known gestures
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+            swipeRight()
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(gestureCount).isEqualTo(0) }
     }
@@ -115,7 +113,13 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -145,7 +149,15 @@ class IndirectPointerGestureTest {
         }
 
         // Perform a click that lasts longer than the long press timeout
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule, longPressTimeoutMillis + 50L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(Offset.Zero)
+            advanceEventTime(longPressTimeoutMillis + 50L)
+            up()
+        }
 
         // A click event *should* be fired, as the code doesn't check time.
         rule.runOnIdle {
@@ -161,10 +173,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -178,10 +187,13 @@ class IndirectPointerGestureTest {
                         .focusTarget()
             )
         }
-
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -196,10 +208,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -214,9 +223,13 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, moveDuration = 10L, distance = -touchSlop * 2)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -231,10 +244,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -249,68 +259,34 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start = inputDeviceCenterRight
+            val end = inputDeviceCenterLeft
 
-        val p0 = getPointerProperties(0)
-        val p1 = getPointerProperties(1)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-        val p1Coords = getPointerCoords(x = 0f, y = 0f)
+            down(0, start)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            down(1, start)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
 
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
+            // Building velocity for swipe
+            repeat(defaultStepCountForMoveToVelocityTrigger) { i ->
+                val fraction = (i + 1) / defaultStepCountForMoveToVelocityTrigger.toFloat()
+                moveTo(
+                    pointerId = 0,
+                    position = start + (end - start) * fraction,
+                    delayMillis = defaultDelayForMoveToVelocityTrigger,
+                )
+            }
 
-        eventTime += 10
-        val p1Down =
-            buildMotionEvent(
-                action = ACTION_POINTER_DOWN or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p1Down, p0Down)
-
-        eventTime += 10
-        p0Coords.x = -(touchSlop * 4)
-        val p0Move =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Move, p1Down)
-
-        eventTime += 10
-        val p1Up =
-            buildMotionEvent(
-                action = ACTION_POINTER_UP or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p1Up, p0Move)
-
-        eventTime += 10
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0Move)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            up(1)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            up(0)
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -325,10 +301,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -343,69 +316,33 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start = inputDeviceCenter
+            val end0 = inputDeviceCenterLeft
+            val end1 = inputDeviceCenterRight
 
-        val p0 = getPointerProperties(0)
-        val p1 = getPointerProperties(1)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-        val p1Coords = getPointerCoords(x = 0f, y = 0f)
+            down(0, start)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            down(1, start)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
 
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
+            // Building velocity for swipe (both forward and back)
+            repeat(defaultStepCountForMoveToVelocityTrigger) { i ->
+                val fraction = (i + 1) / defaultStepCountForMoveToVelocityTrigger.toFloat()
+                updatePointerTo(0, start + (end0 - start) * fraction)
+                updatePointerTo(1, start + (end1 - start) * fraction)
+                move(defaultDelayForMoveToVelocityTrigger)
+            }
 
-        eventTime += 10
-        val p1Down =
-            buildMotionEvent(
-                action = ACTION_POINTER_DOWN or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p1Down, p0Down)
-
-        eventTime += 10
-        p0Coords.x = -touchSlop * 4f // p0 (primary) moves backward
-        p1Coords.x = touchSlop * 4f // p1 moves forward
-        val pointersMove =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(pointersMove, p1Down)
-
-        eventTime += 10
-        val p1Up =
-            buildMotionEvent(
-                action = ACTION_POINTER_UP or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p1Up, pointersMove)
-
-        eventTime += 10
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, pointersMove)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            up(1)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            up(0)
+        }
 
         // Gesture is based on the primary pointer (p0)
         rule.runOnIdle {
@@ -439,59 +376,16 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = System.currentTimeMillis()
-        var eventTime = downTime
-
-        val p0 = getPointerProperties(0)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10
-        p0Coords.x = touchSlop + 1f
-
-        val p0MoveInitial =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0MoveInitial, p0Down)
-
-        eventTime += 10
-        p0Coords.x = 0f
-
-        val p0MoveSecond =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0MoveSecond, p0MoveInitial)
-
-        eventTime += 10
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0MoveSecond)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(Offset.Zero)
+            moveTo(Offset(touchSlop + 1f, 0f))
+            moveTo(Offset.Zero)
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -506,10 +400,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -524,66 +415,16 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = System.currentTimeMillis()
-        var eventTime = downTime
-
-        val p0 = getPointerProperties(0)
-        val p1 = getPointerProperties(1)
-
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-        val p1Coords = getPointerCoords(0f, y = 0f)
-
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10
-
-        val p1Down =
-            buildMotionEvent(
-                action = ACTION_POINTER_DOWN or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Down)
-
-        eventTime += 10
-
-        p1Coords.x = touchSlop * 4
-        // Only move p1
-        val p1Move =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Move, p1Down)
-
-        eventTime += 10
-
-        val p1Up =
-            buildMotionEvent(
-                action = ACTION_POINTER_UP or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Up, p1Move)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(0, inputDeviceCenterLeft)
+            down(1, inputDeviceCenterLeft)
+            moveTo(1, inputDeviceCenterRight)
+            up(1)
+        }
 
         // The gesture should not be processed based on p1
         rule.runOnIdle {
@@ -592,16 +433,13 @@ class IndirectPointerGestureTest {
             assertThat(onSwipeBackwardCount).isEqualTo(0)
         }
 
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Up, p1Move)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            up(0)
+        }
 
         // The gesture is processed based on p0, which was a click.
         rule.runOnIdle {
@@ -617,10 +455,7 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
-
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -631,90 +466,54 @@ class IndirectPointerGestureTest {
                             onSwipeBackward = { onSwipeBackwardCount++ },
                             onClick = { onClickCount++ },
                         )
+                        // Consumes Pointer 0 press/release events.
+                        .onIndirectPointerInput(
+                            onEvent = { event: IndirectPointerEvent, pass: PointerEventPass ->
+                                if (pass == PointerEventPass.Main) {
+                                    event.consumeMatchingPress(0)
+                                    event.consumeMatchingRelease(0)
+                                }
+                            },
+                            onCancel = {},
+                        )
                         .focusTarget()
             )
         }
 
-        val downTime = System.currentTimeMillis()
-        var eventTime = downTime
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start = inputDeviceCenterLeft
+            val end = inputDeviceCenterRight
 
-        val p0 = getPointerProperties(0)
-        val p1 = getPointerProperties(1)
+            // This down (0) is consumed (see content definition).
+            down(0, start)
 
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-        val p1Coords = getPointerCoords(0f, y = 0f)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            down(1, start)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
 
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
+            // Building velocity for swipe on pointer 1.
+            // Child should still be "locked" to pointer 0 (which is consumed by parent).
+            repeat(defaultStepCountForMoveToVelocityTrigger) { i ->
+                val fraction = (i + 1) / defaultStepCountForMoveToVelocityTrigger.toFloat()
+                moveTo(
+                    pointerId = 1,
+                    position = start + (end - start) * fraction,
+                    delayMillis = defaultDelayForMoveToVelocityTrigger,
+                )
+            }
 
-        dispatchIndirectPointerEvent(p0Down, consumeEvents = true)
-
-        eventTime += 10
-
-        val p1Down =
-            buildMotionEvent(
-                action = ACTION_POINTER_DOWN or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Down)
-
-        eventTime += 10
-
-        p1Coords.x = touchSlop * 4
-        // Only move p1
-        val p1Move =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Move, p1Down)
-
-        eventTime += 10
-
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Up, p1Move, consumeEvents = true)
-
-        // The gesture should not processed since events were consumed for p0.
-        rule.runOnIdle {
-            assertThat(onClickCount).isEqualTo(0)
-            assertThat(onSwipeForwardCount).isEqualTo(0)
-            assertThat(onSwipeBackwardCount).isEqualTo(0)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            // This up (0) is consumed (see content definition).
+            up(0)
+            advanceEventTime(defaultPeriodBetweenEventsMillis)
+            up(1)
         }
 
-        val p1Up =
-            buildMotionEvent(
-                action = ACTION_POINTER_UP or (1 shl ACTION_POINTER_INDEX_SHIFT),
-                pointers = listOf(p0, p1),
-                pointerCoords = listOf(p0Coords, p1Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p1Up, p1Move)
-
-        // The gesture should not be processed since we were tracking for p0 while p1 got entered.
+        // The gesture should still not be processed.
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
             assertThat(onSwipeForwardCount).isEqualTo(0)
@@ -750,9 +549,13 @@ class IndirectPointerGestureTest {
         val swipeDistanceThreshold = touchSlop * 1.3f
         val swipeDistance = swipeDistanceThreshold * 0.98f
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = swipeDistance, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipe(start = Offset.Zero, end = Offset(swipeDistance, 0f), durationMillis = 10)
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -785,56 +588,22 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = System.currentTimeMillis()
-        var eventTime = downTime + 10L
-
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-        val properties = listOf(getPointerProperties(0))
-        val coords = listOf(p0Coords)
-
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = properties,
-                pointerCoords = coords,
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10L
-
-        val repeatCount = 100
-        val eachDragMovement = (touchSlop * 1.4f) / repeatCount
-        var lastEvent = p0Down
-        // The resulting X velocity is 23, which is below the 34f threshold.
-        repeat(repeatCount) {
-            eventTime += 10
-            p0Coords.x += eachDragMovement
-            val p0MoveSlow =
-                buildMotionEvent(
-                    action = ACTION_MOVE,
-                    pointers = properties,
-                    pointerCoords = coords,
-                    downTime = downTime,
-                    eventTime = eventTime,
-                )
-            dispatchIndirectPointerEvent(p0MoveSlow, lastEvent)
-            lastEvent = p0MoveSlow
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(Offset.Zero)
+            // The resulting X velocity is 23, which is below the 34f threshold.
+            val repeatCount = 100
+            val eachDragMovement = (touchSlop * 1.4f) / repeatCount
+            var currentX = 0f
+            repeat(repeatCount) {
+                currentX += eachDragMovement
+                moveTo(Offset(currentX, 0f), 10L)
+            }
+            up()
         }
-
-        eventTime += 10
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = properties,
-                pointerCoords = coords,
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-
-        dispatchIndirectPointerEvent(p0Up, lastEvent)
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -867,55 +636,18 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val p0 = getPointerProperties(0)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10
-        p0Coords.x = touchSlop * 4 // Move forward
-        val p0MoveForward =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0MoveForward, p0Down)
-
-        eventTime += 10
-        p0Coords.x = touchSlop * 2 // Move backward
-        val p0MoveBackward =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0MoveBackward, p0MoveForward)
-
-        eventTime += 20L
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0MoveBackward)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(Offset.Zero)
+            // Move forward
+            moveBy(Offset(touchSlop * 4, 0f))
+            // Move backward
+            moveBy(Offset(touchSlop * -2, 0f))
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -930,10 +662,9 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
+        var childConsumedFirstRelease = false
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -945,46 +676,43 @@ class IndirectPointerGestureTest {
                             onClick = { onClickCount++ },
                         )
                         .focusTarget()
-            )
+            ) {
+                // Child will surgically consume first Pointer 0 release event.
+                Box(
+                    modifier =
+                        Modifier.testTag(CHILD_TEST_TAG)
+                            .size(10.dp)
+                            .onIndirectPointerInput(
+                                onEvent = { event: IndirectPointerEvent, pass: PointerEventPass ->
+                                    if (
+                                        pass == PointerEventPass.Main && !childConsumedFirstRelease
+                                    ) {
+                                        // Only consumes first gesture through
+                                        val consumed = event.consumeMatchingRelease(0)
+                                        if (consumed) {
+                                            childConsumedFirstRelease = true
+                                        }
+                                    }
+                                },
+                                onCancel = {},
+                            )
+                            .focusable()
+                )
+            }
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val p0 = getPointerProperties(0)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
+        rule.onNodeWithTag(CHILD_TEST_TAG).requestFocus()
 
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10
-        p0Coords.x = touchSlop * 4
-        val p0Move =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Move, p0Down)
-
-        eventTime += 20L
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0Move, consumeEvents = true)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(inputDeviceCenter)
+            moveTo(inputDeviceCenterRight)
+            // This up (0) is consumed by child (see content definition).
+            up()
+        }
 
         // The consumed 'up' in gesture should reset so no callback is called.
         rule.runOnIdle {
@@ -994,7 +722,13 @@ class IndirectPointerGestureTest {
         }
 
         // A new, valid gesture should be processed correctly
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(1)
@@ -1009,10 +743,9 @@ class IndirectPointerGestureTest {
         var onSwipeForwardCount = 0
         var onSwipeBackwardCount = 0
 
-        var touchSlop = 0f
+        var childConsumedFirstMove = false
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1024,46 +757,41 @@ class IndirectPointerGestureTest {
                             onClick = { onClickCount++ },
                         )
                         .focusTarget()
-            )
+            ) {
+                // Child will surgically consume first Pointer 0 release event.
+                Box(
+                    modifier =
+                        Modifier.testTag(CHILD_TEST_TAG)
+                            .size(10.dp)
+                            .onIndirectPointerInput(
+                                onEvent = { event: IndirectPointerEvent, pass: PointerEventPass ->
+                                    if (pass == PointerEventPass.Main && !childConsumedFirstMove) {
+                                        // Only consumes first gesture through
+                                        val consumed = event.consumeMatchingMove(0)
+                                        if (consumed) {
+                                            childConsumedFirstMove = true
+                                        }
+                                    }
+                                },
+                                onCancel = {},
+                            )
+                            .focusable()
+                )
+            }
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val p0 = getPointerProperties(0)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
+        rule.onNodeWithTag(CHILD_TEST_TAG).requestFocus()
 
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
-
-        eventTime += 10
-        p0Coords.x = touchSlop * 4
-        val p0Move =
-            buildMotionEvent(
-                action = ACTION_MOVE,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Move, p0Down, consumeEvents = true)
-
-        eventTime += 20L
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0Move)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            down(0, inputDeviceCenter)
+            // This move (0) is consumed by child (see content definition).
+            moveTo(0, inputDeviceCenterRight)
+            up(0)
+        }
 
         // The consumed 'move' in gesture should reset so no callback is called.
         rule.runOnIdle {
@@ -1073,7 +801,13 @@ class IndirectPointerGestureTest {
         }
 
         // A new, valid gesture should be processed correctly
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -1101,36 +835,25 @@ class IndirectPointerGestureTest {
             )
         }
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val p0 = getPointerProperties(0)
-        val p0Coords = getPointerCoords(x = 0f, y = 0f)
-
-        // Start gesture while enabled
-        val p0Down =
-            buildMotionEvent(
-                action = ACTION_DOWN,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Down)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            // Start gesture while enabled
+            down(0, Offset.Zero)
+        }
 
         // Disable mid-gesture
         enabled.value = false
 
-        // Finish gesture
-        eventTime += 10L
-        val p0Up =
-            buildMotionEvent(
-                action = ACTION_UP,
-                pointers = listOf(p0),
-                pointerCoords = listOf(p0Coords),
-                downTime = downTime,
-                eventTime = eventTime,
-            )
-        dispatchIndirectPointerEvent(p0Up, p0Down)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            up(0)
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -1162,7 +885,13 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -1172,7 +901,13 @@ class IndirectPointerGestureTest {
 
         enabled.value = true
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(1)
@@ -1197,7 +932,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule, durationMillis = 40L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(1)
@@ -1209,10 +950,8 @@ class IndirectPointerGestureTest {
     fun onSwipeForward_descendantConsumesClick_triggered() {
         var innerOnClickCount = 0
         var onSwipeForwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1226,10 +965,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        // Perform forward swipe
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(0)
@@ -1241,10 +983,8 @@ class IndirectPointerGestureTest {
     fun onSwipeBackward_descendantConsumesClick_triggered() {
         var innerOnClickCount = 0
         var onSwipeBackwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1258,10 +998,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        // Perform backward swipe
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(0)
@@ -1273,11 +1016,9 @@ class IndirectPointerGestureTest {
     fun onSwipeForward_descendantConsumesDrag_notTriggered() {
         var draggableOnStartCalled = false
         var draggableOnStoppedCalled = false
-        var touchSlop = 0f
         var onSwipeForwardCount = 0
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1300,10 +1041,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        // Perform forward swipe
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle {
             assertThat(draggableOnStartCalled).isTrue()
@@ -1316,11 +1060,9 @@ class IndirectPointerGestureTest {
     fun onSwipeBackward_descendantConsumesDrag_notTriggered() {
         var draggableOnStartCalled = false
         var draggableOnStoppedCalled = false
-        var touchSlop = 0f
         var onSwipeBackwardCount = 0
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1343,10 +1085,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        // Perform forward swipe
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle {
             assertThat(draggableOnStartCalled).isTrue()
@@ -1376,8 +1121,13 @@ class IndirectPointerGestureTest {
                 )
             }
         }
-
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule = rule, durationMillis = 40L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -1402,7 +1152,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule = rule, durationMillis = 40L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(1) }
     }
@@ -1410,10 +1166,8 @@ class IndirectPointerGestureTest {
     @Test
     fun onSwipeForward_innerNullCallback_outerTriggered() {
         var outerOnSwipeForwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1432,9 +1186,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }
     }
@@ -1442,10 +1200,8 @@ class IndirectPointerGestureTest {
     @Test
     fun onSwipeBackward_innerNullCallback_outerTriggered() {
         var outerOnSwipeBackwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1464,9 +1220,13 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
     }
@@ -1475,10 +1235,8 @@ class IndirectPointerGestureTest {
     fun outerHandlesSwipeBackward_innerHandlesSwipeForward_bothTriggered() {
         var outerOnSwipeBackwardCount = 0
         var innerOnSwipeForwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1500,16 +1258,24 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(1) }
@@ -1519,10 +1285,8 @@ class IndirectPointerGestureTest {
     fun outerHandlesSwipeForward_innerHandlesSwipeBackward_bothTriggered() {
         var outerOnSwipeForwardCount = 0
         var innerOnSwipeBackwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1544,16 +1308,24 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }
@@ -1564,10 +1336,8 @@ class IndirectPointerGestureTest {
         var outerOnClickCount = 0
         var innerOnSwipeForwardCount = 0
         var innerOnSwipeBackwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1587,23 +1357,37 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule = rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(0) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(1) }
@@ -1615,10 +1399,8 @@ class IndirectPointerGestureTest {
         var innerOnClickCount = 0
         var outerOnSwipeForwardCount = 0
         var outerOnSwipeBackwardCount = 0
-        var touchSlop = 0f
 
         rule.setContent {
-            touchSlop = LocalViewConfiguration.current.touchSlop
             Box(
                 modifier =
                     Modifier.testTag(ROOT_TEST_TAG)
@@ -1641,80 +1423,45 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.onNodeWithTag(ROOT_TEST_TAG).performIndirectClick(rule = rule)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            click()
+        }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(0) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = -(touchSlop * 2), moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeLeft()
+        }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
 
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectSwipe(rule = rule, distance = touchSlop * 2, moveDuration = 10L)
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            swipeRight()
+        }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
     }
 
-    private fun buildMotionEvent(
-        action: Int,
-        pointers: List<MotionEvent.PointerProperties>,
-        pointerCoords: List<MotionEvent.PointerCoords>,
-        downTime: Long,
-        eventTime: Long,
-    ): MotionEvent {
-        val builder =
-            MotionEventBuilder.newBuilder()
-                .setAction(action)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-
-        pointers.zip(pointerCoords).forEach { (props, coords) -> builder.setPointer(props, coords) }
-
-        return builder.build()
-    }
-
-    private fun dispatchIndirectPointerEvent(
-        motionEvent: MotionEvent,
-        previousMotionEvent: MotionEvent? = null,
-        consumeEvents: Boolean = false,
-    ) {
-        rule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .performIndirectPointerEvent(
-                rule,
-                IndirectPointerEvent(
-                        motionEvent = motionEvent,
-                        primaryDirectionalMotionAxis =
-                            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                        previousMotionEvent = previousMotionEvent,
-                    )
-                    .apply { if (consumeEvents) changes.forEach { it.consume() } },
-            )
-    }
-
-    private fun getPointerProperties(id: Int) =
-        MotionEvent.PointerProperties().apply {
-            this.id = id
-            this.toolType = MotionEvent.TOOL_TYPE_FINGER
-        }
-
-    private fun getPointerCoords(x: Float, y: Float) =
-        MotionEvent.PointerCoords().apply {
-            this.x = x
-            this.y = y
-        }
-
     companion object {
         private const val ROOT_TEST_TAG = "boxWithIndirectPointerGesture"
+        private const val CHILD_TEST_TAG = "childBoxWithIndirectPointerEventConsumption"
     }
 }

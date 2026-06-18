@@ -16,230 +16,225 @@
 
 package androidx.xr.glimmer
 
-import android.os.SystemClock
-import android.view.MotionEvent
-import androidx.compose.ui.ExperimentalIndirectPointerApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
-import kotlin.math.absoluteValue
+import androidx.compose.ui.input.indirect.IndirectPointerEventType
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.test.IndirectPointerInjectionScope
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.inputDeviceBottom
+import androidx.compose.ui.test.inputDeviceLeft
+import androidx.compose.ui.test.inputDeviceRight
+import androidx.compose.ui.test.inputDeviceTop
+import androidx.compose.ui.test.inputDeviceTopLeft
+import androidx.compose.ui.test.inputDeviceTopRight
+import androidx.compose.ui.test.sendIndirectPointerInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.IntSize
 
-/** Synthetic indirect swipe. */
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectSwipe(
-    rule: ComposeTestRule,
+// Horizontal external indirect pointer input device
+internal val horizontalExternalInputDeviceSize = IntSize(3082, 616)
+
+// Vertical external indirect pointer input device
+internal val verticalExternalInputDeviceSize = IntSize(616, 3082)
+
+// Square external indirect pointer input device
+internal val squareExternalInputDeviceSize = IntSize(3082, 3082)
+
+internal const val defaultPeriodBetweenEventsMillis = 16L
+
+// Use the two below together to trigger swipe in foundation.
+internal const val defaultStepCountForMoveToVelocityTrigger: Int = 10
+internal const val defaultDelayForMoveToVelocityTrigger: Long = 10
+
+internal const val defaultDelayForIncrementedMove: Long = 200L
+
+// Provides standard glimmer defaults to simplify calls
+fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
+    indirectPointerEventPrimaryDirectionalMotionAxis:
+        IndirectPointerEventPrimaryDirectionalMotionAxis =
+        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+    inputDeviceSize: IntSize = horizontalExternalInputDeviceSize,
+    block: IndirectPointerInjectionScope.() -> Unit,
+) {
+    sendIndirectPointerInput(
+        indirectPointerEventPrimaryDirectionalMotionAxis =
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+        inputDeviceSize = inputDeviceSize,
+        block = block,
+    )
+}
+
+// Swipe along the x-axis with only one move.
+internal fun SemanticsNodeInteractionsProvider.oneMoveSwipeAlongXAxis(
+    xDistance: Float,
+    moveDuration: Long = defaultDelayForIncrementedMove,
+    inputDeviceSize: IntSize = horizontalExternalInputDeviceSize,
+) {
+    sendIndirectPointerInput(inputDeviceSize = inputDeviceSize) {
+        val start =
+            if (xDistance >= 0f) {
+                inputDeviceTopLeft
+            } else {
+                inputDeviceTopRight
+            }
+
+        // This gesture is specifically designed to properly create a simple, valid swipe gesture.
+        // Thus, the capping logic (as not to trigger out of physical bounds error).
+        val end = xDistance.coerceIn(-inputDeviceTopRight.x, inputDeviceTopRight.x)
+
+        down(start)
+        moveBy(Offset(end, 0f), moveDuration)
+        advanceEventTime(defaultPeriodBetweenEventsMillis)
+        up()
+    }
+}
+
+// Moves the distance over a number of steps (evenly divided per step).
+internal fun IndirectPointerInjectionScope.evenlyDividedMoveX(
     distance: Float,
-    moveDuration: Long = 200L,
+    steps: Int = defaultStepCountForMoveToVelocityTrigger,
+    duration: Long = defaultDelayForIncrementedMove,
 ) {
-    val currentTime = SystemClock.uptimeMillis()
-
-    val down =
-        MotionEvent.obtain(
-            currentTime, // downTime,
-            currentTime, // eventTime,
-            MotionEvent.ACTION_DOWN,
-            0f,
-            Offset.Zero.y,
-            0,
-        )
-    down.source = SOURCE_TOUCH_NAVIGATION
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = down,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-        ),
-    )
-
-    val move =
-        MotionEvent.obtain(
-            currentTime,
-            currentTime + moveDuration,
-            MotionEvent.ACTION_MOVE,
-            distance,
-            Offset.Zero.y,
-            0,
-        )
-    move.source = SOURCE_TOUCH_NAVIGATION
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = move,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            previousMotionEvent = down,
-        ),
-    )
-
-    val up =
-        MotionEvent.obtain(
-            currentTime,
-            currentTime + moveDuration + 20,
-            MotionEvent.ACTION_UP,
-            distance,
-            Offset.Zero.y,
-            0,
-        )
-    up.source = SOURCE_TOUCH_NAVIGATION
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = up,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            previousMotionEvent = move,
-        ),
-    )
+    val distancePerStep = distance / steps
+    val durationPerStep = duration / steps
+    repeat(steps) { moveBy(delta = Offset(distancePerStep, 0f), delayMillis = durationPerStep) }
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectClick(
-    rule: ComposeTestRule,
-    durationMillis: Long = 40L,
-) {
-    val currentTime = SystemClock.uptimeMillis()
-
-    val down = MotionEvent.obtain(currentTime, currentTime, MotionEvent.ACTION_DOWN, 0f, 0f, 0)
-    down.source = SOURCE_TOUCH_NAVIGATION
-
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = down,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-        ),
-    )
-
-    val up =
-        MotionEvent.obtain(
-            currentTime,
-            currentTime + durationMillis,
-            MotionEvent.ACTION_UP,
-            0f,
-            0f,
-            0,
-        )
-
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = up,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            previousMotionEvent = down,
-        ),
-    )
+internal fun IndirectPointerInjectionScope.swipeUp() {
+    swipeUp(inputDeviceBottom, inputDeviceTop)
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectPress(rule: ComposeTestRule): MotionEvent {
-    val currentTime = SystemClock.uptimeMillis()
-    val down =
-        MotionEvent.obtain(
-            /* downTime = */ currentTime,
-            /* eventTime = */ currentTime,
-            /* action = */ MotionEvent.ACTION_DOWN,
-            /* x = */ 0f,
-            /* y = */ 0f,
-            /* metaState = */ 0,
-        )
-    down.source = SOURCE_TOUCH_NAVIGATION
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = down,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-        ),
-    )
-    return down
+internal fun IndirectPointerInjectionScope.swipeDown() {
+    swipeDown(inputDeviceTop, inputDeviceBottom)
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectMove(
-    rule: ComposeTestRule,
-    distancePx: Float,
-    previousMotionEvent: MotionEvent,
-    durationMillis: Long = 200L,
-    steps: Int = 10, // Default to 10 to ensure smoother buffer saturation
-): MotionEvent {
-    var currentPreviousEvent = previousMotionEvent
-    val stepDistance = distancePx / steps
-    val stepDuration = durationMillis / steps
-
-    require(stepDistance.absoluteValue > 2f) {
-        "Step distance ($stepDistance) is <= 2px. Events may be ignored by the system."
-    }
-
-    // Simulate a move gesture in smaller steps to make it more realistic and make sure that the
-    // OffsetSmoother logic is not truncating the move distance.
-    repeat(steps) {
-        val nextTime = currentPreviousEvent.eventTime + stepDuration
-        val nextX = currentPreviousEvent.x + stepDistance
-
-        val move =
-            MotionEvent.obtain(
-                /* downTime = */ currentPreviousEvent.downTime,
-                /* eventTime = */ nextTime,
-                /* action = */ MotionEvent.ACTION_MOVE,
-                /* x = */ nextX,
-                /* y = */ 0f,
-                /* metaState = */ 0,
-            )
-        move.source = SOURCE_TOUCH_NAVIGATION
-
-        performIndirectPointerEvent(
-            rule,
-            IndirectPointerEvent(
-                motionEvent = move,
-                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-                previousMotionEvent = currentPreviousEvent,
-            ),
-        )
-
-        currentPreviousEvent = move
-    }
-
-    return currentPreviousEvent
+internal fun IndirectPointerInjectionScope.swipeLeft() {
+    swipeLeft(inputDeviceRight, inputDeviceLeft)
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectRelease(
-    rule: ComposeTestRule,
-    previousMotionEvent: MotionEvent,
-) {
-    val up =
-        MotionEvent.obtain(
-            /* downTime = */ previousMotionEvent.downTime,
-            /* eventTime = */ previousMotionEvent.eventTime + 20,
-            /* action = */ MotionEvent.ACTION_UP,
-            /* x = */ previousMotionEvent.x,
-            /* y = */ 0f,
-            /* metaState = */ 0,
-        )
-    up.source = SOURCE_TOUCH_NAVIGATION
-    performIndirectPointerEvent(
-        rule,
-        IndirectPointerEvent(
-            motionEvent = up,
-            primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            previousMotionEvent = previousMotionEvent,
-        ),
-    )
+internal fun IndirectPointerInjectionScope.swipeRight() {
+    swipeRight(inputDeviceLeft, inputDeviceRight)
 }
 
 /**
- * Send the specified [IndirectPointerEvent] to the focused component.
+ * Create a modifier for testing indirect pointer input. For production use, use foundation gestures
+ * detectors or make your own Modifier.Node implementing [IndirectPointerInputModifierNode], see
+ * [IndirectPointerInputNode] below for details.
  *
- * @return true if the event was consumed. False otherwise.
+ * @param onEvent A callback that is invoked when an indirect pointer event is received.
+ * @param onCancel A callback that is invoked when the pointer input is cancelled.
  */
-@OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.performIndirectPointerEvent(
-    rule: ComposeTestRule,
-    indirectPointerEvent: IndirectPointerEvent,
-): Boolean {
-    val semanticsNode =
-        fetchSemanticsNode("Failed to send indirect pointer event ($indirectPointerEvent)")
-    val root = semanticsNode.root
-    requireNotNull(root) { "Failed to find owner" }
-    return rule.runOnUiThread { root.sendIndirectPointerEvent(indirectPointerEvent) }
+internal fun Modifier.onIndirectPointerInput(
+    onEvent: (event: IndirectPointerEvent, pass: PointerEventPass) -> Unit,
+    onCancel: () -> Unit = {},
+): Modifier = this.then(IndirectPointerInputElement(onEvent, onCancel))
+
+internal class IndirectPointerInputElement(
+    val onEvent: (IndirectPointerEvent, PointerEventPass) -> Unit,
+    val onCancel: () -> Unit,
+) : ModifierNodeElement<IndirectPointerInputNode>() {
+
+    override fun create(): IndirectPointerInputNode {
+        return IndirectPointerInputNode(onEvent, onCancel)
+    }
+
+    override fun update(node: IndirectPointerInputNode) {
+        node.onEvent = onEvent
+        node.onCancel = onCancel
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "indirectPointerInput"
+        properties["onEvent"] = onEvent
+        properties["onCancel"] = onCancel
+    }
+
+    override fun hashCode(): Int {
+        var result = onEvent.hashCode()
+        result = 31 * result + onCancel.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is IndirectPointerInputElement) return false
+        if (onEvent !== other.onEvent) return false
+        if (onCancel !== other.onCancel) return false
+        return true
+    }
+}
+
+/**
+ * A [Modifier.Node] that can be used to test indirect pointer events. This is a very simple version
+ * that doesn't track state (which you would need for production).
+ */
+internal class IndirectPointerInputNode(
+    var onEvent: (IndirectPointerEvent, PointerEventPass) -> Unit,
+    var onCancel: () -> Unit,
+) : IndirectPointerInputModifierNode, Modifier.Node() {
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        onEvent(event, pass)
+    }
+
+    override fun onCancelIndirectPointerInput() {
+        onCancel()
+    }
+}
+
+internal fun IndirectPointerEvent.consumeMatchingPress(pointerIdToMatch: Long): Boolean {
+    var consumed = false
+    val pointerId = PointerId(pointerIdToMatch)
+    if (type == IndirectPointerEventType.Press) {
+        val matchingChange = changes.find { it.id == pointerId }
+        matchingChange?.let { nonNullMatchingChange ->
+            // Verifies that the selected change was in a press
+            if (nonNullMatchingChange.pressed && !nonNullMatchingChange.previousPressed) {
+                changes.forEach { it.consume() }
+                consumed = true
+            }
+        }
+    }
+    return consumed
+}
+
+internal fun IndirectPointerEvent.consumeMatchingMove(pointerIdToMatch: Long): Boolean {
+    var consumed = false
+    val pointerId = PointerId(pointerIdToMatch)
+    if (type == IndirectPointerEventType.Move) {
+        val matchingChange = changes.find { it.id == pointerId }
+        matchingChange?.let { nonNullMatchingChange ->
+            // Verifies that the selected change was a move
+            if (nonNullMatchingChange.pressed) {
+                changes.forEach { it.consume() }
+                consumed = true
+            }
+        }
+    }
+    return consumed
+}
+
+internal fun IndirectPointerEvent.consumeMatchingRelease(pointerIdToMatch: Long): Boolean {
+    var consumed = false
+    val pointerId = PointerId(pointerIdToMatch)
+    if (type == IndirectPointerEventType.Release) {
+        val matchingChange = changes.find { it.id == pointerId }
+        matchingChange?.let { nonNullMatchingChange ->
+            // Verifies that the selected change was a release
+            if (!nonNullMatchingChange.pressed && nonNullMatchingChange.previousPressed) {
+                changes.forEach { it.consume() }
+                consumed = true
+            }
+        }
+    }
+    return consumed
 }

@@ -38,13 +38,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.performIndirectSwipe
+import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -617,7 +616,7 @@ class StackStateTest {
     }
 
     private fun performIndirectSwipe(distancePx: Int) {
-        rule.onRoot().performIndirectSwipe(rule, distancePx.toFloat())
+        rule.oneMoveSwipeAlongXAxis(distancePx.toFloat())
     }
 
     suspend fun runOnUiThread(action: suspend () -> Unit) {

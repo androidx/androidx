@@ -110,6 +110,7 @@ internal class IndirectTouchScrollTestCase(listState: GlimmerLazyListState) :
     override fun toggle() {
         // The `setUp()` and `tearDown()` methods are supposed to reset the scroll.
         // So there's no need to scroll it back inside `toggle()`.
+
         requireNotNull(view)
             .sendIndirectSwipe(
                 distance = scrollDistance,
