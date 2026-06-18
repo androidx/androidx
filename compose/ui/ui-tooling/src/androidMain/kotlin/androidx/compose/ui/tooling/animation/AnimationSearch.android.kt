@@ -22,7 +22,6 @@ import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
-import androidx.compose.animation.core.tooling.AnimationToolingApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.tooling.AnimationDebugMutableState
@@ -281,7 +280,6 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
     }
 
     /** Search for animateXAsState() and animateValueAsState() animations. */
-    @OptIn(AnimationToolingApi::class)
     class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
         Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
 
