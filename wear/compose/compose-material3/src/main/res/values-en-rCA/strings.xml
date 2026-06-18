@@ -53,4 +53,6 @@
     <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"OFF"</string>
     <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"checked"</string>
     <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"not checked"</string>
+    <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"Double-pinch gesture to %s"</string>
+    <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"Wrist-turn gesture to %s"</string>
 </resources>
