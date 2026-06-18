@@ -22,7 +22,6 @@ import androidx.collection.mutableIntSetOf
 import androidx.compose.foundation.ComposeFoundationFlags.isMultiLaneCacheWindowEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.traceValue
 import kotlin.math.absoluteValue
@@ -87,32 +86,46 @@ private class MultiLaneCacheWindow(
      * 3) Scheduled for prefetching.
      * 4) Not scheduled yet.
      */
-    override val perLaneCacheWindowStartIndex by lazy { IntArray(laneCount()) { Int.MAX_VALUE } }
+    private var previousLaneCount = maxOf(1, laneCount())
 
-    override val perLaneCacheWindowEndItemIndex by lazy { IntArray(laneCount()) { Int.MIN_VALUE } }
+    override var perLaneCacheWindowStartIndex = IntArray(previousLaneCount) { Int.MAX_VALUE }
+        private set
+
+    override var perLaneCacheWindowEndItemIndex = IntArray(previousLaneCount) { Int.MIN_VALUE }
+        private set
 
     /**
      * Keeps track of the "extra" space used for each lane. Extra space starts by being the amount
      * of space occupied by the first and last visible items outside of the viewport, that is, how
      * much they're "peeking" out of view. These values will be updated as we fill the cache window.
      */
-    private val perLaneCacheWindowStartSpace by lazy { IntArray(laneCount()) }
-    private val perLaneCacheWindowEndSpace by lazy { IntArray(laneCount()) }
+    private var perLaneCacheWindowStartSpace = IntArray(previousLaneCount)
+    private var perLaneCacheWindowEndSpace = IntArray(previousLaneCount)
 
     /** First visible item index in each lane. */
-    private val perLaneFirstVisibleItemIndex by lazy { IntArray(laneCount()) }
+    private var perLaneFirstVisibleItemIndex = IntArray(previousLaneCount)
 
     /** Last visible item index in each lane. */
-    private val perLaneLastVisibleItemIndex by lazy { IntArray(laneCount()) }
+    private var perLaneLastVisibleItemIndex = IntArray(previousLaneCount)
 
     /** Start-side main-axis overflow space (extra space outside the viewport) per lane. */
-    private val perLaneMainAxisExtraStartSpace by lazy { IntArray(laneCount()) }
+    private var perLaneMainAxisExtraStartSpace = IntArray(previousLaneCount)
 
     /** End-side main-axis overflow space (extra space outside the viewport) per lane. */
-    private val perLaneMainAxisExtraEndSpace by lazy { IntArray(laneCount()) }
+    private var perLaneMainAxisExtraEndSpace = IntArray(previousLaneCount)
 
     /** First non-visible item index adjacent to the viewport in the scroll direction per lane. */
-    private val perLaneFirstNonVisibleItemIndex by lazy { IntArray(laneCount()) }
+    private var perLaneFirstNonVisibleItemIndex = IntArray(previousLaneCount)
+
+    private fun handleLaneResize() {
+        val newLaneCount = maxOf(1, laneCount())
+        if (previousLaneCount != newLaneCount) {
+            resetStrategy()
+        }
+    }
+
+    private val currentLaneCount
+        get() = perLaneCacheWindowStartIndex.size
 
     /**
      * Signals that we should run the window refilling loop from start. This might re-trigger a
@@ -128,6 +141,7 @@ private class MultiLaneCacheWindow(
     private var itemsCount = 0
 
     override fun CacheWindowScope.onScroll(delta: Float) {
+        handleLaneResize()
         debugLog { "delta=$delta" }
         traceWindowInfo()
         fillCacheWindowBackward(delta)
@@ -143,7 +157,7 @@ private class MultiLaneCacheWindow(
     }
 
     private fun traceWindowInfo() {
-        repeat(laneCount()) { lane ->
+        repeat(currentLaneCount) { lane ->
             traceValue(
                 "perLaneCacheWindowStartSpace lane=$lane",
                 perLaneCacheWindowStartSpace[lane].toLong(),
@@ -164,6 +178,7 @@ private class MultiLaneCacheWindow(
     }
 
     override fun CacheWindowScope.onVisibleItemsUpdated() {
+        handleLaneResize()
         debugLog { "hasUpdatedVisibleItemsOnce=$hasUpdatedVisibleItemsOnce" }
         if (!hasUpdatedVisibleItemsOnce && enableInitialPrefetch) {
             val prefetchForwardWindow =
@@ -211,7 +226,7 @@ private class MultiLaneCacheWindow(
         if (hasVisibleItems) {
             val lastLineIndex = getLastItemIndex()
 
-            repeat(laneCount()) { lane ->
+            repeat(currentLaneCount) { lane ->
                 perLaneCacheWindowStartIndex[lane] =
                     perLaneCacheWindowStartIndex[lane].coerceAtLeast(0)
                 if (lastLineIndex != InvalidIndex) {
@@ -233,7 +248,8 @@ private class MultiLaneCacheWindow(
     }
 
     override fun hasValidBounds(): Boolean {
-        for (i in 0 until laneCount()) {
+        handleLaneResize()
+        for (i in 0 until currentLaneCount) {
             if (!laneHasValidBounds(i)) return false
         }
         return true
@@ -308,10 +324,16 @@ private class MultiLaneCacheWindow(
     }
 
     override fun resetStrategy() {
-        perLaneCacheWindowStartIndex.fill(Int.MAX_VALUE)
-        perLaneCacheWindowEndItemIndex.fill(Int.MIN_VALUE)
-        perLaneCacheWindowStartSpace.fill(0)
-        perLaneCacheWindowEndSpace.fill(0)
+        val currentLaneCount = maxOf(1, laneCount())
+        previousLaneCount = currentLaneCount
+        if (perLaneCacheWindowStartIndex.size != currentLaneCount) {
+            resizeCache(currentLaneCount)
+        } else {
+            perLaneCacheWindowStartIndex.fill(Int.MAX_VALUE)
+            perLaneCacheWindowEndItemIndex.fill(Int.MIN_VALUE)
+            perLaneCacheWindowStartSpace.fill(0)
+            perLaneCacheWindowEndSpace.fill(0)
+        }
         shouldRefillWindow = false
 
         windowCache.clear()
@@ -320,6 +342,18 @@ private class MultiLaneCacheWindow(
             value.fastForEach { it.cancel() }
             true
         }
+    }
+
+    private fun resizeCache(newLaneCount: Int) {
+        perLaneCacheWindowStartIndex = IntArray(newLaneCount) { Int.MAX_VALUE }
+        perLaneCacheWindowEndItemIndex = IntArray(newLaneCount) { Int.MIN_VALUE }
+        perLaneCacheWindowStartSpace = IntArray(newLaneCount)
+        perLaneCacheWindowEndSpace = IntArray(newLaneCount)
+        perLaneFirstVisibleItemIndex = IntArray(newLaneCount)
+        perLaneLastVisibleItemIndex = IntArray(newLaneCount)
+        perLaneMainAxisExtraStartSpace = IntArray(newLaneCount)
+        perLaneMainAxisExtraEndSpace = IntArray(newLaneCount)
+        perLaneFirstNonVisibleItemIndex = IntArray(newLaneCount)
     }
 
     /**
@@ -342,7 +376,7 @@ private class MultiLaneCacheWindow(
             }
             updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace)
 
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 val remainingLaneSpace = prefetchForwardWindow - perLaneMainAxisExtraEndSpace[lane]
                 if (changedScrollDirection || shouldRefillWindow) {
                     perLaneCacheWindowEndItemIndex[lane] = perLaneLastVisibleItemIndex[lane]
@@ -394,7 +428,7 @@ private class MultiLaneCacheWindow(
             }
             updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace)
 
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 val remainingLaneSpace =
                     prefetchForwardWindow - perLaneMainAxisExtraStartSpace[lane]
                 if (changedScrollDirection || shouldRefillWindow) {
@@ -457,7 +491,7 @@ private class MultiLaneCacheWindow(
         if (scrollDelta <= 0.0f) { // scrolling forward, keep around from firstVisible
             updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex)
             updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace)
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 perLaneCacheWindowStartSpace[lane] =
                     (keepAroundWindow - perLaneMainAxisExtraStartSpace[lane])
                 perLaneCacheWindowStartIndex[lane] = perLaneFirstVisibleItemIndex[lane]
@@ -488,7 +522,7 @@ private class MultiLaneCacheWindow(
         } else { // scrolling backwards, keep around from last visible
             updatePerLaneVisibleItemIndexes(perLaneLastVisibleItemIndex)
             updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace)
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 perLaneCacheWindowEndSpace[lane] =
                     (keepAroundWindow - perLaneMainAxisExtraEndSpace[lane])
                 perLaneCacheWindowEndItemIndex[lane] = perLaneLastVisibleItemIndex[lane]
@@ -682,11 +716,11 @@ private class MultiLaneCacheWindow(
         itemIndex: Int,
         itemSize: Int,
     ) {
-        if (laneCount() > 1 && isSpanLine(itemIndex)) {
-            val minExtraSpace = perLaneCacheWindowEndSpace.min()
+        if (currentLaneCount > 1 && isSpanLine(itemIndex)) {
+            val minExtraSpace = perLaneCacheWindowEndSpace.minOrNull() ?: 0
             val newExtraSpace = minExtraSpace - itemSize
 
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 perLaneCacheWindowEndItemIndex[lane] = itemIndex
                 perLaneCacheWindowEndSpace[lane] = newExtraSpace
             }
@@ -701,11 +735,11 @@ private class MultiLaneCacheWindow(
         itemIndex: Int,
         itemSize: Int,
     ) {
-        if (laneCount() > 1 && isSpanLine(itemIndex)) {
+        if (currentLaneCount > 1 && isSpanLine(itemIndex)) {
             val minExtraSpace = perLaneCacheWindowStartSpace.minOrNull() ?: 0
             val newExtraSpace = minExtraSpace - itemSize
 
-            for (lane in 0 until laneCount()) {
+            for (lane in 0 until currentLaneCount) {
                 perLaneCacheWindowStartIndex[lane] = itemIndex
                 perLaneCacheWindowStartSpace[lane] = newExtraSpace
             }
@@ -1244,159 +1278,6 @@ internal class LegacyCacheWindowLogic(
     private fun CacheWindowScope.getMainAxisExtraSpaceEnd(): Int {
         updatePerLaneMainAxisExtraEndSpace(extraSpaceBuffer)
         return extraSpaceBuffer[0]
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-/**
- * Provides layout state and prefetching APIs to [CacheWindowLogic].
- *
- * Implemented by concrete lazy layouts to bridge layout-specific state with the shared prefetching
- * logic.
- */
-internal interface CacheWindowScope {
-    /** Returns the total number of items in the layout. */
-    val totalItemsCount: Int
-
-    /** Returns the number of currently visible lines. */
-    val visibleLineCount: Int
-
-    /** Returns `true` if the layout contains visible items. */
-    val hasVisibleItems: Boolean
-
-    /** Returns the index of the first visible item. */
-    val firstVisibleItemIndex: Int
-
-    /** Returns the layout density, or `null` if unavailable. */
-    val density: Density?
-
-    /** Returns the index of the last visible item. */
-    val lastVisibleItemIndex: Int
-
-    /** Returns the viewport size along the main axis, in pixels. */
-    val mainAxisViewportSize: Int
-
-    /**
-     * Populates [perLaneMainAxisExtraStartSpace] with start-side overflow space per lane.
-     *
-     * Overflow space represents how much the first visible item in each lane extends beyond the
-     * start of the viewport, in pixels.
-     *
-     * @param perLaneMainAxisExtraStartSpace array to populate with overflow space values
-     */
-    fun updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace: IntArray)
-
-    /**
-     * Populates [perLaneMainAxisExtraEndSpace] with end-side overflow space per lane.
-     *
-     * Overflow space represents how much the last visible item in each lane extends beyond the end
-     * of the viewport, in pixels.
-     *
-     * @param perLaneMainAxisExtraEndSpace array to populate with overflow space values
-     */
-    fun updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace: IntArray)
-
-    /**
-     * Populates [perLaneFirstVisibleItemIndex] with the first visible item index per lane.
-     *
-     * @param perLaneFirstVisibleItemIndex array to populate with item indexes
-     */
-    fun updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex: IntArray)
-
-    /**
-     * Populates [perLaneVisibleItemIndexes] with the last visible item index per lane.
-     *
-     * @param perLaneVisibleItemIndexes array to populate with item indexes
-     */
-    fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray)
-
-    /**
-     * Schedules a prefetch for the specified [itemIndex] and [lane].
-     *
-     * @param lane layout lane index
-     * @param itemIndex item index to prefetch
-     * @param onItemPrefetched callback invoked with the item's main-axis size in pixels when
-     *   completed
-     * @return list of [PrefetchHandle]s for the scheduled prefetch requests
-     */
-    fun schedulePrefetch(
-        lane: Int,
-        itemIndex: Int,
-        onItemPrefetched: (itemSize: Int) -> Unit,
-    ): List<PrefetchHandle>
-
-    /**
-     * Returns the main-axis size of the visible item, in pixels.
-     *
-     * @param indexInVisibleItems 0-based index within currently visible items
-     */
-    fun getVisibleItemSize(indexInVisibleItems: Int): Int
-
-    /**
-     * Returns the data index of the visible item.
-     *
-     * @param indexInVisibleItems 0-based index within currently visible items
-     */
-    fun getVisibleItemIndex(indexInVisibleItems: Int): Int
-
-    /**
-     * Returns the unique key of the visible item.
-     *
-     * @param indexInVisibleItems 0-based index within currently visible items
-     */
-    fun getVisibleItemKey(indexInVisibleItems: Int): Any
-
-    /**
-     * Returns the lane index of the visible item.
-     *
-     * @param indexInVisibleItems 0-based index within currently visible items
-     */
-    fun getVisibleItemLane(indexInVisibleItems: Int): Int
-
-    /**
-     * Returns the last item index in the current line.
-     *
-     * @param currentItemIndex current item index in line
-     */
-    fun lastItemIndexInLine(currentItemIndex: Int): Int
-
-    /** Returns the index of the last item in the layout. */
-    fun getLastItemIndex(): Int
-
-    /**
-     * Returns the next item index scrolling forward.
-     *
-     * @param lane layout lane index
-     * @param currentItemIndex starting item index
-     */
-    fun getNextEndItemIndexInLane(lane: Int, currentItemIndex: Int): Int = currentItemIndex + 1
-
-    /**
-     * Returns the next item index scrolling backward.
-     *
-     * @param lane layout lane index
-     * @param currentItemIndex starting item index
-     */
-    fun getNextStartItemIndexInLane(lane: Int, currentItemIndex: Int) = currentItemIndex - 1
-
-    /**
-     * Returns `true` if the item spans across all lanes.
-     *
-     * @param itemIndex item index
-     */
-    fun isSpanLine(itemIndex: Int) = false
-}
-
-internal inline fun CacheWindowScope.forEachVisibleItem(
-    action: (itemIndex: Int, itemKey: Any, mainAxisSize: Int, lane: Int) -> Unit
-) {
-    repeat(visibleLineCount) {
-        action(
-            getVisibleItemIndex(it),
-            getVisibleItemKey(it),
-            getVisibleItemSize(it),
-            getVisibleItemLane(it),
-        )
     }
 }
 
