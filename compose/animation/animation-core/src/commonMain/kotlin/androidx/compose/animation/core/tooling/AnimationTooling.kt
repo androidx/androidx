@@ -16,27 +16,20 @@
 
 package androidx.compose.animation.core.tooling
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.runtime.State
 
-@RequiresOptIn(message = "This API is for tooling only and is might change in the future.")
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.FIELD,
-    AnnotationTarget.PROPERTY_GETTER,
-)
-@Retention(AnnotationRetention.BINARY)
-public annotation class AnimationToolingApi
-
 /**
  * Exposes tooling values used in Android Studio to control animations externally for each
  * [androidx.compose.animation.core.animateValueAsState] in composition.
+ *
+ * The tooling handle is intended to be used with ui-tooling artifact of a matching version.
  */
-@AnimationToolingApi
+@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public interface AnimateValueAsStateToolingHandle<T, V : AnimationVector> {
     /** Current [Animatable] for this instance */
     public val animatable: Animatable<T, V>

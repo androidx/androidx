@@ -18,7 +18,6 @@ package androidx.compose.ui.tooling.animation.search
 
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
-import androidx.compose.animation.core.tooling.AnimationToolingApi
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation.Companion.parse
 import androidx.compose.ui.tooling.animation.ClockInfo
@@ -26,7 +25,6 @@ import androidx.compose.ui.tooling.animation.ToolingState
 import androidx.compose.ui.tooling.animation.clock.AnimateXAsStateClock
 
 /** [SearchInfo] for [androidx.compose.animation.core.animateValueAsState] animation. */
-@OptIn(AnimationToolingApi::class)
 internal data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
     val toolingHandle: AnimateValueAsStateToolingHandle<T, V>
 ) : SearchInfo<AnimateXAsStateComposeAnimation<*, *>, AnimateXAsStateClock<*, *>> {

@@ -17,7 +17,6 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
-import androidx.compose.animation.core.tooling.AnimationToolingApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
@@ -442,7 +441,6 @@ public fun <T, V : AnimationVector> animateValueAsState(
     return state
 }
 
-@OptIn(AnimationToolingApi::class)
 private class AnimateAsState<T, V : AnimationVector>(
     initialValue: T,
     typeConverter: TwoWayConverter<T, V>,
