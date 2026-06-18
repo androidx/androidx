@@ -19,6 +19,7 @@ package androidx.wear.protolayout.renderer.inflater;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -97,7 +98,12 @@ public class DefaultAndroidImageResourceByContentUriResolver
                 throw new ResourceAccessException(
                         "Cannot read from URI " + resource.getContentUri());
             }
-            return new BitmapDrawable(mPackageResources, BitmapFactory.decodeStream(inStream));
+            Bitmap bitmap = BitmapFactory.decodeStream(inStream);
+            if (bitmap == null) {
+                throw new ResourceAccessException(
+                        "Failed to decode image from URI " + resource.getContentUri());
+            }
+            return new BitmapDrawable(mPackageResources, bitmap);
         } catch (FileNotFoundException ex) {
             throw new ResourceAccessException(
                     "Cannot open file for URI " + resource.getContentUri(), ex);

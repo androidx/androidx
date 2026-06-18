@@ -44,6 +44,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Paint.Cap;
@@ -3456,7 +3457,7 @@ public final class ProtoLayoutInflater {
             ImageView imageView, Future<Drawable> drawableFuture, String protoResId) {
         try {
             return setImageDrawable(imageView, drawableFuture.get(), protoResId);
-        } catch (ExecutionException | InterruptedException | CancellationException e) {
+        } catch (ExecutionException | InterruptedException | RuntimeException e) {
             Log.w(TAG, "Could not get drawable for image " + protoResId, e);
         }
         return null;
@@ -3473,11 +3474,16 @@ public final class ProtoLayoutInflater {
         if (drawable != null) {
             mInflaterStatsLogger.logDrawableUsage(drawable);
         }
-        if (drawable instanceof BitmapDrawable
-                && ((BitmapDrawable) drawable).getBitmap().getByteCount()
-                > DEFAULT_MAX_BITMAP_RAW_SIZE) {
-            Log.w(TAG, "Ignoring image " + protoResId + " as it's too large.");
-            return null;
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            if (bitmap == null) {
+                Log.w(TAG, "Ignoring image " + protoResId + " as its bitmap is null.");
+                return null;
+            }
+            if (bitmap.getByteCount() > DEFAULT_MAX_BITMAP_RAW_SIZE) {
+                Log.w(TAG, "Ignoring image " + protoResId + " as it's too large.");
+                return null;
+            }
         }
         imageView.setImageDrawable(drawable);
         return drawable;
