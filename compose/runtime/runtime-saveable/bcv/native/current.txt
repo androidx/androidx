@@ -16,6 +16,9 @@ abstract interface <#A: kotlin/Any?, #B: kotlin/Any> androidx.compose.runtime.sa
 }
 
 abstract interface androidx.compose.runtime.saveable/SaveableStateHolder { // androidx.compose.runtime.saveable/SaveableStateHolder|null[0]
+    open val keys // androidx.compose.runtime.saveable/SaveableStateHolder.keys|{}keys[0]
+        open fun <get-keys>(): kotlin.collections/Set<kotlin/Any> // androidx.compose.runtime.saveable/SaveableStateHolder.keys.<get-keys>|<get-keys>(){}[0]
+
     abstract fun SaveableStateProvider(kotlin/Any, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.saveable/SaveableStateHolder.SaveableStateProvider|SaveableStateProvider(kotlin.Any;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     abstract fun removeState(kotlin/Any) // androidx.compose.runtime.saveable/SaveableStateHolder.removeState|removeState(kotlin.Any){}[0]
 }

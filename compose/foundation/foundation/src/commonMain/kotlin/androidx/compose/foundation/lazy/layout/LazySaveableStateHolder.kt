@@ -64,6 +64,9 @@ private class LazySaveableStateHolder(
         wrappedHolder,
     )
 
+    override val keys
+        get() = wrappedHolder.keys
+
     private val previouslyComposedKeys = mutableScatterSetOf<Any>()
 
     override fun performSave(): Map<String, List<Any?>> {
