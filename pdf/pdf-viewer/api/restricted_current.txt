@@ -1,4 +1,72 @@
 // Signature format: 4.0
+package androidx.pdf.annotation {
+
+  public final class AnnotationsView extends android.view.ViewGroup {
+    ctor public AnnotationsView(android.content.Context context);
+    ctor public AnnotationsView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public AnnotationsView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor @BytecodeOnly public AnnotationsView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void addOnAnnotationEditListener(androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener listener);
+    method public void addOnAnnotationLocatedListener(androidx.pdf.annotation.AnnotationsView.OnAnnotationLocatedListener listener);
+    method @InaccessibleFromKotlin public androidx.pdf.annotation.AnnotationsView.AnnotationMode? getInteractionMode();
+    method public void removeOnAnnotationEditListener(androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener listener);
+    method public void removeOnAnnotationLocatedListener(androidx.pdf.annotation.AnnotationsView.OnAnnotationLocatedListener listener);
+    method @InaccessibleFromKotlin public void setInteractionMode(androidx.pdf.annotation.AnnotationsView.AnnotationMode?);
+    method public void setOnGestureClaimListener(androidx.pdf.annotation.AnnotationsView.OnGestureClaimListener? listener);
+    method public void setTextBoundsProvider(androidx.pdf.annotation.TextBoundsProvider textBoundsProvider);
+    method @MainThread public void updateDisplayState(androidx.pdf.annotation.PdfViewportState pdfViewportState, android.util.SparseArray<java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation>> annotations);
+    property public androidx.pdf.annotation.AnnotationsView.AnnotationMode? interactionMode;
+    field public static final androidx.pdf.annotation.AnnotationsView.Companion Companion;
+  }
+
+  public abstract static class AnnotationsView.AnnotationMode {
+  }
+
+  public static final class AnnotationsView.AnnotationMode.Highlight extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
+    ctor public AnnotationsView.AnnotationMode.Highlight(@ColorInt int color);
+    method @InaccessibleFromKotlin @ColorInt public int getColor();
+    property @ColorInt public int color;
+  }
+
+  public static final class AnnotationsView.AnnotationMode.Select extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
+    field public static final androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select INSTANCE;
+  }
+
+  public static final class AnnotationsView.Companion {
+  }
+
+  public static interface AnnotationsView.OnAnnotationEditListener {
+    method public void onAnnotationCreated(androidx.pdf.annotation.content.PdfAnnotation annotation);
+    method public void onAnnotationError(Throwable throwable);
+  }
+
+  public static fun interface AnnotationsView.OnAnnotationLocatedListener {
+    method public void onAnnotationsLocated(float x, float y, java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation> annotations);
+  }
+
+  public static interface AnnotationsView.OnGestureClaimListener {
+    method public void onGestureAbandoned();
+    method public void onGestureClaimed();
+  }
+
+  public final class PdfViewportState {
+    ctor public PdfViewportState(int firstVisiblePage, int visiblePagesCount, android.util.SparseArray<android.graphics.RectF> pageBounds, float zoom);
+    method @InaccessibleFromKotlin public int getFirstVisiblePage();
+    method @InaccessibleFromKotlin public android.util.SparseArray<android.graphics.RectF> getPageBounds();
+    method @InaccessibleFromKotlin public int getVisiblePagesCount();
+    method @InaccessibleFromKotlin public float getZoom();
+    property public int firstVisiblePage;
+    property public android.util.SparseArray<android.graphics.RectF> pageBounds;
+    property public int visiblePagesCount;
+    property public float zoom;
+  }
+
+  public interface TextBoundsProvider {
+    method public suspend Object? getTextBoundsBetweenPoints(int pageNum, android.graphics.PointF start, android.graphics.PointF end, kotlin.coroutines.Continuation<? super java.util.List<? extends android.graphics.RectF>>);
+  }
+
+}
+
 package androidx.pdf.ocr {
 
   public interface OcrProvider extends java.io.Closeable {

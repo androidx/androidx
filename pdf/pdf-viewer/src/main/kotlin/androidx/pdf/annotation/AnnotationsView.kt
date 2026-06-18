@@ -27,7 +27,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Highlight
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
@@ -47,7 +46,6 @@ import androidx.pdf.annotation.highlights.InProgressHighlightsView
  * This inherits [ViewGroup] but does not support adding arbitrary children via [addView] or in a
  * layout.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnnotationsView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -255,7 +253,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         PdfDocumentAnnotationsDrawerImpl(annotationDrawerFactory).draw(annotations, canvas)
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null) return false
         return when (interactionMode) {
             is Select -> {
                 val localAnnotationsLocator = annotationsLocator
@@ -264,9 +263,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                         localAnnotationsLocator.findAnnotations(annotations, event)
                     if (foundAnnotations.isNotEmpty()) {
                         onAnnotationLocatedListeners.forEach {
-                            val event =
-                                LocatedAnnotations(x = event.x, y = event.y, foundAnnotations)
-                            it.onAnnotationsLocated(event)
+                            it.onAnnotationsLocated(x = event.x, y = event.y, foundAnnotations)
                         }
                         return true
                     }
@@ -295,13 +292,69 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     )
 
     /** Defines the current interaction mode of the [AnnotationsView]. */
-    public abstract class AnnotationMode {
+    public abstract class AnnotationMode internal constructor() {
         /** Mode for selecting existing annotations (e.g. erase, drag, scale). */
-        public class Select : AnnotationMode()
+        public object Select : AnnotationMode()
 
         /** Mode for creating new highlight annotations. */
         public class Highlight(@get:ColorInt @param:ColorInt public val color: Int) :
             AnnotationMode()
+    }
+
+    /**
+     * Callback interface for gesture coordination events.
+     *
+     * These signals allow the host to coordinate the touch event stream between different
+     * simultaneous interactions.
+     */
+    public interface OnGestureClaimListener {
+        /**
+         * Called when the view 'claims' the current gesture stream.
+         *
+         * The host should typically use this signal to cancel any other 'shadow' or simultaneous
+         * interactions that are currently tracking this gesture.
+         */
+        public fun onGestureClaimed()
+
+        /**
+         * Called when the view 'abandons' its interest in the current gesture.
+         *
+         * The host can use this signal to allow other interactions to continue exclusively.
+         */
+        public fun onGestureAbandoned()
+    }
+
+    /** Callback interface for events related to the creation and modification of annotations. */
+    public interface OnAnnotationEditListener {
+
+        /**
+         * Called when an in-progress interaction successfully produces a finalized [PdfAnnotation].
+         *
+         * @param annotation The finalized [PdfAnnotation] object containing the metadata generated
+         *   by the user's interaction.
+         */
+        public fun onAnnotationCreated(annotation: PdfAnnotation)
+
+        /**
+         * Called when a failure occurs during the creation or modification of an annotation.
+         *
+         * @param throwable The underlying cause of the failure.
+         */
+        public fun onAnnotationError(throwable: Throwable)
+    }
+
+    /** Callback interface for annotation hit events. */
+    public fun interface OnAnnotationLocatedListener {
+        /**
+         * Called when one or more annotations are successfully located at a specific touch
+         * location.
+         *
+         * @param x The x-coordinate of the touch event in view coordinates.
+         * @param y The y-coordinate of the touch event in view coordinates.
+         * @param annotations The list of [KeyedPdfAnnotation] objects found at the (x, y) location,
+         *   typically ordered by visual stacking order (Z-index) (top-bottom).
+         */
+        public fun onAnnotationsLocated(x: Float, y: Float, annotations: List<KeyedPdfAnnotation>)
     }
 
     public companion object {
@@ -311,10 +364,4 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             }
         }
     }
-}
-
-/** Callback interface for annotation hit events. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface OnAnnotationLocatedListener {
-    public fun onAnnotationsLocated(locatedAnnotations: LocatedAnnotations)
 }

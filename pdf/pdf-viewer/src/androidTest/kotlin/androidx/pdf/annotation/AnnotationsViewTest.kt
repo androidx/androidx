@@ -189,7 +189,7 @@ class AnnotationsViewTest {
     fun onTouchEvent_whenSelectEnabled_atNoAnnotationPosition() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
-                annotationsView.interactionMode = AnnotationMode.Select()
+                annotationsView.interactionMode = AnnotationMode.Select
                 annotationsView.addOnAnnotationLocatedListener(testOnAnnotationSelectedListener)
 
                 // Touch down on annotation free point.
@@ -207,7 +207,7 @@ class AnnotationsViewTest {
     fun onTouchEvent_whenSelectEnabled_atAnnotationPosition() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
-                annotationsView.interactionMode = AnnotationMode.Select()
+                annotationsView.interactionMode = AnnotationMode.Select
                 annotationsView.addOnAnnotationLocatedListener(testOnAnnotationSelectedListener)
 
                 // Touch down on annotation point.

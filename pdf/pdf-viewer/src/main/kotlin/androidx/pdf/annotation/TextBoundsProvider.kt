@@ -18,10 +18,8 @@ package androidx.pdf.annotation
 
 import android.graphics.PointF
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 
 /** A provider interface that abstracts the retrieval of text boundary information. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TextBoundsProvider {
     /**
      * Asynchronously obtains the rectangular bounds of text between two points on a specific page.
