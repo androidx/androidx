@@ -29,8 +29,6 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -134,7 +132,6 @@ expect fun AlertDialog(
  * @param properties typically platform specific properties to further configure the dialog.
  * @param content the content of the dialog
  */
-@OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
 @ExperimentalMaterial3Api
 @Composable
 fun BasicAlertDialog(
@@ -143,38 +140,16 @@ fun BasicAlertDialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,
 ) {
-    with(LocalBasicAlertDialogOverride.current) {
-        BasicAlertDialogOverrideScope(
-                onDismissRequest = onDismissRequest,
-                modifier = modifier,
-                properties = properties,
-                content = content,
-            )
-            .BasicAlertDialog()
-    }
-}
-
-/**
- * This override provides the default behavior of the [BasicAlertDialog] component.
- *
- * [BasicAlertDialogOverride] used when no override is specified.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ComponentOverrideApi
-object DefaultBasicAlertDialogOverride : BasicAlertDialogOverride {
-    @Composable
-    override fun BasicAlertDialogOverrideScope.BasicAlertDialog() {
-        Dialog(onDismissRequest = onDismissRequest, properties = properties) {
-            val dialogPaneDescription = getString(Strings.Dialog)
-            Box(
-                modifier =
-                    modifier
-                        .sizeIn(minWidth = DialogMinWidth, maxWidth = DialogMaxWidth)
-                        .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
-                propagateMinConstraints = true,
-            ) {
-                content()
-            }
+    Dialog(onDismissRequest = onDismissRequest, properties = properties) {
+        val dialogPaneDescription = getString(Strings.Dialog)
+        Box(
+            modifier =
+                modifier
+                    .sizeIn(minWidth = DialogMinWidth, maxWidth = DialogMaxWidth)
+                    .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
+            propagateMinConstraints = true,
+        ) {
+            content()
         }
     }
 }
@@ -442,40 +417,3 @@ private val ButtonsCrossAxisSpacing = 8.dp
 
 private val IconPadding = PaddingValues(bottom = 16.dp)
 private val TitlePadding = PaddingValues(bottom = 16.dp)
-
-/**
- * Interface that allows libraries to override the behavior of the [BasicAlertDialog] component.
- *
- * To override this component, implement the member function of this interface, then provide the
- * implementation to [LocalBasicAlertDialogOverride] in the Compose hierarchy.
- */
-@ExperimentalMaterial3ComponentOverrideApi
-interface BasicAlertDialogOverride {
-    /** Behavior function that is called by the [BasicAlertDialog] component. */
-    @Composable fun BasicAlertDialogOverrideScope.BasicAlertDialog()
-}
-
-/**
- * Parameters available to [BasicAlertDialog].
- *
- * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
- *   pressing the back button. This is not called when the dismiss button is clicked.
- * @param modifier the [Modifier] to be applied to this dialog's content.
- * @param properties typically platform specific properties to further configure the dialog.
- * @param content the content of the dialog
- */
-@ExperimentalMaterial3ComponentOverrideApi
-class BasicAlertDialogOverrideScope
-internal constructor(
-    val onDismissRequest: () -> Unit,
-    val modifier: Modifier = Modifier,
-    val properties: DialogProperties = DialogProperties(),
-    val content: @Composable () -> Unit,
-)
-
-/** CompositionLocal containing the currently-selected [BasicAlertDialogOverride]. */
-@ExperimentalMaterial3ComponentOverrideApi
-val LocalBasicAlertDialogOverride: ProvidableCompositionLocal<BasicAlertDialogOverride> =
-    compositionLocalOf {
-        DefaultBasicAlertDialogOverride
-    }
