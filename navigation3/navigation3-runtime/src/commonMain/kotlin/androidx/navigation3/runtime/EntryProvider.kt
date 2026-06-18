@@ -234,12 +234,21 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
      */
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
-    internal fun build(): (T) -> NavEntry<T> = { key ->
-        val entryClassProvider = clazzProviders[key::class] as? EntryClassProvider<T>
-        val entryProvider = providers[key] as? EntryProvider<T>
-        entryClassProvider?.run { NavEntry(key, clazzContentKey(key), metadata(key), content) }
-            ?: entryProvider?.run { NavEntry(key, contentKey, metadata(key), content) }
-            ?: fallback.invoke(key)
+    internal fun build(): (T) -> NavEntry<T> {
+        val metadataCache = mutableMapOf<T, Map<String, Any>>()
+        return { key ->
+            val entryClassProvider = clazzProviders[key::class] as? EntryClassProvider<T>
+            val entryProvider = providers[key] as? EntryProvider<T>
+            val cachedMetadata =
+                metadataCache.getOrPut(key) {
+                    entryClassProvider?.metadata?.invoke(key)
+                        ?: entryProvider?.metadata?.invoke(key)
+                        ?: emptyMap()
+                }
+            entryClassProvider?.run { NavEntry(key, clazzContentKey(key), cachedMetadata, content) }
+                ?: entryProvider?.run { NavEntry(key, contentKey, cachedMetadata, content) }
+                ?: fallback.invoke(key)
+        }
     }
 }
 
