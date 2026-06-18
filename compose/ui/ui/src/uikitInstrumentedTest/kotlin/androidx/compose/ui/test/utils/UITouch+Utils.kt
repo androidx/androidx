@@ -35,13 +35,13 @@ import platform.UIKit.UITouchTypeIndirect
 import platform.UIKit.UIWindow
 
 @OptIn(ExperimentalForeignApi::class)
-internal fun UIWindow.touchDown(location: DpOffset): UITouch {
+internal fun UIWindow.touchDown(location: DpOffset, fromEdge: Boolean = false): UITouch {
     return UITouch.touchAtPoint(
         point = location.toCGPoint(),
         withType = UITouchTypeDirect,
         inWindow = this,
         tapCount = 1L,
-        fromEdge = false
+        fromEdge = fromEdge
     ).also {
         it.send()
     }

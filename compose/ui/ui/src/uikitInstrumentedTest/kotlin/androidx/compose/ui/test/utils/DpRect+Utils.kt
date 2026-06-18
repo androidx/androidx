@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.utils
 
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.toDpRect
@@ -31,8 +32,27 @@ import platform.UIKit.UIView
 @OptIn(ExperimentalForeignApi::class)
 internal fun DpOffset.toCGPoint(): CValue<CGPoint> = CGPointMake(x.value.toDouble(), y.value.toDouble())
 
+/**
+ * Returns the center of the rectangle.
+ */
 internal fun DpRect.center(): DpOffset = DpOffset((left + right) / 2, (top + bottom) / 2)
-
+/**
+ * Returns the center of the left edge.
+ */
+internal fun DpRect.leftCenter(): DpOffset = DpOffset(left, (top + bottom) / 2)
+/**
+ * Returns the center of the right edge.
+ */
+internal fun DpRect.rightCenter(): DpOffset = DpOffset(right, (top + bottom) / 2)
+/**
+ * Returns the center of the top edge.
+ */
+internal fun DpRect.topCenter(): DpOffset = DpOffset((left + right) / 2, top)
+/**
+ * Returns the center of the bottom edge.
+ */
+internal fun DpRect.bottomCenter(): DpOffset = DpOffset((left + right) / 2, bottom)
+internal fun DpOffset.offsetBy(dx: Dp = 0.dp, dy: Dp = 0.dp) = DpOffset(x + dx, y + dy)
 internal fun DpRectZero() = DpRect(0.dp, 0.dp, 0.dp, 0.dp)
 
 internal fun DpRect.intersect(other: DpRect): DpRect {
