@@ -711,7 +711,7 @@ internal class MutableStateFlagSet(flags: Int) : StateObject {
     fun updateFlag(mask: Int, value: Boolean) = updateFlags(mask, if (value) mask else 0)
 
     fun updateFlags(mask: Int, values: Int) {
-        next.withCurrent {
+        next.withCurrent(this) {
             val current = it.value
             val newValue = (current and mask.inv()) or values
             if (current != newValue) {

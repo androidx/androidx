@@ -74,7 +74,7 @@ public actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>
 
     @Suppress("UNCHECKED_CAST")
     override fun toString(): String =
-        (firstStateRecord as StateSetStateRecord<T>).withCurrent {
+        (firstStateRecord as StateSetStateRecord<T>).withCurrent(this) {
             "SnapshotStateSet(value=${it.set})@${hashCode()}"
         }
 

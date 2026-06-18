@@ -100,7 +100,7 @@ internal actual constructor(persistentList: PersistentList<T>) :
 
     @Suppress("UNCHECKED_CAST")
     override fun toString(): String =
-        (firstStateRecord as StateListStateRecord<T>).withCurrent {
+        (firstStateRecord as StateListStateRecord<T>).withCurrent(this) {
             "SnapshotStateList(value=${it.list})@${hashCode()}"
         }
 

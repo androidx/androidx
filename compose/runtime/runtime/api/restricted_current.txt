@@ -1204,13 +1204,15 @@ package androidx.compose.runtime.snapshots {
   public final class SnapshotKt {
     method @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T r);
     method @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T r, androidx.compose.runtime.snapshots.Snapshot snapshot);
+    method @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T r, androidx.compose.runtime.snapshots.StateObject state);
     method @InaccessibleFromKotlin @kotlin.PublishedApi internal static Object getLock();
     method @InaccessibleFromKotlin @kotlin.PublishedApi internal static androidx.compose.runtime.snapshots.Snapshot getSnapshotInitializer();
     method @kotlin.PublishedApi internal static void notifyWrite(androidx.compose.runtime.snapshots.Snapshot snapshot, androidx.compose.runtime.snapshots.StateObject state);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot);
     method @kotlin.PublishedApi internal static inline <T> T sync(kotlin.jvm.functions.Function0<? extends T> block);
-    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method @Deprecated public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T writableRecord(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot);

@@ -112,7 +112,9 @@ internal inline fun <R, T> SnapshotStateList<T>.writable(
 
 internal inline fun <R, T> SnapshotStateList<T>.withCurrent(
     block: StateListStateRecord<T>.() -> R
-): R = @Suppress("UNCHECKED_CAST") (firstStateRecord as StateListStateRecord<T>).withCurrent(block)
+): R =
+    @Suppress("UNCHECKED_CAST")
+    ((firstStateRecord as StateListStateRecord<T>).withCurrent(this, block))
 
 internal fun <T> SnapshotStateList<T>.mutateBoolean(block: (MutableList<T>) -> Boolean): Boolean =
     mutate(block)

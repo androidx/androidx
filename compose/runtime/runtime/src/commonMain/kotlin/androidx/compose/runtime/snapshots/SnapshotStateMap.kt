@@ -82,10 +82,9 @@ public class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override val values: MutableCollection<V> = SnapshotMapValueSet(this)
 
     @Suppress("UNCHECKED_CAST")
-    override fun toString(): String =
-        (firstStateRecord as StateMapStateRecord<K, V>).withCurrent {
-            "SnapshotStateMap(value=${it.map})@${hashCode()}"
-        }
+    override fun toString(): String = withCurrent {
+        "SnapshotStateMap(value=${this.map})@${this@SnapshotStateMap.hashCode()}"
+    }
 
     override fun clear(): Unit = update { persistentHashMapOf() }
 
@@ -147,7 +146,7 @@ public class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
 
     private inline fun <R> withCurrent(block: StateMapStateRecord<K, V>.() -> R): R =
         @Suppress("UNCHECKED_CAST")
-        (firstStateRecord as StateMapStateRecord<K, V>).withCurrent(block)
+        (firstStateRecord as StateMapStateRecord<K, V>).withCurrent(this, block)
 
     private inline fun <R> writable(block: StateMapStateRecord<K, V>.() -> R): R =
         @Suppress("UNCHECKED_CAST")

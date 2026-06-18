@@ -305,7 +305,7 @@ private class DerivedSnapshotState<T>(
         }
 
     override fun toString(): String =
-        first.withCurrent { "DerivedState(value=${displayValue()})@${hashCode()}" }
+        first.withCurrent(this) { "DerivedState(value=${displayValue()})@${hashCode()}" }
 
     /**
      * A function used by the debugger to display the value of the current value of the mutable
@@ -315,13 +315,13 @@ private class DerivedSnapshotState<T>(
     val debuggerDisplayValue: T?
         @JvmName("getDebuggerDisplayValue")
         get() =
-            first.withCurrent {
+            first.withCurrent(this) {
                 @Suppress("UNCHECKED_CAST")
                 if (it.isValid(this, Snapshot.current)) it.result as T else null
             }
 
     private fun displayValue(): String {
-        first.withCurrent {
+        first.withCurrent(this) {
             if (it.isValid(this, Snapshot.current)) {
                 return it.result.toString()
             }
