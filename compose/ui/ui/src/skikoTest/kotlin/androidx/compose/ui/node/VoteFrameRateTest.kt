@@ -388,11 +388,12 @@ private fun RootNodeOwner(
     size = null,
     coroutineContext = EmptyCoroutineContext,
     platformContext = platformContext,
-    snapshotInvalidationTracker = SnapshotInvalidationTracker {},
     inputHandler = ComposeSceneInputHandler(
         prepareForPointerInputEvent = {},
         processPointerInputEvent = { PointerEventResult(false) },
         cancelPointerInput = {},
         processKeyEvent = { false },
-    )
+    ),
+    invalidate = {},
+    onChangedExecutor = { it() },
 )

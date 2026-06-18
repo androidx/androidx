@@ -35,11 +35,9 @@ import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.ProvidePlatformCompositionLocals
 import androidx.compose.ui.util.trace
-import kotlin.concurrent.Volatile
 
 /**
  * BaseComposeScene is an internal abstract class that implements the ComposeScene interface.
@@ -54,10 +52,9 @@ internal abstract class BaseComposeScene(
     private val invalidateLayout: () -> Unit,
     private val invalidateDraw: () -> Unit,
 ) : ComposeScene {
-    protected val snapshotInvalidationTracker = SnapshotInvalidationTracker(::updateInvalidations)
     protected val inputHandler: ComposeSceneInputHandler =
         ComposeSceneInputHandler(
-            prepareForPointerInputEvent = ::runMeasureAndLayout,
+            prepareForPointerInputEvent = ::doMeasureAndLayout,
             processPointerInputEvent = ::onPointerInputEvent,
             cancelPointerInput = ::processCancelPointerInput,
             processKeyEvent = ::processKeyEvent,
@@ -77,43 +74,21 @@ internal abstract class BaseComposeScene(
             if (isInvalidationDisabled) return block()
             isInvalidationDisabled = true
             return try {
-                // Keep the same scene-boundary snapshot behavior the previous combined render path had
-                // via SnapshotInvalidationTracker.sendAndPerformSnapshotChanges(): first send global
-                // apply notifications, then run only this scene's queued owner-observer callbacks.
-                // This makes snapshot reads that affect layout/draw visible before the phase starts,
-                // but keeps the tracker scene-local;
-                Snapshot.sendApplyNotifications()
-
-                // Try to get see the up-to-date state before running block
-                // Note that this doesn't guarantee it, if sendApplyNotifications is called concurrently
-                // in a different thread than this code.
-                snapshotInvalidationTracker.performSnapshotChanges()
-                snapshotInvalidationTracker.performSnapshotChangesSynchronously(block)
+                block()
             } finally {
-                // This is the previous wrapper's trailing checkpoint written out explicitly.
-                // It lets state writes produced during the phase enqueue layout/draw invalidations
-                // before the native platform decides whether another layout or draw pass is needed.
-                Snapshot.sendApplyNotifications()
-                snapshotInvalidationTracker.performSnapshotChanges()
                 isInvalidationDisabled = false
             }.also {
-                updateInvalidations()
+                invokeInvalidationCallbacks()
             }
         }
 
-    protected fun updateInvalidations() {
-        hasPendingMeasureOrLayout = snapshotInvalidationTracker.hasPendingMeasureOrLayout
-        hasPendingDraw = snapshotInvalidationTracker.hasPendingDraw
-        if (!isInvalidationDisabled && !isClosed && composition != null) {
-            if (hasPendingMeasureOrLayout) {
-                invalidateLayout()
-            }
-            // Snapshot-observer commands queued on this scene need a future host turn to be
-            // performed (they're drained inside measureAndLayout/draw's postponeInvalidation), so
-            // request a draw invalidation without flipping the scene's own hasPendingDraw flag.
-            if (hasPendingDraw || hasPendingSnapshotCommands) {
-                invalidateDraw()
-            }
+    protected fun invokeInvalidationCallbacks() {
+        if (isInvalidationDisabled || isClosed || composition == null) return
+        if (hasPendingMeasureOrLayout) {
+            invalidateLayout()
+        }
+        if (hasPendingDraw) {
+            invalidateDraw()
         }
     }
 
@@ -133,17 +108,6 @@ internal abstract class BaseComposeScene(
         composition?.dispose()
     }
 
-    @Volatile
-    override var hasPendingMeasureOrLayout: Boolean = true
-        protected set
-
-    @Volatile
-    override var hasPendingDraw: Boolean = true
-        protected set
-
-    override val hasPendingSnapshotCommands: Boolean
-        get() = snapshotInvalidationTracker.hasPendingSnapshotCommands
-
     override fun setContent(
         parentCompositionContext: CompositionContext?,
         content: @Composable () -> Unit,
@@ -157,7 +121,7 @@ internal abstract class BaseComposeScene(
              * changed parameters can be applied in a separate turn and trigger double
              * recomposition when new content is installed.
              */
-            frameRecomposer.performScheduledRecomposerTasks()
+            frameRecomposer.performFrameDispatch()
             composition?.dispose()
             composition = createComposition(
                 parentCompositionContext = parentCompositionContext ?: frameRecomposer.compositionContext,
@@ -170,17 +134,14 @@ internal abstract class BaseComposeScene(
                     content = content
                 )
             }
-            frameRecomposer.performScheduledRecomposerTasks()
+            frameRecomposer.performFrameDispatch()
         }
 
     override fun measureAndLayout() {
         if (isClosed) return
 
         postponeInvalidation("BaseComposeScene:measureAndLayout") {
-            // Android runs owner measure/layout from AndroidComposeView.measureAndLayout() during
-            // the host layout traversal. Skiko exposes that phase imperatively so platforms can
-            // call it from their native layout pass instead of hiding it inside draw/render.
-            runMeasureAndLayout()
+            doMeasureAndLayout()
 
             // Schedule synthetic events to be sent after measure/layout completes.
             if (inputHandler.needUpdatePointerPosition) {
@@ -195,11 +156,23 @@ internal abstract class BaseComposeScene(
         if (isClosed) return
 
         postponeInvalidation("BaseComposeScene:draw") {
+            // FIXME: Remove applying the global snapshot here.
+            //  Android never applies the snapshot *between* the layout and draw phases
+            //  (applies happen once per frame on the main looper, not between phases).
+            //  This between-phase apply is a temporary workaround kept only to preserve current
+            //  behavior for OffsetToFocusedRect (iOS FocusableAboveKeyboard).
+            Snapshot.sendApplyNotifications()
+
             // AndroidComposeView.dispatchDraw() begins with measureAndLayout() so layout changes
             // discovered after the host layout traversal are still settled before drawing. Keep
             // that trailing layout pass here even though measureAndLayout() is also a public phase.
-            runMeasureAndLayout()
-            snapshotInvalidationTracker.onDraw()
+            doMeasureAndLayout()
+
+            // Advance the global snapshot before drawing so writes made since the last pass
+            // including state objects created during a prior draw are recorded as modified and
+            // visible to this draw. Lighter than sendApplyNotifications, matches what Android does.
+            Snapshot.notifyObjectsInitialized()
+
             doDraw(canvas)
         }
     }
@@ -232,7 +205,7 @@ internal abstract class BaseComposeScene(
             scaleGestureFactor = scaleGestureFactor,
             panGestureOffset = panGestureOffset,
         ).also {
-            frameRecomposer.performScheduledEffects()
+            frameRecomposer.performTrampolineDispatch()
         }
     }
 
@@ -263,7 +236,7 @@ internal abstract class BaseComposeScene(
             scaleGestureFactor = scaleGestureFactor,
             panGestureOffset = panGestureOffset,
         ).also {
-            frameRecomposer.performScheduledEffects()
+            frameRecomposer.performTrampolineDispatch()
         }
     }
 
@@ -274,7 +247,7 @@ internal abstract class BaseComposeScene(
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
         postponeInvalidation("BaseComposeScene:sendKeyEvent") {
             inputHandler.onKeyEvent(keyEvent).also {
-                frameRecomposer.performScheduledEffects()
+                frameRecomposer.performTrampolineDispatch()
             }
         }
 
@@ -289,13 +262,8 @@ internal abstract class BaseComposeScene(
             uptimeMillis = timeMillis
         )
         processRotaryScrollEvent(event).also {
-            frameRecomposer.performScheduledEffects()
+            frameRecomposer.performTrampolineDispatch()
         }
-    }
-
-    protected fun runMeasureAndLayout() {
-        snapshotInvalidationTracker.onMeasureAndLayout()
-        doMeasureAndLayout()
     }
 
     protected abstract fun createComposition(

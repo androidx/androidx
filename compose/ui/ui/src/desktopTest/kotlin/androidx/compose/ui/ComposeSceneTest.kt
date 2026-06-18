@@ -108,6 +108,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 
 @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {
@@ -116,6 +117,9 @@ class ComposeSceneTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    @get:Rule // A timeout inside @Test annotation does not always work
+    val timeout: Timeout = Timeout.seconds(60)
 
     private fun ScreenshotTestRule.snap(surface: Surface, idSuffix: String? = null) {
         assertImageAgainstGolden(surface.makeImageSnapshot(), idSuffix)

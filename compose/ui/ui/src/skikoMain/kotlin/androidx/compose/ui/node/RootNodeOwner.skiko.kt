@@ -99,6 +99,7 @@ import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.InteropPointerInputModifier
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.viewinterop.pointerInteropFilter
+import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -122,14 +123,15 @@ internal class RootNodeOwner(
     size: IntSize?,
     coroutineContext: CoroutineContext,
     val platformContext: PlatformContext,
-    private val snapshotInvalidationTracker: SnapshotInvalidationTracker,
     private val inputHandler: ComposeSceneInputHandler,
+    private val invalidate: () -> Unit,
+    onChangedExecutor: (callback: () -> Unit) -> Unit,
 ) {
     val focusOwner: FocusOwner get() = _owner.focusOwner
     val dragAndDropOwner = DragAndDropOwner(platformContext.dragAndDropManager)
 
     private val rootSemanticsNode = EmptySemanticsModifier()
-    private val snapshotObserver = snapshotInvalidationTracker.snapshotObserver()
+    private val snapshotObserver = OwnerSnapshotObserver(onChangedExecutor)
     private val graphicsContext = SkiaGraphicsContext(platformContext.measureDrawLayerBounds)
     private val coroutineScope =
         CoroutineScope(coroutineContext + Job(parent = coroutineContext[Job]))
@@ -154,6 +156,14 @@ internal class RootNodeOwner(
             _layoutDirection = value
             owner.root.layoutDirection = value
         }
+
+    @Volatile
+    var hasPendingMeasureOrLayout: Boolean = true
+        private set
+
+    @Volatile
+    var hasPendingDraw: Boolean = true
+        private set
 
     private val rootForTest by lazy(LazyThreadSafetyMode.NONE) {
         PlatformRootForTestImpl()
@@ -233,6 +243,7 @@ internal class RootNodeOwner(
 
     fun measureAndLayout() {
         require(!isDisposed) { "RootNodeOwner is already disposed" }
+        hasPendingMeasureOrLayout = false
         owner.measureAndLayout(sendPointerUpdate = true)
         updatePositionCacheAndDispatch()
     }
@@ -293,10 +304,21 @@ internal class RootNodeOwner(
     fun draw(canvas: Canvas) {
         require(!isDisposed) { "RootNodeOwner is already disposed" }
         trace("RootNodeOwner:draw") {
+            hasPendingDraw = false
             ownedLayerManager.draw(canvas)
             clearInvalidObservations()
             owner.rectManager.dispatchCallbacks()
         }
+    }
+
+    private fun requestMeasureAndLayout() {
+        hasPendingMeasureOrLayout = true
+        invalidate()
+    }
+
+    private fun requestDraw() {
+        hasPendingDraw = true
+        invalidate()
     }
 
     fun setRootModifier(modifier: Modifier) {
@@ -306,7 +328,7 @@ internal class RootNodeOwner(
     private fun onRootSizeChanged(size: IntSize?) {
         measureAndLayoutDelegate.updateRootConstraints(size.toMaxConstraints())
         if (measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
-            snapshotInvalidationTracker.requestMeasureAndLayout()
+            requestMeasureAndLayout()
         }
     }
 
@@ -573,7 +595,7 @@ internal class RootNodeOwner(
                     val resend = if (sendPointerUpdate) onPointerUpdateCallback else null
                     val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
                     if (rootNodeResized) {
-                        snapshotInvalidationTracker.requestDraw()
+                        requestDraw()
                     }
                     measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                     rectManager.dispatchCallbacks()
@@ -609,12 +631,12 @@ internal class RootNodeOwner(
                 if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
                     scheduleMeasureAndLayout
                 ) {
-                    snapshotInvalidationTracker.requestMeasureAndLayout()
+                    requestMeasureAndLayout()
                 }
             } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
                 scheduleMeasureAndLayout
             ) {
-                snapshotInvalidationTracker.requestMeasureAndLayout()
+                requestMeasureAndLayout()
             }
         }
 
@@ -625,18 +647,18 @@ internal class RootNodeOwner(
         ) {
             if (affectsLookahead) {
                 if (measureAndLayoutDelegate.requestLookaheadRelayout(layoutNode, forceRequest)) {
-                    snapshotInvalidationTracker.requestMeasureAndLayout()
+                    requestMeasureAndLayout()
                 }
             } else {
                 if (measureAndLayoutDelegate.requestRelayout(layoutNode, forceRequest)) {
-                    snapshotInvalidationTracker.requestMeasureAndLayout()
+                    requestMeasureAndLayout()
                 }
             }
         }
 
         override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
             measureAndLayoutDelegate.requestOnPositionedCallback(layoutNode)
-            snapshotInvalidationTracker.requestMeasureAndLayout()
+            requestMeasureAndLayout()
         }
 
         override fun createLayer(
@@ -703,13 +725,6 @@ internal class RootNodeOwner(
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()
 
         override fun onEndApplyChanges() {
-            // Android's OwnerSnapshotObserver runs callbacks immediately when apply changes
-            // happens on the view handler thread. Non-Android queues off-thread owner callbacks in
-            // the scene-local tracker, so drain them here before clearing invalid observations and
-            // invoking end-apply listeners.
-            // This preserves the previous render-time synchronous observer ordering
-            // after recomposition moved to FrameRecomposer.
-            snapshotInvalidationTracker.performSnapshotChanges()
             clearInvalidObservations()
 
             // Listeners can add more items to the list and we want to ensure that they
@@ -736,7 +751,7 @@ internal class RootNodeOwner(
 
         override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
             measureAndLayoutDelegate.registerOnLayoutCompletedListener(listener)
-            snapshotInvalidationTracker.requestMeasureAndLayout()
+            requestMeasureAndLayout()
         }
 
         override fun voteFrameRate(frameRate: Float) {
@@ -942,7 +957,7 @@ internal class RootNodeOwner(
         }
 
         override fun invalidate() {
-            snapshotInvalidationTracker.requestDraw()
+            requestDraw()
         }
 
         private var currentFrameRate = Float.NaN

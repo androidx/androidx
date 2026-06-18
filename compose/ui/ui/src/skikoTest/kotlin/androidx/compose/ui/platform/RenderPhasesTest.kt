@@ -55,6 +55,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.dp
@@ -306,7 +307,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun measureAndLayoutRunsAgainBeforeDraw() = runInternalSkikoComposeUiTest {
+    fun measureAndLayoutRunsAgainBeforeDraw() = runSkikoComposeUiTest {
         // Android runs measureAndLayout again right before drawing; validate this behavior.
         val state = mutableStateOf(0)
         val events = mutableListOf<String>()
@@ -363,7 +364,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun scrollPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
+    fun scrollPointerEventHandlesScrollUpdatesSynchronously() = runSkikoComposeUiTest {
         val scrollState = ScrollState(0)
         setContent {
             Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
@@ -385,7 +386,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
+    fun panPointerEventHandlesScrollUpdatesSynchronously() = runSkikoComposeUiTest {
         val scrollState = ScrollState(0)
         setContent {
             Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {

@@ -97,6 +97,10 @@ internal fun OffsetToFocusedRect(
             // Intentionally update state within composition to trigger second measure and
             // layout because focus rect may be miscalculated due to simultaneous offset and
             // window insets changes.
+            //
+            // FIXME: this "second measure" only settles in-frame because BaseComposeScene.draw()
+            //  currently calls Snapshot.sendApplyNotifications() between the measure and draw phases -
+            //  a temporary, un-Android workaround kept solely for this code path.
             currentOffset = startOffset + (endOffset - startOffset) * offsetProgress
 
             val placeables = measurables.fastMap { it.measure(constraints) }

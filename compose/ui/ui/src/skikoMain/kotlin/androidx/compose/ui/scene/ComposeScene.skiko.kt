@@ -169,15 +169,6 @@ sealed interface ComposeScene : AutoCloseable {
     val hasPendingDraw: Boolean
 
     /**
-     * Returns whether the scene has queued snapshot-observer callbacks that have not been
-     * performed yet. The scene drains these synchronously inside [measureAndLayout] and [draw],
-     * so this is mainly useful for test harnesses that decide when to drive the next frame after
-     * snapshot writes happen outside the scene's input/render paths.
-     * Can be called from any thread.
-     */
-    val hasPendingSnapshotCommands: Boolean
-
-    /**
      * Update the composition with the content described by the [content] composable. After this
      * has been called the changes to produce the initial composition has been calculated and
      * applied to the composition.
@@ -317,7 +308,7 @@ sealed interface ComposeScene : AutoCloseable {
  */
 @InternalComposeUiApi
 fun ComposeScene.hasInvalidations(): Boolean =
-    hasPendingMeasureOrLayout || hasPendingDraw || hasPendingSnapshotCommands
+    hasPendingMeasureOrLayout || hasPendingDraw
 
 /**
  * Returns the current content size (in pixels) in infinity constraints.

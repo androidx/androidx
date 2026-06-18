@@ -387,7 +387,6 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         return !Snapshot.current.hasPendingChanges()
             && !Snapshot.isApplyObserverNotificationPending
             && !scene.hasPendingMeasureOrLayout
-            && !scene.hasPendingSnapshotCommands
             && areAllResourcesIdle()
     }
 

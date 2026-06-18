@@ -166,9 +166,7 @@ class RootNodeOwnerTest {
         var invalidationCount = 0
         
         val owner = RootNodeOwner(
-            snapshotInvalidationTracker = SnapshotInvalidationTracker {
-                invalidationCount++
-            }
+            invalidate = { invalidationCount++ }
         )
 
         // Set the initial size
@@ -199,20 +197,21 @@ class RootNodeOwnerTest {
 private fun RootNodeOwner(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     platformContext: PlatformContext = PlatformContext.Empty(),
-    snapshotInvalidationTracker: SnapshotInvalidationTracker = SnapshotInvalidationTracker {},
+    invalidate: () -> Unit = {},
 ) = RootNodeOwner(
     density = Density(1f),
     layoutDirection = LayoutDirection.Ltr,
     size = null,
     coroutineContext = coroutineContext,
     platformContext = platformContext,
-    snapshotInvalidationTracker = snapshotInvalidationTracker,
     inputHandler = ComposeSceneInputHandler(
         prepareForPointerInputEvent = {},
         processPointerInputEvent = { PointerEventResult(false) },
         cancelPointerInput = {},
         processKeyEvent = { false },
-    )
+    ),
+    invalidate = invalidate,
+    onChangedExecutor = { it() },
 )
 
 @ExperimentalComposeUiApi
