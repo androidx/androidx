@@ -109,31 +109,41 @@ class FocusMeteringDeviceTest(
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var captureCallback: Camera2InteropUtil.CaptureCallback
 
-    private val isAfTriggerSupported =
-        CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!.run {
-            val minFocusDistance = this[CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE]
-            if (minFocusDistance != null) {
-                return@run minFocusDistance > 0
-            }
+    private val isAfTriggerSupported by lazy {
+        val characteristics = CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)
+        if (characteristics != null) {
+            characteristics.run {
+                val minFocusDistance = this[CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE]
+                if (minFocusDistance != null) {
+                    minFocusDistance > 0
+                } else {
+                    val availableAfModes =
+                        this[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES] ?: return@run false
 
-            val availableAfModes =
-                this[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES] ?: return@run false
+                    availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO) ||
+                        availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_MACRO) ||
+                        availableAfModes.contains(
+                            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        ) ||
+                        availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+                }
+            } && hasMeteringRegion(cameraSelector, FLAG_AF)
+        } else {
+            false
+        }
+    }
 
-            return@run availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO) ||
-                availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_MACRO) ||
-                availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ||
-                availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
-        } && hasMeteringRegion(cameraSelector, FLAG_AF)
+    private val isAeLockSupported by lazy {
+        val characteristics = CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)
+        (characteristics?.get(CONTROL_AE_LOCK_AVAILABLE) ?: false) &&
+            hasMeteringRegion(cameraSelector, FLAG_AE)
+    }
 
-    private val isAeLockSupported =
-        (CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!.get(
-            CONTROL_AE_LOCK_AVAILABLE
-        ) ?: false) && hasMeteringRegion(cameraSelector, FLAG_AE)
-
-    private val isAwbLockSupported =
-        (CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!.get(
-            CONTROL_AWB_LOCK_AVAILABLE
-        ) ?: false) && hasMeteringRegion(cameraSelector, FLAG_AWB)
+    private val isAwbLockSupported by lazy {
+        val characteristics = CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)
+        (characteristics?.get(CONTROL_AWB_LOCK_AVAILABLE) ?: false) &&
+            hasMeteringRegion(cameraSelector, FLAG_AWB)
+    }
 
     @Before
     fun setUp(): Unit = runBlocking {
@@ -141,7 +151,7 @@ class FocusMeteringDeviceTest(
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        captureCallback = Camera2InteropUtil.CaptureCallback()
+        captureCallback = Camera2InteropUtil.CaptureCallback(_numOfCaptures = 100)
 
         withContext(Dispatchers.Main) {
             val fakeLifecycleOwner = FakeLifecycleOwner()
@@ -385,7 +395,7 @@ class FocusMeteringDeviceTest(
             cameraCharacteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AE).coerceAtMost(1)
         val expectedAwbCount =
             cameraCharacteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB).coerceAtMost(1)
-        captureCallback.verifyFor(numOfCaptures = 60) { captureRequests, _ ->
+        captureCallback.verifyFor(numOfCaptures = 100) { captureRequests, _ ->
             val captureRequest = captureRequests.last()
             val afRegions = captureRequest[CaptureRequest.CONTROL_AF_REGIONS] ?: emptyArray()
             val aeRegions = captureRequest[CaptureRequest.CONTROL_AE_REGIONS] ?: emptyArray()
@@ -410,7 +420,7 @@ class FocusMeteringDeviceTest(
 
         camera.cameraControl.startFocusAndMetering(action)
         camera.cameraControl.cancelFocusAndMetering()
-        captureCallback.verifyFor(numOfCaptures = 60) { captureRequests, _ ->
+        captureCallback.verifyFor(numOfCaptures = 100) { captureRequests, _ ->
             val captureRequest = captureRequests.last()
             val afRegions = captureRequest[CaptureRequest.CONTROL_AF_REGIONS] ?: emptyArray()
             val aeRegions = captureRequest[CaptureRequest.CONTROL_AE_REGIONS] ?: emptyArray()
