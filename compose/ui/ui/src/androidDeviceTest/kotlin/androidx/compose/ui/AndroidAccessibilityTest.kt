@@ -4469,9 +4469,9 @@ class AndroidAccessibilityTest {
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun dispatchHoverEvent_returnsTrueForHandledAndFalseForUnhandled_featureFlagOff() {
-        val original = ComposeUiFlags.isExploreByTouchHoverHandled
+        val original = AndroidComposeUiFlags.isExploreByTouchHoverHandled
         try {
-            ComposeUiFlags.isExploreByTouchHoverHandled = false
+            AndroidComposeUiFlags.isExploreByTouchHoverHandled = false
             val hoverableBoxTag = "hoverable"
             val unhoverableBoxTag = "unhoverable"
 
@@ -4514,7 +4514,7 @@ class AndroidAccessibilityTest {
                 assertThat(androidComposeView.dispatchHoverEvent(hoverEnter)).isFalse()
             }
         } finally {
-            ComposeUiFlags.isExploreByTouchHoverHandled = original
+            AndroidComposeUiFlags.isExploreByTouchHoverHandled = original
         }
     }
 

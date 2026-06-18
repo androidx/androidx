@@ -43,21 +43,28 @@ value class TextObfuscationMode internal constructor(val value: Int) {
         /**
          * Reveals the last typed character for a short amount of time.
          *
-         * Note; on Android this feature also depends on a system setting called
-         * `Settings.System.TEXT_SHOW_PASSWORD`. If the system setting is disabled, this option
-         * behaves exactly as [Hidden].
+         * Forces reveal behavior regardless of platform settings. For platform-dependent behavior,
+         * e.g. Androids "Show Passwords" setting, use [System].
          */
         val RevealLastTyped = TextObfuscationMode(1)
 
         /** All characters are hidden. */
         val Hidden = TextObfuscationMode(2)
+
+        /**
+         * Gives the choice to the platform to hide or show characters.
+         *
+         * On most platforms, the behavior depends on that platform's conventions (typically
+         * defaulting to [Hidden]).
+         *
+         * Android Specific: If the system setting is set to "Show" this setting mimics
+         * [RevealLastTyped], otherwise it mimics [Hidden]. Additionally, there are differences,
+         * depending on the SDK version:
+         * - SDK 37 and later: Respects granular platform settings that can differentiate between
+         *   touch input and physical keyboard input.
+         * - Below SDK 37: Respects the system-wide "Show passwords" toggle
+         *   (`Settings.System.TEXT_SHOW_PASSWORD`) for all input types.
+         */
+        val System = TextObfuscationMode(3)
     }
 }
-
-/**
- * Platform dependent default obfuscation mode for secure text fields.
- *
- * This is set to [TextObfuscationMode.RevealLastTyped] on Android.
- */
-// TODO(b/425658491); Make this public
-internal expect val TextObfuscationMode.Companion.Default: TextObfuscationMode

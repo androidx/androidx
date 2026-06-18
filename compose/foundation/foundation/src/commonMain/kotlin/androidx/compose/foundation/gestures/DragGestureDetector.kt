@@ -984,7 +984,7 @@ internal class TouchSlopDetector(
                 finalChange.mainAxis().absoluteValue
             }
 
-        val hasCrossedSlop = inDirection >= touchSlop
+        val hasCrossedSlop = inDirection > 0.0f && inDirection >= touchSlop
 
         return if (hasCrossedSlop) {
             calculatePostSlopOffset(touchSlop)

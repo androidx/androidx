@@ -804,8 +804,8 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
 }
 
 /**
- * Executes an indirect pointer gesture globally, targeting the currently focused Compose UI (from
- * root to the focused node).
+ * Sends an indirect pointer gesture globally, targeting the currently focused Compose UI (from root
+ * to the focused node).
  *
  * This API requires an active focus state meaning developers need to request focus to the component
  * or a child of the component via [SemanticsNodeInteraction.requestFocus()] before calling this
@@ -820,12 +820,12 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
  * events if they are focused, or an ancestor of a focused item.
  *
  * The gesture doesn't need to be complete and can be resumed in a later invocation of
- * `performIndirectPointerInput { ... }`. The event time is initialized to the current time of the
+ * `sendIndirectPointerInput { ... }`. The event time is initialized to the current time of the
  * [MainTestClock].
  *
- * Be aware that if you split a gesture over multiple invocations of `performIndirectPointerInput {
- * ... }`, everything that happens in between will run as if the gesture is still ongoing (imagine a
- * finger still touching the touchpad).
+ * Be aware that if you split a gesture over multiple invocations of `sendIndirectPointerInput { }`,
+ * everything that happens in between will run as if the gesture is still ongoing (imagine a finger
+ * still touching the touchpad).
  *
  * All events that are injected from the [block] are batched together and sent after [block] is
  * complete. This method blocks while the events are injected. If an error occurs during execution
@@ -836,7 +836,7 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
  * take place in between events. Additionally, all events will be generated before any of the events
  * take effect.
  *
- * Example of performing a swipe:
+ * Example of sending a swipe:
  *
  * @sample androidx.compose.ui.test.samples.indirectPointerInputSwipeRight
  *
@@ -845,7 +845,7 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
  * @sample androidx.compose.ui.test.samples.indirectPointerInputClick
  * @sample androidx.compose.ui.test.samples.indirectPointerInputAssertDuringClick
  *
- * Example of performing a click-and-drag:
+ * Example of sending a click-and-drag:
  *
  * @sample androidx.compose.ui.test.samples.indirectPointerInputClickAndDrag
  * @param indirectPointerEventPrimaryDirectionalMotionAxis The main movement axis (horizontal or
@@ -859,7 +859,7 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
  *   exception. Note: This is not related to the screen coordinates.
  * @param block Block of code/events to execute in indirect scope.
  */
-fun SemanticsNodeInteractionsProvider.performIndirectPointerInput(
+fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
     indirectPointerEventPrimaryDirectionalMotionAxis:
         IndirectPointerEventPrimaryDirectionalMotionAxis,
     inputDeviceSize: IntSize,

@@ -46,11 +46,14 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
@@ -131,15 +134,17 @@ public sealed class EnterTransition {
             "EnterTransition.None"
         } else {
             data.run {
-                "EnterTransition: \n" +
+                "EnterTransition: " +
                     "Fade - " +
                     fade?.toString() +
-                    ",\nSlide - " +
+                    ", Slide - " +
                     slide?.toString() +
-                    ",\nShrink - " +
+                    ", Shrink - " +
                     changeSize?.toString() +
-                    ",\nScale - " +
-                    scale?.toString()
+                    ", Scale - " +
+                    scale?.toString() +
+                    ", Veil - " +
+                    veil?.toString()
             }
         }
 
@@ -229,16 +234,18 @@ public sealed class ExitTransition {
             KeepUntilTransitionsFinished -> "ExitTransition.KeepUntilTransitionsFinished"
             else ->
                 data.run {
-                    "ExitTransition: \n" +
+                    "ExitTransition:  " +
                         "Fade - " +
                         fade?.toString() +
-                        ",\nSlide - " +
+                        ",  Slide - " +
                         slide?.toString() +
-                        ",\nShrink - " +
+                        ",  Shrink - " +
                         changeSize?.toString() +
-                        ",\nScale - " +
+                        ",  Scale - " +
                         scale?.toString() +
-                        ",\nKeepUntilTransitionsFinished - " +
+                        ",  Veil - " +
+                        veil?.toString() +
+                        ",  KeepUntilTransitionsFinished - " +
                         hold
                 }
         }
@@ -998,7 +1005,10 @@ internal fun Transition<EnterExitState>.createModifier(
     val graphicsLayerBlock =
         createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label)
 
-    return (if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
+    return Modifier.modifierLocalProvider(ModifierLocalSharedMutableTransformState) {
+            activeMutableState
+        }
+        .then(if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
         .then(Modifier.graphicsLayer { clip = !disableClip && isEnabled() })
         .then(
             EnterExitTransitionElement(
@@ -1086,7 +1096,21 @@ internal fun Transition<EnterExitState>.trackActiveExit(exit: ExitTransition): E
             activeExit = ExitTransition.None
         }
     } else if (targetState != EnterExitState.Visible) {
-        activeExit += exit
+        // The exit transition accumulates when the content goes from exiting, to incoming,
+        // to then again exiting. In this scenario, we first neutralize the previous exit animations
+        // by animating them to their resting state (e.g. scale = 1f, alpha = 1f).
+        // This ensures seamless animations without jump cuts and prevents old exit animations
+        // from bleeding into the new exit transition (e.g. preventing a previous `scaleOut`
+        // from mistakenly combining with a new `slideOut`).
+        val neutralData =
+            TransitionData(
+                fade = activeExit.data.fade?.copy(alpha = 1f),
+                scale = activeExit.data.scale?.copy(scale = 1f),
+                slide = activeExit.data.slide?.copy(slideOffset = { IntOffset.Zero }),
+                changeSize = activeExit.data.changeSize?.copy(size = { it }),
+                veil = activeExit.data.veil?.let { it.copy(targetColor = it.initialColor) },
+            )
+        activeExit = ExitTransitionImpl(neutralData) + exit
     }
     return activeExit
 }
@@ -1247,7 +1271,11 @@ private class EnterExitTransitionModifierNode(
     var mutableTransformState: SharedMutableTransformState,
     var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
-) : LayoutModifierNodeWithPassThroughIntrinsics() {
+) : LayoutModifierNodeWithPassThroughIntrinsics(), LayoutAwareModifierNode {
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        mutableTransformState.parentLayoutCoordinates = coordinates
+    }
 
     private var lookaheadConstraintsAvailable = false
     private var lookaheadSize: IntSize = InvalidSize

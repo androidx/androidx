@@ -297,8 +297,10 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
         endYHandleDirection = currentYDirection
     }
 
-    if (!isSelected(resolve2dDirection(currentXDirection, currentYDirection), otherDirection)) {
-        return
+    if (!allowSelectionBetweenSelectables) {
+        if (!isSelected(resolve2dDirection(currentXDirection, currentYDirection), otherDirection)) {
+            return
+        }
     }
 
     val textLength = textLayoutResult.layoutInput.text.length

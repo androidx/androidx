@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.input
+package androidx.compose.foundation.text
 
-// TODO https://youtrack.jetbrains.com/issue/CMP-8484
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.ui.Modifier
 
-internal actual val TextObfuscationMode.Companion.Default: TextObfuscationMode
-    get() = TextObfuscationMode.Hidden
+// TODO https://youtrack.jetbrains.com/issue/CMP-10340/Implement-textFieldOverlay
+internal actual fun Modifier.textFieldOverlay(
+    state: TextFieldState,
+    keyboardOptions: KeyboardOptions,
+    interactionSource: InteractionSource,
+): Modifier {
+    return Modifier
+}

@@ -73,7 +73,8 @@ class MultiParagraphIntrinsics(
         replaceWith =
             ReplaceWith(
                 "MultiParagraphIntrinsics(annotatedString, style, " +
-                    "placeholders, density, fontFamilyResolver)"
+                    "placeholders, density, createFontFamilyResolver(resourceLoader), true)",
+                "androidx.compose.ui.text.font.createFontFamilyResolver",
             ),
     )
     constructor(

@@ -537,7 +537,7 @@ fun BasicTextFieldTrackedRangeTextRangeSetterSample() {
         val rangeToWipe = TextRange(0, 5)
 
         // Get all span styles that intersect with the wipe range.
-        getSpanStyles(rangeToWipe.start, rangeToWipe.end).forEach { trackedRange ->
+        getSpanStyles(rangeToWipe).forEach { trackedRange ->
             if (trackedRange.spanStyle.fontWeight == FontWeight.Bold) {
                 val current = trackedRange.textRange
 
@@ -747,7 +747,7 @@ fun BasicTextFieldTrackedRangeToggleBoldSample() {
         if (selection.collapsed) {
             false
         } else {
-            val spanStyles = state.textStyles.getSpanStyles(selection.min, selection.max)
+            val spanStyles = state.textStyles.getSpanStyles(selection)
             var boldCoverage = 0
             for (style in spanStyles) {
                 if (style.item.fontWeight == FontWeight.Bold) {
@@ -765,9 +765,7 @@ fun BasicTextFieldTrackedRangeToggleBoldSample() {
     fun TextFieldBuffer.unBoldSelection() {
         // Query existing bold styles in the selection
         val intersectingStyles =
-            getSpanStyles(selection.min, selection.max).filter {
-                it.spanStyle.fontWeight == FontWeight.Bold
-            }
+            getSpanStyles(selection).filter { it.spanStyle.fontWeight == FontWeight.Bold }
         // We modify or remove existing styles to exclude the selected range
         for (style in intersectingStyles) {
             val range = style.textRange
@@ -798,9 +796,7 @@ fun BasicTextFieldTrackedRangeToggleBoldSample() {
     fun TextFieldBuffer.boldSelection() {
         // Query existing bold styles in the selection
         val intersectingStyles =
-            getSpanStyles(selection.min, selection.max).filter {
-                it.spanStyle.fontWeight == FontWeight.Bold
-            }
+            getSpanStyles(selection).filter { it.spanStyle.fontWeight == FontWeight.Bold }
         // To keep bold styles non-overlapping, we merge any intersecting bold
         // styles with the new selection range into a single contiguous bold style.
         var mergedStart = selection.min
@@ -855,7 +851,7 @@ fun BasicTextFieldTrackedRangePropertiesSample() {
 
     state.edit {
         // Query the existing styles on the text
-        val existingStyles = getSpanStyles(0, length)
+        val existingStyles = getSpanStyles(TextRange(0, length))
 
         existingStyles.forEach { trackedRange ->
             // Read and update the expand policy of a style
@@ -871,7 +867,7 @@ fun BasicTextFieldTrackedRangePropertiesSample() {
         existingStyles.forEach { trackedRange ->
             // The style's range might have collapsed to zero length, making it no longer valid.
             // It is recommended to check validity before accessing properties like textRange.
-            if (trackedRange.valid) {
+            if (trackedRange.isValid) {
                 // Style is still valid, it's up-to-date range can be accessed via
                 // trackedRange.textRange
             } else {

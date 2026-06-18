@@ -433,8 +433,16 @@ class DeferredAnimatedContentTest {
         rule.onNodeWithTag("content_0").assertIsDisplayed()
         // Content_2 should be composed but not yet displayed.
         rule.onNodeWithTag("content_2").assertExists()
-        // Content_1 should no longer be in the composition, as it was never truly "entered"
-        // and has been superseded by content_2 as the new target.
+        // Content_1 should still be in the composition, as it might have manual transformations
+        // applied to it during its deferred phase, and it will be cleared once the transition
+        // settles.
+        rule.onNodeWithTag("content_1").assertExists()
+
+        // Now let the transition settle
+        rule.runOnIdle { state.animateTo(2) }
+        rule.waitForIdle()
+
+        // After settling, content_1 should finally be cleared
         rule.onNodeWithTag("content_1").assertDoesNotExist()
     }
 
@@ -932,5 +940,217 @@ class DeferredAnimatedContentTest {
         )
 
         testTimeSource = null
+    }
+
+    @Test
+    fun animatedContent_previewScale_interrupt_deferred_by_original_state_is_seamless() {
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    // Use linear easing and long duration to make progress predictable
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    if (targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") {
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidth
+        rule.mainClock.autoAdvance = false
+
+        // 1. Deferred phase (e.g. back gesture)
+        rule.runOnIdle {
+            state.defer("B")
+            previewScale = 0.8f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.8f, measuredWidth, 1f)
+
+        // 2. Interrupt deferred phase by navigating back to original state ("A")
+        rule.runOnIdle { state.animateTo("A") }
+        rule.mainClock.advanceTimeByFrame() // Interruption frame
+        rule.waitForIdle()
+
+        // 3. Verify it is seamless (no jump to 1.0f or 0.0f)
+        val widthAfterInterruption = measuredWidth
+        assertEquals(
+            "Width should not jump after interrupting deferred phase",
+            fullWidth * 0.8f,
+            widthAfterInterruption,
+            1f,
+        )
+
+        // 4. Verify it continues to animate back to full width
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+        assertTrue(
+            "Width should be increasing towards fullWidth. " +
+                "Was $widthAfterInterruption, now $measuredWidth",
+            measuredWidth > widthAfterInterruption,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(fullWidth, measuredWidth, 1f)
+    }
+
+    @Test
+    fun animatedContent_interruption_during_deferred_phase_uses_correct_spec() {
+        val state = DeferredTransitionState("A")
+        var exitSpecForA: ExitTransition? = null
+        var exitSpecForB: ExitTransition? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    val spec =
+                        if (initialState == "A" && targetState == "B") {
+                            fadeIn() togetherWith fadeOut(tween(100))
+                        } else if (initialState == "A" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(500))
+                        } else if (initialState == "B" && targetState == "A") {
+                            fadeIn() togetherWith fadeOut(tween(800))
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    if (initialState == "A") {
+                        exitSpecForA = spec.initialContentExit
+                    }
+                    if (initialState == "B") {
+                        exitSpecForB = spec.initialContentExit
+                    }
+                    spec
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1. Defer to B. Spec for A should be fadeOut(100).
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        assertEquals(fadeOut(tween(100)), exitSpecForA)
+
+        // 2. Interrupt by animating to C.
+        // Spec for A should now be re-evaluated to fadeOut(500).
+        rule.runOnIdle { state.animateTo("C") }
+        rule.waitForIdle()
+
+        assertEquals(
+            "Exit spec for A should be re-evaluated to the one for A->C",
+            fadeOut(tween(500)),
+            exitSpecForA,
+        )
+
+        assertEquals(
+            "Exit spec for B should be the one for B->A",
+            fadeOut(tween(800)),
+            exitSpecForB,
+        )
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+    }
+
+    @Test
+    fun animatedContent_interruption_during_regular_phase_uses_correct_spec() {
+        val state = DeferredTransitionState("A")
+        var exitSpecForA: ExitTransition? = null
+        var exitSpecForB: ExitTransition? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    val spec =
+                        if (initialState == "A" && targetState == "B") {
+                            fadeIn() togetherWith fadeOut(tween(100))
+                        } else if (initialState == "A" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(500))
+                        } else if (initialState == "B" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(800))
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    if (initialState == "A") {
+                        exitSpecForA = spec.initialContentExit
+                    }
+                    if (initialState == "B") {
+                        exitSpecForB = spec.initialContentExit
+                    }
+                    spec
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Animate to B. Spec for A should be fadeOut(100).
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fadeOut(tween(100)), exitSpecForA)
+
+        // 2. Interrupt by animating to C.
+        // During a regular interruption, A is already exiting towards B.
+        // AnimatedContent does not re-evaluate the exit spec for content that is already exiting.
+        rule.runOnIdle { state.animateTo("C") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+
+        assertEquals(
+            "Exit spec for A should NOT be re-evaluated (it continues its original A->B exit)",
+            fadeOut(tween(100)),
+            exitSpecForA,
+        )
+
+        assertEquals(
+            "Exit spec for B should use the B->C spec since it is now exiting",
+            fadeOut(tween(800)),
+            exitSpecForB,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
     }
 }

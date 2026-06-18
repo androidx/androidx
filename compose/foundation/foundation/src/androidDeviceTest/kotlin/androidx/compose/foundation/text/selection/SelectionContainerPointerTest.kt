@@ -16,9 +16,14 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -32,6 +37,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
@@ -43,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -511,4 +518,103 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             // TODO(b/384750891) Cleared selection should be null
             rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(14.collapsed) }
         }
+
+    @Test
+    fun mouseSelectionStartBetweenSelectablesVertically() = withMouseSelectionBetweenTextEnabled {
+        val topText = "Top Text"
+        val bottomText = "Bottom Text"
+
+        // Setup
+        createSelectionContainer {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TestText(topText)
+                TestText(bottomText)
+            }
+        }
+
+        // Act. Select from middle of container to start.
+        rule.onSelectionContainer().performMouseInput { dragAndDrop(start = center, end = topLeft) }
+
+        // Assert
+        rule.runOnIdle {
+            val selection = state.selection
+            assertNotNull(selection)
+            assertThat(selection.end.selectableId).isEqualTo(1)
+            assertThat(selection.end.offset).isEqualTo(0)
+            assertThat(state.selectedTexts.joinToString(separator = "")).isEqualTo(topText)
+        }
+
+        // Act. Select from middle of container to end.
+        rule.onSelectionContainer().performMouseInput {
+            dragAndDrop(start = center, end = bottomRight)
+        }
+
+        // Assert
+        rule.runOnIdle {
+            val selection = state.selection
+            assertNotNull(selection)
+            assertThat(selection.end.selectableId).isEqualTo(2)
+            assertThat(selection.end.offset).isEqualTo(bottomText.length)
+            assertThat(state.selectedTexts.joinToString(separator = "")).isEqualTo(bottomText)
+        }
+    }
+
+    @Test
+    fun mouseSelectionStartBetweenSelectablesHorizontally() = withMouseSelectionBetweenTextEnabled {
+        val leftText = "Left" // Shorter text to make it fit horizontally
+        val rightText = "Right"
+
+        // Setup
+        createSelectionContainer {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TestText(leftText)
+                TestText(rightText)
+            }
+        }
+
+        // Act. Select from middle of container to start.
+        rule.onSelectionContainer().performMouseInput {
+            dragAndDrop(start = center, end = centerLeft)
+        }
+
+        // Assert
+        rule.runOnIdle {
+            val selection = state.selection
+            assertNotNull(selection)
+            assertThat(selection.end.selectableId).isEqualTo(1)
+            assertThat(selection.end.offset).isEqualTo(0)
+            assertThat(state.selectedTexts.joinToString(separator = "")).isEqualTo(leftText)
+        }
+
+        // Act. Select from middle of container to end.
+        rule.onSelectionContainer().performMouseInput {
+            dragAndDrop(start = center, end = centerRight)
+        }
+
+        // Assert
+        rule.runOnIdle {
+            val selection = state.selection
+            assertNotNull(selection)
+            assertThat(selection.end.selectableId).isEqualTo(2)
+            assertThat(selection.end.offset).isEqualTo(rightText.length)
+            assertThat(state.selectedTexts.joinToString(separator = "")).isEqualTo(rightText)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private inline fun withMouseSelectionBetweenTextEnabled(block: () -> Unit) {
+        val savedValue = ComposeFoundationFlags.isMouseSelectionBetweenTextEnabled
+        ComposeFoundationFlags.isMouseSelectionBetweenTextEnabled = true
+        try {
+            block()
+        } finally {
+            ComposeFoundationFlags.isMouseSelectionBetweenTextEnabled = savedValue
+        }
+    }
 }

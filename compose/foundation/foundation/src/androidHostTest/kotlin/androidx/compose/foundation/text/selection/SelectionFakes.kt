@@ -21,6 +21,7 @@ import androidx.collection.buildLongObjectMap
 import androidx.collection.emptyLongObjectMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
@@ -307,30 +308,15 @@ internal class FakeSelectable : Selectable {
     var endXHandleDirection = Direction.ON
     var endYHandleDirection = Direction.ON
     var rawPreviousHandleOffset = -1 // -1 = no previous offset
-    var layoutCoordinatesToReturn: LayoutCoordinates? = null
+    var layoutCoordinatesToReturn: LayoutCoordinates? = FakeCoordinates()
     var textLayoutResultToReturn: TextLayoutResult? = null
     var boundingBoxes: Map<Int, Rect> = emptyMap()
 
-    private val selectableKey = 1L
-    var fakeSelectAllSelection: Selection? =
-        Selection(
-            start =
-                Selection.AnchorInfo(
-                    direction = ResolvedTextDirection.Ltr,
-                    offset = 0,
-                    selectableId = selectableKey,
-                ),
-            end =
-                Selection.AnchorInfo(
-                    direction = ResolvedTextDirection.Ltr,
-                    offset = 10,
-                    selectableId = selectableKey,
-                ),
-        )
+    var fakeSelectAllSelection: Selection? = FakeSelectAllSelection
 
     override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
         builder.appendInfo(
-            selectableKey,
+            SELECTABLE_KEY,
             rawStartHandleOffset,
             startXHandleDirection,
             startYHandleDirection,
@@ -392,7 +378,82 @@ internal class FakeSelectable : Selectable {
     }
 
     fun clear() {
+        selectableId = 0L
         getTextCalledTimes = 0
         textToReturn = null
+        rawStartHandleOffset = 0
+        startXHandleDirection = Direction.ON
+        startYHandleDirection = Direction.ON
+        rawEndHandleOffset = 0
+        endXHandleDirection = Direction.ON
+        endYHandleDirection = Direction.ON
+        rawPreviousHandleOffset = -1 // -1 = no previous offset
+        layoutCoordinatesToReturn = FakeCoordinates()
+        textLayoutResultToReturn = null
+        boundingBoxes = emptyMap()
+        fakeSelectAllSelection = FakeSelectAllSelection
+    }
+
+    companion object {
+        const val SELECTABLE_KEY = 1L
+
+        val FakeSelectAllSelection =
+            Selection(
+                start =
+                    Selection.AnchorInfo(
+                        direction = ResolvedTextDirection.Ltr,
+                        offset = 0,
+                        selectableId = SELECTABLE_KEY,
+                    ),
+                end =
+                    Selection.AnchorInfo(
+                        direction = ResolvedTextDirection.Ltr,
+                        offset = 10,
+                        selectableId = SELECTABLE_KEY,
+                    ),
+            )
+    }
+}
+
+internal class FakeCoordinates(
+    private val rootOffset: Offset = Offset.Zero,
+    override val size: IntSize = IntSize.Zero,
+) : LayoutCoordinates {
+    override fun localToRoot(relativeToLocal: Offset): Offset = rootOffset + relativeToLocal
+
+    override fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset,
+    ): Offset {
+        val rootCoordinates = sourceCoordinates.localToRoot(relativeToSource)
+        return rootCoordinates - rootOffset
+    }
+
+    // FAKES
+    override val providedAlignmentLines: Set<AlignmentLine>
+        get() = fake()
+
+    override val parentLayoutCoordinates: LayoutCoordinates
+        get() = fake()
+
+    override val parentCoordinates: LayoutCoordinates
+        get() = fake()
+
+    override val isAttached: Boolean
+        get() = fake()
+
+    override fun windowToLocal(relativeToWindow: Offset): Offset = fake()
+
+    override fun localToWindow(relativeToLocal: Offset): Offset = fake()
+
+    override fun localBoundingBoxOf(
+        sourceCoordinates: LayoutCoordinates,
+        clipBounds: Boolean,
+    ): Rect = fake()
+
+    override fun get(alignmentLine: AlignmentLine): Int = fake()
+
+    private fun fake(): Nothing {
+        throw UnsupportedOperationException("This fake does not support this.")
     }
 }

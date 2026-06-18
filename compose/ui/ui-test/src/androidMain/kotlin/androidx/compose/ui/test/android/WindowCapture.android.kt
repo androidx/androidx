@@ -30,6 +30,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.test.ComposeTimeoutException
+import androidx.compose.ui.test.HasRobolectricFingerprint
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.TestContext
 import androidx.core.graphics.createBitmap
@@ -129,6 +130,14 @@ private fun <R> withDrawingEnabled(block: () -> R): R {
 }
 
 internal fun View.forceRedraw(testContext: TestContext) {
+    if (HasRobolectricFingerprint) {
+        // We skip this on Robolectric because its simulated JVM environment lacks a real
+        // RenderThread and native hardware VSYNC. Callbacks like FrameCommitCallback will never
+        // trigger, causing the test clock to hang and time out. Furthermore, Robolectric's
+        // PixelCopy shadow executes synchronously, making this hardware race condition mitigation
+        // unnecessary.
+        return
+    }
     var drawDone = false
     handler.post {
         if (Build.VERSION.SDK_INT >= 29 && isHardwareAccelerated) {

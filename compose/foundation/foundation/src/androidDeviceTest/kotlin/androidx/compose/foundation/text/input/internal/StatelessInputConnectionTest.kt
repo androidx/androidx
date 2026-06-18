@@ -22,6 +22,7 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.os.PersistableBundle
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
@@ -36,6 +37,7 @@ import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
+import android.view.inputmethod.TextAttribute
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -377,6 +379,73 @@ class StatelessInputConnectionTest {
             .doesNotContain("EXTRA_INPUT_CONTENT_INFO")
 
         assertTrue(result)
+    }
+
+    @SdkSuppress(minSdkVersion = 37)
+    @Test
+    fun commitTextWithTextAttribute_verifySuggestionSelected() {
+        var suggestionSelectedInEdit = false
+        onRequestEdit = { block ->
+            // Note that we currently only use suggestionSelected field of TextAttribute.
+            val buffer = TextFieldBuffer(value)
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val editorInfo = EditorInfo()
+        EditorInfoCompat.setContentMimeTypes(editorInfo, arrayOf("text/plain"))
+
+        ic = StatelessInputConnection(activeSession, editorInfo)
+
+        val suggestions = arrayListOf("test")
+        val extras = PersistableBundle().apply { putString("key", "value") }
+        val textAttribute =
+            TextAttribute.Builder()
+                .setTextConversionSuggestions(suggestions)
+                .setExtras(extras)
+                .setTextSuggestionSelected(true)
+                .build()
+        val result = ic.commitText("test text", 1, textAttribute)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(suggestionSelectedInEdit).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = 37)
+    @Test
+    fun setComposingTextWithTextAttribute_verifySuggestionSelected() {
+        var suggestionSelectedInEdit = false
+        var compositionInEdit = TextRange(0, 0)
+        onRequestEdit = { block ->
+            // Note that we currently only use suggestionSelected field of TextAttribute.
+            val buffer = TextFieldBuffer(value)
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            compositionInEdit = buffer.composition!!
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val editorInfo = EditorInfo()
+        EditorInfoCompat.setContentMimeTypes(editorInfo, arrayOf("text/plain"))
+
+        ic = StatelessInputConnection(activeSession, editorInfo)
+
+        val suggestions = arrayListOf("test")
+        val extras = PersistableBundle().apply { putString("key", "value") }
+        val textAttribute =
+            TextAttribute.Builder()
+                .setTextConversionSuggestions(suggestions)
+                .setExtras(extras)
+                .setTextSuggestionSelected(true)
+                .build()
+        val result = ic.setComposingText("test text", 1, textAttribute)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(compositionInEdit).isEqualTo(TextRange(0, 9))
+        assertThat(suggestionSelectedInEdit).isTrue()
     }
 
     @Test

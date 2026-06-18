@@ -132,9 +132,12 @@ internal fun SemanticsOwner.getAllSemanticsNodesToMap(
 }
 
 internal fun SemanticsNode.isImportantForAccessibility() =
-    !isHidden &&
-        (unmergedConfig.isMergingSemanticsOfDescendants ||
-            unmergedConfig.containsImportantForAccessibility())
+    when {
+        isHidden -> false
+        unmergedConfig.isMergingSemanticsOfDescendants -> true
+        unmergedConfig.containsImportantForAccessibility() -> true
+        else -> false
+    }
 
 @Suppress("DEPRECATION")
 internal val SemanticsNode.isHidden: Boolean
@@ -142,9 +145,12 @@ internal val SemanticsNode.isHidden: Boolean
     // This also checks if the node has been marked as `invisibleToUser`, which is what the
     // `hiddenFromAccessibility` API used to  be named.
     get() =
-        isTransparent ||
-            (unmergedConfig.contains(HideFromAccessibility) ||
-                unmergedConfig.contains(InvisibleToUser))
+        when {
+            isTransparent -> true
+            unmergedConfig.contains(HideFromAccessibility) -> true
+            unmergedConfig.contains(InvisibleToUser) -> true
+            else -> false
+        }
 
 private val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 

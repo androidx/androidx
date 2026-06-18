@@ -119,25 +119,31 @@ object ComposeUiFlags {
     var isSkipNonImportantSemanticsNodesHitTestEnabled: Boolean = true
 
     /**
-     * Return true for AndroidComposeView.dispatchHoverEvent when handleded by explore by touch.
-     *
-     * This fixes behavior where the event would be bubbled to a container view, causing explore by
-     * touch to flicker focus to Compose buttons.
-     *
-     * After this change compose buttons will correctly report they handled the hover event, and
-     * retain accessibility focus.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    // TODO(b/507533865) cleanup feature flag after 1.12
-    var isExploreByTouchHoverHandled: Boolean = true
-
-    /**
      * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
      * reference leaking.
      */
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
+
+    /**
+     * This flag controls whether the fix for velocity tracker usage in Draggable and related
+     * classes is enabled to a) properly track velocity per pointer and b) make sure to also take
+     * the pointer events into account that don't move at the beginning of the gesture in order to
+     * increase the stability of the computed velocity.
+     */
+    // TODO: Remove this flag once it has soaked (b/501080937)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
+
+    /**
+     * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
+     * scale factor, rather than passing through fake finger touch events.
+     */
+    // TODO: b/519714278 - Cleanup feature flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTrackpadPinchReinterpretationEnabled: Boolean = true
 }

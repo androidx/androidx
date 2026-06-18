@@ -25,7 +25,9 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.unit.Velocity
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 
 /**
@@ -174,7 +176,7 @@ internal class NestedScrollNode(
             resolvedDispatcher.nestedScrollNode = null
             if (isClearNestedScrollCoroutineScopeFixEnabled) {
                 resolvedDispatcher.scope = null
-                resolvedDispatcher.calculateNestedScrollScope = EmptyScope
+                resolvedDispatcher.calculateNestedScrollScope = CancelledScope
             }
         }
     }
@@ -201,4 +203,6 @@ private fun <T : TraversableNode> T.findNearestAttachedAncestor(): T? {
     return node
 }
 
-private val EmptyScope: () -> CoroutineScope? = { null }
+private val CancelledScope: () -> CoroutineScope = {
+    CoroutineScope(EmptyCoroutineContext).also { it.cancel() }
+}

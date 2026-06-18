@@ -33,6 +33,8 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiNamedElement
 import java.util.EnumSet
 import java.util.Locale
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.uast.UMethod
 
 /**
@@ -55,6 +57,12 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 // Ignore overrides as the check will flag the base function. This also ignores a
                 // special case where a generic return type and a Unit type parameter is used.
                 if (node.findSuperMethods().isNotEmpty()) return
+
+                // Fallback structural check for Kotlin overrides when type resolution fails.
+                val sourcePsi = node.sourcePsi
+                if (sourcePsi is KtFunction && sourcePsi.hasModifier(KtTokens.OVERRIDE_KEYWORD)) {
+                    return
+                }
 
                 // NOTE: this is the inlined version of `UElement#nameFromSource`
                 // (available starting with Lint `31.10.0`)

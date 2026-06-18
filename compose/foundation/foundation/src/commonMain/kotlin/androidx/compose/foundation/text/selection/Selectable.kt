@@ -85,8 +85,8 @@ internal interface Selectable {
     /**
      * Return the [LayoutCoordinates] of the [Selectable].
      *
-     * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before
-     *   composing.
+     * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before the
+     *   selectable is placed.
      */
     fun getLayoutCoordinates(): LayoutCoordinates?
 

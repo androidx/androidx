@@ -882,6 +882,10 @@ enum class SourceInfo {
     Both,
 }
 
+// This test only runs on (non-emulator) JVM tests. We can ignore the runTest return result
+// requirement. If moving this test into a source set that's shared with JS/WASM, remove this
+// suppression and fix the errors.
+@Suppress("KotlinRunTestResultUnused")
 @OptIn(InternalComposeApi::class)
 fun liveEditTest(
     reloadCount: Int = 1,

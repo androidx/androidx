@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.os.Build
 import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -89,7 +90,12 @@ class AndroidTextInputSessionTest {
             .isEqualTo(
                 InputType.TYPE_CLASS_TEXT or
                     InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
             )
         Truth.assertThat(editorInfo.imeOptions)
             .isEqualTo(EditorInfo.IME_FLAG_NO_FULLSCREEN or EditorInfo.IME_FLAG_NO_ENTER_ACTION)
@@ -172,7 +178,12 @@ class AndroidTextInputSessionTest {
             .isEqualTo(
                 InputType.TYPE_CLASS_TEXT or
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or
-                    InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                    InputType.TYPE_TEXT_FLAG_CAP_WORDS or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
             )
         Truth.assertThat(editorInfo.imeOptions)
             .isEqualTo(EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_FULLSCREEN)

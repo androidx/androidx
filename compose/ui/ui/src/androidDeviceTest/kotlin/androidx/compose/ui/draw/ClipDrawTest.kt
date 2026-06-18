@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Padding
 import androidx.compose.ui.assertColorsEqual
 import androidx.compose.ui.assertRect
-import androidx.compose.ui.background
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
@@ -56,8 +57,10 @@ import androidx.compose.ui.padding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -65,12 +68,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.waitAndScreenShot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -81,11 +82,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ClipDrawTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
 
     private val rectShape =
         object : Shape {
@@ -131,21 +129,14 @@ class ClipDrawTest {
     @Before
     fun setup() {
         activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleRectClip() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
-                    AtLeastSize(
-                        size = 10,
-                        modifier = Modifier.clip(rectShape).fillColor(Color.Cyan),
-                    ) {}
-                }
+        rule.setContent {
+            Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
+                AtLeastSize(size = 10, modifier = Modifier.clip(rectShape).fillColor(Color.Cyan)) {}
             }
         }
 
@@ -158,14 +149,9 @@ class ClipDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleClipToBounds() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
-                    AtLeastSize(
-                        size = 10,
-                        modifier = Modifier.clipToBounds().fillColor(Color.Cyan),
-                    ) {}
-                }
+        rule.setContent {
+            Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
+                AtLeastSize(size = 10, modifier = Modifier.clipToBounds().fillColor(Color.Cyan)) {}
             }
         }
 
@@ -178,17 +164,15 @@ class ClipDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleRectClipWithModifiers() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.fillColor(Color.Green)
-                            .padding(10)
-                            .clip(rectShape)
-                            .fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier =
+                    Modifier.fillColor(Color.Green)
+                        .padding(10)
+                        .clip(rectShape)
+                        .fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply {
@@ -208,13 +192,11 @@ class ClipDrawTest {
                     density: Density,
                 ) = Outline.Rounded(RoundRect(size.toRect(), CornerRadius(12f)))
             }
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply {
@@ -253,13 +235,11 @@ class ClipDrawTest {
                         )
                     )
             }
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply {
@@ -276,14 +256,11 @@ class ClipDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun triangleClip() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier =
-                        Modifier.fillColor(Color.Green).clip(triangleShape).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(triangleShape).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
@@ -308,14 +285,11 @@ class ClipDrawTest {
                         }
                     )
             }
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier =
-                        Modifier.fillColor(Color.Green).clip(concaveShape).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(concaveShape).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply {
@@ -329,20 +303,16 @@ class ClipDrawTest {
     fun switchFromRectToRounded() {
         val model = mutableStateOf<Shape>(rectShape)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier =
-                        Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertRect(Color.Cyan, size = 30) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
+        rule.runOnIdle {
             model.value =
                 object : Shape {
                     override fun createOutline(
@@ -366,20 +336,16 @@ class ClipDrawTest {
     fun switchFromRectToPath() {
         val model = mutableStateOf<Shape>(rectShape)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier =
-                        Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertRect(Color.Cyan, size = 30) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = triangleShape }
+        rule.runOnIdle { model.value = triangleShape }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
     }
@@ -389,20 +355,16 @@ class ClipDrawTest {
     fun switchFromPathToRect() {
         val model = mutableStateOf<Shape>(triangleShape)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier =
-                        Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.fillColor(Color.Green).clip(model.value).fillColor(Color.Cyan),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = rectShape }
+        rule.runOnIdle { model.value = rectShape }
 
         takeScreenShot(30).apply { assertRect(Color.Cyan, size = 30) }
     }
@@ -425,22 +387,18 @@ class ClipDrawTest {
             Modifier.graphicsLayer {
                 shape = model.value
                 clip = true
-                drawLatch.countDown()
             }
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = invertedTriangleShape }
+        rule.runOnIdle { model.value = invertedTriangleShape }
 
         takeScreenShot(30).apply { assertInvertedTriangle(Color.Cyan, Color.Green) }
     }
@@ -477,22 +435,18 @@ class ClipDrawTest {
             Modifier.graphicsLayer {
                 shape = observableShape
                 clip = true
-                drawLatch.countDown()
             }
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { invertedTriangle = true }
+        rule.runOnIdle { invertedTriangle = true }
 
         takeScreenShot(30).apply { assertInvertedTriangle(Color.Cyan, Color.Green) }
     }
@@ -534,22 +488,18 @@ class ClipDrawTest {
             Modifier.graphicsLayer {
                 shape = observableShape
                 clip = true
-                drawLatch.countDown()
             }
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 30,
+                modifier = Modifier.background(Color.Green).then(clip).drawBehind(drawCallback),
+            ) {}
         }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { invertedTriangle = true }
+        rule.runOnIdle { invertedTriangle = true }
 
         takeScreenShot(30).apply { assertInvertedTriangle(Color.Cyan, Color.Green) }
     }
@@ -559,23 +509,19 @@ class ClipDrawTest {
     fun emitClipLater() {
         val model = mutableStateOf(false)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
-                    val modifier =
-                        if (model.value) {
-                            Modifier.clip(rectShape).fillColor(Color.Cyan)
-                        } else {
-                            Modifier
-                        }
-                    AtLeastSize(size = 10, modifier = modifier) {}
-                }
+        rule.setContent {
+            Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
+                val modifier =
+                    if (model.value) {
+                        Modifier.clip(rectShape).fillColor(Color.Cyan)
+                    } else {
+                        Modifier
+                    }
+                AtLeastSize(size = 10, modifier = modifier) {}
             }
         }
-        Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = true }
+        rule.runOnIdle { model.value = true }
 
         takeScreenShot(30).apply {
             assertRect(Color.Cyan, size = 10)
@@ -601,21 +547,18 @@ class ClipDrawTest {
                     }
             }
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
-                    AtLeastSize(
-                        size = 30,
-                        modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
-                    ) {}
-                }
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
+                AtLeastSize(
+                    size = 30,
+                    modifier = Modifier.fillColor(Color.Green).clip(shape).fillColor(Color.Cyan),
+                ) {}
             }
         }
 
         takeScreenShot(30).apply { assertRect(Color.Cyan, size = 30) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread { direction.value = LayoutDirection.Rtl }
+        rule.runOnIdle { direction.value = LayoutDirection.Rtl }
 
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
     }
@@ -651,7 +594,6 @@ class ClipDrawTest {
 
         takeScreenShot(30).apply { assertRect(Color.Red, size = 20, centerX = 10, centerY = 10) }
 
-        drawLatch = CountDownLatch(1)
         sizePx = 30
 
         takeScreenShot(30).apply { assertRect(Color.Red, size = 30) }
@@ -668,11 +610,7 @@ class ClipDrawTest {
                 Box(Modifier.background(Color.White).size(viewDp))
 
                 AndroidView(
-                    modifier =
-                        Modifier.testTag("wrapper").drawBehind {
-                            drawRect(Color.Green)
-                            drawLatch.countDown()
-                        },
+                    modifier = Modifier.testTag("wrapper").drawBehind { drawRect(Color.Green) },
                     factory = {
                         object : View(it) {
                             val paint = Paint().apply { color = Color.Red.toArgb() }
@@ -698,8 +636,7 @@ class ClipDrawTest {
 
         takeScreenShot(viewSize).apply { assertRect(Color.Red) }
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread { view?.visibility = View.GONE }
+        rule.runOnIdle { view?.visibility = View.GONE }
 
         takeScreenShot(viewSize).apply { assertRect(Color.White) }
     }
@@ -711,15 +648,14 @@ class ClipDrawTest {
                 topLeft = Offset(-100f, -100f),
                 size = Size(size.width + 200f, size.height + 200f),
             )
-            drawLatch.countDown()
         }
     }
 
     // waitAndScreenShot() requires API level 26
     @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(size: Int): Bitmap {
-        Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = rule.waitAndScreenShot()
+        rule.waitForIdle()
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
         Assert.assertEquals(size, bitmap.width)
         Assert.assertEquals(size, bitmap.height)
         return bitmap
@@ -769,6 +705,6 @@ fun Bitmap.assertInvertedTriangle(innerColor: Color, outerColor: Color) {
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {
     val pixel = Color(getPixel(x, y))
     assertColorsEqual(expectedColor, pixel) {
-        "Pixel [$x, $y] is expected to be $expectedColor," + " " + "but was $pixel"
+        "Pixel [$x, $y] is expected to be $expectedColor, but was $pixel"
     }
 }

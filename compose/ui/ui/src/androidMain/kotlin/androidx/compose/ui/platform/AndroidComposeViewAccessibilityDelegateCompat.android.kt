@@ -106,6 +106,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.IsSensitiveData
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.isAccessibilityIgnoredLink
@@ -146,6 +147,8 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 
 private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutNode? {
     var currentParent = this.parent
@@ -165,8 +168,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     AccessibilityDelegateCompat(),
     OnAttachStateChangeListener,
     AccessibilityStateChangeListener,
-    TouchExplorationStateChangeListener,
-    Runnable {
+    TouchExplorationStateChangeListener {
     @Suppress("ConstPropertyName")
     companion object {
         /** Virtual node identifier value for invalid nodes. */
@@ -344,13 +346,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // traversal with granularity switches to the next node
     private var previousTraversedNode: Int? = null
     private val subtreeChangedLayoutNodes = ArraySet<LayoutNode>()
-    // When true, the bounds update notification can be sheduled. When false, it has already been
-    // scheduled.
-    private var boundsUpdateNotified = false
-    // The time (SystemClock.uptimeMillis()) that the bounds was last updated for accessibility.
-    // Used to regulate when the next one should be targeted as it should arrive no less than 100ms
-    // after the last one.
-    private var lastBoundsUpdateNotification = 0L
+    private val boundsUpdateChannel = Channel<Unit>(1)
     private var currentSemanticsNodesInvalidated = true
 
     private class PendingTextTraversedEvent(
@@ -413,10 +409,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // parent) of the corresponding layout nodes.
     private val drawingOrder = mutableIntIntMapOf()
 
-    // Used in Runnable and cached in the class instance so it doesn't have to be allocated on
-    // every call.
-    private val subtreeChangedSemanticsNodesIds = MutableIntSet()
-
     init {
         // Remove callbacks that rely on view being attached to a window when we become
         // detached.
@@ -434,10 +426,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     override fun onViewDetachedFromWindow(view: View) {
-        handler?.removeCallbacks(this)
-        handler?.removeCallbacks(semanticsChangeChecker)
-        boundsUpdateNotified = false
-        checkingForSemanticsChanges = false
+        handler!!.removeCallbacks(semanticsChangeChecker)
         accessibilityManager.removeAccessibilityStateChangeListener(this)
         accessibilityManager.removeTouchExplorationStateChangeListener(this)
     }
@@ -2298,8 +2287,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // fun clearNode(semanticsNodeId: Int) { // clear the actionIdToId and labelToActionId nodes }
 
     private val semanticsChangeChecker = Runnable {
-        trace("measureAndLayout") { view.measureAndLayout() }
-        trace("checkForSemanticsChanges") { checkForSemanticsChanges() }
+        trace("Compose:semantics:measureAndLayout") { view.measureAndLayout() }
+        trace("Compose:semantics:checkForSemanticsChanges") { checkForSemanticsChanges() }
         checkingForSemanticsChanges = false
     }
 
@@ -2309,56 +2298,61 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // later, we can refresh currentSemanticsNodes if currentSemanticsNodes is stale.
         currentSemanticsNodesInvalidated = true
 
-        val handler = handler ?: return
-        if (isEnabled && !checkingForSemanticsChanges) {
+        val localHandler = handler
+        if (isEnabled && !checkingForSemanticsChanges && localHandler != null) {
             checkingForSemanticsChanges = true
-            handler.post(semanticsChangeChecker)
+            localHandler.post(semanticsChangeChecker)
         }
     }
 
     /**
-     * This runnable is scheduled whenever the bounds has changed and the accessibility tree must be
-     * updated. Iit consumes recent layout changes and sends events to the accessibility and content
-     * capture framework in batches separated by a 100ms delay.
+     * This suspend function loops for the entire lifetime of the Compose instance: it consumes
+     * recent layout changes and sends events to the accessibility and content capture framework in
+     * batches separated by a 100ms delay.
      */
-    override fun run() {
-        boundsUpdateNotified = false
-        lastBoundsUpdateNotification = SystemClock.uptimeMillis()
+    internal suspend fun boundsUpdatesEventLoop() {
         try {
-            if (isEnabled) {
-                for (i in subtreeChangedLayoutNodes.indices) {
-                    val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
-                    sendSubtreeChangeAccessibilityEvents(
-                        layoutNode,
-                        subtreeChangedSemanticsNodesIds,
-                    )
-                    sendTypeViewScrolledAccessibilityEvent(layoutNode)
+            val subtreeChangedSemanticsNodesIds = MutableIntSet()
+            for (notification in boundsUpdateChannel) {
+                if (isEnabled) {
+                    trace("Compose:semantics:boundUpdates") {
+                        for (i in subtreeChangedLayoutNodes.indices) {
+                            val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
+                            sendSubtreeChangeAccessibilityEvents(
+                                layoutNode,
+                                subtreeChangedSemanticsNodesIds,
+                            )
+                            sendTypeViewScrolledAccessibilityEvent(layoutNode)
+                        }
+                        subtreeChangedSemanticsNodesIds.clear()
+                    }
+                    // When the bounds of layout nodes change, we will not always get semantics
+                    // change notifications because bounds is not part of semantics. And bounds
+                    // change from a layout node without semantics will affect the global bounds
+                    // of it children which has semantics. Bounds change will affect which nodes
+                    // are covered and which nodes are not, so the currentSemanticsNodes is not
+                    // up to date anymore.
+                    // After the subtree events are sent, accessibility services will get the
+                    // current visible/invisible state. We also try to do semantics tree diffing
+                    // to send out the proper accessibility events and update our copy here so
+                    // that
+                    // our incremental changes (represented by accessibility events) are
+                    // consistent
+                    // with accessibility services. That is: change - notify - new change -
+                    // notify, if we don't do the tree diffing and update our copy here, we will
+                    // combine old change and new change, which is missing finer-grained
+                    // notification.
+                    val localHandler = handler
+                    if (!checkingForSemanticsChanges && localHandler != null) {
+                        checkingForSemanticsChanges = true
+                        localHandler.post(semanticsChangeChecker)
+                    }
                 }
-                subtreeChangedSemanticsNodesIds.clear()
-                // When the bounds of layout nodes change, we will not always get semantics
-                // change notifications because bounds is not part of semantics. And bounds
-                // change from a layout node without semantics will affect the global bounds
-                // of it children which has semantics. Bounds change will affect which nodes
-                // are covered and which nodes are not, so the currentSemanticsNodes is not
-                // up to date anymore.
-                // After the subtree events are sent, accessibility services will get the
-                // current visible/invisible state. We also try to do semantics tree diffing
-                // to send out the proper accessibility events and update our copy here so
-                // that
-                // our incremental changes (represented by accessibility events) are
-                // consistent
-                // with accessibility services. That is: change - notify - new change -
-                // notify, if we don't do the tree diffing and update our copy here, we will
-                // combine old change and new change, which is missing finer-grained
-                // notification.
-                if (!checkingForSemanticsChanges) {
-                    checkingForSemanticsChanges = true
-                    semanticsChangeChecker.run()
-                }
+                subtreeChangedLayoutNodes.clear()
+                pendingHorizontalScrollEvents.clear()
+                pendingVerticalScrollEvents.clear()
+                delay(SendRecurringAccessibilityEventsIntervalMillis)
             }
-            subtreeChangedLayoutNodes.clear()
-            pendingHorizontalScrollEvents.clear()
-            pendingVerticalScrollEvents.clear()
         } finally {
             subtreeChangedLayoutNodes.clear()
         }
@@ -2381,17 +2375,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun notifySubtreeAccessibilityStateChangedIfNeeded(layoutNode: LayoutNode) {
         if (subtreeChangedLayoutNodes.add(layoutNode)) {
-            if (isEnabled && !boundsUpdateNotified) {
-                boundsUpdateNotified = true
-                val nextShouldLandAt =
-                    lastBoundsUpdateNotification + SendRecurringAccessibilityEventsIntervalMillis
-                val delay = nextShouldLandAt - SystemClock.uptimeMillis()
-                if (delay < 0) {
-                    view.post(this)
-                } else {
-                    view.postDelayed(this, delay)
-                }
-            }
+            boundsUpdateChannel.trySend(Unit)
         }
     }
 
@@ -2467,7 +2451,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun checkForSemanticsChanges() {
         // Accessibility structural change
-        trace("sendAccessibilitySemanticsStructureChangeEvents") {
+        trace("Compose:semantics:sendAccessibilitySemanticsStructureChangeEvents") {
             if (isEnabled) {
                 sendAccessibilitySemanticsStructureChangeEvents(
                     view.semanticsOwner.unmergedRootSemanticsNode,
@@ -2476,10 +2460,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
         // Accessibility property change
-        trace("sendSemanticsPropertyChangeEvents") {
+        trace("Compose:semantics:sendSemanticsPropertyChangeEvents") {
             sendSemanticsPropertyChangeEvents(currentSemanticsNodes)
         }
-        trace("updateSemanticsNodesCopyAndPanes") { updateSemanticsNodesCopyAndPanes() }
+        trace("Compose:semantics:updateSemanticsNodesCopyAndPanes") {
+            updateSemanticsNodesCopyAndPanes()
+        }
     }
 
     private fun updateSemanticsNodesCopyAndPanes() {
@@ -2760,6 +2746,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                                         }
                                 }
                             event.className = TextFieldClassName
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                                Api37Impl.setInputTextSuggestionTextChangeTypes(newNode, event)
+                            }
                             sendEvent(event)
 
                             // (b/247891690) second event with the correct cursor position (see
@@ -2837,20 +2827,23 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             actions.fastForEach { action -> labels.add(action.label) }
                             val oldLabels = mutableScatterSetOf<String>()
                             oldActions.fastForEach { action -> oldLabels.add(action.label) }
-                            propertyChanged = labels != oldLabels
-                        } else if (actions.isNotEmpty()) {
-                            propertyChanged = true
+                            propertyChanged = propertyChanged || labels != oldLabels
+                        } else {
+                            propertyChanged = propertyChanged || actions.isNotEmpty()
                         }
                     }
                     // TODO(b/151840490) send the correct events for certain properties, like view
                     //  selected.
                     else -> {
                         propertyChanged =
-                            if (value is AccessibilityAction<*>) {
-                                !value.accessibilityEquals(oldNode.unmergedConfig.getOrNull(key))
-                            } else {
-                                true
-                            }
+                            propertyChanged ||
+                                if (value is AccessibilityAction<*>) {
+                                    !value.accessibilityEquals(
+                                        oldNode.unmergedConfig.getOrNull(key)
+                                    )
+                                } else {
+                                    true
+                                }
                     }
                 }
             }
@@ -3370,6 +3363,42 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    private object Api37Impl {
+        @JvmStatic
+        fun setInputTextSuggestionTextChangeTypes(node: SemanticsNode, event: AccessibilityEvent) {
+            val inputTextSuggestionState =
+                node.unmergedConfig.getOrNull(SemanticsProperties.InputTextSuggestionState)
+            val textCompositionRange =
+                node.unmergedConfig.getOrNull(SemanticsProperties.TextCompositionRange)
+            var textChangeTypes = AccessibilityEvent.TEXT_CHANGE_TYPE_UNDEFINED
+
+            if (textCompositionRange != null) {
+                textChangeTypes =
+                    textChangeTypes or AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION
+            }
+
+            if (
+                inputTextSuggestionState != null &&
+                    inputTextSuggestionState.isTransliterationSuggestionSelected
+            ) {
+                textChangeTypes =
+                    textChangeTypes or
+                        AccessibilityEvent.TEXT_CHANGE_TYPE_CONVERSION_SUGGESTION_SELECTED_BY_IME
+            }
+
+            if (
+                inputTextSuggestionState != null &&
+                    inputTextSuggestionState.isCommittedByInputMethodEditor
+            ) {
+                textChangeTypes =
+                    textChangeTypes or AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME
+            }
+
+            event.textChangeTypes = event.textChangeTypes or textChangeTypes
+        }
+    }
 }
 
 // Note: This function was separated into a static function due to b/375509809.
@@ -3413,7 +3442,18 @@ private fun setTraversalValues(
     }
 }
 
+/** Determines if the node should explicitly map to the merging on accessibility side */
 private fun isScreenReaderFocusable(node: SemanticsNode, resources: Resources): Boolean {
+    if (node.isHidden) return false
+
+    // If the node explicitly merges its descendants, we map it directly to the merging
+    // algorithm on the accessibility side.
+    if (node.unmergedConfig.isMergingSemanticsOfDescendants) return true
+
+    // Otherwise, we instruct the accessibility service to focus on the node iff:
+    // 1. It is not part of a higher-level merging container (which would take focus itself).
+    // 2. It is a leaf node.
+    // 3. It has explicit text, content description, or state to announce.
     val nodeContentDescriptionOrNull =
         node.unmergedConfig.getOrNull(SemanticsProperties.ContentDescription)?.firstOrNull()
     val isSpeakingNode =
@@ -3422,10 +3462,27 @@ private fun isScreenReaderFocusable(node: SemanticsNode, resources: Resources): 
             getInfoStateDescriptionOrNull(node, resources) != null ||
             getInfoIsCheckable(node)
 
-    return !node.isHidden &&
-        (node.unmergedConfig.isMergingSemanticsOfDescendants ||
-            node.isUnmergedLeafNode && isSpeakingNode)
+    return isSpeakingNode && node.isUnmergedLeafNode
 }
+
+private val SemanticsNode.isUnmergedLeafNode: Boolean
+    get() {
+        if (isFake) return false
+        // To be considered a leaf, this node must either have no children at all, or contain only
+        // accessibility-ignored children (such as inline hyperlinks). Links are a special case
+        // because we expose them to accessibility services via URLSpans rather than separate
+        // virtual nodes.
+        replacedChildren.fastForEach { child ->
+            if (!child.isAccessibilityIgnoredLink) {
+                return false
+            }
+        }
+        val hasMergingParent =
+            layoutNode.findClosestParentNode {
+                it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
+            } != null
+        return !hasMergingParent
+    }
 
 private fun getInfoText(node: SemanticsNode): AnnotatedString? {
     val editableTextToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.EditableText)

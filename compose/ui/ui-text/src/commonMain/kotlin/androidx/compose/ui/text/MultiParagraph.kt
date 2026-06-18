@@ -986,7 +986,9 @@ class MultiParagraph(
     fun isLineEllipsized(lineIndex: Int): Boolean {
         requireLineIndexInRange(lineIndex)
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
-        return with(paragraphInfoList[paragraphIndex]) { paragraph.isLineEllipsized(lineIndex) }
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.isLineEllipsized(lineIndex.toLocalLineIndex())
+        }
     }
 
     private fun requireIndexInRange(offset: Int) {

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.nestedscroll
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -53,7 +53,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.sign
-import kotlin.test.Ignore
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -1646,7 +1645,6 @@ class NestedScrollModifierTest {
     }
 
     @Test
-    @Ignore("b/509847892")
     fun modifierIsRemoved_scopeIsCleared() {
         val innerDispatcher = NestedScrollDispatcher()
         val outerDispatcher = NestedScrollDispatcher()
@@ -1685,7 +1683,7 @@ class NestedScrollModifierTest {
         rule.waitForIdle()
 
         assertThat(innerDispatcher.calculateNestedScrollScope()).isNotEqualTo(calculatedScope)
-        assertThat(innerDispatcher.calculateNestedScrollScope()).isNull()
+        assertThat(innerDispatcher.calculateNestedScrollScope()?.isActive).isFalse()
         assertThat(innerDispatcher.scope).isNotEqualTo(coroutineScope)
         assertThat(innerDispatcher.scope).isNull()
     }

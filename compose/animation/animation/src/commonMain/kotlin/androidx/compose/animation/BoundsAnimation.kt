@@ -65,9 +65,27 @@ internal class BoundsAnimation(
 
     var animationSpec: FiniteAnimationSpec<Rect> = DefaultBoundsAnimation
 
+    private val transitionSpecLambda: Transition.Segment<Boolean>.() -> FiniteAnimationSpec<Rect> =
+        {
+            animationSpec
+        }
+
     // It's important to back this state up by a mutable state, so that whoever read it when
     // it was null will get an invalidation when it's set.
     var animationState: State<Rect>? by mutableStateOf(null)
+
+    private var currentBoundsForLambda: Rect? = null
+    private var targetBoundsForLambda: Rect? = null
+
+    // Cache lambdas to avoid reallocating multiple times
+    private val targetValueByStateLambda: (Boolean) -> Rect = {
+        if (it == transition.targetState) {
+            targetBoundsForLambda!!
+        } else {
+            currentBoundsForLambda!!
+        }
+    }
+
     val value: Rect?
         get() =
             if (transitionScope.isTransitionActive) {
@@ -85,8 +103,12 @@ internal class BoundsAnimation(
         currentBounds: Rect,
         targetBounds: Rect,
         forcedBoundsTransform: BoundsTransform? = null,
+        forcedInitialValue: Rect? = null,
+        forcedInitialVelocity: AnimationVector4D? = null,
     ) {
         if (transitionScope.isTransitionActive) {
+            currentBoundsForLambda = currentBounds
+            targetBoundsForLambda = targetBounds
             if (animationState == null) {
                 // Only invoke bounds transform when animation is initialized. This means
                 // boundsTransform will not participate in interruption-handling animations.
@@ -97,14 +119,12 @@ internal class BoundsAnimation(
                     )
             }
             animationState =
-                animation.animate(transitionSpec = { animationSpec }) {
-                    if (it == transition.targetState) {
-                        // its own bounds
-                        targetBounds
-                    } else {
-                        currentBounds
-                    }
-                }
+                animation.animate(
+                    transitionSpec = transitionSpecLambda,
+                    forcedInitialValue = forcedInitialValue,
+                    forcedInitialVelocity = forcedInitialVelocity,
+                    targetValueByState = targetValueByStateLambda,
+                )
         }
     }
 

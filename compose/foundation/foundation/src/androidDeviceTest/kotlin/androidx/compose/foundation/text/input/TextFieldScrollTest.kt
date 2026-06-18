@@ -624,14 +624,16 @@ class TextFieldScrollTest : FocusedWindowTest {
         val rowScrollState = ScrollState(0)
 
         rule.setContent {
-            Row(Modifier.size(containerSize).padding(8.dp).horizontalScroll(rowScrollState)) {
-                Box(Modifier.size(startItemSize))
-                ScrollableContent(
-                    modifier = Modifier.fillMaxHeight(),
-                    state = state,
-                    scrollState = textFieldScrollState,
-                    lineLimits = SingleLine,
-                )
+            ForceTouchInputMode {
+                Row(Modifier.size(containerSize).padding(8.dp).horizontalScroll(rowScrollState)) {
+                    Box(Modifier.size(startItemSize))
+                    ScrollableContent(
+                        modifier = Modifier.fillMaxHeight(),
+                        state = state,
+                        scrollState = textFieldScrollState,
+                        lineLimits = SingleLine,
+                    )
+                }
             }
         }
 

@@ -27,6 +27,7 @@ import android.view.MotionEvent.ACTION_UP
 import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
+import org.jetbrains.annotations.TestOnly
 
 internal class AndroidIndirectPointerEvent(
     override val changes: List<IndirectPointerInputChange>,
@@ -55,6 +56,7 @@ val IndirectPointerEvent.nativeEvent: MotionEvent
  * @param primaryDirectionalMotionAxis Primary directional motion axis for testing.
  * @param motionEvent The [MotionEvent] to convert to an [IndirectPointerEvent].
  */
+@TestOnly
 fun IndirectPointerEvent(
     changes: List<IndirectPointerInputChange>,
     type: IndirectPointerEventType,

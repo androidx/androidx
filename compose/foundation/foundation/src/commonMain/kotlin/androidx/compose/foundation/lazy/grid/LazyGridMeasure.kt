@@ -131,6 +131,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
             lineIndexProvider = lineIndexProvider,
+            stickingItemsCombinedSize = 0,
         )
     } else {
         var currentFirstLineIndex = firstVisibleLineIndex
@@ -461,6 +462,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
             lineIndexProvider = lineIndexProvider,
+            stickingItemsCombinedSize = stickingItems.fastSumBy { it.mainAxisSize },
         )
     }
 }

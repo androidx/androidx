@@ -49,12 +49,13 @@ class SnapshotContextElementTests {
 
     @Test
     @IgnoreJsTarget
+    @IgnoreWasmTarget
     @IgnoreNativeTarget
-    fun snapshotRestoredAfterResume() {
-        val snapshotOne = Snapshot.takeSnapshot()
-        val snapshotTwo = Snapshot.takeSnapshot()
-        try {
-            runTest(UnconfinedTestDispatcher()) {
+    fun snapshotRestoredAfterResume() =
+        runTest(UnconfinedTestDispatcher()) {
+            val snapshotOne = Snapshot.takeSnapshot()
+            val snapshotTwo = Snapshot.takeSnapshot()
+            try {
                 val stopA = Job()
                 val jobA =
                     launch(snapshotOne.asContextElement()) {
@@ -68,10 +69,9 @@ class SnapshotContextElementTests {
                     jobA.join()
                     assertSame(snapshotTwo, Snapshot.current, "expected snapshotTwo, B")
                 }
+            } finally {
+                snapshotOne.dispose()
+                snapshotTwo.dispose()
             }
-        } finally {
-            snapshotOne.dispose()
-            snapshotTwo.dispose()
         }
-    }
 }

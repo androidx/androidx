@@ -84,7 +84,26 @@ class StyleStateTest {
     @Test
     fun testObservePredefined_changed() {
         val state = MutableStyleState(null)
-        observe({ _, _, changed -> assertTrue(changed.size > 0) }) { state.isPressed = true }
+        observe({ read, _, changed ->
+            assertTrue(changed.size > 0)
+
+            // Ensure we can write without reading
+            assertEquals(0, read.size)
+        }) {
+            state.isPressed = true
+        }
+    }
+
+    @Test
+    fun testObservePredefined_unchanged() {
+        val state = MutableStyleState(null)
+        observe({ read, _, changed ->
+            // Ensure that setting a property to its current value neither reads nor writes.
+            assertEquals(0, changed.size)
+            assertEquals(0, read.size)
+        }) {
+            state.isPressed = false
+        }
     }
 
     @Test
@@ -123,7 +142,14 @@ class StyleStateTest {
     @Test
     fun testObserveCustomState_changed() {
         val state = MutableStyleState(null)
-        observe({ _, _, changed -> assertTrue(changed.size > 0) }) { state.customState++ }
+        observe({ read, _, changed ->
+            assertTrue(changed.size > 0)
+
+            // Ensure we can write without reading
+            assertEquals(0, read.size)
+        }) {
+            state.customState = 100
+        }
     }
 
     @Test

@@ -19,6 +19,7 @@ package androidx.compose.integration.hero.pokedex.macrobenchmark
 import android.content.Intent
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_API_URL
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SCROLLBAR
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_START_DESTINATION
@@ -40,12 +41,14 @@ abstract class PokedexBenchmarkBase {
         action: String,
         enableSharedTransitionScope: Boolean,
         enableSharedElementTransitions: Boolean,
+        enableScrollbar: Boolean = true,
         startDestination: String? = null,
     ): Intent =
         this.apply {
             setAction(action)
             putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
             putExtra(POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS, enableSharedElementTransitions)
+            putExtra(POKEDEX_ENABLE_SCROLLBAR, enableScrollbar)
             if (startDestination != null) {
                 putExtra(POKEDEX_START_DESTINATION, startDestination)
             }

@@ -386,16 +386,18 @@ internal class TextFieldDecoratorModifierNode(
      * [textFieldKeyEventHandler] because Clipboard actions require a [coroutineScope] which is
      * available here.
      */
-    private val clipboardKeyCommandsHandler = ClipboardKeyCommandsHandler { keyCommand ->
-        coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            when (keyCommand) {
-                KeyCommand.COPY -> textFieldSelectionState.copy(false)
-                KeyCommand.CUT -> textFieldSelectionState.cut()
-                KeyCommand.PASTE -> textFieldSelectionState.paste()
-                else -> Unit
+    private val clipboardKeyCommandsHandler =
+        ClipboardKeyCommandsHandler { keyCommand, isFromHardwareSource ->
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                when (keyCommand) {
+                    KeyCommand.COPY -> textFieldSelectionState.copy(false)
+                    KeyCommand.CUT -> textFieldSelectionState.cut()
+                    KeyCommand.PASTE ->
+                        textFieldSelectionState.paste(isFromHardwareSource = isFromHardwareSource)
+                    else -> Unit
+                }
             }
         }
-    }
 
     /**
      * A coroutine job that observes text and layout changes in selection state to react to those
@@ -547,7 +549,8 @@ internal class TextFieldDecoratorModifierNode(
         textSelectionRange = selection
         textCompositionRange = textFieldState.untransformedComposition
 
-        inputTextSuggestionState = InputTextSuggestionState(textFieldState.userCommit)
+        inputTextSuggestionState =
+            InputTextSuggestionState(textFieldState.userCommit, textFieldState.suggestionSelected)
 
         if (!enabled) disabled()
         if (isPassword) password()
@@ -811,7 +814,7 @@ internal class TextFieldDecoratorModifierNode(
         val receiveContentConfiguration = getReceiveContentConfiguration()
 
         inputSessionJob =
-            coroutineScope.launch {
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                 // This will automatically cancel the previous session, if any, so we don't need to
                 // cancel the inputSessionJob ourselves.
                 establishTextInputSession {

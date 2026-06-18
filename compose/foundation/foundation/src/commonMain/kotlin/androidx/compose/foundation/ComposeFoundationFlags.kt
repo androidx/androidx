@@ -190,7 +190,7 @@ object ComposeFoundationFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 
     /**
      * This flag controls whether selecting text in
@@ -207,6 +207,25 @@ object ComposeFoundationFlags {
      */
     // TODO: Remove this flag once it has soaked (b/495885589)
     @field:Suppress("MutableBareField") @JvmField var isInteractionSoundEffectOnClickEnabled = true
+
+    /**
+     * This flag controls whether the fix for velocity tracker usage in Draggable and related
+     * classes is enabled to a) properly track velocity per pointer and b) make sure to also take
+     * the pointer events into account that don't move at the beginning of the gesture in order to
+     * increase the stability of the computed velocity.
+     */
+    // TODO: Remove this flag once it has soaked (b/501080937)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isDraggableVelocityTrackerFixEnabled: Boolean = true
+
+    /**
+     * This flag controls whether it's possible to start selecting (via the mouse) text in a
+     * [androidx.compose.foundation.text.selection.SelectionContainer] by dragging from the areas
+     * between the text selectables.
+     */
+    // TODO: Remove this flag once it has soaked (b/521973612)
+    @field:Suppress("MutableBareField") @JvmField var isMouseSelectionBetweenTextEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

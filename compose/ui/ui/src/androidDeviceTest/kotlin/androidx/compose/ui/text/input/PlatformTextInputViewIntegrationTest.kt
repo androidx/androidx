@@ -646,6 +646,7 @@ class PlatformTextInputViewIntegrationTest {
                 view = (original as TextInputServiceAndroid).view,
                 rootPositionCalculator = FakeMatrixPositionCalculator,
                 inputMethodManager = inputMethodManager,
+                inputCommandProcessorExecutor = original.inputCommandProcessorExecutor,
             )
         }
         rule.setContent {
@@ -686,6 +687,7 @@ class PlatformTextInputViewIntegrationTest {
                 view = (original as TextInputServiceAndroid).view,
                 rootPositionCalculator = FakeMatrixPositionCalculator,
                 inputMethodManager = inputMethodManager,
+                original.inputCommandProcessorExecutor,
             )
         }
         rule.setContent {

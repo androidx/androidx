@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.os.Build
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.TextRange
@@ -460,7 +461,15 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
         assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION).isEqualTo(0)
     }
 
@@ -476,7 +485,15 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
         assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION)
             .isEqualTo(EditorInfo.IME_FLAG_NO_ENTER_ACTION)
     }
@@ -493,7 +510,14 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
         assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION).isEqualTo(0)
     }
 
@@ -539,7 +563,15 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
     }
 
     @Test
@@ -557,7 +589,12 @@ class LegacyEditorInfoTest {
             .isEqualTo(
                 InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or
                     InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
             )
     }
 
@@ -576,7 +613,12 @@ class LegacyEditorInfoTest {
             .isEqualTo(
                 InputType.TYPE_TEXT_FLAG_CAP_WORDS or
                     InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
             )
     }
 
@@ -595,7 +637,12 @@ class LegacyEditorInfoTest {
             .isEqualTo(
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or
                     InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
             )
     }
 
@@ -625,7 +672,15 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_MULTI_LINE)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
     }
 
     @Test
@@ -640,7 +695,14 @@ class LegacyEditorInfoTest {
         )
 
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        InputType.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
+                    } else {
+                        0
+                    }
+            )
     }
 
     @Test

@@ -72,6 +72,8 @@ class PokedexActivity : ComponentActivity() {
             PokedexFeatureFlags.UseBackgroundTextPrewarming = true
         }
 
+        PokedexFeatureFlags.EnableScrollbar = intent.getBooleanExtra("enableScrollbar", true)
+
         val startDestination =
             when (intent.getStringExtra("startDestination")) {
                 "home" -> PokedexScreen.Home

@@ -16,19 +16,17 @@
 
 package androidx.compose.ui.platform
 
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -40,14 +38,10 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class LayoutIdTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    private lateinit var activity: TestActivity
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     @Before
     fun setup() {
-        activity = rule.activity
         isDebugInspectorInfoEnabled = true
     }
 
@@ -58,24 +52,23 @@ class LayoutIdTest {
 
     @Test
     fun testTags() {
-        val latch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Layout({
-                    AtLeastSize(0, Modifier.layoutId("first"), content = {})
-                    Box(Modifier.layoutId("second")) { AtLeastSize(0, content = {}) }
-                    Box(Modifier.layoutId("third")) { AtLeastSize(0, content = {}) }
-                }) { measurables, _ ->
-                    assertEquals(3, measurables.size)
-                    assertEquals("first", measurables[0].layoutId)
-                    assertEquals("second", measurables[1].layoutId)
-                    assertEquals("third", measurables[2].layoutId)
-                    latch.countDown()
-                    layout(0, 0) {}
-                }
+        var executed = false
+        rule.setContent {
+            Layout({
+                AtLeastSize(0, Modifier.layoutId("first"), content = {})
+                Box(Modifier.layoutId("second")) { AtLeastSize(0, content = {}) }
+                Box(Modifier.layoutId("third")) { AtLeastSize(0, content = {}) }
+            }) { measurables, _ ->
+                assertEquals(3, measurables.size)
+                assertEquals("first", measurables[0].layoutId)
+                assertEquals("second", measurables[1].layoutId)
+                assertEquals("third", measurables[2].layoutId)
+                executed = true
+                layout(0, 0) {}
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(executed)
     }
 
     @Test

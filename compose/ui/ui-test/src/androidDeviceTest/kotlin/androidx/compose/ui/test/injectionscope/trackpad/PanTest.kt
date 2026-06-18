@@ -20,6 +20,8 @@ import android.os.Build
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
@@ -52,7 +54,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 class PanTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
@@ -81,14 +83,11 @@ class PanTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size)
-                    .isEqualTo(
-                        if (Build.VERSION.SDK_INT >= 34) {
-                            4
-                        } else {
-                            5
-                        }
-                    )
+                val hasExtraMove =
+                    ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+                val expectedSize =
+                    if (hasExtraMove) 5 else (if (Build.VERSION.SDK_INT >= 34) 4 else 5)
+                assertThat(events.size).isEqualTo(expectedSize)
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
@@ -173,10 +172,9 @@ class PanTest {
                         assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
                     }
                 }
-                if (!(Build.VERSION.SDK_INT >= 34)) {
-                    // TODO: b/461873914
-                    //       since we didn't see the exit before, the enter gets overwritten to be a
-                    //       move
+                // Accompanying hover move from pan end (now processed instead of skipped due to
+                // isDraggableVelocityTrackerFixEnabled)
+                if (events.size > 4) {
                     events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
                 }
             }
@@ -201,14 +199,11 @@ class PanTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size)
-                    .isEqualTo(
-                        if (Build.VERSION.SDK_INT >= 34) {
-                            4
-                        } else {
-                            5
-                        }
-                    )
+                val hasExtraMove =
+                    ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+                val expectedSize =
+                    if (hasExtraMove) 5 else (if (Build.VERSION.SDK_INT >= 34) 4 else 5)
+                assertThat(events.size).isEqualTo(expectedSize)
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
@@ -293,10 +288,9 @@ class PanTest {
                         assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
                     }
                 }
-                if (!(Build.VERSION.SDK_INT >= 34)) {
-                    // TODO: b/461873914
-                    //       since we didn't see the exit before, the enter gets overwritten to be a
-                    //       move
+                // Accompanying hover move from pan end (now processed instead of skipped due to
+                // isDraggableVelocityTrackerFixEnabled)
+                if (events.size > 4) {
                     events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
                 }
             }
@@ -323,105 +317,184 @@ class PanTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size)
-                    .isEqualTo(
-                        if (Build.VERSION.SDK_INT >= 34) {
-                            6
-                        } else {
-                            7
-                        }
-                    )
+                val hasExtraMove =
+                    ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+                val expectedSize =
+                    if (hasExtraMove) 8 else (if (Build.VERSION.SDK_INT >= 34) 6 else 7)
+                assertThat(events.size).isEqualTo(expectedSize)
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 events[1].verifyTrackpadEvent(T, Press, true, Offset.Zero, PrimaryButton)
                 events[2].verifyTrackpadEvent(T, Release, false, Offset.Zero)
-                // TODO: b/461873914
-                //       the system sends an exit here, but we don't see it in Compose currently
-                events[3].let { event ->
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
-                        assertThat(event.classification)
-                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
-                    } else {
-                        event.verifyTrackpadEvent(
-                            T,
-                            Press,
-                            true,
-                            Offset.Zero,
-                            expectedPointerType = PointerType.Touch,
-                        )
-                        assertThat(event.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34)
-                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                                else MotionEvent.CLASSIFICATION_NONE
+
+                if (hasExtraMove) {
+                    events[3].verifyTrackpadEvent(T, Move, false, Offset.Zero)
+                    events[4].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T,
+                                Press,
+                                true,
+                                Offset.Zero,
+                                expectedPointerType = PointerType.Touch,
                             )
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
                     }
-                }
-                events[4].let { event ->
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
-                        assertThat(event.classification)
-                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(-10f, 0f))
-                    } else {
-                        event.verifyTrackpadEvent(
-                            T * 2,
-                            Move,
-                            true,
-                            Offset(10f, 0f),
-                            expectedPointerType = PointerType.Touch,
-                        )
-                        assertThat(event.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34)
-                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                                else MotionEvent.CLASSIFICATION_NONE
+                    events[5].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(-10f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T * 2,
+                                Move,
+                                true,
+                                Offset(10f, 0f),
+                                expectedPointerType = PointerType.Touch,
                             )
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
                     }
-                }
-                events[5].let { event ->
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
-                        assertThat(event.classification)
-                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
-                    } else {
-                        event.verifyTrackpadEvent(
-                            T * 3,
-                            Release,
-                            false,
-                            Offset(10f, 0f),
-                            expectedPointerType = PointerType.Touch,
-                        )
-                        assertThat(event.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34)
-                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                                else MotionEvent.CLASSIFICATION_NONE
+                    events[6].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T * 3,
+                                Release,
+                                false,
+                                Offset(10f, 0f),
+                                expectedPointerType = PointerType.Touch,
                             )
-                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
-                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
                     }
-                }
-                if (!(Build.VERSION.SDK_INT >= 34)) {
-                    // TODO: b/461873914
-                    //       since we didn't see the exit before, the enter gets overwritten to be a
-                    //       move
-                    events[6].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                    events[7].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                } else {
+                    events[3].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T,
+                                Press,
+                                true,
+                                Offset.Zero,
+                                expectedPointerType = PointerType.Touch,
+                            )
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
+                    }
+                    events[4].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(-10f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T * 2,
+                                Move,
+                                true,
+                                Offset(10f, 0f),
+                                expectedPointerType = PointerType.Touch,
+                            )
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
+                    }
+                    events[5].let { event ->
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
+                            assertThat(event.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        } else {
+                            event.verifyTrackpadEvent(
+                                T * 3,
+                                Release,
+                                false,
+                                Offset(10f, 0f),
+                                expectedPointerType = PointerType.Touch,
+                            )
+                            assertThat(event.classification)
+                                .isEqualTo(
+                                    if (Build.VERSION.SDK_INT >= 34)
+                                        MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                    else MotionEvent.CLASSIFICATION_NONE
+                                )
+                            assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                            assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                            assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                        }
+                    }
+                    if (events.size > 6) {
+                        events[6].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                    }
                 }
             }
         }

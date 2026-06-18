@@ -49,7 +49,8 @@ class PokedexDetailsStartupBenchmark(
     fun startupViews() =
         measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_DETAIL_ACTIVITY")
 
-    private fun measureStartup(action: String) =
+    private fun measureStartup(action: String) {
+
         benchmarkRule.measureStartup(
             compilationMode = compilation,
             startupMode = startupMode,
@@ -69,6 +70,7 @@ class PokedexDetailsStartupBenchmark(
                 device.waitOrThrow(Until.hasObject(By.text(PokemonToOpen)), timeoutMillis = 3000)
             },
         )
+    }
 
     companion object {
         /**

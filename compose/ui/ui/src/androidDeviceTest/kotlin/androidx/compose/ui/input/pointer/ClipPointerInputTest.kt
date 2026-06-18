@@ -19,7 +19,6 @@ package androidx.compose.ui.input.pointer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,16 +37,16 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -56,10 +55,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ClipPointerInputTest {
-
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
     private lateinit var view: View
 
@@ -88,53 +84,42 @@ class ClipPointerInputTest {
      */
     @Test
     fun clipToBounds_childrenOffsetViaLayout_onlyCorrectPointersHit() {
-
-        val setupLatch = CountDownLatch(2)
-
         val loggingPim1 = LoggingPim()
         val loggingPim2 = LoggingPim()
         val loggingPim3 = LoggingPim()
         val loggingPim4 = LoggingPim()
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                val children =
-                    @Composable {
-                        Child(loggingPim1)
-                        Child(loggingPim2)
-                        Child(loggingPim3)
-                        Child(loggingPim4)
-                    }
+        rule.setContent {
+            val children =
+                @Composable {
+                    Child(loggingPim1)
+                    Child(loggingPim2)
+                    Child(loggingPim3)
+                    Child(loggingPim4)
+                }
 
-                val middle =
-                    @Composable {
-                        Layout(content = children, modifier = Modifier.clipToBounds()) {
-                            measurables,
-                            constraints ->
-                            val placeables = measurables.map { m -> m.measure(constraints) }
-                            layout(3, 3) {
-                                placeables[0].place((-1), (-1))
-                                placeables[1].place(2, (-1))
-                                placeables[2].place((-1), 2)
-                                placeables[3].place(2, 2)
-                            }
+            val middle =
+                @Composable {
+                    Layout(content = children, modifier = Modifier.clipToBounds()) {
+                        measurables,
+                        constraints ->
+                        val placeables = measurables.map { m -> m.measure(constraints) }
+                        layout(3, 3) {
+                            placeables[0].place((-1), (-1))
+                            placeables[1].place(2, (-1))
+                            placeables[2].place((-1), 2)
+                            placeables[3].place(2, 2)
                         }
                     }
-
-                Layout(content = middle) { measurables, constraints ->
-                    val placeables = measurables.map { m -> m.measure(constraints) }
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeables[0].place(1, 1)
-                        setupLatch.countDown()
-                    }
                 }
-            }
 
-            view = activity.findViewById<ViewGroup>(android.R.id.content)
-            setupLatch.countDown()
+            Layout(content = middle) { measurables, constraints ->
+                val placeables = measurables.map { m -> m.measure(constraints) }
+                layout(constraints.maxWidth, constraints.maxHeight) { placeables[0].place(1, 1) }
+            }
         }
 
-        assertThat(setupLatch.await(2, TimeUnit.SECONDS)).isTrue()
+        rule.runOnIdle { view = activity.findViewById<ViewGroup>(android.R.id.content) }
 
         val offsetsThatHit = listOf(Offset(1f, 1f), Offset(3f, 1f), Offset(1f, 3f), Offset(3f, 3f))
         val offsetsThatMiss =
@@ -165,7 +150,7 @@ class ClipPointerInputTest {
         }
 
         // Act
-        rule.runOnUiThreadIR { downEvents.forEach { view.dispatchTouchEvent(it) } }
+        rule.runOnIdle { downEvents.forEach { view.dispatchTouchEvent(it) } }
 
         // Assert
 
@@ -194,50 +179,43 @@ class ClipPointerInputTest {
      */
     @Test
     fun clipToBounds_childrenOffsetViaModifier_onlyCorrectPointersHit() {
-
-        val setupLatch = CountDownLatch(2)
-
         val loggingPim1 = LoggingPim()
         val loggingPim2 = LoggingPim()
         val loggingPim3 = LoggingPim()
         val loggingPim4 = LoggingPim()
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    val children =
-                        @Composable {
-                            Child(Modifier.offset((-1f).toDp(), (-1f).toDp()).then(loggingPim1))
-                            Child(Modifier.offset(2f.toDp(), (-1f).toDp()).then(loggingPim2))
-                            Child(Modifier.offset((-1f).toDp(), 2f.toDp()).then(loggingPim3))
-                            Child(Modifier.offset(2f.toDp(), 2f.toDp()).then(loggingPim4))
-                        }
+        rule.setContent {
+            with(LocalDensity.current) {
+                val children =
+                    @Composable {
+                        Child(Modifier.offset((-1f).toDp(), (-1f).toDp()).then(loggingPim1))
+                        Child(Modifier.offset(2f.toDp(), (-1f).toDp()).then(loggingPim2))
+                        Child(Modifier.offset((-1f).toDp(), 2f.toDp()).then(loggingPim3))
+                        Child(Modifier.offset(2f.toDp(), 2f.toDp()).then(loggingPim4))
+                    }
 
-                    val middle =
-                        @Composable {
-                            Layout(content = children, modifier = Modifier.clipToBounds()) {
-                                measurables,
-                                constraints ->
-                                val placeables = measurables.map { m -> m.measure(constraints) }
-                                layout(3, 3) { placeables.forEach { it.place(0, 0) } }
-                            }
+                val middle =
+                    @Composable {
+                        Layout(content = children, modifier = Modifier.clipToBounds()) {
+                            measurables,
+                            constraints ->
+                            val placeables = measurables.map { m -> m.measure(constraints) }
+                            layout(3, 3) { placeables.forEach { it.place(0, 0) } }
                         }
+                    }
 
-                    Layout(content = middle) { measurables, constraints ->
-                        val placeables = measurables.map { m -> m.measure(constraints) }
-                        layout(constraints.maxWidth, constraints.maxHeight) {
-                            placeables[0].place(1, 1)
-                            setupLatch.countDown()
-                        }
+                Layout(content = middle) { measurables, constraints ->
+                    val placeables = measurables.map { m -> m.measure(constraints) }
+                    layout(constraints.maxWidth, constraints.maxHeight) {
+                        placeables[0].place(1, 1)
                     }
                 }
             }
-
-            view = activity.findViewById<ViewGroup>(android.R.id.content)
-            setupLatch.countDown()
         }
 
-        assertThat(setupLatch.await(2, TimeUnit.SECONDS)).isTrue()
+        rule.runOnIdle { view = activity.findViewById<ViewGroup>(android.R.id.content) }
+
+        rule.waitForIdle()
 
         val offsetsThatHit = listOf(Offset(1f, 1f), Offset(3f, 1f), Offset(1f, 3f), Offset(3f, 3f))
         val offsetsThatMiss =
@@ -268,7 +246,7 @@ class ClipPointerInputTest {
         }
 
         // Act
-        rule.runOnUiThreadIR { downEvents.forEach { view.dispatchTouchEvent(it) } }
+        rule.runOnUiThread { downEvents.forEach { view.dispatchTouchEvent(it) } }
 
         // Assert
 
@@ -310,29 +288,20 @@ class ClipPointerInputTest {
      * area.
      */
     fun pokeAroundCircle(shape: Shape) {
-
-        val setupLatch = CountDownLatch(1)
-
         val loggingPim = LoggingPim()
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Child(
-                    Modifier.clip(shape).then(loggingPim).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(p.width, p.height) {
-                            p.place(0, 0)
-                            setupLatch.countDown()
-                        }
-                    }
-                )
-            }
-
-            view = activity.findViewById<ViewGroup>(android.R.id.content)
-            setupLatch.countDown()
+        rule.setContent {
+            Child(
+                Modifier.clip(shape).then(loggingPim).layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) { p.place(0, 0) }
+                }
+            )
         }
 
-        assertThat(setupLatch.await(2, TimeUnit.SECONDS)).isTrue()
+        rule.runOnIdle { view = activity.findViewById<ViewGroup>(android.R.id.content) }
+
+        rule.waitForIdle()
 
         val offset = 1f / 128f
         val above0 = offset
@@ -380,7 +349,7 @@ class ClipPointerInputTest {
         }
 
         // Act
-        rule.runOnUiThreadIR { downEvents.forEach { view.dispatchTouchEvent(it) } }
+        rule.runOnUiThread { downEvents.forEach { view.dispatchTouchEvent(it) } }
 
         // Assert
         assertThat(loggingPim.log).isEqualTo(offsetsThatHit)
@@ -409,29 +378,20 @@ class ClipPointerInputTest {
                     )
             }
 
-        val setupLatch = CountDownLatch(1)
-
         val loggingPim = LoggingPim()
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Child(
-                    Modifier.clip(rectangleShape).then(loggingPim).layout { measurable, constraints
-                        ->
-                        val p = measurable.measure(constraints)
-                        layout(p.width, p.height) {
-                            p.place(0, 0)
-                            setupLatch.countDown()
-                        }
-                    }
-                )
-            }
-
-            view = activity.findViewById<ViewGroup>(android.R.id.content)
-            setupLatch.countDown()
+        rule.setContent {
+            Child(
+                Modifier.clip(rectangleShape).then(loggingPim).layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) { p.place(0, 0) }
+                }
+            )
         }
 
-        assertThat(setupLatch.await(2, TimeUnit.SECONDS)).isTrue()
+        rule.runOnIdle { view = activity.findViewById<ViewGroup>(android.R.id.content) }
+
+        rule.waitForIdle()
         val offset = 1f / 128f
         val justIn = 1.5f - offset
         val justOut = 0.5f - offset
@@ -476,7 +436,7 @@ class ClipPointerInputTest {
         }
 
         // Act
-        rule.runOnUiThreadIR { downEvents.forEach { view.dispatchTouchEvent(it) } }
+        rule.runOnUiThread { downEvents.forEach { view.dispatchTouchEvent(it) } }
 
         // Assert
         assertThat(loggingPim.log).isEqualTo(offsetsThatHit)

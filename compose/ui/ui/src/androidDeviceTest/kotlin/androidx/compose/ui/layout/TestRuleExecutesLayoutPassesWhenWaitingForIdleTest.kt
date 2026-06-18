@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.layout
 
+import android.os.Build
 import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.runtime.LaunchedEffect
@@ -31,9 +32,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,7 +100,7 @@ class TestRuleExecutesLayoutPassesWhenWaitingForIdleTest {
         }
     }
 
-    @Ignore("b/265281787")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun child_AndroidView() {
         val numUpdates = 5

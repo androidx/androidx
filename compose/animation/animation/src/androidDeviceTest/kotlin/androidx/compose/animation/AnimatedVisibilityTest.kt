@@ -36,6 +36,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -958,5 +959,100 @@ class AnimatedVisibilityTest {
         // composable was indeed disposed.
         assertThat(exitColor.alpha).isGreaterThan(0f)
         assertTrue(disposed)
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun verifyDirectionChangeResetsAccumulatedTransitions() {
+        var visible by mutableStateOf(true)
+        var veilColor by mutableStateOf(Color.Transparent)
+        var hasVeilAnimation by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        val exitColor = Color.Blue
+        var enterTransition by mutableStateOf(EnterTransition.None)
+        var exitTransition by
+            mutableStateOf(veilOut(tween(160, easing = LinearEasing), targetColor = exitColor))
+
+        rule.setContent {
+            AnimatedVisibility(visible, enter = enterTransition, exit = exitTransition) {
+                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                    hasVeilAnimation = transition.animations.any { it.label.contains("veil") }
+                    veilColor =
+                        transition.animations.firstOrNull { it.label.contains("veil") }?.value
+                            as? Color ?: veilColor
+                }
+            }
+        }
+
+        // Start exiting (visible -> false)
+        rule.runOnIdle { visible = false }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(80)
+        rule.waitForIdle()
+
+        // Interrupt back to entering (visible -> true)
+        rule.runOnIdle { visible = true }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(40)
+        rule.waitForIdle()
+
+        // Change the exit transition so it no longer contains a veilOut
+        rule.runOnIdle { exitTransition = fadeOut() }
+
+        // Interrupt back to exiting (visible -> false)
+        rule.runOnIdle { visible = false }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.mainClock.advanceTimeBy(80)
+        rule.waitForIdle()
+
+        // activeExit is replaced with a neutral exit transition + the new fadeOut().
+        // This ensures the modifier stays attached but gracefully animates to Transparent.
+        assertTrue("Veil animation should be kept alive to smoothly animate out", hasVeilAnimation)
+
+        val colorBeforeNewExit = veilColor
+        rule.mainClock.advanceTimeBy(80)
+        rule.waitForIdle()
+        val colorAfterNewExit = veilColor
+
+        assertTrue(
+            "Veil alpha should be decreasing towards 0, but went from ${colorBeforeNewExit.alpha} to ${colorAfterNewExit.alpha}",
+            colorAfterNewExit.alpha < colorBeforeNewExit.alpha,
+        )
+    }
+
+    @Test
+    fun testAnimationSettleExactTime() {
+        var startAnimation by mutableStateOf(false)
+        var isContentPresent = false
+
+        rule.setContent {
+            val transitionState = remember { MutableTransitionState(true) }
+            transitionState.targetState = !startAnimation
+
+            AnimatedVisibility(
+                visibleState = transitionState,
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
+            ) {
+                DisposableEffect(Unit) {
+                    isContentPresent = true
+                    onDispose { isContentPresent = false }
+                }
+            }
+        }
+
+        assertTrue("Content should be added to the composition", isContentPresent)
+        startAnimation = true
+
+        // The animation ends exactly after one frame (non-inclusive). Advance by a frame and then
+        // an additional millisecond. The content should be removed.
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(1L)
+
+        assertFalse("Content should be removed from the composition", isContentPresent)
     }
 }

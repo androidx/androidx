@@ -43,7 +43,7 @@ class AndroidClipboardIntegrationTest {
 
     @Test
     fun setText_affects_getClipEntry_and_vice_versa() = runTest {
-        val clipboard: Clipboard = AndroidClipboard(rule.activity)
+        val clipboard: Clipboard = AndroidClipboardImpl(rule.activity)
 
         clipboard.setClipEntry(null)
         assertFalse(clipboard.getClipEntry().hasText())

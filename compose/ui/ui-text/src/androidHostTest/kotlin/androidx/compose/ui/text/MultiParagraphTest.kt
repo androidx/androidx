@@ -75,4 +75,24 @@ class MultiParagraphTest {
                 .isEqualTo(i / paragraphHeight)
         }
     }
+
+    @Test
+    fun paragraphInfo_toLocalLineIndex() {
+        val startLineIndex = 10
+        val endLineIndex = 20
+        val paragraphInfo =
+            ParagraphInfo(
+                paragraph = mock(),
+                startIndex = 0,
+                endIndex = 0,
+                startLineIndex = startLineIndex,
+                endLineIndex = endLineIndex,
+            )
+
+        with(paragraphInfo) {
+            assertThat(10.toLocalLineIndex()).isEqualTo(0)
+            assertThat(15.toLocalLineIndex()).isEqualTo(5)
+            assertThat(19.toLocalLineIndex()).isEqualTo(9)
+        }
+    }
 }

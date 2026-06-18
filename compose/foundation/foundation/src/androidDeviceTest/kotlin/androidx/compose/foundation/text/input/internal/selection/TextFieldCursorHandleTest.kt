@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TouchInputModeManager
 import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -1045,12 +1046,14 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     fun cursorHandle_disappears_whenInputConnectionSetSelection() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(100.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(100.dp),
+                    )
+                }
             }
         }
 
@@ -1070,12 +1073,14 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     fun cursorHandle_disappears_whenInputConnectionSendKeyEvent() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(300.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(300.dp),
+                    )
+                }
             }
         }
 

@@ -77,11 +77,7 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
                 if (receiverType?.inheritsFrom(JavaList) == true) {
                     val source = node.sourcePsi as? KtCallExpression ?: return
                     analyze(source) {
-                        val functionCallSymbol =
-                            source
-                                .resolveToCall()
-                                ?.singleFunctionCallOrNull()
-                                ?.partiallyAppliedSymbol
+                        val functionCallSymbol = source.resolveToCall()?.singleFunctionCallOrNull()
                         val receiverType = functionCallSymbol?.symbol?.receiverType
                         val hasIterableReceiver =
                             receiverType?.expandedSymbol?.classId == StandardClassIds.Iterable

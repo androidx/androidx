@@ -24,6 +24,7 @@ internal object PokedexConstants {
     object Compose {
         const val POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE = "enableSharedTransitionScope"
         const val POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS = "enableSharedElementTransitions"
+        const val POKEDEX_ENABLE_SCROLLBAR = "enableScrollbar"
         const val POKEDEX_START_DESTINATION = "startDestination"
         const val POKEDEX_API_URL = "apiUrl"
     }

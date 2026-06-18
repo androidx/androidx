@@ -47,7 +47,8 @@ class PokedexStartupBenchmark(
         action: String,
         contentSelector: BySelector,
         setupIntent: Intent.() -> Unit = {},
-    ) =
+    ) {
+
         benchmarkRule.measureStartup(
             compilationMode = compilation,
             startupMode = startupMode,
@@ -68,6 +69,7 @@ class PokedexStartupBenchmark(
                 setupIntent()
             },
         )
+    }
 
     @Test
     fun startupCompose() =

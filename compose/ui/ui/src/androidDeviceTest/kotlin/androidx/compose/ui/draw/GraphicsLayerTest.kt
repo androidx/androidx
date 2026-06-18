@@ -46,7 +46,6 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.FixedSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Padding
-import androidx.compose.ui.background
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -88,7 +87,6 @@ import androidx.compose.ui.padding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.scale
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click

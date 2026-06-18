@@ -21,6 +21,7 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
@@ -30,10 +31,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
+import androidx.compose.foundation.lazy.LazyListPrefetchScope
+import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.gestures.util.longPress
@@ -49,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -56,6 +63,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboard
@@ -96,6 +104,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.sign
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1068,6 +1077,53 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
 
         // Verify that it didn't scroll
         assertThat(scrollState.value).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun selectionRegistrar_sortsLazySelectablesCorrectly() {
+        lateinit var selectionRegistrar: SelectionRegistrarImpl
+        lateinit var layoutCoordinates: LayoutCoordinates
+        val composedItemIndices = mutableSetOf<Int>()
+        val prefetchStrategy =
+            object : LazyListPrefetchStrategy by LazyListPrefetchStrategy() {
+                override fun LazyListPrefetchScope.onVisibleItemsUpdated(
+                    layoutInfo: LazyListLayoutInfo
+                ) {
+                    // Force composing extra items
+                    schedulePrefetch(4) {}
+                    schedulePrefetch(5) {}
+                }
+            }
+        rule.setContent {
+            SelectionContainer(Modifier.onPlaced { layoutCoordinates = it }) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    selectionRegistrar = (LocalSelectionRegistrar.current as SelectionRegistrarImpl)
+                    LazyColumn(
+                        state = rememberLazyListState(prefetchStrategy = prefetchStrategy),
+                        modifier = Modifier.fillMaxWidth().height(120.dp).border(1.dp, Color.Black),
+                    ) {
+                        items(10) {
+                            composedItemIndices.add(it)
+                            BasicText(text = "$it", modifier = Modifier.requiredHeight(30.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify prefetching worked
+        assertThat(composedItemIndices.size).isAtLeast(6)
+        assertTrue(4 in composedItemIndices)
+        assertTrue(5 in composedItemIndices)
+
+        // Verify order
+        // Note that only placed items will actually be here, so the number of selectables can be
+        // less than the number of composed items.
+        val selectables = selectionRegistrar.sort(layoutCoordinates)
+        for ((s1, s2) in selectables.zipWithNext()) {
+            assertThat(s1.getText().text.toInt()).isLessThan(s2.getText().text.toInt())
+        }
     }
 
     private fun startSelection(tag: String, offset: Int = 0) {

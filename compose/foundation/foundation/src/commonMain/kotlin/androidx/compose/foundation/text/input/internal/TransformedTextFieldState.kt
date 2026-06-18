@@ -160,6 +160,23 @@ internal class TransformedTextFieldState(
         get() = textFieldState.userCommit
 
     /**
+     * Whether a text suggestion is selected in the underlying [TextFieldState], indicating that the
+     * transliterated text will be replaced by the selection. This is relevant for transliteration
+     * languages that support one or multiple text replacement suggestions for each text inputted.
+     * If true, then the user is currently selecting a replacement text but has not yet committed
+     * the replacement text i.e. the replacement suggestion is highlighted via hover or highlight
+     * focus.
+     *
+     * Will stay false if the text locale is not a transliteration language or if no suggestion is
+     * selected.
+     *
+     * This is primarily used by accessibility services so that they are informed of when the user
+     * is currently selecting a replacement text.
+     */
+    val suggestionSelected: Boolean
+        get() = textFieldState.suggestionSelected
+
+    /**
      * The text that should be presented to the user in most cases. If an [OutputTransformation] is
      * specified, this text has the transformation applied. If there's no transformation, this will
      * be the same as [untransformedText].
@@ -238,13 +255,13 @@ internal class TransformedTextFieldState(
         textFieldState.editAsUser(inputTransformation) { setSelectionCoerced(0, length) }
     }
 
-    fun deleteSelectedText() {
+    fun deleteSelectedText(isFromHardwareSource: Boolean = false) {
         textFieldState.editAsUser(
             inputTransformation,
             undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
         ) {
             // `selection` is read from the buffer, so we don't need to transform it.
-            delete(selection.min, selection.max)
+            replace(selection.min, selection.max, "", isFromHardwareSource = isFromHardwareSource)
             setSelectionCoerced(selection.min)
             updateWedgeAffinity()
         }
@@ -259,6 +276,7 @@ internal class TransformedTextFieldState(
         range: TextRange,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         restartImeIfContentChanges: Boolean = true,
+        isFromHardwareSource: Boolean = false,
     ) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,
@@ -266,7 +284,12 @@ internal class TransformedTextFieldState(
             restartImeIfContentChanges = restartImeIfContentChanges,
         ) {
             val selection = mapFromTransformed(range)
-            replace(selection.min, selection.max, newText)
+            replace(
+                selection.min,
+                selection.max,
+                newText,
+                isFromHardwareSource = isFromHardwareSource,
+            )
             val cursor = selection.min + newText.length
             setSelectionCoerced(cursor)
             updateWedgeAffinity()
@@ -278,6 +301,7 @@ internal class TransformedTextFieldState(
         clearComposition: Boolean = false,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         restartImeIfContentChanges: Boolean = true,
+        isFromHardwareSource: Boolean = false,
     ) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,
@@ -290,7 +314,12 @@ internal class TransformedTextFieldState(
 
             // `selection` is read from the buffer, so we don't need to transform it.
             val selection = selection
-            replace(selection.min, selection.max, newText)
+            replace(
+                selection.min,
+                selection.max,
+                newText,
+                isFromHardwareSource = isFromHardwareSource,
+            )
             val cursor = selection.min + newText.length
             setSelectionCoerced(cursor)
             updateWedgeAffinity()
