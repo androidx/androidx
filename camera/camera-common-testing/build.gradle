@@ -38,6 +38,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -52,6 +53,7 @@ androidx {
     name = "androidx.camera:camera-common-testing"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
+    enableRobolectric()
     description = "Testing utilities and fakes for the androidx.camera.common" +
         "library, designed to facilitate Android Camera testing."
 }
