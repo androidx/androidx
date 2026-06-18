@@ -174,19 +174,15 @@ actual fun DropdownMenu(
     expandedState.targetState = expanded
 
     if (expandedState.currentState || expandedState.targetState) {
-        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         val popupPositionProvider =
             remember(offset, density) {
                 DropdownMenuPositionProvider(
-                    transformOriginState = transformOriginState,
                     contentOffset = offset,
                     density = density,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
                     horizontalMargin = 0
-                ) { parentBounds, menuBounds ->
-                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-                }
+                )
             }
 
         var focusManager: FocusManager? by mutableStateOf(null)
@@ -204,7 +200,7 @@ actual fun DropdownMenu(
 
             DropdownMenuContent(
                 expandedState = expandedState,
-                transformOriginState = transformOriginState,
+                transformOrigin = { popupPositionProvider.transformOrigin },
                 scrollState = scrollState,
                 shape = shape,
                 containerColor = containerColor,
@@ -232,36 +228,16 @@ actual fun DropdownMenuPopup(
     expandedState.targetState = expanded
 
     if (expandedState.currentState || expandedState.targetState) {
-        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         val popupPositionProvider =
             remember(offset, density) {
                 DropdownMenuPositionProvider(
-                    transformOriginState = transformOriginState,
                     contentOffset = offset,
                     density = density,
                     dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
-                ) { parentBounds, menuBounds ->
-                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-                }
+                )
             }
 
-        // Menu open/close animation.
-        @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
-        // TODO Load the motionScheme tokens from the component tokens file
-        val scaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-        val alphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
-        val scale by
-        transition.animateFloat(transitionSpec = { scaleAnimationSpec }) { expanded ->
-            if (expanded) ExpandedScaleTarget else ClosedScaleTarget
-        }
-
-        val alpha by
-        transition.animateFloat(transitionSpec = { alphaAnimationSpec }) { expanded ->
-            if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
-        }
-
-        val isInspecting = LocalInspectionMode.current
         var focusManager: FocusManager? by mutableStateOf(null)
         var inputModeManager: InputModeManager? by mutableStateOf(null)
         Popup(
@@ -275,23 +251,10 @@ actual fun DropdownMenuPopup(
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current
 
-            Column(
-                modifier =
-                    modifier.width(IntrinsicSize.Max).graphicsLayer {
-                        scaleX =
-                            if (!isInspecting) scale
-                            else if (expandedState.targetState) ExpandedScaleTarget
-                            else ClosedScaleTarget
-                        scaleY =
-                            if (!isInspecting) scale
-                            else if (expandedState.targetState) ExpandedScaleTarget
-                            else ClosedScaleTarget
-                        this.alpha =
-                            if (!isInspecting) alpha
-                            else if (expandedState.targetState) ExpandedAlphaTarget
-                            else ClosedAlphaTarget
-                        transformOrigin = transformOriginState.value
-                    },
+            DropdownMenuPopupContent(
+                modifier = modifier,
+                expandedState = expandedState,
+                transformOrigin = { popupPositionProvider.transformOrigin },
                 content = content,
             )
         }
