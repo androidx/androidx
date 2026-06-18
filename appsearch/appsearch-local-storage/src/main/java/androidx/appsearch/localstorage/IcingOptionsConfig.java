@@ -349,6 +349,8 @@ public interface IcingOptionsConfig {
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
                 .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())
+                .setEnableAccountPropertyIncompatibilityCheck(
+                        Flags.enableAccountPropertyIncompatibilityCheck())
                 .build();
     }
 }

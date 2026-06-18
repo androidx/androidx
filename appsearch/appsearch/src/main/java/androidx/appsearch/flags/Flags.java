@@ -298,6 +298,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_DATABASE_STABLENESS_LOG =
             FLAG_PREFIX + "enable_database_stableness_log";
 
+    /** Enables incompatibility check when promoting a regular property to an account property. */
+    public static final String FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK =
+            FLAG_PREFIX + "enable_account_property_incompatibility_check";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -646,6 +650,15 @@ public final class Flags {
 
     /** Whether to enable database stableness log in Icing. */
     public static boolean enableDatabaseStablenessLog() {
+        return false;
+    }
+
+    /**
+     * Whether incompatibility check when promoting a regular property to an account property
+     * should be enabled.
+     */
+    public static boolean enableAccountPropertyIncompatibilityCheck() {
+        // TODO(b/506060010): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }
