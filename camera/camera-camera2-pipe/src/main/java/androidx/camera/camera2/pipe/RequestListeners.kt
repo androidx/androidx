@@ -16,7 +16,9 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CaptureResult
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.graph.LatestFrameMetadataAggregator
 
 /**
  * [RequestListeners] is a Set-like interface that stores a collection of [Request.Listener]s.
@@ -45,4 +47,33 @@ public interface RequestListeners {
 
     /** Remove the given list of [Request.Listener] from the class. */
     public fun removeAll(listeners: List<Request.Listener>)
+
+    public companion object {
+        /**
+         * Create a [Request.Listener] that aggregates the latest values for the given keys.
+         *
+         * The [listener] will be invoked synchronously on the calling thread (the camera callback
+         * thread).
+         *
+         * The callback is triggered only when the resolved value of any tracked key changes, or
+         * when a key transitions between being present and absent.
+         */
+        @JvmStatic
+        public fun createLatestFrameMetadataListener(
+            captureResultKeys: Set<CaptureResult.Key<*>> = emptySet(),
+            metadataKeys: Set<Metadata.Key<*>> = emptySet(),
+            filter: ((RequestMetadata) -> Boolean)? = null,
+            listener: (LatestFrameMetadata) -> Unit,
+        ): Request.Listener {
+            require(captureResultKeys.isNotEmpty() || metadataKeys.isNotEmpty()) {
+                "At least one of captureResultKeys or metadataKeys must be non-empty"
+            }
+            return LatestFrameMetadataAggregator(
+                captureResultKeys = captureResultKeys,
+                metadataKeys = metadataKeys,
+                filter = filter,
+                onValuesUpdated = listener,
+            )
+        }
+    }
 }
