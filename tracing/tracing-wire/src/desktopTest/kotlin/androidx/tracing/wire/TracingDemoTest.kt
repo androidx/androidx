@@ -91,6 +91,13 @@ class TracingDemoTest {
                     metadataBlock = { addCorrelationId(correlationId) },
                 ) {
                     delay(1000L.milliseconds)
+                    tracer.instant(
+                        category = "category",
+                        name = "instant",
+                        token = tracer.tokenFromCoroutineContext(),
+                    ) {
+                        addCorrelationId(correlationId)
+                    }
                 }
             }
         }

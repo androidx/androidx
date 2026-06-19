@@ -49,8 +49,13 @@ public class PerfettoTracer(
     }
 
     @ExperimentalContextPropagation
-    override fun tokenForManualPropagation(): PropagationToken {
-        return inheritedPropagationToken(parent = null, tracer = this)
+    override fun tokenForManualPropagation(flowIds: List<Long>): PropagationToken {
+        return buildPropagationElement(
+            tracer = this,
+            category = DEFAULT_STRING,
+            name = DEFAULT_STRING,
+            flowIds = flowIds,
+        )
     }
 
     @DelicateTracingApi
@@ -136,8 +141,21 @@ public class PerfettoTracer(
     }
 
     @DelicateTracingApi
-    override fun instant(category: String, name: String): EventMetadataCloseable {
+    override fun writeInstant(
+        category: String,
+        name: String,
+        token: PropagationToken?,
+    ): EventMetadataCloseable {
+        val flowIds =
+            if (token == null || token == PropagationUnsupportedToken) {
+                emptyList()
+            } else {
+                val tokenElement =
+                    token as? PlatformThreadContextElement
+                        ?: throw IllegalArgumentException("Unsupported token type $token")
+                tokenElement.flowIds
+            }
         val track = process.currentThreadTrack()
-        return track.instant(category = category, name = name)
+        return track.instant(category = category, name = name, flowIds = flowIds)
     }
 }

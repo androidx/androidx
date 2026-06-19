@@ -249,11 +249,12 @@ internal constructor(
 
     @PublishedApi
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun setInstant(trackUuid: Long, name: String) {
+    internal inline fun setInstant(trackUuid: Long, name: String, flowIds: List<Long>) {
         type = TRACE_EVENT_TYPE_INSTANT
         this.trackUuid = trackUuid
         timestamp = nanoTime()
         this.name = name
+        this.flowIds = flowIds
     }
 
     @PublishedApi

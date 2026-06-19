@@ -29,9 +29,14 @@ public abstract class Tracer {
     /**
      * Creates a [PropagationToken] that can be used for manual context propagation in
      * [androidx.tracing.Tracer].
+     *
+     * @param flowIds An optional list of `ids` that can be used to connect slices on different
+     *   tracks.
      */
     @ExperimentalContextPropagation
-    public abstract fun tokenForManualPropagation(): PropagationToken
+    public abstract fun tokenForManualPropagation(
+        flowIds: List<Long> = listOf(monotonicId())
+    ): PropagationToken
 
     /**
      * This gives the ability to control how context propagation works for a
@@ -133,9 +138,20 @@ public abstract class Tracer {
      */
     public abstract fun counter(category: String, name: String): Counter
 
-    /** Emits a zero duration section to the Trace with the provided [category] and [name]. */
+    /**
+     * Writes a zero duration section to the Trace.
+     *
+     * @param category The category that the trace section belongs to. Apps can potentially filter
+     *   sections to the categories that they are interested in looking into.
+     * @param name The name of the code section to appear in the trace.
+     * @param token The optional [PropagationToken] instance to use for context propagation.
+     */
     @DelicateTracingApi
-    public abstract fun instant(category: String, name: String): EventMetadataCloseable
+    public abstract fun writeInstant(
+        category: String,
+        name: String,
+        token: PropagationToken?,
+    ): EventMetadataCloseable
 
     /**
      * Writes a trace message indicating that a given section of code has begun.
@@ -351,6 +367,7 @@ public abstract class Tracer {
      * @param category The category that the trace section belongs to. Apps can potentially filter
      *   sections to the categories that they are interested in looking into.
      * @param name The name of the code section to appear in the trace.
+     * @param token The optional [PropagationToken] instance to use for context propagation.
      * @param metadataBlock The lambda that can be used to decorate the trace event with additional
      *   debug annotations.
      */
@@ -358,9 +375,10 @@ public abstract class Tracer {
     public inline fun instant(
         category: String,
         name: String,
+        token: PropagationToken? = null,
         crossinline metadataBlock: EventMetadata.() -> Unit = {},
     ) {
-        val result = instant(category = category, name = name)
+        val result = writeInstant(category = category, name = name, token = token)
         metadataBlock(result.metadata)
         result.metadata.dispatchToTraceSink()
     }
