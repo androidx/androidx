@@ -231,10 +231,12 @@ public final class androidx/compose/foundation/layout/FlexBasis$Companion {
 public abstract interface class androidx/compose/foundation/layout/FlexBoxConfig {
 	public static final field Companion Landroidx/compose/foundation/layout/FlexBoxConfig$Companion;
 	public abstract fun configure (Landroidx/compose/foundation/layout/FlexBoxConfigScope;)V
+	public fun then (Landroidx/compose/foundation/layout/FlexBoxConfig;)Landroidx/compose/foundation/layout/FlexBoxConfig;
 }
 
 public final class androidx/compose/foundation/layout/FlexBoxConfig$Companion : androidx/compose/foundation/layout/FlexBoxConfig {
 	public fun configure (Landroidx/compose/foundation/layout/FlexBoxConfigScope;)V
+	public fun then (Landroidx/compose/foundation/layout/FlexBoxConfig;)Landroidx/compose/foundation/layout/FlexBoxConfig;
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlexBoxConfigScope : androidx/compose/ui/unit/Density {
@@ -254,6 +256,12 @@ public abstract interface class androidx/compose/foundation/layout/FlexBoxConfig
 
 public final class androidx/compose/foundation/layout/FlexBoxKt {
 	public static final fun FlexBox (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/FlexBoxConfig;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun FlexBoxConfig (Landroidx/compose/foundation/layout/FlexBoxConfig;Landroidx/compose/foundation/layout/FlexBoxConfig;)Landroidx/compose/foundation/layout/FlexBoxConfig;
+	public static final fun FlexBoxConfig (Landroidx/compose/foundation/layout/FlexBoxConfig;Landroidx/compose/foundation/layout/FlexBoxConfig;Landroidx/compose/foundation/layout/FlexBoxConfig;)Landroidx/compose/foundation/layout/FlexBoxConfig;
+	public static final fun FlexBoxConfig ([Landroidx/compose/foundation/layout/FlexBoxConfig;)Landroidx/compose/foundation/layout/FlexBoxConfig;
+	public static final fun FlexConfig (Landroidx/compose/foundation/layout/FlexConfig;Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/foundation/layout/FlexConfig;
+	public static final fun FlexConfig (Landroidx/compose/foundation/layout/FlexConfig;Landroidx/compose/foundation/layout/FlexConfig;Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/foundation/layout/FlexConfig;
+	public static final fun FlexConfig ([Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/foundation/layout/FlexConfig;
 	public static final fun flexMultiContentMeasurePolicy (Landroidx/compose/runtime/State;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
 }
 
@@ -273,7 +281,14 @@ public final class androidx/compose/foundation/layout/FlexBoxScopeInstance : and
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlexConfig {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexConfig$Companion;
 	public abstract fun configure (Landroidx/compose/foundation/layout/FlexConfigScope;)V
+	public fun then (Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/foundation/layout/FlexConfig;
+}
+
+public final class androidx/compose/foundation/layout/FlexConfig$Companion : androidx/compose/foundation/layout/FlexConfig {
+	public fun configure (Landroidx/compose/foundation/layout/FlexConfigScope;)V
+	public fun then (Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/foundation/layout/FlexConfig;
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlexConfigScope : androidx/compose/ui/unit/Density {
@@ -387,6 +402,9 @@ public final class androidx/compose/foundation/layout/Fr {
 }
 
 public abstract interface class androidx/compose/foundation/layout/GridConfigurationScope : androidx/compose/ui/unit/Density {
+	public abstract fun area (Ljava/lang/Object;IIII)V
+	public fun area (Ljava/lang/Object;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;)V
+	public static synthetic fun area$default (Landroidx/compose/foundation/layout/GridConfigurationScope;Ljava/lang/Object;IIIIILjava/lang/Object;)V
 	public abstract fun column (F)V
 	public abstract fun column-0680j_4 (F)V
 	public abstract fun column-118E5d0 (J)V
@@ -444,8 +462,10 @@ public abstract interface class androidx/compose/foundation/layout/GridScope {
 	public static final field GridIndexUnspecified I
 	public static final field MaxGridIndex I
 	public abstract fun gridItem (Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public abstract fun gridItem (Landroidx/compose/ui/Modifier;Ljava/lang/Object;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
 	public abstract fun gridItem (Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Ljava/lang/Object;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
@@ -456,6 +476,7 @@ public final class androidx/compose/foundation/layout/GridScope$Companion {
 
 public final class androidx/compose/foundation/layout/GridScope$DefaultImpls {
 	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Ljava/lang/Object;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
@@ -463,6 +484,7 @@ public final class androidx/compose/foundation/layout/GridScopeInstance : androi
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/foundation/layout/GridScopeInstance;
 	public fun gridItem (Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public fun gridItem (Landroidx/compose/ui/Modifier;Ljava/lang/Object;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
 	public fun gridItem (Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
 }
 

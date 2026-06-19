@@ -4090,11 +4090,14 @@ public final class androidx/compose/ui/semantics/CustomAccessibilityAction {
 public final class androidx/compose/ui/semantics/InputTextSuggestionState {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Z)V
+	public synthetic fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZ)V
+	public synthetic fun <init> (ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 	public final fun isCommittedByInputMethodEditor ()Z
+	public final fun isTransliterationSuggestionSelected ()Z
 	public fun toString ()Ljava/lang/String;
 }
 
