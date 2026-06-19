@@ -24,6 +24,7 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
+import androidx.annotation.OptIn;
 import androidx.webkit.CustomHeader;
 import androidx.webkit.HttpCache;
 import androidx.webkit.PrefetchCache;
@@ -54,8 +55,17 @@ public class ProfileImpl implements Profile {
 
     private final @NonNull ProfileBoundaryInterface mProfileImpl;
 
+    @OptIn(markerClass = ExperimentalUrlPrefetch.class)
+    private final PrefetchCache mPrefetchCache;
+
+    // We can't create an instance of a HttpCache in the constructor because it requires certain
+    // WebView feature support.
+    private @Nullable HttpCache mHttpCache;
+
+    @OptIn(markerClass = ExperimentalUrlPrefetch.class)
     ProfileImpl(@NonNull ProfileBoundaryInterface profileImpl) {
         mProfileImpl = profileImpl;
+        mPrefetchCache = new PrefetchCache(profileImpl);
     }
 
     @Override
@@ -91,12 +101,14 @@ public class ProfileImpl implements Profile {
     @Profile.ExperimentalUrlPrefetch
     @Override
     public @NonNull PrefetchCache getPrefetchCache() {
+        // Although we can construct a PrefetchCache object without any support from the WebView
+        // implementation, all the methods on the PrefetchCache are gated on this feature.
         ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
-        if (feature.isSupportedByWebView()) {
-            return new PrefetchCache(mProfileImpl);
-        } else {
+        if (!feature.isSupportedByWebView()) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+
+        return mPrefetchCache;
     }
 
     @Override
@@ -354,15 +366,17 @@ public class ProfileImpl implements Profile {
     @Override
     public @NonNull HttpCache getHttpCache() {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.HTTP_CACHE_MANAGER;
-        if (feature.isSupportedByWebView()) {
-            // Note: this creates a new object on each call, which does not maintain object
-            // identity. (This is a general quirk across the library.)
-            InvocationHandler httpCache = mProfileImpl.getHttpCache();
-            return new HttpCache(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    HttpCacheBoundaryInterface.class, httpCache));
-        } else {
+        if (!feature.isSupportedByWebView()) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+
+        if (mHttpCache == null) {
+            InvocationHandler httpCache = mProfileImpl.getHttpCache();
+            mHttpCache = new HttpCache(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                    HttpCacheBoundaryInterface.class, httpCache));
+        }
+
+        return mHttpCache;
     }
 
 }
