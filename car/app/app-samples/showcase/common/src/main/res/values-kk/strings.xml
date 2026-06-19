@@ -376,9 +376,9 @@
     <string name="loading_screen" msgid="4771507490730308794">"Жүктеу экраны"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Түсті қосу не өшіру үшін басыңыз."</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Ауыстырғыштары бар карта үлгісі"</string>
-    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Ақылы жолдарсыз"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Ақылы жолсыз"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"Бағыт опциялары"</string>
-    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Магистральдарсыз"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Магистральға шықпау"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Паромсыз"</string>
     <string name="map_demos_title" msgid="2169766615521476592">"Картаның демо нұсқалары"</string>
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Контенттің демо нұсқалары бар карта"</string>
