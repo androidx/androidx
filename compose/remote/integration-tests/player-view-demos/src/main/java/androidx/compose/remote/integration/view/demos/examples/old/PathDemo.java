@@ -115,7 +115,7 @@ public class PathDemo extends RCDemo {
             rc.floatExpression(array, A_MAX);
             rc.floatExpression(array, A_MIN);
             float len = data.length; // rc.floatExpression(array, A_LEN);
-            rc.startLoopVar(len, 0, 1f);
+            rc.startLoopVar(len, 0.01f, 1f);
 
             RemotePath path1 = createCircle(60, 3, 150);
             RemotePath path2 = createCircle(60, 4, 150);

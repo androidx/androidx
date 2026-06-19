@@ -38,8 +38,8 @@ import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.width
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.integration.view.demos.customviews.SupportProgressBar
-import androidx.compose.remote.integration.view.demos.customviews.SupportTextView
+import androidx.compose.remote.integration.view.demos.customCompose.SupportSlider
+import androidx.compose.remote.integration.view.demos.customCompose.SupportText
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
@@ -47,27 +47,23 @@ import androidx.compose.ui.tooling.preview.Preview
 
 /**
  * An integration demo showcasing the newly introduced layout manager component `Custom` designed to
- * host and configure native Android platform components dynamically.
+ * host and configure Compose Composable components dynamically.
  *
  * Showcases:
- * 1. Hosting a native Android `TextView` inside the remote layout tree.
- * 2. Dynamic property mappings for native components using decoupled key-value pairs:
- *     - Type 1: String text contents configuration.
- *     - Type 2: Integer text color configuration.
- *     - Type 3: Integer text size configuration.
- *     - Type 4: Integer background color configuration.
+ * 1. Hosting Composable `Text` and `Slider` components inside the remote layout tree.
+ * 2. Dynamic property mappings using decoupled key-value pairs.
  */
 @Suppress("RestrictedApiAndroidX")
-public fun dslCustomComponentDemo(): ByteArray {
+public fun dslCustomComposeDemo(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         Column(
-            modifier = Modifier.fillMaxSize().background(0xFF0F17FF.toInt()).padding(32.rdp),
+            modifier = Modifier.fillMaxSize().background(0xFF1E293B.toInt()).padding(32.rdp),
             horizontal = RcHorizontalPositioning.Center,
             vertical = RcColumnVerticalPositioning.Top,
         ) {
             // Title Header
             Text(
-                text = "Native Interoperability",
+                text = "Compose Server Driven UI",
                 weight = RcWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 36.rsp,
@@ -78,7 +74,7 @@ public fun dslCustomComponentDemo(): ByteArray {
             Spacer(Modifier.height(16.rdp))
 
             Text(
-                text = "Uses Fully native Android TextView",
+                text = "Hosts Pure Compose @Composable widgets",
                 weight = RcWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 48.rsp,
@@ -108,29 +104,29 @@ public fun dslCustomComponentDemo(): ByteArray {
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 Text(
-                    text = "TextView :",
+                    text = "Text :",
                     fontSize = 48.rsp,
                     textAlign = RcTextAlign.Center,
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
                 Custom(
-                    config = "TextView",
+                    config = "Text",
                     properties =
                         listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
+                            CustomProperty.text(SupportText.PROP_TEXT, timeCount),
                             CustomProperty.color(
-                                SupportTextView.PROP_TEXT_COLOR,
+                                SupportText.PROP_TEXT_COLOR,
                                 Color.rgb(56, 189, 248).rcColor(),
                             ),
                             CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
+                                SupportText.PROP_TEXT_SIZE,
                                 CustomProperty.FLOAT_PROP,
                                 120f / 3,
                             ),
                             CustomProperty.color(
-                                SupportTextView.PROP_BACKGROUND_COLOR,
-                                Color.rgb(30, 41, 59).rcColor(),
+                                SupportText.PROP_BACKGROUND_COLOR,
+                                Color.rgb(15, 23, 42).rcColor(),
                             ),
                         ),
                     modifier =
@@ -139,118 +135,44 @@ public fun dslCustomComponentDemo(): ByteArray {
                             .clip(RoundedRectShape(32f, 32f, 32f, 32f)),
                 )
             }
-            Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
-                Text(
-                    text = "TextView :",
-                    fontSize = 48.rsp,
-                    textAlign = RcTextAlign.Center,
-                    color = 0xFF94A3B8.toInt(),
-                    modifier = Modifier.width(300.rdp),
-                )
-                Custom(
-                    config = "TextView",
-                    properties =
-                        listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
-                            CustomProperty.color(
-                                SupportTextView.PROP_TEXT_COLOR,
-                                Color.rgb(56, 248, 189).rcColor(),
-                            ),
-                            CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(
-                                SupportTextView.PROP_BACKGROUND_COLOR,
-                                Color.rgb(30, 41, 59).rcColor(),
-                            ),
-                        ),
-                    modifier = Modifier,
-                )
-            }
 
-            val prop = CustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
+            val prop = CustomProperty.returnFloat(SupportSlider.RET_PROGRESS, this)
             val slider = prop.getFloatValue()
-            // Native hosted Custom Component ProgressBar!
+            // Composable hosted Custom Component Slider!
             val progressProps =
                 listOf(
-                    CustomProperty(
-                        SupportProgressBar.PROP_PROGRESS,
-                        CustomProperty.FLOAT_PROP,
-                        slider,
-                    ),
-                    CustomProperty(
-                        SupportProgressBar.PROP_MAX_PROGRESS,
-                        CustomProperty.INT_PROP,
-                        100,
-                    ),
-                    CustomProperty(
-                        SupportProgressBar.PROP_INDETERMINATE,
-                        CustomProperty.INT_PROP,
-                        0,
-                    ),
+                    CustomProperty(SupportSlider.PROP_PROGRESS, CustomProperty.FLOAT_PROP, slider),
+                    CustomProperty(SupportSlider.PROP_MAX_PROGRESS, CustomProperty.INT_PROP, 100),
+                    CustomProperty(SupportSlider.PROP_INDETERMINATE, CustomProperty.INT_PROP, 0),
                     CustomProperty.color(
-                        SupportProgressBar.PROP_PROGRESS_COLOR,
-                        Color.rgb(56, 189, 248).rcColor(),
+                        SupportSlider.PROP_PROGRESS_COLOR,
+                        Color.rgb(168, 85, 247).rcColor(),
                     ),
                     prop,
                 )
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 Text(
-                    text = "SeekBar :",
+                    text = "Slider :",
                     fontSize = 48.rsp,
                     textAlign = RcTextAlign.Center,
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
                 Custom(
-                    config = "ProgressBar",
+                    config = "Slider",
                     properties = progressProps,
-                    modifier = Modifier.width(450.rdp),
+                    modifier = Modifier.width(450.rdp).height(100.rdp),
                 )
             }
 
             Spacer(Modifier.height(12.rdp))
             val sliderValText = createTextFromFloat(slider, 3, 0, 0)
             Text(
-                text = "Text Slider Value: " join slider.genTextId(3),
-                weight = RcWeight.Normal,
+                text = "Slider Value: " join slider.genTextId(3),
+                weight = RcWeight.Bold,
                 fontSize = 64.rsp,
-                color = 0xFFE2E8F0.toInt(),
+                color = 0xFFF59E0B.toInt(),
             )
-
-            Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
-                Text(
-                    text = "TextView :",
-                    fontSize = 48.rsp,
-                    textAlign = RcTextAlign.Center,
-                    color = 0xFF94A3B8.toInt(),
-                    modifier = Modifier.width(300.rdp),
-                )
-                val sum = slider + seconds() % 100f
-                Custom(
-                    config = "TextView",
-                    properties =
-                        listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, sum.genTextId(3)),
-                            CustomProperty.color(
-                                SupportTextView.PROP_TEXT_COLOR,
-                                Color.rgb(248, 189, 56).rcColor(),
-                            ),
-                            CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(
-                                SupportTextView.PROP_BACKGROUND_COLOR,
-                                Color.rgb(30, 41, 59).rcColor(),
-                            ),
-                        ),
-                    modifier = Modifier.width(450.rdp).height(130.rdp),
-                )
-            }
         }
     }
 }
@@ -258,6 +180,6 @@ public fun dslCustomComponentDemo(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 @Composable
 @Preview
-private fun DslCustomComponentDemoPreview() {
-    RemoteDocumentPreview(RemoteDocument(dslCustomComponentDemo()))
+private fun DslCustomComposeDemoPreview() {
+    RemoteDocumentPreview(RemoteDocument(dslCustomComposeDemo()))
 }

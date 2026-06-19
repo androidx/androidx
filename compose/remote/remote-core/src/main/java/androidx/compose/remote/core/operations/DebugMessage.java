@@ -149,8 +149,10 @@ public class DebugMessage extends Operation implements VariableSupport {
         System.out.println("Debug message : " + str + " " + mOutFloatValue);
         if ((mFlags & SHOW_USAGE) > 0) {
             ArrayList<VariableSupport> list = context.getListeners(Utils.idFromNan(mFloatValue));
-            for (VariableSupport varSupport : list) {
-                System.out.println("Debug message : " + str + " " + varSupport.toString());
+            if (list != null) {
+                for (VariableSupport varSupport : list) {
+                    System.out.println("Debug message : " + str + " " + varSupport.toString());
+                }
             }
         }
     }

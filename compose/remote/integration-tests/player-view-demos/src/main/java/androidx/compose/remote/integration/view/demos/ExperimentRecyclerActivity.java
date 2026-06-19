@@ -133,7 +133,7 @@ public class ExperimentRecyclerActivity extends Activity {
 
         sPersonImage3 = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.mostly_cloudy);
-        ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos(this));
+        ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos(this, 4 + 2));
         list.addAll(getRemoteComposable(context));
 
         return list;

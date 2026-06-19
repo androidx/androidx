@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.impl
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
@@ -66,6 +67,7 @@ internal fun RemoteDocumentComposePlayer(
             Theme.LIGHT
         }
 
+    @SuppressLint("RestrictedApiAndroidX")
     RemoteComposePlayer(
         document = remoteDoc,
         modifier = modifier.size(documentWidth.dp, documentHeight.dp),
