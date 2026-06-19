@@ -148,6 +148,8 @@ public interface Entity : ScenePose {
      * Dispose any system resources held by this entity, and transitively calls dispose() on all the
      * children. Once disposed, Entity shouldn't be used again.
      */
+    // TODO: b/510404486 - Once b/522024937 is fixed, remove the recursive dispose(). After that,
+    // clean up any internal usages. And then delete this api.
     public fun dispose()
 
     /**
