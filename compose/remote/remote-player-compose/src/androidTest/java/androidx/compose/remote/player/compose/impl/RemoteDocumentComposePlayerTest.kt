@@ -19,6 +19,7 @@ package androidx.compose.remote.player.compose.impl
 import android.content.Context
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -80,6 +81,22 @@ class RemoteDocumentComposePlayerTest {
         composeTestRule.runScreenshotTest(
             coreDocument = remoteComposeDocument,
             size = Size(200f / density, 200f / density),
+        )
+    }
+
+    @Test
+    fun testPlayer_paintExceptionShowsErrorUI() = runTest {
+        val remoteComposeDocument =
+            object : CoreDocument() {
+                override fun paint(context: RemoteContext, theme: Int) {
+                    throw RuntimeException("Simulated Paint Exception")
+                }
+            }
+
+        val density = context.resources.displayMetrics.density
+        composeTestRule.runScreenshotTest(
+            coreDocument = remoteComposeDocument,
+            size = Size(600f / density, 600f / density),
         )
     }
 }
