@@ -54,7 +54,7 @@ public class Custom extends LayoutManager implements VariableSupport {
         public final short mDataType;
         public final int mIntValue;
         public final float mFloatValue;
-        private String mStringOutValue;
+        private String mStringOutValue = "";
         private float mFloatOutValue;
         private boolean mNeedsUpdate = true;
         public static final short INT_PROP = 0;
@@ -150,7 +150,7 @@ public class Custom extends LayoutManager implements VariableSupport {
         for (CustomProperty prop : mProperties) {
             if (prop.isString()) {
                 String val = context.getText(prop.mIntValue);
-                if (!prop.mStringOutValue.equals(val)) {
+                if (prop.mStringOutValue == null || !prop.mStringOutValue.equals(val)) {
                     prop.mStringOutValue = val;
                     prop.mNeedsUpdate = true;
                 }

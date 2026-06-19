@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:SuppressLint("AutoBoxing")
+
 package androidx.compose.remote.player.compose.context
 
+import android.annotation.SuppressLint
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
@@ -24,6 +27,8 @@ import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
@@ -32,8 +37,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
  * [androidx.compose.remote.player.compose.impl.RemoteComposePlayer].
  */
 internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
-    private lateinit var haptic: HapticFeedback
+    private var haptic: HapticFeedback? = null
     private var varNameHashMap: HashMap<String, VarName?> = HashMap<String, VarName?>()
+
+    public val documentRevision = mutableIntStateOf(0)
+    public val animationFrame = mutableLongStateOf(0L)
 
     public var a11yAnimationEnabled = true
 
@@ -199,7 +207,7 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
     }
 
     override fun hapticEffect(type: Int) {
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
     override fun loadBitmap(
@@ -239,8 +247,10 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
         return mRemoteComposeState.getFromId(id) as? String
     }
 
+    @SuppressLint("AutoboxingStateValueProperty")
     override fun loadFloat(id: Int, value: Float) {
         mRemoteComposeState.updateFloat(id, value)
+        documentRevision.value++
     }
 
     override fun overrideFloat(id: Int, value: Float) {

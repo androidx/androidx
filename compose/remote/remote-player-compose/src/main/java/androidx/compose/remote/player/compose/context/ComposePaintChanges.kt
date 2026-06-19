@@ -144,7 +144,13 @@ internal class ComposePaintChanges(
      */
     override fun setTypeFace(fontType: String, weight: Int, italic: Boolean) {
         val path = getFontPath(fontType)
+        if (path == null) {
+            return
+        }
         fontBuilder = Font.Builder(File(path!!))
+        if (fontBuilder == null) {
+            return
+        }
         fontBuilder!!.setWeight(weight)
         fontBuilder!!.setSlant(
             if (italic) FontStyle.FONT_SLANT_ITALIC else FontStyle.FONT_SLANT_UPRIGHT
@@ -169,6 +175,9 @@ internal class ComposePaintChanges(
 
     private fun setAxis(axis: Array<FontVariationAxis?>?) {
         var font: Font?
+        if (fontBuilder == null) {
+            return
+        }
         try {
             if (axis != null) {
                 fontBuilder!!.setFontVariationSettings(axis)
