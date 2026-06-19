@@ -1,0 +1,50 @@
+import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
+import androidx.build.PlatformIdentifier
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk { version = release(37) }
+        namespace = "androidx.appstate.datastore"
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
+    }
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":appstate:appstate"))
+            api(project(":appstate:appstate-transform"))
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-preferences-core"))
+            api(libs.kotlinSerializationJson)
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinReflect)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":datastore:datastore-core-okio"))
+            implementation(libs.okio)
+        }
+    }
+}
+
+androidx {
+    name = "AndroidX AppState DataStore"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2026"
+    description = "Provides a persistence bridge between AppState and DataStore."
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
+}
