@@ -1959,6 +1959,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         composeAccessibilityDelegate.processSemanticChangesForTest()
     }
 
+    override fun clearCallbacks() {
+        handler.removeCallbacks(outOfFrameRunnable)
+    }
+
     override fun setUncaughtExceptionHandler(handler: RootForTest.UncaughtExceptionHandler?) {
         uncaughtExceptionHandler = handler
         measureAndLayoutDelegate.uncaughtExceptionHandler = handler
