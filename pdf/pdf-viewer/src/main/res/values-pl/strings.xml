@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"strona <xliff:g id="PAGE">%1$d</xliff:g> z <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"powiększenie <xliff:g id="FIRST">%1$d</xliff:g> procent"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"Widok PDF"</string>
     <string name="desc_goto" msgid="1333698934111921601">"Otwórz"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Idź do strony <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_copy" msgid="385275789223074637">"Kopiuje wybraną zawartość do schowka"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"Pliki PDF chronione hasłem są nieobsługiwane."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"Nie można edytować tego pliku PDF"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"Treść została skopiowana z pliku PDF"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"Pasek przewijania"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"Pasek przewijania"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"Potwierdź"</string>
     <string name="form_widget" msgid="5841730047544552656">"Widżet formularza"</string>
     <string name="form_type" msgid="1302137779809645840">"Typ: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"Wartość: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"Bieżąca wartość: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"Widżet jest tylko do odczytu i nie można go zmienić."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"Typ: widżet <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g> z możliwością wybierania wielu elementów."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"Typ: widżet <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g> z możliwością wybierania wielu elementów."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Kliknięcie spowoduje przełączenie wartości."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Kliknięcie spowoduje otwarcie menu wyboru."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Kliknięcie spowoduje włączenie trybu edycji tekstu."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"Niestandardowa"</string>
     <string name="form_unknown" msgid="6371515914365431330">"Nieznany"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"Przycisk"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Pole wyboru"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"Opcja"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"Pole kombi"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"Pole listy"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"Pole tekstowe"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"Naciśnij przycisk"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"Pole wyboru"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"Przycisk radiowy"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"Pole kombi"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"Pole listy"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"Pole tekstowe"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"Podpis"</string>
 </resources>

@@ -71,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"პაროლით დაცული PDF-ები არ არის მხარდაჭერილი."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"ამ PDF-ის რედაქტირება შეუძლებელია"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"კონტენტი კოპირებულია PDF-იდან"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"გადაადგილების ზოლი"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"გადაადგილების ზოლი"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"დადასტურება"</string>
     <string name="form_widget" msgid="5841730047544552656">"ფორმის ვიჯეტი"</string>
     <string name="form_type" msgid="1302137779809645840">"ტიპი: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -79,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"მნიშვნელობა: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"მიმდინარე მნიშვნელობა: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"ვიჯერი მხოლოდ წაკითხვადია და მისი შეცვლა შეუძლებელია."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"ტიპი: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>, შესაძლებელია რამდენიმე ვარიანტის არჩევა."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"ტიპი: მრავალჯერადი არჩევანი <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"დაწკაპუნება გადართავს მნიშვნელობას."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"დაწკაპუნება გახსნის არჩევის მენიუს."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"დაწკაპუნება ტექსტის რედაქტირების რეჟიმს გაააქტიურებს."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"მორგებული"</string>
     <string name="form_unknown" msgid="6371515914365431330">"უცნობი"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"Push ღილაკი"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"მოსანიშნი ველი"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"არჩევანის ღილაკი"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"ველი ჩამონათვალით"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"სიის ველი"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"ტექსტური ველი"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"Push ღილაკი"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"მოსანიშნი ველი"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"არჩევანის ღილაკი"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"ველი ჩამონათვალით"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"სიის ველი"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"ტექსტური ველი"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"ხელმოწერა"</string>
 </resources>

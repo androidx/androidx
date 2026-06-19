@@ -30,8 +30,7 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g>-ൽ <xliff:g id="PAGE">%1$d</xliff:g>-ാമത്തെ പേജ്"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> ശതമാനം സൂം ചെയ്യുക"</string>
-    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
-    <skip />
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF കാഴ്ച"</string>
     <string name="desc_goto" msgid="1333698934111921601">"ഇനിപ്പറയുന്നതിലേക്ക് പോകുക"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> പേജിലേക്ക് പോകുക"</string>
     <string name="desc_copy" msgid="385275789223074637">"തിരഞ്ഞെടുത്ത ഉള്ളടക്കം നിങ്ങളുടെ ക്ലിപ്പ്‌ബോർഡിലേക്ക് പകർത്തുന്നു"</string>
@@ -72,7 +71,7 @@
     <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"പാസ്‌വേഡ് പരിരക്ഷയുള്ള PDF-കൾ പിന്തുണയ്ക്കുന്നില്ല."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"ഈ PDF എഡിറ്റ് ചെയ്യാനാകില്ല"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"ഉള്ളടക്കം PDF-ൽ നിന്ന് പകർത്തി"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"സ്‌ക്രോൾബാർ"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"സ്‌ക്രോൾ ബാർ"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"സ്ഥിരീകരിക്കുക"</string>
     <string name="form_widget" msgid="5841730047544552656">"ഫോം വിജറ്റ്"</string>
     <string name="form_type" msgid="1302137779809645840">"തരം: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -80,17 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"മൂല്യം: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"നിലവിലെ മൂല്യം: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"വിജറ്റ് വായിക്കാൻ മാത്രമുള്ളതാണ്, അത് മാറ്റാൻ കഴിയില്ല."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"തരം: ഒന്നിലധികം തിരഞ്ഞെടുക്കൽ <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"തരം: മൾട്ടി സെലക്റ്റ് <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"ക്ലിക്ക് ചെയ്‌താൽ മൂല്യം ടോഗിൾ ചെയ്യും."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"ക്ലിക്ക് ചെയ്‌താൽ ചോയ്‌സ് സെലക്ഷൻ മെനു തുറക്കും."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"ക്ലിക്ക് ചെയ്‌താൽ ടെക്സ്റ്റ് എഡിറ്റ് മോഡിലേക്ക് പോകും."</string>
     <string name="combobox_custom_option" msgid="8730230629127076731">"ഇഷ്‌ടാനുസൃതം"</string>
     <string name="form_unknown" msgid="6371515914365431330">"അജ്ഞാതം"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"പുഷ് ബട്ടൺ"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"ചെക്ക് ബോക്‌സ്"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"റേഡിയോ ബട്ടൺ"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"കോമ്പോ ബോക്‌സ്"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"ലിസ്‌റ്റ് ബോക്‌സ്"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"ടെക്‌സ്റ്റ് ഫീൽഡ്"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"പുഷ് ബട്ടൺ"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"ചെക്ക് ബോക്‌സ്"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"റേഡിയോ ബട്ടൺ"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"കോമ്പോ ബോക്‌സ്"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"ലിസ്റ്റ് ബോക്സ്"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"ടെക്‌സ്റ്റ് ഫീൽഡ്"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"ഒപ്പ്"</string>
 </resources>
