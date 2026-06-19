@@ -54,7 +54,7 @@ public fun rememberRemoteDocument(
     LaunchedEffect(Unit) {
         val document =
             captureSingleRemoteDocument(
-                creationDisplayInfo = createCreationDisplayInfo(context),
+                creationDisplayInfo = creationDisplayInfo,
                 layoutDirection = layoutDirection,
                 context = context,
                 content = content,

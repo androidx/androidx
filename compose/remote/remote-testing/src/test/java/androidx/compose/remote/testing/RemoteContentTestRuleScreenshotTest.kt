@@ -51,7 +51,7 @@ class RemoteContentTestRuleScreenshotTest {
     @Test
     fun textValueChange() {
         remoteContentTestRule.setContent(
-            RemoteCreationDisplayInfo(width = 500, height = 500, densityDpi = 1)
+            RemoteCreationDisplayInfo(width = 500, height = 500, densityDpi = 160)
         ) {
             val text = rememberMutableRemoteString("Initial")
             RemoteBox(

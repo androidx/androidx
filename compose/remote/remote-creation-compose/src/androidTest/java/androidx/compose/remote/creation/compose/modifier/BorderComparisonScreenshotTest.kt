@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +74,7 @@ class BorderComparisonScreenshotTest {
     @Test
     fun borderComparison() =
         composeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = RemoteCreationDisplayInfo(400, 800, 240),
+            remoteCreationDisplayInfo = getScaledDisplayInfo(400, 800, 240),
             playComposableWrapper = { content ->
                 Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
                     Row(
@@ -193,4 +194,17 @@ class BorderComparisonScreenshotTest {
                 }
             }
         }
+
+    private fun getScaledDisplayInfo(
+        originalWidthPx: Int,
+        originalHeightPx: Int,
+        originalDensity: Int,
+    ): RemoteCreationDisplayInfo {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val hostDensityDpi = context.resources.displayMetrics.densityDpi
+        val scale = hostDensityDpi.toFloat() / originalDensity.toFloat()
+        val widthPx = (originalWidthPx * scale).toInt()
+        val heightPx = (originalHeightPx * scale).toInt()
+        return RemoteCreationDisplayInfo(widthPx, heightPx, hostDensityDpi)
+    }
 }
