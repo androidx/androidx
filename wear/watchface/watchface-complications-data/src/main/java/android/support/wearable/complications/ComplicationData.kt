@@ -333,7 +333,13 @@ private constructor(
             }
             if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
                 ois.readNullable { ois.readByteArray() }
-                    ?.let { fields[FIELD_DYNAMIC_VALUE] = DynamicFloat.fromByteArray(it) }
+                    ?.let {
+                        try {
+                            fields[FIELD_DYNAMIC_VALUE] = DynamicFloat.fromByteArray(it)
+                        } catch (e: IllegalArgumentException) {
+                            Log.w(TAG, "Could not parse DynamicFloat", e)
+                        }
+                    }
             }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
                 fields[FIELD_VALUE_TYPE] = ois.readInt()
@@ -2503,7 +2509,14 @@ private constructor(
             putFromBundle(FIELD_EXTRAS) { GetParcelableHelper.getPersistableBundle(bundle, it) }
             putFromBundle(FIELD_VALUE, bundle::getFloat)
             putFromBundle(FIELD_DYNAMIC_VALUE) { key ->
-                bundle.getByteArray(key)?.let { DynamicFloat.fromByteArray(it) }
+                bundle.getByteArray(key)?.let {
+                    try {
+                        DynamicFloat.fromByteArray(it)
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(TAG, "Could not parse DynamicFloat", e)
+                        null
+                    }
+                }
             }
             putFromBundle(FIELD_VALUE_TYPE, bundle::getInt)
             putFromBundle(FIELD_MIN_VALUE, bundle::getFloat)
@@ -2675,10 +2688,13 @@ private constructor(
             } catch (e: BadParcelableException) {
                 Log.w(
                     TAG,
-                    "Could not unparcel ComplicationData. Provider apps must exclude wearable " +
+                    "Could not unparcel ComplicationData field $key. Provider apps must exclude wearable " +
                         "support complication classes from proguard.",
                     e,
                 )
+                null
+            } catch (e: RuntimeException) {
+                Log.w(TAG, "RuntimeException unparceling ComplicationData field: $key", e)
                 null
             }
 

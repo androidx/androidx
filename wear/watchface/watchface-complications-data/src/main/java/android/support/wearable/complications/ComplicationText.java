@@ -66,6 +66,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationText implements Parcelable, TimeDependentText, Serializable {
+    private static final String TAG = "ComplicationText";
 
     @Override
     public boolean equals(Object o) {
@@ -279,7 +280,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    private final @Nullable CharSequence mSurroundingText;
+    private @Nullable CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
@@ -434,9 +435,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
     private void checkFields() {
         if (mSurroundingText == null && mTimeDependentText == null && mDynamicText == null) {
-            throw new IllegalStateException(
-                    "One of mSurroundingText, mTimeDependentText and mDynamicText must be "
-                            + "non-null");
+            Log.w(TAG, "ComplicationText has no text fields set, defaulting to empty string");
+            mSurroundingText = "";
         }
     }
 
