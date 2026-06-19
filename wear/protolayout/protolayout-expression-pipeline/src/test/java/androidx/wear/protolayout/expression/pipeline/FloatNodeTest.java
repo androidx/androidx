@@ -20,7 +20,6 @@ import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HE
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -69,8 +68,10 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class FloatNodeTest {
     private static final AppDataKey<DynamicFloat> KEY_FOO = new AppDataKey<>("foo");
-    @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock private PlatformDataProvider mMockDataProvider;
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Mock
+    private PlatformDataProvider mMockDataProvider;
 
     @Test
     public void fixedFloatNodesTest_invalidateNotCalled() {
@@ -347,22 +348,32 @@ public class FloatNodeTest {
 
     @Test
     public void arithmeticFloat_unknownOperation_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED,
-                                new AddToListCallback<>(new ArrayList<>())));
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                -1 /* UNRECOGNIZED */,
-                                new AddToListCallback<>(new ArrayList<>())));
+        List<Float> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        evaluateArithmeticExpression(
+                /* lhs= */ 1,
+                /* rhs= */ 1,
+                ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED,
+                new AddToListCallback<>(results, invalidList));
+
+        assertThat(results).isEmpty();
+        assertThat(invalidList).hasSize(1);
+    }
+
+    @Test
+    public void arithmeticFloat_unrecognizedOperation_throws() {
+        List<Float> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        evaluateArithmeticExpression(
+                /* lhs= */ 1,
+                /* rhs= */ 1,
+                -1 /* UNRECOGNIZED */,
+                new AddToListCallback<>(results, invalidList));
+
+        assertThat(results).isEmpty();
+        assertThat(invalidList).hasSize(1);
     }
 
     @Test

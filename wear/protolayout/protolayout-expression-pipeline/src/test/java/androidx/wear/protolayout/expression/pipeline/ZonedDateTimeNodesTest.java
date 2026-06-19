@@ -55,4 +55,26 @@ public class ZonedDateTimeNodesTest {
         assertThat(results.get(0).getZone()).isEqualTo(ZoneId.of(zoneId));
         assertThat(results.get(0).toInstant()).isEqualTo(instant);
     }
+
+    @Test
+    public void testInstantOutOfRange_invalidatesDownstream() {
+        List<ZonedDateTime> results = new ArrayList<>();
+        List<Boolean> invalidResults = new ArrayList<>();
+        Instant instant = Instant.MIN;
+        String zoneId = "Europe/Paris";
+        InstantToZonedDateTimeOp proto =
+                InstantToZonedDateTimeOp.newBuilder()
+                        .setInstant(
+                                DynamicBuilders.DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+                                        .toDynamicInstantProto())
+                        .setZoneId(zoneId)
+                        .build();
+        InstantToZonedDateTimeOpNode node =
+                new InstantToZonedDateTimeOpNode(
+                        proto, new AddToListCallback<>(results, invalidResults));
+        node.getIncomingCallback().onData(instant);
+
+        assertThat(results).isEmpty();
+        assertThat(invalidResults).hasSize(1);
+    }
 }

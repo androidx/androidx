@@ -121,7 +121,8 @@ public class DynamicTypeEvaluator {
                 }
 
                 @Override
-                public void releaseQuota(int quota) {}
+                public void releaseQuota(int quota) {
+                }
             };
 
     private static final @NonNull QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
@@ -251,7 +252,7 @@ public class DynamicTypeEvaluator {
              * One data key must not have multiple providers, or an exception will be thrown.
              *
              * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key set
-             *     or if a key has multiple data providers.
+             *                                  or if a key has multiple data providers.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             public @NonNull Builder addPlatformDataProvider(
@@ -393,11 +394,17 @@ public class DynamicTypeEvaluator {
      * called on the returned object.
      *
      * @throws EvaluationException when {@link QuotaManager} fails to allocate enough quota to bind
-     *     the {@link DynamicTypeBindingRequest}.
+     *                             the {@link DynamicTypeBindingRequest}.
      */
     public @NonNull BoundDynamicType bind(@NonNull DynamicTypeBindingRequest request)
             throws EvaluationException {
-        BoundDynamicTypeImpl boundDynamicType = request.callBindOn(this);
+        BoundDynamicTypeImpl boundDynamicType;
+        try {
+            boundDynamicType = request.callBindOn(this);
+        } catch (RuntimeException e) {
+            throw new EvaluationException(
+                    "Failed to construct dynamic type graph: " + e.getMessage());
+        }
         int dynamicNodeCost = boundDynamicType.getDynamicNodeCost();
         if (!mDynamicTypesQuotaManager.tryAcquireQuota(dynamicNodeCost)) {
             throw new EvaluationException(
@@ -619,91 +626,86 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedStringNode(stringSource.getFixed(), downstreamConsumer);
                 break;
-            case INT32_FORMAT_OP:
-                {
-                    NumberFormatter formatter =
-                            new NumberFormatter(stringSource.getInt32FormatOp(), locale);
-                    Int32FormatNode int32FormatNode =
-                            new Int32FormatNode(formatter, downstreamConsumer);
-                    node = int32FormatNode;
-                    bindRecursively(
-                            stringSource.getInt32FormatOp().getInput(),
-                            int32FormatNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case FLOAT_FORMAT_OP:
-                {
-                    NumberFormatter formatter =
-                            new NumberFormatter(stringSource.getFloatFormatOp(), locale);
-                    FloatFormatNode floatFormatNode =
-                            new FloatFormatNode(formatter, downstreamConsumer);
-                    node = floatFormatNode;
-                    bindRecursively(
-                            stringSource.getFloatFormatOp().getInput(),
-                            floatFormatNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
-                    node =
-                            new StateStringNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<String> conditionalNode =
-                            new ConditionalOpNode<>(downstreamConsumer);
+            case INT32_FORMAT_OP: {
+                NumberFormatter formatter =
+                        new NumberFormatter(stringSource.getInt32FormatOp(), locale);
+                Int32FormatNode int32FormatNode =
+                        new Int32FormatNode(formatter, downstreamConsumer);
+                node = int32FormatNode;
+                bindRecursively(
+                        stringSource.getInt32FormatOp().getInput(),
+                        int32FormatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case FLOAT_FORMAT_OP: {
+                NumberFormatter formatter =
+                        new NumberFormatter(stringSource.getFloatFormatOp(), locale);
+                FloatFormatNode floatFormatNode =
+                        new FloatFormatNode(formatter, downstreamConsumer);
+                node = floatFormatNode;
+                bindRecursively(
+                        stringSource.getFloatFormatOp().getInput(),
+                        floatFormatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case STATE_SOURCE: {
+                DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
+                node =
+                        new StateStringNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<String> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalStringOp op = stringSource.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            locale,
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            locale,
-                            resultBuilder,
-                            cache);
+                ConditionalStringOp op = stringSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
-            case CONCAT_OP:
-                {
-                    StringConcatOpNode concatNode = new StringConcatOpNode(downstreamConsumer);
-                    node = concatNode;
-                    bindRecursively(
-                            stringSource.getConcatOp().getInputLhs(),
-                            concatNode.getLhsIncomingCallback(),
-                            locale,
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            stringSource.getConcatOp().getInputRhs(),
-                            concatNode.getRhsIncomingCallback(),
-                            locale,
-                            resultBuilder,
-                            cache);
-                    break;
-                }
+                node = conditionalNode;
+                break;
+            }
+            case CONCAT_OP: {
+                StringConcatOpNode concatNode = new StringConcatOpNode(downstreamConsumer);
+                node = concatNode;
+                bindRecursively(
+                        stringSource.getConcatOp().getInputLhs(),
+                        concatNode.getLhsIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        stringSource.getConcatOp().getInputRhs(),
+                        concatNode.getRhsIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicString has no inner source set");
             default:
@@ -744,113 +746,106 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedInt32Node(int32Source.getFixed(), downstreamConsumer);
                 break;
-            case PLATFORM_SOURCE:
-                {
-                    node =
-                            new LegacyPlatformInt32SourceNode(
-                                    mPlatformDataStore,
-                                    int32Source.getPlatformSource(),
-                                    downstreamConsumer);
-                    break;
-                }
-            case ARITHMETIC_OPERATION:
-                {
-                    ArithmeticInt32Node arithmeticNode =
-                            new ArithmeticInt32Node(
-                                    int32Source.getArithmeticOperation(), downstreamConsumer);
-                    node = arithmeticNode;
+            case PLATFORM_SOURCE: {
+                node =
+                        new LegacyPlatformInt32SourceNode(
+                                mPlatformDataStore,
+                                int32Source.getPlatformSource(),
+                                downstreamConsumer);
+                break;
+            }
+            case ARITHMETIC_OPERATION: {
+                ArithmeticInt32Node arithmeticNode =
+                        new ArithmeticInt32Node(
+                                int32Source.getArithmeticOperation(), downstreamConsumer);
+                node = arithmeticNode;
 
-                    bindRecursively(
-                            int32Source.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            int32Source.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                bindRecursively(
+                        int32Source.getArithmeticOperation().getInputLhs(),
+                        arithmeticNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        int32Source.getArithmeticOperation().getInputRhs(),
+                        arithmeticNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
-                    node =
-                            new StateInt32SourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<Integer> conditionalNode =
-                            new ConditionalOpNode<>(downstreamConsumer);
+                break;
+            }
+            case STATE_SOURCE: {
+                DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
+                node =
+                        new StateInt32SourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<Integer> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalInt32Op op = int32Source.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                ConditionalInt32Op op = int32Source.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
-            case FLOAT_TO_INT:
-                {
-                    FloatToInt32Node conversionNode =
-                            new FloatToInt32Node(int32Source.getFloatToInt(), downstreamConsumer);
-                    node = conversionNode;
+                node = conditionalNode;
+                break;
+            }
+            case FLOAT_TO_INT: {
+                FloatToInt32Node conversionNode =
+                        new FloatToInt32Node(int32Source.getFloatToInt(), downstreamConsumer);
+                node = conversionNode;
 
-                    bindRecursively(
-                            int32Source.getFloatToInt().getInput(),
-                            conversionNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case DURATION_PART:
-                {
-                    GetDurationPartOpNode durationPartOpNode =
-                            new GetDurationPartOpNode(
-                                    int32Source.getDurationPart(), downstreamConsumer);
-                    node = durationPartOpNode;
+                bindRecursively(
+                        int32Source.getFloatToInt().getInput(),
+                        conversionNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case DURATION_PART: {
+                GetDurationPartOpNode durationPartOpNode =
+                        new GetDurationPartOpNode(
+                                int32Source.getDurationPart(), downstreamConsumer);
+                node = durationPartOpNode;
 
-                    bindRecursively(
-                            int32Source.getDurationPart().getInput(),
-                            durationPartOpNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case ZONED_DATE_TIME_PART:
-                {
-                    GetZonedDateTimePartOpNode zdtPartOpNode =
-                            new GetZonedDateTimePartOpNode(
-                                    int32Source.getZonedDateTimePart(), downstreamConsumer);
-                    node = zdtPartOpNode;
+                bindRecursively(
+                        int32Source.getDurationPart().getInput(),
+                        durationPartOpNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case ZONED_DATE_TIME_PART: {
+                GetZonedDateTimePartOpNode zdtPartOpNode =
+                        new GetZonedDateTimePartOpNode(
+                                int32Source.getZonedDateTimePart(), downstreamConsumer);
+                node = zdtPartOpNode;
 
-                    bindRecursively(
-                            int32Source.getZonedDateTimePart().getInput(),
-                            zdtPartOpNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
+                bindRecursively(
+                        int32Source.getZonedDateTimePart().getInput(),
+                        zdtPartOpNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case ANIMATABLE_FIXED:
 
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -960,18 +955,17 @@ public class DynamicTypeEvaluator {
 
                 node = conditionalNode;
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
-                    node =
-                            new StateDurationSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
+            case STATE_SOURCE: {
+                DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
+                node =
+                        new StateDurationSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");
             default:
@@ -1009,20 +1003,19 @@ public class DynamicTypeEvaluator {
         DynamicDataNode<?> node;
 
         switch (zdtSource.getInnerCase()) {
-            case INSTANT_TO_ZONED_DATE_TIME:
-                {
-                    InstantToZonedDateTimeOpNode conversionNode =
-                            new InstantToZonedDateTimeOpNode(
-                                    zdtSource.getInstantToZonedDateTime(), downstreamConsumer);
-                    node = conversionNode;
+            case INSTANT_TO_ZONED_DATE_TIME: {
+                InstantToZonedDateTimeOpNode conversionNode =
+                        new InstantToZonedDateTimeOpNode(
+                                zdtSource.getInstantToZonedDateTime(), downstreamConsumer);
+                node = conversionNode;
 
-                    bindRecursively(
-                            zdtSource.getInstantToZonedDateTime().getInstant(),
-                            conversionNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
+                bindRecursively(
+                        zdtSource.getInstantToZonedDateTime().getInstant(),
+                        conversionNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicZonedDateTime has no inner source set");
             default:
@@ -1090,18 +1083,17 @@ public class DynamicTypeEvaluator {
                 node = conditionalNode;
                 break;
 
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
-                    node =
-                            new StateInstantSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
+            case STATE_SOURCE: {
+                DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
+                node =
+                        new StateInstantSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInstant has no inner source set");
             default:
@@ -1142,75 +1134,71 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedFloatNode(floatSource.getFixed(), downstreamConsumer);
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
-                    node =
-                            new StateFloatSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
-            case ARITHMETIC_OPERATION:
-                {
-                    ArithmeticFloatNode arithmeticNode =
-                            new ArithmeticFloatNode(
-                                    floatSource.getArithmeticOperation(), downstreamConsumer);
-                    node = arithmeticNode;
+            case STATE_SOURCE: {
+                DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
+                node =
+                        new StateFloatSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case ARITHMETIC_OPERATION: {
+                ArithmeticFloatNode arithmeticNode =
+                        new ArithmeticFloatNode(
+                                floatSource.getArithmeticOperation(), downstreamConsumer);
+                node = arithmeticNode;
 
-                    bindRecursively(
-                            floatSource.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            floatSource.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                bindRecursively(
+                        floatSource.getArithmeticOperation().getInputLhs(),
+                        arithmeticNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        floatSource.getArithmeticOperation().getInputRhs(),
+                        arithmeticNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case INT32_TO_FLOAT_OPERATION:
-                {
-                    Int32ToFloatNode toFloatNode = new Int32ToFloatNode(downstreamConsumer);
-                    node = toFloatNode;
+                break;
+            }
+            case INT32_TO_FLOAT_OPERATION: {
+                Int32ToFloatNode toFloatNode = new Int32ToFloatNode(downstreamConsumer);
+                node = toFloatNode;
 
-                    bindRecursively(
-                            floatSource.getInt32ToFloatOperation().getInput(),
-                            toFloatNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<Float> conditionalNode =
-                            new ConditionalOpNode<>(downstreamConsumer);
+                bindRecursively(
+                        floatSource.getInt32ToFloatOperation().getInput(),
+                        toFloatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<Float> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalFloatOp op = floatSource.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                ConditionalFloatOp op = floatSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
+                node = conditionalNode;
+                break;
+            }
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
                 // we didn't have static value set, constructor has put QuotaManager that don't
@@ -1385,88 +1373,83 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedBoolNode(boolSource.getFixed(), downstreamConsumer);
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
-                    node =
-                            new StateBoolNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    downstreamConsumer);
-                    break;
-                }
-            case INT32_COMPARISON:
-                {
-                    ComparisonInt32Node compNode =
-                            new ComparisonInt32Node(
-                                    boolSource.getInt32Comparison(), downstreamConsumer);
-                    node = compNode;
+            case STATE_SOURCE: {
+                DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
+                node =
+                        new StateBoolNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case INT32_COMPARISON: {
+                ComparisonInt32Node compNode =
+                        new ComparisonInt32Node(
+                                boolSource.getInt32Comparison(), downstreamConsumer);
+                node = compNode;
 
-                    bindRecursively(
-                            boolSource.getInt32Comparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            boolSource.getInt32Comparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                bindRecursively(
+                        boolSource.getInt32Comparison().getInputLhs(),
+                        compNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getInt32Comparison().getInputRhs(),
+                        compNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case LOGICAL_OP:
-                {
-                    LogicalBoolOp logicalNode =
-                            new LogicalBoolOp(boolSource.getLogicalOp(), downstreamConsumer);
-                    node = logicalNode;
+                break;
+            }
+            case LOGICAL_OP: {
+                LogicalBoolOp logicalNode =
+                        new LogicalBoolOp(boolSource.getLogicalOp(), downstreamConsumer);
+                node = logicalNode;
 
-                    bindRecursively(
-                            boolSource.getLogicalOp().getInputLhs(),
-                            logicalNode.getLhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            boolSource.getLogicalOp().getInputRhs(),
-                            logicalNode.getRhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                bindRecursively(
+                        boolSource.getLogicalOp().getInputLhs(),
+                        logicalNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getLogicalOp().getInputRhs(),
+                        logicalNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case NOT_OP:
-                {
-                    NotBoolOp notNode = new NotBoolOp(downstreamConsumer);
-                    node = notNode;
-                    bindRecursively(
-                            boolSource.getNotOp().getInput(),
-                            notNode.getIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    break;
-                }
-            case FLOAT_COMPARISON:
-                {
-                    ComparisonFloatNode compNode =
-                            new ComparisonFloatNode(
-                                    boolSource.getFloatComparison(), downstreamConsumer);
-                    node = compNode;
+                break;
+            }
+            case NOT_OP: {
+                NotBoolOp notNode = new NotBoolOp(downstreamConsumer);
+                node = notNode;
+                bindRecursively(
+                        boolSource.getNotOp().getInput(),
+                        notNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case FLOAT_COMPARISON: {
+                ComparisonFloatNode compNode =
+                        new ComparisonFloatNode(
+                                boolSource.getFloatComparison(), downstreamConsumer);
+                node = compNode;
 
-                    bindRecursively(
-                            boolSource.getFloatComparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
-                    bindRecursively(
-                            boolSource.getFloatComparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
-                            resultBuilder,
-                            cache);
+                bindRecursively(
+                        boolSource.getFloatComparison().getInputLhs(),
+                        compNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getFloatComparison().getInputRhs(),
+                        compNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicBool has no inner source set");
             default:

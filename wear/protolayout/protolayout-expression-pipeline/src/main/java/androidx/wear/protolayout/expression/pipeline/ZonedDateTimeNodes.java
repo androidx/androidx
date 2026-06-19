@@ -28,6 +28,8 @@ import java.util.function.Function;
 
 /** Dynamic data nodes which yield {@link ZonedDateTime}. */
 class ZonedDateTimeNodes {
+    private static final String TAG = "InstantToZonedDateTime";
+
     private ZonedDateTimeNodes() {}
 
     /** Dynamic instant node that has a fixed value. */
@@ -44,12 +46,16 @@ class ZonedDateTimeNodes {
             try {
                 final ZoneId zoneId = ZoneId.of(protoNode.getZoneId());
                 return t -> {
-                    return ZonedDateTime.ofInstant(t, zoneId);
+                    try {
+                        return ZonedDateTime.ofInstant(t, zoneId);
+                    } catch (DateTimeException | ArithmeticException e) {
+                        Log.e(TAG, "Exception in InstantToZonedDateTimeOpNode", e);
+                        return null;
+                    }
                 };
             } catch (DateTimeException e) {
-                Log.w("Invalid zone ID: " + protoNode.getZoneId(), e);
-                throw new IllegalArgumentException(
-                        "Invalid zone ID: " + protoNode.getZoneId(), e);
+                Log.w(TAG, "Invalid zone ID: " + protoNode.getZoneId(), e);
+                throw new IllegalArgumentException("Invalid zone ID: " + protoNode.getZoneId(), e);
             }
         }
     }

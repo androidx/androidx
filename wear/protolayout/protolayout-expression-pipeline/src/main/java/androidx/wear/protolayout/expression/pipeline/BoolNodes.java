@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import android.util.Log;
+
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
@@ -106,9 +108,10 @@ class BoolNodes {
                             case UNRECOGNIZED:
                                 break;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in ComparisonInt32Node: "
-                                        + protoNode.getOperationType());
+
+                        Log.e(TAG,  "Unknown operation type in ComparisonInt32Node: "
+                                + protoNode.getOperationType());
+                        return null;
                     });
         }
     }
@@ -148,9 +151,10 @@ class BoolNodes {
                             case UNRECOGNIZED:
                                 break;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in ComparisonFloatNode: "
-                                        + protoNode.getOperationType());
+
+                        Log.e(TAG, "Unknown operation type in ComparisonFloatNode: "
+                                + protoNode.getOperationType());
+                        return null;
                     });
         }
 
@@ -189,9 +193,10 @@ class BoolNodes {
                             case UNRECOGNIZED:
                                 break;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in LogicalBoolOp: "
-                                        + protoNode.getOperationType());
+
+                        Log.e(TAG,  "Unknown operation type in LogicalBoolOp: "
+                                + protoNode.getOperationType());
+                        return null;
                     });
         }
     }

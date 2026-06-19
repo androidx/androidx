@@ -31,8 +31,6 @@ import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpT
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
@@ -152,12 +150,10 @@ public class BoolNodesTest {
 
     @Test
     public void logicalBoolOpTest_unknownOp_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateLogicalOperation(LOGICAL_OP_TYPE_UNDEFINED, true, true));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateLogicalOperation(-1 /* UNRECOGNIZED */, true, true));
+        assertThat(evaluateLogicalOperationResults(LOGICAL_OP_TYPE_UNDEFINED, true,
+                true)).isEmpty();
+        assertThat(evaluateLogicalOperationResults(-1 /* UNRECOGNIZED */, true,
+                true)).isEmpty();
     }
 
     @Test
@@ -177,12 +173,9 @@ public class BoolNodesTest {
 
     @Test
     public void int32CompareOp_unknownOp_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateInt32ComparisonOperation(COMPARISON_OP_TYPE_UNDEFINED, 1, 1));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateInt32ComparisonOperation(-1 /* UNRECOGNIZED */, 1, 1));
+        assertThat(evaluateInt32ComparisonOperationResults(COMPARISON_OP_TYPE_UNDEFINED, 1,
+                1)).isEmpty();
+        assertThat(evaluateInt32ComparisonOperationResults(-1 /* UNRECOGNIZED */, 1, 1)).isEmpty();
     }
 
     @Test
@@ -201,16 +194,16 @@ public class BoolNodesTest {
                 .isTrue();
 
         assertThat(
-                        evaluateInt32ComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 2))
+                evaluateInt32ComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 2))
                 .isFalse();
         assertThat(
-                        evaluateInt32ComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 1))
+                evaluateInt32ComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 1))
                 .isTrue();
         assertThat(
-                        evaluateInt32ComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 2, 1))
+                evaluateInt32ComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 2, 1))
                 .isTrue();
 
         assertThat(evaluateInt32ComparisonOperation(COMPARISON_OP_TYPE_LESS_THAN, 2, 1)).isFalse();
@@ -227,12 +220,9 @@ public class BoolNodesTest {
 
     @Test
     public void floatCompareOp_unknownOp_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateFloatComparisonOperation(COMPARISON_OP_TYPE_UNDEFINED, 1, 1));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateFloatComparisonOperation(-1 /* UNRECOGNIZED */, 1, 1));
+        assertThat(evaluateFloatComparisonOperationResults(COMPARISON_OP_TYPE_UNDEFINED, 1,
+                1)).isEmpty();
+        assertThat(evaluateFloatComparisonOperationResults(-1 /* UNRECOGNIZED */, 1, 1)).isEmpty();
     }
 
     @Test
@@ -251,16 +241,16 @@ public class BoolNodesTest {
                 .isTrue();
 
         assertThat(
-                        evaluateFloatComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 2))
+                evaluateFloatComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 2))
                 .isFalse();
         assertThat(
-                        evaluateFloatComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 1))
+                evaluateFloatComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 1, 1))
                 .isTrue();
         assertThat(
-                        evaluateFloatComparisonOperation(
-                                COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 2, 1))
+                evaluateFloatComparisonOperation(
+                        COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO, 2, 1))
                 .isTrue();
 
         assertThat(evaluateFloatComparisonOperation(COMPARISON_OP_TYPE_LESS_THAN, 2, 1)).isFalse();
@@ -281,6 +271,16 @@ public class BoolNodesTest {
     }
 
     private static boolean evaluateLogicalOperation(int logicalOpType, boolean lhs, boolean rhs) {
+        return evaluateLogicalOperationResults(logicalOpType, lhs, rhs).get(0);
+    }
+
+    private static List<Boolean> evaluateLogicalOperationResults(
+            DynamicProto.LogicalOpType logicalOpType, boolean lhs, boolean rhs) {
+        return evaluateLogicalOperationResults(logicalOpType.getNumber(), lhs, rhs);
+    }
+
+    private static List<Boolean> evaluateLogicalOperationResults(int logicalOpType, boolean lhs,
+            boolean rhs) {
         List<Boolean> results = new ArrayList<>();
 
         LogicalBoolOp protoNode =
@@ -300,8 +300,9 @@ public class BoolNodesTest {
         lhsNode.init();
         rhsNode.init();
 
-        return results.get(0);
+        return results;
     }
+
 
     private static boolean evaluateInt32ComparisonOperation(
             DynamicProto.ComparisonOpType opType, int lhs, int rhs) {
@@ -309,6 +310,17 @@ public class BoolNodesTest {
     }
 
     private static boolean evaluateInt32ComparisonOperation(int opType, int lhs, int rhs) {
+        return evaluateInt32ComparisonOperationResults(opType, lhs, rhs).get(0);
+    }
+
+    private static List<Boolean> evaluateInt32ComparisonOperationResults(
+            DynamicProto.ComparisonOpType opType, int lhs,
+            int rhs) {
+        return evaluateInt32ComparisonOperationResults(opType.getNumber(), lhs, rhs);
+    }
+
+    private static List<Boolean> evaluateInt32ComparisonOperationResults(int opType, int lhs,
+            int rhs) {
         List<Boolean> results = new ArrayList<>();
 
         DynamicProto.ComparisonInt32Op protoNode =
@@ -327,7 +339,7 @@ public class BoolNodesTest {
         lhsNode.init();
         rhsNode.init();
 
-        return results.get(0);
+        return results;
     }
 
     private static boolean evaluateFloatComparisonOperation(
@@ -336,6 +348,16 @@ public class BoolNodesTest {
     }
 
     private static boolean evaluateFloatComparisonOperation(int opType, float lhs, float rhs) {
+        return evaluateFloatComparisonOperationResults(opType, lhs, rhs).get(0);
+    }
+
+    private static List<Boolean> evaluateFloatComparisonOperationResults(
+            DynamicProto.ComparisonOpType opType, float lhs, float rhs) {
+        return evaluateFloatComparisonOperationResults(opType.getNumber(), lhs, rhs);
+    }
+
+    private static List<Boolean> evaluateFloatComparisonOperationResults(int opType, float lhs,
+            float rhs) {
         List<Boolean> results = new ArrayList<>();
 
         DynamicProto.ComparisonFloatOp protoNode =
@@ -354,6 +376,6 @@ public class BoolNodesTest {
         lhsNode.init();
         rhsNode.init();
 
-        return results.get(0);
+        return results;
     }
 }
