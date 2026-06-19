@@ -1054,6 +1054,10 @@ public fun selectIfLt(
         }
     }
 
+    if (ifTrue.cacheKey == ifFalse.cacheKey) {
+        return ifTrue
+    }
+
     return RemoteIntExpression(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfLT, a, b, ifTrue, ifFalse),
@@ -1086,6 +1090,10 @@ public fun selectIfLe(
         } else {
             ifFalse
         }
+    }
+
+    if (ifTrue.cacheKey == ifFalse.cacheKey) {
+        return ifTrue
     }
 
     return RemoteIntExpression(
@@ -1122,6 +1130,10 @@ public fun selectIfGt(
         }
     }
 
+    if (ifTrue.cacheKey == ifFalse.cacheKey) {
+        return ifTrue
+    }
+
     return RemoteIntExpression(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfGT, a, b, ifTrue, ifFalse),
@@ -1154,6 +1166,10 @@ public fun selectIfGe(
         } else {
             ifFalse
         }
+    }
+
+    if (ifTrue.cacheKey == ifFalse.cacheKey) {
+        return ifTrue
     }
 
     return RemoteIntExpression(
