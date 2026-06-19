@@ -133,6 +133,10 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             }
         }
 
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
+        }
+
         return MutableRemoteString(
             constantValueOrNull = null,
             cacheKey =
@@ -180,6 +184,11 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
                 ifFalse
             }
         }
+
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
+        }
+
         return RemoteFloatExpression(
             constantValueOrNull = null,
             cacheKey =
@@ -210,6 +219,11 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
                 ifFalse
             }
         }
+
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
+        }
+
         return RemoteIntExpression(
             constantValueOrNull = null,
             cacheKey =
@@ -239,6 +253,10 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             } else {
                 ifFalse
             }
+        }
+
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
         }
 
         return RemoteBoolean(
@@ -282,6 +300,10 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             }
         }
 
+        if (ifTrue == ifFalse) {
+            return RemoteColor(ifTrue)
+        }
+
         return tween(ifFalse, ifTrue, intValue.toRemoteFloat())
     }
 
@@ -300,6 +322,10 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             } else {
                 ifFalse
             }
+        }
+
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
         }
 
         return tween(ifFalse, ifTrue, intValue.toRemoteFloat())

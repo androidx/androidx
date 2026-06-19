@@ -19,7 +19,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -789,11 +791,71 @@ class RemoteBooleanTest {
         assertThat(bFalse.toDebugString()).isEqualTo("false")
     }
 
+    @Test
+    fun select_alwaysZeroExpression() {
+        val interactiveState = RemoteBoolean.createNamedRemoteBoolean("interactive_state", false)
+        val term1 = interactiveState.select(255f.rf, 0f.rf) // Non-constant
+        val term2 = interactiveState.select(0f.rf, 0f.rf) // Constant
+        val expr = (term1 / 255f) * (term2 / 255f)
+
+        assertThat(expr.constantValueOrNull).isEqualTo(0f)
+        assertThat(expr.hasConstantValue).isTrue()
+
+        val exprId = expr.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        assertThat(context.getFloat(exprId)).isEqualTo(0f)
+
+        // Even with override, it should always be 0
+        makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:interactive_state", 1) }
+        assertThat(context.getFloat(exprId)).isEqualTo(0f)
+    }
+
+    @Test
+    fun select_notConstantExpression() {
+        val interactiveState = RemoteBoolean.createNamedRemoteBoolean("interactive_state", false)
+        val term = interactiveState.select(255f.rf, 0f.rf) // Non-constant
+        val expr = (term / 255f) * (term / 255f)
+
+        assertThat(expr.constantValueOrNull).isNull()
+        assertThat(expr.hasConstantValue).isFalse()
+
+        val exprId = expr.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        // Default value: interactive_state is false, so select(255, 0) is 0
+        // (0 / 255) * (0 / 255) = 0
+        assertThat(context.getFloat(exprId)).isEqualTo(0f)
+
+        // Override: interactive_state is true, so select(255, 0) is 255
+        // (255 / 255) * (255 / 255) = 1
+        makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:interactive_state", 1) }
+        assertThat(context.getFloat(exprId)).isEqualTo(1f)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
             paint(context, 0)
+        }
+
+    private fun makeAndUpdateCoreDocument(
+        buffer: RemoteComposeBuffer? = null,
+        runAfterInit: (CoreDocument) -> Unit = {},
+    ) =
+        CoreDocument().apply {
+            val buffer = buffer ?: creationState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            initializeContext(context)
+
+            runAfterInit(this)
+
+            for (op in operations) {
+                if (op is VariableSupport) {
+                    op.updateVariables(context)
+                }
+                op.apply(context)
+            }
         }
 }
