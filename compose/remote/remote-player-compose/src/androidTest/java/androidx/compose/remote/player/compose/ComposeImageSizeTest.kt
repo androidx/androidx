@@ -22,13 +22,13 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.player.compose.impl.RemoteDocumentComposePlayer
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,16 +74,18 @@ class ComposeImageSizeTest {
             println("successfully caught exception")
             return
         }
-        assertThrows(RuntimeException::class.java) {
-                composeTestRule.setContent {
-                    RemoteDocumentComposePlayer(
-                        document = remoteComposeDocument,
-                        documentWidth = 200,
-                        documentHeight = 200,
-                    )
-                }
-                composeTestRule.waitForIdle()
-            }
-            .also { assertThat(it).hasMessageThat().contains("dimensions don't match") }
+
+        composeTestRule.setContent {
+            RemoteDocumentComposePlayer(
+                document = remoteComposeDocument,
+                documentWidth = 200,
+                documentHeight = 200,
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // The player should not crash; instead, it should show the error UI
+        composeTestRule.onNodeWithText("⚠").assertExists()
+        composeTestRule.onNodeWithText("dimensions don't match").assertExists()
     }
 }
