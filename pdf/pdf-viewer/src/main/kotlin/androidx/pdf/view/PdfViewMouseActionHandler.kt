@@ -29,6 +29,9 @@ internal class PdfViewMouseActionHandler(pdfView: PdfView) : PdfViewExternalInpu
     override val verticalScrollFactor = VERTICAL_SCROLL_FACTOR
 
     fun dragSelection(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            pdfView.requestFocus()
+        }
         return pdfView.maybeDragSelection(event, isSourceMouse = true)
     }
 
