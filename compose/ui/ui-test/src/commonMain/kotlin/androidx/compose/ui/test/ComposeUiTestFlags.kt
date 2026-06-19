@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test
 
+import kotlin.jvm.JvmField
+
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
  * "riskier" refactors or new feature support that is added to this module. These flags are always
@@ -48,4 +50,26 @@ package androidx.compose.ui.test
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalTestApi object ComposeUiTestFlags {}
+@ExperimentalTestApi
+object ComposeUiTestFlags {
+    /**
+     * Flag to allow device tests to execute synchronization methods directly from the main thread.
+     *
+     * Historically, calling functions involving synchronization—such as assertions, actions, and
+     * wait-for-idle states (e.g., [ComposeUiTest.waitForIdle], [ComposeUiTest.runOnIdle], and
+     * assertions like `assertIsDisplayed()`) — was strictly prohibited on the main thread during
+     * device instrumentation tests. Attempting to call them on the main thread threw an
+     * [IllegalStateException]. This was done to prevent deadlocks, but introduced an inconsistency
+     * with Robolectric-based tests, which already permitted main-thread synchronization.
+     *
+     * Enabling this flag (`true`) bypasses the historical main-thread assertion. When running on
+     * main thread, the library performs recursive main-thread-safe Espresso synchronization,
+     * immediately followed by a final looper drain to guarantee absolute rest of all deferred
+     * lifecycle and cleanup events.
+     */
+    // TODO: b/516342312 - Clean up this temporary feature flag and make main-thread synchronization
+    // the permanent default.
+    @JvmField
+    @field:Suppress("MutableBareField")
+    var isMainThreadTestSynchronizationEnabledForDeviceTests: Boolean = true
+}

@@ -160,7 +160,9 @@ package androidx.compose.ui.test {
   }
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class ComposeUiTestFlags {
+    property public boolean isMainThreadTestSynchronizationEnabledForDeviceTests;
     field public static final androidx.compose.ui.test.ComposeUiTestFlags INSTANCE;
+    field public static boolean isMainThreadTestSynchronizationEnabledForDeviceTests;
   }
 
   @SuppressCompatibility public final class ComposeUiTestKt {

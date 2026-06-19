@@ -18,10 +18,8 @@ package androidx.compose.ui.test.junit4
 
 import android.view.View
 import androidx.activity.ComponentActivity
-import androidx.compose.testutils.expectError
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -129,22 +127,13 @@ class SynchronizationMethodsTest {
     }
 
     @Test
-    fun runOnIdle_assert_fails() {
-        test.runOnIdle {
-            expectError<IllegalStateException> {
-                test.onNode(hasTestTag("placeholder")).assertExists()
-            }
-        }
+    fun runOnIdle_waitForIdle() {
+        test.runOnIdle { test.waitForIdle() }
     }
 
     @Test
-    fun runOnIdle_waitForIdle_fails() {
-        test.runOnIdle { expectError<IllegalStateException> { test.waitForIdle() } }
-    }
-
-    @Test
-    fun runOnIdle_runOnIdle_fails() {
-        test.runOnIdle { expectError<IllegalStateException> { test.runOnIdle {} } }
+    fun runOnIdle_runOnIdle() {
+        test.runOnIdle { test.runOnIdle {} }
     }
 
     private fun mockResumedComposeRoot(): ViewRootForTest {
