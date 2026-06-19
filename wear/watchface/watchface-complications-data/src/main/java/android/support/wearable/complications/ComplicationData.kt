@@ -82,6 +82,7 @@ private constructor(
         input.readInt(),
         input.readBundle(ComplicationData::class.java.classLoader)
             ?: Bundle().also { Log.w(TAG, "ComplicationData parcel input has null bundle.") },
+        0,
     )
 
     // This constructor should only be used with a fully-owned Bundle, as this Bundle can be mutated
@@ -89,7 +90,8 @@ private constructor(
     private constructor(
         @ComplicationType type: Int,
         bundle: Bundle,
-    ) : this(type, toFields(bundle, type), bundle)
+        depth: Int,
+    ) : this(type, toFields(bundle, type, depth), bundle)
 
     private val bundle: Bundle
         get() = _bundle ?: toBundle(fields).also { _bundle = it }
@@ -269,6 +271,16 @@ private constructor(
 
         @Throws(IOException::class, ClassNotFoundException::class)
         private fun readObject(ois: ObjectInputStream) {
+            readObjectInternal(ois, 0)
+        }
+
+        @Throws(IOException::class, ClassNotFoundException::class)
+        private fun readObjectInternal(ois: ObjectInputStream, depth: Int) {
+            if (depth > MAX_NESTING_DEPTH) {
+                throw IOException(
+                    "ComplicationData serialization nesting exceeds $MAX_NESTING_DEPTH"
+                )
+            }
             val versionNumber = ois.readInt()
             if (versionNumber != VERSION_NUMBER) {
                 // Give up if there's a version skew.
@@ -432,25 +444,25 @@ private constructor(
             if (timelineEntryType != 0) {
                 fields[FIELD_TIMELINE_ENTRY_TYPE] = timelineEntryType
             }
-            ois.readList { SerializedForm().apply { readObject(ois) } }
+            ois.readList { SerializedForm().apply { readObjectInternal(ois, depth + 1) } }
                 .map { it.complicationData!! }
                 .takeIf { it.isNotEmpty() }
                 ?.let { fields[EXP_FIELD_LIST_ENTRIES] = it }
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
-                ois.readNullable { SerializedForm().apply { readObject(ois) } }
+                ois.readNullable { SerializedForm().apply { readObjectInternal(ois, depth + 1) } }
                     ?.let {
                         fields[FIELD_PLACEHOLDER_TYPE] = it.complicationData!!.type
                         fields[FIELD_PLACEHOLDER_FIELDS] = it.complicationData!!
                     }
             }
             if (isFieldValidForType(FIELD_ORIGINAL_FIELDS, type)) {
-                ois.readNullable { SerializedForm().apply { readObject(ois) } }
+                ois.readNullable { SerializedForm().apply { readObjectInternal(ois, depth + 1) } }
                     ?.let {
                         fields[FIELD_ORIGINAL_TYPE] = it.complicationData!!.type
                         fields[FIELD_ORIGINAL_FIELDS] = it.complicationData!!
                     }
             }
-            ois.readList { SerializedForm().apply { readObject(ois) } }
+            ois.readList { SerializedForm().apply { readObjectInternal(ois, depth + 1) } }
                 .map { it.complicationData!! }
                 .takeIf { it.isNotEmpty() }
                 ?.let { fields[FIELD_TIMELINE_ENTRIES] = it }
@@ -2021,6 +2033,13 @@ private constructor(
 
     public companion object {
         private const val TAG = "ComplicationData"
+
+        /**
+         * Maximum allowed nesting depth for child ComplicationData objects (e.g., placeholders).
+         * This caps recursive unmarshalling to prevent StackOverflowErrors from malicious payloads.
+         */
+        internal const val MAX_NESTING_DEPTH = 8
+
         public const val PLACEHOLDER_STRING: String = "__placeholder__"
 
         /**
@@ -2464,7 +2483,15 @@ private constructor(
                 override fun newArray(size: Int): Array<ComplicationData?> = Array(size) { null }
             }
 
-        private fun toFields(bundle: Bundle, @ComplicationType type: Int): MutableMap<String, Any> {
+        private fun toFields(
+            bundle: Bundle,
+            @ComplicationType type: Int,
+            depth: Int,
+        ): MutableMap<String, Any> {
+            if (depth > MAX_NESTING_DEPTH) {
+                Log.w(TAG, "ComplicationData nesting exceeds $MAX_NESTING_DEPTH; truncating.")
+                return mutableMapOf()
+            }
             bundle.classLoader = ComplicationData::class.java.classLoader
             val fields = mutableMapOf<String, Any>()
             // Helper methods to avoid key repetition.
@@ -2475,7 +2502,11 @@ private constructor(
                 if (bundle.containsKey(typeKey) && bundle.getBundle(fieldsKey) != null) {
                     fields[typeKey] = bundle.getInt(typeKey) // Safety, generally unnecessary.
                     fields[fieldsKey] =
-                        ComplicationData(bundle.getInt(typeKey), bundle.getBundle(fieldsKey)!!)
+                        ComplicationData(
+                            bundle.getInt(typeKey),
+                            bundle.getBundle(fieldsKey)!!,
+                            depth + 1,
+                        )
                 }
             }
             fun putComplicationDataArrayFromBundle(arrayKey: String, entryTypeKey: String) {
@@ -2492,7 +2523,7 @@ private constructor(
                     array?.map {
                         val it = it as Bundle
                         it.classLoader = ComplicationData::class.java.classLoader
-                        ComplicationData(it.getInt(entryTypeKey, type), it)
+                        ComplicationData(it.getInt(entryTypeKey, type), it, depth + 1)
                     }
                 }
             }
