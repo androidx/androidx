@@ -404,4 +404,12 @@ public class AnimateMeasure {
             // mStartTime = currentTime;
         }
     }
+
+    public @NonNull ComponentMeasure getOriginal() {
+        return mOriginal;
+    }
+
+    public @NonNull ComponentMeasure getTarget() {
+        return mTarget;
+    }
 }

@@ -16,11 +16,12 @@
 package androidx.compose.remote.core.operations.layout.measure;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -30,23 +31,40 @@ import java.util.HashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeasurePass {
     @NonNull HashMap<Integer, ComponentMeasure> mList = new HashMap<>();
-    @NonNull ArrayList<ComponentMeasure> mPool = new ArrayList<>();
+    @Nullable RemoteContext mContext;
+
+    public void setContext(@Nullable RemoteContext context) {
+        mContext = context;
+    }
 
     /** Clear the MeasurePass, returning active ComponentMeasure instances to the pool */
     public void clear() {
-        for (ComponentMeasure measure : mList.values()) {
-            mPool.add(measure);
+        if (mContext != null) {
+            ComponentMeasurePool pool = mContext.getComponentMeasurePool();
+            for (ComponentMeasure measure : mList.values()) {
+                pool.recycle(measure);
+            }
         }
         mList.clear();
     }
 
-    private ComponentMeasure obtain(int id, float x, float y, float w, float h, int visibility) {
-        if (!mPool.isEmpty()) {
-            ComponentMeasure measure = mPool.remove(mPool.size() - 1);
-            measure.reset(id, x, y, w, h, visibility);
-            return measure;
+    /**
+     * Retrieve a ComponentMeasure instance from the context's pool if available,
+     * or instantiate a new one.
+     */
+    public @NonNull ComponentMeasure obtain(
+            int id, float x, float y, float w, float h, int visibility) {
+        if (mContext != null) {
+            return mContext.getComponentMeasurePool().obtain(id, x, y, w, h, visibility);
         }
         return new ComponentMeasure(id, x, y, w, h, visibility);
+    }
+
+    /** Recycle a ComponentMeasure instance back into the pool */
+    public void recycle(@NonNull ComponentMeasure measure) {
+        if (mContext != null) {
+            mContext.getComponentMeasurePool().recycle(measure);
+        }
     }
 
     /**
