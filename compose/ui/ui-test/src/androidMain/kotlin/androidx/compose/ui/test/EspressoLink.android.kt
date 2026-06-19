@@ -22,6 +22,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.IdlingResourceTimeoutException
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
@@ -34,11 +35,10 @@ import kotlinx.coroutines.Dispatchers
 internal class EspressoLink(private val registry: IdlingResourceRegistry) :
     IdlingResource, IdlingStrategy {
 
-    override val canSynchronizeOnUiThread: Boolean = false
-
     /*
-     * In instrumented tests, Espresso.onIdle() needs to be called off the main thread, so anything
-     * other than Dispatchers.Main is OK. It's not IO work though, so let's take Default.
+     * Espresso now supports main-thread synchronization. However, when tests perform assertions
+     * or actions off the main thread, we still dispatch synchronization using [Dispatchers.Default]
+     * to allow parallel execution of the test control flow and UI rendering.
      */
     override val synchronizationContext: CoroutineContext
         get() = Dispatchers.Default
@@ -72,14 +72,27 @@ internal class EspressoLink(private val registry: IdlingResourceRegistry) :
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
     override fun runUntilIdle() {
-        check(!isOnUiThread()) {
-            "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
-                "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
-                "from the main thread. Did you nest such a function inside " +
-                "runOnIdle {}, runOnUiThread {} or setContent {}?"
+        // Assertions and actions were historically forbidden on the main thread under Espresso
+        // to avoid deadlocks. This feature flag allows testing main-thread synchronization in
+        // connected tests prior to deprecating the check permanently.
+        if (!ComposeUiTestFlags.isMainThreadTestSynchronizationEnabledForDeviceTests) {
+            check(!isOnUiThread()) {
+                "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
+                    "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
+                    "from the main thread. Did you nest such a function inside " +
+                    "runOnIdle {}, runOnUiThread {} or setContent {}?"
+            }
         }
         runEspressoOnIdle()
+        // When synchronization runs directly on the UI thread, some post-synchronization cleanup
+        // or deferred lifecycle messages might be scheduled at the final moment Espresso yields.
+        // To guarantee that the UI message queue is 100% drained and at absolute rest before
+        // returning to the test, we execute a final Instrumentation.waitForIdle.
+        if (isOnUiThread()) {
+            InstrumentationRegistry.getInstrumentation().waitForIdle {}
+        }
     }
 }
 

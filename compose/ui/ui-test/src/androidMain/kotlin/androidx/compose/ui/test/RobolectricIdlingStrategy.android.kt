@@ -51,8 +51,6 @@ internal class RobolectricIdlingStrategy(
     private val composeIdlingResource: ComposeIdlingResource,
     private val idlingResourceRegistry: IdlingResourceRegistry,
 ) : IdlingStrategy {
-    override val canSynchronizeOnUiThread: Boolean = true
-
     /*
      * On Robolectric, Espresso.onIdle() needs to be called from the main thread; so use
      * Dispatchers.Main. Use `.immediate` in case we're already on the main thread.
