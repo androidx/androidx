@@ -171,6 +171,21 @@ public class MultiProfileTest {
         }
     }
 
+    /**
+     * Tests that various getters on the Profile return the same objects.
+     */
+    @Test
+    public void testProfileGettersSame() {
+        WebkitUtils.checkFeature(WebViewFeature.HTTP_CACHE_MANAGER);
+
+        WebkitUtils.onMainThreadSync(() -> {
+            Profile profile = mProfileStore.getProfile(Profile.DEFAULT_PROFILE_NAME);
+
+            assertNotNull(profile);
+            Assert.assertSame(profile.getHttpCache(), profile.getHttpCache());
+            Assert.assertSame(profile.getPrefetchCache(), profile.getPrefetchCache());
+        });
+    }
 
     /**
      * Tests getting, verifying the default profile.
