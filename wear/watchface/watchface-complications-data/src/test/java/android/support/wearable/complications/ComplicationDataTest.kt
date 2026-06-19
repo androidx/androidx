@@ -1187,6 +1187,94 @@ public class ComplicationDataTest {
         parcel.recycle()
     }
 
+    private class ThrowingParcelable : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {}
+
+        companion object {
+            @JvmField
+            val CREATOR =
+                object : Parcelable.Creator<ThrowingParcelable> {
+                    override fun createFromParcel(source: Parcel): ThrowingParcelable {
+                        throw RuntimeException("Unparceling failure!")
+                    }
+
+                    override fun newArray(size: Int) = arrayOfNulls<ThrowingParcelable>(size)
+                }
+        }
+    }
+
+    @Test
+    fun testGetParcelableFieldOrWarn_catchesRuntimeException_suppressesToNull() {
+        val dataBundle = Bundle().apply { putParcelable("SHORT_TEXT", ThrowingParcelable()) }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(dataBundle)
+                setDataPosition(0)
+            }
+
+        // Verify getParcelableFieldOrWarn successfully catches RuntimeException
+        // and suppresses the malformed field to null rather than letting the exception escape.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.shortText).isNull()
+
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_invalidDynamicValueBytes_isSuppressedSafely() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_RANGED_VALUE)
+                putByteArray(
+                    "DYNAMIC_VALUE",
+                    byteArrayOf(0xFF.toByte(), 0xFE.toByte(), 0xFD.toByte()),
+                ) // Garbage bytes
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_RANGED_VALUE)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        // Garbage bytes in dynamic value are safely caught and skipped.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.hasDynamicValues()).isFalse()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_invalidDynamicStringBytes_isSuppressedSafely() {
+        val nestedTextBundle =
+            Bundle().apply {
+                putByteArray("SURROUNDING_STRING", byteArrayOf()) // Valid key
+                putByteArray(
+                    "DYNAMIC_STRING",
+                    byteArrayOf(0xFF.toByte(), 0xFE.toByte(), 0xFD.toByte()),
+                ) // Garbage bytes
+            }
+        val parentBundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putBundle("SHORT_TEXT", nestedTextBundle)
+            }
+        val parentParcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(parentBundle)
+                setDataPosition(0)
+            }
+
+        // Unhandled ImvalidArgumentException from nested ComplicationText is cleanly caught.
+        val data = ComplicationData.CREATOR.createFromParcel(parentParcel)
+        assertThat(data.shortText).isNull()
+        parentParcel.recycle()
+    }
+
     private companion object {
         val TEST_CONTENT_DESCRIPTION: CharSequence = "This is a test description!"
         const val TEST_LONG_TITLE = "what a long title such a long title"

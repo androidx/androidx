@@ -17,6 +17,7 @@
 package android.support.wearable.complications
 
 import android.content.Context
+import android.os.Bundle
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationText.FORMAT_STYLE_DEFAULT
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
@@ -731,6 +732,20 @@ public class ComplicationTextTest {
         }
 
         maliciousParcel.recycle()
+    }
+
+    @Test
+    fun createFromParcel_emptyBundle_defaultsToEmptyString() {
+        val parcel =
+            Parcel.obtain().apply {
+                writeBundle(Bundle())
+                setDataPosition(0)
+            }
+
+        val text = ComplicationText.CREATOR.createFromParcel(parcel)
+        Truth.assertThat(text.getTextAt(mResources, 0).toString()).isEqualTo("")
+
+        parcel.recycle()
     }
 }
 
