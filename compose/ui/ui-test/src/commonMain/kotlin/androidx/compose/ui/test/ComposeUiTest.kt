@@ -270,16 +270,45 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
  *   [matcher] is not [count] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
+@Deprecated(
+    message = "Replaced with same function, but with useUnmergedTree",
+    level = DeprecationLevel.HIDDEN,
+)
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilNodeCount(
     matcher: SemanticsMatcher,
     count: Int,
     timeoutMillis: Long = 1_000L,
 ) {
+    waitUntilNodeCount(matcher, count, timeoutMillis, false)
+}
+
+/**
+ * Blocks until the number of nodes matching the given [matcher] is equal to the given [count].
+ *
+ * @param matcher The matcher that will be used to filter nodes.
+ * @param count The number of nodes that are expected to be matched.
+ * @param timeoutMillis The time after which this method throws an exception if the number of nodes
+ *   that match the [matcher] is not [count]. This observes wall clock time, not frame time.
+ * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+ *   semantics tree.
+ * @throws androidx.compose.ui.test.ComposeTimeoutException If the number of nodes that match the
+ *   [matcher] is not [count] after [timeoutMillis] (in wall clock time).
+ * @see ComposeUiTest.waitUntil
+ */
+@ExperimentalTestApi
+fun ComposeUiTest.waitUntilNodeCount(
+    matcher: SemanticsMatcher,
+    count: Int,
+    timeoutMillis: Long = 1_000L,
+    useUnmergedTree: Boolean = false,
+) {
     waitUntil("exactly $count nodes match (${matcher.description})", timeoutMillis) {
         // Never require the existence of compose roots. Either the current UI or the anticipated UI
         // might not have any compose at all (i.e. View only).
-        onAllNodes(matcher).fetchSemanticsNodes(atLeastOneRootRequired = false).size == count
+        onAllNodes(matcher, useUnmergedTree)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .size == count
     }
 }
 
@@ -293,13 +322,38 @@ fun ComposeUiTest.waitUntilNodeCount(
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
+@Deprecated(
+    message = "Replaced with same function, but with useUnmergedTree",
+    level = DeprecationLevel.HIDDEN,
+)
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
 ) {
+    waitUntilAtLeastOneExists(matcher, timeoutMillis, false)
+}
+
+/**
+ * Blocks until at least one node matches the given [matcher].
+ *
+ * @param matcher The matcher that will be used to filter nodes.
+ * @param timeoutMillis The time after which this method throws an exception if no nodes match the
+ *   given [matcher]. This observes wall clock time, not frame time.
+ * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+ *   semantics tree.
+ * @throws androidx.compose.ui.test.ComposeTimeoutException If no nodes match the given [matcher]
+ *   after [timeoutMillis] (in wall clock time).
+ * @see ComposeUiTest.waitUntil
+ */
+@ExperimentalTestApi
+fun ComposeUiTest.waitUntilAtLeastOneExists(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long = 1_000L,
+    useUnmergedTree: Boolean = false,
+) {
     waitUntil("at least one node matches (${matcher.description})", timeoutMillis) {
-        onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
+        onAllNodes(matcher, useUnmergedTree).fetchSemanticsNodes().isNotEmpty()
     }
 }
 
@@ -313,11 +367,34 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
  *   given [matcher] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
+@Deprecated(
+    message = "Replaced with same function, but with useUnmergedTree",
+    level = DeprecationLevel.HIDDEN,
+)
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilExactlyOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
-) = waitUntilNodeCount(matcher, 1, timeoutMillis)
+) = waitUntilExactlyOneExists(matcher, timeoutMillis, false)
+
+/**
+ * Blocks until exactly one node matches the given [matcher].
+ *
+ * @param matcher The matcher that will be used to filter nodes.
+ * @param timeoutMillis The time after which this method throws an exception if exactly one node
+ *   does not match the given [matcher]. This observes wall clock time, not frame time.
+ * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+ *   semantics tree.
+ * @throws androidx.compose.ui.test.ComposeTimeoutException If exactly one node does not match the
+ *   given [matcher] after [timeoutMillis] (in wall clock time).
+ * @see ComposeUiTest.waitUntil
+ */
+@ExperimentalTestApi
+fun ComposeUiTest.waitUntilExactlyOneExists(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long = 1_000L,
+    useUnmergedTree: Boolean = false,
+) = waitUntilNodeCount(matcher, 1, timeoutMillis, useUnmergedTree)
 
 /**
  * Blocks until no nodes match the given [matcher].
@@ -329,9 +406,32 @@ fun ComposeUiTest.waitUntilExactlyOneExists(
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
+@Deprecated(
+    message = "Replaced with same function, but with useUnmergedTree",
+    level = DeprecationLevel.HIDDEN,
+)
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis: Long = 1_000L) =
-    waitUntilNodeCount(matcher, 0, timeoutMillis)
+    waitUntilDoesNotExist(matcher, timeoutMillis, false)
+
+/**
+ * Blocks until no nodes match the given [matcher].
+ *
+ * @param matcher The matcher that will be used to filter nodes.
+ * @param timeoutMillis The time after which this method throws an exception if any nodes match the
+ *   given [matcher]. This observes wall clock time, not frame time.
+ * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+ *   semantics tree.
+ * @throws androidx.compose.ui.test.ComposeTimeoutException If any nodes match the given [matcher]
+ *   after [timeoutMillis] (in wall clock time).
+ * @see ComposeUiTest.waitUntil
+ */
+@ExperimentalTestApi
+fun ComposeUiTest.waitUntilDoesNotExist(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long = 1_000L,
+    useUnmergedTree: Boolean = false,
+) = waitUntilNodeCount(matcher, 0, timeoutMillis, useUnmergedTree)
 
 /**
  * Capability query to determine if the current [ComposeUiTest] implementation supports registering
