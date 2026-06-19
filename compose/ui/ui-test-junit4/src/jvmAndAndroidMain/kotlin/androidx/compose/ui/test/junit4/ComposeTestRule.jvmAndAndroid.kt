@@ -209,6 +209,10 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   the [matcher] is not [count] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     fun waitUntilNodeCount(matcher: SemanticsMatcher, count: Int, timeoutMillis: Long = 1_000L)
 
@@ -222,6 +226,10 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     fun waitUntilAtLeastOneExists(matcher: SemanticsMatcher, timeoutMillis: Long = 1_000L)
 
@@ -235,6 +243,10 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   the given [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     fun waitUntilExactlyOneExists(matcher: SemanticsMatcher, timeoutMillis: Long = 1_000L)
 
@@ -248,8 +260,107 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     fun waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis: Long = 1_000L)
+
+    /**
+     * Blocks until the number of nodes matching the given [matcher] is equal to the given [count].
+     *
+     * @param matcher The matcher that will be used to filter nodes.
+     * @param count The number of nodes that are expected to be matched.
+     * @param timeoutMillis The time after which this method throws an exception if the number of
+     *   nodes that match the [matcher] is not [count]. This observes wall clock time, not frame
+     *   time.
+     * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+     *   semantics tree.
+     * @throws androidx.compose.ui.test.ComposeTimeoutException If the number of nodes that match
+     *   the [matcher] is not [count] after [timeoutMillis] (in wall clock time).
+     * @see ComposeTestRule.waitUntil
+     */
+    @ExperimentalTestApi
+    fun waitUntilNodeCount(
+        matcher: SemanticsMatcher,
+        count: Int,
+        timeoutMillis: Long = 1_000L,
+        useUnmergedTree: Boolean = false,
+    ) {
+        waitUntil(timeoutMillis) {
+            onAllNodes(matcher, useUnmergedTree)
+                .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                .size == count
+        }
+    }
+
+    /**
+     * Blocks until at least one node matches the given [matcher].
+     *
+     * @param matcher The matcher that will be used to filter nodes.
+     * @param timeoutMillis The time after which this method throws an exception if no nodes match
+     *   the given [matcher]. This observes wall clock time, not frame time.
+     * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+     *   semantics tree.
+     * @throws androidx.compose.ui.test.ComposeTimeoutException If no nodes match the given
+     *   [matcher] after [timeoutMillis] (in wall clock time).
+     * @see ComposeTestRule.waitUntil
+     */
+    @ExperimentalTestApi
+    fun waitUntilAtLeastOneExists(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long = 1_000L,
+        useUnmergedTree: Boolean = false,
+    ) {
+        waitUntil(timeoutMillis) {
+            onAllNodes(matcher, useUnmergedTree)
+                .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                .isNotEmpty()
+        }
+    }
+
+    /**
+     * Blocks until exactly one node matches the given [matcher].
+     *
+     * @param matcher The matcher that will be used to filter nodes.
+     * @param timeoutMillis The time after which this method throws an exception if exactly one node
+     *   does not match the given [matcher]. This observes wall clock time, not frame time.
+     * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+     *   semantics tree.
+     * @throws androidx.compose.ui.test.ComposeTimeoutException If exactly one node does not match
+     *   the given [matcher] after [timeoutMillis] (in wall clock time).
+     * @see ComposeTestRule.waitUntil
+     */
+    @ExperimentalTestApi
+    fun waitUntilExactlyOneExists(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long = 1_000L,
+        useUnmergedTree: Boolean = false,
+    ) {
+        waitUntilNodeCount(matcher, 1, timeoutMillis, useUnmergedTree)
+    }
+
+    /**
+     * Blocks until no nodes match the given [matcher].
+     *
+     * @param matcher The matcher that will be used to filter nodes.
+     * @param timeoutMillis The time after which this method throws an exception if any nodes match
+     *   the given [matcher]. This observes wall clock time, not frame time.
+     * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
+     *   semantics tree.
+     * @throws androidx.compose.ui.test.ComposeTimeoutException If any nodes match the given
+     *   [matcher] after [timeoutMillis] (in wall clock time).
+     * @see ComposeTestRule.waitUntil
+     */
+    @ExperimentalTestApi
+    fun waitUntilDoesNotExist(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long = 1_000L,
+        useUnmergedTree: Boolean = false,
+    ) {
+        waitUntilNodeCount(matcher, 0, timeoutMillis, useUnmergedTree)
+    }
 
     /** Registers an [IdlingResource] in this test. */
     fun registerIdlingResource(idlingResource: IdlingResource)

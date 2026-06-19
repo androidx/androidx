@@ -512,21 +512,66 @@ private constructor(
         composeTest.waitUntil(conditionDescription, timeoutMillis, condition)
     }
 
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     override fun waitUntilNodeCount(matcher: SemanticsMatcher, count: Int, timeoutMillis: Long) =
-        composeTest.waitUntilNodeCount(matcher, count, timeoutMillis)
+        composeTest.waitUntilNodeCount(matcher, count, timeoutMillis, false)
 
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     override fun waitUntilAtLeastOneExists(matcher: SemanticsMatcher, timeoutMillis: Long) =
-        composeTest.waitUntilAtLeastOneExists(matcher, timeoutMillis)
+        composeTest.waitUntilAtLeastOneExists(matcher, timeoutMillis, false)
 
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     override fun waitUntilExactlyOneExists(matcher: SemanticsMatcher, timeoutMillis: Long) =
-        composeTest.waitUntilExactlyOneExists(matcher, timeoutMillis)
+        composeTest.waitUntilExactlyOneExists(matcher, timeoutMillis, false)
 
+    @Deprecated(
+        message = "Replaced with same function, but with useUnmergedTree",
+        level = DeprecationLevel.HIDDEN,
+    )
     @ExperimentalTestApi
     override fun waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis: Long) =
-        composeTest.waitUntilDoesNotExist(matcher, timeoutMillis)
+        composeTest.waitUntilDoesNotExist(matcher, timeoutMillis, false)
+
+    @ExperimentalTestApi
+    override fun waitUntilNodeCount(
+        matcher: SemanticsMatcher,
+        count: Int,
+        timeoutMillis: Long,
+        useUnmergedTree: Boolean,
+    ) = composeTest.waitUntilNodeCount(matcher, count, timeoutMillis, useUnmergedTree)
+
+    @ExperimentalTestApi
+    override fun waitUntilAtLeastOneExists(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long,
+        useUnmergedTree: Boolean,
+    ) = composeTest.waitUntilAtLeastOneExists(matcher, timeoutMillis, useUnmergedTree)
+
+    @ExperimentalTestApi
+    override fun waitUntilExactlyOneExists(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long,
+        useUnmergedTree: Boolean,
+    ) = composeTest.waitUntilExactlyOneExists(matcher, timeoutMillis, useUnmergedTree)
+
+    @ExperimentalTestApi
+    override fun waitUntilDoesNotExist(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long,
+        useUnmergedTree: Boolean,
+    ) = composeTest.waitUntilDoesNotExist(matcher, timeoutMillis, useUnmergedTree)
 
     override fun registerIdlingResource(idlingResource: IdlingResource) =
         composeTest.registerIdlingResource(idlingResource)
