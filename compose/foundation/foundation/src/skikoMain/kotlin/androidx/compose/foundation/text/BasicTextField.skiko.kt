@@ -26,5 +26,5 @@ internal actual fun Modifier.textFieldOverlay(
     keyboardOptions: KeyboardOptions,
     interactionSource: InteractionSource,
 ): Modifier {
-    return Modifier
+    return this
 }

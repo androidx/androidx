@@ -27,5 +27,5 @@ internal actual fun Modifier.textFieldOverlay(
     imeOptions: ImeOptions,
     interactionSource: InteractionSource?,
 ): Modifier {
-    return Modifier
+    return this
 }
