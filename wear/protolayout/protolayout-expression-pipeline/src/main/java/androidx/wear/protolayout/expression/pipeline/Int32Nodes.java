@@ -48,7 +48,8 @@ import java.util.function.Function;
 /** Dynamic data nodes which yield integers. */
 class Int32Nodes {
 
-    private Int32Nodes() {}
+    private Int32Nodes() {
+    }
 
     /** Dynamic integer node that has a fixed value. */
     static class FixedInt32Node implements DynamicDataSourceNode<Integer> {
@@ -75,7 +76,8 @@ class Int32Nodes {
 
         @Override
         @UiThread
-        public void destroy() {}
+        public void destroy() {
+        }
 
         @Override
         public int getCost() {
@@ -156,9 +158,9 @@ class Int32Nodes {
                             return null;
                         }
 
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in ArithmeticInt32Node: "
-                                        + protoNode.getOperationType());
+                        Log.e(TAG, "Unknown operation type in ArithmeticInt32Node: "
+                                + protoNode.getOperationType());
+                        return null;
                     });
         }
     }
@@ -182,6 +184,8 @@ class Int32Nodes {
     /** Dynamic integer node that gets value from float. */
     static class FloatToInt32Node extends DynamicDataTransformNode<Float, Integer> {
 
+        private static final String TAG = "FloatToInt32Node";
+
         FloatToInt32Node(
                 FloatToInt32Op protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
@@ -200,8 +204,9 @@ class Int32Nodes {
                             case UNRECOGNIZED:
                                 break;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown rounding mode:" + protoNode.getRoundMode());
+
+                        Log.e(TAG, "Unknown rounding mode:" + protoNode.getRoundMode());
+                        return null;
                     },
                     x -> x - 1 < Integer.MAX_VALUE && x >= Integer.MIN_VALUE);
         }
@@ -216,32 +221,35 @@ class Int32Nodes {
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     downstream,
-                    duration -> (int) getDurationPart(duration, protoNode.getDurationPart()));
+                    duration -> getDurationPart(duration, protoNode.getDurationPart()));
         }
 
-        private static long getDurationPart(Duration duration, DurationPartType durationPartType) {
+        private static @Nullable Integer getDurationPart(Duration duration,
+                DurationPartType durationPartType) {
             switch (durationPartType) {
                 case DURATION_PART_TYPE_DAYS:
-                    return abs(duration.getSeconds() / (3600 * 24));
+                    return (int) abs(duration.getSeconds() / (3600 * 24));
                 case DURATION_PART_TYPE_HOURS:
-                    return abs((duration.getSeconds() / 3600) % 24);
+                    return (int) abs((duration.getSeconds() / 3600) % 24);
                 case DURATION_PART_TYPE_MINUTES:
-                    return abs((duration.getSeconds() / 60) % 60);
+                    return (int) abs((duration.getSeconds() / 60) % 60);
                 case DURATION_PART_TYPE_SECONDS:
-                    return abs(duration.getSeconds() % 60);
+                    return (int) abs(duration.getSeconds() % 60);
                 case DURATION_PART_TYPE_TOTAL_DAYS:
-                    return duration.toDays();
+                    return (int) duration.toDays();
                 case DURATION_PART_TYPE_TOTAL_HOURS:
-                    return duration.toHours();
+                    return (int) duration.toHours();
                 case DURATION_PART_TYPE_TOTAL_MINUTES:
-                    return duration.toMinutes();
+                    return (int) duration.toMinutes();
                 case DURATION_PART_TYPE_TOTAL_SECONDS:
-                    return duration.getSeconds();
+                    return (int) duration.getSeconds();
                 case DURATION_PART_TYPE_UNDEFINED:
                 case UNRECOGNIZED:
                     break;
             }
-            throw new IllegalArgumentException("Unknown duration part: " + durationPartType);
+
+            Log.e(TAG, "Unknown duration part: " + durationPartType);
+            return null;
         }
     }
 
@@ -394,10 +402,11 @@ class Int32Nodes {
         GetZonedDateTimePartOpNode(
                 GetZonedDateTimePartOp protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
-            super(downstream, zdt -> (int) getZonedDateTimePart(zdt, protoNode.getPartType()));
+            super(downstream, zdt -> getZonedDateTimePart(zdt, protoNode.getPartType()));
         }
 
-        private static long getZonedDateTimePart(ZonedDateTime zdt, ZonedDateTimePartType type) {
+        private static @Nullable Integer getZonedDateTimePart(ZonedDateTime zdt,
+                ZonedDateTimePartType type) {
             switch (type) {
                 case ZONED_DATE_TIME_PART_SECOND:
                     return zdt.getSecond();
@@ -417,7 +426,9 @@ class Int32Nodes {
                 case UNRECOGNIZED:
                     break;
             }
-            throw new IllegalArgumentException("Unknown ZonedDateTime part: " + type);
+
+            Log.e(TAG, "Unknown ZonedDateTime part: " + type);
+            return null;
         }
     }
 }

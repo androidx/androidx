@@ -61,13 +61,19 @@ public class DynamicTypeEvaluatorTest {
     }
 
     @Test
-    public void evaluateBindingRequest_nodeThrows_propagateTheException() {
+    public void evaluateBindingRequest_nodeThrows_propagateTheException() throws Exception {
         DynamicTypeEvaluator evaluator = createEvaluator();
         ArrayList<Integer> results = new ArrayList<>();
-        DynamicTypeBindingRequest request = createExpressionWithUnrecognizedEnum(results);
+        ArrayList<Boolean> invalidResults = new ArrayList<>();
+        DynamicTypeBindingRequest request =
+                createExpressionWithUnrecognizedEnum(results, invalidResults);
+        var boundDynamicType = evaluator.bind(request);
 
-        assertThrows(
-                IllegalArgumentException.class, () -> evaluator.bind(request).startEvaluation());
+        boundDynamicType.startEvaluation();
+
+        assertThat(results).isEmpty();
+        assertThat(invalidResults).hasSize(1);
+        boundDynamicType.close();
     }
 
     @Test
@@ -202,6 +208,11 @@ public class DynamicTypeEvaluatorTest {
 
     private static @NonNull DynamicTypeBindingRequest createExpressionWithUnrecognizedEnum(
             ArrayList<Integer> results) {
+        return createExpressionWithUnrecognizedEnum(results, new ArrayList<>());
+    }
+
+    private static @NonNull DynamicTypeBindingRequest createExpressionWithUnrecognizedEnum(
+            ArrayList<Integer> results, ArrayList<Boolean> invalidResults) {
         return DynamicTypeBindingRequest.forDynamicInt32Internal(
                 DynamicProto.DynamicInt32.newBuilder()
                         .setFloatToInt(
@@ -215,7 +226,7 @@ public class DynamicTypeEvaluatorTest {
                                         .setRoundModeValue(-1)
                                         .build())
                         .build(),
-                new AddToListCallback<Integer>(results));
+                new AddToListCallback<Integer>(results, invalidResults));
     }
 
     private static @NonNull DynamicTypeBindingRequest
