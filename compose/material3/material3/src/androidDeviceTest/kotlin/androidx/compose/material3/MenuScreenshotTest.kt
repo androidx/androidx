@@ -43,8 +43,6 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -232,7 +230,7 @@ class MenuScreenshotTest {
             DropdownMenuContent(
                 modifier = Modifier,
                 expandedState = MutableTransitionState(initialState = true),
-                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+                transformOrigin = { TransformOrigin.Center },
                 scrollState = rememberScrollState(),
                 shape = shape,
                 containerColor = containerColor,
@@ -277,7 +275,7 @@ class MenuScreenshotTest {
             DropdownMenuPopupContent(
                 Modifier,
                 expandedState = MutableTransitionState(initialState = true),
-                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+                transformOrigin = { TransformOrigin.Center },
             ) {
                 DropdownMenuGroup(
                     shapes = MenuDefaults.groupShapes(shape = MenuDefaults.leadingGroupShape)
@@ -397,7 +395,7 @@ class MenuScreenshotTest {
             DropdownMenuPopupContent(
                 Modifier,
                 expandedState = MutableTransitionState(initialState = true),
-                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+                transformOrigin = { TransformOrigin.Center },
             ) {
                 DropdownMenuGroup(
                     shapes = MenuDefaults.groupShapes(shape = MenuDefaults.leadingGroupShape)

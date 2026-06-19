@@ -40,13 +40,24 @@ fun ComposeUiTest.setMaterialContent(
     setContent {
         MaterialTheme(colorScheme = colorScheme) {
             Surface(modifier = modifier) {
-                CompositionLocalProvider(LocalWindowInfo provides WindowInfoFocused, composable)
+                val windowInfo = LocalWindowInfo.current
+                CompositionLocalProvider(
+                    LocalWindowInfo provides FocusedWindowInfo(windowInfo),
+                    composable,
+                )
             }
         }
     }
 }
 
-private val WindowInfoFocused =
-    object : WindowInfo {
-        override val isWindowFocused = true
-    }
+private class FocusedWindowInfo(private val delegate: WindowInfo) : WindowInfo {
+    override val isWindowFocused = true
+    override val keyboardModifiers
+        get() = delegate.keyboardModifiers
+
+    override val containerSize
+        get() = delegate.containerSize
+
+    override val containerDpSize
+        get() = delegate.containerDpSize
+}

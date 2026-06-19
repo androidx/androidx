@@ -74,7 +74,6 @@ internal fun CodePoint.isSupplementaryCodePoint(): Boolean =
 
 internal expect fun CodePoint.strongDirectionType(): StrongDirectionType
 internal expect fun CodePoint.isNeutralDirection(): Boolean
-internal expect fun CodePoint.isNonSpacingMark(): Boolean
 
 /**
  * Determine direction based on the first strong directional character.

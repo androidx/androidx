@@ -29,10 +29,13 @@ import androidx.compose.ui.test.utils.beginPress
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.getTouchesEvent
 import androidx.compose.ui.test.utils.hold
+import androidx.compose.ui.test.utils.leftCenter
 import androidx.compose.ui.test.utils.mouseDown
 import androidx.compose.ui.test.utils.moveToLocationOnWindow
+import androidx.compose.ui.test.utils.offsetBy
 import androidx.compose.ui.test.utils.release
 import androidx.compose.ui.test.utils.resetTouches
+import androidx.compose.ui.test.utils.rightCenter
 import androidx.compose.ui.test.utils.toCGPoint
 import androidx.compose.ui.test.utils.touchDown
 import androidx.compose.ui.test.utils.up
@@ -116,17 +119,13 @@ import platform.darwin.dispatch_get_main_queue
  * @param [testBlock] The test function.
  */
 internal fun runUIKitInstrumentedTest(testBlock: UIKitInstrumentedTest.() -> Unit) {
-    println("Debug: Running test with ComposeHostingView")
-    with(UIKitInstrumentedTest(useHostingView = true)) {
-        try {
-            testBlock()
-        } finally {
-            tearDown()
-        }
-    }
+    runUIKitInstrumentedTest(useHostingView = true, testBlock)
+    runUIKitInstrumentedTest(useHostingView = false, testBlock)
+}
 
-    println("Debug: Running test with ComposeHostingViewController")
-    with(UIKitInstrumentedTest(useHostingView = false)) {
+internal fun runUIKitInstrumentedTest(useHostingView: Boolean, testBlock: UIKitInstrumentedTest.() -> Unit) {
+    println("Debug: Running test with ${if (useHostingView) "ComposeHostingView" else "ComposeHostingViewController"}")
+    with(UIKitInstrumentedTest(useHostingView = useHostingView)) {
         try {
             testBlock()
         } finally {
@@ -158,21 +157,7 @@ internal fun <T> runUIKitInstrumentedTest(
     }
 
     for (param in params) {
-        with(UIKitInstrumentedTest(useHostingView = true)) {
-            try {
-                testBlock(param)
-            } finally {
-                tearDown()
-            }
-        }
-
-        with(UIKitInstrumentedTest(useHostingView = false)) {
-            try {
-                testBlock(param)
-            } finally {
-                tearDown()
-            }
-        }
+        runUIKitInstrumentedTest(testBlock = { testBlock(param) })
     }
 }
 
@@ -278,36 +263,29 @@ internal class UIKitInstrumentedTest(
         configure: ComposeContainerConfiguration.() -> Unit = {},
         interfaceOrientation: UIInterfaceOrientation = UIInterfaceOrientationPortrait,
         content: @Composable () -> Unit
+    ) = setupWindow(
+        interfaceOrientation = interfaceOrientation,
+        rootViewController = { createViewControllerHostingCompose(configure, content) }
+    )
+
+    /**
+     * Installs [rootViewController] into the test window and waits until the Compose scene owned by
+     * this [UIKitInstrumentedTest] is idle.
+     *
+     * Use this when a test needs a custom UIKit hierarchy around Compose, for example a navigation
+     * controller or a view controller presented by UIKit.
+     */
+    fun setupWindow(
+        interfaceOrientation: UIInterfaceOrientation = UIInterfaceOrientationPortrait,
+        rootViewController: () -> UIViewController,
     ) {
         accessibilityNotifications.clear()
         AccessibilityNotification.onNotificationPostedForTests = {
             accessibilityNotifications.add(it)
         }
-        val innerConfigure: ComposeContainerConfiguration.() -> Unit = {
-            enforceStrictPlistSanityCheck = false
-            configure()
-        }
 
-        val rootViewController: UIViewController = if (useHostingView) {
-            hostingView = ComposeHostingView(
-                configuration = ComposeUIViewConfiguration().apply(innerConfigure),
-                content = content,
-                coroutineContext = coroutineContext
-            )
-            UIViewController().also {
-                it.view.embedSubview(hostingView!!)
-            }
-        } else {
-            ComposeHostingViewController(
-                configuration = ComposeUIViewControllerConfiguration().apply(innerConfigure),
-                content = content,
-                coroutineContext = coroutineContext
-            ).also {
-                hostingViewController = it
-            }
-        }
+        appDelegate.setUpWindow(rootViewController())
 
-        appDelegate.setUpWindow(rootViewController)
         waitForIdle()
 
         if (appDelegate.requestInterfaceOrientationChangeIfNeeded(interfaceOrientation)) {
@@ -315,7 +293,66 @@ internal class UIKitInstrumentedTest(
         }
     }
 
+    /**
+     * Creates a [UIViewController] that hosts [content] using the container variant selected by
+     * [useHostingView].
+     */
+    fun createViewControllerHostingCompose(
+        configure: ComposeContainerConfiguration.() -> Unit = {},
+        content: @Composable () -> Unit
+    ): UIViewController = if (useHostingView) {
+        UIViewController().also {
+            it.view.embedSubview(createComposeHostingView(configure, content))
+        }
+    } else {
+        createComposeHostingViewController(configure, content)
+    }
+
+    /**
+     * Creates a [ComposeHostingView] for [content] and records it as the active Compose container
+     * for idleness and redrawer checks.
+     */
+    fun createComposeHostingView(
+        configure: ComposeUIViewConfiguration.() -> Unit = {},
+        content: @Composable () -> Unit
+    ): ComposeHostingView {
+        val configuration = ComposeUIViewConfiguration()
+            .apply({ enforceStrictPlistSanityCheck = false })
+            .apply(configure)
+
+        return ComposeHostingView(
+            configuration = configuration,
+            content = content,
+            coroutineContext = coroutineContext
+        ).also {
+            hostingView = it
+        }
+    }
+
+    /**
+     * Creates a [ComposeHostingViewController] for [content] and records it as the active Compose
+     * container for idleness and redrawer checks.
+     */
+    fun createComposeHostingViewController(
+        configure: ComposeUIViewControllerConfiguration.() -> Unit = {},
+        content: @Composable () -> Unit
+    ): ComposeHostingViewController {
+        val configuration = ComposeUIViewControllerConfiguration()
+            .apply({ enforceStrictPlistSanityCheck = false })
+            .apply(configure)
+
+        return ComposeHostingViewController(
+            configuration = configuration,
+            content = content,
+            coroutineContext = coroutineContext
+        ).also {
+            this.hostingViewController = it
+        }
+    }
+
     fun tearDown() {
+        clearComposeContainerReferencesIfDetached()
+
         // Stop text editing and hide keyboard if any
         viewController.view.endEditing(force = true)
         waitForIdle()
@@ -327,6 +364,15 @@ internal class UIKitInstrumentedTest(
     fun stopComposeScene() {
         hostingView?.viewDidLeaveWindowHierarchy()
         hostingViewController?.viewControllerDidLeaveWindowHierarchy()
+    }
+
+    private fun clearComposeContainerReferencesIfDetached() {
+        if (hostingView != null && hostingView?.window == null) {
+            hostingView = null
+        }
+        if (hostingViewController != null && hostingViewController?.view?.window == null) {
+            hostingViewController = null
+        }
     }
 
     private val isIdle: Boolean
@@ -344,7 +390,10 @@ internal class UIKitInstrumentedTest(
         waitUntil(
             conditionDescription = "waitForIdle: timeout ${timeoutMillis}ms reached.",
             timeoutMillis = timeoutMillis
-        ) { isIdle }
+        ) {
+            clearComposeContainerReferencesIfDetached()
+            isIdle
+        }
     }
 
     fun delay(timeoutMillis: Long) = UIKitInstrumentedTest.delay(timeoutMillis)
@@ -365,8 +414,26 @@ internal class UIKitInstrumentedTest(
      * the window hosting the view will be used.
      * @return A UITouch object representing the touch interaction.
      */
-    fun touchDown(position: DpOffset, window: UIWindow? = null): UITouch {
-        return getTargetWindow(position, window).touchDown(position)
+    fun touchDown(position: DpOffset, window: UIWindow? = null, fromEdge: Boolean = false): UITouch {
+        return getTargetWindow(position, window).touchDown(position, fromEdge)
+    }
+
+    private val EdgeSwipeDuration = 200.milliseconds
+
+    fun swipeRightFromEdge() {
+        val swipeToLocation = screenBounds.rightCenter().offsetBy(dx = (-16).dp)
+
+        touchDown(screenBounds.leftCenter(), fromEdge = true)
+            .dragTo(swipeToLocation, duration = EdgeSwipeDuration)
+            .up()
+    }
+
+    fun swipeLeftFromEdge() {
+        val swipeToLocation = screenBounds.leftCenter().offsetBy(dx = 16.dp)
+
+        touchDown(screenBounds.rightCenter(), fromEdge = true)
+            .dragTo(swipeToLocation, duration = EdgeSwipeDuration)
+            .up()
     }
 
     /**
@@ -580,6 +647,28 @@ internal class UIKitInstrumentedTest(
     fun UITouch.dragTo(x: Dp? = null, y: Dp? = null, duration: Duration = 0.5.seconds): UITouch {
         val location = locationInView(null).toDpOffset()
         return dragTo(DpOffset(x ?: location.x, y ?: location.y), duration)
+    }
+
+    private val SwipeDuration = 200.milliseconds
+
+    fun AccessibilityTestNode.swipe(
+        fromPosition: DpRect.() -> DpOffset = { center() },
+        toPosition: DpRect.() -> DpOffset = { center() },
+        fromEdge: Boolean = false,
+        duration: Duration = SwipeDuration
+    ) {
+        val frame = frame ?: error("Internal error. Frame is missing.")
+        touchDown(frame.fromPosition(), fromEdge = fromEdge)
+            .dragTo(frame.toPosition(), duration)
+            .up()
+    }
+
+    fun AccessibilityTestNode.swipeRight(fromEdge: Boolean = false, duration: Duration = SwipeDuration) {
+        swipe(fromPosition = { center() }, toPosition = { rightCenter() }, fromEdge = fromEdge, duration = duration)
+    }
+
+    fun AccessibilityTestNode.swipeLeft(fromEdge: Boolean = false, duration: Duration = SwipeDuration) {
+        swipe(fromPosition = { center() }, toPosition = { leftCenter() }, fromEdge = fromEdge, duration = duration)
     }
 }
 

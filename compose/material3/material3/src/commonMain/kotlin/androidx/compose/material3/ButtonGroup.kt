@@ -25,7 +25,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.Icons
@@ -62,7 +64,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
@@ -85,129 +87,19 @@ import kotlinx.coroutines.launch
  * A layout composable that places its children in a horizontal sequence. When a child uses
  * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
  * listen to the interactions and expand the width of the pressed child element as well as compress
- * the neighboring child elements.
+ * the neighboring child elements. Please also pass in a relevant maximum compression limit to
+ * [ButtonGroupScope.animateWidth], so button groups can correctly calculate the maximum compression
+ * that each item can compress by; this defaults to [ButtonDefaults.ContentPadding]. Additionally,
+ * items will overflow into a dropdown menu if there are too many items or the items are too wide to
+ * all fit onto the screen.
+ *
+ * Standard button group using [ButtonGroupScope.clickableItem]
  *
  * @sample androidx.compose.material3.samples.ButtonGroupSample
  *
- * A connected button group is a variant of a button group that have leading and trailing buttons
- * that are asymmetric in shape and are used to make a selection.
+ * standard button group using [ButtonGroupScope.customItem] with [ButtonGroupScope.animateWidth]
  *
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @param modifier the [Modifier] to be applied to the button group.
- * @param expandedRatio the percentage, represented by a float, of the width of the interacted child
- *   element that will be used to expand the interacted child element as well as compress the
- *   neighboring children. By Default, standard button group will expand the interacted child
- *   element by [ButtonGroupDefaults.ExpandedRatio] of its width and this will be propagated to its
- *   neighbors. If 0f is passed into this slot, then the interacted child element will not expand at
- *   all and the neighboring elements will not compress. If 1f is passed into this slot, then the
- *   interacted child element will expand to 200% of its default width when pressed.
- * @param horizontalArrangement The horizontal arrangement of the button group's children.
- * @param content the content displayed in the button group, expected to use a Material3 component
- *   or a composable that is tagged with [Modifier.interactionSourceData].
- */
-@Deprecated(
-    message =
-        "Please use the overload with overflowIndicator parameter. This overload will " +
-            "create a composable that is cut off if there are too many items to fit " +
-            "on the screen neatly.",
-    replaceWith =
-        ReplaceWith(
-            "ButtonGroup(overflowIndicator, modifier, expandedRatio, horizontalArrangement, content)"
-        ),
-    level = DeprecationLevel.WARNING,
-)
-@Composable
-@ExperimentalMaterial3ExpressiveApi
-fun ButtonGroup(
-    modifier: Modifier = Modifier,
-    @FloatRange(0.0) expandedRatio: Float = ButtonGroupDefaults.ExpandedRatio,
-    horizontalArrangement: Arrangement.Horizontal = ButtonGroupDefaults.HorizontalArrangement,
-    content: @Composable ButtonGroupScope.() -> Unit,
-) {
-    // TODO Load the motionScheme tokens from the component tokens file
-    val defaultAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-    val scope = remember { ButtonGroupScopeImpl(defaultAnimationSpec) }
-
-    val measurePolicy =
-        remember(horizontalArrangement) {
-            NonAdaptiveButtonGroupMeasurePolicy(
-                horizontalArrangement = horizontalArrangement,
-                expandedRatio = expandedRatio,
-            )
-        }
-
-    Layout(measurePolicy = measurePolicy, modifier = modifier, content = { scope.content() })
-}
-
-// TODO link to mio page when available.
-// TODO link to an image when available
-/**
- * A layout composable that places its children in a horizontal sequence. When a child uses
- * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
- * listen to the interactions and expand the width of the pressed child element as well as compress
- * the neighboring child elements. Additionally, items will overflow into a dropdown menu if there
- * are too many items or the items are too wide to all fit onto the screen.
- *
- * @sample androidx.compose.material3.samples.ButtonGroupSample
- *
- * A connected button group is a variant of a button group that have leading and trailing buttons
- * that are asymmetric in shape and are used to make a selection.
- *
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.VerticalButtonGroupSample
- * @param overflowIndicator composable that is displayed at the end of the button group if it needs
- *   to overflow. It receives a [ButtonGroupMenuState].
- * @param modifier the [Modifier] to be applied to the button group.
- * @param expandedRatio the percentage, represented by a float, of the width of the interacted child
- *   element that will be used to expand the interacted child element as well as compress the
- *   neighboring children. By Default, standard button group will expand the interacted child
- *   element by [ButtonGroupDefaults.ExpandedRatio] of its width and this will be propagated to its
- *   neighbors. If 0f is passed into this slot, then the interacted child element will not expand at
- *   all and the neighboring elements will not compress. If 1f is passed into this slot, then the
- *   interacted child element will expand to 200% of its default width when pressed.
- * @param horizontalArrangement The horizontal arrangement of the button group's children.
- * @param content the content displayed in the button group, expected to use a composable that i s
- *   tagged with [ButtonGroupScope.animateWidth].
- */
-@Deprecated(
-    message = "Use overload with `verticalAlignment` parameter",
-    replaceWith =
-        ReplaceWith(
-            "ButtonGroup(overflowIndicator, modifier, expandedRatio, horizontalArrangement, verticalAlignment, content)"
-        ),
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-@ExperimentalMaterial3ExpressiveApi
-fun ButtonGroup(
-    overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,
-    modifier: Modifier = Modifier,
-    @FloatRange(0.0) expandedRatio: Float = ButtonGroupDefaults.ExpandedRatio,
-    horizontalArrangement: Arrangement.Horizontal = ButtonGroupDefaults.HorizontalArrangement,
-    content: ButtonGroupScope.() -> Unit,
-) {
-    ButtonGroup(
-        overflowIndicator = overflowIndicator,
-        modifier = modifier,
-        expandedRatio = expandedRatio,
-        horizontalArrangement = horizontalArrangement,
-        verticalAlignment = Alignment.Top,
-        content = content,
-    )
-}
-
-// TODO link to mio page when available.
-// TODO link to an image when available
-/**
- * A layout composable that places its children in a horizontal sequence. When a child uses
- * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
- * listen to the interactions and expand the width of the pressed child element as well as compress
- * the neighboring child elements. Additionally, items will overflow into a dropdown menu if there
- * are too many items or the items are too wide to all fit onto the screen.
- *
- * @sample androidx.compose.material3.samples.ButtonGroupSample
+ * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
  *
  * A connected button group is a variant of a button group that have leading and trailing buttons
  * that are asymmetric in shape and are used to make a selection.
@@ -231,7 +123,6 @@ fun ButtonGroup(
  *   tagged with [ButtonGroupScope.animateWidth].
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ButtonGroup(
     overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,
     modifier: Modifier = Modifier,
@@ -282,7 +173,6 @@ fun ButtonGroup(
 }
 
 /** Default values used by [ButtonGroup] */
-@ExperimentalMaterial3ExpressiveApi
 object ButtonGroupDefaults {
     /**
      * The default percentage, represented as a float, of the width of the interacted child element
@@ -442,12 +332,6 @@ object ButtonGroupDefaults {
 
 /** State class for the overflow menu in [ButtonGroup]. */
 class ButtonGroupMenuState(initialIsShowing: Boolean = false) {
-    /** Indicates whether the overflow menu is currently expanded. */
-    @Deprecated("Keeping for binary compatibility", level = DeprecationLevel.HIDDEN)
-    var isExpanded = initialIsShowing
-        get() = isShowing
-        private set
-
     /** Indicates whether the overflow menu is currently showing. */
     var isShowing by mutableStateOf(initialIsShowing)
         private set
@@ -580,31 +464,72 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
         // The item's widths that we'll adjust for animation
         val widths =
             IntArray(measurables.size) { (childrenConstraints[it] ?: constraints).maxWidth }
-        // The growths used to know how much each
-        // item should be adjusted in the horizontal placement
-        val growths = IntArray(measurables.size) { 0 }
-
         if (measurables.size > 1) {
             for (index in measurables.indices) {
-                // The amount the current item is expanding
-                val growth = animatables[index].value * expandedRatio * widths[index]
+                if (animatables[index].value == 0f) continue
+                var actualGrowth: Int
+
                 if (index in 1 until measurables.lastIndex) {
+                    // We constrain the growth by the paddings of the neighbors
+                    val previousItemPadding =
+                        configs[index - 1]
+                            .compressionLimit
+                            .calculateEndPadding(layoutDirection)
+                            .toPx()
+                    val nextItemPadding =
+                        configs[index + 1]
+                            .compressionLimit
+                            .calculateEndPadding(layoutDirection)
+                            .toPx()
+                    val growth =
+                        (animatables[index].value *
+                                minOf(
+                                    (expandedRatio * widths[index] / 2f),
+                                    previousItemPadding,
+                                    nextItemPadding,
+                                ))
+                            .roundToInt()
                     // We are a middle button, so we must compress both neighbors
-                    growths[index] = (growth / 2f).roundToInt()
-                    widths[index - 1] -= (growth / 2f).roundToInt()
-                    widths[index + 1] -= (growth / 2).roundToInt()
+                    val growthLeft = min(growth, widths[index - 1])
+                    val growthRight = min(growth, widths[index + 1])
+                    widths[index - 1] -= growthLeft
+                    widths[index + 1] -= growthRight
+                    actualGrowth = growthLeft + growthRight
                 } else {
                     if (index == 0) {
                         // We are the first item, so we need to compress the next item
-                        widths[index + 1] -= growth.roundToInt()
+                        // We constrain the growth by the paddings of the next item
+                        val nextItemPadding =
+                            configs[index + 1]
+                                .compressionLimit
+                                .calculateEndPadding(layoutDirection)
+                                .toPx()
+                        val targetGrowth =
+                            (animatables[index].value *
+                                    min(expandedRatio * widths[index], nextItemPadding))
+                                .roundToInt()
+                        val growthRight = min(targetGrowth, widths[index + 1])
+                        widths[index + 1] -= growthRight
+                        actualGrowth = growthRight
                     } else {
                         // We are the last item, so we need to compress the previous item
-                        widths[index - 1] -= growth.roundToInt()
+                        // We constrain the growth by the paddings of the previous item
+                        val previousItemPadding =
+                            configs[index - 1]
+                                .compressionLimit
+                                .calculateEndPadding(layoutDirection)
+                                .toPx()
+                        val targetGrowth =
+                            (animatables[index].value *
+                                    min(expandedRatio * widths[index], previousItemPadding))
+                                .roundToInt()
+                        val growthLeft = min(targetGrowth, widths[index - 1])
+                        widths[index - 1] -= growthLeft
+                        actualGrowth = growthLeft
                     }
-                    growths[index] = growth.roundToInt()
                 }
 
-                widths[index] += growth.roundToInt()
+                widths[index] += actualGrowth
             }
         }
 
@@ -625,7 +550,7 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
         with(horizontalArrangement) {
             measureScope.arrange(
                 mainAxisLayoutSize,
-                childrenMainAxisSize,
+                widths,
                 measureScope.layoutDirection,
                 mainAxisPositions,
             )
@@ -634,23 +559,7 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
         val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
         return layout(mainAxisLayoutSize, height) {
             for (index in placeables.indices) {
-                // We adjust the placement here depending on the expansion/compression of items
-                val growth =
-                    when (layoutDirection) {
-                        LayoutDirection.Ltr ->
-                            if (index > 0) {
-                                growths[index - 1] - growths[index]
-                            } else {
-                                0
-                            }
-                        LayoutDirection.Rtl ->
-                            if (index < placeables.lastIndex) {
-                                growths[index + 1] - growths[index]
-                            } else {
-                                0
-                            }
-                    }
-                placeables[index].place(x = mainAxisPositions[index] + growth, y = 0)
+                placeables[index].place(x = mainAxisPositions[index], y = 0)
             }
         }
     }
@@ -819,31 +728,68 @@ private class ButtonGroupMeasurePolicy(
 
         overflowState.visibleItemCount = lastItem
 
-        // The growths used to know how much each
-        // item should be adjusted in the horizontal placement
-        val growths = IntArray(lastItem) { 0 }
         if (contentMeasurables.size > 1) {
             // The expand and compress logic of button groups.
             for (index in 0 until lastItem) {
-                // The amount the current item is expanding
-                val growth = animatables[index].value * expandedRatio * widths[index]
+                if (animatables[index].value == 0f) continue
+                var actualGrowth: Int
+
                 if (index in 1 until lastItem - 1) {
+                    val targetGrowth =
+                        (animatables[index].value *
+                                minOf(
+                                    (expandedRatio * widths[index] / 2f),
+                                    configs[index - 1]
+                                        .compressionLimit
+                                        .calculateEndPadding(layoutDirection)
+                                        .toPx(),
+                                    configs[index + 1]
+                                        .compressionLimit
+                                        .calculateEndPadding(layoutDirection)
+                                        .toPx(),
+                                ))
+                            .roundToInt()
                     // We are a middle button, so we must compress both neighbors
-                    growths[index] = (growth / 2f).roundToInt()
-                    widths[index - 1] -= (growth / 2f).roundToInt()
-                    widths[index + 1] -= (growth / 2).roundToInt()
+                    val growthLeft = min(targetGrowth, widths[index - 1])
+                    val growthRight = min(targetGrowth, widths[index + 1])
+                    widths[index - 1] -= growthLeft
+                    widths[index + 1] -= growthRight
+                    actualGrowth = growthLeft + growthRight
                 } else {
                     if (index == 0) {
                         // We are the first item, so we need to compress the next item
-                        widths[index + 1] -= growth.roundToInt()
+                        val targetGrowth =
+                            (animatables[index].value *
+                                    min(
+                                        expandedRatio * widths[index],
+                                        configs[index + 1]
+                                            .compressionLimit
+                                            .calculateEndPadding(layoutDirection)
+                                            .toPx(),
+                                    ))
+                                .roundToInt()
+                        val growthRight = min(targetGrowth, widths[index + 1])
+                        widths[index + 1] -= growthRight
+                        actualGrowth = growthRight
                     } else {
                         // We are the last item, so we need to compress the previous item
-                        widths[index - 1] -= growth.roundToInt()
+                        val targetGrowth =
+                            (animatables[index].value *
+                                    min(
+                                        expandedRatio * widths[index],
+                                        configs[index - 1]
+                                            .compressionLimit
+                                            .calculateEndPadding(layoutDirection)
+                                            .toPx(),
+                                    ))
+                                .roundToInt()
+                        val growthLeft = min(targetGrowth, widths[index - 1])
+                        widths[index - 1] -= growthLeft
+                        actualGrowth = growthLeft
                     }
-                    growths[index] = growth.roundToInt()
                 }
 
-                widths[index] += growth.roundToInt()
+                widths[index] += actualGrowth
             }
         }
 
@@ -865,7 +811,7 @@ private class ButtonGroupMeasurePolicy(
         with(horizontalArrangement) {
             measureScope.arrange(
                 mainAxisLayoutSize,
-                childrenMainAxisSize.sliceArray(0..lastItem - 1),
+                widths.sliceArray(0..lastItem - 1),
                 measureScope.layoutDirection,
                 mainAxisPositions,
             )
@@ -875,27 +821,11 @@ private class ButtonGroupMeasurePolicy(
 
         return layout(mainAxisLayoutSize, height) {
             for (index in placeables.indices) {
-                // We adjust the placement here depending on the expansion/compression of items
-                val growth =
-                    when (layoutDirection) {
-                        LayoutDirection.Ltr ->
-                            if (index > 0) {
-                                growths[index - 1] - growths[index]
-                            } else {
-                                0
-                            }
-                        LayoutDirection.Rtl ->
-                            if (index < placeables.lastIndex) {
-                                growths[index + 1] - growths[index]
-                            } else {
-                                0
-                            }
-                    }
                 val parentData = contentMeasurables[index].parentData as? ButtonGroupParentData
                 val yPosition =
                     parentData?.alignment?.align(placeables[index].height, height)
                         ?: verticalAlignment.align(placeables[index].height, height)
-                placeables[index].place(x = mainAxisPositions[index] + growth, y = yPosition)
+                placeables[index].place(x = mainAxisPositions[index], y = yPosition)
             }
             overflowPlaceables?.fastForEach {
                 val yPosition = verticalAlignment.align(it.height, height)
@@ -909,26 +839,7 @@ private class ButtonGroupMeasurePolicy(
  * Button group scope used to indicate a [Modifier.weight] and [Modifier.animateWidth] of a child
  * element. Also defines the DSL to build the content of a [ButtonGroup]
  */
-@ExperimentalMaterial3ExpressiveApi
 interface ButtonGroupScope {
-    /**
-     * Size the element's width proportional to its [weight] relative to other weighted sibling
-     * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
-     * measuring unweighted child elements and distribute it according to this weight. When [fill]
-     * is true, the element will be forced to occupy the whole width allocated to it. Otherwise, the
-     * element is allowed to be smaller - this will result in [ButtonGroup] being smaller, as the
-     * unused allocated width will not be redistributed to other siblings.
-     *
-     * @param weight The proportional width to give to this element, as related to the total of all
-     *   weighted siblings. Must be positive.
-     * @param fill When `true`, the element will occupy the whole width allocated.
-     */
-    @Deprecated("For binary compatibility", level = DeprecationLevel.HIDDEN)
-    fun Modifier.weight(
-        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
-        fill: Boolean = true,
-    ): Modifier
-
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
@@ -945,7 +856,22 @@ interface ButtonGroupScope {
      *
      * @param interactionSource the [InteractionSource] that button group will observe.
      */
+    @Deprecated("maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
+
+    /**
+     * Specifies the interaction source to use with this item. This is used to listen to events and
+     * animate growing the pressed button and shrink the neighbor(s).
+     *
+     * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
+     * @param interactionSource the [InteractionSource] that button group will observe.
+     * @param compressionLimit the [PaddingValues] used to determine the maximum compression that
+     *   this item will be able to squish by.
+     */
+    fun Modifier.animateWidth(
+        interactionSource: InteractionSource,
+        compressionLimit: PaddingValues = ButtonDefaults.ContentPadding,
+    ): Modifier
 
     /**
      * Align the element vertically within the [ButtonGroup]. This alignment will have priority over
@@ -1010,11 +936,11 @@ internal val IntrinsicMeasurable.buttonGroupParentData: ButtonGroupParentData?
 internal val ButtonGroupParentData?.weight: Float
     get() = this?.weight ?: 0f
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal data class ButtonGroupParentData(
     var weight: Float = 0f,
     var pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f),
     var alignment: Alignment.Vertical? = null,
+    var compressionLimit: PaddingValues = PaddingValues(0.dp),
 )
 
 internal class ButtonGroupElement(val weight: Float = 0f) : ModifierNodeElement<ButtonGroupNode>() {
@@ -1053,10 +979,11 @@ internal class ButtonGroupNode(var weight: Float) : ParentDataModifierNode, Modi
 internal class EnlargeOnPressElement(
     val interactionSource: InteractionSource,
     val animationSpec: AnimationSpec<Float>,
+    val compressionLimit: PaddingValues = PaddingValues(0.dp),
 ) : ModifierNodeElement<EnlargeOnPressNode>() {
 
     override fun create(): EnlargeOnPressNode {
-        return EnlargeOnPressNode(interactionSource, animationSpec)
+        return EnlargeOnPressNode(interactionSource, animationSpec, compressionLimit)
     }
 
     override fun update(node: EnlargeOnPressNode) {
@@ -1065,27 +992,33 @@ internal class EnlargeOnPressElement(
             node.launchCollectionJob()
         }
         node.animationSpec = animationSpec
+        node.compressionLimit = compressionLimit
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "EnlargeOnPressElement"
         properties["interactionSource"] = interactionSource
         properties["animationSpec"] = animationSpec
+        properties["compressionLimit"] = compressionLimit
     }
 
-    override fun hashCode() = interactionSource.hashCode() * 31 + animationSpec.hashCode()
+    override fun hashCode() =
+        (interactionSource.hashCode() * 31 + animationSpec.hashCode()) * 31 +
+            compressionLimit.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         val otherModifier = other as? EnlargeOnPressNode ?: return false
         return interactionSource == otherModifier.interactionSource &&
-            animationSpec == otherModifier.animationSpec
+            animationSpec == otherModifier.animationSpec &&
+            compressionLimit == otherModifier.compressionLimit
     }
 }
 
 internal class EnlargeOnPressNode(
     var interactionSource: InteractionSource,
     var animationSpec: AnimationSpec<Float>,
+    var compressionLimit: PaddingValues,
 ) : ParentDataModifierNode, Modifier.Node() {
     private val pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f)
 
@@ -1133,8 +1066,8 @@ internal class EnlargeOnPressNode(
     }
 
     override fun Density.modifyParentData(parentData: Any?) =
-        (parentData as? ButtonGroupParentData).let { prev ->
-            ButtonGroupParentData(prev.weight, pressedAnimatable, prev?.alignment)
+        ((parentData as? ButtonGroupParentData) ?: ButtonGroupParentData()).let { prev ->
+            ButtonGroupParentData(prev.weight, pressedAnimatable, prev.alignment, compressionLimit)
         }
 }
 
@@ -1164,11 +1097,19 @@ internal class ClickableButtonGroupItem(
     @Composable
     override fun ButtonGroupContent() {
         val interactionSource = remember { MutableInteractionSource() }
+        val compressionLimit =
+            if (icon != null) {
+                ButtonDefaults.ButtonWithIconContentPadding
+            } else {
+                ButtonDefaults.ContentPadding
+            }
+
         val modifier =
             Modifier.then(
                     EnlargeOnPressElement(
                         interactionSource = interactionSource,
                         animationSpec = animationSpec,
+                        compressionLimit = compressionLimit,
                     )
                 )
                 .then(
@@ -1183,12 +1124,18 @@ internal class ClickableButtonGroupItem(
             modifier = modifier,
             interactionSource = interactionSource,
             enabled = enabled,
+            contentPadding = compressionLimit,
         ) {
             icon?.let {
                 it.invoke()
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             }
-            Text(label)
+            Text(
+                text = label,
+                maxLines = 1,
+                softWrap = false,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Visible,
+            )
         }
     }
 
@@ -1217,15 +1164,22 @@ internal class ToggleableButtonGroupItem(
     private val label: String,
 ) : ButtonGroupItem {
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun ButtonGroupContent() {
         val interactionSource = remember { MutableInteractionSource() }
+        val compressionLimit =
+            if (icon != null) {
+                ButtonDefaults.ButtonWithIconContentPadding
+            } else {
+                ButtonDefaults.ContentPadding
+            }
+
         val modifier =
             Modifier.then(
                     EnlargeOnPressElement(
                         interactionSource = interactionSource,
                         animationSpec = animationSpec,
+                        compressionLimit = compressionLimit,
                     )
                 )
                 .then(
@@ -1242,12 +1196,18 @@ internal class ToggleableButtonGroupItem(
             modifier = modifier,
             interactionSource = interactionSource,
             enabled = enabled,
+            contentPadding = compressionLimit,
         ) {
             icon?.let {
                 it.invoke()
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             }
-            Text(label)
+            Text(
+                text = label,
+                maxLines = 1,
+                softWrap = false,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Visible,
+            )
         }
     }
 
@@ -1366,7 +1326,6 @@ private class OverflowStateImpl : ButtonGroupOverflowState {
  *
  * @param content The content lambda of the [ButtonGroup].
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun rememberButtonGroupScopeState(
     content: ButtonGroupScope.() -> Unit,
@@ -1387,7 +1346,6 @@ private interface ButtonGroupItemProvider {
 }
 
 /** Implementation of [ButtonGroupScope] and [ButtonGroupItemProvider]. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
     ButtonGroupScope, ButtonGroupItemProvider {
 
@@ -1449,9 +1407,6 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
         items.add(CustomButtonGroupItem(buttonGroupContent, menuContent))
     }
 
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    override fun Modifier.weight(weight: Float, fill: Boolean): Modifier = this.weight(weight)
-
     override fun Modifier.weight(weight: Float): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
         return this.then(
@@ -1462,11 +1417,19 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
         )
     }
 
+    @Deprecated("maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     override fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier =
+        animateWidth(interactionSource)
+
+    override fun Modifier.animateWidth(
+        interactionSource: InteractionSource,
+        compressionLimit: PaddingValues,
+    ): Modifier =
         this.then(
             EnlargeOnPressElement(
                 interactionSource = interactionSource,
                 animationSpec = animationSpec,
+                compressionLimit = compressionLimit,
             )
         )
 

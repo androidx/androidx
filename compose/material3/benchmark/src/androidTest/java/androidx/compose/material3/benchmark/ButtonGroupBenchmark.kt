@@ -17,7 +17,6 @@
 package androidx.compose.material3.benchmark
 
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -45,7 +44,6 @@ class ButtonGroupBenchmark {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ButtonGroupTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {

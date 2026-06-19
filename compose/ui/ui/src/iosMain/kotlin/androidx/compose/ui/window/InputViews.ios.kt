@@ -46,6 +46,7 @@ import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectIsEmpty
 import platform.CoreGraphics.CGRectZero
 import platform.Foundation.NSSelectorFromString
+import platform.Foundation.NSStringFromClass
 import platform.UIKit.UIEvent
 import platform.UIKit.UIEventTypeTouches
 import platform.UIKit.UIGestureRecognizer
@@ -66,6 +67,7 @@ import platform.UIKit.UIView
 import platform.UIKit.endEditing
 import platform.UIKit.setAccessibilityElements
 import platform.UIKit.setState
+import platform.darwin.NSObject
 
 /**
  * A reason for why touches are sent to Compose
@@ -295,7 +297,7 @@ private class TouchesGestureRecognizer(
         return if (isInChildHierarchy(preventedGestureRecognizer.view)) {
             super.canPreventGestureRecognizer(preventedGestureRecognizer)
         } else if (preventedGestureRecognizer is UIScreenEdgePanGestureRecognizer) {
-            false
+            preventedGestureRecognizer.isUINavigationControllerContentSwipeGestureRecognizer()
         } else {
             state == UIGestureRecognizerStatePossible || state.isOngoing
         }
@@ -872,3 +874,21 @@ private fun UIView?.hasTrackingUIScrollView(): Boolean {
     }
     return false
 }
+
+/**
+ * Detects the private UIKit recognizer that drives iOS 26 full-width `UINavigationController`
+ * swipe-back interaction. It is a subclass of `UIScreenEdgePanGestureRecognizer` which can start
+ * anywhere across the horizontal axis of the screen.
+ *
+ * Compose needs to be able to prevent this recognizer after Compose content consumes horizontal
+ * movement, for example when a `HorizontalPager` handles the drag. Without that, UIKit can start
+ * the navigation pop transition first and cancel Compose's touch stream.
+ */
+private fun UIGestureRecognizer.isUINavigationControllerContentSwipeGestureRecognizer(): Boolean =
+    available(OS.Ios to OSVersion(major = 26)) &&
+        this is UIScreenEdgePanGestureRecognizer &&
+        className() == "_UIParallaxTransitionPanGestureRecognizer" &&
+        name == "UINavigationController.contentSwipe"
+
+@OptIn(BetaInteropApi::class)
+private fun NSObject.className() = this.`class`()?.let { NSStringFromClass(it) }

@@ -208,43 +208,7 @@ private fun ImeOptions.createDomElement(): HTMLElement {
 
     htmlElement.setAttribute("inputmode", inputMode)
     htmlElement.setAttribute("enterkeyhint", enterKeyHint)
-
-
-    htmlElement.style.apply {
-        setProperty("position", "absolute")
-        setProperty("user-select", "none")
-        setProperty("forced-color-adjust", "none")
-        setProperty("white-space", "pre")
-        setProperty("align-content", "center")
-        setProperty(
-            "top",
-            "calc(min(var(--compose-internal-web-backing-input-top) * 1px, 100vh - var(--compose-internal-web-backing-input-height) * 1px))"
-        )
-        setProperty(
-            "left",
-            "calc(min(var(--compose-internal-web-backing-input-left) * 1px, 100vw - var(--compose-internal-web-backing-input-width) * 1px))"
-        )
-        setProperty("width", "calc(var(--compose-internal-web-backing-input-width) * 1px")
-        setProperty("height", "calc(var(--compose-internal-web-backing-input-height) * 1px")
-        setProperty("padding", "0")
-        setProperty("color", "transparent")
-        setProperty("background", "transparent")
-        setProperty("caret-color", "transparent")
-        setProperty("outline", "none")
-        setProperty("border", "none")
-        setProperty("resize", "none")
-        setProperty("text-shadow", "none")
-        setProperty("z-index", "-1")
-        // TODO: do we need pointer-events: none
-        //setProperty("pointer-events", "none")
-
-        // I keep "opacity" commented to make it explicit that we can't use this property.
-        // Reason: Safari iOS keyboard overlaps the text input. See CMP-8611
-        // setProperty("opacity", "0")
-
-        // To prevent auto-zoom in some mobile browsers, we set a larger font-size
-        setProperty("font-size", "20px")
-    }
+    htmlElement.classList.add("compose-backing-field")
 
     return htmlElement
 }

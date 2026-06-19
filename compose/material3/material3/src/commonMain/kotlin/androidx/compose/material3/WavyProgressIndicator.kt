@@ -357,7 +357,12 @@ fun CircularWavyProgressIndicator(
     wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength,
     waveSpeed: Dp = wavelength, // Match to 1 wavelength per second
 ) {
-    Box(modifier = modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize)) {
+    Box(
+        // Due to issue where Talkback produces jarring noises on focus (b/347736702) we keep the
+        // progressSemantics modifier in a separate wrapping box from the Spacer.
+        modifier =
+            modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize).progressSemantics()
+    ) {
         Spacer(
             Modifier.fillMaxSize()
                 .circularWavyProgressIndicator(
@@ -371,9 +376,6 @@ fun CircularWavyProgressIndicator(
                     waveSpeed = waveSpeed,
                 )
         )
-        // To overcome b/347736702 we are separating the progressSemantics() call to an independent
-        // spacer, and wrap the spacer with the indicator content and this spacer in a Box.
-        Spacer(modifier = Modifier.fillMaxSize().progressSemantics())
     }
 }
 

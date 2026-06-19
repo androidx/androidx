@@ -96,16 +96,29 @@ object ComposeMaterial3Flags {
     var isAnchoredDraggableComponentsInvalidationFixEnabled: Boolean = true
 
     /**
-     * This flag affects Material3 components that use
-     * [androidx.compose.foundation.gestures.anchoredDraggable]. Those are: [BottomSheetScaffold],
-     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     * This flag affects [BottomSheet] and [ModalBottomSheet].
      *
-     * When this flag is set to true, Material3 components using AnchoredDraggable will attempt to
-     * recover from orphaned targets (targets not present in the anchor set) during anchor updates.
-     * This prevents the internal offset from becoming NaN.
+     * When true (default), BottomSheet will always include [SheetValue.PartiallyExpanded] if
+     * provided in [SheetState.enabledValues], converging it with [SheetValue.Expanded] for small
+     * sheets.
+     *
+     * When false, the legacy auto-exclusion logic is enabled.
      */
-    // TODO: b/491554789
+    // TODO: b/512076811
     @field:Suppress("MutableBareField")
     @JvmField
-    var isAnchoredDraggableComponentsAnchorRecoveryEnabled: Boolean = true
+    var isBottomSheetPartiallyExpandedDeterministicEnabled: Boolean = true
+
+    /**
+     * This flag affects [TimePicker].
+     *
+     * When true (default), TimePicker AM/PM toggle buttons will use shape morph buttons and bold
+     * the text of the selected button.
+     *
+     * When false, the legacy AM/PM toggle items are displayed.
+     */
+    // TODO: b/521427342
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isUpdatedTimepickerToggleEnabled: Boolean = true
 }

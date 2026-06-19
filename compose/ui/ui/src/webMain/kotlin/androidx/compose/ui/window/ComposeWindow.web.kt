@@ -105,6 +105,8 @@ fun ComposeViewport(
     //shadow
     val shadowRoot = shadowContainer.attachShadow(ShadowRootInit(ShadowRootMode.OPEN))
     val shadowRootStyle = document.createElement("style")
+
+    // don't style backing .compose-backing-field with opacity, see https://youtrack.jetbrains.com/projects/CMP/issues/CMP-8611
     shadowRootStyle.textContent = """
         :host {
             -webkit-touch-callout: none; 
@@ -120,6 +122,29 @@ fun ComposeViewport(
                width: 100%;
                height: 100%;
         }
+        
+       .compose-backing-field {
+            height: calc(var(--compose-internal-web-backing-input-height) * 1px);
+            width: calc(var(--compose-internal-web-backing-input-width) * 1px);
+            left: calc(min(var(--compose-internal-web-backing-input-left) * 1px, 100vw - var(--compose-internal-web-backing-input-width) * 1px));
+            top: calc(min(var(--compose-internal-web-backing-input-top) * 1px, 100vh - var(--compose-internal-web-backing-input-height) * 1px));
+       
+            align-content: center;
+            background: transparent;
+            border: none;
+            caret-color: transparent;
+            color: transparent;
+            font-size: 20px;
+            forced-color-adjust: none;
+            outline: none;
+            padding: 0;
+            position: absolute;
+            resize: none;
+            text-shadow: none;
+            user-select: none;
+            white-space: pre;
+            z-index: -1;
+       }
     """.trimIndent()
     shadowRoot.appendChild(shadowRootStyle)
 

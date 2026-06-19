@@ -314,7 +314,6 @@ class DesktopParagraphIntegrationTest {
     }
 
     @Test
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8594
     fun getOffsetForPosition_rtl_multiline() {
         with(defaultDensity) {
             val firstLine = "\u05D0\u05D1\u05D2"
@@ -369,7 +368,6 @@ class DesktopParagraphIntegrationTest {
     }
 
     @Test
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8594
     fun getOffsetForPosition_ltr_height_outOfBounds() {
         with(defaultDensity) {
             val text = "abc"
@@ -2516,7 +2514,6 @@ class DesktopParagraphIntegrationTest {
     }
 
     @Test
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8594
     fun textDirection_whenDefault_withFirstStrongCharLTR_directionIsLTR() {
         with(defaultDensity) {
             val text = "a\u05D0."

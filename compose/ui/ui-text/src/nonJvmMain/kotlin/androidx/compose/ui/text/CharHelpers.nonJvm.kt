@@ -40,6 +40,3 @@ internal actual fun CodePoint.isNeutralDirection(): Boolean =
 
         else -> false
     }
-
-internal actual fun CodePoint.isNonSpacingMark(): Boolean =
-    CharDirection.of(this) == CharDirection.DIR_NON_SPACING_MARK
