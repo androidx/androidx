@@ -1275,6 +1275,43 @@ public class ComplicationDataTest {
         parentParcel.recycle()
     }
 
+    @Test
+    fun testCreateFromParcel_deeplyNestedBundle_isTruncatedAtMaxDepth() {
+        val inputDepth = 20
+        var innermostBundle = Bundle()
+
+        // Use TYPE_SHORT_TEXT as it definitely supports placeholders.
+        for (i in 0 until inputDepth) {
+            val parentBundle =
+                Bundle().apply {
+                    putInt("PLACEHOLDER_TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                    putBundle("PLACEHOLDER_FIELDS", innermostBundle)
+                }
+            innermostBundle = parentBundle
+        }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(innermostBundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        var current = data
+        var placeholderDepth = 0
+        while (current.hasPlaceholder() && current.placeholder != null) {
+            placeholderDepth++
+            current = current.placeholder!!
+        }
+
+        // Truncation happens when unmarshalling depth MAX_NESTING_DEPTH's child, returning empty
+        // map. Therefore, we traverse MAX_NESTING_DEPTH + 1 placeholders.
+        assertThat(placeholderDepth).isEqualTo(ComplicationData.MAX_NESTING_DEPTH + 1)
+    }
+
     private companion object {
         val TEST_CONTENT_DESCRIPTION: CharSequence = "This is a test description!"
         const val TEST_LONG_TITLE = "what a long title such a long title"
