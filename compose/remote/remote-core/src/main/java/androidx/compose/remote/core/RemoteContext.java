@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
@@ -73,6 +74,12 @@ public abstract class RemoteContext {
     private boolean mUseChoreographer = true;
 
     private int mTouchVersion = LayoutManager.DEFAULT_TOUCH_VERSION;
+
+    private final ComponentMeasurePool mComponentMeasurePool = new ComponentMeasurePool();
+
+    public @NonNull ComponentMeasurePool getComponentMeasurePool() {
+        return mComponentMeasurePool;
+    }
 
     public RemoteContext() {
         this(RemoteClock.SYSTEM);

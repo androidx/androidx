@@ -35,6 +35,7 @@ import androidx.compose.remote.core.operations.layout.animation.AnimateMeasure;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
@@ -613,10 +614,11 @@ public class Component extends PaintOperation
                 && m.getAllowsAnimation()
                 && !(this instanceof LayoutComponentContent)) {
             if (mAnimateMeasure == null) {
+                ComponentMeasurePool pool = context.getComponentMeasurePool();
                 ComponentMeasure origin =
-                        new ComponentMeasure(mComponentId, mX, mY, mWidth, mHeight, mVisibility);
+                        pool.obtain(mComponentId, mX, mY, mWidth, mHeight, mVisibility);
                 ComponentMeasure target =
-                        new ComponentMeasure(
+                        pool.obtain(
                                 mComponentId,
                                 m.getX(),
                                 m.getY(),
@@ -636,6 +638,9 @@ public class Component extends PaintOperation
                                     mAnimationSpec.getExitAnimation(),
                                     mAnimationSpec.getMotionEasingType(),
                                     mAnimationSpec.getVisibilityEasingType());
+                } else {
+                    pool.recycle(origin);
+                    pool.recycle(target);
                 }
             } else {
                 mAnimateMeasure.updateTarget(context, m, context.currentTime);
@@ -1421,6 +1426,9 @@ public class Component extends PaintOperation
         if (context.isAnimationEnabled() && mAnimateMeasure != null) {
             mAnimateMeasure.paint(context);
             if (mAnimateMeasure.isDone()) {
+                ComponentMeasurePool pool = context.getContext().getComponentMeasurePool();
+                pool.recycle(mAnimateMeasure.getOriginal());
+                pool.recycle(mAnimateMeasure.getTarget());
                 mAnimateMeasure = null;
                 if (mParent != null) {
                     clearNeedsBoundsAnimation();
