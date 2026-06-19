@@ -344,9 +344,11 @@ class TracingTest {
     }
 
     @Test
+    @OptIn(ExperimentalContextPropagation::class)
     internal fun testInstantTrackEvents() {
         driver.use {
-            tracer.instant(category = "category", name = "name") {
+            val token = tracer.tokenForManualPropagation()
+            tracer.instant(category = "category", name = "name", token = token) {
                 addMetadataEntry("key", "value")
             }
         }
@@ -356,6 +358,9 @@ class TracingTest {
                 packet.track_event?.type == MutableTrackEvent.Type.TYPE_INSTANT
             }
         assertNotNull(packet) { "Cannot find a track event of TYPE_INSTANT" }
+        val flowIds = packet.track_event?.flow_ids
+        assertNotNull(flowIds) { "Expected flow ids in the track event " }
+        assertTrue(flowIds.isNotEmpty())
     }
 
     @Test
