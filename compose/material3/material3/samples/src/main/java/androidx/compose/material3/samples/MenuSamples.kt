@@ -663,7 +663,6 @@ private fun LineSpacingSubmenu(interactionSource: MutableInteractionSource) {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DropdownMenuButtonGroup() {
     ButtonGroup(

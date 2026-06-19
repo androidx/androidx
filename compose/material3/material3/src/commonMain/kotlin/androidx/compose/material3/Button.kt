@@ -231,6 +231,7 @@ fun Button(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -407,6 +408,7 @@ fun ElevatedButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ElevatedButton(
     onClick: () -> Unit,
@@ -557,6 +559,7 @@ fun FilledTonalButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FilledTonalButton(
     onClick: () -> Unit,
@@ -705,6 +708,7 @@ fun OutlinedButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OutlinedButton(
     onClick: () -> Unit,
@@ -855,6 +859,7 @@ fun TextButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TextButton(
     onClick: () -> Unit,
@@ -1563,6 +1568,7 @@ object ButtonDefaults {
      * @param hasStartIcon Whether the button has a leading icon
      * @param hasEndIcon Whether the button has a trailing icon
      */
+    @ExperimentalMaterial3ExpressiveApi
     fun contentPaddingFor(
         buttonHeight: Dp,
         hasStartIcon: Boolean = false,

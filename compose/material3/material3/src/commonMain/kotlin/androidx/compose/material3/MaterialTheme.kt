@@ -255,7 +255,6 @@ object MaterialTheme {
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The content inheriting this theme
  */
-@Material3ExpressiveApi
 @Composable
 fun MaterialExpressiveTheme(
     colorScheme: ColorScheme? = null,

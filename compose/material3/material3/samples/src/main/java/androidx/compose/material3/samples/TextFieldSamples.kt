@@ -47,6 +47,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.PlainTooltip
@@ -189,7 +190,7 @@ fun TextFieldWithPlaceholder() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Email") },
-            labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = alwaysMinimizeLabel),
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
             placeholder = { Text("example@gmail.com") },
         )
     }
@@ -210,7 +211,7 @@ fun TextFieldWithPrefixAndSuffix() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Label") },
-            labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = alwaysMinimizeLabel),
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
             prefix = { Text("www.") },
             suffix = { Text(".com") },
             placeholder = { Text("google") },
@@ -621,5 +622,320 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                 },
             )
         },
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldSample() {
+    TextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        shape = TextFieldDefaults.roundedShape,
+        colors = TextFieldDefaults.tonalColors(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldSample() {
+    OutlinedTextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        shape = OutlinedTextFieldDefaults.roundedShape,
+        colors = OutlinedTextFieldDefaults.tonalColors(),
+        labelPosition = TextFieldLabelPosition.Inside(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldWithIcons() {
+    val state = rememberTextFieldState()
+    TextField(
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        leadingIcon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
+        trailingIcon = {
+            IconButton(onClick = { state.clearText() }) {
+                Icon(Icons.Filled.Clear, contentDescription = "Clear text")
+            }
+        },
+        shape = TextFieldDefaults.roundedShape,
+        colors = TextFieldDefaults.tonalColors(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldWithIcons() {
+    val state = rememberTextFieldState()
+    OutlinedTextField(
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        leadingIcon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
+        trailingIcon = {
+            IconButton(onClick = { state.clearText() }) {
+                Icon(Icons.Filled.Clear, contentDescription = "Clear text")
+            }
+        },
+        shape = OutlinedTextFieldDefaults.roundedShape,
+        colors = OutlinedTextFieldDefaults.tonalColors(),
+        labelPosition = TextFieldLabelPosition.Inside(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldWithPlaceholder() {
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        TextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Email") },
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
+            placeholder = { Text("example@gmail.com") },
+            shape = TextFieldDefaults.roundedShape,
+            colors = TextFieldDefaults.tonalColors(),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldWithPlaceholder() {
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Email") },
+            labelPosition =
+                remember(alwaysMinimizeLabel) {
+                    TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel)
+                },
+            placeholder = { Text("example@gmail.com") },
+            shape = OutlinedTextFieldDefaults.roundedShape,
+            colors = OutlinedTextFieldDefaults.tonalColors(),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldWithPrefixAndSuffix() {
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        TextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Label") },
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
+            prefix = { Text("www.") },
+            suffix = { Text(".com") },
+            placeholder = { Text("google") },
+            shape = TextFieldDefaults.roundedShape,
+            colors = TextFieldDefaults.tonalColors(),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldWithPrefixAndSuffix() {
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Label") },
+            labelPosition =
+                remember(alwaysMinimizeLabel) {
+                    TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel)
+                },
+            prefix = { Text("www.") },
+            suffix = { Text(".com") },
+            placeholder = { Text("google") },
+            shape = OutlinedTextFieldDefaults.roundedShape,
+            colors = OutlinedTextFieldDefaults.tonalColors(),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldWithSupportingText() {
+    TextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        supportingText = {
+            Text("Supporting text that is long and perhaps goes onto another line.")
+        },
+        shape = TextFieldDefaults.roundedShape,
+        colors = TextFieldDefaults.tonalColors(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldWithSupportingText() {
+    OutlinedTextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Label") },
+        supportingText = {
+            Text("Supporting text that is long and perhaps goes onto another line.")
+        },
+        shape = OutlinedTextFieldDefaults.roundedShape,
+        colors = OutlinedTextFieldDefaults.tonalColors(),
+        labelPosition = TextFieldLabelPosition.Inside(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveTextFieldWithErrorState() {
+    // NOTE: Hardcoded strings are used here for simplicity. In a real app, use string resources.
+    val errorMessage = "Text input too long"
+    val state = rememberTextFieldState()
+    var isError by rememberSaveable { mutableStateOf(false) }
+    val charLimit = 10
+
+    fun validate(text: CharSequence) {
+        isError = text.length > charLimit
+    }
+
+    LaunchedEffect(Unit) { snapshotFlow { state.text }.collect { validate(it) } }
+    TextField(
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text(if (isError) "Username*" else "Username") },
+        supportingText = {
+            Row {
+                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
+                Spacer(Modifier.weight(1f))
+                Text("Limit: ${state.text.length}/$charLimit")
+            }
+        },
+        isError = isError,
+        onKeyboardAction = { validate(state.text) },
+        modifier =
+            Modifier.semantics {
+                maxTextLength = charLimit
+                if (isError) error(errorMessage)
+            },
+        shape = TextFieldDefaults.roundedShape,
+        colors = TextFieldDefaults.tonalColors(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedTextFieldWithErrorState() {
+    // NOTE: Hardcoded strings are used here for simplicity. In a real app, use string resources.
+    val errorMessage = "Text input too long"
+    val state = rememberTextFieldState()
+    var isError by rememberSaveable { mutableStateOf(false) }
+    val charLimit = 10
+
+    fun validate(text: CharSequence) {
+        isError = text.length > charLimit
+    }
+
+    LaunchedEffect(Unit) { snapshotFlow { state.text }.collect { validate(it) } }
+    OutlinedTextField(
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text(if (isError) "Username*" else "Username") },
+        supportingText = {
+            Row {
+                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
+                Spacer(Modifier.weight(1f))
+                Text("Limit: ${state.text.length}/$charLimit")
+            }
+        },
+        isError = isError,
+        onKeyboardAction = { validate(state.text) },
+        modifier =
+            Modifier.semantics {
+                maxTextLength = charLimit
+                if (isError) error(errorMessage)
+            },
+        shape = OutlinedTextFieldDefaults.roundedShape,
+        colors = OutlinedTextFieldDefaults.tonalColors(),
+        labelPosition = TextFieldLabelPosition.Inside(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressivePasswordTextField() {
+    var passwordHidden by rememberSaveable { mutableStateOf(true) }
+    SecureTextField(
+        state = rememberTextFieldState(),
+        label = { Text("Enter password") },
+        textObfuscationMode =
+            if (passwordHidden) TextObfuscationMode.RevealLastTyped
+            else TextObfuscationMode.Visible,
+        trailingIcon = {
+            val description = if (passwordHidden) "Show password" else "Hide password"
+            IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                val visibilityIcon =
+                    if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                Icon(imageVector = visibilityIcon, contentDescription = description)
+            }
+        },
+        shape = TextFieldDefaults.roundedShape,
+        colors = TextFieldDefaults.tonalColors(),
+    )
+}
+
+@Preview
+@Composable
+fun ExpressiveOutlinedPasswordTextField() {
+    var passwordHidden by rememberSaveable { mutableStateOf(true) }
+    OutlinedSecureTextField(
+        state = rememberTextFieldState(),
+        label = { Text("Enter password") },
+        textObfuscationMode =
+            if (passwordHidden) TextObfuscationMode.RevealLastTyped
+            else TextObfuscationMode.Visible,
+        trailingIcon = {
+            val description = if (passwordHidden) "Show password" else "Hide password"
+            IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                val visibilityIcon =
+                    if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                Icon(imageVector = visibilityIcon, contentDescription = description)
+            }
+        },
+        shape = OutlinedTextFieldDefaults.roundedShape,
+        colors = OutlinedTextFieldDefaults.tonalColors(),
+        labelPosition = TextFieldLabelPosition.Inside(),
     )
 }

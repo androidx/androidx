@@ -246,9 +246,12 @@ object AlertDialogDefaults {
     val TonalElevation: Dp = 0.dp
 
     // Container padding.
-    internal val dialogPadding = PaddingValues(all = dialogPaddingValue)
+    internal val dialogPadding
+        get() = PaddingValues(all = dialogPaddingValue)
+
     // Text padding.
-    internal val textPadding = PaddingValues(bottom = textPaddingValue)
+    internal val textPadding
+        get() = PaddingValues(bottom = textPaddingValue)
 
     private val dialogPaddingValue
         get() = if (shouldUsePrecisionPointerComponentSizing.value) 20.dp else 24.dp

@@ -72,7 +72,6 @@ class DesktopMenuTest {
         val popupSize = IntSize(80, 50)
 
         val position = DropdownMenuPositionProvider(
-            transformOriginState = mutableStateOf(TransformOrigin.Center),
             contentOffset = DpOffset.Zero,
             density = Density(1f),
             dropdownMenuAnchorPosition = MenuAnchorPosition.Below

@@ -466,7 +466,7 @@ object PullToRefreshDefaults {
     /**
      * The default container color for the loading indicator that appears when pulling to refresh.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
         @Composable get() = LoadingIndicatorDefaults.containedContainerColor
 
@@ -478,7 +478,7 @@ object PullToRefreshDefaults {
      * The default active indicator color for the loading indicator that appears when pulling to
      * refresh.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
         @Composable get() = LoadingIndicatorDefaults.containedIndicatorColor
 

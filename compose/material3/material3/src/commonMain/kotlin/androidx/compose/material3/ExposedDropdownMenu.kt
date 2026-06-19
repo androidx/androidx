@@ -90,7 +90,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlin.jvm.JvmInline
 import kotlin.math.max
@@ -335,17 +334,13 @@ sealed class ExposedDropdownMenuBoxScope {
         expandedState.targetState = expanded
 
         if (expandedState.currentState || expandedState.targetState) {
-            val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
             val popupPositionProvider =
                 remember(density, topWindowInsets) {
                     ExposedDropdownMenuPositionProvider(
                         density = density,
                         topWindowInsets = topWindowInsets,
                         keyboardSignalState = keyboardSignalState,
-                    ) { anchorBounds, menuBounds ->
-                        transformOriginState.value =
-                            calculateTransformOrigin(anchorBounds, menuBounds)
-                    }
+                    )
                 }
 
             Popup(
@@ -355,7 +350,7 @@ sealed class ExposedDropdownMenuBoxScope {
             ) {
                 DropdownMenuContent(
                     expandedState = expandedState,
-                    transformOriginState = transformOriginState,
+                    transformOrigin = { popupPositionProvider.transformOrigin },
                     scrollState = scrollState,
                     shape = shape,
                     containerColor = containerColor,
@@ -1277,18 +1272,21 @@ internal class ExposedDropdownMenuPositionProvider(
     val keyboardSignalState: State<Unit>? = null,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
-) : PopupPositionProvider {
+) : DropdownMenuPopupPositionProvider {
+    override var transformOrigin by mutableStateOf(TransformOrigin.Center)
+        private set
+
     // Horizontal position
-    private val startToAnchorStart = MenuPosition.startToAnchorStart()
-    private val endToAnchorEnd = MenuPosition.endToAnchorEnd()
-    private val leftToWindowLeft = MenuPosition.leftToWindowLeft()
-    private val rightToWindowRight = MenuPosition.rightToWindowRight()
+    private val startToAnchorStart = MenuPosition.startToAnchorStart
+    private val endToAnchorEnd = MenuPosition.endToAnchorEnd
+    private val leftToWindowLeft = MenuPosition.leftToWindowLeft
+    private val rightToWindowRight = MenuPosition.rightToWindowRight
 
     // Vertical position
-    private val topToAnchorBottom = MenuPosition.topToAnchorBottom()
-    private val bottomToAnchorTop = MenuPosition.bottomToAnchorTop()
-    private val topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
-    private val bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
+    private val topToAnchorBottom = MenuPosition.topToAnchorBottom
+    private val bottomToAnchorTop = MenuPosition.bottomToAnchorTop
+    private val topToWindowTop = MenuPosition.topToWindowTop
+    private val bottomToWindowBottom = MenuPosition.bottomToWindowBottom
 
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -1347,12 +1345,19 @@ internal class ExposedDropdownMenuPositionProvider(
             )
         var y = 0
         for (index in yCandidates.indices) {
-            val yCandidate =
+            var yCandidate =
                 yCandidates[index].position(
                     anchorBounds = anchorBounds,
                     windowSize = windowSize,
                     menuHeight = popupContentSize.height,
                 )
+            if (index == yCandidates.lastIndex) {
+                yCandidate =
+                    yCandidate.coerceIn(
+                        verticalMargin,
+                        windowSize.height - verticalMargin - popupContentSize.height,
+                    )
+            }
             if (
                 index == yCandidates.lastIndex ||
                     (yCandidate >= 0 && yCandidate + popupContentSize.height <= windowSize.height)
@@ -1363,6 +1368,8 @@ internal class ExposedDropdownMenuPositionProvider(
         }
 
         val menuOffset = IntOffset(x, y)
+        transformOrigin =
+            calculateTransformOrigin(anchorBounds, IntRect(offset = menuOffset, popupContentSize))
         onPositionCalculated(
             /* anchorBounds = */ anchorBounds,
             /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize),
@@ -1445,7 +1452,13 @@ private fun Modifier.expandable(
                 // Since we make the popup menu not focusable for PrimaryEditable to not interrupt
                 // typing, we need to make sure the menu becomes focusable when the user try to
                 // reach the menu via keyboard navigation.
-                if (it.key == Key.Tab || it.key == Key.DirectionDown || it.key == Key.DirectionUp) {
+                if (
+                    it.key == Key.Tab ||
+                        it.key == Key.DirectionDown ||
+                        it.key == Key.NumPadDirectionDown ||
+                        it.key == Key.DirectionUp ||
+                        it.key == Key.NumPadDirectionUp
+                ) {
                     alwaysFocusable.value = true
                     return@onPreviewKeyEvent true
                 }

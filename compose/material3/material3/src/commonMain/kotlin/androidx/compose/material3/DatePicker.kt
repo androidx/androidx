@@ -1733,16 +1733,23 @@ private fun DatePickerContent(
                         modifier =
                             Modifier.focusRequester(dividerFocusRequester)
                                 .onKeyEvent {
-                                    if (it.key == Key.DirectionUp) {
+                                    if (
+                                        (it.key == Key.DirectionUp) ||
+                                            (it.key == Key.NumPadDirectionUp)
+                                    ) {
                                         // If focus is coming from below, move back up.
                                         focusManager.moveFocus(FocusDirection.Previous)
                                         return@onKeyEvent true
-                                    } else if ((it.isShiftPressed && it.key == Key.Tab)) {
+                                    } else if (it.isShiftPressed && it.key == Key.Tab) {
                                         // To keep focus order consistent, if shift + tabbing then
                                         // focus back on the selected year.
                                         currentYearFocusRequester.requestFocus()
                                         return@onKeyEvent true
-                                    } else if (it.key == Key.DirectionDown || it.key == Key.Tab) {
+                                    } else if (
+                                        (it.key == Key.DirectionDown) ||
+                                            (it.key == Key.NumPadDirectionDown) ||
+                                            (it.key == Key.Tab)
+                                    ) {
                                         // If focus is coming from above, move forward down.
                                         focusManager.moveFocus(FocusDirection.Next)
                                         return@onKeyEvent true
@@ -2614,6 +2621,9 @@ private const val MaxCalendarRows = 6
 private const val YearsInRow: Int = 3
 
 private val KeyEvent.isDirectionLeft: Boolean
-    get() = type == KeyEventType.KeyDown && key == Key.DirectionLeft
+    get() =
+        type == KeyEventType.KeyDown && (key == Key.DirectionLeft || key == Key.NumPadDirectionLeft)
 private val KeyEvent.isDirectionRight: Boolean
-    get() = type == KeyEventType.KeyDown && key == Key.DirectionRight
+    get() =
+        type == KeyEventType.KeyDown &&
+            (key == Key.DirectionRight || key == Key.NumPadDirectionRight)
