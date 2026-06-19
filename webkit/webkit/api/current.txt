@@ -31,6 +31,14 @@ package androidx.webkit {
     method public int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
+  public final class HttpCache {
+    method @IntRange(from=0) @UiThread public long getDefaultQuotaBytes();
+    method @IntRange(from=0) @UiThread public long getQuotaBytes();
+    method @UiThread public boolean isUsingDefaultQuota();
+    method @UiThread public void setQuotaBytes(@IntRange(from=0) long);
+    method @UiThread public void useDefaultQuota();
+  }
+
   public class JavaScriptExecutionException extends java.lang.Exception {
     method public int getErrorType();
     field public static final int ERROR_FRAME_DESTROYED = 1; // 0x1
@@ -209,6 +217,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default java.util.Set<androidx.webkit.CustomHeader!> getCustomHeaders(String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default java.util.Set<androidx.webkit.CustomHeader!> getCustomHeaders(String, String);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.GeolocationPermissions getGeolocationPermissions();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.HTTP_CACHE_MANAGER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default androidx.webkit.HttpCache getHttpCache();
     method @SuppressCompatibility @RequiresFeature(name="SET_MAX_PRERENDERS_V1", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalUrlPrefetch public default int getMaxPrerenders();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public String getName();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.ServiceWorkerController getServiceWorkerController();
@@ -710,6 +719,7 @@ package androidx.webkit {
     field public static final String GET_WEB_CHROME_CLIENT = "GET_WEB_CHROME_CLIENT";
     field public static final String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
     field public static final String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
+    field public static final String HTTP_CACHE_MANAGER = "HTTP_CACHE_MANAGER";
     field public static final String HYPERLINK_CONTEXT_MENU_ITEMS = "HYPERLINK_CONTEXT_MENU_ITEMS";
     field public static final String JS_INJECTION_IN_FRAME_AND_WORLD = "JS_INJECTION_IN_FRAME_AND_WORLD";
     field public static final String MULTI_PROCESS = "MULTI_PROCESS";

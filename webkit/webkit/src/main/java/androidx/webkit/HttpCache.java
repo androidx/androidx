@@ -28,7 +28,6 @@ import org.jspecify.annotations.NonNull;
  * <p>
  * Use {@link Profile#getHttpCache()} to obtain the instance for a specific profile.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class HttpCache {
     private final @NonNull HttpCacheBoundaryInterface mHttpCacheImpl;
 
@@ -48,7 +47,6 @@ public final class HttpCache {
      * If you wish to use automatic quota management, call {@link #useDefaultQuota()} instead of
      * supplying the output of this method to {@link #setQuotaBytes(long)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @IntRange(from = 0)
     public long getDefaultQuotaBytes() {
@@ -60,7 +58,6 @@ public final class HttpCache {
      *
      * @see #useDefaultQuota()
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     public boolean isUsingDefaultQuota() {
         return mHttpCacheImpl.isUsingDefaultQuota();
@@ -81,7 +78,6 @@ public final class HttpCache {
      * on a Profile (particularly the Default Profile) that is shared by multiple libraries or
      * activities may result in degradation of performance or overuse of disk space.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     public void useDefaultQuota() {
         mHttpCacheImpl.useDefaultQuota();
@@ -94,7 +90,6 @@ public final class HttpCache {
      * either be an automatic default value or a value previously set via
      * {@link #setQuotaBytes(long)} (with possible adjustments).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @IntRange(from = 0)
     public long getQuotaBytes() {
@@ -125,9 +120,8 @@ public final class HttpCache {
      * activities may result in degradation of performance or overuse of disk space.
      * <p>
      * If you wish to use automatic quota management, call {@link #useDefaultQuota()} instead of
-     * supplying the output of {@link #getQuotaBytes()} method to this method.
+     * supplying the output of {@link #getDefaultQuotaBytes()} method to this method.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     public void setQuotaBytes(@IntRange(from = 0) long quotaInBytes) {
         if (quotaInBytes < 0) {

@@ -983,7 +983,6 @@ public class WebViewFeature {
      * {@link HttpCache#getQuotaBytes()}
      * {@link HttpCache#setQuotaBytes(long)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String HTTP_CACHE_MANAGER = "HTTP_CACHE_MANAGER";
 
     /**

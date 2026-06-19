@@ -669,18 +669,13 @@ public interface Profile {
 
     /**
      * Returns the {@link HttpCache} associated with this {@link Profile}.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#HTTP_CACHE_MANAGER}.
      *
-     * @return {@link HttpCache} instance associated with this profile.
-     * @throws UnsupportedOperationException if the {@link WebViewFeature#HTTP_CACHE_MANAGER}
-     *                                       feature is not supported.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#HTTP_CACHE_MANAGER} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.HTTP_CACHE_MANAGER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     default @NonNull HttpCache getHttpCache() {
         throw new UnsupportedOperationException("Profile#getHttpCache is not implemented.");
