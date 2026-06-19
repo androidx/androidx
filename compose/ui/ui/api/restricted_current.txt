@@ -3905,6 +3905,7 @@ package androidx.compose.ui.node {
   }
 
   public interface RootForTest {
+    method public default void clearCallbacks();
     method public default void forceAccessibilityForTesting(boolean enable);
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
