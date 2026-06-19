@@ -16,6 +16,7 @@
 
 package androidx.glance.wear
 
+import android.content.Context
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -74,10 +75,14 @@ class WearWidgetContainerScreenshotTest {
         const val WIDGET_WIDTH = 216
         const val SMALL_WIDGET_HEIGHT = 88
         const val LARGE_WIDGET_HEIGHT = 128
-        const val DENSITY_DPI = 160
 
-        private fun getCreationDisplayInfo(height: Int): RemoteCreationDisplayInfo {
-            return RemoteCreationDisplayInfo(WIDGET_WIDTH, height, DENSITY_DPI, 1.0f)
+        private fun getCreationDisplayInfo(heightDp: Int): RemoteCreationDisplayInfo {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val density = context.resources.displayMetrics.density
+            val densityDpi = context.resources.displayMetrics.densityDpi
+            val widthPx = (WIDGET_WIDTH * density).toInt()
+            val heightPx = (heightDp * density).toInt()
+            return RemoteCreationDisplayInfo(widthPx, heightPx, densityDpi, 1.0f)
         }
     }
 }

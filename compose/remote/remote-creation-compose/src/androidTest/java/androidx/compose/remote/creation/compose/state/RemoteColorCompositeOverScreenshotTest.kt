@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import android.content.Context
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -59,7 +60,7 @@ class RemoteColorCompositeOverScreenshotTest {
     @Test
     fun compositeOverColors() =
         composeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = RemoteCreationDisplayInfo(300, 510, 240)
+            remoteCreationDisplayInfo = getScaledDisplayInfo(300, 510, 240)
         ) {
             RemoteColumn(
                 modifier = RemoteModifier.fillMaxSize().background(Color.White).padding(8.rdp)
@@ -183,5 +184,18 @@ class RemoteColorCompositeOverScreenshotTest {
                 RemoteText(text = " (Comp)", fontSize = 7.rsp, color = Color.Gray.rc)
             }
         }
+    }
+
+    private fun getScaledDisplayInfo(
+        originalWidthPx: Int,
+        originalHeightPx: Int,
+        originalDensity: Int,
+    ): RemoteCreationDisplayInfo {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val hostDensityDpi = context.resources.displayMetrics.densityDpi
+        val scale = hostDensityDpi.toFloat() / originalDensity.toFloat()
+        val widthPx = Math.round(originalWidthPx * scale)
+        val heightPx = Math.round(originalHeightPx * scale)
+        return RemoteCreationDisplayInfo(widthPx, heightPx, hostDensityDpi)
     }
 }
