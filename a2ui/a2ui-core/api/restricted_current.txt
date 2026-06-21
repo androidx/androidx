@@ -192,6 +192,12 @@ package androidx.a2ui.core.schema {
     ctor @BytecodeOnly public A2uiAnySchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
+    field public static final androidx.a2ui.core.schema.A2uiAnySchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiAnySchema INSTANCE;
+  }
+
+  public static final class A2uiAnySchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiAnySchema INSTANCE;
   }
 
   public final class A2uiArraySchema extends androidx.a2ui.core.schema.A2uiSchema {
@@ -202,6 +208,12 @@ package androidx.a2ui.core.schema {
     method @InaccessibleFromKotlin public androidx.a2ui.core.schema.A2uiSchema? getItems();
     property public String? description;
     property public androidx.a2ui.core.schema.A2uiSchema? items;
+    field public static final androidx.a2ui.core.schema.A2uiArraySchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiArraySchema INSTANCE;
+  }
+
+  public static final class A2uiArraySchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiArraySchema INSTANCE;
   }
 
   public final class A2uiBooleanSchema extends androidx.a2ui.core.schema.A2uiSchema {
@@ -210,6 +222,12 @@ package androidx.a2ui.core.schema {
     ctor @BytecodeOnly public A2uiBooleanSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
+    field public static final androidx.a2ui.core.schema.A2uiBooleanSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiBooleanSchema INSTANCE;
+  }
+
+  public static final class A2uiBooleanSchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiBooleanSchema INSTANCE;
   }
 
   public abstract class A2uiCompositeSchema extends androidx.a2ui.core.schema.A2uiSchema {
@@ -245,6 +263,12 @@ package androidx.a2ui.core.schema {
     ctor @BytecodeOnly public A2uiNumberSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
+    field public static final androidx.a2ui.core.schema.A2uiNumberSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiNumberSchema INSTANCE;
+  }
+
+  public static final class A2uiNumberSchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiNumberSchema INSTANCE;
   }
 
   public final class A2uiObjectSchema extends androidx.a2ui.core.schema.A2uiSchema {
@@ -261,6 +285,12 @@ package androidx.a2ui.core.schema {
     property public boolean isAdditionalPropertiesAllowed;
     property public java.util.Map<java.lang.String,androidx.a2ui.core.schema.A2uiSchema> properties;
     property public java.util.Set<java.lang.String> required;
+    field public static final androidx.a2ui.core.schema.A2uiObjectSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiObjectSchema INSTANCE;
+  }
+
+  public static final class A2uiObjectSchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiObjectSchema INSTANCE;
   }
 
   public final class A2uiOneOfSchema extends androidx.a2ui.core.schema.A2uiSchema {
@@ -293,6 +323,254 @@ package androidx.a2ui.core.schema {
     ctor @BytecodeOnly public A2uiStringSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
+    field public static final androidx.a2ui.core.schema.A2uiStringSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.A2uiStringSchema INSTANCE;
+  }
+
+  public static final class A2uiStringSchema.Companion {
+    property public androidx.a2ui.core.schema.A2uiStringSchema INSTANCE;
+  }
+
+}
+
+package androidx.a2ui.core.schema.commontypes {
+
+  public final class A2uiAccessibilityAttributesSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiAccessibilityAttributesSchema();
+    ctor public A2uiAccessibilityAttributesSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiAccessibilityAttributesSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiAccessibilityAttributesSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiAccessibilityAttributesSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiAccessibilityAttributesSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiAccessibilityAttributesSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiActionSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiActionSchema();
+    ctor public A2uiActionSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiActionSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiActionSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiActionSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiActionSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiActionSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiCheckRuleSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiCheckRuleSchema();
+    ctor public A2uiCheckRuleSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiCheckRuleSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiCheckRuleSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiCheckRuleSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiCheckRuleSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiCheckRuleSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiCheckableSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiCheckableSchema();
+    ctor public A2uiCheckableSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiCheckableSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiCheckableSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiCheckableSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiCheckableSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiCheckableSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiChildListSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiChildListSchema();
+    ctor public A2uiChildListSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiChildListSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiChildListSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiChildListSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiChildListSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiChildListSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiComponentCommonSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiComponentCommonSchema();
+    ctor public A2uiComponentCommonSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiComponentCommonSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiComponentCommonSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiComponentCommonSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiComponentCommonSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiComponentCommonSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiComponentIdSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiComponentIdSchema();
+    ctor public A2uiComponentIdSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiComponentIdSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiComponentIdSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiComponentIdSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiComponentIdSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiComponentIdSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDataBindingSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDataBindingSchema();
+    ctor public A2uiDataBindingSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDataBindingSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDataBindingSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDataBindingSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDataBindingSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDataBindingSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDynamicBooleanSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDynamicBooleanSchema();
+    ctor public A2uiDynamicBooleanSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDynamicBooleanSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicBooleanSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicBooleanSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDynamicBooleanSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDynamicBooleanSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDynamicNumberSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDynamicNumberSchema();
+    ctor public A2uiDynamicNumberSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDynamicNumberSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicNumberSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicNumberSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDynamicNumberSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDynamicNumberSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDynamicStringListSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDynamicStringListSchema();
+    ctor public A2uiDynamicStringListSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDynamicStringListSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicStringListSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicStringListSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDynamicStringListSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDynamicStringListSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDynamicStringSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDynamicStringSchema();
+    ctor public A2uiDynamicStringSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDynamicStringSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicStringSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicStringSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDynamicStringSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDynamicStringSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiDynamicValueSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiDynamicValueSchema();
+    ctor public A2uiDynamicValueSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiDynamicValueSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicValueSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiDynamicValueSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiDynamicValueSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiDynamicValueSchema DEFAULT_INSTANCE;
+  }
+
+  public final class A2uiFunctionCallSchema extends androidx.a2ui.core.schema.A2uiCompositeSchema {
+    ctor public A2uiFunctionCallSchema();
+    ctor public A2uiFunctionCallSchema(optional String? description);
+    ctor @BytecodeOnly public A2uiFunctionCallSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.a2ui.core.schema.A2uiSchema getDefinition();
+    method @InaccessibleFromKotlin public String? getDescription();
+    property protected String definitionName;
+    property public String? description;
+    property protected String schemaId;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiFunctionCallSchema.Companion Companion;
+    field public static final androidx.a2ui.core.schema.commontypes.A2uiFunctionCallSchema DEFAULT_INSTANCE;
+  }
+
+  public static final class A2uiFunctionCallSchema.Companion {
+    property public androidx.a2ui.core.schema.commontypes.A2uiFunctionCallSchema DEFAULT_INSTANCE;
   }
 
 }

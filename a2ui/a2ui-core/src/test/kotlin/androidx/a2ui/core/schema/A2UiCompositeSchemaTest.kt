@@ -106,6 +106,6 @@ class A2UiCompositeSchemaTest {
         private const val DEFINITION_NAME = "ChildDef"
         private const val SCHEMA_ID = "mySchemaId"
         private const val DESCRIPTION = "My schema description"
-        private val OBJECT_SCHEMA = A2uiObjectSchema()
+        private val OBJECT_SCHEMA = A2uiObjectSchema.INSTANCE
     }
 }

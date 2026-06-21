@@ -58,7 +58,9 @@ public class A2uiArraySchema(
         return "Array(items=$items, description=$description)"
     }
 
-    internal companion object {
+    public companion object {
+        @JvmField public val INSTANCE: A2uiArraySchema = A2uiArraySchema()
+
         internal const val KEY_ITEMS = "items"
         internal const val TYPE_ARRAY = "array"
     }

@@ -39,7 +39,9 @@ public class A2uiStringSchema(public override val description: String? = null) :
         return "String(description=$description)"
     }
 
-    internal companion object {
+    public companion object {
+        @JvmField public val INSTANCE: A2uiStringSchema = A2uiStringSchema()
+
         internal const val TYPE_STRING = "string"
     }
 }
