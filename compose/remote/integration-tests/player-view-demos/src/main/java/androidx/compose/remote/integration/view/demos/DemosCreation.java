@@ -45,6 +45,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslFontAxisDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslLayoutComputeDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslMetronomeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslModernShowcaseDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
@@ -199,7 +200,23 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity, int types) {
         Bitmap bitmap = simpleBitmap(100);
+        ArrayList<RCDoc> demos = new ArrayList<>();
+        boolean dsl = true;
         boolean graph2d = true;
+        boolean customCompose = (types & 1) != 0;
+        boolean customViews = (types & 2) != 0;
+        boolean dsl1 = (types & 4) != 0;
+        boolean dsl2 = (types & 8) != 0;
+
+        if (dsl) {
+            demos.addAll(Arrays.asList(
+                    get("0/000/ModernShowcaseDemo",
+                            DslModernShowcaseDemoKt::dslModernShowcaseDemo),
+                    get("0/000/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("0/000/dslMetronome", DslMetronomeKt::dslMetronomeDemo)));
+        }
+
+
         if (graph2d) {
             return new ArrayList<>(Arrays.asList(
                     // Annotation Demos
@@ -292,16 +309,13 @@ public abstract class DemosCreation {
                             Graph2dRelationDemosKt::graph2dConnectedScatter)
             ));
         }
-        ArrayList<RCDoc> demos = new ArrayList<>();
 
-        boolean customCompose = (types & 1) != 0;
         if (customCompose) {
             demos.addAll(Arrays.asList(
                     get("0/001/DslCustomComposeDemo",
                             DslCustomComposeDemoKt::dslCustomComposeDemo)
             ));
         }
-        boolean customViews = (types & 2) != 0;
 
         if (customViews) {
             demos.addAll(Arrays.asList(
@@ -311,7 +325,6 @@ public abstract class DemosCreation {
         }
 
 
-        boolean dsl1 = (types & 4) != 0;
         if (dsl1) {
             demos.addAll(Arrays.asList(
                     get("0/000/ModernShowcaseDemo",
@@ -424,7 +437,6 @@ public abstract class DemosCreation {
                     get("1/62/dslTheme2", RcDslDemoKt::dslTheme2)
             ));
         }
-        boolean dsl2 = (types & 8) != 0;
         if (dsl2) {
             demos.addAll(Arrays.asList(
                     getp("2/01/AttributeString", DemoAttributedString::demo),
@@ -457,8 +469,6 @@ public abstract class DemosCreation {
                     getp("1/1/colorCheck3", ColorCheckKt::colorCheck3),
                     getp("1/1/colorCheck4", ColorCheckKt::colorCheck4),
                     getp("1/1/colorTable", ColorCheckKt::colorTable),
-//                getp("2/0/FooDemo", FooDemoKt::FooDemo),
-//                getp("8/0/DemoPaging1", DemoPagingKt::paging1),
                     getp("8/particles/ball", DemoParticlesKt::ball),
                     getp("8/particles/confettiDemo", ImpulseDemo::confettiDemo),
                     getp("8/particles/heartsDemo", ImpulseDemo::heartsDemo),
@@ -718,8 +728,8 @@ public abstract class DemosCreation {
         Bitmap ball = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         int w = ball.getWidth();
         int h = ball.getHeight();
-        float cx = w / 2;
-        float cy = h / 2;
+        float cx = w / 2.0f;
+        float cy = h / 2.0f;
         float radius = cx * 0.9f;
         float radius2 = radius * radius;
         int[] data = new int[w * h];

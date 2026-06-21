@@ -21,6 +21,7 @@ package androidx.compose.remote.creation.dsl
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.core.operations.MatrixFromPath
+import androidx.compose.remote.core.operations.SoundExpression
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.creation.Rc
@@ -35,6 +36,44 @@ import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcImage internal constructor(internal val id: Int)
+
+/** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.addSound]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcSound internal constructor(internal val id: Int)
+
+/**
+ * Type-safe reference for a sound synthesis expression registered via [RcScope.soundExpression].
+ * Pass to [RcScope.playSound] to trigger playback.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcSoundExpression internal constructor(internal val id: Int)
+
+/**
+ * Synthesis type for a [RcScope.soundExpression].
+ *
+ * Values mirror the NaN-encoded type constants in {@code SoundExpression.java} but the wire format
+ * is owned by remote-core, so this enum is platform-independent.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class RcSoundType(internal val value: Int) {
+    /** A pure waveform tone defined by frequency (Hz), duration (s), and waveform kind. */
+    Tone(SoundExpression.TYPE_TONE)
+}
+
+/** Waveform shape for a [RcSoundType.Tone] sound expression. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class RcWaveform(internal val value: Float) {
+    /** Smooth sinusoidal wave (default). */
+    Sine(SoundExpression.WAVEFORM_SINE),
+    /** Hard square wave. */
+    Square(SoundExpression.WAVEFORM_SQUARE),
+    /** Sawtooth wave. */
+    Sawtooth(SoundExpression.WAVEFORM_SAWTOOTH),
+    /** Triangle wave. */
+    Triangle(SoundExpression.WAVEFORM_TRIANGLE),
+}
 
 /**
  * Type-safe reference for remote color variables or expressions.

@@ -382,6 +382,16 @@ public class RemoteComposeView extends FrameLayout
         mDocument.getDocument().setHapticEngine(engine);
     }
 
+    /**
+     * Sets the sound engine for the view. Used by {@link SoundSupport} to enable
+     * low-latency sound-effect playback.
+     *
+     * @param engine the SoundEngine
+     */
+    public void setSoundEngine(CoreDocument.@NonNull SoundEngine engine) {
+        mDocument.getDocument().setSoundEngine(engine);
+    }
+
     @Override
     public void onViewDetachedFromWindow(@NonNull View view) {
         mIsAttached = false;

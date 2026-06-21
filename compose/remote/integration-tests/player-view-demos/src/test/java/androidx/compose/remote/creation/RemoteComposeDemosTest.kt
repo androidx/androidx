@@ -547,6 +547,10 @@ class RemoteComposeDemosTest {
 
         override fun hapticEffect(type: Int) {}
 
+        override fun loadSound(soundId: Int, data: ByteArray) {}
+
+        override fun playSound(soundId: Int) {}
+
         override fun loadBitmap(
             imageId: Int,
             encoding: Short,
