@@ -109,7 +109,7 @@
           x: 200.0
           y: 0.0
           width: 100.0
-          height: 100.0
+          height: 84.0
           visibility: GONE
           list:
           - type: ComponentModifiers
@@ -120,7 +120,7 @@
             - type: HeightModifierOperation
               height: {type: Value, value: 100.0}
               dimensionModifierType: EXACT
-            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 84.0,
               color: '0xff00ffff', shapeType: RECTANGLE}
           paddingLeft: 0.0
           paddingRight: 0.0

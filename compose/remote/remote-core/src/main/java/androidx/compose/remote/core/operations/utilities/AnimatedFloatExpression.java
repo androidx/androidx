@@ -302,6 +302,9 @@ public class AnimatedFloatExpression {
         MonotonicSpline fit = mSplineMap.get(arrayId);
         assert mCollectionsAccess != null;
         float[] f = mCollectionsAccess.getFloats(arrayId);
+        if (f == null || f.length == 0) {
+            return pos;
+        }
         if (fit != null) {
             if (fit.getArray() == f) { // the array has not changed.
                 return fit.getPos(pos);
@@ -924,6 +927,10 @@ public class AnimatedFloatExpression {
                 id = fromNaN(mStack[sp]);
                 assert mCollectionsAccess != null;
                 array = mCollectionsAccess.getFloats(id);
+                if (array == null || array.length == 0) {
+                    mStack[sp] = 0f;
+                    return sp;
+                }
                 float max = array[0];
                 for (int i = 1; i < array.length; i++) {
                     max = Math.max(max, array[i]);
@@ -935,7 +942,8 @@ public class AnimatedFloatExpression {
                 id = fromNaN(mStack[sp]);
                 assert mCollectionsAccess != null;
                 array = mCollectionsAccess.getFloats(id);
-                if (array.length == 0) {
+                if (array == null || array.length == 0) {
+                    mStack[sp] = 0f;
                     return sp;
                 }
                 float min = array[0];
@@ -949,6 +957,10 @@ public class AnimatedFloatExpression {
                 id = fromNaN(mStack[sp]);
                 assert mCollectionsAccess != null;
                 array = mCollectionsAccess.getFloats(id);
+                if (array == null) {
+                    mStack[sp] = 0f;
+                    return sp;
+                }
                 float sum = 0;
                 for (int i = 0; i < array.length; i++) {
                     sum += array[i];
@@ -960,6 +972,10 @@ public class AnimatedFloatExpression {
                 id = fromNaN(mStack[sp]);
                 assert mCollectionsAccess != null;
                 array = mCollectionsAccess.getFloats(id);
+                if (array == null || array.length == 0) {
+                    mStack[sp] = 0f;
+                    return sp;
+                }
                 sum = 0;
                 for (int i = 0; i < array.length; i++) {
                     sum += array[i];

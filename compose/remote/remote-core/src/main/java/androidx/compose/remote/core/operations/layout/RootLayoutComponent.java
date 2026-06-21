@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.layout.animation.RootAnimateMeasure;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
+import androidx.compose.remote.core.operations.layout.measure.FlatMeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
@@ -50,7 +51,24 @@ public class RootLayoutComponent extends Component {
     private boolean mHasTouchListeners = false;
     protected float mLastReportedOriginX = Float.NaN;
     protected float mLastReportedOriginY = Float.NaN;
-    private final MeasurePass mMeasurePass = new MeasurePass();
+    private MeasurePass mMeasurePass = null;
+
+    private @NonNull MeasurePass getMeasurePass(@NonNull RemoteContext context) {
+        boolean useFlat =
+                context.getDocument() != null && context.getDocument().isFlatMeasurePassEnabled();
+        if (mMeasurePass == null
+                || (useFlat && !(mMeasurePass instanceof FlatMeasurePass))
+                || (!useFlat && (mMeasurePass instanceof FlatMeasurePass))) {
+            if (useFlat) {
+                int totalComponents = context.getDocument() != null
+                        ? context.getDocument().getComponentCount() : 16;
+                mMeasurePass = new FlatMeasurePass(totalComponents);
+            } else {
+                mMeasurePass = new MeasurePass();
+            }
+        }
+        return mMeasurePass;
+    }
 
     private final java.util.ArrayList<Component> mDirtyBoundaries = new java.util.ArrayList<>();
 
@@ -84,19 +102,20 @@ public class RootLayoutComponent extends Component {
         if (mDirtyBoundaries.isEmpty()) {
             return;
         }
-        mMeasurePass.setContext(context);
+        MeasurePass measurePass = getMeasurePass(context);
+        measurePass.setContext(context);
         for (Component boundary : mDirtyBoundaries) {
             if (boundary.mNeedsMeasure) {
-                resetSubTreeMeasureState(boundary, mMeasurePass);
+                resetSubTreeMeasureState(boundary, measurePass);
 
                 float w = boundary.getWidth();
                 float h = boundary.getHeight();
-                boundary.measure(context.getPaintContext(), w, w, h, h, mMeasurePass);
-                boundary.layout(context, mMeasurePass);
+                boundary.measure(context.getPaintContext(), w, w, h, h, measurePass);
+                boundary.layout(context, measurePass);
             }
         }
         mDirtyBoundaries.clear();
-        mMeasurePass.setContext(null);
+        measurePass.setContext(null);
     }
 
     public RootLayoutComponent(
@@ -217,9 +236,9 @@ public class RootLayoutComponent extends Component {
         context.mViewportWidth = newWidth;
         context.mViewportHeight = newHeight;
 
-        mMeasurePass.setContext(context);
-        mMeasurePass.clear();
-        MeasurePass measurePass = mMeasurePass;
+        MeasurePass measurePass = getMeasurePass(context);
+        measurePass.setContext(context);
+        measurePass.clear();
         ComponentMeasure self = measurePass.get(this);
         self.setX(0f);
         self.setY(0f);
@@ -241,7 +260,7 @@ public class RootLayoutComponent extends Component {
 
         layout(context, measurePass);
         mDirtyBoundaries.clear();
-        mMeasurePass.setContext(null);
+        measurePass.setContext(null);
         if (context.isLayoutDebug()) {
             DebugLog.display();
         }
@@ -261,9 +280,9 @@ public class RootLayoutComponent extends Component {
         context.mViewportWidth = newWidth;
         context.mViewportHeight = newHeight;
 
-        mMeasurePass.setContext(context);
-        mMeasurePass.clear();
-        MeasurePass measurePass = mMeasurePass;
+        MeasurePass measurePass = getMeasurePass(context);
+        measurePass.setContext(context);
+        measurePass.clear();
         ComponentMeasure self = measurePass.get(this);
         self.setX(0f);
         self.setY(0f);
@@ -298,7 +317,7 @@ public class RootLayoutComponent extends Component {
 
         layout(context, measurePass);
         mDirtyBoundaries.clear();
-        mMeasurePass.setContext(null);
+        measurePass.setContext(null);
     }
 
     @Override
@@ -416,8 +435,8 @@ public class RootLayoutComponent extends Component {
     /**
      * Display the component hierarchy
      *
-     * @param component the current component
-     * @param indent the current indentation level
+     * @param component  the current component
+     * @param indent     the current indentation level
      * @param serializer the serializer we write to
      */
     public void displayHierarchy(
@@ -462,7 +481,7 @@ public class RootLayoutComponent extends Component {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
