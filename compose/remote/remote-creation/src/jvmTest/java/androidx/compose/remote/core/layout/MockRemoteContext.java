@@ -806,6 +806,16 @@ public class MockRemoteContext extends RemoteContext {
         stringBuilder.append("hapticEffect ").append(type).append("\n");
     }
 
+    @Override
+    public void loadSound(int soundId, byte @NonNull [] data) {
+        stringBuilder.append("loadSound ").append(soundId).append("\n");
+    }
+
+    @Override
+    public void playSound(int soundId) {
+        stringBuilder.append("playSound ").append(soundId).append("\n");
+    }
+
     /**
      * Utility to convert a path of float to a string
      *

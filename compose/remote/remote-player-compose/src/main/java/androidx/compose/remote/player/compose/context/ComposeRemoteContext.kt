@@ -210,6 +210,14 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
         haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
+    override fun loadSound(soundId: Int, data: ByteArray) {
+        mDocument.loadSound(soundId, data)
+    }
+
+    override fun playSound(soundId: Int) {
+        mDocument.playSound(soundId)
+    }
+
     override fun loadBitmap(
         imageId: Int,
         encoding: Short,

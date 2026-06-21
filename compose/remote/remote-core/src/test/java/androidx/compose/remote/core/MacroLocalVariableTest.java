@@ -137,6 +137,12 @@ public class MacroLocalVariableTest {
         public void hapticEffect(int type) {}
 
         @Override
+        public void loadSound(int soundId, byte @NonNull [] data) {}
+
+        @Override
+        public void playSound(int soundId) {}
+
+        @Override
         public void loadBitmap(
                 int imageId,
                 short encoding,

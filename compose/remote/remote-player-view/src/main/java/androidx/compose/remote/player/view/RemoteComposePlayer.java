@@ -60,6 +60,7 @@ import androidx.compose.remote.player.view.platform.HapticSupport;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.platform.RemotePreparedDocument;
 import androidx.compose.remote.player.view.platform.SensorSupport;
+import androidx.compose.remote.player.view.platform.SoundSupport;
 import androidx.compose.remote.player.view.platform.ThemeSupport;
 
 import org.jspecify.annotations.NonNull;
@@ -103,6 +104,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     private final @NonNull ThemeSupport mThemeSupport = new ThemeSupport();
     private final @NonNull SensorSupport mSensorsSupport = new SensorSupport();
     private final @NonNull HapticSupport mHapticSupport = new HapticSupport();
+    private final @NonNull SoundSupport mSoundSupport = new SoundSupport();
     private @Nullable FloatSystemVariables mFloatSystemVariables =
             new AndroidFloatSystemVariables();
 
@@ -422,6 +424,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
                             .mLoomManager
                             .addMacroFromBuffer(entry.getKey(), entry.getValue());
                 }
+
                 value.reinflate();
                 if (value.canBeDisplayed(
                         MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
@@ -438,6 +441,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
                 RemoteComposeTouchHelper.REGISTRAR
                         .setAccessibilityDelegate(this, value.getDocument());
+
             } else {
                 // TODO discuss with Nico
                 //            mInner.setDocument(null);
@@ -455,6 +459,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
             mThemeSupport.mapColors(getContext(), mInner);
             mSensorsSupport.setupSensors(getContext().getApplicationContext(), mInner);
             mHapticSupport.setupHaptics(mInner);
+            mInner.setSoundEngine(mSoundSupport.buildEngine());
             mInner.checkShaders(mShaderControl);
         } catch (Throwable t) {
             Log.e("RemoteComposePlayer", "Error setting document", t);
@@ -532,6 +537,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     }
 
     private void init(@NonNull Context context, @NonNull AttributeSet attrs, int defStyleAttr) {
+        mSoundSupport.init(context);
         LayoutParams layoutParams =
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         setBackgroundColor(Color.TRANSPARENT);

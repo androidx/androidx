@@ -89,12 +89,15 @@ import androidx.compose.remote.core.operations.PathCreate;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.PathExpression;
 import androidx.compose.remote.core.operations.PathTween;
+import androidx.compose.remote.core.operations.PlaySound;
 import androidx.compose.remote.core.operations.ReferencedOperations;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Skip;
+import androidx.compose.remote.core.operations.SoundData;
+import androidx.compose.remote.core.operations.SoundExpression;
 import androidx.compose.remote.core.operations.TextAttribute;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.TextFromFloat;
@@ -306,6 +309,9 @@ public class Operations {
     public static final int MATRIX_VECTOR_MATH = 188;
     public static final int DATA_FONT = 189;
     public static final int DRAW_TO_BITMAP = 190;
+    public static final int DATA_SOUND = 169;
+    public static final int SOUND_EXPRESSION = 206;
+    public static final int PLAY_SOUND = 141;
     public static final int WAKE_IN = 191;
     public static final int ID_LOOKUP = 192;
     public static final int PATH_EXPRESSION = 193;
@@ -511,6 +517,9 @@ public class Operations {
             sMapV7AndroidXExperimental.put(MACRO_BLOCK, PatternBlock::read);
             sMapV7AndroidXExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
             sMapV7AndroidXExperimental.put(LAYOUT_CUSTOM, Custom::read);
+            sMapV7AndroidXExperimental.put(DATA_SOUND, SoundData::read);
+            sMapV7AndroidXExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
+            sMapV7AndroidXExperimental.put(PLAY_SOUND, PlaySound::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -567,6 +576,9 @@ public class Operations {
             sMapV7WidgetsExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
             sMapV7WidgetsExperimental.put(MACRO_BLOCK, PatternBlock::read);
             sMapV7WidgetsExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
+            sMapV7WidgetsExperimental.put(DATA_SOUND, SoundData::read);
+            sMapV7WidgetsExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
+            sMapV7WidgetsExperimental.put(PLAY_SOUND, PlaySound::read);
         }
         return sMapV7WidgetsExperimental;
     }

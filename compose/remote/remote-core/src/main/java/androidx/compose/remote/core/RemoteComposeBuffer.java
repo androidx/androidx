@@ -83,11 +83,14 @@ import androidx.compose.remote.core.operations.PathCreate;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.PathExpression;
 import androidx.compose.remote.core.operations.PathTween;
+import androidx.compose.remote.core.operations.PlaySound;
 import androidx.compose.remote.core.operations.ReferencedOperations;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
 import androidx.compose.remote.core.operations.Skip;
+import androidx.compose.remote.core.operations.SoundData;
+import androidx.compose.remote.core.operations.SoundExpression;
 import androidx.compose.remote.core.operations.TextAttribute;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.TextFromFloat;
@@ -2696,6 +2699,47 @@ public class RemoteComposeBuffer {
     /** Perform a haptic feedback */
     public void performHaptic(int feedbackConstant) {
         HapticFeedback.apply(mBuffer, feedbackConstant);
+    }
+
+    /**
+     * Store raw SC-format sound data under the given ID.
+     *
+     * @param soundId the ID to register the sound under
+     * @param data    SC-format audio bytes
+     * @return the soundId
+     */
+    public int addSound(int soundId, byte @NonNull [] data) {
+        SoundData.apply(mBuffer, soundId, data);
+        return soundId;
+    }
+
+    /**
+     * Store a sound synthesis expression under the given ID.
+     *
+     * @param id          expression ID
+     * @param params      synthesis params float array
+     * @param leftVolume  left-channel volume
+     * @param rightVolume right-channel volume
+     * @param rate        playback rate
+     * @return the id
+     */
+    public int addSoundExpression(
+            int id,
+            float @NonNull [] params,
+            float leftVolume,
+            float rightVolume,
+            float rate) {
+        SoundExpression.apply(mBuffer, id, leftVolume, rightVolume, rate, params);
+        return id;
+    }
+
+    /**
+     * Write a PLAY_SOUND operation.
+     *
+     * @param soundExpressionId the ID of the SoundExpression to play
+     */
+    public void playSound(int soundExpressionId) {
+        PlaySound.apply(mBuffer, soundExpressionId);
     }
 
     /**

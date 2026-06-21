@@ -1901,6 +1901,16 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
         }
 
         @Override
+        public void loadSound(int soundId, byte @NonNull [] data) {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        @Override
+        public void playSound(int soundId) {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        @Override
         public void loadBitmap(
                 int imageId,
                 short encoding,

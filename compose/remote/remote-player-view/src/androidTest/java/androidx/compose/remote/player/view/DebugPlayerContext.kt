@@ -177,6 +177,14 @@ class DebugPlayerContext : RemoteContext() {
         stringBuilder.append("hapticEffect $type\n")
     }
 
+    override fun loadSound(soundId: Int, data: ByteArray) {
+        stringBuilder.append("loadSound $soundId\n")
+    }
+
+    override fun playSound(soundId: Int) {
+        stringBuilder.append("playSound $soundId\n")
+    }
+
     fun pathString(path: FloatArray?): String {
         if (path == null) {
             return "null"

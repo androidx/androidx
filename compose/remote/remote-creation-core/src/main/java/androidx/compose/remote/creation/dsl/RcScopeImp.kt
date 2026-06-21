@@ -209,6 +209,34 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.performHaptic(haptic.value)
     }
 
+    override fun addSound(data: ByteArray): RcSound = RcSound(writer.addSound(data))
+
+    override fun soundExpression(
+        type: RcSoundType,
+        frequency: Float,
+        durationSeconds: Float,
+        waveform: RcWaveform,
+        leftVolume: Float,
+        rightVolume: Float,
+        rate: Float,
+    ): RcSoundExpression {
+        return RcSoundExpression(
+            writer.addSoundExpression(
+                type.value,
+                frequency,
+                durationSeconds,
+                waveform.value,
+                leftVolume,
+                rightVolume,
+                rate,
+            )
+        )
+    }
+
+    override fun playSound(expression: RcSoundExpression) {
+        writer.playSound(expression.id)
+    }
+
     override fun wakeIn(seconds: Float) {
         writer.wakeIn(seconds)
     }

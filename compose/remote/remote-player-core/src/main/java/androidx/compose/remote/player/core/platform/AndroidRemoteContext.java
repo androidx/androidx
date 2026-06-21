@@ -634,6 +634,16 @@ public class AndroidRemoteContext extends RemoteContext {
         mDocument.haptic(type);
     }
 
+    @Override
+    public void loadSound(int soundId, byte @NonNull [] data) {
+        mDocument.loadSound(soundId, data);
+    }
+
+    @Override
+    public void playSound(int soundId) {
+        mDocument.playSound(soundId);
+    }
+
     /**
      * Enable or disable animations for accessibility.
      *

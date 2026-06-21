@@ -843,6 +843,67 @@ public class CoreDocument implements Serializable {
         }
     }
 
+    // ============== Sound support ==================
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface SoundEngine {
+        /**
+         * Load sound data under the given sound ID. Accepts WAV bytes (from
+         * {@link androidx.compose.remote.core.operations.utilities.ToneSynthesizer}) or
+         * SC-format bytes (from {@link androidx.compose.remote.core.operations.SoundData}).
+         *
+         * @param soundId the ID to register
+         * @param data    WAV or SC-format audio bytes
+         */
+        void loadSound(int soundId, byte @NonNull [] data);
+
+        /**
+         * Trigger playback of a previously loaded sound.
+         *
+         * @param soundId the ID of the sound to play
+         */
+        void playSound(int soundId);
+    }
+
+    private @Nullable SoundEngine mSoundEngine;
+    /** cache sound so data can come before engine */
+    private IntMap<byte[]> mSoundDataPreloadCache = null;
+
+    /** Set the sound engine to use for playback. */
+    public void setSoundEngine(@NonNull SoundEngine engine) {
+        mSoundEngine = engine;
+        IntMap<byte[]> cache =  mSoundDataPreloadCache;
+        if (cache != null) {
+            for (int soundId : cache.keySet()) {
+                byte[] data = mSoundDataPreloadCache.get(soundId);
+                if (data != null) {
+                    mSoundEngine.loadSound(soundId, data);
+                }
+                mSoundDataPreloadCache.remove(soundId);
+            }
+            mSoundDataPreloadCache = null;
+        }
+    }
+    /** Dispatch loadSound to the SoundEngine if one is set. */
+    public void loadSound(int soundId, byte @NonNull [] data) {
+        if (mSoundEngine != null) {
+            mSoundEngine.loadSound(soundId, data);
+        } else {
+            if (mSoundDataPreloadCache == null) {
+                mSoundDataPreloadCache = new IntMap<>();
+            }
+            mSoundDataPreloadCache.put(soundId, data);
+        }
+    }
+
+    /** Dispatch playSound to the SoundEngine if one is set. */
+    public void playSound(int soundId) {
+        if (mSoundEngine != null) {
+            mSoundEngine.playSound(soundId);
+        }
+    }
+
+    // ============== Sound support ==================
+
     // ============== Haptic support ==================
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface HapticEngine {
