@@ -37,7 +37,9 @@ public class A2uiNumberSchema(public override val description: String? = null) :
         return "Number(description=$description)"
     }
 
-    internal companion object {
+    public companion object {
+        @JvmField public val INSTANCE: A2uiNumberSchema = A2uiNumberSchema()
+
         internal const val TYPE_NUMBER = "number"
     }
 }

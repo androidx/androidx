@@ -37,4 +37,8 @@ public class A2uiAnySchema(public override val description: String? = null) : A2
     override fun toString(): String {
         return "Any(description=$description)"
     }
+
+    public companion object {
+        @JvmField public val INSTANCE: A2uiAnySchema = A2uiAnySchema()
+    }
 }

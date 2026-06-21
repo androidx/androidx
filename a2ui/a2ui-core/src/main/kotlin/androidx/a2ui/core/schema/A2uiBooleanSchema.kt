@@ -37,7 +37,9 @@ public class A2uiBooleanSchema(public override val description: String? = null) 
         return "Boolean(description=$description)"
     }
 
-    internal companion object {
+    public companion object {
+        @JvmField public val INSTANCE: A2uiBooleanSchema = A2uiBooleanSchema()
+
         internal const val TYPE_BOOLEAN = "boolean"
     }
 }

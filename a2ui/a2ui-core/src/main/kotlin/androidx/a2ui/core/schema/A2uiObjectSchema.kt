@@ -91,7 +91,9 @@ public class A2uiObjectSchema(
         return "Object(properties=$properties, required=$required, isAdditionalPropertiesAllowed=$isAdditionalPropertiesAllowed, additionalPropertiesSchema=$additionalPropertiesSchema, description=$description)"
     }
 
-    internal companion object {
+    public companion object {
+        @JvmField public val INSTANCE: A2uiObjectSchema = A2uiObjectSchema()
+
         internal const val KEY_PROPERTIES = "properties"
         internal const val KEY_REQUIRED = "required"
         internal const val KEY_ADDITIONAL_PROPERTIES = "additionalProperties"
