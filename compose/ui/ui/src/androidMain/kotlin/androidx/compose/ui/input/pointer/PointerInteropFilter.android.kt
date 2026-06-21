@@ -219,6 +219,11 @@ internal class PointerInteropFilter : PointerInputModifier {
             ) {
                 val changes = pointerEvent.changes
 
+                if (!pointerEvent.isTouchStreamEvent()) {
+                    dispatchGenericPointerEvent(pointerEvent, pass)
+                    return
+                }
+
                 val isMoveEvent =
                     changes.fastAll {
                         !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
@@ -303,6 +308,33 @@ internal class PointerInteropFilter : PointerInputModifier {
             }
 
             /**
+             * Dispatches a non-touch generic [MotionEvent] (e.g. hover, scroll) as a stateless
+             * event. Unlike events in the touch stream, generic events are not influenced by the
+             * [DispatchToViewState.NotDispatching] state, they don't trigger [stopDispatching] /
+             * [ACTION_CANCEL], and they are delivered only during [PointerEventPass.Initial] with
+             * the original [MotionEvent]'s return value used to decide whether to consume the
+             * associated pointer input changes.
+             */
+            private fun dispatchGenericPointerEvent(
+                pointerEvent: PointerEvent,
+                pass: PointerEventPass,
+            ) {
+                if (pass != PointerEventPass.Initial) return
+
+                val changes = pointerEvent.changes
+                if (changes.fastAny { it.isConsumed }) return
+
+                pointerEvent.toMotionEventScope(
+                    this.layoutCoordinates?.localToRoot(Offset.Zero)
+                        ?: error("layoutCoordinates not set")
+                ) { motionEvent ->
+                    if (onTouchEvent(motionEvent)) {
+                        changes.fastForEach { it.consume() }
+                    }
+                }
+            }
+
+            /**
              * Dispatches to the Android View.
              *
              * Also consumes aspects of [pointerEvent] and updates our [state] accordingly.
@@ -361,6 +393,20 @@ internal class PointerInteropFilter : PointerInputModifier {
                     }
                 }
                 state = DispatchToViewState.NotDispatching
+            }
+
+            private fun PointerEvent.isTouchStreamEvent(): Boolean {
+                return when (motionEvent?.actionMasked) {
+                    null,
+                    ACTION_DOWN,
+                    ACTION_POINTER_DOWN,
+                    ACTION_MOVE,
+                    ACTION_POINTER_UP,
+                    ACTION_UP,
+                    ACTION_CANCEL,
+                    ACTION_OUTSIDE -> true
+                    else -> false
+                }
             }
         }
 }

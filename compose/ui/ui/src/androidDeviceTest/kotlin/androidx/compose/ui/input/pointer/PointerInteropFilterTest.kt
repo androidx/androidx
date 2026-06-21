@@ -19,9 +19,11 @@ package androidx.compose.ui.input.pointer
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import androidx.compose.ui.Modifier
@@ -3155,6 +3157,111 @@ class PointerInteropFilterTest {
     }
 
     // Verification of correct passes being used
+
+    @Test
+    fun onPointerEvent_hoverDispatchedDuringInitialPassAfterTouchNotDispatching() {
+        val down = down(1, 2, 3f, 4f)
+        val downMotionEvent =
+            MotionEvent(
+                2,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(3f, 4f)),
+            )
+        val hover = down.up(5)
+        val hoverMotionEvent =
+            MotionEvent(
+                5,
+                ACTION_HOVER_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(6f, 7f)),
+            )
+
+        // Make touch stream transition to NotDispatching.
+        retVal = false
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            pointerEventOf(down, motionEvent = downMotionEvent)
+        )
+        dispatchedMotionEvents.clear()
+        retVal = true
+
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPass(
+            pointerEventOf(hover, motionEvent = hoverMotionEvent),
+            PointerEventPass.Initial,
+        )
+
+        assertThat(dispatchedMotionEvents).containsExactly(hoverMotionEvent)
+        PointerInputChangeSubject.assertThat(hover).changeConsumed()
+    }
+
+    @Test
+    fun onPointerEvent_scrollDispatchedDuringInitialPassAfterTouchNotDispatching() {
+        val down = down(1, 2, 3f, 4f)
+        val downMotionEvent =
+            MotionEvent(
+                2,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(3f, 4f)),
+            )
+        val scroll = down.up(5)
+        val scrollMotionEvent =
+            MotionEvent(
+                5,
+                ACTION_SCROLL,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(6f, 7f)),
+            )
+
+        // Make touch stream transition to NotDispatching.
+        retVal = false
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            pointerEventOf(down, motionEvent = downMotionEvent)
+        )
+        dispatchedMotionEvents.clear()
+        retVal = false
+
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPass(
+            pointerEventOf(scroll, motionEvent = scrollMotionEvent),
+            PointerEventPass.Initial,
+        )
+
+        assertThat(dispatchedMotionEvents).containsExactly(scrollMotionEvent)
+        PointerInputChangeSubject.assertThat(scroll).changeNotConsumed()
+    }
+
+    @Test
+    fun onPointerEvent_genericPointerEventNotDispatchedAfterInitialPass() {
+        val hover = down(1, 2, 3f, 4f).up(5)
+        val hoverMotionEvent =
+            MotionEvent(
+                5,
+                ACTION_HOVER_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(6f, 7f)),
+            )
+        val event = pointerEventOf(hover, motionEvent = hoverMotionEvent)
+
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
+            event,
+            PointerEventPass.Initial,
+            PointerEventPass.Main,
+            PointerEventPass.Final,
+        )
+
+        assertThat(dispatchedMotionEvents).containsExactly(hoverMotionEvent)
+        PointerInputChangeSubject.assertThat(hover).changeConsumed()
+    }
 
     @Test
     fun onPointerEvent_1PointerDown_dispatchedDuringInitialTunnel() {
