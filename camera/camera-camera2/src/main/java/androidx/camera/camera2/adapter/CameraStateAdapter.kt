@@ -202,8 +202,20 @@ constructor(private val sessionLifecycleAdapter: CameraSessionLifecycleAdapter) 
         graphState: GraphState,
         currentError: CameraState.StateError?,
         isGraphActive: Boolean,
-    ): CombinedCameraState? =
-        when (currentState) {
+    ): CombinedCameraState? {
+        if (
+            !isGraphActive &&
+                graphState is GraphStateError &&
+                graphState.cameraError == CameraError.ERROR_CAMERA_OPEN_TIMEOUT
+        ) {
+            // Swallow the timeout error if the graph is inactive (intentional abort).
+            // This prevents a benign cancellation from surfacing as a FATAL error to the app,
+            // while allowing the normal shutdown sequence (Stopping -> Stopped) to transition the
+            // state.
+            return CombinedCameraState(currentState, currentError)
+        }
+
+        return when (currentState) {
             CameraInternal.State.CLOSED ->
                 when (graphState) {
                     GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
@@ -259,6 +271,7 @@ constructor(private val sessionLifecycleAdapter: CameraSessionLifecycleAdapter) 
                 }
             else -> null
         }
+    }
 
     internal fun addCameraStateListener(executor: Executor, listener: Consumer<CameraState>) {
         synchronized(lock) { cameraStateListeners[listener] = executor }
