@@ -28,7 +28,6 @@ import com.google.common.truth.Truth.assertThat
 import java.io.InputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -94,7 +93,7 @@ class SearchAppFunctionsTest {
         }
 
     @Test
-    fun testSearchAppFunctions_byFunctionName() =
+    fun testSearchAppFunctions_byFunctionName_schemalessFunction() =
         runBlocking<Unit> {
             assumeTrue(metadataTestHelper.isDynamicIndexerAvailable())
             val searchSpec =
@@ -114,9 +113,8 @@ class SearchAppFunctionsTest {
         }
 
     @Test
-    fun testSearchAppFunctions_byFunctionName_withLegacyIndexer() =
+    fun testSearchAppFunctions_byFunctionName() =
         runBlocking<Unit> {
-            assumeFalse(metadataTestHelper.isDynamicIndexerAvailable())
             val searchSpec =
                 AppFunctionSearchSpec(
                     functionNames =
