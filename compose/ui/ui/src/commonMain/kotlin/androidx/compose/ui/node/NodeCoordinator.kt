@@ -66,6 +66,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
+import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastIsFinite
 
@@ -333,6 +335,31 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
 
     /** [lastShape] is accessed in the graphics layer modifier node and propagated to semantics. */
     internal var lastShape: Shape = RectangleShape
+
+    /**
+     * [lastOutlineBounds] is accessed in the graphics layer modifier node and propagated to
+     * semantics.
+     *
+     * [lastOutlineBounds] is the rect of the outline used to clip this node, rounded to match
+     * measured size behavior. This rect accounts for any transformations made to the outline and
+     * represents the final, visible node bounds after clipping. Use this rect for node bounds when
+     * it is not empty and [lastClip] is true.
+     */
+    internal var lastOutlineBounds = Rect.Zero
+
+    /** True when [lastOutlineBounds] should be used for node bounds size and positioning. */
+    private val useOutline: Boolean
+        get() = lastClip && !lastOutlineBounds.isEmpty
+
+    /**
+     * Holder rect to store the most recently seen, raw, graphics layer outline bounds.
+     *
+     * This is used to compare whether the graphics layer has updated its outline bounds and a new
+     * [lastOutlineBounds] should be calculated. For correct, last seen node bounds, use
+     * [lastOutlineBounds].
+     */
+    private var graphicsOutlineBoundsCache = Rect.Zero
+
     /** [lastClip] is accessed in the graphics layer modifier node for semantics. */
     internal var lastClip: Boolean = false
     /** Whether layer block was invoked, used for semantics invalidation and property access. */
@@ -597,13 +624,20 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             graphicsLayerScope.graphicsDensity = layoutNode.density
             graphicsLayerScope.layoutDirection = layoutNode.layoutDirection
             graphicsLayerScope.size = size.toSize()
+            var hasOutlineBoundsChanged = false
             snapshotObserver.observeReads(this, onCommitAffectingLayerParams) {
                 layerBlock.invoke(graphicsLayerScope)
                 val hasShapeChanged = lastShape != graphicsLayerScope.shape
                 val hasClipChanged = lastClip != graphicsLayerScope.clip
-                if (hasShapeChanged || hasClipChanged) {
+                graphicsLayerScope.updateOutline()
+                hasOutlineBoundsChanged =
+                    graphicsOutlineBoundsCache != graphicsLayerScope.outline?.bounds
+                if (hasShapeChanged || hasClipChanged || hasOutlineBoundsChanged) {
                     lastShape = graphicsLayerScope.shape
                     lastClip = graphicsLayerScope.clip
+                    graphicsOutlineBoundsCache = graphicsLayerScope.outline?.bounds ?: Rect.Zero
+                    lastOutlineBounds =
+                        graphicsLayerScope.outline?.bounds?.roundToIntRect()?.toRect() ?: Rect.Zero
                     if (wasLayerBlockInvoked && (hasClipChanged || (lastClip && hasShapeChanged))) {
                         // Semantics are already applied by the time the layer block is invoked for
                         // the first time, so we only invalidate semantics after subsequent layer
@@ -612,7 +646,6 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                     }
                 }
                 wasLayerBlockInvoked = true
-                graphicsLayerScope.updateOutline()
             }
             val layerPositionalProperties =
                 layerPositionalProperties
@@ -626,7 +659,10 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             val positionalPropertiesChanged =
                 !tmpLayerPositionalProperties.hasSameValuesAs(layerPositionalProperties)
             if (
-                invokeOnLayoutChange && (positionalPropertiesChanged || wasClipping != isClipping)
+                invokeOnLayoutChange &&
+                    (positionalPropertiesChanged ||
+                        wasClipping != isClipping ||
+                        hasOutlineBoundsChanged)
             ) {
                 layoutNode.owner?.onLayoutChange(layoutNode)
             }
@@ -981,10 +1017,15 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
 
         val bounds = rectCache
         val padding = calculateMinimumTouchTargetPadding(minimumTouchTargetSize)
-        bounds.left = -padding.width
-        bounds.top = -padding.height
-        bounds.right = measuredWidth + padding.width
-        bounds.bottom = measuredHeight + padding.height
+        val left = if (useOutline) lastOutlineBounds.left else 0f
+        val top = if (useOutline) lastOutlineBounds.top else 0f
+        val right = if (useOutline) lastOutlineBounds.right else measuredWidth.toFloat()
+        val bottom = if (useOutline) lastOutlineBounds.bottom else measuredHeight.toFloat()
+
+        bounds.left = left - padding.width
+        bounds.top = top - padding.height
+        bounds.right = right + padding.width
+        bounds.bottom = bottom + padding.height
 
         var coordinator: NodeCoordinator = this
         while (coordinator !== root) {
@@ -1464,8 +1505,10 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
      * and [measuredSize] vs. [width] and [height].
      */
     protected fun calculateMinimumTouchTargetPadding(minimumTouchTargetSize: Size): Size {
-        val widthDiff = minimumTouchTargetSize.width - measuredWidth.toFloat()
-        val heightDiff = minimumTouchTargetSize.height - measuredHeight.toFloat()
+        val boundsWidth = if (useOutline) lastOutlineBounds.width else measuredWidth.toFloat()
+        val boundsHeight = if (useOutline) lastOutlineBounds.height else measuredHeight.toFloat()
+        val widthDiff = minimumTouchTargetSize.width - boundsWidth
+        val heightDiff = minimumTouchTargetSize.height - boundsHeight
         return Size(maxOf(0f, widthDiff / 2f), maxOf(0f, heightDiff / 2f))
     }
 
