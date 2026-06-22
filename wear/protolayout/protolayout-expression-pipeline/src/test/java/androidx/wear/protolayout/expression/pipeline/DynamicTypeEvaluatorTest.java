@@ -67,7 +67,7 @@ public class DynamicTypeEvaluatorTest {
         ArrayList<Boolean> invalidResults = new ArrayList<>();
         DynamicTypeBindingRequest request =
                 createExpressionWithUnrecognizedEnum(results, invalidResults);
-        var boundDynamicType = evaluator.bind(request);
+        BoundDynamicType boundDynamicType = evaluator.bind(request);
 
         boundDynamicType.startEvaluation();
 
