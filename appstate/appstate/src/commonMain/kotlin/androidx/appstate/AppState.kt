@@ -64,7 +64,10 @@ public class AppState {
      *
      * If this is the first time the state is being set a listener is added to allow the given key
      * to be automatically cleared from the map based on the [AppStateKey.autoClearKey] and
-     * [AppStateKey.predicate].
+     * [AppStateKey.shouldClearState]. For the automatic clearing, [AppStateKey.autoClearKey] must
+     * be non-null, the value associated with this key must be non-null, and the
+     * [AppStateKey.shouldClearState] condition must return true. AS long as all 3 of those
+     * conditions are not met, the listener will not be removed.
      *
      * @param stateKey the key to set a value for
      * @param value the value to set inside the AppState
@@ -75,7 +78,7 @@ public class AppState {
                 val key = stateKey.autoClearKey
                 val currentValue = map[key]?.value
                 val initialValue = remember { currentValue }
-                if (currentValue != initialValue && stateKey.predicate(this@AppState)) {
+                if (currentValue != initialValue && stateKey.shouldClearState(this@AppState)) {
                     LaunchedEffect(currentValue) {
                         stateStore.remove(stateKey)
                         removeAppStateListener(this@addAppStateListener)
@@ -94,7 +97,7 @@ public class AppState {
      * @param defaultValue the value to use if no state has been set for the key
      * @param update lambda used to update the state using the current state
      */
-    public fun <T> updateState(stateKey: AppStateKey<T>, defaultValue: T, update: (T) -> T) {
+    public inline fun <T> updateState(stateKey: AppStateKey<T>, defaultValue: T, update: (T) -> T) {
         val currentState = getState(stateKey, defaultValue)
         setState(stateKey, update(currentState.value))
     }
@@ -138,13 +141,13 @@ public class AppState {
  * be @Serializable along with the extending class.
  *
  * @param autoClearKey set this if you would like the state associated with this key to be
- *   automatically cleared.
- * @param predicate the condition to determine whether the state should be cleared or not.
+ *   automatically cleared from the [AppState] when [shouldClearState] is `true`.
+ * @param shouldClearState the condition to determine whether the state should be cleared or not.
  */
 @Serializable
 public open class AppStateKey<T>(
-    @Transient public val autoClearKey: Any? = null,
-    @Transient public val predicate: (AppState) -> Boolean = { true },
+    @Transient public val autoClearKey: AppStateKey<T>? = null,
+    @Transient public val shouldClearState: (AppState) -> Boolean = { true },
 )
 
 /**
