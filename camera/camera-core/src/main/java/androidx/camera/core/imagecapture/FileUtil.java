@@ -64,14 +64,26 @@ public final class FileUtil {
         try {
             File appProvidedFile = options.getFile();
             if (appProvidedFile != null) {
+                File parent = appProvidedFile.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
                 // For saving-to-file case, write to the target folder and rename for better
                 // performance. The file extensions must be the same as app provided to avoid the
                 // directory access problem.
-                return new File(appProvidedFile.getParent(),
+                return new File(parent,
                         TEMP_FILE_PREFIX + UUID.randomUUID().toString()
                                 + getFileExtensionWithDot(appProvidedFile));
             } else {
-                return File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+                File tempDir = null;
+                String tmpDirProperty = System.getProperty("java.io.tmpdir");
+                if (tmpDirProperty != null) {
+                    tempDir = new File(tmpDirProperty);
+                    if (!tempDir.exists()) {
+                        tempDir.mkdirs();
+                    }
+                }
+                return File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, tempDir);
             }
         } catch (IOException e) {
             throw new ImageCaptureException(ERROR_FILE_IO, "Failed to create temp file.", e);
