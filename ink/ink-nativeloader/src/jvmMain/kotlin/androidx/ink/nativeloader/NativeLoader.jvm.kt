@@ -20,9 +20,6 @@ import androidx.annotation.RestrictTo
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.Locale
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * Native code loader for Android and JVM.
@@ -33,7 +30,6 @@ import kotlinx.coroutines.sync.withLock
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 actual public object NativeLoader {
     private var loaded = false
-    private var mutex = Mutex()
 
     private val osName: String
         get() = System.getProperty("os.name")?.lowercase(Locale.US) ?: error("Cannot read osName")
@@ -52,25 +48,25 @@ actual public object NativeLoader {
     actual public fun load() {
         // Fast bail-out before grabbing a lock if we don't need to.
         if (loaded) return
-        runBlocking { mutex.withLock { loadSynchronous() } }
-    }
 
-    private fun loadSynchronous() {
-        // Double-check in the synchronized block in case something got there after first check.
-        if (loaded) return
-        // On the JVM we need to find the correct libink library file in the JAR resources, copy it
-        // out to a tempfile, and load it directly.
-        //
-        // See NativeLibraryLoader under sqlite/sqlite-bundled for a similar system.
-        val tempFile = Files.createTempFile("libink.so", null).apply { toFile().deleteOnExit() }
-        val resourcePath = "$platform/libink.so"
-        checkNotNull(NativeLoader::class.java.classLoader!!.getResourceAsStream(resourcePath)) {
-                "Could not find resource $resourcePath"
-            }
-            .use { resourceStream ->
-                Files.copy(resourceStream, tempFile, StandardCopyOption.REPLACE_EXISTING)
-            }
-        System.load(tempFile.toFile().canonicalPath)
-        loaded = true
+        synchronized(this) {
+            // Double-check in the synchronized block in case something got there after first check.
+            if (loaded) return
+            // On the JVM we need to find the correct libink library file in the JAR resources, copy
+            // it
+            // out to a tempfile, and load it directly.
+            //
+            // See NativeLibraryLoader under sqlite/sqlite-bundled for a similar system.
+            val tempFile = Files.createTempFile("libink.so", null).apply { toFile().deleteOnExit() }
+            val resourcePath = "$platform/libink.so"
+            checkNotNull(NativeLoader::class.java.classLoader!!.getResourceAsStream(resourcePath)) {
+                    "Could not find resource $resourcePath"
+                }
+                .use { resourceStream ->
+                    Files.copy(resourceStream, tempFile, StandardCopyOption.REPLACE_EXISTING)
+                }
+            System.load(tempFile.toFile().canonicalPath)
+            loaded = true
+        }
     }
 }

@@ -26,16 +26,12 @@ actual public object NativeLoader {
     actual public fun load() {
         // Fast bail-out before grabbing a lock if we don't need to.
         if (loaded) return
-        loadSynchronous()
-    }
 
-    // JVM synchronized to avoid an extra dependency for Kotlin concurrency.
-    @SuppressWarnings("BanSynchronizedMethods")
-    @Synchronized
-    private fun loadSynchronous() {
-        // Double-check in the synchronized block in case something got there after first check.
-        if (loaded) return
-        System.loadLibrary("ink")
-        loaded = true
+        synchronized(this) {
+            // Double-check in the synchronized block in case something got there after first check.
+            if (loaded) return
+            System.loadLibrary("ink")
+            loaded = true
+        }
     }
 }
