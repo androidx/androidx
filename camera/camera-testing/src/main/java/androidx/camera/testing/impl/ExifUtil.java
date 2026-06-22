@@ -19,8 +19,6 @@ package androidx.camera.testing.impl;
 import static androidx.camera.core.impl.utils.Exif.createFromFile;
 import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
 
-import static java.io.File.createTempFile;
-
 import android.graphics.ImageFormat;
 
 import androidx.camera.core.ImageProxy;
@@ -71,7 +69,15 @@ public class ExifUtil {
     }
 
     private static File saveBytesToFile(byte @NonNull [] jpegBytes) throws IOException {
-        File file = createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+        File tempDir = null;
+        String tmpDirProperty = System.getProperty("java.io.tmpdir");
+        if (tmpDirProperty != null) {
+            tempDir = new File(tmpDirProperty);
+            if (!tempDir.exists()) {
+                tempDir.mkdirs();
+            }
+        }
+        File file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, tempDir);
         try (FileOutputStream output = new FileOutputStream(file)) {
             output.write(jpegBytes);
         }
