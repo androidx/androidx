@@ -60,7 +60,9 @@ class AndroidxTracingTraceTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.cleanupPerfettoState()
+        if (DeviceInfo.expectedToSupportTracingInTests) {
+            PerfettoHelper.cleanupPerfettoState()
+        }
     }
 
     @LargeTest

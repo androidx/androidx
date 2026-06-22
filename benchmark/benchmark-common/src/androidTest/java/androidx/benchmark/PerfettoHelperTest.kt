@@ -48,7 +48,9 @@ class PerfettoHelperTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.cleanupPerfettoState()
+        if (DeviceInfo.expectedToSupportTracingInTests) {
+            PerfettoHelper.cleanupPerfettoState()
+        }
     }
 
     private fun validateStopAllPerfettoProcesses(unbundled: Boolean) {

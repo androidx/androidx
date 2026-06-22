@@ -18,6 +18,7 @@ package androidx.benchmark.macro.perfetto
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
@@ -60,7 +61,9 @@ class PerfettoCaptureSweepTest(
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.cleanupPerfettoState()
+        if (DeviceInfo.expectedToSupportTracingInTests) {
+            PerfettoHelper.cleanupPerfettoState()
+        }
     }
 
     @Ignore("b/258216025")
