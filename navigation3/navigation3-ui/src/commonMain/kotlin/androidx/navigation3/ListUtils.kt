@@ -45,3 +45,6 @@ private inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
     fastForEach { if (predicate(it)) return true }
     return false
 }
+
+internal fun <T> List<T>.fastToSet(): Set<T> =
+    HashSet<T>(size).also { set -> fastForEach { item -> set.add(item) } }
