@@ -49,6 +49,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public val profile: Profile
     public override lateinit var remoteDensity: RemoteDensity
     public override lateinit var layoutDirection: LayoutDirection
+    public final override val densityBehavior: RemoteDensityBehavior
 
     public val animCache: MutableIntObjectMap<AnimatedRemoteFloat> = MutableIntObjectMap()
     public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
@@ -104,6 +105,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                 as RemoteComposeWriterAndroid
         this.remoteDensity = remoteDensity
         this.layoutDirection = layoutDirection
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     public constructor(
@@ -118,6 +120,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                 as RemoteComposeWriterAndroid
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     public constructor(platform: RcPlatformServices, size: Size) {
@@ -135,6 +138,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     public constructor(platform: RcPlatformServices, size: Size, apiLevel: Int, profiles: Int) {
@@ -165,6 +169,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         }
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     public constructor(
@@ -177,6 +182,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.document = writer
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     public constructor(size: Size, profile: Profile) {
@@ -186,6 +192,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
     }
 
     internal open fun <T : RemoteState<*>> getOrCreateNamedState(

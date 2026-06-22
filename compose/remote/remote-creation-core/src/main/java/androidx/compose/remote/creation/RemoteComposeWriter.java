@@ -135,6 +135,35 @@ public class RemoteComposeWriter {
         return mApiLevel;
     }
 
+    private static HTag[] filterAndValidateTags(int apiLevel, HTag[] tags) {
+        if (apiLevel >= 8) {
+            return tags;
+        }
+        Object dbVal = HTag.getValue(tags, Header.DOC_DENSITY_BEHAVIOR);
+        if (dbVal == null) {
+            return tags;
+        }
+        int db = (Integer) dbVal;
+        if (db != CoreDocument.DENSITY_BEHAVIOR_LEGACY) {
+            throw new IllegalArgumentException(
+                    "densityBehavior is only supported in API level 8 or higher");
+        }
+        int count = 0;
+        for (HTag tag : tags) {
+            if (tag.mTag != Header.DOC_DENSITY_BEHAVIOR) {
+                count++;
+            }
+        }
+        HTag[] filteredTags = new HTag[count];
+        int idx = 0;
+        for (HTag tag : tags) {
+            if (tag.mTag != Header.DOC_DENSITY_BEHAVIOR) {
+                filteredTags[idx++] = tag;
+            }
+        }
+        return filteredTags;
+    }
+
     /**
      * Create a RemoteComposeWriter
      *
@@ -153,7 +182,8 @@ public class RemoteComposeWriter {
                 hTag(Header.DOC_HEIGHT, creationDisplayInfo.getHeight()),
                 hTag(Header.DOC_CONTENT_DESCRIPTION,
                         contentDescription != null ? contentDescription : ""),
-                hTag(Header.DOC_PROFILES, profile.getOperationsProfiles()));
+                hTag(Header.DOC_PROFILES, profile.getOperationsProfiles()),
+                hTag(Header.DOC_DENSITY_BEHAVIOR, creationDisplayInfo.getDensityBehavior()));
         this.mWriterCallback = writerCallback;
     }
 
@@ -174,7 +204,8 @@ public class RemoteComposeWriter {
                 hTag(Header.DOC_HEIGHT, creationDisplayInfo.getHeight()),
                 hTag(Header.DOC_CONTENT_DESCRIPTION,
                         contentDescription != null ? contentDescription : ""),
-                hTag(Header.DOC_PROFILES, profile.getOperationsProfiles()));
+                hTag(Header.DOC_PROFILES, profile.getOperationsProfiles()),
+                hTag(Header.DOC_DENSITY_BEHAVIOR, creationDisplayInfo.getDensityBehavior()));
     }
 
     /**
@@ -186,6 +217,7 @@ public class RemoteComposeWriter {
     public RemoteComposeWriter(@NonNull Profile profile, HTag @NonNull ... tags) {
         this.mPlatform = profile.getPlatform();
         this.mApiLevel = profile.getApiLevel();
+        tags = filterAndValidateTags(mApiLevel, tags);
         mBuffer = new RemoteComposeBuffer(profile.getApiLevel());
 
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);
@@ -292,6 +324,7 @@ public class RemoteComposeWriter {
             HTag @NonNull ... tags) {
         this.mPlatform = platform;
         this.mApiLevel = apiLevel;
+        tags = filterAndValidateTags(apiLevel, tags);
         mBuffer = new RemoteComposeBuffer(apiLevel);
 
         java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
@@ -344,6 +377,7 @@ public class RemoteComposeWriter {
             @NonNull Profile profile, @NonNull RemoteComposeBuffer buffer, HTag @NonNull ... tags) {
         this.mPlatform = profile.getPlatform();
         this.mApiLevel = profile.getApiLevel();
+        tags = filterAndValidateTags(mApiLevel, tags);
         mBuffer = buffer;
 
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);

@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.LayoutDirection
@@ -40,6 +41,11 @@ public interface RemoteStateScope {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val document: RemoteComposeWriter
         get() = parentScope.document
+
+    /** The density behavior associated with the document being drawn into. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val densityBehavior: RemoteDensityBehavior
+        get() = parentScope.densityBehavior
 
     /** Returns the ID for this state within the scope. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

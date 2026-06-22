@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -103,7 +104,18 @@ public class RoundedClipRectModifierOperation extends DrawBase4
 
     @Override
     public void paint(@NonNull PaintContext context) {
-        context.roundedClipRect(mWidth, mHeight, mX1, mY1, mX2, mY2);
+        float topStart = mX1;
+        float topEnd = mY1;
+        float bottomStart = mX2;
+        float bottomEnd = mY2;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            float density = context.getDensity();
+            topStart *= density;
+            topEnd *= density;
+            bottomStart *= density;
+            bottomEnd *= density;
+        }
+        context.roundedClipRect(mWidth, mHeight, topStart, topEnd, bottomStart, bottomEnd);
     }
 
     @Override
