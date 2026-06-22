@@ -27,8 +27,6 @@ import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.isMouseOrTouchPad
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
@@ -46,12 +44,9 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 
 private interface CupertinoTextDragObserver {
     fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment)
@@ -67,28 +62,28 @@ internal actual fun SelectionRegistrar.makeSelectionModifier(
     return CupertinoSelectionModifierElement(
         selectionRegistrar = this,
         selectableId = selectableId,
-        layoutCoordinates = layoutCoordinatesProvider,
+        layoutCoordinatesProvider = layoutCoordinatesProvider,
     )
 }
 
 internal class CupertinoSelectionModifierElement(
     private val selectionRegistrar: SelectionRegistrar,
     private val selectableId: Long,
-    private val layoutCoordinates: () -> LayoutCoordinates?,
+    private val layoutCoordinatesProvider: () -> LayoutCoordinates?,
 ) : ModifierNodeElement<CupertinoSelectionModifierNode>() {
 
     override fun create() =
         CupertinoSelectionModifierNode(
             selectionRegistrar = selectionRegistrar,
             selectableId = selectableId,
-            layoutCoordinates = layoutCoordinates,
+            layoutCoordinatesProvider = layoutCoordinatesProvider,
         )
 
     override fun update(node: CupertinoSelectionModifierNode) {
         node.update(
             selectionRegistrar = selectionRegistrar,
             selectableId = selectableId,
-            layoutCoordinates = layoutCoordinates,
+            layoutCoordinates = layoutCoordinatesProvider,
         )
     }
 
@@ -103,13 +98,13 @@ internal class CupertinoSelectionModifierElement(
 
         return selectionRegistrar == other.selectionRegistrar &&
             selectableId == other.selectableId &&
-            layoutCoordinates === other.layoutCoordinates
+            layoutCoordinatesProvider === other.layoutCoordinatesProvider
     }
 
     override fun hashCode(): Int {
         var result = selectableId.hashCode()
         result = 31 * result + selectionRegistrar.hashCode()
-        result = 31 * result + layoutCoordinates.hashCode()
+        result = 31 * result + layoutCoordinatesProvider.hashCode()
         return result
     }
 }
@@ -117,7 +112,7 @@ internal class CupertinoSelectionModifierElement(
 internal class CupertinoSelectionModifierNode(
     private var selectionRegistrar: SelectionRegistrar,
     private var selectableId: Long,
-    private var layoutCoordinates: () -> LayoutCoordinates?,
+    private var layoutCoordinatesProvider: () -> LayoutCoordinates?,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode {
 
     private val pointerInputNode = delegate(
@@ -155,7 +150,7 @@ internal class CupertinoSelectionModifierNode(
         var dragTotalDistance = Offset.Zero
 
         override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
-            layoutCoordinates()?.let {
+            layoutCoordinatesProvider()?.let {
                 if (!it.isAttached) return
 
                 selectionRegistrar.notifySelectionUpdateStart(
@@ -174,7 +169,7 @@ internal class CupertinoSelectionModifierNode(
         }
 
         override fun onDrag(delta: Offset, selectionAdjustment: SelectionAdjustment) {
-            layoutCoordinates()?.let {
+            layoutCoordinatesProvider()?.let {
                 if (!it.isAttached) return
                 // selection never started, did not consume any drag
                 if (!selectionRegistrar.hasSelection(selectableId)) return
@@ -215,32 +210,33 @@ internal class CupertinoSelectionModifierNode(
         }
     }
 
-    private fun createMouseSelectionObserver() = selectionRegistrar.skikoMouseSelectionObserver(
-        selectableId = selectableId,
-        layoutCoordinates = layoutCoordinates,
-        bringIntoView = ::bringIntoView
+    private fun createMouseSelectionObserver() = selectionRegistrar.DefaultMouseSelectionObserver(
+        selectableIdProvider = { selectableId },
+        layoutCoordinatesProvider =
+            // `layoutCoordinatesProvider` is a var, hence the lambda, to refer to the latest
+            @Suppress("UnnecessaryLambdaCreation") { layoutCoordinatesProvider() },
     )
 
     private var mouseSelectionObserver = createMouseSelectionObserver()
-
-    private fun bringIntoView(offset: Offset) {
-        coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            bringIntoView {
-                Rect(offset = offset, size = Size.Zero)
-            }
-        }
-    }
 
     fun update(
         selectionRegistrar: SelectionRegistrar,
         selectableId: Long,
         layoutCoordinates: () -> LayoutCoordinates?,
     ) {
+        val selectionRegistrarChanged = selectionRegistrar != this.selectionRegistrar
+
         this.selectionRegistrar = selectionRegistrar
         this.selectableId = selectableId
-        this.layoutCoordinates = layoutCoordinates
+        this.layoutCoordinatesProvider = layoutCoordinates
 
-        mouseSelectionObserver = createMouseSelectionObserver()
+        // When the SelectionRegistrar itself changes (which should be very rare), recreate the
+        // input observers altogether (the alternative would be to pass them the registrar via a
+        // lambda).
+        if (selectionRegistrarChanged) {
+            mouseSelectionObserver = createMouseSelectionObserver()
+        }
+
         pointerInputNode.resetPointerInputHandler()
     }
 }

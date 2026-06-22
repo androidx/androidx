@@ -23,4 +23,4 @@ import androidx.compose.ui.layout.LayoutCoordinates
 internal actual fun SelectionRegistrar.makeSelectionModifier(
     selectableId: Long,
     layoutCoordinatesProvider: () -> LayoutCoordinates?
-): Modifier = makeSkikoSelectionModifier(selectableId, layoutCoordinatesProvider)
+): Modifier = makeDefaultSelectionModifier(selectableId, layoutCoordinatesProvider)
