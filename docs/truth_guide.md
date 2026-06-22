@@ -15,7 +15,7 @@ superclass.
 ```kotlin
 class NavControllerSubject private constructor(
     metadata: FailureMetadata,
-    private val actual: NavController
+    private val actual: NavController?,
 ) : Subject(metadata, actual) { }
 ```
 
@@ -23,7 +23,7 @@ class NavControllerSubject private constructor(
 
 The Subject class should also contain two static fields; a
 [Subject Factory](https://truth.dev/api/latest/com/google/common/truth/Subject.Factory.html)
-and an`assertThat()` shortcut method.
+and an `assertThat()` shortcut method.
 
 A subject Factory provides most of the functionality of the Subject by allowing
 users to perform all operations provided in the Subject class by passing this
@@ -40,13 +40,12 @@ use`assertThat(navController).isGraph(x)`.
 
 ```kotlin
 companion object {
+    @JvmStatic
     fun navControllers(): Factory<NavControllerSubject, NavController> =
-        Factory<NavControllerSubject, NavController> { metadata, actual ->
-            NavControllerSubject(metadata, actual)
-        }
+        Factory(::NavControllerSubject)
 
     @JvmStatic
-    fun assertThat(actual: NavController): NavControllerSubject {
+    fun assertThat(actual: NavController?): NavControllerSubject {
         return assertAbout(navControllers()).that(actual)
     }
 }
