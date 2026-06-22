@@ -94,9 +94,6 @@ import kotlinx.coroutines.launch
  * autoCentering = null for the [ScalingLazyColumn] in order to achieve the correct spacing above
  * the [EdgeButton].
  *
- * Example of using AppScaffold and ScreenScaffold with ScalingLazyColumn:
- *
- * @sample androidx.wear.compose.material3.samples.ScaffoldWithSLCEdgeButtonSample
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
  *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
@@ -160,9 +157,6 @@ public fun ScreenScaffold(
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
  * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
  *
- * Example of using AppScaffold and ScreenScaffold:
- *
- * @sample androidx.wear.compose.material3.samples.ScaffoldSample
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
  *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
@@ -344,9 +338,6 @@ public fun ScreenScaffold(
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
  *
- * Example of using AppScaffold and ScreenScaffold with ScalingLazyColumn:
- *
- * @sample androidx.wear.compose.material3.samples.ScaffoldWithSLCEdgeButtonSample
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
  *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
@@ -410,9 +401,6 @@ public fun ScreenScaffold(
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
  * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
  *
- * Example of using AppScaffold and ScreenScaffold:
- *
- * @sample androidx.wear.compose.material3.samples.ScaffoldSample
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
  *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
