@@ -16,21 +16,29 @@
 
 package androidx.wear.compose.remote.material3
 
+import android.content.Context
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -65,6 +73,52 @@ class RemoteTextTest {
             context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
         )
+
+    private val context: Context = ApplicationProvider.getApplicationContext()
+
+    @Test
+    fun remoteText_customRemoteFontFamily() {
+        val width = 400
+        val height = 120
+        val mockContext =
+            createMockContextWithFont(
+                baseContext = context,
+                fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
+            )
+        val resolver =
+            DownloadableTypefaceResolver(
+                context = mockContext,
+                next = FallbackCreateTypefaceResolver(),
+                isBlocking = true,
+            )
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    width,
+                    height,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+            typefaceResolver = resolver,
+        ) {
+            RemoteColumn(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
+                RemoteText(
+                    text = "Hello Default!".rs,
+                    color = Color.White.rc,
+                    fontFamily = RemoteFontFamily.Default,
+                    fontSize = 14.rsp,
+                )
+                RemoteText(
+                    text = "Hello Inconsolata!".rs,
+                    color = Color.White.rc,
+                    fontFamily = RemoteFontFamily.Named("google:inconsolata"),
+                    fontSize = 14.rsp,
+                )
+            }
+        }
+    }
 
     @Test
     fun text_withDefaultColor() {

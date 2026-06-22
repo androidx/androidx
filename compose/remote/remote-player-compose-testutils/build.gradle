@@ -35,6 +35,8 @@ android {
     defaultConfig {
         minSdk { version = release(26) }
     }
+    useLibrary "android.test.base"
+    useLibrary "android.test.mock"
 }
 
 dependencies {
