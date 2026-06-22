@@ -278,6 +278,7 @@ dependencies {
     docs(project(":pdf:pdf-document-service"))
     docs(project(":pdf:pdf-ink"))
     docs(project(":pdf:pdf-core"))
+    docs(project(":pdf:pdf-ocr-play-services"))
     docs(project(":pdf:pdf-viewer"))
     docs(project(":pdf:pdf-viewer-fragment"))
     docs(project(":percentlayout:percentlayout"))
