@@ -211,6 +211,34 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     ): RemoteString {
         val (before, after, flags) = format.toTextFromFloatOptions()
 
+        // Workaround for the player always keeping at least one trailing zero (e.g.
+        // formatting 5.0 as "5.0" instead of "5") even when minimumFractionDigits is 0.
+        // We only apply this if the format explicitly allows fractional digits (after > 0)
+        // but doesn't require them (minimumFractionDigits == 0).
+        if (format.minimumFractionDigits == 0 && after > 0 && format !== DefaultDecimalFormat) {
+            constantValueOrNull?.let { value ->
+                val resolvedAfter = if (value % 1f == 0f) 0 else after
+                return toRemoteStringWithPadding(format, before, resolvedAfter, flags)
+            }
+
+            // Dynamic path: dynamically check if the value is an integer at playback time.
+            val isInteger = (this % 1f).isEqualTo(0f.rf)
+            return isInteger.select(
+                toRemoteStringWithPadding(format, before, 0, flags),
+                toRemoteStringWithPadding(format, before, after, flags),
+            )
+        }
+
+        // Fallback path (no workaround needed)
+        return toRemoteStringWithPadding(format, before, after, flags)
+    }
+
+    private fun toRemoteStringWithPadding(
+        format: android.icu.text.DecimalFormat,
+        before: Int,
+        after: Int,
+        flags: Int,
+    ): RemoteString {
         val padPre = format.minimumIntegerDigits > 1 || format.formatWidth > 0
         if (padPre) {
             val padWidth =
