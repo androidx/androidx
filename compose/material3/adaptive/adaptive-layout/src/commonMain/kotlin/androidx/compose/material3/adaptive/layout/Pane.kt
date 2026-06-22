@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
-import androidx.compose.material3.adaptive.layout.DefaultAnimatedPaneOverride.AnimatedPane
 import androidx.compose.material3.adaptive.layout.internal.Strings
 import androidx.compose.material3.adaptive.layout.internal.delegableSemantics
 import androidx.compose.material3.adaptive.layout.internal.getString
@@ -36,9 +34,6 @@ import androidx.compose.material3.adaptive.layout.internal.getValue
 import androidx.compose.material3.adaptive.layout.internal.rememberRef
 import androidx.compose.material3.adaptive.layout.internal.setValue
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,7 +77,6 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSample
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  */
-@OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 public fun <
@@ -97,18 +91,78 @@ public fun <
     shape: Shape = RectangleShape,
     content: (@Composable AnimatedPaneScope.() -> Unit),
 ) {
-    with(LocalAnimatedPaneOverride.current) {
-        AnimatedPaneOverrideScope(
-                scope = this@AnimatedPane,
-                modifier = modifier,
-                enterTransition = enterTransition,
-                exitTransition = exitTransition,
-                boundsAnimationSpec = boundsAnimationSpec,
-                dragToResizeHandle = dragToResizeHandle,
-                shape = shape,
-                content = content,
-            )
-            .AnimatedPane()
+    val scaleConversion = { offset: IntOffset ->
+        (motionDataProvider as? ThreePaneScaffoldMotionDataProvider)?.run {
+            predictiveBackScaleState.convert(offset)
+        } ?: offset
+    }
+    val animatingBounds = paneMotion == PaneMotion.AnimateBounds
+    val motionProgress = { motionProgress }
+    val paneValue = scaffoldStateTransition.targetState[paneRole]
+    val (paneModifier, contentModifier) = modifier.splitPaneAndContentModifiers()
+    scaffoldStateTransition.AnimatedVisibility(
+        visible = { value: ScaffoldValueT -> value[paneRole] != PaneAdaptedValue.Hidden },
+        modifier =
+            Modifier.animatedPane()
+                .animateBounds(
+                    animateFraction = motionProgress,
+                    animationSpec = boundsAnimationSpec,
+                    scaleConversion = scaleConversion,
+                    lookaheadScope = this,
+                    enabled = animatingBounds,
+                )
+                .focusRequester(focusRequesters[paneRole]!!)
+                .focusableInWholeTree(isInteractable, paneRole)
+                // This is a workaround to b/375496210 - shadows cannot be faded so we have
+                // to apply shadows on AnimatedVisibility instead of the content.
+                .levitatedProperties(paneValue, shape, dragToResizeHandle != null)
+                .then(if (animatingBounds) Modifier else Modifier.clipToBounds())
+                // The pane modifiers contains:
+                // 1. Size modifiers that have to be applied at this level so the scaffold
+                //    can read them from the parent data.
+                // 2. The graphics layer modifiers, which have to be applied last so they
+                //    can take effect on modifiers (like, shadows) applied before them.
+                .then(paneModifier)
+                .clip(shape),
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+        saveableStateHolder.SaveableStateProvider(paneRole.toString()) {
+            Column(modifier = contentModifier) {
+                if (
+                    paneValue is PaneAdaptedValue.Levitated &&
+                        paneValue.dragToResizeState != null &&
+                        dragToResizeHandle != null
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .wrapContentHeight()
+                                .dragToResize(
+                                    state = paneValue.dragToResizeState,
+                                    showIndication = true,
+                                ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        dragToResizeHandle(paneValue.dragToResizeState)
+                    }
+                }
+                AnimatedPaneScope.create(this@AnimatedVisibility).content()
+            }
+        }
+    }
+
+    var scrim by rememberRef<(@Composable () -> Unit)?>(null)
+    (paneValue as? PaneAdaptedValue.Levitated)?.apply { scrim = this.scrim }
+    scrim?.apply {
+        // Display a scrim when the pane gets levitated
+        scaffoldStateTransition.AnimatedVisibility(
+            visible = { value: ScaffoldValueT -> value[paneRole] != PaneAdaptedValue.Hidden },
+            enter = enterTransition,
+            exit = exitTransition,
+        ) {
+            this@apply.invoke()
+        }
     }
 }
 
@@ -137,7 +191,6 @@ public fun <
     message = "Keep the old function for binary compatibility",
     level = DeprecationLevel.HIDDEN,
 )
-@OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 public fun <
@@ -188,7 +241,6 @@ public fun <
     message = "Keep the old function for binary compatibility",
     level = DeprecationLevel.HIDDEN,
 )
-@OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 public fun <
@@ -213,99 +265,6 @@ public fun <
     )
 
 /**
- * This override provides the default behavior of the [AnimatedPane] component.
- *
- * [AnimatedPaneOverride] used when no override is specified.
- */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveComponentOverrideApi
-private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
-    @Composable
-    override fun <
-        Role : PaneScaffoldRole,
-        ScaffoldValue : PaneScaffoldValue<Role>,
-    > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane() {
-        with(scope) {
-            val scaleConversion = { offset: IntOffset ->
-                (motionDataProvider as? ThreePaneScaffoldMotionDataProvider)?.run {
-                    predictiveBackScaleState.convert(offset)
-                } ?: offset
-            }
-            val animatingBounds = paneMotion == PaneMotion.AnimateBounds
-            val motionProgress = { motionProgress }
-            val paneValue = scaffoldStateTransition.targetState[paneRole]
-            val (paneModifier, contentModifier) = modifier.splitPaneAndContentModifiers()
-            scaffoldStateTransition.AnimatedVisibility(
-                visible = { value: ScaffoldValue -> value[paneRole] != PaneAdaptedValue.Hidden },
-                modifier =
-                    Modifier.animatedPane()
-                        .animateBounds(
-                            animateFraction = motionProgress,
-                            animationSpec = boundsAnimationSpec,
-                            scaleConversion = scaleConversion,
-                            lookaheadScope = this,
-                            enabled = animatingBounds,
-                        )
-                        .focusRequester(focusRequesters[paneRole]!!)
-                        .focusableInWholeTree(isInteractable, paneRole)
-                        // This is a workaround to b/375496210 - shadows cannot be faded so we have
-                        // to apply shadows on AnimatedVisibility instead of the content.
-                        .levitatedProperties(paneValue, shape, dragToResizeHandle != null)
-                        .then(if (animatingBounds) Modifier else Modifier.clipToBounds())
-                        // The pane modifiers contains:
-                        // 1. Size modifiers that have to be applied at this level so the scaffold
-                        //    can read them from the parent data.
-                        // 2. The graphics layer modifiers, which have to be applied last so they
-                        //    can take effect on modifiers (like, shadows) applied before them.
-                        .then(paneModifier)
-                        .clip(shape),
-                enter = enterTransition,
-                exit = exitTransition,
-            ) {
-                scope.saveableStateHolder.SaveableStateProvider(paneRole.toString()) {
-                    Column(modifier = contentModifier) {
-                        if (
-                            paneValue is PaneAdaptedValue.Levitated &&
-                                paneValue.dragToResizeState != null &&
-                                dragToResizeHandle != null
-                        ) {
-                            Box(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .dragToResize(
-                                            state = paneValue.dragToResizeState,
-                                            showIndication = true,
-                                        ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                dragToResizeHandle(paneValue.dragToResizeState)
-                            }
-                        }
-                        AnimatedPaneScope.create(this@AnimatedVisibility).content()
-                    }
-                }
-            }
-
-            var scrim by rememberRef<(@Composable () -> Unit)?>(null)
-            (paneValue as? PaneAdaptedValue.Levitated)?.apply { scrim = this.scrim }
-            scrim?.apply {
-                // Display a scrim when the pane gets levitated
-                scaffoldStateTransition.AnimatedVisibility(
-                    visible = { value: ScaffoldValue ->
-                        value[paneRole] != PaneAdaptedValue.Hidden
-                    },
-                    enter = enterTransition,
-                    exit = exitTransition,
-                ) {
-                    this@apply.invoke()
-                }
-            }
-        }
-    }
-}
-
-/**
  * Scope for the content of [AnimatedPane]. It extends from the necessary animation scopes so
  * developers can use the info carried by the scopes to do certain customizations.
  */
@@ -320,62 +279,6 @@ public sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
     private class Impl(animatedVisibilityScope: AnimatedVisibilityScope) :
         AnimatedPaneScope, AnimatedVisibilityScope by animatedVisibilityScope
 }
-
-/**
- * Interface that allows libraries to override the behavior of [AnimatedPane].
- *
- * To override this component, implement the member function of this interface, then provide the
- * implementation to [AnimatedPaneOverride] in the Compose hierarchy.
- */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveComponentOverrideApi
-public interface AnimatedPaneOverride {
-    /** Behavior function that is called by the [AnimatedPane] composable. */
-    @Composable
-    public fun <
-        Role : PaneScaffoldRole,
-        ScaffoldValue : PaneScaffoldValue<Role>,
-    > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane()
-}
-
-/**
- * Parameters available to [AnimatedPane].
- *
- * @param modifier The modifier applied to the [AnimatedPane].
- * @param enterTransition The [EnterTransition] used to animate the pane in.
- * @param exitTransition The [ExitTransition] used to animate the pane out.
- * @param boundsAnimationSpec The [FiniteAnimationSpec] used to animate the bounds of the pane when
- *   the pane is keeping showing but changing its size and/or position.
- * @param dragToResizeHandle The optional handle which will shown when the pane is levitated and
- *   drag-to-resizable; the handle will be draggable and clickable to resize the pane freely or
- *   among collapsed, partially expanded, and expanded states. See [rememberDragToResizeState] for
- *   more details about how to implement the drag-to-resize behavior.
- * @param content The content of the [AnimatedPane]. Also see [AnimatedPaneScope].
- */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveComponentOverrideApi
-@Immutable
-public class AnimatedPaneOverrideScope<
-    Role : PaneScaffoldRole,
-    ScaffoldValue : PaneScaffoldValue<Role>,
->
-internal constructor(
-    public val scope: ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>,
-    public val modifier: Modifier,
-    public val enterTransition: EnterTransition,
-    public val exitTransition: ExitTransition,
-    public val boundsAnimationSpec: FiniteAnimationSpec<IntRect>,
-    public val dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)?,
-    public val shape: Shape,
-    public val content: (@Composable AnimatedPaneScope.() -> Unit),
-)
-
-/** CompositionLocal containing the currently-selected [AnimatedPaneOverride]. */
-@ExperimentalMaterial3AdaptiveComponentOverrideApi
-public val LocalAnimatedPaneOverride: ProvidableCompositionLocal<AnimatedPaneOverride> =
-    compositionLocalOf {
-        DefaultAnimatedPaneOverride
-    }
 
 internal object AnimatedPaneDefaults {
     val ShadowElevation = 15.dp

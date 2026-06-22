@@ -19,8 +19,6 @@ package androidx.xr.compose.material3
 import android.os.Build
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
-import androidx.compose.material3.adaptive.layout.LocalAnimatedPaneOverride
-import androidx.compose.material3.adaptive.layout.LocalThreePaneScaffoldOverride
 import androidx.compose.material3.adaptive.navigationsuite.LocalNavigationSuiteScaffoldOverride
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -55,10 +53,6 @@ public fun EnableXrComponentOverrides(
                         LocalNavigationSuiteScaffoldOverride provides
                             XrNavigationSuiteScaffoldOverride
                     )
-                }
-                if (context.shouldOverrideComponent(XrComponentOverride.ThreePaneScaffold)) {
-                    add(LocalThreePaneScaffoldOverride provides XrThreePaneScaffoldOverride)
-                    add(LocalAnimatedPaneOverride provides XrAnimatedPaneOverride)
                 }
             }
         }
@@ -97,10 +91,6 @@ public value class XrComponentOverride private constructor(private val name: Str
         @ExperimentalMaterial3XrApi
         public val NavigationSuiteScaffold: XrComponentOverride =
             XrComponentOverride("NavigationSuiteScaffold")
-
-        /** Material3 Adaptive ThreePaneScaffold. */
-        @ExperimentalMaterial3XrApi
-        public val ThreePaneScaffold: XrComponentOverride = XrComponentOverride("ThreePaneScaffold")
     }
 }
 
