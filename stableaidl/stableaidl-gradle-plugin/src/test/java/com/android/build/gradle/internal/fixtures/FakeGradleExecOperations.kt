@@ -20,6 +20,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import org.gradle.api.Action
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.process.BaseExecSpec
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.process.ExecOperations
@@ -113,6 +114,10 @@ class CapturingExecSpec : ExecSpec {
     }
 
     override fun setWorkingDir(p0: Any?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getWorkingDirectory(): DirectoryProperty {
         TODO("Not yet implemented")
     }
 
