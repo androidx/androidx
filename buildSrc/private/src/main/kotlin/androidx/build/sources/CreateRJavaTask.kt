@@ -68,6 +68,9 @@ abstract class CreateRJavaTask : DefaultTask() {
             val compileDir = File(temporaryDir, "compile")
             compile(compileDir, resourceDirs)
             link(compileDir.listFiles()?.toList() ?: emptyList())
+            // Don't include private resources in the final output
+            val privateResources = generatedR.dir(PRIVATE_RESOURCE_PACKAGE).get().asFile
+            privateResources.deleteRecursively()
         }
     }
 
@@ -76,7 +79,12 @@ abstract class CreateRJavaTask : DefaultTask() {
         compileDir.mkdirs()
         val args =
             resourceDirs.flatMap { listOf("--dir", it.absolutePath) } +
-                listOf("-o", compileDir.absolutePath)
+                listOf(
+                    "-o",
+                    compileDir.absolutePath,
+                    // Without this flag, all styleables are made public
+                    "--preserve-visibility-of-styleables",
+                )
         runAapt2("compile", args)
     }
 
@@ -95,6 +103,10 @@ abstract class CreateRJavaTask : DefaultTask() {
                     // These arguments skip verifying resource references.
                     "--static-lib",
                     "--merge-only",
+                    // Put private resources into a separate package (it isn't possible to just not
+                    // generate them)
+                    "--private-symbols",
+                    PRIVATE_RESOURCE_PACKAGE,
                 )
         runAapt2("link", args)
     }
@@ -128,5 +140,7 @@ abstract class CreateRJavaTask : DefaultTask() {
                 }
             return project.files(task)
         }
+
+        private const val PRIVATE_RESOURCE_PACKAGE = "private"
     }
 }
