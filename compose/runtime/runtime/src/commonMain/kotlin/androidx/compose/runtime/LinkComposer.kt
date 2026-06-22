@@ -837,16 +837,18 @@ internal class LinkComposer(
     override fun insertMovableContentReferences(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
-        var completed = false
-        try {
-            insertMovableContentGuarded(references)
-            completed = true
-        } finally {
-            if (completed) {
-                cleanUpCompose()
-            } else {
-                // if we finished with error, cleanup more aggressively
-                abortRoot()
+        trace("Compose:insertMovableContent") {
+            var completed = false
+            try {
+                insertMovableContentGuarded(references)
+                completed = true
+            } finally {
+                if (completed) {
+                    cleanUpCompose()
+                } else {
+                    // if we finished with error, cleanup more aggressively
+                    abortRoot()
+                }
             }
         }
     }
