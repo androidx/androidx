@@ -14,7 +14,7 @@ dependencies {
 
     implementation(project(":appcompat:appcompat"))
     implementation(project(":appcompat:appcompat-resources"))
-    implementation(project(":cardview:cardview"))
+    implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.core:core:1.17.0")
     implementation(project(":drawerlayout:drawerlayout"))
     implementation(project(":gridlayout:gridlayout"))
