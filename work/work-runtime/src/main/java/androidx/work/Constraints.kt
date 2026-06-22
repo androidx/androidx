@@ -272,7 +272,7 @@ public class Constraints {
         if (requiresStorageNotLow != that.requiresStorageNotLow) return false
         if (contentTriggerUpdateDelayMillis != that.contentTriggerUpdateDelayMillis) return false
         if (contentTriggerMaxDelayMillis != that.contentTriggerMaxDelayMillis) return false
-        if (requiredNetworkRequest != that.requiredNetworkRequest) return false
+        if (requiredNetworkRequestCompat != that.requiredNetworkRequestCompat) return false
         return if (requiredNetworkType != that.requiredNetworkType) false
         else contentUriTriggers == that.contentUriTriggers
     }
@@ -294,7 +294,7 @@ public class Constraints {
             31 * result +
                 (contentTriggerMaxDelayMillis xor (contentTriggerMaxDelayMillis ushr 32)).toInt()
         result = 31 * result + contentUriTriggers.hashCode()
-        result = 31 * result + requiredNetworkRequest.hashCode()
+        result = 31 * result + requiredNetworkRequestCompat.hashCode()
         return result
     }
 

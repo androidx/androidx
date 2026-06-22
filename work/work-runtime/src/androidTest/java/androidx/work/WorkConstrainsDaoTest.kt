@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.impl.model.WorkTypeConverters
+import androidx.work.impl.utils.capabilitiesCompat
 import androidx.work.worker.TestWorker
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
@@ -33,7 +34,7 @@ import org.junit.runner.RunWith
 class WorkConstrainsDaoTest : DatabaseTest() {
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 28)
     fun readWithNetworkRequestWithInvalidCapability() {
         val workRequest =
             OneTimeWorkRequest.Builder(TestWorker::class.java)
@@ -75,13 +76,13 @@ class WorkConstrainsDaoTest : DatabaseTest() {
 
         // Reading a work spec with an invalid capability should not cause an issue.
         val newWorkSpec = checkNotNull(mDatabase.workSpecDao().getWorkSpec(workRequest.stringId))
-        assertThat(workSpec.constraints.requiredNetworkRequest!!.capabilities)
-            .isEqualTo(newWorkSpec.constraints.requiredNetworkRequest!!.capabilities)
+        assertThat(workSpec.constraints.requiredNetworkRequest!!.capabilitiesCompat)
+            .isEqualTo(newWorkSpec.constraints.requiredNetworkRequest!!.capabilitiesCompat)
     }
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 28)
     fun readWithNetworkRequestWithoutDefaultCapability() {
         val workRequest =
             OneTimeWorkRequest.Builder(TestWorker::class.java)
@@ -102,7 +103,7 @@ class WorkConstrainsDaoTest : DatabaseTest() {
         mDatabase.workSpecDao().insertWorkSpec(workSpec)
 
         val newWorkSpec = checkNotNull(mDatabase.workSpecDao().getWorkSpec(workRequest.stringId))
-        assertThat(newWorkSpec.constraints.requiredNetworkRequest!!.capabilities.toList())
+        assertThat(newWorkSpec.constraints.requiredNetworkRequest!!.capabilitiesCompat.toList())
             .doesNotContain(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
     }
 }
