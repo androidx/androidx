@@ -83,8 +83,10 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertRangeInfoEquals(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.ProgressBarRangeInfo value);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextContains$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, boolean, boolean, int, Object!);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String[] values, optional boolean includeEditableText);
-    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String[] values, optional boolean includeEditableText, optional boolean includeInputText);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, boolean, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, int, Object!);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value);
     method public static boolean isDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static boolean isNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
@@ -272,8 +274,10 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsMatcher hasTestTag(String testTag);
     method public static androidx.compose.ui.test.SemanticsMatcher hasText(String text, optional boolean substring, optional boolean ignoreCase);
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasText$default(String!, boolean, boolean, int, Object!);
-    method public static androidx.compose.ui.test.SemanticsMatcher hasTextExactly(String[] textValues, optional boolean includeEditableText);
-    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasTextExactly$default(String![]!, boolean, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.SemanticsMatcher! hasTextExactly(String![]!, boolean);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasTextExactly(String[] textValues, optional boolean includeEditableText, optional boolean includeInputText);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasTextExactly$default(String![]!, boolean, boolean, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.SemanticsMatcher! hasTextExactly$default(String![]!, boolean, int, Object!);
     method public static androidx.compose.ui.test.SemanticsMatcher isDialog();
     method public static androidx.compose.ui.test.SemanticsMatcher isEditable();
     method public static androidx.compose.ui.test.SemanticsMatcher isEnabled();

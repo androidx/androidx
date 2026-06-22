@@ -171,6 +171,41 @@ class AssertText {
         rule.onNodeWithTag("test").assertTextContains("hello", ignoreCase = true, substring = true)
     }
 
+    @Test
+    fun textAndInputText_defaultIgnoresInputText() {
+        rule.setContent {
+            Box(Modifier.semantics(mergeDescendants = true) { testTag = "test" }) {
+                Text("Visual Text")
+                BoundaryNode { inputText = AnnotatedString("Raw Input") }
+            }
+        }
+        rule.onNodeWithTag("test").assertTextEquals("Visual Text")
+    }
+
+    @Test
+    fun textAndInputText_includeInputTextTrue() {
+        rule.setContent {
+            Box(Modifier.semantics(mergeDescendants = true) { testTag = "test" }) {
+                Text("Visual Text")
+                BoundaryNode { inputText = AnnotatedString("Raw Input") }
+            }
+        }
+        rule
+            .onNodeWithTag("test")
+            .assertTextEquals("Visual Text", "Raw Input", includeInputText = true)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun textAndInputText_includeInputTextTrue_failsIfMissing() {
+        rule.setContent {
+            Box(Modifier.semantics(mergeDescendants = true) { testTag = "test" }) {
+                Text("Visual Text")
+                BoundaryNode { inputText = AnnotatedString("Raw Input") }
+            }
+        }
+        rule.onNodeWithTag("test").assertTextEquals("Visual Text", includeInputText = true)
+    }
+
     @Composable
     fun TestContent() {
         Box(Modifier.semantics(mergeDescendants = true) { testTag = "test" }) {

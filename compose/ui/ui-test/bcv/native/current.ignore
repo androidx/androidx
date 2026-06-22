@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+[linuxX64]: Added declaration (androidx.compose.ui.test/SemanticsNodeInteraction).androidx.compose.ui.test/assertTextEquals(kotlin/Array<out kotlin/String>, kotlin/Boolean, kotlin/Boolean) to androidx.compose.ui:ui-test
+[linuxX64]: Added declaration androidx.compose.ui.test/hasTextExactly(kotlin/Array<out kotlin/String>, kotlin/Boolean, kotlin/Boolean) to androidx.compose.ui:ui-test

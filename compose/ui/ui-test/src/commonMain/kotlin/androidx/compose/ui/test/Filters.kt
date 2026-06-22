@@ -270,6 +270,10 @@ fun hasText(
  * @see SemanticsProperties.Text
  * @see SemanticsProperties.EditableText
  */
+@Deprecated(
+    message = "Replaced by hasTextExactly that includes the includeInputText parameter",
+    level = DeprecationLevel.HIDDEN,
+)
 fun hasTextExactly(
     vararg textValues: String,
     includeEditableText: Boolean = true,
@@ -285,6 +289,49 @@ fun hasTextExactly(
         val actual = mutableListOf<String>()
         if (includeEditableText) {
             node.config.getOrNull(EditableText)?.let { actual.add(it.text) }
+        }
+        node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }
+        actual.containsAll(expected) && expected.containsAll(actual)
+    }
+}
+
+/**
+ * Returns whether the node's text contains exactly the given [textValues] and nothing else.
+ *
+ * By default, this searches in [SemanticsProperties.Text] and [SemanticsProperties.EditableText].
+ * To also evaluate [SemanticsProperties.InputText] (which holds the raw user input of fields like
+ * passwords, bypassing visual transformations), set [includeInputText] to `true`.
+ *
+ * Note that in the merged semantics tree there can be a list of text items that got merged from the
+ * child nodes. Typically, an accessibility tooling will decide based on its heuristics which ones
+ * to use.
+ *
+ * @param textValues List of values to match (the order does not matter).
+ * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
+ * @param includeInputText Whether to also assert against the un-transformed input text. Defaults to
+ *   false.
+ * @see SemanticsProperties.Text
+ * @see SemanticsProperties.EditableText
+ * @see SemanticsProperties.InputText
+ */
+fun hasTextExactly(
+    vararg textValues: String,
+    includeEditableText: Boolean = true,
+    includeInputText: Boolean = false,
+): SemanticsMatcher {
+    val expected = textValues.toList()
+    val propertyName = buildString {
+        append(Text.name)
+        if (includeEditableText) append(" + ${EditableText.name}")
+        if (includeInputText) append(" + ${InputText.name}")
+    }
+    return SemanticsMatcher("$propertyName = [${textValues.joinToString(",")}]") { node ->
+        val actual = mutableListOf<String>()
+        if (includeEditableText) {
+            node.config.getOrNull(EditableText)?.let { actual.add(it.text) }
+        }
+        if (includeInputText) {
+            node.config.getOrNull(InputText)?.let { actual.add(it.text) }
         }
         node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }
         actual.containsAll(expected) && expected.containsAll(actual)
