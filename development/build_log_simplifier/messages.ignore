@@ -78,6 +78,7 @@ WARN: Couldn't resolve link: \[android\.app\.Activity\.onStart\] in .*\/docs-pub
 WARN: Couldn't resolve link: \[android\.app\.Activity\.onStop\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/lifecycle\/Lifecycle\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[android\.app\.Activity\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/lifecycle\/Lifecycle\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[android\.app\.appfunctions\.AppFunctionRuntimeMetadata\] in .*\/unzippedJvmSources\/androidx\/appfunctions\/metadata\/AppFunctionRuntimeMetadata\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.appfunctions\.service\.AppFunction\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/appfunctions/testing/AppFunctionTestRule\.kt:[0-9]+:[0-9]+ \(androidx/main\)
 WARN: Couldn't resolve link: \[android\.compose\.ui\.graphics\.Matrix\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/geometry\/compose\/ComposeConversionExtensions\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[android\.content\.Intent\.FLAG_ACTIVITY_SINGLE_TOP\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/navigation\/NavOptionsBuilder\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[android\.content\.pm\.ActivityInfo\.Property\] in .*\/unzippedJvmSources\/androidx\/xr\/runtime\/manifest\/ManifestProperty\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
@@ -968,6 +969,9 @@ protected void finalize\(\) \{
 ^C/C\+\+: ninja: warning: build log version is too old; starting over.*
 ^C/C\+\+: ninja: warning: bad deps log signature or version; starting over.*
 # > Task :docs-public:docs
+WARN: Couldn't resolve link: \[androidx\.appfunctions\.service\.internal\.AggregatedAppFunctionInvoker\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/appfunctions/AppFunctionComponentRegistry\.kt:[0-9]+:[0-9]+ \(androidx/main\)
+WARN: Couldn't resolve link: \[androidx\.appfunctions\.service\.AppFunction\.isEnabled\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/appfunctions/AppFunctionRequestExceptions\.kt:[0-9]+:[0-9]+ \(androidx/main\)
+WARN: Couldn't resolve link: \[androidx\.appfunctions\.service\.AppFunction\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/appfunctions/AppFunctionRequestExceptions\.kt:[0-9]+:[0-9]+ \(androidx/main\)
 In Dokka K[0-9]+ it will be an error\. Also, please consider reporting your user case: https://github\.com/Kotlin/dokka/issues/[0-9]+
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/CredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See CredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean CredentialAuthPrompt\#authenticate\?
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricOrCredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricOrCredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricOrCredentialAuthPrompt\#authenticate\?
