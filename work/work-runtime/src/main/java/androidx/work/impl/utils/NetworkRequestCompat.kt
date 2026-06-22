@@ -22,7 +22,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.work.Logger
 
-internal data class NetworkRequestCompat(val wrapped: Any? = null) {
+internal class NetworkRequestCompat(val wrapped: Any? = null) {
 
     companion object {
         val TAG = Logger.tagWithPrefix("NetworkRequestCompat")
@@ -30,6 +30,32 @@ internal data class NetworkRequestCompat(val wrapped: Any? = null) {
 
     val networkRequest: NetworkRequest?
         get() = wrapped as NetworkRequest?
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is NetworkRequestCompat) return false
+        if (Build.VERSION.SDK_INT < 28) return true
+
+        val req1 = this.networkRequest
+        val req2 = other.networkRequest
+        if (req1 === req2) return true
+        if (req1 == null || req2 == null) return false
+        return req1.capabilitiesCompat.contentEquals(req2.capabilitiesCompat) &&
+            req1.transportTypesCompat.contentEquals(req2.transportTypesCompat)
+    }
+
+    override fun hashCode(): Int {
+        if (Build.VERSION.SDK_INT < 28) return 0
+        val req = this.networkRequest ?: return 0
+        var result = 1
+        result = 31 * result + req.capabilitiesCompat.contentHashCode()
+        result = 31 * result + req.transportTypesCompat.contentHashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "NetworkRequestCompat(wrapped=$wrapped)"
+    }
 }
 
 @get:RequiresApi(28)
@@ -116,6 +142,30 @@ public object NetworkRequest28 {
     @JvmStatic
     public fun createNetworkRequest(capabilities: IntArray, transports: IntArray): NetworkRequest {
         val networkRequest = NetworkRequest.Builder()
+        if (Build.VERSION.SDK_INT >= 30) {
+            NetworkRequest30.clearCapabilities(networkRequest)
+        } else {
+            // b/409716532 - There is a list of capabilities that are set by default when the
+            // network request is constructed and must be explicitly removed if they were not
+            // persisted as otherwise the request to exclude those capabilities will be lost
+            // between encoding and decoding.
+            defaultCapabilities.forEach {
+                if (!capabilities.contains(it)) {
+                    try {
+                        networkRequest.removeCapability(it)
+                    } catch (ex: IllegalArgumentException) {
+                        // Ignoring the IAE that removeCapability() can throw in the case that
+                        // default capabilities changes across OS versions.
+                        Logger.get()
+                            .warning(
+                                NetworkRequestCompat.TAG,
+                                "Ignoring removing default capability '$it'",
+                                ex,
+                            )
+                    }
+                }
+            }
+        }
         capabilities.forEach {
             try {
                 networkRequest.addCapability(it)
@@ -127,26 +177,6 @@ public object NetworkRequest28 {
                 // changes.
                 Logger.get()
                     .warning(NetworkRequestCompat.TAG, "Ignoring adding capability '$it'", ex)
-            }
-        }
-        // b/409716532 - There is a list of capabilities that are set by default when the network
-        // request is constructed and must be explicitly removed if they were not persisted as
-        // otherwise the request to exclude those capabilities will be lost between
-        // encoding and decoding.
-        defaultCapabilities.forEach {
-            if (!capabilities.contains(it)) {
-                try {
-                    networkRequest.removeCapability(it)
-                } catch (ex: IllegalArgumentException) {
-                    // Ignoring the IAE that removeCapability() can throw in the case that default
-                    // capabilities changes across OS versions.
-                    Logger.get()
-                        .warning(
-                            NetworkRequestCompat.TAG,
-                            "Ignoring removing default capability '$it'",
-                            ex,
-                        )
-                }
             }
         }
 
@@ -172,4 +202,7 @@ private object NetworkRequest31 {
 @RequiresApi(30)
 internal object NetworkRequest30 {
     fun getNetworkSpecifier(request: NetworkRequest) = request.networkSpecifier
+
+    fun clearCapabilities(requestBuilder: NetworkRequest.Builder) =
+        requestBuilder.clearCapabilities()
 }
