@@ -2817,6 +2817,15 @@ package androidx.car.app.suggestion.model {
 
 }
 
+package androidx.car.app.theme {
+
+  @androidx.car.app.annotations.RequiresCarApi(9) public final class CarAppTheme {
+    field public static final int APP_THEME = 1; // 0x1
+    field public static final int SYSTEM_THEME = 0; // 0x0
+  }
+
+}
+
 package androidx.car.app.validation {
 
   public final class HostValidator {
