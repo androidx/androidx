@@ -73,10 +73,10 @@ public fun Card(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = null,
         containerPainter = null,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = null,
         onLongClickLabel = null,
         enabled = false,
@@ -145,10 +145,10 @@ public fun Card(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ): Unit =
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = null,
         containerPainter = containerPainter,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = null,
         onLongClickLabel = null,
         enabled = false,
@@ -235,23 +235,34 @@ public fun AppCard(
     appImage: @Composable (RowScope.() -> Unit)? = null,
     time: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
-): Unit =
-    AppCardImpl(
-        enabled = false,
-        onClick = null,
-        appName = appName,
-        title = title,
-        modifier = modifier,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = null,
-        transformation = transformation,
-        appImage = appImage,
-        time = time,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = null,
+                onLongClick = null,
+                onLongClickLabel = null,
+                enabled = true,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = null,
+                containerPainter = null,
+                transformation = transformation,
+            )
+        AppCardContent(
+            appName = appName,
+            title = title,
+            modifier = cardModifier,
+            appImage = appImage,
+            time = time,
+            colors = colors,
+            content = content,
+        )
+    }
+}
 
 /**
  * Opinionated Wear Material 3 [Card] that offers a specific layout to show interactive information
@@ -312,25 +323,33 @@ public fun TitleCard(
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     transformation: SurfaceTransformation? = null,
     content: @Composable (() -> Unit)? = null,
-): Unit =
-    CardImpl(
-        onClick = null,
-        containerPainter = null,
-        title = title,
-        modifier = modifier,
-        onLongClick = null,
-        onLongClickLabel = null,
-        time = time,
-        subtitle = subtitle,
-        enabled = false,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = null,
-        transformation = transformation,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = null,
+                onLongClick = null,
+                onLongClickLabel = null,
+                enabled = true,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = null,
+                containerPainter = null,
+                transformation = transformation,
+            )
+        TitleCardContent(
+            title = title,
+            modifier = cardModifier,
+            time = time,
+            subtitle = subtitle,
+            colors = colors,
+            content = content,
+        )
+    }
+}
 
 /**
  * This [TitleCard] overload supports an image container background and provides an opinionated Wear
@@ -403,25 +422,33 @@ public fun TitleCard(
     contentPadding: PaddingValues = CardDefaults.CardWithContainerPainterContentPadding,
     transformation: SurfaceTransformation? = null,
     content: @Composable (() -> Unit)? = null,
-): Unit =
-    CardImpl(
-        onClick = null,
-        containerPainter = containerPainter,
-        title = title,
-        modifier = modifier,
-        onLongClick = null,
-        onLongClickLabel = null,
-        time = time,
-        subtitle = subtitle,
-        enabled = false,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = null,
-        transformation = transformation,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = null,
+                onLongClick = null,
+                onLongClickLabel = null,
+                enabled = true,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = null,
+                containerPainter = containerPainter,
+                transformation = transformation,
+            )
+        TitleCardContent(
+            title = title,
+            modifier = cardModifier,
+            time = time,
+            subtitle = subtitle,
+            colors = colors,
+            content = content,
+        )
+    }
+}
 
 /**
  * Outlined Wear Material 3 [Card] that offers a single slot to take any content.
@@ -468,10 +495,10 @@ public fun OutlinedCard(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = null,
         containerPainter = null,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = null,
         onLongClickLabel = null,
         enabled = false,

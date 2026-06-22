@@ -133,7 +133,7 @@ public fun Button(
     transformation: SurfaceTransformation? = null,
     content: @Composable RowScope.() -> Unit,
 ): Unit =
-    ButtonImpl(
+    SingleSlotButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
@@ -225,7 +225,7 @@ public fun Button(
     transformation: SurfaceTransformation? = null,
     content: @Composable RowScope.() -> Unit,
 ): Unit =
-    ButtonImpl(
+    SingleSlotButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
@@ -313,7 +313,7 @@ public fun FilledTonalButton(
     transformation: SurfaceTransformation? = null,
     content: @Composable RowScope.() -> Unit,
 ): Unit =
-    ButtonImpl(
+    SingleSlotButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
@@ -400,7 +400,7 @@ public fun OutlinedButton(
     transformation: SurfaceTransformation? = null,
     content: @Composable RowScope.() -> Unit,
 ): Unit =
-    ButtonImpl(
+    SingleSlotButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
@@ -486,7 +486,7 @@ public fun ChildButton(
     transformation: SurfaceTransformation? = null,
     content: @Composable RowScope.() -> Unit,
 ): Unit =
-    ButtonImpl(
+    SingleSlotButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
@@ -556,8 +556,8 @@ public fun ChildButton(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -579,7 +579,7 @@ public fun ChildButton(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -598,50 +598,39 @@ public fun Button(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     label: @Composable RowScope.() -> Unit,
-): Unit =
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier.buttonSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        secondaryLabelContent =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled),
-                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                    ),
-                content = secondaryLabel,
-            ),
-        icon = icon,
-        enabled = enabled,
-        shape = shape,
-        labelFont = FilledButtonTokens.LabelFont.value,
-        containerPainter = null,
-        disabledContainerPainter = null,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        labelContent =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled),
-                textStyle = FilledButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                    ),
-                content = label,
-            ),
-    )
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides FilledButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .buttonSizeModifier()
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = null,
+                    disabledContainerPainter = null,
+                )
+        ButtonContent(
+            modifier = buttonModifier,
+            secondaryLabel = secondaryLabel,
+            icon = icon,
+            enabled = enabled,
+            colors = colors,
+            label = label,
+        )
+    }
+}
 
 /**
  * Wear Material3 [Button] that offers parameters for container image backgrounds, with three slots
@@ -681,8 +670,8 @@ public fun Button(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -707,7 +696,7 @@ public fun Button(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -728,50 +717,39 @@ public fun Button(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     label: @Composable RowScope.() -> Unit,
-): Unit =
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier.buttonSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        secondaryLabelContent =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled),
-                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                    ),
-                content = secondaryLabel,
-            ),
-        icon = icon,
-        enabled = enabled,
-        shape = shape,
-        labelFont = OutlinedButtonTokens.LabelFont.value,
-        containerPainter = containerPainter,
-        disabledContainerPainter = disabledContainerPainter,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        labelContent =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled),
-                textStyle = FilledButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                    ),
-                content = label,
-            ),
-    )
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides OutlinedButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .buttonSizeModifier()
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = containerPainter,
+                    disabledContainerPainter = disabledContainerPainter,
+                )
+        ButtonContent(
+            modifier = buttonModifier,
+            secondaryLabel = secondaryLabel,
+            icon = icon,
+            enabled = enabled,
+            colors = colors,
+            label = label,
+        )
+    }
+}
 
 /**
  * Wear Material3 [FilledTonalButton] that offers three slots and a specific layout for an icon,
@@ -816,8 +794,8 @@ public fun Button(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -838,7 +816,7 @@ public fun Button(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -857,50 +835,39 @@ public fun FilledTonalButton(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     label: @Composable RowScope.() -> Unit,
-): Unit =
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier.buttonSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        secondaryLabelContent =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled),
-                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                    ),
-                content = secondaryLabel,
-            ),
-        icon = icon,
-        enabled = enabled,
-        shape = shape,
-        labelFont = FilledTonalButtonTokens.LabelFont.value,
-        containerPainter = null,
-        disabledContainerPainter = null,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        labelContent =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled),
-                textStyle = FilledButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                    ),
-                content = label,
-            ),
-    )
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides FilledTonalButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .buttonSizeModifier()
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = null,
+                    disabledContainerPainter = null,
+                )
+        ButtonContent(
+            modifier = buttonModifier,
+            secondaryLabel = secondaryLabel,
+            icon = icon,
+            enabled = enabled,
+            colors = colors,
+            label = label,
+        )
+    }
+}
 
 /**
  * Wear Material3 [OutlinedButton] that offers three slots and a specific layout for an icon, label
@@ -940,8 +907,8 @@ public fun FilledTonalButton(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -962,7 +929,7 @@ public fun FilledTonalButton(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -981,50 +948,39 @@ public fun OutlinedButton(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     label: @Composable RowScope.() -> Unit,
-): Unit =
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier.buttonSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        secondaryLabelContent =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled),
-                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                    ),
-                content = secondaryLabel,
-            ),
-        icon = icon,
-        enabled = enabled,
-        shape = shape,
-        labelFont = OutlinedButtonTokens.LabelFont.value,
-        containerPainter = null,
-        disabledContainerPainter = null,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        labelContent =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled),
-                textStyle = FilledButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                    ),
-                content = label,
-            ),
-    )
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides OutlinedButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .buttonSizeModifier()
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = null,
+                    disabledContainerPainter = null,
+                )
+        ButtonContent(
+            modifier = buttonModifier,
+            secondaryLabel = secondaryLabel,
+            icon = icon,
+            enabled = enabled,
+            colors = colors,
+            label = label,
+        )
+    }
+}
 
 /**
  * Wear Material3 [ChildButton] that offers three slots and a specific layout for an icon, label and
@@ -1064,8 +1020,8 @@ public fun OutlinedButton(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -1086,7 +1042,7 @@ public fun OutlinedButton(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -1105,50 +1061,39 @@ public fun ChildButton(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     label: @Composable RowScope.() -> Unit,
-): Unit =
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier.buttonSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        secondaryLabelContent =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled),
-                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                    ),
-                content = secondaryLabel,
-            ),
-        icon = icon,
-        enabled = enabled,
-        shape = shape,
-        labelFont = ChildButtonTokens.LabelFont.value,
-        containerPainter = null,
-        disabledContainerPainter = null,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        labelContent =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled),
-                textStyle = FilledButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                    ),
-                content = label,
-            ),
-    )
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides ChildButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .buttonSizeModifier()
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = null,
+                    disabledContainerPainter = null,
+                )
+        ButtonContent(
+            modifier = buttonModifier,
+            secondaryLabel = secondaryLabel,
+            icon = icon,
+            enabled = enabled,
+            colors = colors,
+            label = label,
+        )
+    }
+}
 
 /**
  * A Wear Material3 [CompactButton] that offers two slots and a specific layout for an icon and
@@ -1237,8 +1182,8 @@ public fun ChildButton(
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
  * @param label A slot for providing the button's main label. The contents are expected to be a
- *   single line of text which is "start" aligned if there is an icon preset and "center" aligned if
- *   not.
+ *   single line of text which is "start" aligned if there is an icon present and "center" aligned
+ *   if not.
  */
 // TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
@@ -1257,67 +1202,202 @@ public fun CompactButton(
     transformation: SurfaceTransformation? = null,
     label: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    if (label != null) {
-        ButtonImpl(
-            onClick = onClick,
-            modifier =
-                modifier.compactButtonModifier().padding(CompactButtonDefaults.TapTargetPadding),
-            onLongClick = onLongClick,
-            onLongClickLabel = onLongClickLabel,
-            secondaryLabelContent = null,
-            icon = icon,
-            enabled = enabled,
-            shape = shape,
-            labelFont = CompactButtonTokens.LabelFont.value,
-            containerPainter = null,
-            disabledContainerPainter = null,
-            colors = colors,
-            border = border,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            transformation = transformation,
-            labelContent =
-                provideScopeContent(
-                    contentColor = colors.contentColor(enabled),
-                    textStyle = CompactButtonTokens.LabelFont.value,
-                    textConfiguration =
-                        TextConfiguration(
-                            textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        ),
-                    label,
-                ),
-        )
-    } else {
-        // Icon only compact buttons have their own layout with a specific width and center aligned
-        // content. We use the base simple single slot Button under the covers.
-        ButtonImpl(
-            onClick = onClick,
-            modifier =
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides CompactButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            if (label != null) {
+                modifier
+                    .compactButtonModifier()
+                    .padding(CompactButtonDefaults.TapTargetPadding)
+                    .buttonContainerModifier(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                        onLongClickLabel = onLongClickLabel,
+                        enabled = enabled,
+                        shape = shape,
+                        colors = colors,
+                        border = border,
+                        contentPadding = contentPadding,
+                        interactionSource = interactionSource,
+                        transformation = transformation,
+                        containerPainter = null,
+                        disabledContainerPainter = null,
+                    )
+            } else {
                 modifier
                     .compactButtonModifier()
                     .width(CompactButtonDefaults.IconOnlyWidth)
-                    .padding(CompactButtonDefaults.TapTargetPadding),
-            onLongClick = onLongClick,
-            onLongClickLabel = onLongClickLabel,
+                    .padding(CompactButtonDefaults.TapTargetPadding)
+                    .buttonContainerModifier(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                        onLongClickLabel = onLongClickLabel,
+                        enabled = enabled,
+                        shape = shape,
+                        colors = colors,
+                        border = border,
+                        contentPadding = contentPadding,
+                        interactionSource = interactionSource,
+                        transformation = transformation,
+                        containerPainter = null,
+                        disabledContainerPainter = null,
+                    )
+            }
+        CompactButtonContent(
+            modifier = buttonModifier,
+            icon = icon,
             enabled = enabled,
-            shape = shape,
-            labelFont = CompactButtonTokens.LabelFont.value,
-            containerPainter = null,
-            disabledContainerPainter = null,
             colors = colors,
-            border = border,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            transformation = transformation,
-        ) {
-            // Use a box to fill and center align the icon into the single slot of the
-            // Button
-            Box(modifier = Modifier.fillMaxSize().wrapContentSize(align = Alignment.Center)) {
-                if (icon != null) {
-                    icon()
-                }
+            label = label,
+        )
+    }
+}
+
+/**
+ * Lays out the content of a [Button] with support for an icon, a label, and a secondary label.
+ *
+ * While the standard [Button] overloads provide this layout out-of-the-box, [ButtonContent] can be
+ * used inside the [Button] overload that takes a generic `content` to build custom button layouts
+ * (for example, to wrap the content in a gesture hint indicator like OneHandedGestureIndicator)
+ * while maintaining standard typography, colors, and spacing.
+ *
+ * Example of a [ButtonContent] layout with OneHandedGestureIndicator:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
+ * @param modifier Modifier to be applied to the button content layout.
+ * @param secondaryLabel A slot for providing the button's secondary label. The contents are
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param icon A slot for providing the button's icon. The contents are expected to be a
+ *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
+ *   [ButtonDefaults.LargeIconSize].
+ * @param enabled Controls the enabled state of the button content. When `false`, the content will
+ *   be displayed in a disabled style.
+ * @param colors [ButtonColors] that will be used to resolve the content, secondary content, and
+ *   icon colors in different states. See [ButtonDefaults.buttonColors].
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ */
+@Composable
+public fun ButtonContent(
+    modifier: Modifier = Modifier,
+    secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    label: @Composable RowScope.() -> Unit,
+) {
+    val labelColor = colors.contentColor(enabled)
+    val secondaryLabelColor = colors.secondaryContentColor(enabled)
+    val iconColor = colors.iconColor(enabled)
+
+    val labelFont = FilledButtonTokens.LabelFont.value
+    val secondaryLabelFont = FilledButtonTokens.SecondaryLabelFont.value
+
+    val labelContent =
+        provideScopeContent(
+            contentColor = labelColor,
+            textStyle = labelFont,
+            textConfiguration =
+                TextConfiguration(
+                    textAlign =
+                        if (icon != null || secondaryLabel != null) TextAlign.Start
+                        else TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3,
+                ),
+            content = label,
+        )
+
+    val secondaryLabelContent =
+        provideNullableScopeContent(
+            contentColor = secondaryLabelColor,
+            textStyle = secondaryLabelFont,
+            textConfiguration =
+                TextConfiguration(
+                    textAlign = TextAlign.Start,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                ),
+            content = secondaryLabel,
+        )
+
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (icon != null) {
+            Box(
+                modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                content = provideScopeContent(iconColor, icon),
+            )
+            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+        }
+        Column {
+            Row(content = labelContent)
+            if (secondaryLabelContent != null) {
+                Spacer(modifier = Modifier.size(1.dp))
+                Row(content = secondaryLabelContent)
+            }
+        }
+    }
+}
+
+/**
+ * Lays out the content of a [CompactButton] with support for an icon and a label.
+ *
+ * While the standard [CompactButton] overloads provide this layout out-of-the-box,
+ * [CompactButtonContent] can be used inside the [CompactButton] overload that takes a generic
+ * `content` to build custom button layouts (for example, to wrap the content in a gesture hint
+ * indicator like OneHandedGestureIndicator) while maintaining standard typography, colors, and
+ * spacing.
+ *
+ * Example of a [CompactButtonContent] layout with OneHandedGestureIndicator:
+ *
+ * @sample androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
+ * @param modifier Modifier to be applied to the compact button content layout.
+ * @param icon A slot for providing the button's icon.
+ * @param enabled Controls the enabled state of the button content.
+ * @param colors [ButtonColors] that will be used to resolve the content and icon colors in
+ *   different states. See [ButtonDefaults.buttonColors].
+ * @param label A slot for providing the button's main label.
+ */
+@Composable
+public fun CompactButtonContent(
+    modifier: Modifier = Modifier,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    label: (@Composable RowScope.() -> Unit)? = null,
+) {
+    if (label != null) {
+        Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                    content = provideScopeContent(colors.iconColor(enabled), icon),
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+            }
+            Row(
+                content =
+                    provideScopeContent(
+                        contentColor = colors.contentColor(enabled),
+                        textStyle = CompactButtonTokens.LabelFont.value,
+                        textConfiguration =
+                            TextConfiguration(
+                                textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            ),
+                        content = label,
+                    )
+            )
+        }
+    } else {
+        Box(modifier = modifier.fillMaxSize().wrapContentSize(align = Alignment.Center)) {
+            if (icon != null) {
+                provideScopeContent(colors.iconColor(enabled), icon)()
             }
         }
     }
@@ -2279,15 +2359,12 @@ public class ButtonColors(
 private fun Modifier.buttonSizeModifier(): Modifier =
     this.defaultMinSize(minHeight = ButtonDefaults.Height)
 
-@Composable
-private fun Modifier.compactButtonModifier(): Modifier = this.height(CompactButtonDefaults.Height)
-
 /**
  * Button with label. This allows to use the token values for individual buttons instead of relying
  * on common values.
  */
 @Composable
-private fun ButtonImpl(
+private fun SingleSlotButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
     onLongClick: (() -> Unit)?,
@@ -2304,6 +2381,49 @@ private fun ButtonImpl(
     transformation: SurfaceTransformation?,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val contentColor = colors.contentColor(enabled = enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides labelFont,
+    ) {
+        val containerModifier =
+            modifier.buttonContainerModifier(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
+                enabled = enabled,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                transformation = transformation,
+                containerPainter = containerPainter,
+                disabledContainerPainter = disabledContainerPainter,
+            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = containerModifier,
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun Modifier.buttonContainerModifier(
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
+    onLongClickLabel: String?,
+    enabled: Boolean,
+    shape: Shape,
+    colors: ButtonColors,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+    transformation: SurfaceTransformation?,
+    containerPainter: Painter?,
+    disabledContainerPainter: Painter?,
+): Modifier {
     val painter =
         if (enabled && containerPainter != null) {
             containerPainter
@@ -2312,93 +2432,21 @@ private fun ButtonImpl(
         } else {
             ColorPainter(colors.containerColor(enabled = enabled))
         }
-    val contentColor = colors.contentColor(enabled = enabled)
-
-    CompositionLocalProvider(
-        LocalContentColor provides contentColor,
-        LocalTextStyle provides labelFont,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as buttons have fixed size height but we
-            // want them to be able to fit their content
-            modifier =
-                modifier
-                    .width(intrinsicSize = IntrinsicSize.Max)
-                    .surface(
-                        transformation = transformation,
-                        painter = painter,
-                        shape = shape,
-                        border = border,
-                    )
-                    .combinedClickable(
-                        enabled = enabled,
-                        onClick = onClick,
-                        onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
-                        onLongClickLabel = onLongClickLabel,
-                        role = Role.Button,
-                        indication = ripple(),
-                        interactionSource = interactionSource,
-                    )
-                    .padding(contentPadding),
-            content = content,
+    // Fill the container height but not its width as buttons have fixed size height but we
+    // want them to be able to fit their content
+    return this.width(intrinsicSize = IntrinsicSize.Max)
+        .surface(transformation = transformation, painter = painter, shape = shape, border = border)
+        .combinedClickable(
+            enabled = enabled,
+            onClick = onClick,
+            onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
+            onLongClickLabel = onLongClickLabel,
+            role = Role.Button,
+            indication = ripple(),
+            interactionSource = interactionSource,
         )
-    }
+        .padding(contentPadding)
 }
 
-/**
- * Button with icon, label and secondary label. This allows to use the token values for individual
- * buttons instead of relying on common values.
- */
 @Composable
-private fun ButtonImpl(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    onLongClick: (() -> Unit)?,
-    onLongClickLabel: String?,
-    secondaryLabelContent: (@Composable RowScope.() -> Unit)?,
-    icon: (@Composable BoxScope.() -> Unit)?,
-    enabled: Boolean,
-    shape: Shape,
-    labelFont: TextStyle,
-    containerPainter: Painter?,
-    disabledContainerPainter: Painter?,
-    colors: ButtonColors,
-    border: BorderStroke?,
-    contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource?,
-    transformation: SurfaceTransformation?,
-    labelContent: @Composable RowScope.() -> Unit,
-) {
-    ButtonImpl(
-        onClick = onClick,
-        modifier = modifier,
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        shape = shape,
-        labelFont = labelFont,
-        containerPainter = containerPainter,
-        disabledContainerPainter = disabledContainerPainter,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-    ) {
-        if (icon != null) {
-            Box(
-                modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                content = provideScopeContent(colors.iconColor(enabled), icon),
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        }
-        Column {
-            Row(content = labelContent)
-            if (secondaryLabelContent != null) {
-                Spacer(modifier = Modifier.size(1.dp))
-                Row(content = secondaryLabelContent)
-            }
-        }
-    }
-}
+private fun Modifier.compactButtonModifier(): Modifier = this.height(CompactButtonDefaults.Height)
