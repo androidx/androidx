@@ -66,7 +66,7 @@ fun SliderSegmentedSample() {
         value = value,
         onValueChange = { value = it },
         valueRange = 1f..4f,
-        steps = 7,
+        steps = 2,
         segmented = true,
     )
 }

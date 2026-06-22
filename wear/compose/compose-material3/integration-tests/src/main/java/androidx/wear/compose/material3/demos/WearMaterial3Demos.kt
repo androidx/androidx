@@ -135,6 +135,9 @@ val WearMaterial3Demos =
                     listOf(
                         ComposableDemo("Two buttons") { Centralize { ButtonGroupSample() } },
                         ComposableDemo("ABC") { Centralize { ButtonGroupThreeButtonsSample() } },
+                        ComposableDemo("Two buttons (RTL/LTR)") {
+                            ButtonGroupTwoButtonsWithRtlDemo()
+                        },
                         ComposableDemo("Text And Icon") { ButtonGroupDemo() },
                         ComposableDemo("ToggleButtons") { ButtonGroupToggleButtonsDemo() },
                     ),
