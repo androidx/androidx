@@ -35,7 +35,20 @@ internal class FragmentTracer(private val fragment: Fragment) {
         Tracer.global.trace(
             category = "androidx.fragment",
             name = name,
-            metadataBlock = { addMetadataEntry(name = "fragment", value = fragment.toString()) },
+            metadataBlock = {
+                with(fragment) {
+                    addMetadataEntry("class", javaClass.simpleName)
+                    addMetadataEntry("uuid", mWho)
+
+                    mTag?.let { addMetadataEntry("tag", it) }
+                    activity?.let { addMetadataEntry("activity", it.javaClass.simpleName) }
+
+                    val id = mFragmentId
+                    if (id != 0) {
+                        addMetadataEntry("id", "0x${Integer.toHexString(id)}")
+                    }
+                }
+            },
             block = block::run,
         )
     }
