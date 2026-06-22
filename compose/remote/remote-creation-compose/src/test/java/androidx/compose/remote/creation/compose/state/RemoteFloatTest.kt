@@ -890,12 +890,93 @@ class RemoteFloatTest {
         testTextFromFloat("0.50", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
         testTextFromFloat("(0.50)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
         testTextFromFloat("(50,000.50)", (-50000.50001f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
-        testTextFromFloat("5000000.0", 5000000.rf, DecimalFormat("#0.##"))
+        testTextFromFloat("5000000", 5000000.rf, DecimalFormat("#0.##"))
         testTextFromFloat("050", 50f.rf, DecimalFormat("000"))
 
         //        val indianFormatter = DecimalFormat.getNumberInstance(Locale("hi", "IN")) as
         // DecimalFormat
         //        testTextFromFloat("50,00,000.0", 5000000.rf, indianFormatter)
+    }
+
+    @Test
+    fun textFromFloat_decimalFormat_zeroHash_constantAndNamed() {
+        val formatOptional = DecimalFormat("0.######") // min 0, max 6
+        val formatFixed = DecimalFormat("0.00") // min 2, max 2
+
+        // Constants
+        val c5_0 = RemoteFloat(5.0f).toRemoteString(formatOptional)
+        val c5_1 = RemoteFloat(5.1f).toRemoteString(formatOptional)
+        val c5_12 = RemoteFloat(5.12f).toRemoteString(formatOptional)
+        val c5_123 = RemoteFloat(5.123f).toRemoteString(formatOptional)
+        val c5_1234 = RemoteFloat(5.1234f).toRemoteString(formatOptional)
+
+        // Named (dynamic)
+        val n5_0 = RemoteFloat.createNamedRemoteFloat("n5_0", 5.0f).toRemoteString(formatOptional)
+        val n5_1 = RemoteFloat.createNamedRemoteFloat("n5_1", 5.1f).toRemoteString(formatOptional)
+        val n5_12 =
+            RemoteFloat.createNamedRemoteFloat("n5_12", 5.12f).toRemoteString(formatOptional)
+        val n5_123 =
+            RemoteFloat.createNamedRemoteFloat("n5_123", 5.123f).toRemoteString(formatOptional)
+        val n5_1234 =
+            RemoteFloat.createNamedRemoteFloat("n5_1234", 5.1234f).toRemoteString(formatOptional)
+
+        // Constants
+        val c5_0_fixed = RemoteFloat(5.0f).toRemoteString(formatFixed)
+        val c5_1_fixed = RemoteFloat(5.1f).toRemoteString(formatFixed)
+        val c5_123_fixed = RemoteFloat(5.123f).toRemoteString(formatFixed)
+
+        // Named (dynamic)
+        val n5_0_fixed =
+            RemoteFloat.createNamedRemoteFloat("n5_0_fixed", 5.0f).toRemoteString(formatFixed)
+        val n5_1_fixed =
+            RemoteFloat.createNamedRemoteFloat("n5_1_fixed", 5.1f).toRemoteString(formatFixed)
+        val n5_123_fixed =
+            RemoteFloat.createNamedRemoteFloat("n5_123_fixed", 5.123f).toRemoteString(formatFixed)
+
+        // Get IDs
+        val c5_0_id = c5_0.getIdForCreationState(creationState)
+        val c5_1_id = c5_1.getIdForCreationState(creationState)
+        val c5_12_id = c5_12.getIdForCreationState(creationState)
+        val c5_123_id = c5_123.getIdForCreationState(creationState)
+        val c5_1234_id = c5_1234.getIdForCreationState(creationState)
+
+        val n5_0_id = n5_0.getIdForCreationState(creationState)
+        val n5_1_id = n5_1.getIdForCreationState(creationState)
+        val n5_12_id = n5_12.getIdForCreationState(creationState)
+        val n5_123_id = n5_123.getIdForCreationState(creationState)
+        val n5_1234_id = n5_1234.getIdForCreationState(creationState)
+
+        val c5_0_fixed_id = c5_0_fixed.getIdForCreationState(creationState)
+        val c5_1_fixed_id = c5_1_fixed.getIdForCreationState(creationState)
+        val c5_123_fixed_id = c5_123_fixed.getIdForCreationState(creationState)
+
+        val n5_0_fixed_id = n5_0_fixed.getIdForCreationState(creationState)
+        val n5_1_fixed_id = n5_1_fixed.getIdForCreationState(creationState)
+        val n5_123_fixed_id = n5_123_fixed.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        // Assert optional fraction digits
+        assertThat(context.getText(c5_0_id)).isEqualTo("5")
+        assertThat(context.getText(c5_1_id)).isEqualTo("5.1")
+        assertThat(context.getText(c5_12_id)).isEqualTo("5.12")
+        assertThat(context.getText(c5_123_id)).isEqualTo("5.123")
+        assertThat(context.getText(c5_1234_id)).isEqualTo("5.1234")
+
+        assertThat(context.getText(n5_0_id)).isEqualTo("5")
+        assertThat(context.getText(n5_1_id)).isEqualTo("5.1")
+        assertThat(context.getText(n5_12_id)).isEqualTo("5.12")
+        assertThat(context.getText(n5_123_id)).isEqualTo("5.123")
+        assertThat(context.getText(n5_1234_id)).isEqualTo("5.1234")
+
+        // Assert fixed fraction digits (should keep/pad zeros and round)
+        assertThat(context.getText(c5_0_fixed_id)).isEqualTo("5.00")
+        assertThat(context.getText(c5_1_fixed_id)).isEqualTo("5.10")
+        assertThat(context.getText(c5_123_fixed_id)).isEqualTo("5.12")
+
+        assertThat(context.getText(n5_0_fixed_id)).isEqualTo("5.00")
+        assertThat(context.getText(n5_1_fixed_id)).isEqualTo("5.10")
+        assertThat(context.getText(n5_123_fixed_id)).isEqualTo("5.12")
     }
 
     @Test
