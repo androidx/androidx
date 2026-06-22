@@ -134,7 +134,7 @@ public fun ScreenScaffold(
 ): Unit =
     ScreenScaffold(
         edgeButton = edgeButton,
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         modifier = modifier,
         contentPadding = contentPadding,
         edgeButtonSpacing = edgeButtonSpacing,
@@ -191,7 +191,7 @@ public fun ScreenScaffold(
         modifier = modifier,
         contentPadding = contentPadding,
         timeText = timeText,
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         scrollIndicator = scrollIndicator,
         overscrollEffect = overscrollEffect,
         content = content,
@@ -260,7 +260,7 @@ public fun ScreenScaffold(
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         edgeButton = edgeButton,
         modifier = modifier,
         contentPadding = contentPadding,
@@ -322,7 +322,7 @@ public fun ScreenScaffold(
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         modifier = modifier,
         contentPadding = contentPadding,
         timeText = timeText,
@@ -386,7 +386,7 @@ public fun ScreenScaffold(
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         edgeButton = edgeButton,
         modifier = modifier,
         contentPadding = contentPadding,
@@ -441,7 +441,7 @@ public fun ScreenScaffold(
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         modifier = modifier,
         contentPadding = contentPadding,
         timeText = timeText,
@@ -503,7 +503,7 @@ public fun ScreenScaffold(
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
-        scrollInfoProvider = ScrollInfoProvider(scrollState),
+        scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         modifier = modifier,
         contentPadding = contentPadding,
         timeText = timeText,
