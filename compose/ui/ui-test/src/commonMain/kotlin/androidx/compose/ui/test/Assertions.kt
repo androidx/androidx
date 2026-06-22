@@ -200,11 +200,56 @@ fun SemanticsNodeInteraction.assertContentDescriptionContains(
  * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
  * @see SemanticsProperties.Text
  */
+@Deprecated(
+    message = "Replaced by hasTextExactly that includes the includeInputText parameter",
+    level = DeprecationLevel.HIDDEN,
+)
 fun SemanticsNodeInteraction.assertTextEquals(
     vararg values: String,
     includeEditableText: Boolean = true,
 ): SemanticsNodeInteraction =
     assert(hasTextExactly(*values, includeEditableText = includeEditableText))
+
+/**
+ * Asserts that the node's list of text values contains exactly the given [values] and nothing else.
+ *
+ * By default, this searches in [SemanticsProperties.Text] and [SemanticsProperties.EditableText].
+ * To also evaluate [SemanticsProperties.InputText] (which holds the raw user input of fields like
+ * passwords, bypassing visual transformations), set [includeInputText] to `true`.
+ *
+ * The `Text` property is represented as a list of strings. In the merged semantics tree (the
+ * default in Compose testing), this list often contains multiple text items merged from child
+ * nodes. This function evaluates the entire list.
+ *
+ * The assertion will only pass if the node's list contains all the provided [values], and contains
+ * no additional items. Note that the order of the elements does not matter.
+ *
+ * Typically, accessibility tooling will decide based on its heuristics which ones to use.
+ *
+ * Throws [AssertionError] if the node's text values don't contain all items from [values], or if
+ * the text values contain extra items that are not in [values].
+ *
+ * @sample androidx.compose.ui.test.samples.assertTextEqualsWithInputTextSample
+ * @param values List of values to match (the order does not matter).
+ * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
+ * @param includeInputText Whether to also assert against the un-transformed input text. Defaults to
+ *   false.
+ * @see SemanticsProperties.Text
+ * @see SemanticsProperties.EditableText
+ * @see SemanticsProperties.InputText
+ */
+fun SemanticsNodeInteraction.assertTextEquals(
+    vararg values: String,
+    includeEditableText: Boolean = true,
+    includeInputText: Boolean = false,
+): SemanticsNodeInteraction =
+    assert(
+        hasTextExactly(
+            *values,
+            includeEditableText = includeEditableText,
+            includeInputText = includeInputText,
+        )
+    )
 
 /**
  * Asserts that the node's list of text values contains the given [value].
