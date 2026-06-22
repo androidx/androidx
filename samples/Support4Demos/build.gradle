@@ -12,7 +12,7 @@ plugins {
 dependencies {
     api(libs.jspecify)
     implementation("androidx.core:core:1.17.0")
-    implementation(project(":cursoradapter:cursoradapter"))
+    implementation("androidx.cursoradapter:cursoradapter:1.0.0")
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))

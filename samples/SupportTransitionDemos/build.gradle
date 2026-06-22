@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":transition:transition"))
     implementation(project(":appcompat:appcompat"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":interpolator:interpolator"))
+    implementation("androidx.interpolator:interpolator:1.0.0")
 }
 
 android {
