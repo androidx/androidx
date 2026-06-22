@@ -105,9 +105,6 @@ import kotlinx.coroutines.launch
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
  *
- * Example of a sample ScrollIndicator with Column:
- *
- * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
  * @param state The scrollState to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component - usually set to
  *   `Modifier.align(Alignment.CenterEnd)`.
@@ -162,9 +159,6 @@ public fun ScrollIndicator(
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
  *
- * Example of a sample ScrollIndicator with ScalingLazyColumn:
- *
- * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithSLCSample
  * @param state the [ScalingLazyListState] to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param colors [ScrollIndicatorColors] that will be used to resolve the indicator and track colors
@@ -279,9 +273,6 @@ public fun ScrollIndicator(
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
  *
- * Example of a sample ScrollIndicator with LazyColumn:
- *
- * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithLCSample
  * @param state the [LazyListState] to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param colors [ScrollIndicatorColors] that will be used to resolve the indicator and track colors

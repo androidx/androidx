@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -36,9 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
@@ -48,6 +47,7 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
@@ -59,7 +59,6 @@ import androidx.wear.compose.material3.VerticalPagerScaffold
 import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
 import androidx.wear.compose.material3.samples.ScaffoldSample
-import androidx.wear.compose.material3.samples.ScaffoldWithSLCEdgeButtonSample
 import androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
@@ -69,8 +68,7 @@ import kotlinx.coroutines.launch
 val ScaffoldDemos =
     listOf(
         ComposableDemo("Scaffold Sample") { ScaffoldSample() },
-        ComposableDemo("Screen Scaffold with SLC") { ScaffoldWithSLCEdgeButtonSample() },
-        ComposableDemo("Screen Scaffold Loading SLC") { ScaffoldLoadingSLCEdgeButtonSample() },
+        ComposableDemo("Screen Scaffold Loading TLC") { ScaffoldLoadingTLCEdgeButtonDemo() },
         ComposableDemo("Screen Scaffold with TLC") { ScaffoldWithTLCEdgeButtonSample() },
         ComposableDemo("Screen Scaffold with TLC2") { ScaffoldWithTLCNavigationSample() },
         ComposableDemo("Horizontal Pager Scaffold") {
@@ -184,7 +182,7 @@ fun VerticalPagerScaffoldFadeOutIndicatorDemo() {
 }
 
 @Composable
-fun ScaffoldLoadingSLCEdgeButtonSample() {
+fun ScaffoldLoadingTLCEdgeButtonDemo() {
     // Simulate the loading of the UI's content
     val loaded = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -194,18 +192,28 @@ fun ScaffoldLoadingSLCEdgeButtonSample() {
         }
     }
 
-    val loadedListState = rememberScalingLazyListState()
-    val unLoadedListState = rememberScalingLazyListState()
+    val loadedListState = rememberTransformingLazyColumnState()
+    val unLoadedListState = rememberTransformingLazyColumnState()
 
     val listState = if (loaded.value) loadedListState else unLoadedListState
     ScreenScaffold(scrollState = listState, timeText = { TimeText() }) { contentPadding ->
-        ScalingLazyColumn(
+        TransformingLazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = contentPadding,
         ) {
             if (loaded.value) {
-                items(10) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
+                items(10) {
+                    Button(
+                        onClick = {},
+                        label = { Text("Item ${it + 1}") },
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .fillMaxWidth(),
+                    )
+                }
             } else {
                 item { Text("Loading...") }
             }

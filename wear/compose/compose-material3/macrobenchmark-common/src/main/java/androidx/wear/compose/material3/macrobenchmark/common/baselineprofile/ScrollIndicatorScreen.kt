@@ -19,10 +19,10 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
-import androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
+import androidx.wear.compose.material3.samples.ScrollIndicatorWithTLCSample
 
 val ScrollIndicatorScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
-            get() = { ScrollIndicatorWithColumnSample() }
+            get() = { ScrollIndicatorWithTLCSample() }
     }
