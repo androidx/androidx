@@ -368,6 +368,7 @@ private fun SemanticsConfiguration.isRelatedToAutofill(): Boolean {
         props.contains(SemanticsActions.OnFillData) ||
         props.contains(SemanticsProperties.ContentType) ||
         props.contains(SemanticsProperties.ContentDataType) ||
+        props.contains(SemanticsProperties.HintText) ||
         (Build.VERSION.SDK_INT >= 34 &&
             props.contains(SemanticsPropertiesAndroid.CredentialRequest))
 }

@@ -156,6 +156,9 @@ internal object AutofillApi26Helper {
     fun setFocused(structure: ViewStructure, focused: Boolean) = structure.setFocused(focused)
 
     @RequiresApi(26)
+    fun setHint(structure: ViewStructure, hint: CharSequence) = structure.setHint(hint)
+
+    @RequiresApi(26)
     fun setInputType(structure: ViewStructure, type: Int) = structure.setInputType(type)
 
     @RequiresApi(26)

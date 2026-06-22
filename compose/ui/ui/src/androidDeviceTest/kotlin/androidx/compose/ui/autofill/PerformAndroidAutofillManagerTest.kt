@@ -57,6 +57,7 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.fillableData
 import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.hintText
 import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onFillData
@@ -1771,6 +1772,43 @@ class PerformAndroidAutofillManagerTest {
                         ViewStructure(view) {
                             autofillHints = mutableListOf(HintConstants.AUTOFILL_HINT_USERNAME)
                             dataIsSensitive = false
+                            virtualId = rule.onNodeWithTag(contentTag).semanticsId()
+                        }
+                    )
+                    virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                }
+            )
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun populateViewStructure_hintText() {
+        // Arrange.
+        lateinit var view: View
+        val viewStructure = FakeViewStructure()
+        rule.setContent {
+            view = LocalView.current
+            Box(
+                Modifier.semantics { hintText = "hint-test" }
+                    .size(height, width)
+                    .testTag(contentTag)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
+            view.onProvideAutofillVirtualStructure(viewStructure, 0)
+        }
+
+        // Assert.
+        assertThat(viewStructure)
+            .isEqualTo(
+                ViewStructure(view) {
+                    children.add(
+                        ViewStructure(view) {
+                            hint = "hint-test"
                             virtualId = rule.onNodeWithTag(contentTag).semanticsId()
                         }
                     )
