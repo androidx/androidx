@@ -475,7 +475,6 @@ public fun scaleOut(
  *   transforms. Note: The veil may be clipped if a clip modifier is used on the same layout as the
  *   EnterTransition, even when [matchParentSize] is true.
  */
-@ExperimentalAnimationApi
 @Stable
 public fun unveilIn(
     animationSpec: FiniteAnimationSpec<Color> = spring(stiffness = Spring.StiffnessMediumLow),
@@ -502,7 +501,6 @@ public fun unveilIn(
  *   transforms. Note: The veil may be clipped if a clip modifier is used on the same layout as the
  *   ExitTransition, even when [matchParentSize] is true.
  */
-@ExperimentalAnimationApi
 @Stable
 public fun veilOut(
     animationSpec: FiniteAnimationSpec<Color> = spring(stiffness = Spring.StiffnessMediumLow),

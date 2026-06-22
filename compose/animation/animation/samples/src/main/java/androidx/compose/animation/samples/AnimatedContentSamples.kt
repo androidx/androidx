@@ -23,7 +23,6 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.DeferredAnimatedContent
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.MutableContentTransform
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.DeferredTransitionState
@@ -331,7 +330,6 @@ private enum class NestedMenuState {
     Level3,
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun AnimatedContentVeil() {
