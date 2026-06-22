@@ -757,7 +757,6 @@ class AnimatedVisibilityTest {
             assertThat(boxPosition.x).isGreaterThan(positionAtInterruption.x)
         }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilitySlideAndVeilTest() {
         val testModifier by mutableStateOf(TestModifier())
@@ -802,7 +801,6 @@ class AnimatedVisibilityTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilityVeilInterruptionEnterToExitTest() {
         var visible by mutableStateOf(false)
@@ -856,7 +854,6 @@ class AnimatedVisibilityTest {
         assertThat(veilColor.alpha).isGreaterThan(interruptedColor.alpha)
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilityVeilInterruptionRemoveVeilTest() {
         var visible by mutableStateOf(false)
@@ -909,7 +906,6 @@ class AnimatedVisibilityTest {
         assertThat(veilColor.alpha).isLessThan(interruptedColor.alpha)
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilityVeilNoInterruptionTest() {
         var visible by mutableStateOf(false)
@@ -961,7 +957,6 @@ class AnimatedVisibilityTest {
         assertTrue(disposed)
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun verifyDirectionChangeResetsAccumulatedTransitions() {
         var visible by mutableStateOf(true)

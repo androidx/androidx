@@ -698,7 +698,6 @@ fun AnimateEnterExitPartialContent() {
 }
 
 @Sampled
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedVisibilityVeil() {
     var visible by remember { mutableStateOf(true) }
@@ -715,7 +714,6 @@ fun AnimatedVisibilityVeil() {
 }
 
 @Sampled
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ScaledEnterExit() {
     Column {
