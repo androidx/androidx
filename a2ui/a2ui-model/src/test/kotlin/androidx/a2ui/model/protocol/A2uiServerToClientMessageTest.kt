@@ -20,7 +20,7 @@ import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class A2UiServerToClientMessageTest {
+class A2uiServerToClientMessageTest {
 
     @Test
     fun createSurfaceMessage_allArgumentsProvided_allPropertiesAreStored() {

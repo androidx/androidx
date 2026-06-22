@@ -51,6 +51,10 @@ package androidx.a2ui.engine.model {
     property public java.util.Map<java.lang.String,java.lang.Object?> theme;
   }
 
+  public fun interface A2uiCoreValueResolver {
+    method public Object? resolve(androidx.a2ui.model.protocol.A2uiDataPath path);
+  }
+
 }
 
 package androidx.a2ui.engine.platform {

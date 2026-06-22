@@ -75,6 +75,8 @@ package androidx.a2ui.model.protocol {
 
   public final class A2uiDataPath {
     ctor public A2uiDataPath(String path);
+    method public operator androidx.a2ui.model.protocol.A2uiDataPath div(androidx.a2ui.model.protocol.A2uiDataPath other);
+    method public operator androidx.a2ui.model.protocol.A2uiDataPath div(String other);
     method @InaccessibleFromKotlin public String getNormalizedPath();
     method @InaccessibleFromKotlin public String getPath();
     method @InaccessibleFromKotlin public java.util.List<java.lang.String> getSegments();
