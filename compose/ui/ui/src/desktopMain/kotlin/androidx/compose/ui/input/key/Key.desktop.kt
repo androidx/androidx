@@ -429,7 +429,7 @@ actual value class Key(val keyCode: Long) {
         actual val NumPadAdd = Key(KeyEvent.VK_ADD, KEY_LOCATION_NUMPAD)
 
         /** Numeric keypad '.' key (for decimals or digit grouping). */
-        actual val NumPadDot = Key(KeyEvent.VK_PERIOD, KEY_LOCATION_NUMPAD)
+        actual val NumPadDot = Key(KeyEvent.VK_DECIMAL, KEY_LOCATION_NUMPAD)
 
         /** Numeric keypad ',' key (for decimals or digit grouping). */
         actual val NumPadComma = Key(KeyEvent.VK_COMMA, KEY_LOCATION_NUMPAD)
