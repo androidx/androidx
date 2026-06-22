@@ -34,6 +34,7 @@ import androidx.core.provider.FontsContractCompat
 public class DownloadableTypefaceResolver(
     private val context: Context,
     private val next: TypefaceResolver,
+    private val isBlocking: Boolean = false,
 ) : TypefaceResolver {
 
     private val cache = mutableMapOf<String, FontInstance>()
@@ -100,16 +101,24 @@ public class DownloadableTypefaceResolver(
                     }
                 }
 
+            val timeout = if (isBlocking) 3000 else 0
             val handler = Handler(Looper.getMainLooper())
-            FontsContractCompat.requestFont(
-                context,
-                request,
-                Typeface.NORMAL,
-                false, /* isBlockingFetch */
-                0, /* timeout */
-                handler,
-                callback,
-            )
+            val typeface =
+                FontsContractCompat.requestFont(
+                    context,
+                    request,
+                    Typeface.NORMAL,
+                    isBlocking, /* isBlockingFetch */
+                    timeout, /* timeout */
+                    handler,
+                    callback,
+                )
+
+            if (isBlocking && typeface != null) {
+                val fontInstance = SimpleFontInstance(typeface)
+                cache[key] = fontInstance
+                return fontInstance
+            }
 
             return fontInstance
         }

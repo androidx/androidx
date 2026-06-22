@@ -30,7 +30,11 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.vector.Builder
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.text.font.FontVariation
@@ -173,6 +177,50 @@ class RemoteCanvasScreenshotTest {
                     style = PaintingStyle.Fill
                 }
                 drawPath(path, paint)
+            }
+        }
+    }
+
+    @Test
+    fun remoteCanvas_drawText_customRemoteTypeface() {
+        val width = 400
+        val height = 120
+        val mockContext =
+            createMockContextWithFont(
+                baseContext = context,
+                fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
+            )
+        val resolver =
+            DownloadableTypefaceResolver(
+                context = mockContext,
+                next = FallbackCreateTypefaceResolver(),
+                isBlocking = true,
+            )
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    width,
+                    height,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+            typefaceResolver = resolver,
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
+                val paintDefault = RemotePaint {
+                    typeface = RemoteTypeface.Default
+                    color = Color.White.rc
+                    textSize = 14.rf * remoteDensity.density
+                }
+                val paintInconsolata = RemotePaint {
+                    typeface = RemoteTypeface.create("google:inconsolata")
+                    color = Color.White.rc
+                    textSize = 14f.rf * remoteDensity.density
+                }
+                drawText("Hello Default!".rs, 10f.rf, 40f.rf, paintDefault)
+                drawText("Hello Inconsolata!".rs, 10f.rf, 90f.rf, paintInconsolata)
             }
         }
     }
