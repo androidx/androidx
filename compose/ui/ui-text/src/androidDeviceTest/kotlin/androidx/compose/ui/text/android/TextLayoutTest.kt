@@ -532,6 +532,56 @@ class TextLayoutTest {
         assertThat(canvasInstances.distinct().size).isEqualTo(numThreads)
     }
 
+    @Test
+    fun getLineForOffset_outOfBounds_multiline_doesNotCrash() {
+        val text = "abc\ndef\nghi"
+        val textPaint =
+            TextPaint().apply {
+                this.typeface = sampleTypeface
+                this.textSize = 20f
+            }
+        val textLayout = TextLayout(charSequence = text, width = 100f, textPaint = textPaint)
+
+        assertThat(textLayout.lineCount).isEqualTo(3)
+
+        // Length is 11.
+        // Test offset >= length
+        assertThat(textLayout.getLineForOffset(11)).isEqualTo(2)
+        assertThat(textLayout.getLineForOffset(12)).isEqualTo(2)
+        assertThat(textLayout.getLineForOffset(100)).isEqualTo(2)
+
+        // Test offset <= 0
+        assertThat(textLayout.getLineForOffset(0)).isEqualTo(0)
+        assertThat(textLayout.getLineForOffset(-1)).isEqualTo(0)
+        assertThat(textLayout.getLineForOffset(-100)).isEqualTo(0)
+    }
+
+    @Test
+    fun getLineForOffset_outOfBounds_wrappedLines_doesNotCrash() {
+        val text = "abc def ghi"
+        val textPaint =
+            TextPaint().apply {
+                this.typeface = sampleTypeface
+                this.textSize = 20f
+            }
+        // Use a narrow width (60f) to force "abc def ghi" to wrap into 3 lines
+        val textLayout = TextLayout(charSequence = text, width = 60f, textPaint = textPaint)
+
+        // Ensure it actually wrapped into 3 lines
+        assertThat(textLayout.lineCount).isEqualTo(3)
+
+        // Length is 11.
+        // Test offset >= length
+        assertThat(textLayout.getLineForOffset(11)).isEqualTo(2)
+        assertThat(textLayout.getLineForOffset(12)).isEqualTo(2)
+        assertThat(textLayout.getLineForOffset(100)).isEqualTo(2)
+
+        // Test offset <= 0
+        assertThat(textLayout.getLineForOffset(0)).isEqualTo(0)
+        assertThat(textLayout.getLineForOffset(-1)).isEqualTo(0)
+        assertThat(textLayout.getLineForOffset(-100)).isEqualTo(0)
+    }
+
     private fun TextLayoutWithSmallLineHeight(
         text: CharSequence,
         fontSize: Float,

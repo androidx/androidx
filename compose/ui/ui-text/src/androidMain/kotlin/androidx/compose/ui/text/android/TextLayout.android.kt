@@ -605,6 +605,12 @@ constructor(
 
     fun getLineForOffset(offset: Int): Int {
         if (lineCount <= 0) return 0
+        if (offset >= layout.text.length) {
+            return lineCount - 1
+        }
+        if (offset <= 0) {
+            return 0
+        }
         return layout.getLineForOffset(offset).fastCoerceAtMost(lineCount - 1)
     }
 
