@@ -17,6 +17,8 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -67,6 +69,14 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
             this.height(size)
         } else {
             this.width(size)
+        }
+
+    @Stable
+    fun Modifier.fillMaxCrossAxis() =
+        if (vertical) {
+            this.fillMaxWidth()
+        } else {
+            this.fillMaxHeight()
         }
 
     @Stable

@@ -25,37 +25,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
-import org.junit.Assert
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class ResizingComposeViewTest {
 
-    private var drawLatch = CountDownLatch(1)
     private lateinit var composeView: ComposeView
+    private var layoutHeight = -1
+    private var viewHeight = -1
+
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     @Before
     fun setup() {
         composeView = ComposeView(rule.activity)
     }
-
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
 
     @Test
     fun whenParentIsMeasuringTwiceWithDifferentConstraints() {
@@ -79,13 +76,10 @@ class ResizingComposeViewTest {
             composeView.setContent { ResizingChild(layoutHeight = { height }) }
         }
 
-        awaitDrawAndAssertSizes()
-        rule.runOnUiThread {
-            height = 20
-            drawLatch = CountDownLatch(1)
-        }
+        awaitDrawAndAssertSizes(10)
+        rule.runOnUiThread { height = 20 }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20)
     }
 
     @Test
@@ -97,13 +91,10 @@ class ResizingComposeViewTest {
             composeView.setContent { ResizingChild(layoutHeight = { height }) }
         }
 
-        awaitDrawAndAssertSizes()
-        rule.runOnUiThread {
-            height = 20
-            drawLatch = CountDownLatch(1)
-        }
+        awaitDrawAndAssertSizes(10)
+        rule.runOnUiThread { height = 20 }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20)
     }
 
     @Test
@@ -120,14 +111,13 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(10, viewSize)
         rule.runOnUiThread {
             childHeight = 20
-            drawLatch = CountDownLatch(1)
             parent.requestLayoutCalled = false
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20, viewSize)
         // as the ComposeView is measured with fixed size parent shouldn't be remeasured
         assertThat(parent.requestLayoutCalled).isFalse()
     }
@@ -161,14 +151,13 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(10, parentSize)
         rule.runOnUiThread {
             childHeight = 20
-            drawLatch = CountDownLatch(1)
             parent.requestLayoutCalled = false
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20, parentSize)
         // as the child is not affecting size parent view shouldn't be remeasured
         assertThat(parent.requestLayoutCalled).isFalse()
     }
@@ -197,14 +186,13 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(10, parentSize)
         rule.runOnUiThread {
             childHeight = 20
-            drawLatch = CountDownLatch(1)
             parent.requestLayoutCalled = false
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20, parentSize)
         // as the child is not affecting size parent view shouldn't be remeasured
         assertThat(parent.requestLayoutCalled).isFalse()
     }
@@ -236,13 +224,10 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
-        rule.runOnUiThread {
-            intrinsicsHeight = 20
-            drawLatch = CountDownLatch(1)
-        }
+        awaitDrawAndAssertSizes(10)
+        rule.runOnUiThread { intrinsicsHeight = 20 }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20)
     }
 
     @Test
@@ -261,7 +246,7 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(10)
         // Sometimes there's a stray layout request, so wait until the request is done.
         var isLayoutRequested = false
         do {
@@ -269,7 +254,6 @@ class ResizingComposeViewTest {
                 isLayoutRequested = parent.isLayoutRequested
                 if (!isLayoutRequested) {
                     parent.requestLayoutCalled = false
-                    drawLatch = CountDownLatch(1)
 
                     childHeight = 20
                     remeasurement!!.forceRemeasure()
@@ -277,7 +261,7 @@ class ResizingComposeViewTest {
             }
         } while (isLayoutRequested)
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(20)
 
         rule.runOnUiThread { assertThat(parent.requestLayoutCalled).isTrue() }
     }
@@ -297,7 +281,7 @@ class ResizingComposeViewTest {
             }
         }
 
-        awaitDrawAndAssertSizes()
+        awaitDrawAndAssertSizes(10)
         rule.runOnUiThread {
             parent.requestLayoutCalled = false
 
@@ -307,12 +291,15 @@ class ResizingComposeViewTest {
         }
     }
 
-    private fun awaitDrawAndAssertSizes() {
-        Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        // size assertion is done inside Modifier.drawBehind() which calls countDown() on the latch
-
-        // await for the ui thread to be idle
-        rule.runOnUiThread {}
+    private fun awaitDrawAndAssertSizes(
+        expectedLayoutHeight: Int,
+        expectedViewHeight: Int = expectedLayoutHeight,
+    ) {
+        rule.waitForIdle()
+        assertWithMessage("Layout size is wrong").that(layoutHeight).isEqualTo(expectedLayoutHeight)
+        assertWithMessage("ComposeView size is wrong")
+            .that(viewHeight)
+            .isEqualTo(expectedViewHeight)
     }
 
     @Composable
@@ -324,15 +311,8 @@ class ResizingComposeViewTest {
         Layout(
             {},
             modifier.drawBehind {
-                val expectedLayoutHeight = Snapshot.withoutReadObservation { layoutHeight() }
-                assertWithMessage("Layout size is wrong")
-                    .that(size.height.roundToInt())
-                    .isEqualTo(expectedLayoutHeight)
-                val expectedViewHeight = Snapshot.withoutReadObservation { viewHeight() }
-                assertWithMessage("ComposeView size is wrong")
-                    .that(composeView.measuredHeight)
-                    .isEqualTo(expectedViewHeight)
-                drawLatch.countDown()
+                this@ResizingComposeViewTest.layoutHeight = size.height.roundToInt()
+                this@ResizingComposeViewTest.viewHeight = composeView.measuredHeight
             },
         ) { _, constraints ->
             layout(constraints.maxWidth, layoutHeight()) {}
@@ -344,14 +324,8 @@ class ResizingComposeViewTest {
         Layout(
             {},
             Modifier.drawBehind {
-                val expectedHeight = Snapshot.withoutReadObservation { intrinsicsHeight() }
-                assertWithMessage("Layout size is wrong")
-                    .that(size.height.roundToInt())
-                    .isEqualTo(expectedHeight)
-                assertWithMessage("ComposeView size is wrong")
-                    .that(composeView.measuredHeight)
-                    .isEqualTo(expectedHeight)
-                drawLatch.countDown()
+                this@ResizingComposeViewTest.layoutHeight = size.height.roundToInt()
+                this@ResizingComposeViewTest.viewHeight = composeView.measuredHeight
             },
             object : MeasurePolicy {
                 override fun MeasureScope.measure(

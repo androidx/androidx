@@ -348,9 +348,6 @@ public final class androidx/compose/animation/core/EasingKt {
 	public static final fun getLinearOutSlowInEasing ()Landroidx/compose/animation/core/Easing;
 }
 
-public abstract interface annotation class androidx/compose/animation/core/ExperimentalAnimatableApi : java/lang/annotation/Annotation {
-}
-
 public abstract interface annotation class androidx/compose/animation/core/ExperimentalAnimationSpecApi : java/lang/annotation/Annotation {
 }
 
@@ -691,12 +688,10 @@ public final class androidx/compose/animation/core/TargetBasedAnimation : androi
 	public fun toString ()Ljava/lang/String;
 }
 
-public class androidx/compose/animation/core/Transition {
+public abstract class androidx/compose/animation/core/Transition {
 	public static final field $stable I
-	public fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;)V
-	public synthetic fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;)V
-	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Landroidx/compose/animation/core/Transition;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Landroidx/compose/animation/core/Transition;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getAnimations ()Ljava/util/List;
 	public final fun getCurrentState ()Ljava/lang/Object;
 	public final fun getLabel ()Ljava/lang/String;
@@ -740,6 +735,16 @@ public final class androidx/compose/animation/core/Transition$TransitionAnimatio
 	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
 	public fun getValue ()Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/TransitionInstance : androidx/compose/animation/core/Transition {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/animation/core/TransitionState;Landroidx/compose/animation/core/Transition;Ljava/lang/String;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Landroidx/compose/animation/core/Transition;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public final class androidx/compose/animation/core/TransitionKt {

@@ -26,6 +26,9 @@ import androidx.compose.ui.graphics.Color
  *   layer (where the shared elements and other elements rendered in overlay are rendered).
  * @param multipleMatchesColor The color to indicate a shared element key with multiple matches.
  * @param unmatchedElementColor The color to indicate a shared element key with no matches.
+ * @param inactiveElementColor The color to indicate a shared element is currently inactive. A
+ *   shared element is inactive when it is not currently animating. If the shared element is
+ *   inactive due to having no match, unmatchedElementColor will be shown instead.
  * @param isShowKeyLabelEnabled Boolean specifying whether to print animated element keys.
  */
 @ExperimentalLookaheadAnimationVisualDebugApi
@@ -34,6 +37,7 @@ internal class LookaheadAnimationVisualDebugConfig(
     val overlayColor: Color = Color(0x8034A853),
     val multipleMatchesColor: Color = Color(0xFFEA4335),
     val unmatchedElementColor: Color = Color(0xFF9AA0A6),
+    val inactiveElementColor: Color = Color(0xFF000000),
     val isShowKeyLabelEnabled: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -44,6 +48,7 @@ internal class LookaheadAnimationVisualDebugConfig(
         if (overlayColor != other.overlayColor) return false
         if (multipleMatchesColor != other.multipleMatchesColor) return false
         if (unmatchedElementColor != other.unmatchedElementColor) return false
+        if (inactiveElementColor != other.inactiveElementColor) return false
         if (isShowKeyLabelEnabled != other.isShowKeyLabelEnabled) return false
 
         return true
@@ -54,6 +59,7 @@ internal class LookaheadAnimationVisualDebugConfig(
         result = 31 * result + overlayColor.hashCode()
         result = 31 * result + multipleMatchesColor.hashCode()
         result = 31 * result + unmatchedElementColor.hashCode()
+        result = 31 * result + inactiveElementColor.hashCode()
         result = 31 * result + isShowKeyLabelEnabled.hashCode()
         return result
     }
@@ -63,6 +69,7 @@ internal class LookaheadAnimationVisualDebugConfig(
             "overlayColor=$overlayColor, " +
             "multipleMatchesColor=$multipleMatchesColor, " +
             "unmatchedElementColor=$unmatchedElementColor, " +
+            "inactiveElementColor=$inactiveElementColor, " +
             "isShowKeyLabelEnabled=$isShowKeyLabelEnabled)"
     }
 }

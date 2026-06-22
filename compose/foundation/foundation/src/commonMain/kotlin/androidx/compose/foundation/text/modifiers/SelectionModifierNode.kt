@@ -190,12 +190,14 @@ internal fun SelectionRegistrar.DefaultLongPressDragObserver(
 }
 
 internal fun SelectionRegistrar.DefaultMouseSelectionObserver(
-    selectableIdProvider: () -> Long,
+    selectableIdProvider: (() -> Long)?, // null for selection over empty spaces
     layoutCoordinatesProvider: () -> LayoutCoordinates?,
 ): MouseSelectionObserver {
     return object : MouseSelectionObserver {
-        val selectableId: Long
-            get() = selectableIdProvider()
+        fun shouldProcessSelectionGesture(): Boolean {
+            if (selectableIdProvider == null) return true
+            return hasSelection(selectableIdProvider())
+        }
 
         var lastPosition = Offset.Zero
 
@@ -215,7 +217,7 @@ internal fun SelectionRegistrar.DefaultMouseSelectionObserver(
                     lastPosition = downPosition
                 }
 
-                return hasSelection(selectableId)
+                return shouldProcessSelectionGesture()
             }
             return false
         }
@@ -223,7 +225,7 @@ internal fun SelectionRegistrar.DefaultMouseSelectionObserver(
         override fun onExtendDrag(dragPosition: Offset): Boolean {
             layoutCoordinatesProvider()?.let { layoutCoordinates ->
                 if (!layoutCoordinates.isAttached) return false
-                if (!hasSelection(selectableId)) return false
+                if (!shouldProcessSelectionGesture()) return false
 
                 val consumed =
                     notifySelectionUpdate(
@@ -258,7 +260,7 @@ internal fun SelectionRegistrar.DefaultMouseSelectionObserver(
 
                 lastPosition = downPosition
 
-                return hasSelection(selectableId)
+                return shouldProcessSelectionGesture()
             }
 
             return false
@@ -267,7 +269,7 @@ internal fun SelectionRegistrar.DefaultMouseSelectionObserver(
         override fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean {
             layoutCoordinatesProvider()?.let {
                 if (!it.isAttached) return false
-                if (!hasSelection(selectableId)) return false
+                if (!shouldProcessSelectionGesture()) return false
 
                 val consumed =
                     notifySelectionUpdate(

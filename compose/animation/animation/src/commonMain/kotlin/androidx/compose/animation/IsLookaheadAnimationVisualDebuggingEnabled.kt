@@ -20,5 +20,16 @@ package androidx.compose.animation
  * True by default, but does not turn on animation visual debugging unless content is wrapped with
  * AnimationVisualDebugScope and isEnabled == true in AnimationVisualDebugGlobalConfig. When
  * compiling with R8, this is automatically set to false and all relevant code is stripped out.
+ *
+ * Opt out of stripping by adding the following to their proguard-rules.pro: -assumevalues class
+ * androidx.compose.animation.IsLookaheadAnimationVisualDebuggingEnabledKt { boolean
+ * isLookaheadAnimationVisualDebuggingForceEnabled return true; }
  */
-internal val isLookaheadAnimationVisualDebuggingEnabled: Boolean = true
+internal inline val isLookaheadAnimationVisualDebuggingEnabled: Boolean
+    get() =
+        isLookaheadAnimationVisualDebuggingEnabledDefault ||
+            isLookaheadAnimationVisualDebuggingForceEnabled
+
+internal val isLookaheadAnimationVisualDebuggingEnabledDefault: Boolean = true
+
+internal val isLookaheadAnimationVisualDebuggingForceEnabled: Boolean = false

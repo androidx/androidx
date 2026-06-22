@@ -16,10 +16,14 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.isSelectionHandle
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -32,6 +36,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +45,21 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldSingleLineHeightTest : FocusedWindowTest {
+
+    private var originalFlagValue: Boolean = false
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Before
+    fun setUp() {
+        originalFlagValue = ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled
+        ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled = true
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @After
+    fun tearDown() {
+        ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled = originalFlagValue
+    }
 
     private val TextfieldTag = "textField"
 
@@ -125,5 +146,49 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
         rule.onNodeWithTag(TextfieldTag).performClick()
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+    }
+
+    @Test
+    fun legacy_maxLines1_hasSameHeightAsSingleLine_withTallText() {
+        var reportedSizeMaxLines1: IntSize = IntSize.Zero
+        var reportedSizeSingleLine: IntSize = IntSize.Zero
+        rule.setContent {
+            BasicTextField(
+                value = tallText,
+                onValueChange = {},
+                maxLines = 1,
+                modifier = Modifier.onSizeChanged { reportedSizeMaxLines1 = it },
+            )
+            BasicTextField(
+                value = tallText,
+                onValueChange = {},
+                singleLine = true,
+                modifier = Modifier.onSizeChanged { reportedSizeSingleLine = it },
+            )
+        }
+        rule.waitForIdle()
+        assertThat(reportedSizeMaxLines1.height).isEqualTo(reportedSizeSingleLine.height)
+    }
+
+    @Test
+    fun BTF2_multiLineTextField_maxLines1_hasDifferentHeightThanSingleLine_withTallText() {
+        val stateMultiLine = TextFieldState(tallText)
+        val stateSingleLine = TextFieldState(tallText)
+        var reportedSizeMultiLine: IntSize = IntSize.Zero
+        var reportedSizeSingleLine: IntSize = IntSize.Zero
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = stateMultiLine,
+                lineLimits = TextFieldLineLimits.MultiLine(1, 1),
+                modifier = Modifier.onSizeChanged { reportedSizeMultiLine = it },
+            )
+            BasicTextField(
+                state = stateSingleLine,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.onSizeChanged { reportedSizeSingleLine = it },
+            )
+        }
+        rule.waitForIdle()
+        assertThat(reportedSizeMultiLine.height).isLessThan(reportedSizeSingleLine.height)
     }
 }

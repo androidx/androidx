@@ -20,6 +20,7 @@ package androidx.compose.runtime.snapshots
 
 import androidx.collection.mutableDoubleListOf
 
+@Suppress("TypealiasDefinition")
 public actual typealias SnapshotId = Double
 
 internal actual const val SnapshotIdZero: SnapshotId = 0.0
@@ -47,6 +48,7 @@ public actual inline fun SnapshotId.toInt(): Int = this.toInt()
 
 public actual inline fun SnapshotId.toLong(): Long = this.toLong()
 
+@Suppress("TypealiasDefinition")
 public actual typealias SnapshotIdArray = DoubleArray
 
 internal actual fun snapshotIdArrayWithCapacity(capacity: Int): SnapshotIdArray =

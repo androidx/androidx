@@ -28,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -68,7 +70,22 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+/**
+ * Test for mouse clicks.
+ *
+ * Note: With isDraggableVelocityTrackerFixEnabled = true, events without position changes (like
+ * hover transitions on release, or button presses/releases when other buttons are held) are no
+ * longer skipped by AndroidComposeView. This introduces some seemingly redundant Move events in the
+ * asserted sequences:
+ * 1. Accompanying hover moves (Move with buttons=0) immediately following the last Release.
+ * 2. Button presses/releases when other buttons are held, which are logged as Move events with the
+ *    updated button state (e.g. Press Secondary -> Move with buttons=PrimarySecondary).
+ */
 class ClickTest {
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun expectedMoveEnabled() =
+        ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
         private val positionIn = Offset(1f, 1f)
@@ -92,12 +109,22 @@ class ClickTest {
                 release(MouseButton.Primary)
             },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-                    { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
-                    { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
-                    { verifyMouseEvent(2 * T, Release, false, positionMove1) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Release, false, positionMove1) },
+                        { verifyMouseEvent(2 * T, Move, false, positionMove1) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Release, false, positionMove1) },
+                    )
+                },
         )
 
     @Test
@@ -116,13 +143,24 @@ class ClickTest {
                 release(MouseButton.Primary)
             },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-                    { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
-                    { verifyMouseEvent(2 * T, Exit, true, positionOut, PrimaryButton) },
-                    { verifyMouseEvent(3 * T, Enter, true, positionMove1, PrimaryButton) },
-                    { verifyMouseEvent(3 * T, Release, false, positionMove1) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Exit, true, positionOut, PrimaryButton) },
+                        { verifyMouseEvent(3 * T, Enter, true, positionMove1, PrimaryButton) },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove1) },
+                        { verifyMouseEvent(3 * T, Move, false, positionMove1) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Exit, true, positionOut, PrimaryButton) },
+                        { verifyMouseEvent(3 * T, Enter, true, positionMove1, PrimaryButton) },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove1) },
+                    )
+                },
         )
 
     @Test
@@ -167,18 +205,50 @@ class ClickTest {
                 release(MouseButton.Primary)
             },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-                    { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
-                    { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
-                    // TODO(b/234439423): Expect more events when b/234439423 is fixed
-                    //            { verifyMouseEvent(2 * T, Press, true, positionMove1,
-                    // PrimarySecondaryButton) },
-                    { verifyMouseEvent(3 * T, Move, true, positionMove2, PrimarySecondaryButton) },
-                    //            { verifyMouseEvent(3 * T, Release, true, positionMove2,
-                    // PrimaryButton) },
-                    { verifyMouseEvent(3 * T, Release, false, positionMove2) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                2 * T,
+                                Move,
+                                true,
+                                positionMove1,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        {
+                            verifyMouseEvent(
+                                3 * T,
+                                Move,
+                                true,
+                                positionMove2,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        { verifyMouseEvent(3 * T, Move, true, positionMove2, PrimaryButton) },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove2) },
+                        { verifyMouseEvent(3 * T, Move, false, positionMove2) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                3 * T,
+                                Move,
+                                true,
+                                positionMove2,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove2) },
+                    )
+                },
         )
 
     @Test
@@ -201,18 +271,50 @@ class ClickTest {
                 release(MouseButton.Secondary)
             },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-                    { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
-                    { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
-                    // TODO(b/234439423): Expect more events when b/234439423 is fixed
-                    //            { verifyMouseEvent(2 * T, Press, true, positionMove1,
-                    // PrimarySecondaryButton) },
-                    { verifyMouseEvent(3 * T, Move, true, positionMove2, PrimarySecondaryButton) },
-                    //            { verifyMouseEvent(3 * T, Release, true, positionMove2,
-                    // SecondaryButton) },
-                    { verifyMouseEvent(3 * T, Release, false, positionMove2) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                2 * T,
+                                Move,
+                                true,
+                                positionMove1,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        {
+                            verifyMouseEvent(
+                                3 * T,
+                                Move,
+                                true,
+                                positionMove2,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        { verifyMouseEvent(3 * T, Move, true, positionMove2, SecondaryButton) },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove2) },
+                        { verifyMouseEvent(3 * T, Move, false, positionMove2) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                        { verifyMouseEvent(1 * T, Press, true, positionIn, PrimaryButton) },
+                        { verifyMouseEvent(2 * T, Move, true, positionMove1, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                3 * T,
+                                Move,
+                                true,
+                                positionMove2,
+                                PrimarySecondaryButton,
+                            )
+                        },
+                        { verifyMouseEvent(3 * T, Release, false, positionMove2) },
+                    )
+                },
         )
 
     @Test
@@ -244,12 +346,20 @@ class ClickTest {
         runMouseInputInjectionTest(
             mouseInput = { click() },
             eventVerifiers =
-                arrayOf(
-                    // t = 0, because click() presses immediately
-                    { verifyMouseEvent(0, Enter, false, positionCenter) },
-                    { verifyMouseEvent(0, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(0, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
+                        { verifyMouseEvent(ClickDuration, Move, false, positionCenter) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(0, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
+                    )
+                },
         )
 
     @Test
@@ -257,12 +367,20 @@ class ClickTest {
         runMouseInputInjectionTest(
             mouseInput = { rightClick() },
             eventVerifiers =
-                arrayOf(
-                    // t = 0, because click() presses immediately
-                    { verifyMouseEvent(0, Enter, false, positionCenter) },
-                    { verifyMouseEvent(0, Press, true, positionCenter, SecondaryButton) },
-                    { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(0, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0, Press, true, positionCenter, SecondaryButton) },
+                        { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
+                        { verifyMouseEvent(ClickDuration, Move, false, positionCenter) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(0, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0, Press, true, positionCenter, SecondaryButton) },
+                        { verifyMouseEvent(ClickDuration, Release, false, positionCenter) },
+                    )
+                },
         )
 
     @Test
@@ -276,13 +394,25 @@ class ClickTest {
         runMouseInputInjectionTest(
             mouseInput = { doubleClick() },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(press1, Enter, false, positionCenter) },
-                    { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(release1, Release, false, positionCenter) },
-                    { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(release2, Release, false, positionCenter) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(press1, Enter, false, positionCenter) },
+                        { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release1, Release, false, positionCenter) },
+                        { verifyMouseEvent(release1, Move, false, positionCenter) },
+                        { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release2, Release, false, positionCenter) },
+                        { verifyMouseEvent(release2, Move, false, positionCenter) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(press1, Enter, false, positionCenter) },
+                        { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release1, Release, false, positionCenter) },
+                        { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release2, Release, false, positionCenter) },
+                    )
+                },
         )
     }
 
@@ -299,15 +429,30 @@ class ClickTest {
         runMouseInputInjectionTest(
             mouseInput = { tripleClick() },
             eventVerifiers =
-                arrayOf(
-                    { verifyMouseEvent(press1, Enter, false, positionCenter) },
-                    { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(release1, Release, false, positionCenter) },
-                    { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(release2, Release, false, positionCenter) },
-                    { verifyMouseEvent(press3, Press, true, positionCenter, PrimaryButton) },
-                    { verifyMouseEvent(release3, Release, false, positionCenter) },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(press1, Enter, false, positionCenter) },
+                        { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release1, Release, false, positionCenter) },
+                        { verifyMouseEvent(release1, Move, false, positionCenter) },
+                        { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release2, Release, false, positionCenter) },
+                        { verifyMouseEvent(release2, Move, false, positionCenter) },
+                        { verifyMouseEvent(press3, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release3, Release, false, positionCenter) },
+                        { verifyMouseEvent(release3, Move, false, positionCenter) },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(press1, Enter, false, positionCenter) },
+                        { verifyMouseEvent(press1, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release1, Release, false, positionCenter) },
+                        { verifyMouseEvent(press2, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release2, Release, false, positionCenter) },
+                        { verifyMouseEvent(press3, Press, true, positionCenter, PrimaryButton) },
+                        { verifyMouseEvent(release3, Release, false, positionCenter) },
+                    )
+                },
         )
     }
 
@@ -316,20 +461,41 @@ class ClickTest {
         runMouseInputInjectionTest(
             mouseInput = { longClick() },
             eventVerifiers =
-                arrayOf(
-                    // t = 0, because longClick() presses immediately
-                    { verifyMouseEvent(0L, Enter, false, positionCenter) },
-                    { verifyMouseEvent(0L, Press, true, positionCenter, PrimaryButton) },
-                    // longClick adds 100ms to the minimum required time, just to be sure
-                    {
-                        verifyMouseEvent(
-                            DefaultLongClickTimeMillis + 100,
-                            Release,
-                            false,
-                            positionCenter,
-                        )
-                    },
-                ),
+                if (expectedMoveEnabled()) {
+                    arrayOf(
+                        { verifyMouseEvent(0L, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0L, Press, true, positionCenter, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                DefaultLongClickTimeMillis + 100,
+                                Release,
+                                false,
+                                positionCenter,
+                            )
+                        },
+                        {
+                            verifyMouseEvent(
+                                DefaultLongClickTimeMillis + 100,
+                                Move,
+                                false,
+                                positionCenter,
+                            )
+                        },
+                    )
+                } else {
+                    arrayOf(
+                        { verifyMouseEvent(0L, Enter, false, positionCenter) },
+                        { verifyMouseEvent(0L, Press, true, positionCenter, PrimaryButton) },
+                        {
+                            verifyMouseEvent(
+                                DefaultLongClickTimeMillis + 100,
+                                Release,
+                                false,
+                                positionCenter,
+                            )
+                        },
+                    )
+                },
         )
 
     // Rather than checking the events sent on, for this more complex mouse gesture we

@@ -485,6 +485,8 @@ internal const val UNASSIGNED_SLOT = -1
  *   [previousHandlePosition] (because to do that, the "previous" layout coordinates are needed, but
  *   are not available).
  * @param selectableIdOrderingComparator determines the ordering of selectables by their IDs
+ * @param allowSelectionBetweenSelectables whether selection in the "empty" area where there are no
+ *   selectables is allowed.
  */
 internal class SelectionLayoutBuilder(
     val currentPosition: Offset,
@@ -494,6 +496,7 @@ internal class SelectionLayoutBuilder(
     val previousSelection: Selection?,
     val previousLayout: SelectionLayout?,
     val selectableIdOrderingComparator: Comparator<Long>,
+    val allowSelectionBetweenSelectables: Boolean = false,
 ) {
     private val selectableIdToInfoListIndex: MutableLongIntMap = mutableLongIntMapOf()
     private val infoList: MutableList<SelectableInfo> = mutableListOf()

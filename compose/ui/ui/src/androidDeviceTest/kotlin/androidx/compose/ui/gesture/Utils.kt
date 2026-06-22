@@ -21,18 +21,6 @@ import android.view.MotionEvent.AXIS_HSCROLL
 import android.view.MotionEvent.AXIS_VSCROLL
 import android.view.View
 
-// We only need this because IR compiler doesn't like converting lambdas to Runnables
-@Suppress("DEPRECATION")
-internal fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
-    val runnable: Runnable =
-        object : Runnable {
-            override fun run() {
-                block()
-            }
-        }
-    runOnUiThread(runnable)
-}
-
 /**
  * Creates a simple [MotionEvent].
  *

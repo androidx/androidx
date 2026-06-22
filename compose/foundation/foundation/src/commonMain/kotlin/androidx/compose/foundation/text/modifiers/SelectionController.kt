@@ -28,7 +28,6 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.hasSelection
-import androidx.compose.runtime.RememberObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -78,9 +77,10 @@ internal class SelectionController(
     private val selectableId: Long,
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
+) {
     // TODO: Move these into Modifier.element eventually
-    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty,
-) : RememberObserver {
+    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
+
     private var selectable: Selectable? = null
 
     private val bringIntoViewRequester = BringIntoViewRequester()
@@ -94,7 +94,7 @@ internal class SelectionController(
             .bringIntoViewRequester(bringIntoViewRequester)
             .pointerHoverIcon(PointerIcon.Text)
 
-    override fun onRemembered() {
+    fun onPlaced() {
         selectable =
             selectionRegistrar.subscribe(
                 MultiWidgetSelectionDelegate(
@@ -107,15 +107,7 @@ internal class SelectionController(
             )
     }
 
-    override fun onForgotten() {
-        val localSelectable = selectable
-        if (localSelectable != null) {
-            selectionRegistrar.unsubscribe(localSelectable)
-            selectable = null
-        }
-    }
-
-    override fun onAbandoned() {
+    fun onUnplaced() {
         val localSelectable = selectable
         if (localSelectable != null) {
             selectionRegistrar.unsubscribe(localSelectable)
@@ -138,7 +130,7 @@ internal class SelectionController(
         params = params.copy(textLayoutResult = textLayoutResult)
     }
 
-    fun updateGlobalPosition(coordinates: LayoutCoordinates) {
+    fun updateLayoutCoordinates(coordinates: LayoutCoordinates) {
         params = params.copy(layoutCoordinates = coordinates)
         selectionRegistrar.notifyPositionChange(selectableId)
     }

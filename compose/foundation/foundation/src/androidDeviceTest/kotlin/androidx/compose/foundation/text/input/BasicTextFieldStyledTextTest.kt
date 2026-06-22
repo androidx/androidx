@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -254,12 +253,12 @@ internal class BasicTextFieldStyledTextTest {
         rule.onNodeWithTag(tag).performTextInput(" World!")
 
         assertThat(state.text.toString()).isEqualTo("Hello World!")
-        val styles = state.textStyles.getSpanStyles(0, 12)
+        val styles = state.textStyles.getSpanStyles(TextRange(0, 12))
         assertThat(styles.size).isEqualTo(1)
         assertThat(styles[0].item).isEqualTo(boldStyle)
         assertThat(styles[0].start).isEqualTo(0)
         assertThat(styles[0].end).isEqualTo(12)
-        assertThat(state.textStyles.getParagraphStyles(0, 12)).isEmpty()
+        assertThat(state.textStyles.getParagraphStyles(TextRange(0, 12))).isEmpty()
     }
 
     @Test
@@ -283,7 +282,7 @@ internal class BasicTextFieldStyledTextTest {
         assertThat(textLayoutResult.layoutInput.text.toString()).isEqualTo("Hello World!")
 
         assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.textStyles.getSpanStyles(0, 5)).isEmpty()
+        assertThat(state.textStyles.getSpanStyles(TextRange(0, 5))).isEmpty()
     }
 
     @Test
@@ -303,7 +302,7 @@ internal class BasicTextFieldStyledTextTest {
         assertThat(textLayoutResult.layoutInput.text.spanStyles[0].end).isEqualTo(5)
 
         state.edit {
-            val trackedRange = getSpanStyles(0, length)[0]
+            val trackedRange = getSpanStyles(TextRange(0, length))[0]
             trackedRange.spanStyle = italicStyle
             trackedRange.textRange = TextRange(6, 11)
         }
@@ -329,7 +328,7 @@ internal class BasicTextFieldStyledTextTest {
         assertThat(textLayoutResult.layoutInput.text.spanStyles.size).isEqualTo(1)
 
         state.edit {
-            val trackedRange = getSpanStyles(0, length)[0]
+            val trackedRange = getSpanStyles(TextRange(0, length))[0]
             removeStyle(trackedRange)
         }
 
@@ -346,18 +345,19 @@ internal class BasicTextFieldStyledTextTest {
 
         state.edit {
             leakedTrackedRange = addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd)
-            assertThat(leakedTrackedRange.valid).isTrue()
+            assertThat(leakedTrackedRange.isValid).isTrue()
         }
 
         state.edit {
             // TrackedRange leaked from previous block is not valid in this block
-            assertThat(leakedTrackedRange!!.valid).isFalse()
+            assertThat(leakedTrackedRange!!.isValid).isFalse()
 
-            // And any attempt to access or modify it throws an exception
-            assertFailsWith<IllegalArgumentException> {
-                leakedTrackedRange.textRange = TextRange(0, 10)
-            }
-            assertFailsWith<IllegalArgumentException> { leakedTrackedRange.textRange }
+            // And any attempt to modify it is a no-op, and accessing properties returns empty
+            // defaults
+            leakedTrackedRange.textRange = TextRange(0, 10)
+            assertThat(leakedTrackedRange.textRange).isEqualTo(TextRange.Zero)
+            assertThat(leakedTrackedRange.spanStyle).isEqualTo(SpanStyle())
+            assertThat(leakedTrackedRange.expandPolicy).isEqualTo(ExpandPolicy.InsideOnly)
         }
     }
 
@@ -372,7 +372,7 @@ internal class BasicTextFieldStyledTextTest {
             // Initial state
             assertThat(trackedRange.textRange).isEqualTo(TextRange(0, 5))
             assertThat(trackedRange.expandPolicy).isEqualTo(ExpandPolicy.AtEnd)
-            assertThat(trackedRange.valid).isTrue()
+            assertThat(trackedRange.isValid).isTrue()
 
             // Modification expands range
             insert(2, "xx")
@@ -380,7 +380,7 @@ internal class BasicTextFieldStyledTextTest {
 
             // Delete text completely removes range
             delete(0, 7)
-            assertThat(trackedRange.valid).isFalse()
+            assertThat(trackedRange.isValid).isFalse()
         }
     }
 

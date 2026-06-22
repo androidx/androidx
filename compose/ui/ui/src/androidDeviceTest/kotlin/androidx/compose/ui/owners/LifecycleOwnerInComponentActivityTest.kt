@@ -17,17 +17,14 @@
 package androidx.compose.ui.owners
 
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,48 +32,29 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class LifecycleOwnerInComponentActivityTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityTestRule =
-        androidx.test.rule.ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
-    private lateinit var activity: ComponentActivity
-
-    @Before
-    fun setup() {
-        activity = activityTestRule.activity
-    }
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     @Test
     fun lifecycleOwnerIsAvailable() {
-        val latch = CountDownLatch(1)
         var owner: LifecycleOwner? = null
 
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                owner = LocalLifecycleOwner.current
-                latch.countDown()
-            }
-        }
+        rule.setContent { owner = LocalLifecycleOwner.current }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(activity, owner)
+        rule.waitForIdle()
+        assertEquals(rule.activity, owner)
     }
 
     @Test
     fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
-        val latch = CountDownLatch(1)
         var owner: LifecycleOwner? = null
 
-        activityTestRule.runOnUiThread {
-            val view = ComposeView(activity)
-            activity.setContentView(view)
-            view.setContent {
-                owner = LocalLifecycleOwner.current
-                latch.countDown()
-            }
+        rule.runOnUiThread {
+            val view = ComposeView(rule.activity)
+            rule.activity.setContentView(view)
+            view.setContent { owner = LocalLifecycleOwner.current }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(activity, owner)
+        rule.waitForIdle()
+        assertEquals(rule.activity, owner)
     }
 }

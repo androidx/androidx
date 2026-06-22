@@ -875,11 +875,25 @@ private constructor(
     )
 }
 
+// Cache default spring parameters to reduce allocations for the default case.
+private object DefaultSpringAnimations : Animations {
+    private val anim = FloatSpringSpec(Spring.DampingRatioNoBouncy, Spring.StiffnessMedium)
+
+    override fun get(index: Int): FloatSpringSpec = anim
+}
+
 private fun <V : AnimationVector> createSpringAnimations(
     visibilityThreshold: V?,
     dampingRatio: Float,
     stiffness: Float,
 ): Animations {
+    if (
+        visibilityThreshold == null &&
+            dampingRatio == Spring.DampingRatioNoBouncy &&
+            stiffness == Spring.StiffnessMedium
+    ) {
+        return DefaultSpringAnimations
+    }
     return if (visibilityThreshold != null) {
         object : Animations {
             private val anims =

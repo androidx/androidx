@@ -407,9 +407,13 @@ class CombinedModifier(internal val outer: Modifier, internal val inner: Modifie
     override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
 
     override fun toString() =
-        "[" +
-            foldIn("") { acc, element ->
-                if (acc.isEmpty()) element.toString() else "$acc, $element"
-            } +
-            "]"
+        foldIn(
+                StringBuilder("["),
+                { acc, element ->
+                    if (acc.length > 1) acc.append(", ")
+                    acc.append(element)
+                },
+            )
+            .append("]")
+            .toString()
 }

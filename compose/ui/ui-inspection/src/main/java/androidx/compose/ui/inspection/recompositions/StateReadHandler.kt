@@ -233,6 +233,7 @@ internal class StateReadHandler(
 
     override fun dispose() {
         super.dispose()
+        stopObservingStateReads()
         scope.cancel()
     }
 

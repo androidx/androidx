@@ -39,10 +39,6 @@ androidXMultiplatform {
         compileSdk = 35
         namespace = "androidx.compose.ui.text"
         androidResources.enable = true
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     desktop()
     mac()

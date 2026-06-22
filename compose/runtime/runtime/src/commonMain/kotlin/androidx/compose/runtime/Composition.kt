@@ -28,7 +28,6 @@ import androidx.compose.runtime.composer.DebugStringFormattable
 import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
-import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
 import androidx.compose.runtime.composer.linkbuffer.asLinkBufferSlotTable
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
@@ -680,6 +679,10 @@ internal class CompositionImpl(
      */
     var composable: @Composable () -> Unit = {}
 
+    @get:TestOnly
+    internal val processedObservationCount
+        get() = observationsProcessed.size
+
     override val isComposing: Boolean
         get() = composer.isComposing
 
@@ -954,6 +957,12 @@ internal class CompositionImpl(
                         dispatchAbandons()
                     }
                 }
+
+                // Clear pending observation scopes that may still be pending. This will occur
+                // if the composition was composed with forward writes but change notifications for
+                // those writes are still pending when it was disposed().
+                observationsProcessed.clear()
+
                 composer.dispose()
             }
         }
@@ -1138,7 +1147,11 @@ internal class CompositionImpl(
         observations.forEachScopeOf(value) { scope ->
             if (scope.invalidateForResult(value) == InvalidationResult.IMMINENT) {
                 // If we process this during recordWriteOf, ignore it when recording modifications
-                observationsProcessed.add(value, scope)
+                // We ignore DerivedState<*> as it will never be sent as an invalidation; only
+                // the objects it reads will.
+                if (value !is DerivedState<*>) {
+                    observationsProcessed.add(value, scope)
+                }
             }
         }
     }

@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionServiceKey
 import androidx.compose.runtime.CompositionServices
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.ui.R
 import androidx.compose.ui.node.LayoutNode
@@ -121,6 +122,8 @@ private class WrappedComposition(val owner: AndroidComposeView, val original: Co
                     }
                 } else if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     original.setContent {
+                        LaunchedEffect(owner) { owner.boundsUpdatesAccessibilityEventLoop() }
+                        LaunchedEffect(owner) { owner.boundsUpdatesContentCaptureEventLoop() }
                         composeViewContext.ProvideCompositionLocals(owner, content)
                     }
                 }
@@ -134,6 +137,7 @@ private class WrappedComposition(val owner: AndroidComposeView, val original: Co
             owner.view.setTag(R.id.wrapped_composition_tag, null)
             addedToLifecycle?.removeObserver(this)
             addedToLifecycle = null
+            owner.disposeSavedStateRegistry()
         }
         original.dispose()
     }

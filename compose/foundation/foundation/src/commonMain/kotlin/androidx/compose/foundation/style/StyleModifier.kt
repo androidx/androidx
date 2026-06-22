@@ -29,7 +29,6 @@ import androidx.compose.foundation.text.modifiers.TextStyleProviderNode
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -70,15 +69,21 @@ import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.node.updateLayerBlock
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.isSpecified
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
-import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -1012,8 +1017,93 @@ internal class StyleInnerNode : Modifier.Node(), LayoutModifierNode {
     }
 }
 
-private inline val Float.isSpecified: Boolean
-    get() = !isNaN()
+private inline fun StyleProperties.suppliedOrHas(
+    value: Color,
+    propertyId: Byte,
+    read: StyleProperties.() -> Color,
+): Color =
+    when {
+        value.isSpecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun StyleProperties.suppliedOrHas(
+    value: TextUnit,
+    propertyId: Byte,
+    read: StyleProperties.() -> TextUnit,
+): TextUnit =
+    when {
+        value.isSpecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun StyleProperties.suppliedOrHas(
+    value: TextAlign,
+    propertyId: Byte,
+    read: StyleProperties.() -> TextAlign,
+): TextAlign =
+    when {
+        value != TextAlign.Unspecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun StyleProperties.suppliedOrHas(
+    value: TextDirection,
+    propertyId: Byte,
+    read: StyleProperties.() -> TextDirection,
+): TextDirection =
+    when {
+        value.isSpecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun StyleProperties.suppliedOrHas(
+    value: LineBreak,
+    propertyId: Byte,
+    read: StyleProperties.() -> LineBreak,
+): LineBreak =
+    when {
+        value.isSpecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun StyleProperties.suppliedOrHas(
+    value: Hyphens,
+    propertyId: Byte,
+    read: StyleProperties.() -> Hyphens,
+): Hyphens =
+    when {
+        value.isSpecified -> value
+        hasId(propertyId) -> read()
+        else -> value
+    }
+
+private inline fun <T> StyleProperties.suppliedOrHas(
+    value: T?,
+    propertyId: Byte,
+    read: StyleProperties.() -> T?,
+): T? =
+    when {
+        value != null -> value
+        hasId(propertyId) -> read()
+        else -> null
+    }
+
+private inline fun <T> StyleProperties.suppliedOrHas(
+    value: T?,
+    propertyId: Int,
+    read: StyleProperties.() -> T?,
+): T? =
+    when {
+        value != null -> value
+        hasId(propertyId) -> read()
+        else -> null
+    }
 
 private inline fun <T> StyleProperties.hasOrElse(
     propertyId: Byte,
@@ -1048,9 +1138,6 @@ private inline fun addMaxWithMinimum(max: Int, value: Int): Int {
     }
 }
 
-private operator fun CornerRadius.minus(value: Float): CornerRadius =
-    CornerRadius(max(0f, x - value), max(0f, y - value))
-
 private fun StylePhase.toFlags(): Int =
     when (this) {
         StylePhase.Layout -> TextLayoutFlag
@@ -1062,33 +1149,44 @@ private fun StyleProperties.shouldPlaceRelativeToRight() = !hasId(LeftId) && has
 
 private fun StyleProperties.shouldPlaceRelativeToBottom() = hasId(BottomId) && !hasId(TopId)
 
-private fun StyleProperties.toTextStyle(fallback: TextStyle): TextStyle {
+internal fun StyleProperties.toTextStyle(supplied: TextStyle): TextStyle {
     return TextStyle(
-            color = hasOrElse(ContentColorId, fallback.color) { contentColor },
-            fontSize = hasOrElse(FontSizeId, fallback.fontSize) { fontSize },
-            fontWeight = hasOrElse(FontWeightId, fallback.fontWeight) { fontWeight },
-            fontStyle = hasOrElse(FontStyleId, fallback.fontStyle) { fontStyle },
-            fontSynthesis = hasOrElse(FontSynthesisId, fallback.fontSynthesis) { fontSynthesis },
-            fontFamily = hasOrElse(FontFamilyId, fallback.fontFamily) { fontFamily },
-            fontFeatureSettings = fallback.fontFeatureSettings,
-            letterSpacing = hasOrElse(LetterSpacingId, fallback.letterSpacing) { letterSpacing },
-            baselineShift = hasOrElse(BaselineShiftId, fallback.baselineShift) { baselineShift },
-            textGeometricTransform = fallback.textGeometricTransform,
-            localeList = fallback.localeList,
-            background = fallback.background,
+            color = suppliedOrHas(supplied.color, ContentColorId) { contentColor },
+            fontSize = suppliedOrHas(supplied.fontSize, FontSizeId) { fontSize },
+            fontWeight = suppliedOrHas(supplied.fontWeight, FontWeightId) { fontWeight },
+            fontStyle = suppliedOrHas(supplied.fontStyle, FontStyleId) { fontStyle },
+            fontSynthesis =
+                suppliedOrHas(supplied.fontSynthesis, FontSynthesisId) { fontSynthesis },
+            fontFamily = suppliedOrHas(supplied.fontFamily, FontFamilyId) { fontFamily },
+            fontFeatureSettings = supplied.fontFeatureSettings,
+            letterSpacing =
+                suppliedOrHas(supplied.letterSpacing, LetterSpacingId) { letterSpacing },
+            baselineShift =
+                suppliedOrHas(supplied.baselineShift, BaselineShiftId) { baselineShift },
+            textGeometricTransform = supplied.textGeometricTransform,
+            localeList = supplied.localeList,
+            background = supplied.background,
             textDecoration =
-                hasOrElse(TextDecorationId, fallback.textDecoration) { textDecoration },
-            shadow = fallback.shadow,
-            drawStyle = fallback.drawStyle,
-            textAlign = hasOrElse(TextAlignId, fallback.textAlign) { textAlign },
-            textDirection = hasOrElse(TextDirectionId, fallback.textDirection) { textDirection },
-            lineHeight = hasOrElse(LineHeightId, fallback.lineHeight) { lineHeight },
-            textIndent = hasOrElse(TextIndentId, fallback.textIndent) { textIndent },
-            platformStyle = fallback.platformStyle,
-            lineHeightStyle = fallback.lineHeightStyle,
-            lineBreak = hasOrElse(LineBreakId, fallback.lineBreak) { lineBreak },
-            hyphens = hasOrElse(HyphensId, fallback.hyphens) { hyphens },
-            textMotion = hasOrElse(TextMotionId, fallback.textMotion) { textMotion },
+                suppliedOrHas(supplied.textDecoration, TextDecorationId) { textDecoration },
+            shadow = supplied.shadow,
+            drawStyle = supplied.drawStyle,
+            textAlign = suppliedOrHas(supplied.textAlign, TextAlignId) { textAlign },
+            textDirection =
+                suppliedOrHas(supplied.textDirection, TextDirectionId) { textDirection },
+            lineHeight = suppliedOrHas(supplied.lineHeight, LineHeightId) { lineHeight },
+            textIndent = suppliedOrHas(supplied.textIndent, TextIndentId) { textIndent },
+            platformStyle = supplied.platformStyle,
+            lineHeightStyle = supplied.lineHeightStyle,
+            lineBreak = suppliedOrHas(supplied.lineBreak, LineBreakId) { lineBreak },
+            hyphens = suppliedOrHas(supplied.hyphens, HyphensId) { hyphens },
+            textMotion = suppliedOrHas(supplied.textMotion, TextMotionId) { textMotion },
         )
-        .let { if (hasId(ContentBrushId)) it.copy(brush = contentBrush) else it }
+        .let {
+            when {
+                supplied.color.isSpecified -> it
+                supplied.brush != null -> it.copy(brush = supplied.brush)
+                hasId(ContentBrushId) -> it.copy(brush = contentBrush)
+                else -> it
+            }
+        }
 }

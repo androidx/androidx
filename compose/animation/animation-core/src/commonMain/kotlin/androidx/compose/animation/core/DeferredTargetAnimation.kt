@@ -22,12 +22,6 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@RequiresOptIn(
-    message = "This is an experimental animation API for Transition. It may change in the future."
-)
-@Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalAnimatableApi
-
 /**
  * [DeferredTargetAnimation] is intended for animations where the target is unknown at the time of
  * instantiation. Such use cases include, but are not limited to, size or position animations

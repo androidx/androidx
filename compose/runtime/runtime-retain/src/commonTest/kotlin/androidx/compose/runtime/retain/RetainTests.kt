@@ -59,6 +59,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.runTest
 import kotlinx.test.IgnoreWebTarget
 
 class RetainTests {
@@ -994,10 +995,8 @@ class RetainTests {
         }
     }
 
-    // Ignore JS targets: b/444012850
-    @IgnoreWebTarget
     @Test
-    fun abandonCompositionTest_linkComposer() {
+    fun abandonCompositionTest_linkComposer() = runTest {
         var failComposition by mutableStateOf(false)
         val store1 = ManagedRetainedValuesStore()
         val store2 = ManagedRetainedValuesStore()
@@ -1005,37 +1004,43 @@ class RetainTests {
 
         try {
             compositionTest(composerToUse = ComposerToUse.Link) {
-                compose {
-                    LocalRetainedValuesStoreProvider(store1) {
-                        retain<LoggingRetainObject> { LoggingRetainObject("A", events) }
+                    compose {
+                        LocalRetainedValuesStoreProvider(store1) {
+                            retain<LoggingRetainObject> { LoggingRetainObject("A", events) }
+                            if (failComposition) {
+                                retain<LoggingRetainObject> { LoggingRetainObject("B", events) }
+                            }
+                        }
+
+                        LocalRetainedValuesStoreProvider(store2) {
+                            retain<LoggingRetainObject> { LoggingRetainObject("C", events) }
+                            if (failComposition) {
+                                retain<LoggingRetainObject> { LoggingRetainObject("D", events) }
+                            }
+                        }
+
                         if (failComposition) {
-                            retain<LoggingRetainObject> { LoggingRetainObject("B", events) }
+                            events += "throw"
+                            throw RuntimeException("Abandoning composition")
                         }
                     }
 
-                    LocalRetainedValuesStoreProvider(store2) {
-                        retain<LoggingRetainObject> { LoggingRetainObject("C", events) }
-                        if (failComposition) {
-                            retain<LoggingRetainObject> { LoggingRetainObject("D", events) }
-                        }
-                    }
-
-                    if (failComposition) {
-                        events += "throw"
-                        throw RuntimeException("Abandoning composition")
-                    }
+                    assertContentEquals(
+                        listOf(
+                            "Retain(A)",
+                            "EnterComposition(A)",
+                            "Retain(C)",
+                            "EnterComposition(C)",
+                        ),
+                        events,
+                    )
+                    failComposition = true
+                    events += "recompose"
+                    try {
+                        advance()
+                    } catch (_: Throwable) {}
                 }
-
-                assertContentEquals(
-                    listOf("Retain(A)", "EnterComposition(A)", "Retain(C)", "EnterComposition(C)"),
-                    events,
-                )
-                failComposition = true
-                events += "recompose"
-                try {
-                    advance()
-                } catch (_: Throwable) {}
-            }
+                .await()
         } catch (t: Throwable) {
             if (!failComposition) throw t
         }
@@ -1070,10 +1075,8 @@ class RetainTests {
         }
     }
 
-    // Ignore JS targets: b/444012850
-    @IgnoreWebTarget
     @Test
-    fun abandonCompositionTest_gapComposer() {
+    fun abandonCompositionTest_gapComposer() = runTest {
         var failComposition by mutableStateOf(false)
         val store1 = ManagedRetainedValuesStore()
         val store2 = ManagedRetainedValuesStore()
@@ -1081,37 +1084,43 @@ class RetainTests {
 
         try {
             compositionTest(composerToUse = ComposerToUse.Gap) {
-                compose {
-                    LocalRetainedValuesStoreProvider(store1) {
-                        retain<LoggingRetainObject> { LoggingRetainObject("A", events) }
+                    compose {
+                        LocalRetainedValuesStoreProvider(store1) {
+                            retain<LoggingRetainObject> { LoggingRetainObject("A", events) }
+                            if (failComposition) {
+                                retain<LoggingRetainObject> { LoggingRetainObject("B", events) }
+                            }
+                        }
+
+                        LocalRetainedValuesStoreProvider(store2) {
+                            retain<LoggingRetainObject> { LoggingRetainObject("C", events) }
+                            if (failComposition) {
+                                retain<LoggingRetainObject> { LoggingRetainObject("D", events) }
+                            }
+                        }
+
                         if (failComposition) {
-                            retain<LoggingRetainObject> { LoggingRetainObject("B", events) }
+                            events += "throw"
+                            throw RuntimeException("Abandoning composition")
                         }
                     }
 
-                    LocalRetainedValuesStoreProvider(store2) {
-                        retain<LoggingRetainObject> { LoggingRetainObject("C", events) }
-                        if (failComposition) {
-                            retain<LoggingRetainObject> { LoggingRetainObject("D", events) }
-                        }
-                    }
-
-                    if (failComposition) {
-                        events += "throw"
-                        throw RuntimeException("Abandoning composition")
-                    }
+                    assertContentEquals(
+                        listOf(
+                            "Retain(A)",
+                            "EnterComposition(A)",
+                            "Retain(C)",
+                            "EnterComposition(C)",
+                        ),
+                        events,
+                    )
+                    failComposition = true
+                    events += "recompose"
+                    try {
+                        advance()
+                    } catch (_: Throwable) {}
                 }
-
-                assertContentEquals(
-                    listOf("Retain(A)", "EnterComposition(A)", "Retain(C)", "EnterComposition(C)"),
-                    events,
-                )
-                failComposition = true
-                events += "recompose"
-                try {
-                    advance()
-                } catch (_: Throwable) {}
-            }
+                .await()
         } catch (t: Throwable) {
             if (!failComposition) throw t
         }

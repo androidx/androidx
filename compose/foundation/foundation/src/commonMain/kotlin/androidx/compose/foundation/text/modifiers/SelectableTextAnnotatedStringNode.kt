@@ -34,8 +34,10 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.observeReads
@@ -73,7 +75,9 @@ internal class SelectableTextAnnotatedStringNode(
     DrawModifierNode,
     GlobalPositionAwareModifierNode,
     CompositionLocalConsumerModifierNode,
-    ObserverModifierNode {
+    ObserverModifierNode,
+    LayoutAwareModifierNode,
+    UnplacedAwareModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
 
@@ -103,6 +107,20 @@ internal class SelectableTextAnnotatedStringNode(
         }
     }
 
+    private var isPlaced = false
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        if (isPlaced) return
+        isPlaced = true
+        selectionController?.onPlaced()
+    }
+
+    override fun onUnplaced() {
+        if (!isPlaced) return
+        isPlaced = false
+        selectionController?.onUnplaced()
+    }
+
     override fun onAttach() {
         selectionController?.updatePinnableContainer(retrievePinnableContainer())
     }
@@ -122,7 +140,7 @@ internal class SelectableTextAnnotatedStringNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        selectionController?.updateGlobalPosition(coordinates)
+        selectionController?.updateLayoutCoordinates(coordinates)
     }
 
     override fun ContentDrawScope.draw() = textAnnotatedStringNode.drawNonExtension(this)
@@ -189,8 +207,13 @@ internal class SelectableTextAnnotatedStringNode(
                     onShowTranslation = onShowTranslation,
                 ),
         )
-        this.selectionController = selectionController
+        if (isPlaced && (selectionController != this.selectionController)) {
+            this.selectionController?.onUnplaced()
+            selectionController?.onPlaced()
+        }
         selectionController?.updatePinnableContainer(retrievePinnableContainer())
+
+        this.selectionController = selectionController
 
         // we always relayout when we're selectable
         invalidateMeasurement()

@@ -15,8 +15,8 @@
  */
 package androidx.compose.ui.node
 
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
@@ -46,9 +46,12 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     private val aggregateChildKindSet: Int
         get() = head.aggregateChildKindSet
 
-    private var current: MutableVector<Modifier.Element>? = null
-    private var buffer: MutableVector<Modifier.Element>? = null
-    private val stack = MutableVector<Modifier>(16)
+    private var current = mutableObjectListOf<Modifier.Element>()
+    // Only the NodeChain for the root LayoutNode has values for buffer and stack
+    // In the future, it may be good for the Owner to have a collection of temporary
+    // collections.
+    private var buffers: MutableObjectList<MutableObjectList<Modifier.Element>>? = null
+    private var stack: MutableObjectList<Modifier>? = null
     private var cachedDiffer: Differ? = null
     private var logger: Logger? = null
 
@@ -117,9 +120,24 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         // these vectors should be sized appropriately. The "before" list is nullable, since many
         // layout nodes will never have modifier set more than once, so we avoid allocating the
         // vector in those cases.
-        var before = current
-        val beforeSize = before?.size ?: 0
-        val after = m.fillVector(buffer ?: mutableVectorOf(), stack)
+        val before = current
+        val beforeSize = before.size
+        val rootChain = findRootChain()
+        val buffers =
+            rootChain.buffers
+                ?: mutableObjectListOf<MutableObjectList<Modifier.Element>>().also {
+                    rootChain.buffers = it
+                }
+        val buffersLastIndex = buffers.lastIndex
+        val buffer =
+            if (buffersLastIndex >= 0) {
+                buffers.removeAt(buffersLastIndex)
+            } else {
+                mutableObjectListOf()
+            }
+        val stack = rootChain.stack ?: mutableObjectListOf()
+        rootChain.stack = null
+        val after = m.fillVector(buffer, stack)
         var i = 0
         if (after.size == beforeSize) {
             // assume if the sizes are the same, that we are in a common case of no structural
@@ -195,16 +213,26 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             outerCoordinator = innerCoordinator
         } else {
             coordinatorSyncNeeded = true
-            before = before ?: MutableVector()
             structuralUpdate(0, before, after, paddedHead, !layoutNode.applyingModifierOnAttach)
         }
         current = after
         // clear the before vector to allow old modifiers to be Garbage Collected
-        buffer = before?.also { it.clear() }
+        buffers += before.also { it.clear() }
+        rootChain.stack = stack.also { it.clear() }
         head = trimChain(paddedHead)
         if (coordinatorSyncNeeded) {
             syncCoordinators()
         }
+    }
+
+    private fun findRootChain(): NodeChain {
+        var parentLayoutNode = layoutNode.parent
+        var childLayoutNode = layoutNode
+        while (parentLayoutNode != null) {
+            childLayoutNode = parentLayoutNode
+            parentLayoutNode = parentLayoutNode.parent
+        }
+        return childLayoutNode.nodes
     }
 
     /**
@@ -300,9 +328,11 @@ internal class NodeChain(val layoutNode: LayoutNode) {
      * This returns a new List of Modifiers and the coordinates and any extra information that may
      * be useful. This is used for tooling to retrieve layout modifier and layer information.
      */
+    @Suppress("AsCollectionCall")
     fun getModifierInfo(): List<ModifierInfo> {
-        val current = current ?: return emptyList()
-        val infoList = MutableVector<ModifierInfo>(current.size)
+        val current = current
+        if (current.isEmpty()) return emptyList()
+        val infoList = MutableObjectList<ModifierInfo>(current.size)
         var i = 0
         headToTailExclusive { node ->
             val coordinator =
@@ -353,8 +383,8 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     private fun getDiffer(
         head: Modifier.Node,
         offset: Int,
-        before: MutableVector<Modifier.Element>,
-        after: MutableVector<Modifier.Element>,
+        before: MutableObjectList<Modifier.Element>,
+        after: MutableObjectList<Modifier.Element>,
         shouldAttachOnInsert: Boolean,
     ): Differ {
         val current = cachedDiffer
@@ -397,8 +427,8 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     private inner class Differ(
         var node: Modifier.Node,
         var offset: Int,
-        var before: MutableVector<Modifier.Element>,
-        var after: MutableVector<Modifier.Element>,
+        var before: MutableObjectList<Modifier.Element>,
+        var after: MutableObjectList<Modifier.Element>,
         var shouldAttachOnInsert: Boolean,
     ) : DiffCallback {
         override fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean {
@@ -508,13 +538,15 @@ internal class NodeChain(val layoutNode: LayoutNode) {
      */
     private fun structuralUpdate(
         offset: Int,
-        before: MutableVector<Modifier.Element>,
-        after: MutableVector<Modifier.Element>,
+        before: MutableObjectList<Modifier.Element>,
+        after: MutableObjectList<Modifier.Element>,
         tail: Modifier.Node,
         shouldAttachOnInsert: Boolean,
     ) {
         val differ = getDiffer(tail, offset, before, after, shouldAttachOnInsert)
+        cachedDiffer = null
         executeDiff(before.size - offset, after.size - offset, differ)
+        cachedDiffer = differ
         syncAggregateChildKindSet()
     }
 
@@ -747,9 +779,9 @@ private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(node: Modifi
 }
 
 private fun Modifier.fillVector(
-    result: MutableVector<Modifier.Element>,
-    stack: MutableVector<Modifier>,
-): MutableVector<Modifier.Element> {
+    result: MutableObjectList<Modifier.Element>,
+    stack: MutableObjectList<Modifier>,
+): MutableObjectList<Modifier.Element> {
     stack.add(this)
     var predicate: ((Modifier.Element) -> Boolean)? = null
     while (stack.isNotEmpty()) {

@@ -43,6 +43,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
+import android.view.inputmethod.TextAttribute
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -237,6 +238,28 @@ internal class StatelessInputConnection(
         return true
     }
 
+    override fun commitText(
+        text: CharSequence,
+        newCursorPosition: Int,
+        textAttribute: TextAttribute?,
+    ): Boolean {
+        logDebug("commitText(\"$text\", $newCursorPosition, $textAttribute)")
+
+        val isTextSuggestionSelected =
+            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
+                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
+            } else {
+                false
+            }
+
+        session.commitText(
+            text = text.toString(),
+            newCursorPosition = newCursorPosition,
+            isTextSuggestionSelected = isTextSuggestionSelected,
+        )
+        return true
+    }
+
     override fun setComposingRegion(start: Int, end: Int): Boolean {
         logDebug("setComposingRegion($start, $end)")
         session.setComposingRegion(start, end)
@@ -250,6 +273,28 @@ internal class StatelessInputConnection(
             text = text.toString(),
             newCursorPosition = newCursorPosition,
             annotations = (text as? Spanned)?.toAnnotationList(),
+        )
+        return true
+    }
+
+    override fun setComposingText(
+        text: CharSequence,
+        newCursorPosition: Int,
+        textAttribute: TextAttribute?,
+    ): Boolean {
+        logDebug("setComposingText(\"$text\", $newCursorPosition, $textAttribute)")
+
+        val isTextSuggestionSelected =
+            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
+                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
+            } else {
+                false
+            }
+
+        session.setComposingText(
+            text = text.toString(),
+            newCursorPosition = newCursorPosition,
+            isTextSuggestionSelected = isTextSuggestionSelected,
         )
         return true
     }
@@ -537,6 +582,13 @@ private object Api34PerformHandwritingGestureImpl {
         cancellationSignal: CancellationSignal?,
     ): Boolean {
         return session.previewHandwritingGesture(gesture, cancellationSignal)
+    }
+}
+
+@RequiresApi(37)
+private object Api37TextAttributeImpl {
+    fun isTextSuggestionSelected(textAttribute: TextAttribute): Boolean {
+        return textAttribute.isTextSuggestionSelected
     }
 }
 

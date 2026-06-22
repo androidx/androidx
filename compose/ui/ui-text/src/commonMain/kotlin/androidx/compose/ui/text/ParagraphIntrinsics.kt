@@ -61,8 +61,9 @@ interface ParagraphIntrinsics {
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-            "fontFamilyResolver)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, " +
+            "createFontFamilyResolver(resourceLoader), placeholders, true)",
+        "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
 expect fun ParagraphIntrinsics(
@@ -77,7 +78,7 @@ expect fun ParagraphIntrinsics(
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
 expect fun ParagraphIntrinsics(
@@ -100,7 +101,7 @@ expect fun ParagraphIntrinsics(
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
     ),
 )
 expect fun ParagraphIntrinsics(

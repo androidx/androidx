@@ -40,6 +40,7 @@ import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -62,9 +63,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
-import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
@@ -440,7 +442,11 @@ class AndroidPointerInputTest {
             androidComposeView.dispatchTouchEvent(upBottomBoxEvent)
 
             // Assert
-            assertThat(pointerEventsLog).hasSize(8)
+            // moveBottomBoxEvent (non-moving Move) is processed instead of skipped due to
+            // isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+            @OptIn(ExperimentalComposeUiApi::class)
+            val hasExtraMove = ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+            assertThat(pointerEventsLog).hasSize(if (hasExtraMove) 9 else 8)
 
             for (pointerEvent in pointerEventsLog) {
                 assertThat(pointerEvent.internalPointerEvent).isNotNull()
@@ -453,9 +459,16 @@ class AndroidPointerInputTest {
             assertThat(pointerEventsLog[3].type).isEqualTo(PointerEventType.Move)
             assertThat(pointerEventsLog[4].type).isEqualTo(PointerEventType.Move)
 
-            assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Release)
-            assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Release)
-            assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+            if (hasExtraMove) {
+                assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Move)
+                assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Move)
+                assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[8].type).isEqualTo(PointerEventType.Release)
+            } else {
+                assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+            }
         }
     }
 
@@ -1633,6 +1646,7 @@ class AndroidPointerInputTest {
      * in U. (Thus, why this test request at least that version.)
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun motionEventDispatch_withValidClassification_shouldMatchInPointerEvent() {
         // --> Arrange
@@ -1804,6 +1818,34 @@ class AndroidPointerInputTest {
 
             val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
             androidComposeView.dispatchTouchEvent(downEvent)
+
+            // When re-interpreting pinches, the first MotionEvent (ACTION_DOWN with 1 pointer) will
+            // not result in a PointerEvent being sent through Compose. Therefore, we send a
+            // second MotionEvent (ACTION_POINTER_DOWN with 2 pointers) to trigger the PointerEvent.
+            if (ComposeUiFlags.isTrackpadPinchReinterpretationEnabled) {
+                val pointerProperties2 =
+                    arrayOf(
+                        pointerProperties[0],
+                        PointerProperties(1).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER },
+                    )
+                val pointerCoords2 =
+                    arrayOf(
+                        pointerCoords!![0],
+                        PointerCoords(pointerCoords!![0].x + 10f, pointerCoords!![0].y + 10f),
+                    )
+                val pointerDownEvent =
+                    MotionEvent(
+                        eventTime = eventTime,
+                        action = ACTION_POINTER_DOWN,
+                        numPointers = 2,
+                        actionIndex = 1,
+                        pointerProperties = pointerProperties2,
+                        pointerCoords = pointerCoords2,
+                        buttonState = buttonState,
+                        classification = motionEventClassification,
+                    )
+                androidComposeView.dispatchTouchEvent(pointerDownEvent)
+            }
         }
 
         // --> Assert
@@ -3770,6 +3812,7 @@ class AndroidPointerInputTest {
      *
      * Should NOT trigger any additional events (like an extra press or exit)!
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun mouseEventsAndPointerIds_completeMouseEventCycle_pointerIdsShouldMatchAcrossAllEvents() {
         // --> Arrange
@@ -3785,6 +3828,7 @@ class AndroidPointerInputTest {
         // mouse. These events happen between the normal press and release events.
         var unknownCount = 0
         var upCount = 0
+        var moveCount = 0
 
         // We want to assert that each updated pointer id matches the original pointer id that
         // starts the sequence of MotionEvents.
@@ -3831,6 +3875,9 @@ class AndroidPointerInputTest {
                                         PointerEventType.Unknown -> {
                                             ++unknownCount
                                         }
+                                        PointerEventType.Move -> {
+                                            ++moveCount
+                                        }
                                         else -> {
                                             eventsThatShouldNotTrigger = true
                                         }
@@ -3854,6 +3901,7 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(0)
             assertThat(unknownCount).isEqualTo(0)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3875,6 +3923,7 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(0)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3892,6 +3941,7 @@ class AndroidPointerInputTest {
             // mouse. These events happen between the normal press and release events.
             assertThat(unknownCount).isEqualTo(1)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3908,6 +3958,7 @@ class AndroidPointerInputTest {
             // mouse. These events happen between the normal press and release events.
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3926,6 +3977,9 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(1)
+            val expectedMoves =
+                if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) 1 else 0
+            assertThat(moveCount).isEqualTo(expectedMoves)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3944,6 +3998,9 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(1)
+            val expectedMoves =
+                if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) 1 else 0
+            assertThat(moveCount).isEqualTo(expectedMoves)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()

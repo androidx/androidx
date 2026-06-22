@@ -80,7 +80,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                         LocalContextConfigurationRead,
                         node,
                         context.getNameLocation(node),
-                        "Reading Configuration using $LocalContextCurrentResourcesConfiguration",
+                        "Reading Configuration using $LocalContextCurrentResourcesConfiguration is not configuration-aware and may return stale values if the Configuration changes",
                         fix()
                             .replace()
                             .name("Replace with $LocalConfigurationCurrent")
@@ -182,7 +182,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                             LocalContextConfigurationRead,
                             node,
                             context.getNameLocation(node),
-                            "Reading Configuration using $LocalContextCurrentResourcesConfiguration",
+                            "Reading Configuration using $LocalContextCurrentResourcesConfiguration is not configuration-aware and may return stale values if the Configuration changes",
                         )
                     } else {
                         if (resourcesCall) {
@@ -276,7 +276,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                                 LocalContextGetResourceValueCall,
                                 node,
                                 context.getNameLocation(node),
-                                "Querying resource values using $LocalContextCurrent",
+                                "Querying resource values using $LocalContextCurrent is not configuration-aware and may return stale values if the Configuration changes",
                                 fix,
                             )
                         }
@@ -329,7 +329,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                         LocalContextResourcesRead,
                         resourcesCall,
                         context.getNameLocation(resourcesCall),
-                        "Reading Resources using $LocalContextCurrentResources",
+                        "Reading Resources using $LocalContextCurrentResources is not configuration-aware and may return stale values if the Configuration changes",
                         fix()
                             .replace()
                             .name("Replace with $LocalResourcesCurrent")
@@ -353,7 +353,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                         LocalContextResourcesRead,
                         resourcesCall,
                         context.getNameLocation(resourcesCall),
-                        "Reading Resources using $LocalContextCurrentResources",
+                        "Reading Resources using $LocalContextCurrentResources is not configuration-aware and may return stale values if the Configuration changes",
                     )
                 }
             }
@@ -473,7 +473,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
         val LocalContextConfigurationRead =
             Issue.create(
                 "LocalContextConfigurationRead",
-                "Reading Configuration using $LocalContextCurrentResourcesConfiguration",
+                "Reading Configuration using $LocalContextCurrentResourcesConfiguration is not configuration-aware and may return stale values if the Configuration changes",
                 "Changes to the Configuration object will not cause LocalContext reads to be " +
                     "invalidated, so you may end up with stale values when the Configuration " +
                     "changes. Instead, use $LocalConfigurationCurrent to retrieve the " +
@@ -491,7 +491,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
         val LocalContextGetResourceValueCall =
             Issue.create(
                 "LocalContextGetResourceValueCall",
-                "Querying resource properties using $LocalContextCurrent",
+                "Querying resource values using $LocalContextCurrent is not configuration-aware and may return stale values if the Configuration changes",
                 "Changes to the Configuration object will not cause " +
                     "$LocalContextCurrent reads to be invalidated, so calls to APIs such as " +
                     "Context.getString() will not be updated when the Configuration changes, " +
@@ -512,7 +512,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
         val LocalContextResourcesRead =
             Issue.create(
                 "LocalContextResourcesRead",
-                "Reading Resources using $LocalContextCurrentResources",
+                "Reading Resources using $LocalContextCurrentResources is not configuration-aware and may return stale values if the Configuration changes",
                 "Changes to the Configuration object will not cause " +
                     "$LocalContextCurrentResources reads to be invalidated, so calls to APIs such" +
                     " as Resources.getString() will not be updated when the Configuration " +

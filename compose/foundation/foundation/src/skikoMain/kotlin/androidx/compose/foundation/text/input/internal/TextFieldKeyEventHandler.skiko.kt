@@ -68,9 +68,10 @@ internal fun createIOSTextFieldKeyEventHandler() = object : TextFieldKeyEventHan
     }
 }
 
+// TODO https://youtrack.jetbrains.com/issue/CMP-10296/Implement-isFromHardwareSource
+internal actual val KeyEvent.isFromHardwareSource: Boolean
+    get() = true
+
 // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1361/Implement-isFromSoftKeyboard
-/**
- * Returns whether this key event is created by the software keyboard.
- */
 internal actual val KeyEvent.isFromSoftKeyboard: Boolean
     get() = false

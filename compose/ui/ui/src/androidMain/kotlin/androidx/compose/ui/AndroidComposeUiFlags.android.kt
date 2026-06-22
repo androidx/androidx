@@ -83,4 +83,24 @@ object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isInteractionSoundEffectsEnabled: Boolean = true
+
+    /** Enables using out of frame scheduler instead of Choreographer for text input events. */
+    // TODO(b/513525072): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
+
+    /**
+     * Return true for AndroidComposeView.dispatchHoverEvent when handleded by explore by touch.
+     *
+     * This fixes behavior where the event would be bubbled to a container view, causing explore by
+     * touch to flicker focus to Compose buttons.
+     *
+     * After this change compose buttons will correctly report they handled the hover event, and
+     * retain accessibility focus.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // TODO(b/507533865) cleanup feature flag after 1.12
+    var isExploreByTouchHoverHandled: Boolean = true
 }

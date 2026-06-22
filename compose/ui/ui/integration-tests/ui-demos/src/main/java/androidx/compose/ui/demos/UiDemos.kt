@@ -97,6 +97,7 @@ import androidx.compose.ui.demos.graphics.ShadowsDemo
 import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
+import androidx.compose.ui.demos.meshgradient.MeshGradientPlaygroundDemo
 import androidx.compose.ui.demos.modifier.CommunicatingModifierDemo
 import androidx.compose.ui.demos.modifier.LazyColumnDemo
 import androidx.compose.ui.demos.modifier.MovableContentDemo
@@ -242,6 +243,7 @@ private val GraphicsDemos =
             ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() },
             ActivityDemo("Painter Resources Demo", PainterResourcesDemoActivity::class),
             ComposableDemo("Shadow's Demo") { ShadowsDemo() },
+            ComposableDemo("MeshGradient Playground") { MeshGradientPlaygroundDemo() },
         ),
     )
 

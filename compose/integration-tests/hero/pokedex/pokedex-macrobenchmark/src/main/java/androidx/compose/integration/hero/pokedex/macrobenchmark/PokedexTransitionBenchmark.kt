@@ -90,7 +90,8 @@ class PokedexTransitionBenchmark(
         enableSharedTransitionScope: Boolean = this.enableSharedTransitionScope,
         enableSharedElementTransitions: Boolean = this.enableSharedElementTransitions,
         iterations: Int = HeroMacrobenchmarkDefaults.ITERATIONS,
-    ) =
+    ) {
+
         benchmarkRule.measureRepeated(
             packageName = POKEDEX_TARGET_PACKAGE_NAME,
             metrics =
@@ -128,6 +129,7 @@ class PokedexTransitionBenchmark(
                 waitForProgressBarAnimation = waitForProgressBarAnimation,
             )
         }
+    }
 
     private fun MacrobenchmarkScope.homeToDetailsAndBackAction(
         pokemonName: String,

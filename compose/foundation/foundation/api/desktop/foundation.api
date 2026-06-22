@@ -2418,13 +2418,13 @@ public final class androidx/compose/foundation/text/input/TextFieldBuffer : java
 	public final fun getOriginalSelection-d9O1mEE ()J
 	public final fun getOriginalText ()Ljava/lang/CharSequence;
 	public final fun getParagraphStyle (Landroidx/compose/foundation/text/input/TrackedRange;)Landroidx/compose/ui/text/ParagraphStyle;
-	public final fun getParagraphStyles (II)Ljava/util/List;
+	public final fun getParagraphStyles-5zc-tL8 (J)Ljava/util/List;
 	public final fun getSelection-d9O1mEE ()J
 	public final fun getSpanStyle (Landroidx/compose/foundation/text/input/TrackedRange;)Landroidx/compose/ui/text/SpanStyle;
-	public final fun getSpanStyles (II)Ljava/util/List;
+	public final fun getSpanStyles-5zc-tL8 (J)Ljava/util/List;
 	public final fun getTextRange--jx7JFs (Landroidx/compose/foundation/text/input/TrackedRange;)J
-	public final fun getValid (Landroidx/compose/foundation/text/input/TrackedRange;)Z
 	public final fun hasSelection ()Z
+	public final fun isValid (Landroidx/compose/foundation/text/input/TrackedRange;)Z
 	public final fun placeCursorAfterCharAt (I)V
 	public final fun placeCursorBeforeCharAt (I)V
 	public final fun removeStyle (Landroidx/compose/foundation/text/input/TrackedRange;)Z
@@ -2514,8 +2514,8 @@ public final class androidx/compose/foundation/text/input/TextFieldStateKt {
 }
 
 public abstract interface class androidx/compose/foundation/text/input/TextFieldTextStyles {
-	public abstract fun getParagraphStyles (II)Ljava/util/List;
-	public abstract fun getSpanStyles (II)Ljava/util/List;
+	public abstract fun getParagraphStyles-5zc-tL8 (J)Ljava/util/List;
+	public abstract fun getSpanStyles-5zc-tL8 (J)Ljava/util/List;
 }
 
 public final class androidx/compose/foundation/text/input/TextObfuscationMode {
@@ -2535,6 +2535,7 @@ public final class androidx/compose/foundation/text/input/TextObfuscationMode {
 public final class androidx/compose/foundation/text/input/TextObfuscationMode$Companion {
 	public final fun getHidden-vTwcZD0 ()I
 	public final fun getRevealLastTyped-vTwcZD0 ()I
+	public final fun getSystem-vTwcZD0 ()I
 	public final fun getVisible-vTwcZD0 ()I
 }
 

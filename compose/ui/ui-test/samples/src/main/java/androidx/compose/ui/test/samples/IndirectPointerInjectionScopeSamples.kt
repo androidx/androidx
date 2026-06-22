@@ -25,8 +25,8 @@ import androidx.compose.ui.test.inputDeviceCenterY
 import androidx.compose.ui.test.inputDeviceLeft
 import androidx.compose.ui.test.inputDeviceRight
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performIndirectPointerInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.IntSize
@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.IntSize
 fun indirectPointerInputSwipeRight() {
     // Ensure your node is within the focus path (otherwise, you won't get the event).
     composeTestRule.onNodeWithTag("myComponent").requestFocus()
-    composeTestRule.performIndirectPointerInput(
+    composeTestRule.sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
         // Horizontal trackpad
@@ -51,7 +51,7 @@ fun indirectPointerInputSwipeRight() {
 fun indirectPointerInputClick() {
     // Ensure the node is within the focus path (otherwise, you won't get the event).
     composeTestRule.onNodeWithTag("myComponent").requestFocus()
-    composeTestRule.performIndirectPointerInput(
+    composeTestRule.sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
         // Horizontal trackpad
@@ -66,7 +66,7 @@ fun indirectPointerInputAssertDuringClick() {
     // Ensure the node is within the focus path (otherwise, you won't get the event).
     composeTestRule.onNodeWithTag("myComponent").requestFocus()
 
-    composeTestRule.performIndirectPointerInput(
+    composeTestRule.sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
         // Horizontal trackpad
@@ -77,7 +77,7 @@ fun indirectPointerInputAssertDuringClick() {
 
     // Assert some pressed state is visible
 
-    composeTestRule.performIndirectPointerInput(
+    composeTestRule.sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
         // Horizontal trackpad
@@ -91,7 +91,7 @@ fun indirectPointerInputAssertDuringClick() {
 fun indirectPointerInputClickAndDrag() {
     // Ensure the node is within the focus path (otherwise, you won't get the event).
     composeTestRule.onNodeWithTag("myComponent").requestFocus()
-    composeTestRule.performIndirectPointerInput(
+    composeTestRule.sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
         // Horizontal trackpad

@@ -43,6 +43,7 @@ import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuTool
 import androidx.compose.foundation.text.contextmenu.modifier.translateRootToDestination
 import androidx.compose.foundation.text.input.internal.coerceIn
 import androidx.compose.foundation.text.isPositionInsideSelection
+import androidx.compose.foundation.text.modifiers.DefaultMouseSelectionObserver
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RememberObserver
@@ -195,6 +196,16 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                         false
                     }
                 }
+                .then(
+                    @OptIn(ExperimentalFoundationApi::class)
+                    if (ComposeFoundationFlags.isMouseSelectionBetweenTextEnabled) {
+                        Modifier.pointerInput(Unit) {
+                            awaitSelectionGestures(mouseSelectionObserver, null)
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
                 .then(if (shouldShowMagnifier) Modifier.selectionMagnifier(this) else Modifier)
                 .addContextMenuComponents()
 
@@ -327,6 +338,14 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     /** Maps selectable ids to the corresponding [PinnedHandle], if that selectable is pinned. */
     private val pinnedHandleBySelectableId = mutableLongObjectMapOf<PinnedHandle>()
+
+    private val mouseSelectionObserver by
+        lazy(LazyThreadSafetyMode.NONE) {
+            selectionRegistrar.DefaultMouseSelectionObserver(
+                selectableIdProvider = null,
+                layoutCoordinatesProvider = { containerLayoutCoordinates },
+            )
+        }
 
     init {
         selectionRegistrar.onPositionChangeCallback = { selectableId ->
@@ -1516,6 +1535,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 previousSelection = previousSelection,
                 previousLayout = previousLayout,
                 selectableIdOrderingComparator = selectableIdOrderingComparator,
+                allowSelectionBetweenSelectables =
+                    @OptIn(ExperimentalFoundationApi::class)
+                    ComposeFoundationFlags.isMouseSelectionBetweenTextEnabled && !isInTouchMode,
             )
 
         sortedSelectables.fastForEach { it.appendSelectableInfoToBuilder(builder) }

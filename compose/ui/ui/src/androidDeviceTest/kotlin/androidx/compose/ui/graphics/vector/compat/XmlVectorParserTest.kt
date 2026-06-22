@@ -154,6 +154,58 @@ class XmlVectorParserTest {
     }
 
     @Test
+    fun testNestedGroupsWithClipPaths() {
+        val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
+        val asset =
+            ImageVector.vectorResource(
+                null,
+                res,
+                R.drawable.test_compose_vector_nested_groups_clip_path,
+            )
+
+        val root = asset.root
+        assertEquals(1, root.size)
+
+        val delta = 0.001f
+        val parentGroup = root[0].assertType<VectorGroup>()
+        assertEquals(1, parentGroup.size)
+        assertEquals("parentGroup", parentGroup.name)
+
+        val parentClipPathGroup = parentGroup[0].assertType<VectorGroup>()
+        assertEquals("parentClipPath", parentClipPathGroup.name)
+        assertEquals(2, parentClipPathGroup.size)
+        val parentClipPath = parentClipPathGroup.clipPathData
+        assertEquals(3, parentClipPath.size)
+        parentClipPath[0].assertType<PathNode.MoveTo>().let { moveTo ->
+            assertEquals(1.0f, moveTo.x, delta)
+            assertEquals(2.0f, moveTo.y, delta)
+        }
+
+        // Under parentClipPathGroup, we should have:
+        // 1. childGroup (as index 0)
+        // 2. parentPath (as index 1)
+        val childGroup = parentClipPathGroup[0].assertType<VectorGroup>()
+        assertEquals("childGroup", childGroup.name)
+        assertEquals(1, childGroup.size)
+
+        val childClipPathGroup = childGroup[0].assertType<VectorGroup>()
+        assertEquals("childClipPath", childClipPathGroup.name)
+        assertEquals(1, childClipPathGroup.size)
+        val childClipPath = childClipPathGroup.clipPathData
+        assertEquals(3, childClipPath.size)
+        childClipPath[0].assertType<PathNode.MoveTo>().let { moveTo ->
+            assertEquals(5.0f, moveTo.x, delta)
+            assertEquals(6.0f, moveTo.y, delta)
+        }
+
+        val redPath = childClipPathGroup[0].assertType<VectorPath>()
+        assertEquals(Color(0xFFFF0000), (redPath.fill as SolidColor).value)
+
+        val greenPath = parentClipPathGroup[1].assertType<VectorPath>()
+        assertEquals(Color(0xFF00FF00), (greenPath.fill as SolidColor).value)
+    }
+
+    @Test
     fun testParsePlus() {
         val asset = loadVector(R.drawable.ic_triangle_plus)
         assertEquals(Color.Blue, asset.tintColor)

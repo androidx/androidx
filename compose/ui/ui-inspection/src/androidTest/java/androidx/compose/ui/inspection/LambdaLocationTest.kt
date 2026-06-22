@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.inspection
 
-import androidx.compose.ui.inspection.LambdaLocation.Companion.findLambdaSelector
 import androidx.compose.ui.inspection.rules.JvmtiRule
 import androidx.compose.ui.inspection.testdata.TestLambdas
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -37,56 +36,24 @@ class LambdaLocationTest {
     fun test() {
         assertThat(LambdaLocation.resolve(TestLambdas.short))
             .isEqualTo(
-                LambdaLocation(
-                    "androidx.compose.ui.inspection.testdata.TestLambdas\$short\$1",
-                    "TestLambdas.kt",
-                    22,
-                    22,
-                )
+                LambdaLocation("androidx.compose.ui.inspection.testdata", "TestLambdas.kt", 22, 22)
             )
         assertThat(LambdaLocation.resolve(TestLambdas.long))
             .isEqualTo(
-                LambdaLocation(
-                    "androidx.compose.ui.inspection.testdata.TestLambdas\$long\$1",
-                    "TestLambdas.kt",
-                    24,
-                    26,
-                )
+                LambdaLocation("androidx.compose.ui.inspection.testdata", "TestLambdas.kt", 24, 26)
             )
         assertThat(LambdaLocation.resolve(TestLambdas.inlined))
             .isEqualTo(
-                LambdaLocation(
-                    "androidx.compose.ui.inspection.testdata.TestLambdas\$inlined\$1",
-                    "TestLambdas.kt",
-                    29,
-                    30,
-                )
+                LambdaLocation("androidx.compose.ui.inspection.testdata", "TestLambdas.kt", 29, 30)
             )
         assertThat(LambdaLocation.resolve(TestLambdas.inlinedParameter))
             .isEqualTo(
-                LambdaLocation(
-                    "androidx.compose.ui.inspection.testdata.TestLambdas\$inlinedParameter\$1",
-                    "TestLambdas.kt",
-                    32,
-                    32,
-                )
+                LambdaLocation("androidx.compose.ui.inspection.testdata", "TestLambdas.kt", 32, 32)
             )
         assertThat(LambdaLocation.resolve(TestLambdas.unnamed))
             .isEqualTo(
-                LambdaLocation(
-                    "androidx.compose.ui.inspection.testdata.TestLambdas\$unnamed\$1",
-                    "TestLambdas.kt",
-                    33,
-                    33,
-                )
+                LambdaLocation("androidx.compose.ui.inspection.testdata", "TestLambdas.kt", 33, 33)
             )
-    }
-
-    @Test
-    fun testLambdaSelector() {
-        assertThat(findLambdaSelector("com.example.Compose\$MainActivityKt\$lambda-10$1$2$2$1"))
-            .isEqualTo("lambda-10\$1\$2\$2\$1")
-        assertThat(findLambdaSelector("com.example.Class\$f1\$3\$2")).isEqualTo("3$2")
     }
 
     @Test
@@ -104,7 +71,6 @@ class LambdaLocationTest {
             }
         val location = LambdaLocation.resolve(lambda) ?: error("Location didn't resolve")
         assertThat(location.packageName).isEqualTo("com.example")
-        assertThat(location.lambdaName).isEqualTo("1$2")
         assertThat(location.fileName).isEqualTo("MainActivity.kt")
         assertThat(location.startLine).isEqualTo(34)
         assertThat(location.endLine).isEqualTo(78)

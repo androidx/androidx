@@ -147,7 +147,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
     fun selectionHandles_haveMinimumTouchSizeArea() =
         with(rule.density) {
             state = TextFieldState("hello, world", initialSelection = TextRange(2, 5))
-            rule.setContent {
+            rule.setTextFieldTestContent {
                 BasicTextField(
                     state,
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -275,7 +275,10 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             }
 
         rule.setContent {
-            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+            CompositionLocalProvider(
+                LocalWindowInfo provides windowInfo,
+                LocalInputModeManager provides TouchInputModeManager,
+            ) {
                 BasicTextField(
                     state,
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -306,7 +309,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         val tfsState =
             mutableStateOf(TextFieldState("hello, world", initialSelection = TextRange(2, 5)))
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 tfsState.value,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -835,12 +838,14 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
     fun selectionHandles_disappear_whenInputConnectionSetSelection() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2, 5))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(100.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(100.dp),
+                    )
+                }
             }
         }
 
@@ -862,12 +867,14 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
     fun selectionHandles_disappear_whenInputConnectionSendKeyEvent() {
         state = TextFieldState("hello, world", initialSelection = TextRange(2, 5))
         inputMethodInterceptor.setTextFieldTestContent {
-            Column {
-                BasicTextField(
-                    state,
-                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                    modifier = Modifier.testTag(TAG).width(100.dp),
-                )
+            CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager) {
+                Column {
+                    BasicTextField(
+                        state,
+                        textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                        modifier = Modifier.testTag(TAG).width(100.dp),
+                    )
+                }
             }
         }
 

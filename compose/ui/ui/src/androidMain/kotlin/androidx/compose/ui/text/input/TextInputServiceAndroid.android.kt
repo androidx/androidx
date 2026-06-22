@@ -51,15 +51,11 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  * @param inputCommandProcessorExecutor [Executor] used to schedule the [processInputCommands]
  *   function when a input command is first requested for a frame.
  */
-@Deprecated(
-    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
-        "code. A copy of this class in foundation is used by the legacy BasicTextField."
-)
 internal class TextInputServiceAndroid(
     val view: View,
     rootPositionCalculator: MatrixPositionCalculator,
     private val inputMethodManager: InputMethodManager,
-    private val inputCommandProcessorExecutor: Executor = Executor(view::postOnAnimation),
+    val inputCommandProcessorExecutor: Executor,
 ) : PlatformTextInputService {
 
     /**
@@ -119,7 +115,8 @@ internal class TextInputServiceAndroid(
     constructor(
         view: View,
         positionCalculator: MatrixPositionCalculator,
-    ) : this(view, positionCalculator, InputMethodManagerImpl(view))
+        executor: Executor,
+    ) : this(view, positionCalculator, InputMethodManagerImpl(view), executor)
 
     init {
         if (DEBUG) {

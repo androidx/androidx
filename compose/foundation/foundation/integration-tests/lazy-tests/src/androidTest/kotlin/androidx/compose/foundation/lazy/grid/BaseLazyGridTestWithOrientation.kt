@@ -28,15 +28,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.packInts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
     BaseLazyLayoutTestWithOrientation(orientation) {
+
+    @Stable
+    fun AxisAwareIntOffset(mainAxis: Int, crossAxis: Int): IntOffset =
+        if (vertical) {
+            IntOffset(packInts(crossAxis, mainAxis))
+        } else {
+            IntOffset(packInts(mainAxis, crossAxis))
+        }
+
+    val IntOffset.mainAxis: Int
+        get() = if (vertical) y else x
 
     fun LazyGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {

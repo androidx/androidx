@@ -88,7 +88,7 @@ class ComposableLambdaInMeasurePolicyDetector : Detector(), SourceCodeScanner {
                 sourcePsi
                     .resolveToCall()
                     ?.singleFunctionCallOrNull()
-                    ?.argumentMapping
+                    ?.valueArgumentMapping
                     ?.filter { it.value.symbol.returnType.isComposable }
                     ?.keys
                     ?.firstOrNull()

@@ -21,7 +21,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.Default
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -29,12 +28,12 @@ import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +56,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Density
+import kotlin.jvm.JvmInline
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -135,23 +135,32 @@ fun BasicSecureTextField(
     decorator: TextFieldDecorator? = null,
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.Default,
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.System,
     textObfuscationCharacter: Char = DefaultObfuscationCharacter,
     scrollState: ScrollState = rememberScrollState(),
 ) {
     val obfuscationMaskState = rememberUpdatedState(textObfuscationCharacter)
-    val secureTextFieldController = remember { SecureTextFieldController(obfuscationMaskState) }
+    val visibilitySettings = rememberPlatformPasswordVisibilitySettingsState()
+    val currentMode = rememberUpdatedState(textObfuscationMode)
+    val currentVisibilitySettings = rememberUpdatedState(visibilitySettings)
+
+    val secureTextFieldController = remember {
+        SecureTextFieldController(
+            obfuscationMask = { obfuscationMaskState.value },
+            textObfuscationMode = { currentMode.value },
+            platformAllowsReveal = { currentVisibilitySettings.value },
+        )
+    }
     LaunchedEffect(secureTextFieldController) {
         // start a coroutine that listens for scheduled hide events.
         secureTextFieldController.observeHideEvents()
     }
 
-    // revealing last typed character depends on two conditions;
-    // 1 - Requested Obfuscation method
-    // 2 - if the system allows it
+    // revealing last typed character is supported in both RevealLastTyped and System modes.
+    // The actual gating per mode is done inside PasswordInputTransformation.
     val revealLastTypedEnabled =
-        textObfuscationMode == TextObfuscationMode.RevealLastTyped &&
-            platformAllowsRevealLastTyped()
+        textObfuscationMode == TextObfuscationMode.RevealLastTyped ||
+            textObfuscationMode == TextObfuscationMode.System
 
     // while toggling between obfuscation methods if the revealing gets disabled, reset the reveal.
     LaunchedEffect(revealLastTypedEnabled) {
@@ -161,9 +170,10 @@ fun BasicSecureTextField(
     }
 
     val codepointTransformation =
-        remember(textObfuscationMode) {
+        remember(textObfuscationMode, secureTextFieldController) {
             when (textObfuscationMode) {
-                TextObfuscationMode.RevealLastTyped -> {
+                TextObfuscationMode.RevealLastTyped,
+                TextObfuscationMode.System -> {
                     secureTextFieldController.codepointTransformation
                 }
                 TextObfuscationMode.Hidden -> {
@@ -182,13 +192,7 @@ fun BasicSecureTextField(
                 // do not propagate copy and cut operations
                 command == KeyCommand.COPY || command == KeyCommand.CUT
             }
-            .then(
-                if (revealLastTypedEnabled) {
-                    secureTextFieldController.focusChangeModifier
-                } else {
-                    Modifier
-                }
-            )
+            .then(secureTextFieldController.focusChangeModifier)
 
     DisableCutCopy {
         BasicTextField(
@@ -197,9 +201,7 @@ fun BasicSecureTextField(
             enabled = enabled,
             readOnly = readOnly,
             inputTransformation =
-                if (revealLastTypedEnabled) {
-                    inputTransformation.then(secureTextFieldController.passwordInputTransformation)
-                } else inputTransformation,
+                inputTransformation.then(secureTextFieldController.passwordInputTransformation),
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
@@ -224,13 +226,18 @@ private fun InputTransformation?.then(next: InputTransformation?): InputTransfor
     }
 }
 
-internal class SecureTextFieldController(private val obfuscationMaskState: State<Char>) {
+internal class SecureTextFieldController(
+    private val obfuscationMask: () -> Char,
+    val textObfuscationMode: () -> TextObfuscationMode,
+    val platformAllowsReveal: () -> SplitVisibilitySettings,
+) {
     /**
      * A special [InputTransformation] that tracks changes to the content to identify the last typed
      * character to reveal. `scheduleHide` lambda is delegated to a member function to be able to
      * use [passwordInputTransformation] instance.
      */
-    val passwordInputTransformation = PasswordInputTransformation(::scheduleHide)
+    val passwordInputTransformation =
+        PasswordInputTransformation(::scheduleHide, textObfuscationMode, platformAllowsReveal)
 
     /** Pass to [BasicTextField] for obscuring text input. */
     val codepointTransformation = CodepointTransformation { codepointIndex, codepoint ->
@@ -238,7 +245,7 @@ internal class SecureTextFieldController(private val obfuscationMaskState: State
             // reveal the last typed character by not obscuring it
             codepoint
         } else {
-            obfuscationMaskState.value.code
+            obfuscationMask().code
         }
     }
 
@@ -271,7 +278,11 @@ internal class SecureTextFieldController(private val obfuscationMaskState: State
  *   typed.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class PasswordInputTransformation(val scheduleHide: () -> Unit) : InputTransformation {
+internal class PasswordInputTransformation(
+    val scheduleHide: () -> Unit,
+    val textObfuscationMode: () -> TextObfuscationMode,
+    val platformAllowsReveal: () -> SplitVisibilitySettings,
+) : InputTransformation {
     // TODO: Consider setting this as a tracking annotation in AnnotatedString.
     internal var revealCodepointIndex by mutableIntStateOf(-1)
         private set
@@ -282,6 +293,26 @@ internal class PasswordInputTransformation(val scheduleHide: () -> Unit) : Input
 
         // if there is an expanded selection, don't reveal anything
         if (!singleCharacterChange || hasSelection) {
+            revealCodepointIndex = -1
+            return
+        }
+
+        val mode = textObfuscationMode()
+
+        val shouldReveal =
+            when (mode) {
+                TextObfuscationMode.RevealLastTyped -> true
+                TextObfuscationMode.System -> {
+                    val visibilitySettings = platformAllowsReveal()
+                    val isPhysicalKeyboard =
+                        (changes as? ChangeTracker)?.isFromHardwareSource(0) ?: false
+                    if (isPhysicalKeyboard) visibilitySettings.physical
+                    else visibilitySettings.touch
+                }
+                else -> false
+            }
+
+        if (!shouldReveal) {
             revealCodepointIndex = -1
             return
         }
@@ -337,8 +368,22 @@ private fun DisableCutCopy(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar, content)
 }
 
-/** Whether the underlying platform allows the reveal last typed behavior. */
-@Composable internal expect fun platformAllowsRevealLastTyped(): Boolean
+@JvmInline
+internal value class SplitVisibilitySettings(val value: Int) {
+    val touch: Boolean
+        get() = (value and 0x1) != 0x0
+
+    val physical: Boolean
+        get() = (value and 0x2) != 0x0
+
+    constructor(
+        touch: Boolean,
+        physical: Boolean,
+    ) : this((if (touch) 0x1 else 0x0) or (if (physical) 0x2 else 0x0))
+}
+
+@Composable
+internal expect fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisibilitySettings
 
 @Deprecated(
     message = "Please use the overload that takes in readOnly parameter.",

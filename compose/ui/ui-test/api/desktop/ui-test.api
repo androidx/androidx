@@ -3,7 +3,6 @@ public final class androidx/compose/ui/test/ActionsKt {
 	public static final fun performFirstLinkClick (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static synthetic fun performFirstLinkClick$default (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performGesture (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
-	public static final fun performIndirectPointerInput-O3Q2Zgs (Landroidx/compose/ui/test/SemanticsNodeInteractionsProvider;IJLkotlin/jvm/functions/Function1;)V
 	public static final fun performKeyInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performMouseInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performMultiModalInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
@@ -19,6 +18,7 @@ public final class androidx/compose/ui/test/ActionsKt {
 	public static final fun performTouchInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performTrackpadInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun requestFocus (Landroidx/compose/ui/test/SemanticsNodeInteraction;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
+	public static final fun sendIndirectPointerInput-O3Q2Zgs (Landroidx/compose/ui/test/SemanticsNodeInteractionsProvider;IJLkotlin/jvm/functions/Function1;)V
 	public static final fun tryPerformAccessibilityChecks (Landroidx/compose/ui/test/SemanticsNodeInteractionCollection;)Landroidx/compose/ui/test/SemanticsNodeInteractionCollection;
 }
 

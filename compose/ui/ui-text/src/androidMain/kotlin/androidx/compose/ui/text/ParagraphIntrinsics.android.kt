@@ -43,6 +43,17 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.core.text.TextUtilsCompat
 import java.util.Locale
 
+/**
+ * The maximum length of text in characters for which the single-line line-height optimization is
+ * allowed. If the text length exceeds this threshold, we safely bypass the optimization by assuming
+ * it may contain a newline. This ensures O(1) performance for the check.
+ *
+ * The threshold value (512) is chosen to comfortably cover typical single-line UI elements (labels,
+ * buttons, text fields) while protecting the UI thread from jank on pathological inputs (massive
+ * strings).
+ */
+private const val MaxSingleLineLengthThreshold = 512
+
 internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,
@@ -88,6 +99,32 @@ internal class AndroidParagraphIntrinsics(
 
     internal val textDirectionHeuristic =
         resolveTextDirectionHeuristics(style.textDirection, style.localeList)
+
+    /**
+     * Whether [text] contains a hard new line. This is evaluated to apply certain optimizations.
+     * Let's compute this only once when needed to avoid unnecessary O(n) call.
+     *
+     * To ensure O(1) complexity, we use a heuristic: if the text length exceeds
+     * [MaxSingleLineLengthThreshold], we assume it contains a newline to safely bypass the
+     * single-line optimization.
+     */
+    private var _mayHaveNewLine = -1
+    @OptIn(ExperimentalTextApi::class)
+    internal val mayHaveNewLine: Boolean
+        get() {
+            if (
+                AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled &&
+                    _mayHaveNewLine == -1
+            ) {
+                _mayHaveNewLine =
+                    if (text.length > MaxSingleLineLengthThreshold || text.contains('\n')) {
+                        1
+                    } else {
+                        0
+                    }
+            }
+            return _mayHaveNewLine == 1
+        }
 
     init {
         val resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface =
@@ -141,6 +178,8 @@ internal class AndroidParagraphIntrinsics(
                 density = density,
                 resolveTypeface = resolveTypeface,
                 useEmojiCompat = emojiCompatProcessed,
+                softWrap = softWrap,
+                mayHaveNewLine = mayHaveNewLine,
             )
 
         layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
@@ -177,8 +216,9 @@ internal fun resolveTextDirectionHeuristics(
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-            "fontFamilyResolver)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, " +
+            "createFontFamilyResolver(resourceLoader), placeholders, true)",
+        "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
 actual fun ParagraphIntrinsics(
@@ -202,7 +242,7 @@ actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
 actual fun ParagraphIntrinsics(
@@ -226,7 +266,7 @@ actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
     ),
 )
 actual fun ParagraphIntrinsics(

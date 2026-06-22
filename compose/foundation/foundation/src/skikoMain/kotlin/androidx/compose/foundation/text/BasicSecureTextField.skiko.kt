@@ -21,4 +21,9 @@ import androidx.compose.runtime.Composable
 // TODO https://youtrack.jetbrains.com/issue/CMP-8484
 
 @Composable
-internal actual fun platformAllowsRevealLastTyped(): Boolean = false
+internal actual fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisibilitySettings {
+    return SplitVisibilitySettings(
+        touch = false,
+        physical = false,
+    )
+}

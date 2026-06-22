@@ -1,12 +1,22 @@
 # Bug component: 856887
-lpf@google.com
-tianliu@google.com
-soboleva@google.com
-ashikov@google.com
-levima@google.com
-jossiwolf@google.com
-chuckj@google.com
+
+# g/jetpack-compose-flatpack
 alexflo@google.com
+beloglazov@google.com
+brandonjiang@google.com
+jossiwolf@google.com
+kmost@google.com
+levima@google.com
+lpf@google.com
+sacranie@google.com
+tolgacanunal@google.com
+trubnikovdv@google.com
+
+# Additional Code Owners
+ashikov@google.com
+chuckj@google.com
+soboleva@google.com
+tianliu@google.com
 
 # Text
 include /TEXT_OWNERS

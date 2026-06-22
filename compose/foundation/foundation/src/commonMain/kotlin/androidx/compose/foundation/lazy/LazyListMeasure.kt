@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.fastSumBy
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
@@ -127,6 +128,7 @@ internal fun measureLazyList(
             coroutineScope = coroutineScope,
             density = density,
             childConstraints = measuredItemProvider.childConstraints,
+            stickingItemsCombinedSize = 0,
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -460,6 +462,7 @@ internal fun measureLazyList(
             coroutineScope = coroutineScope,
             density = density,
             childConstraints = measuredItemProvider.childConstraints,
+            stickingItemsCombinedSize = stickingItems.fastSumBy { it.size },
         )
     }
 }

@@ -578,6 +578,18 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
             return when {
                 properties.isEmpty() -> parameter
                 !shouldRecurseDeeper() -> {
+                    // If we have reached or exceeded the recursion limit, we don't want to
+                    // decompose further in the current call stack. We still check for expandable
+                    // children to provide a reference for potential later expansion by the client.
+                    if (recursions > maxRecursions) {
+                        // This branch is taken if createRecursively was called with a recursion
+                        // depth already exceeding maxRecursions. This should be prevented from
+                        // going deeper to avoid stack overflow.
+                        return parameter
+                    }
+                    // When recursions == maxRecursions, we proceed to check if there are child
+                    // elements. The hasChildValue check below calls createRecursively to determine
+                    // if this node is expandable.
                     val hasChildValue =
                         properties.values.any { part ->
                             createRecursively(part.name, support.valueOf(part, value), value, 0) !=

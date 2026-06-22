@@ -222,7 +222,7 @@ internal fun Spannable.setLineHeight(
     }
 }
 
-private fun resolveLineHeightInPx(
+internal fun resolveLineHeightInPx(
     lineHeight: TextUnit,
     contextFontSize: Float,
     density: Density,

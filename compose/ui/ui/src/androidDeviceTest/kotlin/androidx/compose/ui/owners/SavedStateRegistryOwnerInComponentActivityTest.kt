@@ -17,17 +17,14 @@
 package androidx.compose.ui.owners
 
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,47 +32,29 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class SavedStateRegistryOwnerInComponentActivityTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
-    private lateinit var activity: ComponentActivity
-
-    @Before
-    fun setup() {
-        activity = activityTestRule.activity
-    }
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     @Test
     fun ownerIsAvailable() {
-        val latch = CountDownLatch(1)
         var owner: SavedStateRegistryOwner? = null
 
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                owner = LocalSavedStateRegistryOwner.current
-                latch.countDown()
-            }
-        }
+        rule.setContent { owner = LocalSavedStateRegistryOwner.current }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(activity, owner)
+        rule.waitForIdle()
+        assertEquals(rule.activity, owner)
     }
 
     @Test
     fun ownerIsAvailableWhenComposedIntoView() {
-        val latch = CountDownLatch(1)
         var owner: SavedStateRegistryOwner? = null
 
-        activityTestRule.runOnUiThread {
-            val view = ComposeView(activity)
-            activity.setContentView(view)
-            view.setContent {
-                owner = LocalSavedStateRegistryOwner.current
-                latch.countDown()
-            }
+        rule.runOnUiThread {
+            val view = ComposeView(rule.activity)
+            rule.activity.setContentView(view)
+            view.setContent { owner = LocalSavedStateRegistryOwner.current }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(activity, owner)
+        rule.waitForIdle()
+        assertEquals(rule.activity, owner)
     }
 }
