@@ -16,6 +16,8 @@
 
 package androidx.compose.remote.creation;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * Holds information about the display properties at the time of creation.
  *
@@ -27,23 +29,25 @@ public class CreationDisplayInfo {
     private final int mWidth;
     private final int mHeight;
     private final int mDensityDpi;
+    private final int mDensityBehavior;
 
-    public CreationDisplayInfo(
-            int width,
-            int height,
-            int mDensityDpi
-    ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public CreationDisplayInfo(int width, int height, int mDensityDpi, int densityBehavior) {
         this.mWidth = width;
         this.mHeight = height;
         this.mDensityDpi = mDensityDpi;
+        this.mDensityBehavior = densityBehavior;
+    }
+
+    public CreationDisplayInfo(int width, int height, int mDensityDpi) {
+        this(width, height, mDensityDpi, 0);
     }
 
     /**
      * Returns the logical density of the display. This is a scaling factor for the Density
      * Independent Pixel unit, where one DIP is one pixel on an approximately 160 dpi screen (for
-     * example a 240x320, 1.5"x2" screen), providing the baseline of the system's display.
-     * Thus on a 160dpi screen this density value will be 1; on a 120 dpi screen it would be .75;
-     * etc.
+     * example a 240x320, 1.5"x2" screen), providing the baseline of the system's display. Thus on a
+     * 160dpi screen this density value will be 1; on a 120 dpi screen it would be .75; etc.
      *
      * @see #getDensityDpi()
      */
@@ -51,16 +55,12 @@ public class CreationDisplayInfo {
         return mDensityDpi / 160f;
     }
 
-    /**
-     * Returns the height in pixels of the virtual display.
-     */
+    /** Returns the height in pixels of the virtual display. */
     public int getHeight() {
         return mHeight;
     }
 
-    /**
-     * Returns the width in pixels of the virtual display.
-     */
+    /** Returns the width in pixels of the virtual display. */
     public int getWidth() {
         return mWidth;
     }
@@ -71,5 +71,11 @@ public class CreationDisplayInfo {
      */
     public int getDensityDpi() {
         return mDensityDpi;
+    }
+
+    /** Returns the density behavior. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public int getDensityBehavior() {
+        return mDensityBehavior;
     }
 }
