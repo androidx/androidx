@@ -607,7 +607,7 @@ class CardTest {
     }
 
     @Test
-    fun gives_correct_text_style_base() {
+    fun gives_correct_text_styles() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
         rule.setContentWithTheme {
@@ -623,7 +623,7 @@ class CardTest {
     }
 
     @Test
-    fun app_card_gives_correct_text_style_base() {
+    fun app_card_gives_correct_text_styles() {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
@@ -656,7 +656,7 @@ class CardTest {
     }
 
     @Test
-    fun title_card_gives_correct_text_style_base() {
+    fun title_card_gives_correct_text_styles() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
         var actuaContentTextStyle = TextStyle.Default
@@ -685,7 +685,7 @@ class CardTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun outlined_app_card_gives_correct_text_style_base() {
+    fun outlined_app_card_gives_correct_text_styles() {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
@@ -742,6 +742,134 @@ class CardTest {
         }
 
         assertEquals(expectedContent, actualContent)
+    }
+
+    @Test
+    fun app_card_content_gives_default_colors() {
+        var expectedAppColor = Color.Transparent
+        var expectedTimeColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var expectedContentColor = Color.Transparent
+        var actualContentColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        var actualAppColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedAppColor = MaterialTheme.colorScheme.onSurface
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedTitleColor = MaterialTheme.colorScheme.onSurface
+            expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
+                AppCardContent(
+                    appName = { actualAppColor = LocalContentColor.current },
+                    time = { actualTimeColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                ) {
+                    actualContentColor = LocalContentColor.current
+                }
+            }
+        }
+
+        assertEquals(expectedAppColor, actualAppColor)
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+        assertEquals(expectedContentColor, actualContentColor)
+    }
+
+    @Test
+    fun title_card_content_gives_default_colors() {
+        var expectedTimeColor = Color.Transparent
+        var expectedSubtitleColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var expectedContentColor = Color.Transparent
+        var actualContentColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        var actualSubtitleColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedSubtitleColor = MaterialTheme.colorScheme.tertiary
+            expectedTitleColor = MaterialTheme.colorScheme.onSurface
+            expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
+                TitleCardContent(
+                    time = { actualTimeColor = LocalContentColor.current },
+                    subtitle = { actualSubtitleColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                    content = { actualContentColor = LocalContentColor.current },
+                )
+            }
+        }
+
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedSubtitleColor, actualSubtitleColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+        assertEquals(expectedContentColor, actualContentColor)
+    }
+
+    @Test
+    fun app_card_content_gives_correct_text_styles() {
+        var actualAppTextStyle = TextStyle.Default
+        var actualTimeTextStyle = TextStyle.Default
+        var actualTitleTextStyle = TextStyle.Default
+        var actuaContentTextStyle = TextStyle.Default
+        var expectedAppTextStyle = TextStyle.Default
+        var expectedTimeTextStyle = TextStyle.Default
+        var expectedTitleTextStyle = TextStyle.Default
+        var expectedContentTextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            expectedAppTextStyle = MaterialTheme.typography.titleSmall
+            expectedTimeTextStyle = MaterialTheme.typography.bodyMedium
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
+            expectedContentTextStyle = MaterialTheme.typography.bodyLarge
+
+            AppCardContent(
+                appName = { actualAppTextStyle = LocalTextStyle.current },
+                time = { actualTimeTextStyle = LocalTextStyle.current },
+                title = { actualTitleTextStyle = LocalTextStyle.current },
+            ) {
+                actuaContentTextStyle = LocalTextStyle.current
+            }
+        }
+        assertEquals(expectedAppTextStyle, actualAppTextStyle)
+        assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
+        assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
+        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+    }
+
+    @Test
+    fun title_card_content_gives_correct_text_styles() {
+        var actualTimeTextStyle = TextStyle.Default
+        var actualTitleTextStyle = TextStyle.Default
+        var actuaContentTextStyle = TextStyle.Default
+        var actualSubtitleTextStyle = TextStyle.Default
+        var expectedTimeTextStyle = TextStyle.Default
+        var expectedTitleTextStyle = TextStyle.Default
+        var expectedContentTextStyle = TextStyle.Default
+        var expectedSubtitleTextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            expectedTimeTextStyle = MaterialTheme.typography.bodyMedium
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
+            expectedContentTextStyle = MaterialTheme.typography.bodyLarge
+            expectedSubtitleTextStyle = MaterialTheme.typography.labelMedium
+
+            TitleCardContent(
+                time = { actualTimeTextStyle = LocalTextStyle.current },
+                title = { actualTitleTextStyle = LocalTextStyle.current },
+                subtitle = { actualSubtitleTextStyle = LocalTextStyle.current },
+                content = { actuaContentTextStyle = LocalTextStyle.current },
+            )
+        }
+        assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
+        assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
+        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedSubtitleTextStyle, actualSubtitleTextStyle)
     }
 }
 

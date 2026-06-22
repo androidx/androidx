@@ -127,10 +127,10 @@ public fun Card(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = onClick,
         containerPainter = null,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -214,10 +214,10 @@ public fun Card(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ): Unit =
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = onClick,
         containerPainter = containerPainter,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -338,25 +338,34 @@ public fun AppCard(
     appImage: @Composable (RowScope.() -> Unit)? = null,
     time: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
-): Unit =
-    AppCardImpl(
-        onClick = onClick,
-        appName = appName,
-        title = title,
-        modifier = modifier,
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        appImage = appImage,
-        time = time,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
+                enabled = enabled,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                containerPainter = null,
+                transformation = transformation,
+            )
+        AppCardContent(
+            appName = appName,
+            title = title,
+            modifier = cardModifier,
+            colors = colors,
+            appImage = appImage,
+            time = time,
+            content = content,
+        )
+    }
+}
 
 /**
  * Opinionated Wear Material 3 [Card] that offers a specific layout to show interactive information
@@ -451,25 +460,33 @@ public fun TitleCard(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     content: @Composable (() -> Unit)? = null,
-): Unit =
-    CardImpl(
-        onClick = onClick,
-        containerPainter = null,
-        title = title,
-        modifier = modifier,
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        time = time,
-        subtitle = subtitle,
-        enabled = enabled,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
+                enabled = enabled,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                containerPainter = null,
+                transformation = transformation,
+            )
+        TitleCardContent(
+            title = title,
+            modifier = cardModifier,
+            time = time,
+            subtitle = subtitle,
+            colors = colors,
+            content = content,
+        )
+    }
+}
 
 /**
  * This [TitleCard] overload supports an image container background and provides an opinionated Wear
@@ -555,25 +572,33 @@ public fun TitleCard(
     interactionSource: MutableInteractionSource? = null,
     transformation: SurfaceTransformation? = null,
     content: @Composable (() -> Unit)? = null,
-): Unit =
-    CardImpl(
-        onClick = onClick,
-        containerPainter = containerPainter,
-        title = title,
-        modifier = modifier,
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        time = time,
-        subtitle = subtitle,
-        enabled = enabled,
-        shape = shape,
-        colors = colors,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        transformation = transformation,
-        content = content,
-    )
+) {
+    val contentColor = colors.contentColor
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
+                enabled = enabled,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                containerPainter = containerPainter,
+                transformation = transformation,
+            )
+        TitleCardContent(
+            title = title,
+            modifier = cardModifier,
+            time = time,
+            subtitle = subtitle,
+            colors = colors,
+            content = content,
+        )
+    }
+}
 
 /**
  * Outlined Wear Material 3 [Card] that offers a single slot to take any content.
@@ -635,10 +660,10 @@ public fun OutlinedCard(
     transformation: SurfaceTransformation? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CardImpl(
+    SingleSlotCardImpl(
         onClick = onClick,
         containerPainter = null,
-        modifier = modifier.cardSizeModifier(),
+        modifier = modifier,
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -652,6 +677,177 @@ public fun OutlinedCard(
         CompositionLocalProvider(
             LocalContentColor provides colors.contentColor,
             LocalTextStyle provides OutlinedCardTokens.ContentTypography.value,
+        ) {
+            content()
+        }
+    }
+}
+
+/**
+ * Lays out the content of a [TitleCard] with support for a title, time, subtitle, and body content.
+ *
+ * While the standard [TitleCard] overloads provide this layout out-of-the-box, [TitleCardContent]
+ * can be used inside the [Card] overload that takes a generic `content` to build custom card
+ * layouts (for example, to wrap the content in a gesture hint indicator like
+ * OneHandedGestureIndicator) while maintaining standard typography, colors, and spacing.
+ *
+ * Example of a [TitleCardContent] layout with OneHandedGestureIndicator:
+ *
+ * @sample androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
+ * @param title A slot for displaying the title of the card, expected to be one of two lines of
+ *   text.
+ * @param modifier Modifier to be applied to the title card content layout.
+ * @param time An optional slot for displaying the time relevant to the contents of the card,
+ *   expected to be a short piece of text. Depending on whether we have a [content] or not, can be
+ *   placed at the end of the [title] line or above it.
+ * @param subtitle An optional slot for displaying the subtitle of the card, expected to be one line
+ *   of text.
+ * @param colors [CardColors] that will be used to resolve the colors used for this card.
+ * @param content The optional body content of the card.
+ */
+@Composable
+public fun TitleCardContent(
+    title: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    time: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (ColumnScope.() -> Unit)? = null,
+    colors: CardColors = CardDefaults.cardColors(),
+    content: @Composable (() -> Unit)? = null,
+) {
+    val timeWithTextStyle =
+        @Composable {
+            time?.let {
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.timeColor,
+                    LocalTextStyle provides CardTokens.TimeTypography.value,
+                    content = time,
+                )
+            }
+        }
+
+    Column(modifier = modifier) {
+        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+        // Modifier.height().
+        if (content == null && time != null) {
+            timeWithTextStyle()
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Row(Modifier.weight(1f)) {
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.titleColor,
+                    LocalTextStyle provides CardTokens.TitleTypography.value,
+                ) {
+                    title()
+                }
+            }
+            if (content != null) {
+                Spacer(modifier = Modifier.width(4.dp))
+                timeWithTextStyle()
+            }
+        }
+        content?.let {
+            Spacer(modifier = Modifier.height(2.dp))
+            CompositionLocalProvider(
+                values =
+                    arrayOf(
+                        LocalContentColor provides colors.contentColor,
+                        LocalTextStyle provides CardTokens.ContentTypography.value,
+                    ),
+                content = content,
+            )
+        }
+        subtitle?.let {
+            Spacer(modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp))
+            CompositionLocalProvider(
+                LocalContentColor provides colors.subtitleColor,
+                LocalTextStyle provides CardTokens.SubtitleTypography.value,
+            ) {
+                subtitle()
+            }
+        }
+    }
+}
+
+/**
+ * Lays out the content of an [AppCard] with support for an app icon, app name, time, title, and
+ * body content.
+ *
+ * While the standard [AppCard] overloads provide this layout out-of-the-box, [AppCardContent] can
+ * be used inside the [Card] overload that takes a generic `content` to build custom card layouts
+ * (for example, to wrap the content in a gesture hint indicator like OneHandedGestureIndicator)
+ * while maintaining standard typography, colors, and spacing.
+ *
+ * Example of an [AppCardContent] layout with OneHandedGestureIndicator:
+ *
+ * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
+ * @param appName A slot for providing the app name.
+ * @param title A slot for providing the card's title.
+ * @param modifier Modifier to be applied to the app card content layout.
+ * @param colors [CardColors] that will be used to resolve the content, title, and app name colors
+ *   in different states. See [CardDefaults.cardColors].
+ * @param appImage A slot for providing the app icon.
+ * @param time A slot for providing the time.
+ * @param content A slot for providing the card's body content.
+ */
+@Composable
+public fun AppCardContent(
+    appName: @Composable RowScope.() -> Unit,
+    title: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    colors: CardColors = CardDefaults.cardColors(),
+    appImage: @Composable (RowScope.() -> Unit)? = null,
+    time: @Composable (RowScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier = modifier) {
+        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+        // Modifier.height().
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                appImage?.let {
+                    appImage()
+                    Spacer(Modifier.width(4.dp))
+                }
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.appNameColor,
+                    LocalTextStyle provides CardTokens.AppNameTypography.value,
+                ) {
+                    appName()
+                }
+            }
+
+            time?.let {
+                Spacer(Modifier.width(6.dp))
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.timeColor,
+                    LocalTextStyle provides CardTokens.TimeTypography.value,
+                ) {
+                    time()
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            content = {
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.titleColor,
+                    LocalTextStyle provides CardTokens.TitleTypography.value,
+                ) {
+                    title()
+                }
+            },
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        CompositionLocalProvider(
+            LocalContentColor provides colors.contentColor,
+            LocalTextStyle provides CardTokens.ContentTypography.value,
         ) {
             content()
         }
@@ -1009,7 +1205,7 @@ public class CardColors(
 }
 
 @Composable
-internal fun CardImpl(
+internal fun SingleSlotCardImpl(
     onClick: (() -> Unit)?,
     containerPainter: Painter?,
     modifier: Modifier,
@@ -1023,213 +1219,60 @@ internal fun CardImpl(
     interactionSource: MutableInteractionSource?,
     transformation: SurfaceTransformation?,
     content: @Composable ColumnScope.() -> Unit,
-) =
-    CompositionLocalProvider(LocalContentColor provides colors.contentColor) {
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .surface(
-                        transformation = transformation,
-                        painter = containerPainter ?: ColorPainter(colors.containerColor),
-                        shape = shape,
-                        border = border,
-                    )
-                    .then(
-                        if (onClick != null)
-                            Modifier.combinedClickable(
-                                enabled = enabled,
-                                onClick = onClick,
-                                onLongClick =
-                                    onLongClick, // NB combinedClickable calls LongPress haptic
-                                onLongClickLabel = onLongClickLabel,
-                                role = null,
-                                indication = ripple(),
-                                interactionSource = interactionSource,
-                            )
-                        else
-                            Modifier.focusable(
-                                    enabled = true,
-                                    interactionSource = interactionSource,
-                                )
-                                .semantics(mergeDescendants = true) {}
-                    )
-                    .padding(contentPadding),
-            content = content,
-        )
-    }
-
-@Composable
-internal fun CardImpl(
-    onClick: (() -> Unit)?,
-    containerPainter: Painter?,
-    title: @Composable RowScope.() -> Unit,
-    modifier: Modifier,
-    onLongClick: (() -> Unit)?,
-    onLongClickLabel: String?,
-    time: @Composable (() -> Unit)?,
-    subtitle: @Composable (ColumnScope.() -> Unit)?,
-    enabled: Boolean,
-    shape: Shape,
-    colors: CardColors,
-    border: BorderStroke?,
-    contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource?,
-    transformation: SurfaceTransformation?,
-    content: @Composable (() -> Unit)?,
 ) {
-    val timeWithTextStyle: @Composable () -> Unit = {
-        time?.let {
-            CompositionLocalProvider(
-                values =
-                    arrayOf(
-                        LocalContentColor provides colors.timeColor,
-                        LocalTextStyle provides CardTokens.TimeTypography.value,
-                    ),
-                content = time,
+    CompositionLocalProvider(LocalContentColor provides colors.contentColor) {
+        val cardModifier =
+            modifier.cardContainerModifier(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
+                enabled = enabled,
+                shape = shape,
+                colors = colors,
+                border = border,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                containerPainter = containerPainter,
+                transformation = transformation,
             )
-        }
-    }
-
-    CardImpl(
-        onClick = onClick,
-        containerPainter = containerPainter,
-        modifier = modifier.cardSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        colors = colors,
-        border = border,
-        interactionSource = interactionSource,
-        contentPadding = contentPadding,
-        shape = shape,
-        transformation = transformation,
-    ) {
-        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
-        // Modifier.height().
-        if (content == null && time != null) {
-            timeWithTextStyle()
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Row(Modifier.weight(1f)) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
-                }
-            }
-            if (content != null) {
-                Spacer(modifier = Modifier.width(4.dp))
-                timeWithTextStyle()
-            }
-        }
-        content?.let {
-            Spacer(modifier = Modifier.height(2.dp))
-            CompositionLocalProvider(
-                values =
-                    arrayOf(
-                        LocalContentColor provides colors.contentColor,
-                        LocalTextStyle provides CardTokens.ContentTypography.value,
-                    ),
-                content = content,
-            )
-        }
-        subtitle?.let {
-            Spacer(modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp))
-            CompositionLocalProvider(
-                LocalContentColor provides colors.subtitleColor,
-                LocalTextStyle provides CardTokens.SubtitleTypography.value,
-            ) {
-                subtitle()
-            }
-        }
+        Column(modifier = cardModifier, content = content)
     }
 }
 
 @Composable
-internal fun AppCardImpl(
+internal fun Modifier.cardContainerModifier(
     onClick: (() -> Unit)?,
-    appName: @Composable RowScope.() -> Unit,
-    title: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    onLongClick: (() -> Unit)? = null,
-    onLongClickLabel: String? = null,
-    enabled: Boolean = true,
-    shape: Shape = CardDefaults.shape,
-    colors: CardColors = CardDefaults.cardColors(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues = CardDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-    transformation: SurfaceTransformation? = null,
-    appImage: @Composable (RowScope.() -> Unit)? = null,
-    time: @Composable (RowScope.() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    CardImpl(
-        onClick = onClick,
-        containerPainter = null,
-        modifier = modifier.cardSizeModifier(),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        colors = colors,
-        border = border,
-        interactionSource = interactionSource,
-        contentPadding = contentPadding,
-        transformation = transformation,
-        shape = shape,
-    ) {
-        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
-        // Modifier.height().
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                appImage?.let {
-                    appImage()
-                    Spacer(Modifier.width(4.dp))
-                }
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.appNameColor,
-                    LocalTextStyle provides CardTokens.AppNameTypography.value,
-                ) {
-                    appName()
-                }
-            }
-
-            time?.let {
-                Spacer(Modifier.width(6.dp))
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides CardTokens.TimeTypography.value,
-                ) {
-                    time()
-                }
-            }
+    onLongClick: (() -> Unit)?,
+    onLongClickLabel: String?,
+    enabled: Boolean,
+    shape: Shape,
+    colors: CardColors,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+    containerPainter: Painter?,
+    transformation: SurfaceTransformation?,
+): Modifier {
+    val painter = containerPainter ?: ColorPainter(colors.containerColor)
+    val clickableModifier =
+        if (onClick != null) {
+            Modifier.combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
+                onLongClickLabel = onLongClickLabel,
+                role = null,
+                indication = ripple(),
+                interactionSource = interactionSource,
+            )
+        } else {
+            Modifier.focusable(enabled = true, interactionSource = interactionSource).semantics(
+                mergeDescendants = true
+            ) {}
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            content = {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
-                }
-            },
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor,
-            LocalTextStyle provides CardTokens.ContentTypography.value,
-        ) {
-            content()
-        }
-    }
+    return this.cardSizeModifier()
+        .fillMaxWidth()
+        .surface(transformation = transformation, painter = painter, shape = shape, border = border)
+        .then(clickableModifier)
+        .padding(contentPadding)
 }

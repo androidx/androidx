@@ -37,7 +37,16 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.integration.demos.common.ActivityDemo
+import androidx.wear.compose.integration.demos.common.ComposableDemo
+import androidx.wear.compose.integration.demos.common.Material3DemoCategory
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonContent
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.ChildButton
+import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
@@ -46,9 +55,72 @@ import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
+import androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
+import androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
+import androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
+import androidx.wear.compose.material3.samples.OneHandedGestureDisableButtonSample
+import androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
+import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
+import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
+import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
+import androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+import androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
+import androidx.wear.compose.material3.samples.icons.FavoriteIcon
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+
+val OneHandedGestureDemos =
+    listOf(
+        ComposableDemo("Button") { OneHandedGestureButtonSample() },
+        ComposableDemo("Enable/Disable Gestures") { OneHandedGestureDisableButtonSample() },
+        ComposableDemo("TLC scrollDown with EdgeButton") {
+            OneHandedGestureTransformingLazyColumnSample()
+        },
+        ComposableDemo("SLC scrollDown with EdgeButton") {
+            OneHandedGestureScalingLazyColumnSample()
+        },
+        ComposableDemo("TLC scrollToNextItem with EdgeButton") {
+            OneHandedGestureTransformingLazyColumnScrollToNextItemSample()
+        },
+        ComposableDemo("SLC scrollToNextItem with EdgeButton") {
+            OneHandedGestureScalingLazyColumnScrollToNextItemSample()
+        },
+        ComposableDemo("TransformingLazyColumn with Button") {
+            OneHandedGestureTransformingLazyColumnWithButtonDemo()
+        },
+        ComposableDemo("Horizontal Pager") { OneHandedGestureHorizontalPagerSample() },
+        ComposableDemo("Vertical Pager") { OneHandedGestureVerticalPagerSample() },
+        ComposableDemo("Two Buttons with the same priority") {
+            OneHandedGestureTwoButtonsSamePriorityDemo()
+        },
+        ComposableDemo("Primary/Dismiss Buttons") { OneHandedGesturePrimaryDismissButtons() },
+        ActivityDemo(
+            "SwipeDismissableNavHost",
+            OneHandedGestureSwipeDismissableNavHostDemoActivity::class,
+        ),
+        Material3DemoCategory(
+            "Multi-slot Cards",
+            listOf(
+                ComposableDemo("App Card") { AppCardContentWithOneHandedGestureSample() },
+                ComposableDemo("Title Card") { TitleCardContentWithOneHandedGestureSample() },
+            ),
+        ),
+        Material3DemoCategory(
+            "Multi-slot Buttons",
+            listOf(
+                ComposableDemo("Filled Button") { ButtonContentWithOneHandedGestureSample() },
+                ComposableDemo("Filled Tonal Button") { OHGTonalButtonDemo() },
+                ComposableDemo("Outlined Button") { OHGOutlinedButtonDemo() },
+                ComposableDemo("Child Button") { OHGChildButtonDemo() },
+                ComposableDemo("Compact Button") {
+                    CompactButtonContentWithOneHandedGestureSample()
+                },
+            ),
+        ),
+    )
 
 @Composable
 fun OneHandedGestureTwoButtonsSamePriorityDemo() {
@@ -248,5 +320,101 @@ private fun OneHandedGestureButton(
             ),
     ) {
         OneHandedGestureIndicator(interactionSource = interactionSource, content = content)
+    }
+}
+
+@Composable
+fun OHGTonalButtonDemo() {
+    var label by remember { mutableStateOf("Tonal Button") }
+    val onClick = remember { { label = "Gestured" } }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        FilledTonalButton(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            modifier =
+                Modifier.oneHandedGesture(
+                    action = GestureAction.Primary,
+                    interactionSource = interactionSource,
+                    onGesture = onClick,
+                ),
+        ) {
+            OneHandedGestureIndicator(
+                interactionSource = interactionSource,
+                gestureIndicatorTint = MaterialTheme.colorScheme.onSurfaceVariant,
+            ) {
+                ButtonContent(
+                    secondaryLabel = { Text("Secondary Label") },
+                    icon = { FavoriteIcon(ButtonDefaults.IconSize) },
+                    colors = ButtonDefaults.filledTonalButtonColors(),
+                    label = { Text(label) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OHGOutlinedButtonDemo() {
+    var label by remember { mutableStateOf("Outlined Button") }
+    val onClick = remember { { label = "Gestured" } }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        OutlinedButton(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            modifier =
+                Modifier.oneHandedGesture(
+                    action = GestureAction.Primary,
+                    interactionSource = interactionSource,
+                    onGesture = onClick,
+                ),
+        ) {
+            OneHandedGestureIndicator(
+                interactionSource = interactionSource,
+                gestureIndicatorTint = MaterialTheme.colorScheme.primary,
+            ) {
+                ButtonContent(
+                    secondaryLabel = { Text("Secondary Label") },
+                    icon = { FavoriteIcon(ButtonDefaults.IconSize) },
+                    colors = ButtonDefaults.outlinedButtonColors(),
+                    label = { Text(label) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OHGChildButtonDemo() {
+    var label by remember { mutableStateOf("Child Button") }
+    val onClick = remember { { label = "Gestured" } }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        ChildButton(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            modifier =
+                Modifier.oneHandedGesture(
+                    action = GestureAction.Primary,
+                    interactionSource = interactionSource,
+                    onGesture = onClick,
+                ),
+        ) {
+            OneHandedGestureIndicator(
+                interactionSource = interactionSource,
+                gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
+            ) {
+                ButtonContent(
+                    secondaryLabel = { Text("Secondary Label") },
+                    icon = { FavoriteIcon(ButtonDefaults.IconSize) },
+                    colors = ButtonDefaults.childButtonColors(),
+                    label = { Text(label) },
+                )
+            }
+        }
     }
 }
