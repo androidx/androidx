@@ -34,7 +34,12 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
@@ -80,7 +85,11 @@ fun SurfaceTransformationOnCustomComponent() {
                 "Message #$it",
                 "This is a body",
                 transformation = SurfaceTransformation(transformationSpec),
-                modifier = Modifier.transformedHeight(this, transformationSpec),
+                modifier =
+                    Modifier.transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
             )
         }
     }
@@ -108,7 +117,11 @@ fun SurfaceTransformationButtonSample() {
             Button(
                 onClick = {},
                 transformation = SurfaceTransformation(transformationSpec),
-                modifier = Modifier.transformedHeight(this, transformationSpec),
+                modifier =
+                    Modifier.transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 Text("Button #$it")
             }
@@ -122,18 +135,27 @@ fun SurfaceTransformationButtonSample() {
 fun SurfaceTransformationCardSample() {
     val transformationSpec = rememberTransformationSpec()
     var expandedIndex by remember { mutableIntStateOf(-1) }
+    val state = rememberTransformingLazyColumnState()
 
-    TransformingLazyColumn {
-        items(count = 100) {
-            TitleCard(
-                onClick = { expandedIndex = if (expandedIndex == it) -1 else it },
-                title = { Text("Card #$it") },
-                subtitle = { Text("Subtitle #$it") },
-                transformation = SurfaceTransformation(transformationSpec),
-                modifier = Modifier.transformedHeight(this, transformationSpec),
-            ) {
-                if (it == expandedIndex) {
-                    Text("Expanded content #$it")
+    AppScaffold {
+        ScreenScaffold(state) { contentPadding ->
+            TransformingLazyColumn(state = state, contentPadding = contentPadding) {
+                items(count = 100) {
+                    TitleCard(
+                        onClick = { expandedIndex = if (expandedIndex == it) -1 else it },
+                        title = { Text("Card #$it") },
+                        subtitle = { Text("Subtitle #$it") },
+                        transformation = SurfaceTransformation(transformationSpec),
+                        modifier =
+                            Modifier.transformedHeight(this, transformationSpec)
+                                .minimumVerticalContentPadding(
+                                    CardDefaults.minimumVerticalListContentPadding
+                                ),
+                    ) {
+                        if (it == expandedIndex) {
+                            Text("Expanded content #$it")
+                        }
+                    }
                 }
             }
         }
