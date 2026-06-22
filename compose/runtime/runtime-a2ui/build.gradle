@@ -35,6 +35,7 @@ dependencies {
 
     implementation(project(":a2ui:a2ui-engine"))
     implementation(project(":annotation:annotation"))
+    implementation(project(":collection:collection"))
 
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:ui:ui-test"))
