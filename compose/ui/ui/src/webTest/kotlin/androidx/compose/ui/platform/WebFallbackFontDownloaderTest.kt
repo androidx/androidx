@@ -123,27 +123,122 @@ class WebFallbackFontDownloaderTest : OnCanvasTests {
     }
 
     @Test
-    fun exceptionInDownloader_doesNotCrashWorker() = runTest {
+    fun failedDownload_isRetriedWithSameCodepoints() = runTest {
+        val font = FontFamily.Default
+        val calls = mutableListOf<Set<Int>>()
+        val flaky = object : FallbackFontDownloader {
+            override suspend fun downloadFallbackFont(codepoints: Set<Int>): List<FontFamily> {
+                calls += codepoints.toSet()
+                if (calls.size == 1) throw RuntimeException("transient network error")
+                return listOf(font)
+            }
+        }
+        val loaded = mutableListOf<List<FontFamily>>()
+        val downloader = WebFallbackFontDownloader(
+            downloader = flaky,
+            scope = backgroundScope,
+            onFontsLoaded = { loaded += it }
+        )
+
+        downloader.submit(setOf(0x4E2D, 0x6C34))
+        advanceTimeBy(1000)
+
+        assertEquals(2, calls.size, "Failed batch must be retried instead of being dropped")
+        assertEquals(
+            setOf(0x4E2D, 0x6C34),
+            calls[1],
+            "Retry must carry the same codepoints as the failed batch"
+        )
+        assertEquals(
+            listOf(font),
+            loaded.single(),
+            "A successful retry must deliver the downloaded fonts"
+        )
+    }
+
+    @Test
+    fun consecutiveFailures_useGrowingBackoff() = runTest {
         var callCount = 0
-        val throwingOnFirst = object : FallbackFontDownloader {
+        val alwaysFails = object : FallbackFontDownloader {
             override suspend fun downloadFallbackFont(codepoints: Set<Int>): List<FontFamily> {
                 callCount++
-                if (callCount == 1) throw RuntimeException("download failed")
+                throw RuntimeException("permanent failure")
+            }
+        }
+        val downloader = WebFallbackFontDownloader(
+            downloader = alwaysFails,
+            scope = backgroundScope,
+            onFontsLoaded = {}
+        )
+
+        downloader.submit(setOf(1))
+
+        // First failure backs off by 0s, so the first retry happens (and fails) almost immediately.
+        advanceTimeBy(500)
+        assertEquals(2, callCount, "First failure must retry immediately (0s backoff)")
+
+        // Second failure backs off by 5s — no further attempt before that elapses.
+        advanceTimeBy(4000)
+        assertEquals(2, callCount, "Third attempt must wait for the 5s backoff")
+
+        // Cross the 5s boundary — the third attempt fires.
+        advanceTimeBy(2000)
+        assertEquals(3, callCount, "Third attempt must run once the 5s backoff elapsed")
+    }
+
+    @Test
+    fun successResetsBackoff() = runTest {
+        var callCount = 0
+        // Fails on odd calls, succeeds on even ones, so every submit is "fail then retry-succeeds".
+        val flaky = object : FallbackFontDownloader {
+            override suspend fun downloadFallbackFont(codepoints: Set<Int>): List<FontFamily> {
+                callCount++
+                if (callCount % 2 == 1) throw RuntimeException("transient")
                 return emptyList()
             }
         }
         val downloader = WebFallbackFontDownloader(
-            downloader = throwingOnFirst,
+            downloader = flaky,
             scope = backgroundScope,
             onFontsLoaded = {}
         )
+
         downloader.submit(setOf(1))
-        advanceTimeBy(200)
-        assertEquals(1, callCount)
+        advanceTimeBy(1000)
+        assertEquals(2, callCount, "First batch fails then succeeds on the immediate retry")
+
+        // The previous success must reset the backoff to 0, so this failure also retries immediately.
+        // If the backoff were not reset, the retry would be delayed by 5s and callCount would stay 3.
+        downloader.submit(setOf(2))
+        advanceTimeBy(1000)
+        assertEquals(4, callCount, "After a success, the next failure must retry immediately again")
+    }
+
+    @Test
+    fun workerSurvivesFailures_andKeepsProcessingNewBatches() = runTest {
+        val calls = mutableListOf<Set<Int>>()
+        val downloader = WebFallbackFontDownloader(
+            downloader = object : FallbackFontDownloader {
+                override suspend fun downloadFallbackFont(codepoints: Set<Int>): List<FontFamily> {
+                    calls += codepoints.toSet()
+                    if (codepoints == setOf(1)) throw RuntimeException("always fails for 1")
+                    return emptyList()
+                }
+            },
+            scope = backgroundScope,
+            onFontsLoaded = {}
+        )
+
+        downloader.submit(setOf(1))
+        advanceTimeBy(300)
 
         downloader.submit(setOf(2))
-        advanceTimeBy(200)
-        assertEquals(2, callCount, "Worker must survive exception and process next submit")
+        advanceTimeBy(300)
+
+        assertTrue(
+            calls.any { it == setOf(2) },
+            "A continuously failing batch must not block the worker from processing new batches"
+        )
     }
 
     @Test

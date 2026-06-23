@@ -25,8 +25,10 @@ import androidx.compose.ui.text.UnresolvedSymbolsRegistry
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.WebUnresolvedSymbolsRegistry
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -47,14 +49,22 @@ internal class WebFallbackFontDownloader(
 
     init {
         scope.launch {
+            var errorCount = 0
             while (isActive) {
                 val batch = awaitBatch()
                 try {
                     val newFonts = downloader.downloadFallbackFont(batch)
+                    errorCount = 0
                     drainChannel()
                     onFontsLoaded(newFonts)
-                } catch (e: Exception) {
-                    println("Failed to download fallback font: $e")
+                } catch (e: Throwable) {
+                    val pause = 5.seconds * errorCount
+                    errorCount++
+                    scope.launch {
+                        println("FallbackFontDownloader error: $e, next try in $pause seconds")
+                        delay(pause)
+                        submit(batch)
+                    }
                 }
             }
         }

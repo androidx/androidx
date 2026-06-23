@@ -32,10 +32,22 @@ internal class NotoFontDownloader : FallbackFontDownloader {
 
     override suspend fun downloadFallbackFont(codepoints: Set<Int>): List<FontFamily> {
         val fontsToDownload = getFontsToDownload(codepoints)
-        return fontsToDownload.map { font ->
-            val bytes = loadBytesFromPath(FONT_FALLBACK_BASE_URL + font.font.url)
-            FontFamily(Font(font.font.name, bytes))
+        val fonts = fontsToDownload.map { font ->
+            val fontUrl = FONT_FALLBACK_BASE_URL + font.font.url
+            try {
+                val bytes = loadBytesFromPath(fontUrl)
+                FontFamily(Font(font.font.name, bytes))
+            } catch (e: Throwable) {
+                println("Failed to download fallback font [$fontUrl]: $e")
+                null
+            }
         }
+        if (fonts.isNotEmpty() && fonts.all { it == null }) {
+            // we need to throw an error because we want to retry it later
+            error("Failed to download fallback fonts for codepoints: $codepoints")
+        }
+
+        return fonts.filterNotNull()
     }
 
     internal fun getFontsToDownload(
