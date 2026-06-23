@@ -336,49 +336,51 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                     .also { it.offset += it.transformedHeight / 2 }
             }
 
-        val defaultLayoutInfo =
-            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-                // Prioritize locating by key over index across list changes
-                key = defaultPreviousAnchorItem.key,
-                index = defaultPreviousAnchorItem.index,
-                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
-                offset = defaultPreviousAnchorItem.offset,
-            )
         val activeFirstLayoutItemProvider: TransformingLazyColumnFirstLayoutItemProvider? =
             firstLayoutItemProvider()
 
         val firstLayoutItem =
-            activeFirstLayoutItemProvider
-                ?.let { provider ->
+            activeFirstLayoutItemProvider?.let { provider ->
+                val defaultCenterItemInfo =
+                    TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                        index = defaultPreviousAnchorItem.index,
+                        itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                        offset = defaultPreviousAnchorItem.offset,
+                        key = defaultPreviousAnchorItem.key,
+                    )
+                val info =
                     Snapshot.withoutReadObservation {
-                        provider.getFirstLayoutItem(defaultLayoutInfo)
+                        provider.getFirstLayoutItem(defaultCenterItemInfo)
                     }
-                }
-                ?.takeIf { it != defaultLayoutInfo }
-                ?.run {
+                if (info == defaultCenterItemInfo) {
+                    defaultPreviousAnchorItem
+                } else {
                     val firstLayoutItemIndex =
-                        key?.let { key ->
+                        info.key?.let { key ->
                             keyIndexMap.getIndex(key).takeIf { index -> index != -1 }
-                        } ?: index
+                        } ?: info.index
 
                     val resolvedIndex = firstLayoutItemIndex.coerceIn(0 until itemsCount)
 
-                    if (itemEdge == TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End) {
+                    if (
+                        info.itemEdge == TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End
+                    ) {
                         resolveMeasuredItemForFixedBottomOffset(
                             index = resolvedIndex,
-                            targetBottomOffset = offset,
+                            targetBottomOffset = info.offset,
                             maxHeight = containerConstraints.maxHeight,
                             measuredItemProvider = measuredItemProvider,
                         )
                     } else {
                         resolveMeasuredItemForFixedTopOffset(
                             index = resolvedIndex,
-                            targetTopOffset = offset,
+                            targetTopOffset = info.offset,
                             maxHeight = containerConstraints.maxHeight,
                             measuredItemProvider = measuredItemProvider,
                         )
                     }
-                } ?: defaultPreviousAnchorItem
+                }
+            } ?: defaultPreviousAnchorItem
 
         var canScrollForward = true
         var canScrollBackward = true

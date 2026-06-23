@@ -53,19 +53,15 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     private lateinit var state: TransformingLazyColumnState
     private lateinit var provider: TransformingLazyColumnFirstLayoutItemProvider
 
-    private val current =
-        TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-            key = "key5",
-            index = 5,
-            itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
-            offset = 100,
-        )
+    private val targetIndex = 5
 
     @Test
-    fun rememberTransformingLazyColumnFirstVisibleItemProvider_returnsFirstVisibleItem() {
+    fun firstVisibleItemLayoutItemInfo_returnsFirstVisibleItem() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider = rememberTransformingLazyColumnFirstVisibleItemProvider(state)
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+            }
             TransformingLazyColumn(
                 modifier = Modifier.height(300.dp),
                 state = state,
@@ -76,15 +72,14 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
         }
 
         runBlocking {
-            withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                state.scrollToItem(current.index)
-            }
+            withContext(Dispatchers.Main + AutoTestFrameClock()) { state.scrollToItem(targetIndex) }
         }
 
         rule.runOnIdle {
             val firstVisibleItem = state.layoutInfo.visibleItems.first()
-            val firstLayoutItem = provider.getFirstLayoutItem(current)
-            assertThat(firstLayoutItem.index).isEqualTo(firstVisibleItem.index)
+            val firstLayoutItem = provider.getFirstLayoutItem()
+            assertThat(firstLayoutItem).isNotNull()
+            assertThat(firstLayoutItem!!.index).isEqualTo(firstVisibleItem.index)
             assertThat(firstLayoutItem.key).isEqualTo(firstVisibleItem.key)
             assertThat(firstLayoutItem.offset).isEqualTo(firstVisibleItem.offset)
             assertThat(firstLayoutItem.itemEdge)
@@ -93,10 +88,12 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstVisibleItemProvider_emptyVisibleItems_returnsCurrentItem() {
+    fun firstVisibleItemLayoutItemInfo_emptyVisibleItems_returnsCenterItem() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider = rememberTransformingLazyColumnFirstVisibleItemProvider(state)
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+            }
             TransformingLazyColumn(
                 modifier = Modifier.height(300.dp),
                 state = state,
@@ -107,16 +104,19 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
         }
 
         rule.runOnIdle {
-            val firstLayoutItem = provider.getFirstLayoutItem(current)
-            assertThat(firstLayoutItem).isEqualTo(current)
+            val firstLayoutItem = provider.getFirstLayoutItem()
+            assertThat(firstLayoutItem).isNotNull()
+            assertThat(firstLayoutItem.key).isEqualTo("key5")
         }
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstVisibleItemProvider_scrollInProgress_returnsCurrentItem() {
+    fun firstVisibleItemLayoutItemInfo_scrollInProgress_returnsCenterItem() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider = rememberTransformingLazyColumnFirstVisibleItemProvider(state)
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+            }
             TransformingLazyColumn(
                 modifier = Modifier.height(300.dp),
                 state = state,
@@ -126,27 +126,32 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
             }
         }
 
-        lateinit var firstLayoutItem: TransformingLazyColumnFirstLayoutItemProvider.ItemInfo
+        var firstLayoutItem: TransformingLazyColumnFirstLayoutItemProvider.ItemInfo? = null
         runBlocking {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                state.scrollToItem(current.index)
+                state.scrollToItem(targetIndex)
                 state.scroll(MutatePriority.UserInput) {
                     Snapshot.sendApplyNotifications()
-                    firstLayoutItem = provider.getFirstLayoutItem(current)
+                    firstLayoutItem = provider.getFirstLayoutItem()
                 }
             }
         }
 
-        rule.runOnIdle { assertThat(firstLayoutItem).isEqualTo(current) }
+        rule.runOnIdle {
+            assertThat(firstLayoutItem).isNotNull()
+            assertThat(firstLayoutItem!!.key).isEqualTo("key5")
+        }
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstVisibleItemProvider_itemBelowFirstVisibleRemoved_keepsFirstVisibleItem() {
+    fun firstVisibleItemLayoutItemInfo_itemBelowFirstVisibleRemoved_keepsFirstVisibleItem() {
         val itemsList =
             mutableStateListOf<String>().apply { addAll((0 until itemsCount).map { "key$it" }) }
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider = rememberTransformingLazyColumnFirstVisibleItemProvider(state)
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+            }
             TransformingLazyColumn(
                 modifier = Modifier.height(300.dp),
                 state = state,
@@ -186,12 +191,14 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstVisibleItemProvider_firstVisibleItemRemoved_keepsSameOffsetForNextItem() {
+    fun firstVisibleItemLayoutItemInfo_firstVisibleItemRemoved_keepsSameOffsetForNextItem() {
         val itemsList =
             mutableStateListOf<String>().apply { addAll((0 until itemsCount).map { "key$it" }) }
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider = rememberTransformingLazyColumnFirstVisibleItemProvider(state)
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+            }
             TransformingLazyColumn(
                 modifier = Modifier.height(300.dp),
                 state = state,
@@ -231,23 +238,24 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstLayoutItemProvider_alignsToItemTopEdge() {
+    fun layoutItemInfoOf_alignsToItemStartEdge() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider =
-                rememberTransformingLazyColumnFirstLayoutItemProvider(
-                    state = state,
-                    itemKey = { "key2" },
-                    itemEdge = { TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start },
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                state.layoutItemInfoOf(
+                    itemKey = "key2",
+                    itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
                 )
+            }
             TransformingLazyColumn(modifier = Modifier.height(300.dp), state = state) {
                 items(itemsCount, key = { "key$it" }) { Spacer(Modifier.height(100.dp)) }
             }
         }
 
         rule.runOnIdle {
-            val resolved = provider.getFirstLayoutItem(current)
-            assertThat(resolved.index).isEqualTo(2)
+            val resolved = provider.getFirstLayoutItem()
+            assertThat(resolved).isNotNull()
+            assertThat(resolved!!.index).isEqualTo(2)
             assertThat(resolved.key).isEqualTo("key2")
             assertThat(resolved.itemEdge)
                 .isEqualTo(TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start)
@@ -255,23 +263,24 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstLayoutItemProvider_alignsToItemBottomEdge() {
+    fun layoutItemInfoOf_alignsToItemEndEdge() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider =
-                rememberTransformingLazyColumnFirstLayoutItemProvider(
-                    state = state,
-                    itemKey = { "key2" },
-                    itemEdge = { TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End },
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                state.layoutItemInfoOf(
+                    itemKey = "key2",
+                    itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
                 )
+            }
             TransformingLazyColumn(modifier = Modifier.height(300.dp), state = state) {
                 items(itemsCount, key = { "key$it" }) { Spacer(Modifier.height(100.dp)) }
             }
         }
 
         rule.runOnIdle {
-            val resolved = provider.getFirstLayoutItem(current)
-            assertThat(resolved.index).isEqualTo(2)
+            val resolved = provider.getFirstLayoutItem()
+            assertThat(resolved).isNotNull()
+            assertThat(resolved!!.index).isEqualTo(2)
             assertThat(resolved.key).isEqualTo("key2")
             assertThat(resolved.itemEdge)
                 .isEqualTo(TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End)
@@ -279,54 +288,37 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstLayoutItemProvider_keyNotFound_returnsCurrentItem() {
+    fun layoutItemInfoOf_keyNotFound_returnsCenterItem() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider =
-                rememberTransformingLazyColumnFirstLayoutItemProvider(
-                    state = state,
-                    itemKey = { "nonexistent" },
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                state.layoutItemInfoOf(
+                    itemKey = "nonexistent",
+                    itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
                 )
+            }
             TransformingLazyColumn(modifier = Modifier.height(300.dp), state = state) {
                 items(itemsCount, key = { "key$it" }) { Spacer(Modifier.height(100.dp)) }
             }
         }
 
         rule.runOnIdle {
-            val resolved = provider.getFirstLayoutItem(current)
-            assertThat(resolved).isEqualTo(current)
+            val resolved = provider.getFirstLayoutItem()
+            assertThat(resolved).isNotNull()
+            assertThat(resolved.key).isEqualTo("key5")
         }
     }
 
     @Test
-    fun rememberTransformingLazyColumnFirstLayoutItemProvider_keyNull_returnsCurrentItem() {
+    fun layoutItemInfoOf_scrollInProgress_resolvesItem() {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
-            provider =
-                rememberTransformingLazyColumnFirstLayoutItemProvider(
-                    state = state,
-                    itemKey = { null },
+            provider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+                state.layoutItemInfoOf(
+                    itemKey = "key2",
+                    itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
                 )
-            TransformingLazyColumn(modifier = Modifier.height(300.dp), state = state) {
-                items(itemsCount, key = { "key$it" }) { Spacer(Modifier.height(100.dp)) }
             }
-        }
-
-        rule.runOnIdle {
-            val resolved = provider.getFirstLayoutItem(current)
-            assertThat(resolved).isEqualTo(current)
-        }
-    }
-
-    @Test
-    fun rememberTransformingLazyColumnFirstLayoutItemProvider_scrollInProgress_resolvesItem() {
-        rule.setContent {
-            state = rememberTransformingLazyColumnState()
-            provider =
-                rememberTransformingLazyColumnFirstLayoutItemProvider(
-                    state = state,
-                    itemKey = { "key2" },
-                )
             TransformingLazyColumn(modifier = Modifier.height(300.dp), state = state) {
                 items(itemsCount, key = { "key$it" }) { Spacer(Modifier.height(100.dp)) }
             }
@@ -337,13 +329,15 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 state.scroll(MutatePriority.UserInput) {
                     Snapshot.sendApplyNotifications()
-                    resolved = provider.getFirstLayoutItem(current)
+                    resolved = provider.getFirstLayoutItem()
                 }
             }
         }
 
-        assertThat(resolved?.index).isEqualTo(2)
-        assertThat(resolved?.key).isEqualTo("key2")
+        val finalResolved = resolved
+        assertThat(finalResolved).isNotNull()
+        assertThat(finalResolved!!.index).isEqualTo(2)
+        assertThat(finalResolved.key).isEqualTo("key2")
     }
 
     private class AutoTestFrameClock : MonotonicFrameClock {
@@ -352,5 +346,19 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
         override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
             return onFrame(time.getAndAdd(16_000_000))
         }
+    }
+
+    private fun TransformingLazyColumnFirstLayoutItemProvider.getFirstLayoutItem(
+        centerItem: TransformingLazyColumnFirstLayoutItemProvider.ItemInfo? = null
+    ): TransformingLazyColumnFirstLayoutItemProvider.ItemInfo {
+        val resolvedCenterItem =
+            centerItem
+                ?: TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                    index = 5,
+                    itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                    offset = 100,
+                    key = "key5",
+                )
+        return getFirstLayoutItem(resolvedCenterItem)
     }
 }

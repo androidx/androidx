@@ -227,21 +227,20 @@ fun TransformingLazyColumnFirstLayoutItemProviderSample() {
     // so that when its animated content appears, the card predictably expands *upwards* every time.
     val upwardExpandingItemProvider =
         remember(state) {
-            TransformingLazyColumnFirstLayoutItemProvider { current ->
+            TransformingLazyColumnFirstLayoutItemProvider { centerItem ->
                 val item = expandedItemIndex
 
                 // Yield to the standard layout behavior during active scrolls.
                 // This avoids custom layout overhead and ensures the [TransformingLazyColumn]
-                // tracks
-                // the user's scroll gesture using its default center layout reference.
+                // tracks the user's scroll gesture using its default center layout reference.
                 if (item == -1 || state.isScrollInProgress) {
-                    return@TransformingLazyColumnFirstLayoutItemProvider current
+                    return@TransformingLazyColumnFirstLayoutItemProvider centerItem
                 }
 
                 // Look up the item's offset from state.layoutInfo (which holds the details
                 // from the previous measure pass) to maintain its visual position in the current
                 // pass.
-                return@TransformingLazyColumnFirstLayoutItemProvider state.layoutInfo.visibleItems
+                state.layoutInfo.visibleItems
                     .fastFirstOrNull { visibleItem -> visibleItem.index == item }
                     ?.let { visibleItem ->
                         TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
@@ -252,7 +251,7 @@ fun TransformingLazyColumnFirstLayoutItemProviderSample() {
                             // Calculate the exact bottom offset from the previous pass
                             offset = visibleItem.offset + visibleItem.transformedHeight,
                         )
-                    } ?: current
+                    } ?: centerItem
             }
         }
 

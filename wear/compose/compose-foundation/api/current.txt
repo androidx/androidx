@@ -769,7 +769,7 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   public fun interface TransformingLazyColumnFirstLayoutItemProvider {
-    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemInfo getFirstLayoutItem(androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemInfo current);
+    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemInfo getFirstLayoutItem(androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider.ItemInfo centerItem);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public static final value class TransformingLazyColumnFirstLayoutItemProvider.ItemEdge {

@@ -47,9 +47,10 @@ import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.firstVisibleItemLayoutItemInfo
+import androidx.wear.compose.material3.lazy.layoutItemInfoOf
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnFirstLayoutItemProvider
-import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnFirstVisibleItemProvider
 import androidx.wear.compose.material3.lazy.transformedHeight
 import kotlinx.coroutines.delay
 
@@ -177,12 +178,12 @@ fun TransformingLazyColumnFirstLayoutItemProviderSample() {
     // to control the expansion direction of a dynamically resizing item. By using the voice input
     // card's Bottom/End edge as the layout reference, the card predictably expands upwards.
     // The constant key safely falls back to default layout behavior when scrolled off-screen.
-    val firstLayoutItemProvider =
-        rememberTransformingLazyColumnFirstLayoutItemProvider(
-            state = state,
-            itemKey = { "voice_input" },
-            itemEdge = { TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End },
+    val firstLayoutItemProvider = rememberTransformingLazyColumnFirstLayoutItemProvider {
+        state.layoutItemInfoOf(
+            itemKey = "voice_input",
+            itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
         )
+    }
 
     var isListening by remember { mutableStateOf(false) }
     var lineCount by remember { mutableIntStateOf(0) }
@@ -246,7 +247,7 @@ fun TransformingLazyColumnFirstLayoutItemProviderSample() {
 @Sampled
 @Preview
 @Composable
-fun TransformingLazyColumnFirstVisibleItemProviderSample() {
+fun TransformingLazyColumnFirstVisibleItemLayoutItemProviderSample() {
     val transformationSpec = rememberTransformationSpec()
     val state = rememberTransformingLazyColumnState()
     var elements by remember { mutableStateOf(listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)) }
@@ -272,7 +273,9 @@ fun TransformingLazyColumnFirstVisibleItemProviderSample() {
                 state = state,
                 contentPadding = contentPadding,
                 firstLayoutItemProvider =
-                    rememberTransformingLazyColumnFirstVisibleItemProvider(state),
+                    rememberTransformingLazyColumnFirstLayoutItemProvider {
+                        if (state.isScrollInProgress) null else state.firstVisibleItemLayoutItemInfo
+                    },
             ) {
                 itemsIndexed(elements, key = { _, key -> key }) { index, cardKey ->
                     Card(
