@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.v2
+package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
@@ -47,7 +47,7 @@ import kotlinx.coroutines.test.TestDispatcher
  *   [InputMode.Touch].
  */
 @Immutable
-actual class ComposeTestConfig
+actual class ComposeUiTestConfig
 actual constructor(
     actual val effectContext: CoroutineContext,
     actual val runTestContext: CoroutineContext,
@@ -56,7 +56,7 @@ actual constructor(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ComposeTestConfig) return false
+        if (other !is ComposeUiTestConfig) return false
 
         if (effectContext != other.effectContext) return false
         if (runTestContext != other.runTestContext) return false

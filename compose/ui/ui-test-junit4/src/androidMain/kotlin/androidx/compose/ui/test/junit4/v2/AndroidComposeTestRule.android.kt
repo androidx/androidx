@@ -17,12 +17,12 @@
 package androidx.compose.ui.test.junit4.v2
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.getActivityFromTestRule
-import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -60,7 +60,7 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
 
 /**
  * Factory method to provide an implementation of [ComposeContentTestRule] configured via a
- * [ComposeTestConfig].
+ * [ComposeUiTestConfig].
  *
  * This method is useful for tests in compose libraries where it is irrelevant where the compose
  * content is hosted (e.g. an Activity on Android). Such tests typically set compose content
@@ -72,15 +72,15 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  * androidTest/AndroidManifest.xml). If your Android test requires a specific Activity to be
  * launched, see [createAndroidComposeRule].
  *
- * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
  * [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Touch] for each test.
  *
- * @param config The [ComposeTestConfig] is used to set up the test environment, providing control
+ * @param config The [ComposeUiTestConfig] is used to set up the test environment, providing control
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-actual fun createComposeRule(config: ComposeTestConfig): ComposeContentTestRule {
+actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule {
     return createAndroidComposeRule<ComponentActivity>(config)
 }
 
@@ -119,7 +119,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule], configured via
- * a [ComposeTestConfig], for a given activity class type [A].
+ * a [ComposeUiTestConfig], for a given activity class type [A].
  *
  * This method is useful for tests that require a custom Activity. This is usually the case for
  * tests where the compose content is set by that Activity, instead of via the test rule's
@@ -132,16 +132,16 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  *
- * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
  * [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Touch] for each test.
  *
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  */
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
-    config: ComposeTestConfig
+    config: ComposeUiTestConfig
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     return createAndroidComposeRule(A::class.java, config)
 }
@@ -181,13 +181,13 @@ fun <A : ComponentActivity> createAndroidComposeRule(
     AndroidComposeTestRule(
         activityRule = ActivityScenarioRule(activityClass),
         activityProvider = ::getActivityFromTestRule,
-        config = ComposeTestConfig(effectContext = effectContext),
+        config = ComposeUiTestConfig(effectContext = effectContext),
         enforceInputModeFromConfig = false,
     )
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule], configured via
- * a [ComposeTestConfig], for a given [activityClass].
+ * a [ComposeUiTestConfig], for a given [activityClass].
  *
  * This method is useful for tests that require a custom Activity. This is usually the case for
  * tests where the compose content is set by that Activity, instead of via the test rule's
@@ -200,18 +200,18 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  *
- * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
  * [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Touch] for each test.
  *
  * @param activityClass The activity class to use in the activity scenario
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  */
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
-    config: ComposeTestConfig,
+    config: ComposeUiTestConfig,
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
     AndroidComposeTestRule(
         activityRule = ActivityScenarioRule(activityClass),
@@ -248,7 +248,7 @@ fun createEmptyComposeRule(
 ): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },
-        config = ComposeTestConfig(effectContext = effectContext),
+        config = ComposeUiTestConfig(effectContext = effectContext),
         activityProvider = {
             error(
                 "createEmptyComposeRule() does not provide an Activity to set Compose content in." +
@@ -260,7 +260,7 @@ fun createEmptyComposeRule(
 
 /**
  * Factory method to provide an implementation of [ComposeTestRule], configured via an
- * [ComposeTestConfig], that doesn't create a compose host for you in which you can set content.
+ * [ComposeUiTestConfig], that doesn't create a compose host for you in which you can set content.
  *
  * This method is useful for tests that need to create their own compose host during the test. The
  * returned test rule will not create a host, and consequently does not provide a `setContent`
@@ -270,15 +270,15 @@ fun createEmptyComposeRule(
  * A typical use case on Android is when the test needs to launch an Activity (the compose host)
  * after one or more dependencies have been injected.
  *
- * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
  * [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Touch] for each test.
  *
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  */
-fun createEmptyComposeRule(config: ComposeTestConfig): ComposeTestRule =
+fun createEmptyComposeRule(config: ComposeUiTestConfig): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },
         config = config,
@@ -325,7 +325,7 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
 ): AndroidComposeTestRule<R, A> {
     return AndroidComposeTestRule(
         activityRule = activityRule,
-        config = ComposeTestConfig(effectContext = effectContext),
+        config = ComposeUiTestConfig(effectContext = effectContext),
         activityProvider = activityProvider,
         enforceInputModeFromConfig = false,
     )
@@ -333,7 +333,7 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
 
 /**
  * Factory method to provide an implementation of [AndroidComposeTestRule], configured via an
- * [ComposeTestConfig], where compose content is hosted by an Activity.
+ * [ComposeUiTestConfig], where compose content is hosted by an Activity.
  *
  * The Activity is normally launched by the given [activityRule] before the test starts, but it is
  * possible to pass a test rule that chooses to launch an Activity on a later time. The Activity is
@@ -346,19 +346,19 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
  * launched _after_ the [AndroidComposeTestRule] has completed all necessary steps to control and
  * monitor the compose content.
  *
- * The default [ComposeTestConfig] has a `testTimeout` of 60 seconds and sets the
+ * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
  * [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Touch] for each test.
  *
  * @param activityRule Test rule to use to launch the Activity.
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  * @param activityProvider Function to retrieve the Activity from the given [activityRule].
  */
 fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
     activityRule: R,
-    config: ComposeTestConfig,
+    config: ComposeUiTestConfig,
     activityProvider: (R) -> A,
 ): AndroidComposeTestRule<R, A> {
     return AndroidComposeTestRule(

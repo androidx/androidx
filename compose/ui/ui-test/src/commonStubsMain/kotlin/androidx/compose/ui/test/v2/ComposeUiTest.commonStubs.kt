@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.v2
 
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.implementedInJetBrainsFork
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -30,6 +31,6 @@ actual fun runComposeUiTest(
 ): TestResult = implementedInJetBrainsFork()
 
 actual fun runComposeUiTest(
-    config: ComposeTestConfig,
+    config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = implementedInJetBrainsFork()

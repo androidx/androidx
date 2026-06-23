@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.v2
 
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.MainTestClock
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -103,16 +104,16 @@ expect fun runComposeUiTest(
  *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
  *
- * The default [ComposeTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
  * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch].
  *
  * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  * @param block The test function.
  */
 expect fun runComposeUiTest(
-    config: ComposeTestConfig,
+    config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult
