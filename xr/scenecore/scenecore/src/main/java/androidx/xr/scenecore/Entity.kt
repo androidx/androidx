@@ -399,6 +399,8 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
     @Deprecated(
         "Entity instances are reclaimed automatically. Instead of `dispose()`, use `parent = null` to detach entities from the scene graph."
     )
+    // TODO: b/510404486 - Once b/522024937 is fixed, remove the recursive dispose(). After that,
+    // clean up any internal usages. And then delete this api.
     public fun dispose() {
         if (!isDisposed) {
             disposeInternal()

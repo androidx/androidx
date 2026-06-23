@@ -41,6 +41,10 @@ public interface SpatialEnvironmentFeature {
      */
     public var preferredSpatialEnvironment: SpatialEnvironment.SpatialEnvironmentPreference?
 
-    /** Clean up any resources used by this feature. */
+    /**
+     * Disposes system resources held by this feature.
+     *
+     * Once disposed, this [SpatialEnvironmentFeature] must not be used.
+     */
     public fun dispose()
 }
