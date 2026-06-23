@@ -76,6 +76,7 @@ package androidx.compose.ui {
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isInteractionSoundEffectsEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
+    property public boolean isTraversalGroupSortingEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
@@ -83,6 +84,7 @@ package androidx.compose.ui {
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isInteractionSoundEffectsEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
+    field public static boolean isTraversalGroupSortingEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 

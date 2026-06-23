@@ -106,6 +106,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.IsSensitiveData
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.UnmergedConfigComparator
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
@@ -663,7 +664,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         val isRequestFromAccessibilityTool = isRequestFromAccessibilityTool()
         var childDrawingOrder = 0
-        semanticsNode.replacedChildren.fastForEach { child ->
+        val isTraversalGroup =
+            semanticsNode.unmergedConfig.getOrElse(SemanticsProperties.IsTraversalGroup) { false }
+        val isMerging = semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants
+        val replacedChildren = semanticsNode.replacedChildren
+        val childrenSize = replacedChildren.size
+        val children =
+            if (
+                isTraversalGroup &&
+                    isMerging &&
+                    AndroidComposeUiFlags.isTraversalGroupSortingEnabled &&
+                    childrenSize > 1
+            ) {
+                getSortedChildren(replacedChildren).asList()
+            } else {
+                replacedChildren
+            }
+
+        children.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
                 val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
                 // Do not add children if the ID is not valid.
@@ -1183,6 +1201,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         semanticsNode.unmergedConfig
             .getOrNull(SemanticsPropertiesAndroid.AccessibilityClassName)
             ?.let { info.className = it }
+    }
+
+    private fun getSortedChildren(replacedChildren: List<SemanticsNode>): Array<SemanticsNode> {
+        val size = replacedChildren.size
+        return Array(size) { replacedChildren[it] }.apply { sortWith(UnmergedConfigComparator) }
     }
 
     /** Set the error text for this node */

@@ -103,4 +103,11 @@ object AndroidComposeUiFlags {
     @JvmField
     // TODO(b/507533865) cleanup feature flag after 1.12
     var isExploreByTouchHoverHandled: Boolean = true
+
+    /**
+     * Enables sorting of accessibility children based on their traversal index when the parent is a
+     * traversal group and is a merging container.
+     */
+    // TODO: b/522932901
+    @field:Suppress("MutableBareField") @JvmField var isTraversalGroupSortingEnabled: Boolean = true
 }
