@@ -269,6 +269,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         mCanvas.scale(scaleX, scaleY);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void startGraphicsLayer(int w, int h) {
         mNode = new RenderNode("layer");
@@ -277,6 +278,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         mCanvas = mNode.beginRecording();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void setGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
         if (mNode == null) {
@@ -407,6 +409,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void endGraphicsLayer() {
         mNode.endRecording();
@@ -926,6 +929,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                 }
 
                 @Override
+                @SuppressLint("NewApi")
                 public void setTypeFace(int fontType, int weight, boolean italic) {
                     mFontInstance =
                             mTypefaceResolver.resolve(
@@ -987,6 +991,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                  * @param tags tags
                  * @param values values
                  */
+                @RequiresApi(api = Build.VERSION_CODES.Q)
                 @Override
                 public void setFontVariationAxes(@NonNull String[] tags, float @NonNull [] values) {
                     mPendingTags = tags;

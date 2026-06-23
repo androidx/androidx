@@ -23,7 +23,9 @@ import android.graphics.fonts.Font;
 import android.graphics.fonts.FontFamily;
 import android.graphics.fonts.FontStyle;
 import android.graphics.fonts.FontVariationAxis;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteContext;
@@ -92,20 +94,34 @@ public class DefaultTypefaceResolver implements TypefaceResolver {
             case PaintBundle.FONT_TYPE_MONOSPACE:
                 return new SimpleFontInstance(createTypeface(Typeface.MONOSPACE, weight, italic));
             default: // font data
-                RemoteContext.FontInfo fi = (RemoteContext.FontInfo) mContext.getObject(fontType);
-                Font.Builder builder = (Font.Builder) fi.fontBuilder;
-                if (builder == null) {
-                    fi.fontBuilder = builder = createFontBuilder(fi.mFontData, weight, italic);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    RemoteContext.FontInfo fi =
+                            (RemoteContext.FontInfo) mContext.getObject(fontType);
+                    Font.Builder builder = (Font.Builder) fi.fontBuilder;
+                    if (builder == null) {
+                        fi.fontBuilder = builder =
+                                createFontBuilder(fi.mFontData, weight, italic);
+                    }
+                    return new BuilderFontInstance(builder);
+                } else {
+                    return new SimpleFontInstance(Typeface.DEFAULT);
                 }
-                return new BuilderFontInstance(builder);
         }
     }
 
     private Typeface createTypeface(Typeface base, int weight, boolean italic) {
-        if (weight == 400 && !italic) {
-            return base;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (weight == 400 && !italic) {
+                return base;
+            } else {
+                return Typeface.create(base, weight, italic);
+            }
         } else {
-            return Typeface.create(base, weight, italic);
+            int style = (weight >= 600) ? Typeface.BOLD : Typeface.NORMAL;
+            if (italic) {
+                style |= Typeface.ITALIC;
+            }
+            return Typeface.create(base, style);
         }
     }
 
@@ -117,13 +133,15 @@ public class DefaultTypefaceResolver implements TypefaceResolver {
             @Nullable Typeface fallbackTypeface,
             int fallbackWeight,
             boolean fallbackItalic) {
-        Font.Builder fontBuilder = fbFromString(fontName, weight, italic);
-        if (fontBuilder != null) {
-            try {
-                return new BuilderFontInstance(fontBuilder);
-            } catch (Exception e) {
-                String key = fontName + weight + italic;
-                mFontBuilderCache.put(key, null); // block further lookups
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Font.Builder fontBuilder = fbFromString(fontName, weight, italic);
+            if (fontBuilder != null) {
+                try {
+                    return new BuilderFontInstance(fontBuilder);
+                } catch (Exception e) {
+                    String key = fontName + weight + italic;
+                    mFontBuilderCache.put(key, null); // block further lookups
+                }
             }
         }
         Typeface tf =
@@ -171,20 +189,36 @@ public class DefaultTypefaceResolver implements TypefaceResolver {
                 !basePrimary.equals(Typeface.DEFAULT)
                         || (fontType != null && fontType.equalsIgnoreCase("sans-serif"));
 
-        if (primaryFound) {
-            try {
-                return Typeface.create(basePrimary, weight, italic);
-            } catch (Exception ignored) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (primaryFound) {
+                try {
+                    return Typeface.create(basePrimary, weight, italic);
+                } catch (Exception ignored) {
+                }
             }
-        }
 
-        try {
-            return Typeface.create(fallbackTypeface, fallbackWeight, fallbackItalic);
-        } catch (Exception e) {
-            return fallbackTypeface;
+            try {
+                return Typeface.create(fallbackTypeface, fallbackWeight, fallbackItalic);
+            } catch (Exception e) {
+                return fallbackTypeface;
+            }
+        } else {
+            if (primaryFound) {
+                int style = (weight >= 600) ? Typeface.BOLD : Typeface.NORMAL;
+                if (italic) {
+                    style |= Typeface.ITALIC;
+                }
+                return Typeface.create(basePrimary, style);
+            }
+            int fallbackStyle = (fallbackWeight >= 600) ? Typeface.BOLD : Typeface.NORMAL;
+            if (fallbackItalic) {
+                fallbackStyle |= Typeface.ITALIC;
+            }
+            return Typeface.create(fallbackTypeface, fallbackStyle);
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private Font.Builder fbFromString(String fontType, int weight, boolean italic) {
         String key = fontType + weight + italic;
         String path = getFontPath(fontType);
@@ -202,6 +236,7 @@ public class DefaultTypefaceResolver implements TypefaceResolver {
         return fb;
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private Font.Builder createFontBuilder(byte[] data, int weight, boolean italic) {
         ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
         buffer.put(data);
@@ -264,6 +299,7 @@ public class DefaultTypefaceResolver implements TypefaceResolver {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private static class BuilderFontInstance implements FontInstance {
         private final Font.Builder mBuilder;
         private Typeface mTypeface;
