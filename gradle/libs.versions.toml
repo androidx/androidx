@@ -85,7 +85,7 @@ wire = "6.4.0"
 core = "1.12.0"
 xmlApis = "1.4.01"
 yarn = "1.22.17"
-extensionsXr = "1.4.0-alpha02"
+extensionsXr = "1.4.0-alpha03"
 xrProjectedMinApiVersion = "260316000"
 
 [libraries]
