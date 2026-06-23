@@ -97,6 +97,7 @@ dependencies {
     docs(project(":core:core-pip"))
     kmpDocs(project(":datastore:datastore-tink"))
     docs(project(":wear:compose:remote:remote-material3"))
+    docs(project(":compose:runtime:runtime-a2ui"))
     kmpDocs(project(":compose:runtime:runtime"))
     kmpDocs(project(":compose:runtime:runtime-annotation"))
     docs(project(":compose:runtime:runtime-livedata"))
