@@ -35,7 +35,6 @@ dependencies {
     api(project(":wear:watchface:watchface-complications-data"))
 
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.preference:preference:1.1.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
