@@ -15,9 +15,9 @@
   -->
 
 <resources>
-    <string description="Lets the user know that the time unit being changed is hour. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_hour">Hour</string>
-    <string description="Lets the user know that the time unit being changed is minute. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_minute">Minute</string>
-    <string description="Lets the user know that the time unit being changed is second. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_second">Second</string>
+    <string description="Lets the user know that the time unit being changed is hour. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_hour">Hour</string>
+    <string description="Lets the user know that the time unit being changed is minute. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_minute">Minute</string>
+    <string description="Lets the user know that the time unit being changed is second. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_second">Second</string>
     <plurals description="Content description of the current number of hours being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_hours_content_description">
         <item quantity="one">%d Hour</item>
         <item quantity="other">%d Hours</item>
