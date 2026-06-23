@@ -208,6 +208,10 @@ sealed interface androidx.compose.ui.test/MultiModalInjectionScope : androidx.co
     abstract fun trackpad(kotlin/Function1<androidx.compose.ui.test/TrackpadInjectionScope, kotlin/Unit>) // androidx.compose.ui.test/MultiModalInjectionScope.trackpad|trackpad(kotlin.Function1<androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>){}[0]
 }
 
+final class androidx.compose.ui.test.platform/SynchronizedObject { // androidx.compose.ui.test.platform/SynchronizedObject|null[0]
+    constructor <init>() // androidx.compose.ui.test.platform/SynchronizedObject.<init>|<init>(){}[0]
+}
+
 final class androidx.compose.ui.test.v2/ComposeTestConfig { // androidx.compose.ui.test.v2/ComposeTestConfig|null[0]
     constructor <init>(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/CoroutineContext = ..., kotlin.time/Duration = ..., androidx.compose.ui.input/InputMode = ...) // androidx.compose.ui.test.v2/ComposeTestConfig.<init>|<init>(kotlin.coroutines.CoroutineContext;kotlin.coroutines.CoroutineContext;kotlin.time.Duration;androidx.compose.ui.input.InputMode){}[0]
 

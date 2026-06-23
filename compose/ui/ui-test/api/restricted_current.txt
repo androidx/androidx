@@ -1096,6 +1096,14 @@ package androidx.compose.ui.test.junit4.android {
 
 }
 
+package androidx.compose.ui.test.platform {
+
+  public final class Synchronization_androidKt {
+    method @kotlin.PublishedApi internal static inline <R> R synchronized(Object lock, kotlin.jvm.functions.Function0<? extends R> block);
+  }
+
+}
+
 package androidx.compose.ui.test.v2 {
 
   @androidx.compose.runtime.Immutable public final class ComposeTestConfig {
