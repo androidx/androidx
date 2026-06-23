@@ -70,7 +70,6 @@ import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
 import androidx.pdf.exceptions.RequestFailedException
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.formfilling.FormFillingEditTextState
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
@@ -752,7 +751,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private var pdfAutofillHandler: PdfAutofillHandler? = null
         get() {
-            if (!PdfFeatureFlags.isAutofillEnabled) return null
             return field ?: PdfAutofillHandler(this, ::pdfToViewPoint).also { field = it }
         }
 
