@@ -205,7 +205,7 @@ public class ColorAttribute extends PaintOperation
         serializer
                 .addType(CLASS_NAME)
                 .add("id", mId)
-                .add("timeId", mColorId)
+                .add("colorId", mColorId)
                 .addType(getTypeString());
     }
 
@@ -227,7 +227,7 @@ public class ColorAttribute extends PaintOperation
             case COLOR_ALPHA:
                 return "COLOR_ALPHA";
             default:
-                return "INVALID_TIME_TYPE";
+                return "INVALID_COLOR_TYPE";
         }
     }
 

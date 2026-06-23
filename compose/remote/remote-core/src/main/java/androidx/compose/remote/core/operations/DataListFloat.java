@@ -41,7 +41,7 @@ import java.util.List;
 public class DataListFloat extends Operation
         implements VariableSupport, VariableProvider, ArrayAccess, Serializable {
     private static final int OP_CODE = Operations.FLOAT_LIST;
-    private static final String CLASS_NAME = "IdListData";
+    private static final String CLASS_NAME = "FloatListData";
     public int mId;
     private float @NonNull [] mValues;
     private static final int MAX_FLOAT_ARRAY = 2000;
