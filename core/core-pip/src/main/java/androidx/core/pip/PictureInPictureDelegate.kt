@@ -43,6 +43,7 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
     private var pictureInPictureProviderRef: WeakReference<PictureInPictureProvider> =
         WeakReference(pictureInPictureProvider)
 
+    private val paramsLock = Any()
     private var pictureInPictureParamsCompat = PictureInPictureParamsCompat(isEnabled = false)
 
     /**
@@ -50,14 +51,16 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
      * [pictureInPictureProviderRef] if it's in PiP-able state and autoEnter is not available.
      */
     private val onUserLeaveHint: Runnable = Runnable {
-        if (pictureInPictureParamsCompat.isEnabled) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // autoEnter is available, skip onUserLeaveHint callback.
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // autoEnter is not available, enter PiP with params.
-                pictureInPictureProviderRef
-                    .get()
-                    ?.enterPictureInPictureMode(pictureInPictureParamsCompat)
+        synchronized(paramsLock) {
+            if (pictureInPictureParamsCompat.isEnabled) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    // autoEnter is available, skip onUserLeaveHint callback.
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    // autoEnter is not available, enter PiP with params.
+                    pictureInPictureProviderRef
+                        .get()
+                        ?.enterPictureInPictureMode(pictureInPictureParamsCompat)
+                }
             }
         }
     }
@@ -132,7 +135,9 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
         pictureInPictureParamsCompat: PictureInPictureParamsCompat
     ) {
         val validatedParams = PictureInPictureParamsValidator.validate(pictureInPictureParamsCompat)
-        this@PictureInPictureDelegate.pictureInPictureParamsCompat = validatedParams
+        synchronized(paramsLock) {
+            this@PictureInPictureDelegate.pictureInPictureParamsCompat = validatedParams
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 pictureInPictureProviderRef.get()?.setPictureInPictureParams(validatedParams)
@@ -140,6 +145,16 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
                 Log.w(TAG, "setPictureInPictureParams failed", e)
             }
         }
+    }
+
+    /**
+     * Updates the internal [PictureInPictureParamsCompat] without triggering a call to the system.
+     * This is used to ensure that immediate "enter PiP" requests (e.g., swiping home) use the
+     * latest parameters before the background task has had a chance to update the system.
+     */
+    internal fun updateLocalParams(pictureInPictureParamsCompat: PictureInPictureParamsCompat) {
+        val validatedParams = PictureInPictureParamsValidator.validate(pictureInPictureParamsCompat)
+        synchronized(paramsLock) { this.pictureInPictureParamsCompat = validatedParams }
     }
 
     /** Adds [OnPictureInPictureEventListener] for events sent from system. */

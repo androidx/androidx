@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.run
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,25 +50,33 @@ class PictureInPictureImplTest {
     }
 
     @Test
+    fun basicImpl_construction_noCommit() {
+        BasicPictureInPicture(provider) { it.run() }
+        assertThat(provider.receivedParams).isNull()
+    }
+
+    @Test
     fun basicImpl_setAspectRatio() {
         val aspectRatio = Rational(16, 9)
-        val impl = BasicPictureInPicture(provider)
-        impl.setAspectRatio(aspectRatio)
+        val impl = BasicPictureInPicture(provider) { it.run() }
+        impl.setAspectRatio(aspectRatio).commit()
         assertThat(provider.receivedParams!!.aspectRatio).isEqualTo(aspectRatio)
     }
 
     @Test
     fun basicImpl_setEnabled() {
-        val impl = BasicPictureInPicture(provider)
-        impl.setEnabled(false)
+        val impl = BasicPictureInPicture(provider) { it.run() }
+        impl.setEnabled(false).commit()
         assertThat(provider.receivedParams!!.isEnabled).isFalse()
-        impl.setEnabled(true)
+        impl.setEnabled(true).commit()
         assertThat(provider.receivedParams!!.isEnabled).isTrue()
     }
 
     @Test
     fun basicImpl_defaults() {
-        BasicPictureInPicture(provider)
+        val impl = BasicPictureInPicture(provider) { it.run() }
+        // Trigger a call to send params to the provider
+        impl.setEnabled(true).commit()
         val params = provider.receivedParams
         assertThat(params!!.isSeamlessResizeEnabled).isFalse()
     }
@@ -75,14 +84,29 @@ class PictureInPictureImplTest {
     @Test
     fun basicImpl_setActions() {
         val actions = createFakeActions()
-        val impl = BasicPictureInPicture(provider)
-        impl.setActions(actions)
+        val impl = BasicPictureInPicture(provider) { it.run() }
+        impl.setActions(actions).commit()
         assertThat(provider.receivedParams!!.actions).isEqualTo(actions)
     }
 
     @Test
+    fun basicImpl_commit_dispatchesParams() {
+        val impl = BasicPictureInPicture(provider) { it.run() }
+        impl.setEnabled(true)
+        // No params should be received before commit
+        assertThat(provider.receivedParams).isNull()
+
+        impl.commit()
+        // Params should be dispatched after commit
+        assertThat(provider.receivedParams).isNotNull()
+        assertThat(provider.receivedParams!!.isEnabled).isTrue()
+    }
+
+    @Test
     fun videoPlaybackImpl_defaults() {
-        VideoPlaybackPictureInPicture(provider)
+        val impl = VideoPlaybackPictureInPicture(provider) { it.run() }
+        // Trigger a call to send params to the provider
+        impl.setAspectRatio(Rational(1, 1)).commit()
         val params = provider.receivedParams
         assertThat(params!!.isSeamlessResizeEnabled).isTrue()
     }
