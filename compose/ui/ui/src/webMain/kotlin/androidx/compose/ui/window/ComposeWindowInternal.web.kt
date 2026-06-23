@@ -88,7 +88,6 @@ import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
 import androidx.compose.ui.viewinterop.WebInteropContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.enableSavedStateHandles
-import kotlin.math.absoluteValue
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
@@ -746,13 +745,17 @@ internal class ComposeWindow(
     ) {
         keyboardModeState = KeyboardModeState.Hardware
 
-        val horizontalScroll = when {
-            event.deltaX.absoluteValue >= event.deltaY.absoluteValue -> event.deltaX
-            event.shiftKey -> event.deltaY
-            else -> 0f
+        // Shift + mouse wheel means horizontal scroll. Some browsers swap the axes
+        // for us (report deltaX instead of deltaY), some don't.
+        val horizontalScroll: Double
+        val verticalScroll: Double
+        if (event.shiftKey && event.deltaX == 0.0) {
+            horizontalScroll = event.deltaY
+            verticalScroll = 0.0
+        } else {
+            horizontalScroll = event.deltaX
+            verticalScroll = event.deltaY
         }
-
-        val verticalScroll = if (horizontalScroll == 0f) event.deltaY else 0f
 
         // wheels event own buttons property is unreliable in Safari and Firefox
         // see CMP-9900 [web] Wheel event resolves buttons state incorrectly in Safari and Firefox

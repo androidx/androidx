@@ -29,6 +29,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -233,6 +236,34 @@ class WheelEventTests : OnCanvasTests {
         assertEquals(10, horizontalScrollState.value, "horizontal scroll was expected to change")
     }
 
+
+    @Test
+    fun diagonalScroll() = runTest {
+        var totalScrollDelta = Offset.Zero
+        createComposeWindow {
+            Box(
+                modifier = Modifier.size(100.dp).pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type != PointerEventType.Scroll) continue
+                            event.changes.forEach {
+                                totalScrollDelta += it.scrollDelta
+                                it.consume()
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        assertEquals(Offset.Zero, totalScrollDelta)
+
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 5.0, deltaY = 7.0)))
+
+        assertEquals(5f, totalScrollDelta.x, "deltaX was expected to be delivered")
+        assertEquals(7f, totalScrollDelta.y, "deltaY was expected to be delivered")
+    }
 
     @Test
     fun horizontalScrollWithShift() = runTest {
