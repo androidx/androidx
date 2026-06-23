@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmInline
 import kotlin.math.max
@@ -1211,6 +1213,26 @@ private fun resolveGridItemIndices(
                 colSpan = parentData.columnSpan
             }
 
+            // Clamp spans for items that rely on auto-placement.
+            // A child might request a large span (e.g., 4 columns) on a
+            // small screen that only defines 2 columns. Clamping ensures the item safely
+            // acts as a "full-width" item instead of measuring extra gap space and bleeding
+            // outside the grid's bounds.
+            // We leave explicitly positioned items alone so developers can still intentionally
+            // span items into implicit tracks.
+            if (
+                specifiedRow == GridIndexUnspecified &&
+                    explicitRowCount > 0 &&
+                    flow == GridFlow.Column
+            ) {
+                rowSpan = rowSpan.fastCoerceAtMost(explicitRowCount)
+            }
+            if (
+                specifiedCol == GridIndexUnspecified && explicitColCount > 0 && flow == GridFlow.Row
+            ) {
+                colSpan = colSpan.fastCoerceAtMost(explicitColCount)
+            }
+
             // Convert 1-based user indices to 0-based internal indices.
             // Returns null if the user index was unspecified (Auto).
             requestedRow = resolveToZeroBasedIndex(specifiedRow, explicitRowCount)
@@ -1596,7 +1618,7 @@ private fun calculateColumnWidths(
     var totalFlex = 0f
     // Calculate total space consumed by gaps.
     // e.g., 3 columns have 2 gaps. (N-1) * gap.
-    val totalGapSpace = (columnGap * (totalCount - 1)).coerceAtLeast(0)
+    val totalGapSpace = (columnGap * (totalCount - 1)).fastCoerceAtLeast(0)
 
     // Calculate space available for actual tracks (Total - Gaps).
     // If availableSpace is Infinity, availableTrackSpace value becomes Constraints.Infinity
@@ -1604,7 +1626,7 @@ private fun calculateColumnWidths(
         if (availableSpace == Constraints.Infinity) {
             Constraints.Infinity
         } else {
-            (availableSpace - totalGapSpace).coerceAtLeast(0)
+            (availableSpace - totalGapSpace).fastCoerceAtLeast(0)
         }
 
     // Keep track of which columns are Auto so we can expand them later
@@ -1769,7 +1791,7 @@ private fun calculateRowHeights(
     var totalFlex = 0f
     // Calculate total space consumed by gaps.
     // e.g., 3 columns have 2 gaps. (N-1) * gap.
-    val totalGapSpace = (rowGap * (totalCount - 1)).coerceAtLeast(0)
+    val totalGapSpace = (rowGap * (totalCount - 1)).fastCoerceAtLeast(0)
 
     // Calculate space available for actual tracks (Total - Gaps).
     // If availableSpace is Infinity, availableTrackSpace value becomes Constraints.Infinity
@@ -1777,7 +1799,7 @@ private fun calculateRowHeights(
         if (availableSpace == Constraints.Infinity) {
             Constraints.Infinity
         } else {
-            (availableSpace - totalGapSpace).coerceAtLeast(0)
+            (availableSpace - totalGapSpace).fastCoerceAtLeast(0)
         }
 
     // Keep track of which columns are Auto so we can expand them later
@@ -2123,7 +2145,7 @@ private fun getSpannedWidth(
     if (colStart >= columnWidths.size) return fallbackWidth
 
     var width = 0
-    val colEnd = (colStart + item.columnSpan).coerceAtMost(columnWidths.size)
+    val colEnd = (colStart + item.columnSpan).fastCoerceAtMost(columnWidths.size)
     for (i in colStart until colEnd) {
         width += columnWidths[i]
     }
@@ -2179,7 +2201,7 @@ private fun distributeSpanningSpace(
         // Single-span items were already handled during Base Size calculation (Pass 1).
         if (span <= 1) return@forEach
 
-        val endIndex = (trackIndex + span).coerceAtMost(sizes.size)
+        val endIndex = (trackIndex + span).fastCoerceAtMost(sizes.size)
 
         // --- Step 1: Analyze current space & identifying growable tracks ---
         // We sum the current size of all tracks this item spans to see if they are already big
@@ -2219,7 +2241,7 @@ private fun distributeSpanningSpace(
                 var itemWidth = 0
                 if (crossAxisSizes != null) {
                     val colStart = item.column
-                    val colEnd = (colStart + item.columnSpan).coerceAtMost(crossAxisSizes.size)
+                    val colEnd = (colStart + item.columnSpan).fastCoerceAtMost(crossAxisSizes.size)
                     for (i in colStart until colEnd) {
                         itemWidth += crossAxisSizes[i]
                     }
@@ -2382,7 +2404,7 @@ private fun measureItems(
 
         if (row < rowCount && col < colCount) {
             var width = 0
-            val colLimit = (col + item.columnSpan).coerceAtMost(colCount)
+            val colLimit = (col + item.columnSpan).fastCoerceAtMost(colCount)
             for (i in col until colLimit) {
                 width += trackSizes.columnWidths[i]
             }
@@ -2393,7 +2415,7 @@ private fun measureItems(
             }
 
             var height = 0
-            val rowLimit = (row + item.rowSpan).coerceAtMost(rowCount)
+            val rowLimit = (row + item.rowSpan).fastCoerceAtMost(rowCount)
             for (i in row until rowLimit) {
                 height += trackSizes.rowHeights[i]
             }
