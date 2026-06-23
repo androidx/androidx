@@ -162,6 +162,7 @@ package androidx.compose.foundation {
     property public boolean isDraggableVelocityTrackerFixEnabled;
     property public boolean isInheritedTextStyleEnabled;
     property public boolean isInteractionSoundEffectOnClickEnabled;
+    property public boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     property public boolean isMouseSelectionBetweenTextEnabled;
     property public boolean isMultiLaneCacheWindowEnabled;
     property public boolean isNewContextMenuEnabled;
@@ -183,6 +184,7 @@ package androidx.compose.foundation {
     field public static boolean isDraggableVelocityTrackerFixEnabled;
     field public static boolean isInheritedTextStyleEnabled;
     field public static boolean isInteractionSoundEffectOnClickEnabled;
+    field public static boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     field public static boolean isMouseSelectionBetweenTextEnabled;
     field public static boolean isMultiLaneCacheWindowEnabled;
     field public static boolean isNewContextMenuEnabled;

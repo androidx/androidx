@@ -230,6 +230,16 @@ object ComposeFoundationFlags {
      */
     // TODO: Remove this flag once it has soaked (b/521973612)
     @field:Suppress("MutableBareField") @JvmField var isMouseSelectionBetweenTextEnabled = true
+
+    /**
+     * Disable minimum touch target expansion for inline links. Touch target expansion for
+     * multi-line links causes incorrect clicks on plain text on the same lines because it uses
+     * layout bounds (bounding box of multi-line path) instead of clipped shape.
+     */
+    // TODO: b/522377028
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isLinkMinimumTouchTargetSizeZeroEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
