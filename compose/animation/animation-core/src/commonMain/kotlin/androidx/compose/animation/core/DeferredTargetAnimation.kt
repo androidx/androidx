@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,15 @@ public class DeferredTargetAnimation<T, V : AnimationVector>(
     /** Returns the target value from the most recent [updateTarget] call. */
     public val pendingTarget: T?
         get() = _pendingTarget
+
+    /**
+     * Returns the current value of the animation, or `null` if [updateTarget] has not been called.
+     *
+     * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationPresentInDrawSample
+     */
+    @get:FrequentlyChangingValue
+    public val value: T?
+        get() = animatable?.value
 
     private var _pendingTarget: T? by mutableStateOf(null)
     private val target: T?
