@@ -17,109 +17,96 @@
 package androidx.wear.compose.material3.lazy
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 
 /**
- * Creates and remembers a [TransformingLazyColumnFirstLayoutItemProvider] that aligns the layout
- * relative to the top edge (or bottom edge, if `reverseLayout` is enabled) of the first visible
- * item in the viewport during layout changes.
+ * Creates and remembers a [TransformingLazyColumnFirstLayoutItemProvider] that delegates to the
+ * provided [itemInfo] lambda.
  *
- * This provider maintains a static start edge during dynamic content updates (such as item
- * additions, removals, or size changes). Since the first visible item changes rapidly during an
- * active scroll, tracking it continuously does not provide a stable visual reference. The provider
- * is suspended during motion, allowing the list to fall back to its default layout behavior, which
- * accurately tracks the scroll gesture, while also avoiding unnecessary computational overhead.
- *
- * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnFirstVisibleItemProviderSample
- * @param state The [TransformingLazyColumnState] of the [TransformingLazyColumn].
+ * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnFirstLayoutItemProviderSample
+ * @param itemInfo A lambda returning the [TransformingLazyColumnFirstLayoutItemProvider.ItemInfo]
+ *   of the item to use as the first item to layout, or null to fall back to the default layout
+ *   behavior.
  */
 @Composable
-public fun rememberTransformingLazyColumnFirstVisibleItemProvider(
-    state: TransformingLazyColumnState
+public fun rememberTransformingLazyColumnFirstLayoutItemProvider(
+    itemInfo: () -> TransformingLazyColumnFirstLayoutItemProvider.ItemInfo?
 ): TransformingLazyColumnFirstLayoutItemProvider {
-    return remember(state) {
-        TransformingLazyColumnFirstLayoutItemProvider { current ->
-            // Yield to default center-anchored behavior during scroll to ensure accurate
-            // scroll tracking and prevent expansion animations from fighting the user's gesture.
-            if (state.isScrollInProgress)
-                return@TransformingLazyColumnFirstLayoutItemProvider current
-            val visibleItems = state.layoutInfo.visibleItems
-            if (visibleItems.isEmpty()) return@TransformingLazyColumnFirstLayoutItemProvider current
-            val firstItem = visibleItems.first()
-            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-                // Prioritize locating by key over index across list changes
-                key = firstItem.key,
-                index = firstItem.index,
-                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
-                offset = firstItem.offset,
-            )
+    val currentItemInfo by rememberUpdatedState(itemInfo)
+    return remember {
+        TransformingLazyColumnFirstLayoutItemProvider { centerItem ->
+            currentItemInfo() ?: centerItem
         }
     }
 }
 
 /**
- * Creates and remembers a [TransformingLazyColumnFirstLayoutItemProvider] that aligns the layout
- * relative to a specific item (identified by [itemKey]), keeping its chosen [itemEdge] edge
- * visually fixed on screen during layout changes.
+ * Returns the [TransformingLazyColumnFirstLayoutItemProvider.ItemInfo] for the first visible item
+ * aligned to its [TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start] edge, or null if
+ * there are no visible items.
  *
- * When passed to [TransformingLazyColumn], this provider ensures the specified item's edge remains
- * at its previous screen offset across dynamic content or size changes. If the item is not visible
- * (or [itemKey] returns null), it falls back to the default layout behavior.
+ * This extension is useful when building a custom [TransformingLazyColumnFirstLayoutItemProvider]
+ * that needs to ensure the first visible item maintains a static start edge during dynamic content
+ * updates (such as item additions, removals, or size changes), avoiding visual jumps in the
+ * viewport.
+ *
+ * Since the first visible item changes rapidly during an active scroll, tracking it continuously
+ * does not provide a stable visual reference. When using this property with
+ * [rememberTransformingLazyColumnFirstLayoutItemProvider], it is highly recommended to yield to the
+ * default layout behavior by returning null when [TransformingLazyColumnState.isScrollInProgress]
+ * is true. This allows the list to fall back to its default layout behavior, which accurately
+ * tracks the scroll gesture, while also avoiding unnecessary computational overhead.
+ *
+ * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnFirstVisibleItemLayoutItemProviderSample
+ */
+public val TransformingLazyColumnState.firstVisibleItemLayoutItemInfo:
+    TransformingLazyColumnFirstLayoutItemProvider.ItemInfo?
+    get() =
+        layoutInfo.visibleItems.firstOrNull()?.let {
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = it.key,
+                index = it.index,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = it.offset,
+            )
+        }
+
+/**
+ * Returns the [TransformingLazyColumnFirstLayoutItemProvider.ItemInfo] for the visible item with
+ * the given [itemKey], aligned to the specified [itemEdge]. Returns null if the item is not
+ * currently visible on screen.
+ *
+ * This helper is useful when building a custom [TransformingLazyColumnFirstLayoutItemProvider] that
+ * needs to track and stabilize the position of a specific key (e.g. an expanding item) during
+ * content size animations.
  *
  * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnFirstLayoutItemProviderSample
- * @param state The [TransformingLazyColumnState] of the [TransformingLazyColumn].
- * @param itemKey A lambda returning the unique key of the item to use as the first item to layout.
- *   If the lambda returns null, or if the item with the specified key is not currently visible on
- *   screen, [TransformingLazyColumn] will fall back to its default layout behavior.
- * @param itemEdge A lambda returning the [TransformingLazyColumnFirstLayoutItemProvider.ItemEdge]
- *   (Start or End) of the item to keep fixed. Defaults to locking the
- *   [TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start] edge.
+ * @param itemKey The unique key of the item to search for.
+ * @param itemEdge The [TransformingLazyColumnFirstLayoutItemProvider.ItemEdge] (Start or End) of
+ *   the item to use for the layout reference.
  */
-@Composable
-public fun rememberTransformingLazyColumnFirstLayoutItemProvider(
-    state: TransformingLazyColumnState,
-    itemKey: () -> Any?,
-    itemEdge: () -> TransformingLazyColumnFirstLayoutItemProvider.ItemEdge = {
-        TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start
-    },
-): TransformingLazyColumnFirstLayoutItemProvider {
-    val currentItemKey = rememberUpdatedState(itemKey)
-    val currentItemEdge = rememberUpdatedState(itemEdge)
-    return remember(state) {
-        TransformingLazyColumnFirstLayoutItemProvider { current ->
-            val key =
-                currentItemKey.value()
-                    ?: return@TransformingLazyColumnFirstLayoutItemProvider current
-            val activeType = currentItemEdge.value()
-            val layoutItem =
-                state.layoutInfo.visibleItems.fastFirstOrNull { it.key == key }
-                    ?: return@TransformingLazyColumnFirstLayoutItemProvider current
-            when (activeType) {
-                TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start -> {
-                    TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-                        // Prioritize locating by key over index across list changes
-                        key = layoutItem.key,
-                        index = layoutItem.index,
-                        itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
-                        offset = layoutItem.offset,
-                    )
+public fun TransformingLazyColumnState.layoutItemInfoOf(
+    itemKey: Any,
+    itemEdge: TransformingLazyColumnFirstLayoutItemProvider.ItemEdge,
+): TransformingLazyColumnFirstLayoutItemProvider.ItemInfo? =
+    layoutInfo.visibleItems
+        .fastFirstOrNull { it.key == itemKey }
+        ?.let { item ->
+            val targetOffset =
+                if (itemEdge == TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start) {
+                    item.offset
+                } else {
+                    item.offset + item.transformedHeight
                 }
-                TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End -> {
-                    TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-                        // Prioritize locating by key over index across list changes
-                        key = layoutItem.key,
-                        index = layoutItem.index,
-                        itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
-                        offset = layoutItem.offset + layoutItem.transformedHeight,
-                    )
-                }
-                else -> current
-            }
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = item.key,
+                index = item.index,
+                itemEdge = itemEdge,
+                offset = targetOffset,
+            )
         }
-    }
-}

@@ -40,11 +40,18 @@ public fun interface TransformingLazyColumnFirstLayoutItemProvider {
      * Note: This method is executed internally inside a `Snapshot.withoutReadObservation` block.
      * Any Compose state reads performed inside this callback will not trigger layout observation.
      *
-     * @param current The item that [TransformingLazyColumn] would currently use for the first
-     *   layout item if no provider is supplied. Returning this item preserves the default layout
-     *   behavior.
+     * If the returned [ItemInfo] cannot be fully resolved (e.g., the key is not found or the index
+     * is out of bounds), [TransformingLazyColumn] falls back:
+     * - If the [ItemInfo.key] is not found, it falls back to the [ItemInfo.index].
+     * - The final resolved index is coerced to stay within the valid list bounds.
+     *
+     * @param centerItem The [ItemInfo] that [TransformingLazyColumn] would currently use for the
+     *   first layout item if no provider is supplied. Returning this item preserves the default
+     *   layout behavior. In most cases, this is the item closest to the center of the viewport from
+     *   [TransformingLazyColumnLayoutInfo.visibleItems].
+     * @return The [ItemInfo] of the item to use as the first item to layout.
      */
-    public fun getFirstLayoutItem(current: ItemInfo): ItemInfo
+    public fun getFirstLayoutItem(centerItem: ItemInfo): ItemInfo
 
     /** Represents the visual edge of [ItemInfo] (Start or End) to which the offset refers. */
     @Immutable
