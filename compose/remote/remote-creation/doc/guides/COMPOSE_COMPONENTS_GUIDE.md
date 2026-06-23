@@ -96,7 +96,7 @@ RemoteModifier.verticalScroll(scrollState)
 RemoteModifier.horizontalScroll(scrollState)
 
 // Interaction
-RemoteModifier.clickable(ValueChange(state, newValue))
+RemoteModifier.clickable(valueChange(state, newValue))
 RemoteModifier.visibility(intState)
 
 // Transforms
@@ -120,14 +120,10 @@ RemoteModifier.zIndex(zValue)
 val checked = rememberRemoteIntValue { 0 }       // mutable int state
 val scale = rememberRemoteFloat { 0.8f.rf }       // computed float
 val scrollState = rememberRemoteScrollState(evenNotches = 12)
-val list = rememberRemoteStringList("OFF", "ON")  // string list for lookup
-
-// Use state in text
-RemoteText(list[checked])
 
 // Use state in modifier
 RemoteModifier.visibility(checked)
-RemoteModifier.clickable(ValueChange(checked, toggleExpression))
+RemoteModifier.clickable(valueChange(checked, toggleExpression))
 ```
 
 ## Canvas Inside Compose
