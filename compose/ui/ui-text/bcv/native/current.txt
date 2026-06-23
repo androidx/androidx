@@ -597,6 +597,10 @@ final class androidx.compose.ui.text.intl/LocaleList : kotlin.collections/Collec
     }
 }
 
+final class androidx.compose.ui.text.platform/SynchronizedObject { // androidx.compose.ui.text.platform/SynchronizedObject|null[0]
+    constructor <init>() // androidx.compose.ui.text.platform/SynchronizedObject.<init>|<init>(){}[0]
+}
+
 final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose.ui.text.style/LineHeightStyle|null[0]
     constructor <init>(androidx.compose.ui.text.style/LineHeightStyle.Alignment, androidx.compose.ui.text.style/LineHeightStyle.Trim) // androidx.compose.ui.text.style/LineHeightStyle.<init>|<init>(androidx.compose.ui.text.style.LineHeightStyle.Alignment;androidx.compose.ui.text.style.LineHeightStyle.Trim){}[0]
     constructor <init>(androidx.compose.ui.text.style/LineHeightStyle.Alignment, androidx.compose.ui.text.style/LineHeightStyle.Trim, androidx.compose.ui.text.style/LineHeightStyle.Mode) // androidx.compose.ui.text.style/LineHeightStyle.<init>|<init>(androidx.compose.ui.text.style.LineHeightStyle.Alignment;androidx.compose.ui.text.style.LineHeightStyle.Trim;androidx.compose.ui.text.style.LineHeightStyle.Mode){}[0]

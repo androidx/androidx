@@ -35,7 +35,6 @@ internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
 
 internal actual fun Any.nativeClass(): Any = this.javaClass
 
-@Suppress("LESS_VISIBLE_TYPE_ACCESS_IN_INLINE_WARNING") // b/446705238
 @PublishedApi
 @JvmName("synchronized")
 @Deprecated(

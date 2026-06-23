@@ -16,11 +16,10 @@
 
 package androidx.compose.ui.text.platform
 
-internal actual class SynchronizedObject
+@PublishedApi internal actual class SynchronizedObject
 
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
 
 @PublishedApi
-@Suppress("LESS_VISIBLE_TYPE_ACCESS_IN_INLINE_WARNING") // b/446705238
 internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()

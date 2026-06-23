@@ -16,6 +16,9 @@
 
 package androidx.compose.runtime.platform
 
+// Suppress the warning that's flagging Any as missing the @PublishedApi annotation;
+// it's already visible enough to be inlined.
+@Suppress("ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT")
 internal actual typealias SynchronizedObject = Any
 
 @Suppress("NOTHING_TO_INLINE")
