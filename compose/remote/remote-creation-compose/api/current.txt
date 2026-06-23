@@ -63,21 +63,23 @@ package androidx.compose.remote.creation.compose.capture {
   public final class RemoteCreationDisplayInfo {
     ctor @BytecodeOnly public RemoteCreationDisplayInfo(long, androidx.compose.ui.unit.Density!, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior getDensityBehavior();
     method @BytecodeOnly public long getSize-NH-jbRc();
     method @InaccessibleFromKotlin public boolean isInspectionMode();
     property public androidx.compose.ui.unit.Density density;
+    property public androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior;
     property public boolean isInspectionMode;
     property public androidx.compose.ui.geometry.Size size;
   }
 
   public final class RemoteCreationDisplayInfoKt {
-    method public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo RemoteCreationDisplayInfo(int width, int height, int densityDpi, optional float fontScale, optional boolean isInspectionMode);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! RemoteCreationDisplayInfo$default(int, int, int, float, boolean, int, Object!);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(android.content.Context context, optional androidx.compose.ui.geometry.Size size, optional boolean isInspectionMode);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(optional int width, optional int height, optional int densityDpi, optional float fontScale, optional boolean isInspectionMode);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(int, int, int, float, boolean, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo-12SF9DM(android.content.Context, long, boolean);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! createCreationDisplayInfo-12SF9DM$default(android.content.Context!, long, boolean, int, Object!);
+    method public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo RemoteCreationDisplayInfo(int width, int height, int densityDpi, optional float fontScale, optional boolean isInspectionMode, optional androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! RemoteCreationDisplayInfo$default(int, int, int, float, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior!, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(android.content.Context context, optional androidx.compose.ui.geometry.Size size, optional boolean isInspectionMode, optional androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(optional int width, optional int height, optional int densityDpi, optional float fontScale, optional boolean isInspectionMode, optional androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(int, int, int, float, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo-x_KDEd0(android.content.Context, long, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! createCreationDisplayInfo-x_KDEd0$default(android.content.Context!, long, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior!, int, Object!);
     method @BytecodeOnly public static float getHeightDp(androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo);
     method @BytecodeOnly public static float getWidthDp(androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo);
     property public static androidx.compose.ui.unit.Dp androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo.heightDp;
@@ -96,6 +98,12 @@ package androidx.compose.remote.creation.compose.capture {
   public static final class RemoteDensity.Companion {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.capture.RemoteDensity getHost();
     property public androidx.compose.remote.creation.compose.capture.RemoteDensity Host;
+  }
+
+  public enum RemoteDensityBehavior {
+    enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Dp;
+    enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Legacy;
+    enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Pixels;
   }
 
   public final class RemoteImageVector {
