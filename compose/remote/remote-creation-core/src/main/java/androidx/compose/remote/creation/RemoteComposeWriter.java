@@ -238,7 +238,17 @@ public class RemoteComposeWriter {
         mBuffer.setVersion(profile.getApiLevel(),
                 profile.getOperationsProfiles(), supportedOperations);
 
-        mBuffer.addHeader(HTag.getTags(tags), HTag.getValues(tags));
+        // Serialize the profile into the header (DOC_PROFILES) so the document round-trips:
+        // inflation reads the operation map from this tag, and without it profiles default
+        // to baseline (0) and profile-specific ops (e.g. CORE_TEXT) fail with "unknown
+        // operation". The other constructors
+        // add this tag explicitly; do the same here unless the caller already supplied one.
+        HTag[] headerTags = tags;
+        if (HTag.getValue(tags, Header.DOC_PROFILES) == null) {
+            headerTags = java.util.Arrays.copyOf(tags, tags.length + 1);
+            headerTags[tags.length] = hTag(Header.DOC_PROFILES, profile.getOperationsProfiles());
+        }
+        mBuffer.addHeader(HTag.getTags(headerTags), HTag.getValues(headerTags));
     }
 
     /**

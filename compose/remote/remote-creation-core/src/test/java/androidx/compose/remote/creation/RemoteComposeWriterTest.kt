@@ -216,4 +216,36 @@ class RemoteComposeWriterTest {
         val info = CreationDisplayInfo(100, 100, 160, CoreDocument.DENSITY_BEHAVIOR_DP)
         RemoteComposeWriter(info, null, p)
     }
+
+    @Test
+    fun testConstructorWithProfileSerializesDocProfiles() {
+        // Create a profile with a non-baseline operations profile (PROFILE_ANDROIDX)
+        val testProfile =
+            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, rcPlatform) {
+                _,
+                profile,
+                _ ->
+                RemoteComposeWriter(profile)
+            }
+
+        // Construct the writer using the constructor under test, without passing DOC_PROFILES
+        val testWriter =
+            RemoteComposeWriter(
+                testProfile,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
+            )
+
+        // Encode to byte array
+        val bytes = testWriter.encodeToByteArray()
+
+        // Decode (round-trip) into a CoreDocument
+        val inputStream = java.io.ByteArrayInputStream(bytes)
+        val decodedBuffer = RemoteComposeBuffer.fromInputStream(inputStream)
+        val decodedDoc = CoreDocument()
+        decodedDoc.initFromBuffer(decodedBuffer)
+
+        // Assert that the profile is correctly restored (not defaulted to 0)
+        assertThat(decodedDoc.profileMask).isEqualTo(RcProfiles.PROFILE_ANDROIDX)
+    }
 }
