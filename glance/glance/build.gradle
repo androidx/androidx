@@ -80,7 +80,7 @@ dependencies {
 }
 
 android {
-    resourcePrefix "glance_"
+    resourcePrefix = "glance_"
     namespace = "androidx.glance"
 }
 
