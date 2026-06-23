@@ -76,7 +76,11 @@ import androidx.compose.ui.unit.height
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
+import androidx.wear.compose.material3.tokens.ChildButtonTokens
+import androidx.wear.compose.material3.tokens.CompactButtonTokens
 import androidx.wear.compose.material3.tokens.FilledButtonTokens
+import androidx.wear.compose.material3.tokens.FilledTonalButtonTokens
+import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
@@ -1492,6 +1496,235 @@ class ButtonTest {
         assertEquals(expectedIconColor, actualIconColor)
         assertEquals(expectedLabelStyle, actualLabelStyle)
         assertEquals(expectedSecondaryLabelStyle, actualSecondaryLabelStyle)
+    }
+
+    @Test
+    fun filled_tonal_button_content_slots_have_correct_colors_when_enabled() {
+        var actualLabelColor: Color = Color.Transparent
+        var actualSecondaryLabelColor: Color = Color.Transparent
+        var actualIconColor: Color = Color.Transparent
+
+        var expectedLabelColor: Color = Color.Transparent
+        var expectedSecondaryLabelColor: Color = Color.Transparent
+        var expectedIconColor: Color = Color.Transparent
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.filledTonalButtonColors()
+            expectedLabelColor = colors.contentColor(enabled = true)
+            expectedSecondaryLabelColor = colors.secondaryContentColor(enabled = true)
+            expectedIconColor = colors.iconColor(enabled = true)
+
+            FilledTonalButton(
+                onClick = {},
+                colors = colors,
+                label = { actualLabelColor = LocalContentColor.current },
+                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current },
+            )
+        }
+
+        assertEquals(expectedLabelColor, actualLabelColor)
+        assertEquals(expectedSecondaryLabelColor, actualSecondaryLabelColor)
+        assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @Test
+    fun outlined_button_content_slots_have_correct_colors_when_enabled() {
+        var actualLabelColor: Color = Color.Transparent
+        var actualSecondaryLabelColor: Color = Color.Transparent
+        var actualIconColor: Color = Color.Transparent
+
+        var expectedLabelColor: Color = Color.Transparent
+        var expectedSecondaryLabelColor: Color = Color.Transparent
+        var expectedIconColor: Color = Color.Transparent
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.outlinedButtonColors()
+            expectedLabelColor = colors.contentColor(enabled = true)
+            expectedSecondaryLabelColor = colors.secondaryContentColor(enabled = true)
+            expectedIconColor = colors.iconColor(enabled = true)
+
+            OutlinedButton(
+                onClick = {},
+                colors = colors,
+                label = { actualLabelColor = LocalContentColor.current },
+                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current },
+            )
+        }
+
+        assertEquals(expectedLabelColor, actualLabelColor)
+        assertEquals(expectedSecondaryLabelColor, actualSecondaryLabelColor)
+        assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @Test
+    fun child_button_content_slots_have_correct_colors_when_enabled() {
+        var actualLabelColor: Color = Color.Transparent
+        var actualSecondaryLabelColor: Color = Color.Transparent
+        var actualIconColor: Color = Color.Transparent
+
+        var expectedLabelColor: Color = Color.Transparent
+        var expectedSecondaryLabelColor: Color = Color.Transparent
+        var expectedIconColor: Color = Color.Transparent
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.childButtonColors()
+            expectedLabelColor = colors.contentColor(enabled = true)
+            expectedSecondaryLabelColor = colors.secondaryContentColor(enabled = true)
+            expectedIconColor = colors.iconColor(enabled = true)
+
+            ChildButton(
+                onClick = {},
+                colors = colors,
+                label = { actualLabelColor = LocalContentColor.current },
+                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current },
+            )
+        }
+
+        assertEquals(expectedLabelColor, actualLabelColor)
+        assertEquals(expectedSecondaryLabelColor, actualSecondaryLabelColor)
+        assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @Test
+    fun compact_button_content_slots_have_correct_colors_when_enabled() {
+        var actualLabelColor: Color = Color.Transparent
+        var actualIconColor: Color = Color.Transparent
+
+        var expectedLabelColor: Color = Color.Transparent
+        var expectedIconColor: Color = Color.Transparent
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.buttonColors()
+            expectedLabelColor = colors.contentColor(enabled = true)
+            expectedIconColor = colors.iconColor(enabled = true)
+
+            CompactButton(
+                onClick = {},
+                colors = colors,
+                label = { actualLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current },
+            )
+        }
+
+        assertEquals(expectedLabelColor, actualLabelColor)
+        assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @Test
+    fun compact_button_content_slots_have_correct_colors_when_disabled() {
+        var actualLabelColor: Color = Color.Transparent
+        var actualIconColor: Color = Color.Transparent
+
+        var expectedLabelColor: Color = Color.Transparent
+        var expectedIconColor: Color = Color.Transparent
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.buttonColors()
+            expectedLabelColor = colors.contentColor(enabled = false)
+            expectedIconColor = colors.iconColor(enabled = false)
+
+            CompactButton(
+                onClick = {},
+                colors = colors,
+                enabled = false,
+                label = { actualLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current },
+            )
+        }
+
+        assertEquals(expectedLabelColor, actualLabelColor)
+        assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @Test
+    fun single_slot_filled_tonal_button_provides_local_content_color_and_text_style() {
+        var actualColor: Color = Color.Transparent
+        var actualStyle: TextStyle = TextStyle.Default
+        var expectedColor: Color = Color.Transparent
+        var expectedStyle: TextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.filledTonalButtonColors()
+            expectedColor = colors.contentColor(true)
+            expectedStyle = FilledTonalButtonTokens.LabelFont.value
+
+            FilledTonalButton(onClick = {}, colors = colors) {
+                actualColor = LocalContentColor.current
+                actualStyle = LocalTextStyle.current
+            }
+        }
+
+        assertEquals(expectedColor, actualColor)
+        assertEquals(expectedStyle, actualStyle)
+    }
+
+    @Test
+    fun single_slot_outlined_button_provides_local_content_color_and_text_style() {
+        var actualColor: Color = Color.Transparent
+        var actualStyle: TextStyle = TextStyle.Default
+        var expectedColor: Color = Color.Transparent
+        var expectedStyle: TextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.outlinedButtonColors()
+            expectedColor = colors.contentColor(true)
+            expectedStyle = OutlinedButtonTokens.LabelFont.value
+
+            OutlinedButton(onClick = {}, colors = colors) {
+                actualColor = LocalContentColor.current
+                actualStyle = LocalTextStyle.current
+            }
+        }
+
+        assertEquals(expectedColor, actualColor)
+        assertEquals(expectedStyle, actualStyle)
+    }
+
+    @Test
+    fun single_slot_child_button_provides_local_content_color_and_text_style() {
+        var actualColor: Color = Color.Transparent
+        var actualStyle: TextStyle = TextStyle.Default
+        var expectedColor: Color = Color.Transparent
+        var expectedStyle: TextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.childButtonColors()
+            expectedColor = colors.contentColor(true)
+            expectedStyle = ChildButtonTokens.LabelFont.value
+
+            ChildButton(onClick = {}, colors = colors) {
+                actualColor = LocalContentColor.current
+                actualStyle = LocalTextStyle.current
+            }
+        }
+
+        assertEquals(expectedColor, actualColor)
+        assertEquals(expectedStyle, actualStyle)
+    }
+
+    @Test
+    fun single_slot_compact_button_provides_local_content_color_and_text_style() {
+        var actualColor: Color = Color.Transparent
+        var actualStyle: TextStyle = TextStyle.Default
+        var expectedColor: Color = Color.Transparent
+        var expectedStyle: TextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            val colors = ButtonDefaults.buttonColors()
+            expectedColor = colors.contentColor(true)
+            expectedStyle = CompactButtonTokens.LabelFont.value
+
+            CompactButton(onClick = {}, colors = colors) {
+                actualColor = LocalContentColor.current
+                actualStyle = LocalTextStyle.current
+            }
+        }
+
+        assertEquals(expectedColor, actualColor)
+        assertEquals(expectedStyle, actualStyle)
     }
 }
 
