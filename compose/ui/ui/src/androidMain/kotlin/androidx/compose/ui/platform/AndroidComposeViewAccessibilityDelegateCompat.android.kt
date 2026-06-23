@@ -85,6 +85,7 @@ import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionItemInfo
 import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.AdjustedSemanticsNode
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -100,7 +101,6 @@ import androidx.compose.ui.semantics.SemanticsActions.PageUp
 import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.IsSensitiveData
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
@@ -366,8 +366,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * tree. They key is the virtual view id(the root node has a key of
      * AccessibilityNodeProviderCompat.HOST_VIEW_ID and other node has a key of its id).
      */
-    private var currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds> =
-        intObjectMapOf()
+    private var currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode> = intObjectMapOf()
+        @OptIn(ExperimentalComposeUiApi::class)
         get() {
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
@@ -459,7 +459,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun canScroll(
-        currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>,
+        currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>,
         vertical: Boolean,
         direction: Int,
         position: Offset,
@@ -579,7 +579,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         } else null
     }
 
-    private fun boundsInScreen(node: SemanticsNodeWithAdjustedBounds): AndroidRect {
+    private fun boundsInScreen(node: AdjustedSemanticsNode): AndroidRect {
         val boundsInRoot = node.adjustedBounds
         return toBoundsInScreen(
             left = boundsInRoot.left.toFloat(),
@@ -615,6 +615,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         semanticsNode: SemanticsNode,
     ) {
         val resources = view.context.resources
+        val isInMergingHiddenSubtree =
+            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
+                currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
 
         // set classname
         info.className = ClassName
@@ -819,7 +822,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         // Mark invisible nodes
-        info.isVisibleToUser = !semanticsNode.isHidden
+        info.isVisibleToUser = !(semanticsNode.isHidden || isInMergingHiddenSubtree)
         if (ComposeUiFlags.isAccessibilityShouldIncludeOffscreenChildrenEnabled) {
             // We started to report more nodes on the edges of scrollable containers, and we don't
             // use clip bounds for them. Therefore, we mark them as invisible to user to signal this
@@ -1157,7 +1160,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
-        info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode, resources)
+        info.isScreenReaderFocusable =
+            isScreenReaderFocusable(semanticsNode, resources, isInMergingHiddenSubtree)
 
         // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
         val beforeId = idToBeforeMap.getOrDefault(virtualViewId, -1)
@@ -2210,6 +2214,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * InvalidId if an embedded Android View was hit.
      */
     @VisibleForTesting
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun hitTestSemanticsAt(x: Float, y: Float): Int {
         view.measureAndLayout()
 
@@ -2242,6 +2247,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
             // Continue to the next items in the hit test if it's not considered important.
             if (!semanticsNode.isImportantForAccessibility()) {
+                continue
+            }
+
+            val isInMergingHiddenSubtree =
+                AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
+                    currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
+            if (isInMergingHiddenSubtree) {
                 continue
             }
 
@@ -2537,7 +2549,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun sendSemanticsPropertyChangeEvents(
-        newSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>
+        newSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>
     ) {
         val oldScrollObservationScopes = ArrayList(scrollObservationScopes)
         scrollObservationScopes.clear()
@@ -3442,8 +3454,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
  *   node that should be traversed after the node specified by the id.
  * @param resources: Application resources.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 private fun setTraversalValues(
-    currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>,
+    currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>,
     outputBeforeMap: MutableIntIntMap,
     outputAfterMap: MutableIntIntMap,
     resources: Resources,
@@ -3457,7 +3470,15 @@ private fun setTraversalValues(
     val semanticsOrderList =
         hostSemanticsNode.subtreeSortedByGeometryGrouping(
             isVisible = { currentSemanticsNodes.containsKey(it.id) },
-            isFocusableContainer = { isScreenReaderFocusable(it, resources) },
+            isFocusableContainer = {
+                isScreenReaderFocusable(
+                    it,
+                    resources,
+                    AndroidComposeUiFlags
+                        .isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
+                        currentSemanticsNodes[it.id]?.isInMergingHiddenSubtree == true,
+                )
+            },
             listToSort = listOf(hostSemanticsNode),
         )
 
@@ -3472,8 +3493,12 @@ private fun setTraversalValues(
 }
 
 /** Determines if the node should explicitly map to the merging on accessibility side */
-private fun isScreenReaderFocusable(node: SemanticsNode, resources: Resources): Boolean {
-    if (node.isHidden) return false
+private fun isScreenReaderFocusable(
+    node: SemanticsNode,
+    resources: Resources,
+    isInMergingHiddenSubtree: Boolean = false,
+): Boolean {
+    if (node.isHidden || isInMergingHiddenSubtree) return false
 
     // If the node explicitly merges its descendants, we map it directly to the merging
     // algorithm on the accessibility side.
