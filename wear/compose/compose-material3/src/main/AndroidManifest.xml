@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <meta-data
+            android:name="com.google.wear.ENABLE_GLOBAL_STATUS_BAR"
+            android:value="true"
+            tools:ignore="MetadataTagInsideApplicationTag" />
+    </application>
+</manifest>
