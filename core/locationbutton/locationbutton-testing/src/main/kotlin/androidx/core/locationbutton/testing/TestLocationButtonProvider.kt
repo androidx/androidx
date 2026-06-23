@@ -16,14 +16,15 @@
 
 package androidx.core.locationbutton.testing
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.permissionui.LocationButtonClient
 import android.app.permissionui.LocationButtonProvider
 import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
+import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.Executor
 
@@ -32,7 +33,7 @@ import java.util.concurrent.Executor
  * provides additional methods to allow tests to fake user interactions so that the client side
  * flows can be tested.
  */
-@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 public open class TestLocationButtonProvider(private val context: Context) :
     LocationButtonProvider {
     internal val sessionClientMap: MutableMap<LocationButtonSession, LocationButtonClient> =

@@ -47,14 +47,13 @@ public class LocationButtonTest {
 
     @Test
     public fun testLocationButtonIsRendered() {
-        val provider = TestLocationButtonProvider.create()
         lateinit var button: LocationButton
 
         activityRule.scenario.onActivity { activity ->
             button =
                 LocationButton(activity).apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                        setLocationButtonProvider(provider)
+                        setLocationButtonProvider(TestLocationButtonProvider.create())
                     }
                     activity.setContentView(this)
                 }

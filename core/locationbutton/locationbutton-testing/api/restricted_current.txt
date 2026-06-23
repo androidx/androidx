@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.core.locationbutton.testing {
 
-  public class TestLocationButtonProvider implements android.app.permissionui.LocationButtonProvider {
+  @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public class TestLocationButtonProvider implements android.app.permissionui.LocationButtonProvider {
     ctor public TestLocationButtonProvider(android.content.Context context);
     method public static final androidx.core.locationbutton.testing.TestLocationButtonProvider create();
     method public final void notifyPermissionResult(android.app.permissionui.LocationButtonSession session, boolean isGranted);
