@@ -38,6 +38,8 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.inputDeviceCenter
 import androidx.compose.ui.test.inputDeviceCenterLeft
 import androidx.compose.ui.test.inputDeviceCenterRight
+import androidx.compose.ui.test.inputDeviceTopLeft
+import androidx.compose.ui.test.inputDeviceTopRight
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
@@ -199,6 +201,118 @@ class IndirectPointerGestureTest {
             assertThat(onClickCount).isEqualTo(0)
             assertThat(onSwipeForwardCount).isEqualTo(1)
             assertThat(onSwipeBackwardCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun swipeForward_withHistoricalBatch_triggersOnSwipeForward() {
+        var onClickCount = 0
+        var onSwipeForwardCount = 0
+        var onSwipeBackwardCount = 0
+
+        var touchSlop = 0f
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(
+                modifier =
+                    Modifier.testTag(ROOT_TEST_TAG)
+                        .size(10.dp)
+                        .onIndirectPointerGesture(
+                            enabled = true,
+                            onSwipeForward = { onSwipeForwardCount++ },
+                            onSwipeBackward = { onSwipeBackwardCount++ },
+                            onClick = { onClickCount++ },
+                        )
+                        .focusTarget()
+            )
+        }
+
+        val distance = touchSlop * 2f
+
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start = inputDeviceTopLeft
+            down(start)
+            updatePointerTo(0, start + Offset(distance, 0f))
+            moveWithHistory(
+                relativeHistoricalTimes = listOf(-80L, -60L, -40L, -20L),
+                historicalCoordinates =
+                    listOf(
+                        start + Offset(distance * 0.2f, 0f),
+                        start + Offset(distance * 0.4f, 0f),
+                        start + Offset(distance * 0.6f, 0f),
+                        start + Offset(distance * 0.8f, 0f),
+                    ),
+                delayMillis = 100L,
+            )
+            advanceEventTime(20L)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(onClickCount).isEqualTo(0)
+            assertThat(onSwipeForwardCount).isEqualTo(1)
+            assertThat(onSwipeBackwardCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun swipeBackward_withHistoricalBatch_triggersOnSwipeBackward() {
+        var onClickCount = 0
+        var onSwipeForwardCount = 0
+        var onSwipeBackwardCount = 0
+
+        var touchSlop = 0f
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(
+                modifier =
+                    Modifier.testTag(ROOT_TEST_TAG)
+                        .size(10.dp)
+                        .onIndirectPointerGesture(
+                            enabled = true,
+                            onSwipeForward = { onSwipeForwardCount++ },
+                            onSwipeBackward = { onSwipeBackwardCount++ },
+                            onClick = { onClickCount++ },
+                        )
+                        .focusTarget()
+            )
+        }
+
+        val distance = -(touchSlop * 2f)
+
+        rule.sendIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis =
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize = horizontalExternalInputDeviceSize,
+        ) {
+            val start = inputDeviceTopRight
+            down(start)
+            updatePointerTo(0, start + Offset(distance, 0f))
+            moveWithHistory(
+                relativeHistoricalTimes = listOf(-80L, -60L, -40L, -20L),
+                historicalCoordinates =
+                    listOf(
+                        start + Offset(distance * 0.2f, 0f),
+                        start + Offset(distance * 0.4f, 0f),
+                        start + Offset(distance * 0.6f, 0f),
+                        start + Offset(distance * 0.8f, 0f),
+                    ),
+                delayMillis = 100L,
+            )
+            advanceEventTime(20L)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(onClickCount).isEqualTo(0)
+            assertThat(onSwipeForwardCount).isEqualTo(0)
+            assertThat(onSwipeBackwardCount).isEqualTo(1)
         }
     }
 

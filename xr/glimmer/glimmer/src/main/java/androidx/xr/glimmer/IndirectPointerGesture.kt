@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerInputChange
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
+import androidx.compose.ui.input.indirect.nativeEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -188,6 +189,23 @@ private class IndirectPointerGestureNode(
             if (
                 (onSwipeForward != null || onSwipeBackward != null) && !ignoreSwipeForGestureStream
             ) {
+                // TODO(b/526962189): Use `VelocityTracker#addIndirectPointerInputChange` to
+                // calculate the velocity instead of providing historical events manually
+                val nativeEvent = event.nativeEvent
+                val pointerIndex = nativeEvent.findPointerIndex(pointerId.value.toInt())
+                if (pointerIndex >= 0) {
+                    val historySize = nativeEvent.historySize
+                    for (historicalEventIndex in 0 until historySize) {
+                        getVelocityTracker()
+                            .addPosition(
+                                nativeEvent.getHistoricalEventTime(historicalEventIndex),
+                                Offset(
+                                    nativeEvent.getHistoricalX(pointerIndex, historicalEventIndex),
+                                    nativeEvent.getHistoricalY(pointerIndex, historicalEventIndex),
+                                ),
+                            )
+                    }
+                }
                 getVelocityTracker().addPosition(change.uptimeMillis, change.position)
             }
             handleInputChange(change)
