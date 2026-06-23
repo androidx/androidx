@@ -53,8 +53,6 @@
     <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"ปิด"</string>
     <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"เลือกแล้ว"</string>
     <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"ยังไม่เลือก"</string>
-    <!-- no translation found for one_handed_gesture_primary_action_accessibility_text (2122419773237007989) -->
-    <skip />
-    <!-- no translation found for one_handed_gesture_dismiss_action_accessibility_text (8288713291513299429) -->
-    <skip />
+    <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"ท่าทางสัมผัสบีบนิ้วสองครั้งเพื่อ %s"</string>
+    <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"ท่าทางสัมผัสหมุนข้อมือเพื่อ %s"</string>
 </resources>
