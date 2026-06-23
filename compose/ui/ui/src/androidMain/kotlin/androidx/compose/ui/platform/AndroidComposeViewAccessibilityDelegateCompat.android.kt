@@ -672,42 +672,39 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val isMerging = semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants
         val replacedChildren = semanticsNode.replacedChildren
         val childrenSize = replacedChildren.size
-        val children =
-            if (
-                isTraversalGroup &&
-                    isMerging &&
-                    AndroidComposeUiFlags.isTraversalGroupSortingEnabled &&
-                    childrenSize > 1
-            ) {
-                getSortedChildren(replacedChildren).asList()
-            } else {
-                replacedChildren
-            }
 
-        children.fastForEach { child ->
-            if (currentSemanticsNodes.contains(child.id)) {
-                val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
-                // Do not add children if the ID is not valid.
-                if (child.id == View.NO_ID) {
-                    return@fastForEach
+        if (
+            isTraversalGroup &&
+                isMerging &&
+                AndroidComposeUiFlags.isTraversalGroupSortingEnabled &&
+                childrenSize > 1
+        ) {
+            val sortedChildren = getSortedChildren(replacedChildren)
+            for (i in 0 until childrenSize) {
+                val child = sortedChildren[i]
+                val childNodeWithBounds = currentSemanticsNodes[child.id]
+                if (childNodeWithBounds != null && child.id != View.NO_ID) {
+                    addChildToNodeInfo(
+                        childNodeWithBounds,
+                        info,
+                        isRequestFromAccessibilityTool,
+                        childDrawingOrder,
+                    )
+                    childDrawingOrder++
                 }
-                if (holder != null) {
-                    info.addChild(holder)
-                } else {
-                    val childHasSensitiveData =
-                        currentSemanticsNodes[child.id]
-                            ?.semanticsNode
-                            ?.config
-                            ?.getOrNull(IsSensitiveData) == true
-                    // If the child has isSensitiveData=true then the node request must come
-                    // from an accessibility tool in order for the child to be included.
-                    if (isRequestFromAccessibilityTool || !childHasSensitiveData) {
-                        info.addChild(view, child.id)
-                    }
+            }
+        } else {
+            replacedChildren.fastForEach { child ->
+                val childNodeWithBounds = currentSemanticsNodes[child.id]
+                if (childNodeWithBounds != null && child.id != View.NO_ID) {
+                    addChildToNodeInfo(
+                        childNodeWithBounds,
+                        info,
+                        isRequestFromAccessibilityTool,
+                        childDrawingOrder,
+                    )
+                    childDrawingOrder++
                 }
-                // The children are already ordered by the drawing order at this point.
-                drawingOrder.put(child.id, childDrawingOrder)
-                childDrawingOrder++
             }
         }
 
@@ -1215,6 +1212,28 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private fun getSortedChildren(replacedChildren: List<SemanticsNode>): Array<SemanticsNode> {
         val size = replacedChildren.size
         return Array(size) { replacedChildren[it] }.apply { sortWith(UnmergedConfigComparator) }
+    }
+
+    private fun addChildToNodeInfo(
+        childNodeWithBounds: AdjustedSemanticsNode,
+        info: AccessibilityNodeInfoCompat,
+        isRequestFromAccessibilityTool: Boolean,
+        childDrawingOrder: Int,
+    ) {
+        val child = childNodeWithBounds.semanticsNode
+        val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
+        if (holder != null) {
+            info.addChild(holder)
+        } else {
+            val childHasSensitiveData = child.config.getOrNull(IsSensitiveData) == true
+            // If the child has isSensitiveData=true then the node request must come
+            // from an accessibility tool in order for the child to be included.
+            if (isRequestFromAccessibilityTool || !childHasSensitiveData) {
+                info.addChild(view, child.id)
+            }
+        }
+        // The children are already ordered by the drawing order at this point.
+        drawingOrder.put(child.id, childDrawingOrder)
     }
 
     /** Set the error text for this node */
