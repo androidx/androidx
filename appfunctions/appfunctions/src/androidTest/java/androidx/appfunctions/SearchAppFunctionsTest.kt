@@ -52,6 +52,7 @@ class SearchAppFunctionsTest {
             AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
             AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT,
             AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA2_PRINT,
+            AppFunctionMetadataTestHelper.FunctionIds.NOTES_SCHEMA_PRINT,
         )
 
     @Before

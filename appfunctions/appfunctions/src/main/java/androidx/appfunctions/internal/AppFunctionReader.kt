@@ -18,6 +18,7 @@ package androidx.appfunctions.internal
 
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +35,7 @@ public interface AppFunctionReader {
      * @return A flow emitting a list of app function package metadata matching the search criteria.
      * @see androidx.appfunctions.AppFunctionSearchSpec
      */
+    // TODO(b/508188326): Remove this once legacy observeAppFunctions API is migrated.
     public fun searchAppFunctionsPackageMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>>
@@ -59,4 +61,12 @@ public interface AppFunctionReader {
         functionId: String,
         packageName: String,
     ): AppFunctionMetadata?
+
+    /**
+     * Observes app functions for changes to their [AppFunctionMetadata] or
+     * [androidx.appfunctions.AppFunctionState].
+     *
+     * @return A flow emitting change events when packages or function states are updated.
+     */
+    public fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent>
 }

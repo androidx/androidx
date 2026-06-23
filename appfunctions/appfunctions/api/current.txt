@@ -169,7 +169,7 @@ package androidx.appfunctions {
     method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? isAppFunctionEnabled(String packageName, String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? isAppFunctionEnabled(String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public kotlinx.coroutines.flow.Flow<java.util.List<androidx.appfunctions.metadata.AppFunctionPackageMetadata>> observeAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec);
+    method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.ObserveAppFunctionsEvent> observeAppFunctions();
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? searchAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata>>);
     method public suspend Object? setAppFunctionEnabled(String functionId, int newEnabledState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final int APP_FUNCTION_STATE_DEFAULT = 0; // 0x0
@@ -351,6 +351,21 @@ package androidx.appfunctions {
   public static final class ExecuteAppFunctionResponse.Success.Companion {
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public androidx.appfunctions.ExecuteAppFunctionResponse.Success toCompatExecuteAppFunctionResponse(android.app.appfunctions.ExecuteAppFunctionResponse, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
     property public static String PROPERTY_RETURN_VALUE;
+  }
+
+  public abstract class ObserveAppFunctionsEvent {
+  }
+
+  public static final class ObserveAppFunctionsEvent.MetadataChanged extends androidx.appfunctions.ObserveAppFunctionsEvent {
+    ctor public ObserveAppFunctionsEvent.MetadataChanged(java.util.Set<java.lang.String> changedPackageNames);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getChangedPackageNames();
+    property public java.util.Set<java.lang.String> changedPackageNames;
+  }
+
+  public static final class ObserveAppFunctionsEvent.StatesChanged extends androidx.appfunctions.ObserveAppFunctionsEvent {
+    ctor public ObserveAppFunctionsEvent.StatesChanged(java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> getChangedFunctionNames();
+    property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
   }
 
 }
