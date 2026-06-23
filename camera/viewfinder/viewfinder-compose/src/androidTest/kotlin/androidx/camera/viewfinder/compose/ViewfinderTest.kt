@@ -60,6 +60,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.cos
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,6 +76,8 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
+import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -95,6 +98,13 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
 
     val testDispatcher = StandardTestDispatcher()
     @get:Rule val rule = createComposeRule(testDispatcher)
+
+    @After
+    fun tearDown() {
+        // Force GC to trigger finalizers and catch leaks/crashes early
+        Runtime.getRuntime().gc()
+        System.runFinalization()
+    }
 
     @Test
     fun coordinatesTransformationSameSizeNoRotation(): Unit = runBlocking {
@@ -365,6 +375,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
         withRenderAnimation: Boolean = true,
         crossinline block: suspend T.() -> Unit,
     ) {
+        var renderJob: Job? = null
         val surfaceSessionFlow = MutableStateFlow<ViewfinderSurfaceSessionScope?>(null)
         val sessionCompleteCount = MutableStateFlow(0)
         val paused = MutableStateFlow(!withRenderAnimation)
@@ -375,27 +386,29 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                 numSessions++
                 surfaceSessionFlow.value = this@onSurfaceSession
 
-                launch(AndroidUiDispatcher.Main) {
-                    val w = request.width
-                    val h = request.height
+                renderJob =
+                    launch(AndroidUiDispatcher.Main) {
+                        val w = request.width
+                        val h = request.height
 
-                    // Render loop
-                    var initialTime: Long? = null
-                    paused.collectLatest { paused ->
-                        while (!paused) {
-                            withFrameNanos { time ->
-                                if (initialTime == null) {
-                                    initialTime = time
-                                }
-                                surface.tryDrawWithCanvas(Rect(0, 0, w, h)) {
-                                    val timeMs = (time - initialTime) / 1_000_000L
-                                    val t = 0.5f - 0.5f * cos(Math.PI.toFloat() * timeMs / 1_000.0f)
-                                    drawColor(lerp(Color.Blue, Color.Yellow, t).toArgb())
+                        // Render loop
+                        var initialTime: Long? = null
+                        paused.collectLatest { paused ->
+                            while (!paused) {
+                                withFrameNanos { time ->
+                                    if (initialTime == null) {
+                                        initialTime = time
+                                    }
+                                    surface.tryDrawWithCanvas(Rect(0, 0, w, h)) {
+                                        val timeMs = (time - initialTime) / 1_000_000L
+                                        val t =
+                                            0.5f - 0.5f * cos(Math.PI.toFloat() * timeMs / 1_000.0f)
+                                        drawColor(lerp(Color.Blue, Color.Yellow, t).toArgb())
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
                 withContext(NonCancellable) { sessionCompleteCount.first { it >= numSessions } }
             }
@@ -405,12 +418,16 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
 
         val baseSessionTestScope =
             BaseSessionTestScope(surfaceSessionFlow, sessionCompleteCount, paused)
+
         val specificSessionTestScope = scopeProvider(baseSessionTestScope)
 
         try {
             block.invoke(specificSessionTestScope)
         } finally {
             sessionCompleteCount.value = Int.MAX_VALUE
+            renderJob?.cancel()
+            renderJob?.join()
+            rule.awaitIdle()
         }
     }
 
@@ -425,7 +442,12 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                 object : SessionTestScope by baseScope, PageableSessionTestScope {
                     override suspend fun scrollToPage(page: Int) {
                         selectedPageFlow.value = page
-                        settledPageFlow.first { it == page }
+
+                        // Manually advance the frame clock and yield until the page settles
+                        while (settledPageFlow.value != page) {
+                            rule.mainClock.advanceTimeByFrame()
+                            yield()
+                        }
                     }
                 }
             },
