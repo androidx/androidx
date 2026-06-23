@@ -129,6 +129,10 @@ public class DrawToBitmap extends PaintOperation implements Serializable {
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
-        serializer.addType(CLASS_NAME).add("bitmapId", mBitmapId);
+        serializer
+                .addType(CLASS_NAME)
+                .add("bitmapId", mBitmapId)
+                .add("mode", mMode)
+                .add("color", mColor);
     }
 }

@@ -420,8 +420,15 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
                 .add("width", mWidth)
                 .add("height", mHeight)
                 .add("borderWidth", mBorderWidth)
-                .add("roundedCornerRadius", mRoundedCorner)
-                .add("color", mA, mR, mG, mB)
+                .add("roundedCornerRadius", mRoundedCorner);
+
+        if (mUseColorId) {
+            serializer.add("colorId", mColorId);
+        } else {
+            serializer.add("color", mA, mR, mG, mB);
+        }
+
+        serializer
                 .add("shapeType", ShapeType.getString(mShapeType))
                 .add("useLegacyDrawing", mUseLegacyDrawing);
     }

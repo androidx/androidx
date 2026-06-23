@@ -316,8 +316,12 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation
                 .add("x", mX)
                 .add("y", mY)
                 .add("width", mWidth)
-                .add("height", mHeight)
-                .add("color", mA, mR, mG, mB)
-                .add("shapeType", ShapeType.getString(mShapeType));
+                .add("height", mHeight);
+        if (mUseColorId) {
+            serializer.add("colorId", mColorId);
+        } else {
+            serializer.add("color", mA, mR, mG, mB);
+        }
+        serializer.add("shapeType", ShapeType.getString(mShapeType));
     }
 }
