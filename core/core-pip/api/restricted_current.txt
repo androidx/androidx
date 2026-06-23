@@ -2,7 +2,8 @@
 package androidx.core.pip {
 
   public class BasicPictureInPicture extends androidx.core.pip.PictureInPictureDelegate {
-    ctor public BasicPictureInPicture(androidx.core.app.PictureInPictureProvider pictureInPictureProvider);
+    ctor public BasicPictureInPicture(androidx.core.app.PictureInPictureProvider pictureInPictureProvider, java.util.concurrent.Executor executor);
+    method public final void commit();
     method @InaccessibleFromKotlin protected final androidx.core.app.PictureInPictureParamsCompat.Builder getPictureInPictureParamsBuilder();
     method public final androidx.core.pip.BasicPictureInPicture setActions(java.util.List<android.app.RemoteAction> actions);
     method public final androidx.core.pip.BasicPictureInPicture setAspectRatio(android.util.Rational aspectRatio);
@@ -41,7 +42,7 @@ package androidx.core.pip {
   }
 
   public final class VideoPlaybackPictureInPicture extends androidx.core.pip.BasicPictureInPicture implements java.lang.AutoCloseable {
-    ctor public VideoPlaybackPictureInPicture(androidx.core.app.PictureInPictureProvider provider);
+    ctor public VideoPlaybackPictureInPicture(androidx.core.app.PictureInPictureProvider provider, java.util.concurrent.Executor executor);
     method public void close();
     method public androidx.core.pip.VideoPlaybackPictureInPicture setPlayerView(android.view.View? view);
   }
