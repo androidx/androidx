@@ -70,6 +70,7 @@ import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
 import androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener
 import androidx.core.view.inputmethod.InputContentInfoCompat
+import androidx.core.view.inputmethod.TextAttributeCompat
 import java.util.concurrent.Executor
 import java.util.function.IntConsumer
 
@@ -245,17 +246,10 @@ internal class StatelessInputConnection(
     ): Boolean {
         logDebug("commitText(\"$text\", $newCursorPosition, $textAttribute)")
 
-        val isTextSuggestionSelected =
-            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
-                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
-            } else {
-                false
-            }
-
         session.commitText(
             text = text.toString(),
             newCursorPosition = newCursorPosition,
-            isTextSuggestionSelected = isTextSuggestionSelected,
+            isTextSuggestionSelected = textAttribute.isTextSuggestionSelected,
         )
         return true
     }
@@ -284,17 +278,10 @@ internal class StatelessInputConnection(
     ): Boolean {
         logDebug("setComposingText(\"$text\", $newCursorPosition, $textAttribute)")
 
-        val isTextSuggestionSelected =
-            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
-                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
-            } else {
-                false
-            }
-
         session.setComposingText(
             text = text.toString(),
             newCursorPosition = newCursorPosition,
-            isTextSuggestionSelected = isTextSuggestionSelected,
+            isTextSuggestionSelected = textAttribute.isTextSuggestionSelected,
         )
         return true
     }
@@ -587,12 +574,8 @@ private object Api34PerformHandwritingGestureImpl {
     }
 }
 
-@RequiresApi(37)
-private object Api37TextAttributeImpl {
-    fun isTextSuggestionSelected(textAttribute: TextAttribute): Boolean {
-        return textAttribute.isTextSuggestionSelected
-    }
-}
+private inline val TextAttribute?.isTextSuggestionSelected: Boolean
+    get() = TextAttributeCompat.wrap(this)?.isTextSuggestionSelected == true
 
 internal fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     val res = ExtractedText()
