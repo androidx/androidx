@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Constraints
@@ -114,7 +116,7 @@ class ScaffoldTest {
 
     @Test
     fun displays_screen_time_text_after_app_scaffold_recomposes() {
-        val count = androidx.compose.runtime.mutableStateOf(0)
+        val count = mutableStateOf(0)
 
         rule.setContentWithTheme {
             AppScaffold(
@@ -133,6 +135,66 @@ class ScaffoldTest {
         rule.waitForIdle()
 
         rule.onNodeWithText(TIME_TEXT_MESSAGE).assertIsDisplayed()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun screen_scaffold_preserves_scroll_info_provider_across_recompositions() {
+        val timeTextColor = Color.Red
+        val recomposeTrigger = mutableStateOf(0)
+
+        rule.setContentWithTheme {
+            AppScaffold {
+                val scrollState = rememberScalingLazyListState()
+                ScreenScaffold(
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .background(
+                                if (recomposeTrigger.value == 0) Color.White else Color.Black
+                            ),
+                    scrollState = scrollState,
+                    scrollIndicator = {
+                        Box(
+                            modifier =
+                                Modifier.size(20.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .background(Color.Blue)
+                        )
+                    },
+                    timeText = { Box(Modifier.size(20.dp).background(timeTextColor)) },
+                ) {
+                    ScalingLazyColumn(
+                        state = scrollState,
+                        modifier =
+                            Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
+                    ) {
+                        items(50) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
+                    }
+                }
+            }
+        }
+
+        // Initially, TimeText (Red) is displayed.
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
+
+        // Scroll down slightly (50px) so Item 1 remains visible in viewport.
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput {
+            swipe(start = center, end = center.copy(y = center.y - 50f), durationMillis = 200)
+        }
+        rule.waitForIdle()
+
+        // Verify TimeText is scrolled away.
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(timeTextColor)
+
+        // Force ScreenScaffold to recompose
+        recomposeTrigger.value++
+        rule.waitForIdle()
+
+        // Without 'remember' in ScreenScaffold, ScrollInfoProvider is recreated, resetting
+        // initialStartOffset and causing TimeText to snap back into view (failing this assertion).
+        // With 'remember' in ScreenScaffold, ScrollInfoProvider is preserved, so TimeText stays
+        // scrolled away.
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(timeTextColor)
     }
 
     @Test
