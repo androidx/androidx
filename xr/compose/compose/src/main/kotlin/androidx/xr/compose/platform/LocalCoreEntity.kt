@@ -51,9 +51,8 @@ internal val LocalCoreMainPanelEntity: CompositionLocal<CoreMainPanelEntity?> =
  * Finds the nearest [CoreEntity] in the view hierarchy.
  *
  * This function traverses up the view hierarchy starting from the receiver [View], checking each
- * ancestor for a [CoreEntity] stored in its tag with the ID `R.id.compose_xr_local_view_entity`.
- * The traversal uses [getParentOrViewTreeDisjointParent] to correctly navigate across different
- * view trees.
+ * ancestor for a [CoreEntity] stored in its tag. The traversal uses
+ * [getParentOrViewTreeDisjointParent] to correctly navigate across different view trees.
  *
  * @return The first [CoreEntity] found in an ancestor's tag, or `null` if the root of the view
  *   hierarchy is reached without finding one.
