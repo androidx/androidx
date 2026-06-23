@@ -49,6 +49,14 @@ NS_ASSUME_NONNULL_BEGIN
     return [super accessibilityLabel];
 }
 
+- (NSAttributedString *__nullable)accessibilityAttributedLabel {
+    return [super accessibilityAttributedLabel];
+}
+
+- (NSAttributedString *__nullable)accessibilityAttributedValue {
+    return [super accessibilityAttributedLabel];
+}
+
 - (NSString *__nullable)accessibilityValue {
     return [super accessibilityValue];
 }

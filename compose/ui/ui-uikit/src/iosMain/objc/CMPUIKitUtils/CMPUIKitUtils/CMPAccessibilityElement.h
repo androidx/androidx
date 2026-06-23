@@ -33,7 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *__nullable)accessibilityLabel;
 
+- (NSAttributedString *__nullable)accessibilityAttributedLabel;
+
 - (NSString *__nullable)accessibilityValue;
+
+- (NSAttributedString *__nullable)accessibilityAttributedValue;
 
 - (CGRect)accessibilityFrame;
 

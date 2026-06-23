@@ -22,11 +22,25 @@ import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.VerbatimTtsAnnotation
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.roundToInt
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.CValue
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.Foundation.NSAttributedString
+import platform.Foundation.NSMakeRange
+import platform.Foundation.NSMutableAttributedString
+import platform.Foundation.NSNumber
+import platform.Foundation.NSRange
+import platform.Foundation.addAttribute
+import platform.Foundation.create
 import platform.UIKit.UIAccessibilityCustomAction
+import platform.UIKit.UIAccessibilitySpeechAttributeLanguage
+import platform.UIKit.UIAccessibilitySpeechAttributeSpellOut
 import platform.UIKit.UIAccessibilityTraitAdjustable
 import platform.UIKit.UIAccessibilityTraitButton
 import platform.UIKit.UIAccessibilityTraitHeader
@@ -128,32 +142,68 @@ internal fun SemanticsConfiguration.accessibilityTraits(): UIAccessibilityTraits
     return result
 }
 
-internal fun SemanticsConfiguration.accessibilityValue(): String? {
+internal fun SemanticsConfiguration.accessibilityAttributedValue(): NSAttributedString? {
     getOrNull(SemanticsProperties.StateDescription)?.takeIf { it.isNotBlank() }?.let {
-        return it
+        return it.toAccessibilityNSAttributedString()
     }
 
     if (contains(SemanticsProperties.EditableText)) {
         getOrNull(SemanticsProperties.EditableText)
             ?.takeIf { it.isNotBlank() }
-            ?.let { return it.text }
+            ?.let { return it.toAccessibilityNSAttributedString() }
 
         getOrNull(SemanticsProperties.Text)
             ?.joinToString("\n")
             ?.takeIf { it.isNotBlank() }
-            ?.let { return it }
+            ?.let { return it.toAccessibilityNSAttributedString() }
     }
 
     return getOrNull(SemanticsProperties.ProgressBarRangeInfo)?.let {
         return if (it.range.endInclusive > it.range.start) {
             val fraction = (it.current - it.range.start) /
                 (it.range.endInclusive - it.range.start)
-            "${(fraction * 100f).roundToInt()}%"
+            "${(fraction * 100f).roundToInt()}%".toAccessibilityNSAttributedString()
         } else {
             null
         }
     }
 }
+
+@OptIn(BetaInteropApi::class)
+internal fun AnnotatedString.toAccessibilityNSAttributedString(): NSAttributedString {
+    val result = NSMutableAttributedString.create(string = text)
+
+    spanStyles.fastForEach { range ->
+        if (range.end > range.start) {
+            range.item.localeList?.forEach { locale ->
+                result.addAttribute(
+                    UIAccessibilitySpeechAttributeLanguage,
+                    locale.toLanguageTag(),
+                    nsRange(range.start, range.end)
+                )
+            }
+        }
+    }
+
+    getTtsAnnotations(0, text.length).fastForEach { range ->
+        if (range.end > range.start && range.item is VerbatimTtsAnnotation) {
+            result.addAttribute(
+                UIAccessibilitySpeechAttributeSpellOut,
+                NSNumber(bool = true),
+                nsRange(range.start, range.end)
+            )
+        }
+    }
+
+    return result
+}
+
+private fun nsRange(start: Int, end: Int): CValue<NSRange> =
+    NSMakeRange(loc = start.toULong(), len = (end - start).toULong())
+
+@OptIn(BetaInteropApi::class)
+internal fun String.toAccessibilityNSAttributedString(): NSAttributedString =
+    NSAttributedString.create(string = this)
 
 internal fun SemanticsConfiguration.accessibilityCustomActions():
     List<UIAccessibilityCustomAction> {

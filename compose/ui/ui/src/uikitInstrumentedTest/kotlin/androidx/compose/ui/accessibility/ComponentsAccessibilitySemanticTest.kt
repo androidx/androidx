@@ -65,21 +65,32 @@ import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkInteractionListener
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.VerbatimTtsAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.Foundation.NSAttributedString
+import platform.Foundation.NSNumber
 import platform.UIKit.UIAccessibilityContainerTypeNone
 import platform.UIKit.UIAccessibilityContainerTypeSemanticGroup
+import platform.UIKit.UIAccessibilitySpeechAttributeLanguage
+import platform.UIKit.UIAccessibilitySpeechAttributeSpellOut
 import platform.UIKit.UIAccessibilityTraitAdjustable
 import platform.UIKit.UIAccessibilityTraitButton
 import platform.UIKit.UIAccessibilityTraitHeader
@@ -1485,4 +1496,85 @@ class ComponentsAccessibilitySemanticTest {
             }
         }
     }
+
+    @Test
+    fun testVerbatimTtsAnnotationInAttributedLabel() = runUIKitInstrumentedTest {
+        setContent {
+            Text(
+                text = buildAnnotatedString {
+                    append("Code ")
+                    withAnnotation(VerbatimTtsAnnotation("ABC123")) {
+                        append("ABC123")
+                    }
+                },
+                modifier = Modifier.testTag("Verbatim")
+            )
+        }
+
+        val label = assertNotNull(
+            findNodeWithTag("Verbatim").accessibilityLabel,
+            "Expected an attributed accessibility label"
+        )
+        // The verbatim part must be spelled out, the leading static text must not.
+        label.assertSpelledOut("ABC123")
+        assertEquals(
+            null,
+            label.attributeForSubstring(UIAccessibilitySpeechAttributeSpellOut!!, "Code"),
+            "Plain text should not carry the spell-out attribute"
+        )
+    }
+
+    @Test
+    fun testLanguageSpanInAttributedLabel() = runUIKitInstrumentedTest {
+        setContent {
+            Text(
+                text = buildAnnotatedString {
+                    append("Hello ")
+                    withStyle(SpanStyle(localeList = LocaleList("fr-FR"))) {
+                        append("bonjour")
+                    }
+                },
+                modifier = Modifier.testTag("Language")
+            )
+        }
+
+        val label = assertNotNull(
+            findNodeWithTag("Language").accessibilityLabel,
+            "Expected an attributed accessibility label"
+        )
+        // The localized part must carry the language tag, the leading text must not.
+        label.assertLanguage("bonjour", "fr-FR")
+        assertEquals(
+            null,
+            label.attributeForSubstring(UIAccessibilitySpeechAttributeLanguage!!, "Hello"),
+            "Plain text should not carry the language attribute"
+        )
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+private fun NSAttributedString.attributeForSubstring(name: String, substring: String): Any? {
+    val location = string.indexOf(substring)
+    assertTrue(location >= 0, "Substring \"$substring\" not found in \"$string\"")
+    return attributesAtIndex(location.toULong(), null)[name]
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun NSAttributedString.assertSpelledOut(substring: String) {
+    val value = attributeForSubstring(UIAccessibilitySpeechAttributeSpellOut!!, substring)
+    assertEquals(
+        true,
+        (value as? NSNumber)?.boolValue,
+        "Expected spell-out speech attribute on \"$substring\" in \"$string\""
+    )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun NSAttributedString.assertLanguage(substring: String, languageTag: String) {
+    val value = attributeForSubstring(UIAccessibilitySpeechAttributeLanguage!!, substring)
+    assertEquals(
+        languageTag,
+        value,
+        "Expected language speech attribute on \"$substring\" in \"$string\""
+    )
 }

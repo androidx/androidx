@@ -38,6 +38,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import platform.Foundation.NSAttributedString
 import platform.UIKit.UIAccessibilityScrollDirection
 import platform.UIKit.UIAccessibilityScrollDirectionDown
 import platform.UIKit.UIAccessibilityScrollDirectionLeft
@@ -242,10 +243,12 @@ internal fun SemanticsNode.isScreenReaderFocusable(): Boolean {
     return !isTransparent && canBeAccessibilityElement()
 }
 
-internal fun SemanticsNode.linkText(): String? {
+internal fun SemanticsNode.linkAttributedString(): NSAttributedString? {
     val (text, annotation) = this.findCorrespondingLinkAnnotations() ?: return null
 
-    return text.substring(annotation.start, annotation.end).takeIf { it.isNotBlank() }
+    return text.subSequence(annotation.start, annotation.end)
+        .takeIf { it.isNotBlank() }
+        ?.toAccessibilityNSAttributedString()
 }
 
 internal fun SemanticsNode.linkTag(): String? {
@@ -392,15 +395,25 @@ internal val SemanticsNode.allScrollableParentNodeIds: IntSet get() {
     return result
 }
 
-internal val SemanticsNode.contentDescription: String? get() {
+internal val SemanticsNode.attributedContentDescription: List<NSAttributedString> get() {
     val contentDescription = config.getOrNull(SemanticsProperties.ContentDescription)
         ?.joinToString(", ")
         ?.takeIf { it.isNotBlank() }
 
-    return contentDescription ?: if (config.contains(SemanticsProperties.EditableText)) {
-        null
+    if (contentDescription != null) {
+        return listOf(contentDescription.toAccessibilityNSAttributedString())
+    }
+
+    return if (config.contains(SemanticsProperties.EditableText)) {
+        emptyList()
     } else {
-        config.getOrNull(SemanticsProperties.Text)?.joinToString(", ") { it.text }
+        config.getOrNull(SemanticsProperties.Text)?.mapNotNull {
+            if (it.isNotBlank()) {
+                it.toAccessibilityNSAttributedString()
+            } else {
+                null
+            }
+        } ?: emptyList()
     }
 }
 
@@ -417,7 +430,7 @@ internal fun SemanticsNode.sortFlattenChildren(children: List<SemanticsNode>): L
         if (!first.unmergedConfig.contains(SemanticsProperties.TraversalIndex) &&
             !second.unmergedConfig.contains(SemanticsProperties.TraversalIndex) &&
             first.layoutNode.parent != second.layoutNode.parent &&
-            first.layoutNode.findClosestParentNode({ it == second.layoutNode }) != null
+            first.layoutNode.findClosestParentNode { it == second.layoutNode } != null
         ) {
             sortedChildren[index] = second
             sortedChildren[index + 1] = first

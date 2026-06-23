@@ -21,17 +21,19 @@ import androidx.compose.ui.platform.accessibility.CMPAccessibilityTraitTextView
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.test.utils.intersect
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.width
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.Foundation.NSAttributedString
 import platform.UIKit.UIAccessibilityContainerType
 import platform.UIKit.UIAccessibilityContainerTypeDataTable
 import platform.UIKit.UIAccessibilityContainerTypeLandmark
@@ -63,6 +65,8 @@ import platform.UIKit.UIAccessibilityTraits
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
+import platform.UIKit.accessibilityAttributedLabel
+import platform.UIKit.accessibilityAttributedValue
 import platform.UIKit.accessibilityContainerType
 import platform.UIKit.accessibilityCustomActions
 import platform.UIKit.accessibilityElementAtIndex
@@ -147,7 +151,9 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
             isAccessibilityElement = element.isAccessibilityElement,
             identifier = (element as? UIAccessibilityElement)?.accessibilityIdentifier,
             label = element.accessibilityLabel,
+            accessibilityLabel = element.accessibilityAttributedLabel,
             value = element.accessibilityValue,
+            accessibilityValue = element.accessibilityAttributedValue,
             frame = element.accessibilityFrame.toDpRect(),
             containerType = element.accessibilityContainerType,
             children = children,
@@ -209,7 +215,9 @@ internal data class AccessibilityTestNode(
     var isAccessibilityElement: Boolean? = null,
     var identifier: String? = null,
     var label: String? = null,
+    var accessibilityLabel: NSAttributedString? = null,
     var value: String? = null,
+    var accessibilityValue: NSAttributedString? = null,
     var frame: DpRect? = null,
     var containerType: UIAccessibilityContainerType? = null,
     var children: List<AccessibilityTestNode>? = null,
@@ -235,8 +243,16 @@ internal data class AccessibilityTestNode(
         label?.let {
             assertEquals(it, actualNode?.label)
         }
+        accessibilityLabel?.let {
+            assertNotNull(actualNode?.accessibilityLabel, "Accessibility label should not be null")
+            assertTrue(it.isEqual(actualNode.accessibilityLabel), "Accessibility label should be equal")
+        }
         value?.let {
             assertEquals(it, actualNode?.value)
+        }
+        accessibilityValue?.let {
+            assertNotNull(actualNode?.accessibilityValue, "Accessibility value should not be null")
+            assertTrue(it.isEqual(actualNode.accessibilityValue), "Accessibility value should be equal")
         }
         frame?.let {
             assertEquals(it, actualNode?.frame)
