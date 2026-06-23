@@ -16,20 +16,21 @@
 
 package androidx.core.locationbutton.testing
 
-import android.annotation.SuppressLint
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
+import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceControlViewHost
 import android.view.View
+import androidx.annotation.RequiresApi
 
 /**
  * A fake implementation of `LocationButtonSession` for testing purposes. Allows simulating session
  * operations.
  */
-@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 internal class TestLocationButtonSession(
     context: Context,
     hostToken: IBinder,
