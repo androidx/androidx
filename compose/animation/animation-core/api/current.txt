@@ -310,11 +310,13 @@ package androidx.compose.animation.core {
   public final class DeferredTargetAnimation<T, V extends androidx.compose.animation.core.AnimationVector> {
     ctor public DeferredTargetAnimation(androidx.compose.animation.core.TwoWayConverter<T,V> vectorConverter);
     method @InaccessibleFromKotlin public T? getPendingTarget();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public T? getValue();
     method @InaccessibleFromKotlin public boolean isIdle();
     method public T updateTarget(T target, kotlinx.coroutines.CoroutineScope coroutineScope, optional androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec);
     method @BytecodeOnly public static Object! updateTarget$default(androidx.compose.animation.core.DeferredTargetAnimation!, Object!, kotlinx.coroutines.CoroutineScope!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
     property public boolean isIdle;
     property public T? pendingTarget;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public T? value;
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi @androidx.compose.runtime.Stable public final class DeferredTransition<S> extends androidx.compose.animation.core.Transition<S> {
