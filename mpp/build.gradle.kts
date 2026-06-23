@@ -45,7 +45,6 @@ tasks.register("testDesktop") {
     group = "Compose Multiplatform"
     dependsOn(allTasksForPublishingProjectsWith(name = "desktopTest"))
     dependsOn(allTasksForPublishingProjectsWith(name = "desktopHeadlessTest"))
-    dependsOn(":collection:collection:jvmTest")
 }
 
 tasks.register("testWeb") {
@@ -83,7 +82,6 @@ tasks.register("testIos") {
     dependsOn(":compose:ui:ui:$iosTestSubtaskName")
     dependsOn(":compose:material3:material3:$iosTestSubtaskName")
     dependsOn(":compose:foundation:foundation:$iosTestSubtaskName")
-    dependsOn(":collection:collection:$iosTestSubtaskName")
 }
 
 tasks.register("testRuntimeNative") {

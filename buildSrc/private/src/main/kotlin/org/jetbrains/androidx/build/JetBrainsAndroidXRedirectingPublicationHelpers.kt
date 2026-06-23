@@ -203,8 +203,6 @@ internal fun Project.originalToRedirectedDependency(
      * Example for compose:ui
      * org.jetbrains.androidx.performance:performance-annotation-iosarm64=androidx.performance:performance-annotation-iosarm64:1.0.0-alpha01
      * org.jetbrains.androidx.performance:performance-annotation-jvm=androidx.performance:performance-annotation-jvm:1.0.0-alpha01
-     * org.jetbrains.compose.annotation-internal:annotation-jvm=androidx.annotation:annotation-jvm:1.9.1
-     * org.jetbrains.compose.collection-internal:collection-jvm=androidx.collection:collection-jvm:1.5.0-beta01
      * ...
      */
     val projectDefined =
@@ -235,8 +233,6 @@ internal fun Project.originalToRedirectedDependency(
      * Extract redirections for dependencies using heuristic method (for both project, and external)
      *
      * Example for compose:ui
-     * org.jetbrains.compose.annotation-internal:annotation=androidx.annotation:annotation-jvm:1.9.1
-     * org.jetbrains.compose.collection-internal:collection=androidx.collection:collection-jvm:1.5.0-beta02
      * org.jetbrains.androidx.lifecycle:lifecycle-common=androidx.lifecycle:lifecycle-common-jvm:2.8.5
      * org.jetbrains.androidx.lifecycle:lifecycle-runtime=androidx.lifecycle:lifecycle-runtime-desktop:2.8.5
      * org.jetbrains.androidx.lifecycle:lifecycle-viewmodel=androidx.lifecycle:lifecycle-viewmodel-desktop:2.8.5

@@ -32,10 +32,6 @@ object JetBrainsPublication {
 
     val libraryToComponents = mapOf(
         "COMPOSE" to listOf(
-            // publish for compatibility
-            ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
-            ComposeComponent(":collection:collection", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
-
             ComposeComponent(":compose:animation:animation"),
             ComposeComponent(":compose:animation:animation-core"),
             ComposeComponent(":compose:animation:animation-graphics"),
@@ -131,9 +127,6 @@ object JetBrainsPublication {
             ComposeComponent(":savedstate:savedstate", supportedPlatforms = ComposePlatforms.ALL),
             ComposeComponent(":savedstate:savedstate-compose", supportedPlatforms = ComposePlatforms.ALL),
         ),
-        "WINDOW" to listOf(
-            ComposeComponent(":window:window-core", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.WINDOWS_NATIVE),
-        ),
     )
 
     private val jetBrainsProjectsWithAndroidTarget = setOf(
@@ -149,10 +142,6 @@ object JetBrainsPublication {
     }
 
     fun mavenGroupFor(projectPath: String): String = when {
-        projectPath == ":annotation:annotation" ->
-            "org.jetbrains.compose.annotation-internal"
-        projectPath == ":collection:collection" ->
-            "org.jetbrains.compose.collection-internal"
         projectPath.startsWith(":compose:") ->
             JETBRAINS_COMPOSE_GROUP_PREFIX + projectPath
                 .removePrefix(":compose:")
@@ -169,10 +158,6 @@ object JetBrainsPublication {
     fun projectPathForCoordinates(group: String, name: String): String? = when {
         isAndroidXGroup(group) ->
             ":${group.removePrefix(ANDROIDX_GROUP_PREFIX).replace(".", ":")}:$name"
-        group == "org.jetbrains.compose.annotation-internal" ->
-            ":annotation:annotation"
-        group == "org.jetbrains.compose.collection-internal" ->
-            ":collection:collection"
         group.startsWith(JETBRAINS_COMPOSE_GROUP_PREFIX) ->
             ":compose:${group.removePrefix(JETBRAINS_COMPOSE_GROUP_PREFIX).replace(".", ":")}:$name"
         group.startsWith(JETBRAINS_FORK_GROUP_PREFIX) ->

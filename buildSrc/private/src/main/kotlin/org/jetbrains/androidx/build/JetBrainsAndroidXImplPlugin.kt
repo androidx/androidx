@@ -73,7 +73,7 @@ open class JetBrainsExtensions(
      *
      * K/Native stores the dependencies in klib manifest and tries to resolve them during compilation.
      * Since we use project dependency - implementation(project(...)), the klib manifest will reference
-     * our groupId (for example org.jetbrains.compose.collection-internal instead of androidx.collection).
+     * our groupId (for example org.jetbrains.compose.ui instead of androidx.compose.ui).
      * Therefore, the dependency can't be resolved since we don't publish libs for some k/native targets.
      *
      * To workaround that, we need to make sure
@@ -82,9 +82,8 @@ open class JetBrainsExtensions(
      * redirection to androidx artefacts.
      *
      * For available androidx targets see:
-     * https://maven.google.com/web/index.html#androidx.annotation
-     * https://maven.google.com/web/index.html#androidx.collection
      * https://maven.google.com/web/index.html#androidx.lifecycle
+     * https://maven.google.com/web/index.html#androidx.navigation3
      */
     fun KotlinNativeTarget.substituteForRedirectedPublishedDependencies() {
         val main = compilations.getByName("main")
