@@ -1426,6 +1426,149 @@ class CommonGraphicsLayerTest {
 
         assertPixels()
     }
+
+    @Test
+    fun testLayerOutsetsWithImplicitClipToBounds() = runComposeUiTest {
+        val outerBoxSizePx = 100
+        val innerBoxSizePx = 50
+        val outsetsPx = 20
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val outerBoxSizeDp = outerBoxSizePx.dp
+                val outsetsDp = outsetsPx.dp
+                Box(Modifier.size(outerBoxSizeDp).background(Color.White)) {
+                    Box(
+                        Modifier.graphicsLayer {
+                            alpha = 0.5f
+                            outsets = LayerOutsets(outsetsDp)
+                        }
+                    ) {
+                        val innerBoxSizeDp = innerBoxSizePx.dp
+                        Box(
+                            Modifier.size(innerBoxSizeDp).drawBehind {
+                                drawRect(
+                                    Color.Red,
+                                    size = Size(outerBoxSizePx.toFloat(), outerBoxSizePx.toFloat()),
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        val compositedColor = Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
+        onRoot().captureToImage().apply {
+            with(toPixelMap()) {
+                assertEqualsWithTolerance(compositedColor, this[0, 0])
+                assertEqualsWithTolerance(
+                    compositedColor,
+                    this[innerBoxSizePx + outsetsPx - 3, innerBoxSizePx + outsetsPx - 3],
+                )
+                assertEqualsWithTolerance(compositedColor, this[0, innerBoxSizePx + outsetsPx - 3])
+                assertEqualsWithTolerance(compositedColor, this[innerBoxSizePx + outsetsPx - 3, 0])
+                assertEqualsWithTolerance(Color.White, this[outerBoxSizePx - 5, outerBoxSizePx - 5])
+            }
+        }
+    }
+
+    @Test
+    fun testLayerOutsetsUpdatesCorrectly() = runComposeUiTest {
+        val outerBoxSizePx = 100
+        val innerBoxSizePx = 50
+        var outsetsPx by mutableStateOf(20)
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val outerBoxSizeDp = outerBoxSizePx.dp
+                val outsetsDp = outsetsPx.dp
+                Box(Modifier.size(outerBoxSizeDp).background(Color.White)) {
+                    Box(
+                        Modifier.graphicsLayer {
+                            alpha = 0.5f
+                            outsets = LayerOutsets(outsetsDp)
+                        }
+                    ) {
+                        val innerBoxSizeDp = innerBoxSizePx.dp
+                        Box(
+                            Modifier.size(innerBoxSizeDp).drawBehind {
+                                drawRect(
+                                    Color.Red,
+                                    size = Size(outerBoxSizePx.toFloat(), outerBoxSizePx.toFloat()),
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        val compositedColor = Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
+        onRoot().captureToImage().apply {
+            with(toPixelMap()) {
+                assertEqualsWithTolerance(compositedColor, this[0, 0])
+                assertEqualsWithTolerance(
+                    compositedColor,
+                    this[innerBoxSizePx + outsetsPx - 3, innerBoxSizePx + outsetsPx - 3],
+                )
+                assertEqualsWithTolerance(compositedColor, this[0, innerBoxSizePx + outsetsPx - 3])
+                assertEqualsWithTolerance(compositedColor, this[innerBoxSizePx + outsetsPx - 3, 0])
+                assertEqualsWithTolerance(Color.White, this[outerBoxSizePx - 5, outerBoxSizePx - 5])
+            }
+        }
+
+        // Reduce outsets to zero — the overflow must now be clipped.
+        runOnIdle { outsetsPx = 0 }
+        onRoot().captureToImage().apply {
+            with(toPixelMap()) {
+                assertEqualsWithTolerance(compositedColor, this[0, 0])
+                assertEqualsWithTolerance(Color.White, this[innerBoxSizePx, innerBoxSizePx])
+                assertEqualsWithTolerance(compositedColor, this[0, innerBoxSizePx - 3])
+                assertEqualsWithTolerance(Color.White, this[innerBoxSizePx, 0])
+                assertEqualsWithTolerance(Color.White, this[outerBoxSizePx - 5, outerBoxSizePx - 5])
+            }
+        }
+    }
+
+    @Test
+    fun testLayerOutsetsWithPivot() = runComposeUiTest {
+        val outerBoxSizePx = 100
+        val innerBoxSizePx = 50
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val outerBoxSizeDp = outerBoxSizePx.dp
+                Box(Modifier.size(outerBoxSizeDp).background(Color.White)) {
+                    Box(
+                        Modifier.graphicsLayer {
+                            rotationZ = 90f
+                            outsets = LayerOutsets(10.dp, 100.dp, 5.dp, 50.dp)
+                            // Pivot must be calculated on the original layer size (without outsets)
+                            transformOrigin = TransformOrigin(1.0f, 1.0f)
+                        }
+                    ) {
+                        val innerBoxSizeDp = innerBoxSizePx.dp
+                        Box(Modifier.size(innerBoxSizeDp).background(Color.Red))
+                    }
+                }
+            }
+        }
+
+        val pixelMap = onRoot().captureToImage().toPixelMap()
+        for (i in 0 until outerBoxSizePx) {
+            for (j in 0 until outerBoxSizePx) {
+                if (innerBoxSizePx in (j + 1)..i) {
+                    assertEqualsWithTolerance(Color.Red, pixelMap[i, j])
+                } else {
+                    assertEqualsWithTolerance(Color.White, pixelMap[i, j])
+                }
+            }
+        }
+    }
+}
+
+private fun assertEqualsWithTolerance(expected: Color, actual: Color, tolerance: Float = 0.03f) {
+    assertColorsEqual(expected, actual, alphaTolerance = tolerance) {
+        "Expected $expected but was $actual"
+    }
 }
 
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {

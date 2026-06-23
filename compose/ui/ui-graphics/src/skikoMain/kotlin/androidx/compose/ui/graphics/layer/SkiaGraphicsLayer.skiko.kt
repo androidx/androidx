@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.graphics.skiaImageFilter
 import androidx.compose.ui.graphics.materializeSkiaPath
+import androidx.compose.ui.graphics.requirePrecondition
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkia
 import androidx.compose.ui.unit.Density
@@ -66,6 +67,12 @@ actual class GraphicsLayer internal constructor(
 
     private var internalOutline: Outline? = null
     private var outlinePath: Path? = null
+
+    private var outsetLeft: Int = 0
+    private var outsetTop: Int = 0
+    private var outsetRight: Int = 0
+    private var outsetBottom: Int = 0
+    private var cachedLayerPaint: SkPaint? = null
 
     private var parentLayerUsages = 0
     private val childDependenciesTracker = ChildLayerDependenciesTracker()
@@ -356,7 +363,21 @@ actual class GraphicsLayer internal constructor(
         if (isReleased) return
         configureOutlineAndClip()
         parentLayer?.addSubLayer(this)
-        renderNode?.drawInto(canvas.skiaCanvas)
+        val paint = cachedLayerPaint
+        if (hasOutsets() && paint != null) {
+            val skCanvas = canvas.skiaCanvas
+            skCanvas.saveLayer(
+                left = topLeft.x - outsetLeft.toFloat(),
+                top = topLeft.y - outsetTop.toFloat(),
+                right = topLeft.x + size.width + outsetRight.toFloat(),
+                bottom = topLeft.y + size.height + outsetBottom.toFloat(),
+                paint = paint,
+            )
+            renderNode?.drawInto(skCanvas)
+            skCanvas.restore()
+        } else {
+            renderNode?.drawInto(canvas.skiaCanvas)
+        }
     }
 
     private fun onAddedToParentLayer() {
@@ -444,7 +465,7 @@ actual class GraphicsLayer internal constructor(
         ImageBitmap(size.width, size.height).apply { draw(Canvas(this), null) }
 
     private fun updateLayerProperties() {
-        renderNode?.layerPaint = if (requiresLayer()) {
+        val paint = if (requiresLayer()) {
             SkPaint().also {
                 it.setAlphaf(alpha)
                 it.imageFilter = renderEffect?.skiaImageFilter
@@ -454,7 +475,13 @@ actual class GraphicsLayer internal constructor(
         } else {
             null
         }
+        cachedLayerPaint = paint
+        // When outsets are present, we manage the offscreen layer manually in draw() using an
+        // expanded saveLayer bounds, so the renderNode must not create its own inner layer.
+        renderNode?.layerPaint = if (hasOutsets()) null else paint
     }
+
+    private fun hasOutsets() = outsetLeft > 0 || outsetTop > 0 || outsetRight > 0 || outsetBottom > 0
 
     private fun requiresLayer(): Boolean {
         val alphaNeedsLayer = alpha < 1f && compositingStrategy != CompositingStrategy.ModulateAlpha
@@ -472,6 +499,15 @@ actual class GraphicsLayer internal constructor(
         @IntRange(from = 0) right: Int,
         @IntRange(from = 0) bottom: Int
     ) {
-        // TODO: https://youtrack.jetbrains.com/issue/CMP-10054/Implement-GraphicsLayer.setOutsets-method
+        requirePrecondition(left >= 0 && top >= 0 && right >= 0 && bottom >= 0) {
+            "Outsets cannot be negative! Left: $left, Top: $top, Right: $right, Bottom: $bottom"
+        }
+        if (left != outsetLeft || top != outsetTop || right != outsetRight || bottom != outsetBottom) {
+            outsetLeft = left
+            outsetTop = top
+            outsetRight = right
+            outsetBottom = bottom
+            updateLayerProperties()
+        }
     }
 }

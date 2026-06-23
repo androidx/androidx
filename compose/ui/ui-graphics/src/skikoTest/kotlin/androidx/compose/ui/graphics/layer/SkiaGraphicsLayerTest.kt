@@ -989,6 +989,70 @@ class SkiaGraphicsLayerTest {
     }
 
     @Test
+    fun testSetOutsets_clipsContentWithoutOutsets() {
+        // Without outsets, alpha-triggered offscreen buffer clips overflow content
+        val halfWidth = TEST_WIDTH / 2
+        val halfHeight = TEST_HEIGHT / 2
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = IntSize(halfWidth, halfHeight)) {
+                            // Draw red filling the full TEST_SIZE, overflowing the layer bounds
+                            drawRect(Color.Red, size = Size(TEST_WIDTH.toFloat(), TEST_HEIGHT.toFloat()))
+                        }
+                        alpha = 0.5f
+                    }
+                drawRect(Color.White)
+                drawLayer(layer)
+            },
+            verify = { pixelMap ->
+                with(pixelMap) {
+                    // Content within layer bounds is composited
+                    assertPixelColor(
+                        Color.Red.copy(alpha = 0.5f).compositeOver(Color.White),
+                        halfWidth / 2,
+                        halfHeight / 2
+                    )
+                    // Overflow content is clipped — white background shows through
+                    assertPixelColor(Color.White, halfWidth + 10, halfHeight + 10)
+                }
+            }
+        )
+    }
+
+    @Test
+    fun testSetOutsets_expandsOffscreenBufferToShowOverflow() {
+        // With outsets matching the overflow, alpha-triggered offscreen buffer captures overflow
+        val halfWidth = TEST_WIDTH / 2
+        val halfHeight = TEST_HEIGHT / 2
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = IntSize(halfWidth, halfHeight)) {
+                            // Draw red filling the full TEST_SIZE, overflowing the layer bounds
+                            drawRect(Color.Red, size = Size(TEST_WIDTH.toFloat(), TEST_HEIGHT.toFloat()))
+                        }
+                        alpha = 0.5f
+                        setOutsets(left = 0, top = 0, right = halfWidth, bottom = halfHeight)
+                    }
+                drawRect(Color.White)
+                drawLayer(layer)
+            },
+            verify = { pixelMap ->
+                with(pixelMap) {
+                    val compositedRed = Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
+                    // Content within original layer bounds is composited
+                    assertPixelColor(compositedRed, halfWidth / 2, halfHeight / 2)
+                    // Overflow content is now captured by the expanded offscreen buffer
+                    assertPixelColor(compositedRed, halfWidth + 10, halfHeight + 10)
+                }
+            }
+        )
+    }
+
+    @Test
     fun testEndRecordingAlwaysCalled() {
         graphicsLayerTest(
             block = { graphicsContext ->

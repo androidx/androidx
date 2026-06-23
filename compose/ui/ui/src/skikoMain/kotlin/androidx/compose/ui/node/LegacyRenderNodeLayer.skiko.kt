@@ -116,6 +116,10 @@ internal class LegacyRenderNodeLayer(
     private var ambientShadowColor: Color = DefaultShadowColor
     private var spotShadowColor: Color = DefaultShadowColor
     private var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
+    private var outsetLeft: Int = 0
+    private var outsetTop: Int = 0
+    private var outsetRight: Int = 0
+    private var outsetBottom: Int = 0
 
     override fun destroy() {
         picture?.close()
@@ -199,6 +203,14 @@ internal class LegacyRenderNodeLayer(
         this.spotShadowColor = scope.spotShadowColor
         this.compositingStrategy = scope.compositingStrategy
         this.outline = scope.outline
+        if (maybeChangedFields and Fields.Outsets != 0) {
+            with(density) {
+                outsetLeft = scope.outsets.left.roundToPx()
+                outsetTop = scope.outsets.top.roundToPx()
+                outsetRight = scope.outsets.right.roundToPx()
+                outsetBottom = scope.outsets.bottom.roundToPx()
+            }
+        }
         if (maybeChangedFields and Fields.MatrixAffectingFields != 0) {
             updateMatrix()
         }
@@ -246,8 +258,17 @@ internal class LegacyRenderNodeLayer(
         layerManager.voteFrameRate(frameRate)
 
         if (picture == null) {
-            val measureDrawBounds = !clip || shadowElevation > 0
-            val bounds = size.toRect()
+            val measureDrawBounds = !clip || shadowElevation > 0 || hasOutsets()
+            val bounds = if (hasOutsets()) {
+                Rect(
+                    -outsetLeft.toFloat(),
+                    -outsetTop.toFloat(),
+                    size.width + outsetRight.toFloat(),
+                    size.height + outsetBottom.toFloat()
+                )
+            } else {
+                size.toRect()
+            }
             val pictureCanvas = pictureRecorder.beginRecording(
                 left = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.left,
                 top = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.top,
@@ -355,6 +376,9 @@ internal class LegacyRenderNodeLayer(
     }
 
     override fun updateDisplayList() = Unit
+
+    private fun hasOutsets() =
+        outsetLeft > 0 || outsetTop > 0 || outsetRight > 0 || outsetBottom > 0
 
     @OptIn(InternalComposeUiApi::class)
     fun drawShadow(canvas: Canvas) = with(density) {
