@@ -23,6 +23,7 @@ import androidx.compose.mpp.demo.graphics.Blending
 import androidx.compose.mpp.demo.graphics.BrushAndShadows
 import androidx.compose.mpp.demo.graphics.GraphicsLayerOutsets
 import androidx.compose.mpp.demo.graphics.GraphicsLayerSettings
+import androidx.compose.mpp.demo.graphics.MeshGradientDemo
 import androidx.compose.mpp.demo.textfield.android.AndroidTextFieldSamples
 import androidx.compose.mpp.demo.textfield.android.TextBrushDemo
 
@@ -32,6 +33,7 @@ private val GraphicsComponents = Screen.Selection(
     Screen.Example("Brush & Shadows") { BrushAndShadows() },
     Screen.Example("GraphicsLayerSettings") { GraphicsLayerSettings() },
     Screen.Example("GraphicsLayer Outsets") { GraphicsLayerOutsets() },
+    Screen.Example("MeshGradient") { MeshGradientDemo() },
 )
 
 val MainScreen = Screen.Selection(
