@@ -87,7 +87,7 @@ dependencies {
 }
 
 android {
-    resourcePrefix "glance_"
+    resourcePrefix = "glance_"
     buildTypes {
         debug {
             pseudoLocalesEnabled = true

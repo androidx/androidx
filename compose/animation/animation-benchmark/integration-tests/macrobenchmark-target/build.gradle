@@ -25,14 +25,14 @@ android {
     compileSdk { version = release(37) }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
         benchmark {
             initWith release
             signingConfig = signingConfigs.debug
             matchingFallbacks = ['release']
-            debuggable false
+            debuggable = false
         }
     }
 }
