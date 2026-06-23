@@ -19,7 +19,7 @@ package androidx.a2ui.core.platform
 import androidx.a2ui.core.protocol.A2uiDataPath
 
 /** A storage interface for the JSON data tree. */
-public interface A2uiDataModel {
+public interface A2uiCoreDataModel {
     /**
      * Replaces the value at the given absolute path.
      *

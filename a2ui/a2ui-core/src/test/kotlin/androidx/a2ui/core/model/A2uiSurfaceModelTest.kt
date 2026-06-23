@@ -18,7 +18,7 @@ package androidx.a2ui.core.model
 
 import androidx.a2ui.core.catalog.A2uiCoreCatalog
 import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiDataModel
+import androidx.a2ui.core.platform.A2uiCoreDataModel
 import androidx.a2ui.core.protocol.A2uiClientError
 import androidx.a2ui.core.protocol.A2uiComponentPayload
 import androidx.a2ui.core.protocol.A2uiDataPath
@@ -282,7 +282,7 @@ class A2uiSurfaceModelTest {
         catalog: A2uiCoreCatalog = TestCatalog(),
         theme: Map<String, Any?> = emptyMap(),
         shouldSendDataModel: Boolean = false,
-        dataModel: A2uiDataModel = TestDataModel(),
+        dataModel: A2uiCoreDataModel = TestDataModel(),
         componentRegistry: A2uiComponentRegistry = TestComponentRegistry(),
         onDispatchAction: (A2uiUserAction) -> Unit = emptyActionHandler,
         onDispatchError: (A2uiClientError) -> Unit = emptyErrorHandler,
@@ -309,7 +309,7 @@ class A2uiSurfaceModelTest {
         override fun toString(): String = "TestCatalog"
     }
 
-    private class TestDataModel : A2uiDataModel {
+    private class TestDataModel : A2uiCoreDataModel {
         val updates = mutableMapOf<String, Any?>()
         var isDisposed = false
 

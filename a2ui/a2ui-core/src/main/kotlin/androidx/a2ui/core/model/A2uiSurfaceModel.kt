@@ -18,7 +18,7 @@ package androidx.a2ui.core.model
 
 import androidx.a2ui.core.catalog.A2uiCoreCatalog
 import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiDataModel
+import androidx.a2ui.core.platform.A2uiCoreDataModel
 import androidx.a2ui.core.protocol.A2uiClientError
 import androidx.a2ui.core.protocol.A2uiComponentPayload
 import androidx.a2ui.core.protocol.A2uiDataPath
@@ -28,7 +28,7 @@ import androidx.a2ui.core.protocol.A2uiUserAction
 /**
  * The root domain model for a single active surface.
  *
- * It acts as the owner of that surface's [A2uiDataModel] and [A2uiComponentRegistry], managing
+ * It acts as the owner of that surface's [A2uiCoreDataModel] and [A2uiComponentRegistry], managing
  * updates to these registries and propagating user actions and validation/runtime errors.
  *
  * @param id The unique identifier of this surface.
@@ -45,7 +45,7 @@ import androidx.a2ui.core.protocol.A2uiUserAction
 public class A2uiSurfaceModel(
     public val id: String,
     public val catalog: A2uiCoreCatalog,
-    public val dataModel: A2uiDataModel,
+    public val dataModel: A2uiCoreDataModel,
     public val componentRegistry: A2uiComponentRegistry,
     private val onDispatchAction: (A2uiUserAction) -> Unit,
     private val onDispatchError: (A2uiClientError) -> Unit,

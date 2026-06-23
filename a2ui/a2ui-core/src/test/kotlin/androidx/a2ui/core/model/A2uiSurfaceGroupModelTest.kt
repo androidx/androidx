@@ -18,7 +18,7 @@ package androidx.a2ui.core.model
 
 import androidx.a2ui.core.catalog.A2uiCoreCatalog
 import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiDataModel
+import androidx.a2ui.core.platform.A2uiCoreDataModel
 import androidx.a2ui.core.protocol.A2uiComponentPayload
 import androidx.a2ui.core.protocol.A2uiDataPath
 import androidx.a2ui.core.protocol.A2uiException
@@ -242,7 +242,7 @@ class A2uiSurfaceGroupModelTest {
 
     private fun createTestSurface(
         id: String,
-        dataModel: A2uiDataModel = TestDataModel(),
+        dataModel: A2uiCoreDataModel = TestDataModel(),
         componentRegistry: A2uiComponentRegistry = TestComponentRegistry(),
     ): A2uiSurfaceModel {
         return A2uiSurfaceModel(
@@ -265,7 +265,7 @@ class A2uiSurfaceGroupModelTest {
         override fun toString(): String = "TestCatalog"
     }
 
-    private class TestDataModel : A2uiDataModel {
+    private class TestDataModel : A2uiCoreDataModel {
         var isDisposed = false
 
         override fun update(path: A2uiDataPath, value: Any?) {}
