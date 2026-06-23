@@ -36,7 +36,7 @@ class BannerTest {
         assertThat(banner.title!!.toString()).isEqualTo("Title")
         assertThat(banner.subtitle).isNull()
         assertThat(banner.onClickDelegate).isNull()
-        assertThat(banner.background).isNull()
+        assertThat(banner.style).isNull()
         assertThat(banner.leadingElement).isNull()
         assertThat(banner.trailingElements).isEmpty()
         assertThat(banner.belowActions).isEmpty()
@@ -46,7 +46,11 @@ class BannerTest {
     fun builder_populatedWithAllFields() {
         val title = "Title"
         val subtitle = "Subtitle"
-        val background = Background.Builder().setColor(CarColor.BLUE).build()
+        val style =
+            BannerStyle.Builder()
+                .setBackground(Background.Builder().setColor(CarColor.BLUE).build())
+                .setShape(Shape.CORNER_MEDIUM)
+                .build()
         val leadingIcon = CarIcon.ALERT
         val trailingImage = CarIcon.APP_ICON
         val trailingAction = Action.Builder().setTitle("TrailingAction").build()
@@ -57,7 +61,7 @@ class BannerTest {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
-                .setBackground(background)
+                .setStyle(style)
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
@@ -67,7 +71,7 @@ class BannerTest {
         assertThat(banner.title!!.toString()).isEqualTo(title)
         assertThat(banner.subtitle!!.toString()).isEqualTo(subtitle)
         assertThat(banner.onClickDelegate).isNotNull()
-        assertThat(banner.background).isEqualTo(background)
+        assertThat(banner.style).isEqualTo(style)
         assertThat(banner.leadingElement!!.type).isEqualTo(BannerElement.TYPE_ICON)
         assertThat(banner.leadingElement!!.icon).isEqualTo(leadingIcon)
 
@@ -134,7 +138,10 @@ class BannerTest {
     fun equals() {
         val title = "Title"
         val subtitle = "Subtitle"
-        val background = Background.Builder().setColor(CarColor.BLUE).build()
+        val style =
+            BannerStyle.Builder()
+                .setBackground(Background.Builder().setColor(CarColor.BLUE).build())
+                .build()
         val leadingIcon = CarIcon.ALERT
         val trailingImage = CarIcon.APP_ICON
         val trailingAction = Action.Builder().setTitle("TrailingAction").build()
@@ -145,7 +152,7 @@ class BannerTest {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
-                .setBackground(background)
+                .setStyle(style)
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
@@ -157,7 +164,7 @@ class BannerTest {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
-                .setBackground(background)
+                .setStyle(style)
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
@@ -189,17 +196,17 @@ class BannerTest {
     }
 
     @Test
-    fun equals_differentBackgroundColor_returnsFalse() {
-        val banner1 =
-            Banner.Builder()
-                .setTitle("Title")
+    fun equals_differentStyle_returnsFalse() {
+        val style1 =
+            BannerStyle.Builder()
                 .setBackground(Background.Builder().setColor(CarColor.BLUE).build())
                 .build()
-        val banner2 =
-            Banner.Builder()
-                .setTitle("Title")
+        val style2 =
+            BannerStyle.Builder()
                 .setBackground(Background.Builder().setColor(CarColor.RED).build())
                 .build()
+        val banner1 = Banner.Builder().setTitle("Title").setStyle(style1).build()
+        val banner2 = Banner.Builder().setTitle("Title").setStyle(style2).build()
         assertThat(banner1).isNotEqualTo(banner2)
     }
 
@@ -214,6 +221,15 @@ class BannerTest {
     fun equals_differentTrailingElements_returnsFalse() {
         val banner1 = Banner.Builder().setTitle("Title").addTrailingIcon(CarIcon.ALERT).build()
         val banner2 = Banner.Builder().setTitle("Title").addTrailingIcon(CarIcon.APP_ICON).build()
+        assertThat(banner1).isNotEqualTo(banner2)
+    }
+
+    @Test
+    fun equals_differentStyleShape_returnsFalse() {
+        val style1 = BannerStyle.Builder().setShape(Shape.CORNER_MEDIUM).build()
+        val style2 = BannerStyle.Builder().setShape(Shape.CORNER_LARGE).build()
+        val banner1 = Banner.Builder().setTitle("Title").setStyle(style1).build()
+        val banner2 = Banner.Builder().setTitle("Title").setStyle(style2).build()
         assertThat(banner1).isNotEqualTo(banner2)
     }
 }

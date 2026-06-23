@@ -1301,26 +1301,28 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Banner implements androidx.car.app.model.Item {
-    method public androidx.car.app.model.Background? getBackground();
+    method @Deprecated public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getBelowActions();
     method public androidx.car.app.model.BannerElement? getLeadingElement();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method public androidx.car.app.model.BannerStyle? getStyle();
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
     method public java.util.List<androidx.car.app.model.BannerElement!> getTrailingElements();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Banner.Builder {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class Banner.Builder {
     ctor public Banner.Builder();
     method public androidx.car.app.model.Banner.Builder addBelowAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Banner.Builder addTrailingAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Banner.Builder addTrailingIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder addTrailingImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner build();
-    method public androidx.car.app.model.Banner.Builder setBackground(androidx.car.app.model.Background);
+    method @Deprecated public androidx.car.app.model.Banner.Builder setBackground(androidx.car.app.model.Background);
     method public androidx.car.app.model.Banner.Builder setLeadingIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setLeadingImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method public androidx.car.app.model.Banner.Builder setStyle(androidx.car.app.model.BannerStyle);
     method public androidx.car.app.model.Banner.Builder setSubtitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Banner.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Banner.Builder setTitle(androidx.car.app.model.CarText);
@@ -1342,6 +1344,18 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class BannerSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.Banner!,androidx.car.app.model.BannerSection.Builder!> {
     ctor public BannerSection.Builder();
     method public androidx.car.app.model.BannerSection build();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerStyle {
+    method public androidx.car.app.model.Background? getBackground();
+    method public androidx.car.app.model.Shape? getShape();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class BannerStyle.Builder {
+    ctor public BannerStyle.Builder();
+    method public androidx.car.app.model.BannerStyle build();
+    method public androidx.car.app.model.BannerStyle.Builder setBackground(androidx.car.app.model.Background);
+    method public androidx.car.app.model.BannerStyle.Builder setShape(androidx.car.app.model.Shape);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
