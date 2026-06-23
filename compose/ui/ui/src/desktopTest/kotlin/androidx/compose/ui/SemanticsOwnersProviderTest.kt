@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -160,6 +161,7 @@ private class ImageComposeSceneSemanticOwnersTestContext : SemanticsOwnersTestCo
 private class ComposeWindowSemanticOwnersTestContext : SemanticsOwnersTestContext {
     private lateinit var testScope: WindowTestScope
 
+    @OptIn(ComposeToolingApi::class)
     override val semanticsOwners: Collection<SemanticsOwner>
         get() = testScope.window.semanticsOwners
 
@@ -184,6 +186,7 @@ private class ComposePanelSemanticOwnersTestContext(
     private lateinit var testScope: WindowTestScope
     private lateinit var composePanel: ComposePanel
 
+    @OptIn(ComposeToolingApi::class)
     override val semanticsOwners: Collection<SemanticsOwner>
         get() = composePanel.semanticsOwners
 

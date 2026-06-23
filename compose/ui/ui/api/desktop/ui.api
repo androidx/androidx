@@ -135,6 +135,10 @@ public final class androidx/compose/ui/ComposableSingletons$ImageComposeScene_sk
 	public final fun getLambda$1296475654$ui ()Lkotlin/jvm/functions/Function2;
 }
 
+public abstract interface class androidx/compose/ui/ComposeDesktopEntryPoint {
+	public abstract fun getSemanticsOwners ()Ljava/util/Collection;
+}
+
 public final class androidx/compose/ui/ComposedModifierKt {
 	public static final fun composed (Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;)Landroidx/compose/ui/Modifier;
 	public static final fun composed (Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;)Landroidx/compose/ui/Modifier;
@@ -181,6 +185,7 @@ public final class androidx/compose/ui/ImageComposeScene {
 	public final fun close ()V
 	public final fun getConstraints-msEJaDk ()J
 	public final fun getContentSize-YbymL2g ()J
+	public final fun getSemanticsOwners ()Ljava/util/Collection;
 	public final fun hasInvalidations ()Z
 	public final fun render (J)Lorg/jetbrains/skia/Image;
 	public static synthetic fun render$default (Landroidx/compose/ui/ImageComposeScene;JILjava/lang/Object;)Lorg/jetbrains/skia/Image;
@@ -548,7 +553,7 @@ public final class androidx/compose/ui/awt/AwtWindow_desktopKt {
 	public static final fun AwtWindow (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 
-public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
+public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog, androidx/compose/ui/ComposeDesktopEntryPoint {
 	public static final field $stable I
 	public fun <init> ()V
 	public fun <init> (Ljava/awt/GraphicsConfiguration;)V
@@ -563,6 +568,7 @@ public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
+	public fun getSemanticsOwners ()Ljava/util/Collection;
 	public final fun getUndecoratedResizerThickness-D9Ej5fM ()F
 	public final fun getWindowHandle ()J
 	public final fun isTransparent ()Z
@@ -582,7 +588,7 @@ public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public final fun setUndecoratedResizerThickness-0680j_4 (F)V
 }
 
-public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPane {
+public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPane, androidx/compose/ui/ComposeDesktopEntryPoint {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/awt/ComposePanel$Companion;
 	public fun <init> ()V
@@ -594,6 +600,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun getMinimumSize ()Ljava/awt/Dimension;
 	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
+	public fun getSemanticsOwners ()Ljava/util/Collection;
 	public fun hasFocus ()Z
 	public fun isFocusOwner ()Z
 	public fun remove (Ljava/awt/Component;)V
@@ -620,7 +627,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 public final class androidx/compose/ui/awt/ComposePanel$Companion {
 }
 
-public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame {
+public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame, androidx/compose/ui/ComposeDesktopEntryPoint {
 	public static final field $stable I
 	public fun <init> (Ljava/awt/GraphicsConfiguration;)V
 	public synthetic fun <init> (Ljava/awt/GraphicsConfiguration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -633,6 +640,7 @@ public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame {
 	public final fun getPlacement ()Landroidx/compose/ui/window/WindowPlacement;
 	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
+	public fun getSemanticsOwners ()Ljava/util/Collection;
 	public final fun getUndecoratedResizerThickness-D9Ej5fM ()F
 	public final fun getWindowHandle ()J
 	public final fun isMinimized ()Z

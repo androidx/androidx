@@ -21,6 +21,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.ui.ComposeDesktopEntryPoint
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -64,12 +66,13 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @param renderSettings Configuration class for rendering settings.
  * @param coroutineContext The coroutine context for Compose content rendering and effects.
  */
+@OptIn(ComposeToolingApi::class)
 class ComposePanel @ExperimentalComposeUiApi constructor(
     private val skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
     private var savedState: SavedState? = null,
     private val renderSettings: RenderSettings = DefaultRenderSettings,
     private val coroutineContext: CoroutineContext = EmptyCoroutineContext
-) : JLayeredPane() {
+) : JLayeredPane(), ComposeDesktopEntryPoint {
     constructor() : this(
         savedState = null,
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
@@ -334,12 +337,12 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
      * [ComposePanel].
      *
-     * This is backed by snapshot state, so reading this property in a restartable function (e.g., a
+     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
      * composable function) will cause the function to restart when the set of semantics owners
      * changes.
      */
-    @ExperimentalComposeUiApi
-    val semanticsOwners: Collection<SemanticsOwner>
+    @ComposeToolingApi
+    override val semanticsOwners: Collection<SemanticsOwner>
         get() = _composeContainer?.semanticsOwners ?: emptyList()
 
     // Needed to preserve binary compatibility

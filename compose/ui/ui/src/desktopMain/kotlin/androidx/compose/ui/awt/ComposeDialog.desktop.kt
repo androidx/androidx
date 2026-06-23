@@ -17,11 +17,14 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.ui.ComposeDesktopEntryPoint
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
@@ -51,7 +54,8 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 /**
  * System dialog for displaying Compose UI, inheriting [javax.swing.JDialog].
  */
-class ComposeDialog : JDialog {
+@OptIn(ComposeToolingApi::class)
+class ComposeDialog : JDialog, ComposeDesktopEntryPoint {
     private val composePanel: ComposeWindowPanel
 
     private fun createComposePanel(
@@ -211,6 +215,18 @@ class ComposeDialog : JDialog {
         set(value) { composePanel.isClearFocusOnMouseDownEnabled = value }
 
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
+
+    /**
+     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
+     * [ComposeDialog].
+     *
+     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
+     * composable function) will cause the function to restart when the set of semantics owners
+     * changes.
+     */
+    @ComposeToolingApi
+    override val semanticsOwners: Collection<SemanticsOwner>
+        get() = composePanel.semanticsOwners
 
     override fun add(component: Component) = composePanel.add(component)
 

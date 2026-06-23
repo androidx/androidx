@@ -2560,6 +2560,8 @@ final class androidx.compose.ui/ImageComposeScene { // androidx.compose.ui/Image
 
     final val contentSize // androidx.compose.ui/ImageComposeScene.contentSize|{}contentSize[0]
         final fun <get-contentSize>(): androidx.compose.ui.unit/IntSize // androidx.compose.ui/ImageComposeScene.contentSize.<get-contentSize>|<get-contentSize>(){}[0]
+    final val semanticsOwners // androidx.compose.ui/ImageComposeScene.semanticsOwners|{}semanticsOwners[0]
+        final fun <get-semanticsOwners>(): kotlin.collections/Collection<androidx.compose.ui.semantics/SemanticsOwner> // androidx.compose.ui/ImageComposeScene.semanticsOwners.<get-semanticsOwners>|<get-semanticsOwners>(){}[0]
 
     final var constraints // androidx.compose.ui/ImageComposeScene.constraints|{}constraints[0]
         final fun <get-constraints>(): androidx.compose.ui.unit/Constraints // androidx.compose.ui/ImageComposeScene.constraints.<get-constraints>|<get-constraints>(){}[0]
