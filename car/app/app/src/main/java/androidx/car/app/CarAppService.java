@@ -30,6 +30,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.validation.HostValidator;
 
 import org.jspecify.annotations.NonNull;
@@ -335,6 +336,42 @@ public abstract class CarAppService extends Service {
                 });
             }
         }
+    }
+
+    /**
+     * Returns the app-wide theme that should be applied to all templates within this application.
+     *
+     * <p>Starting in API 9, by default, this method returns {@link CarAppTheme#SYSTEM_THEME}.
+     * This means the app will automatically inherit the system-provided theme, which may include
+     * dynamic, OEM-specific styling depending on the platform.
+     *
+     * <p>App developers are expected to override this method and return
+     * {@link CarAppTheme#APP_THEME} if they wish to maintain strict control over their brand
+     * visual styling.
+     *
+     * <p>Below is an example of this method implementation:
+     *
+     * <pre>
+     * &#64;Override
+     * public int getAppTheme() {
+     *     // Return APP_THEME to retain custom app styling with CAL defaults theme,
+     *     // or SYSTEM_THEME to adopt the system styling.
+     *     if (shouldUseCustomBranding()) {
+     *         return CarAppTheme.APP_THEME;
+     *     } else {
+     *         return CarAppTheme.SYSTEM_THEME;
+     *     }
+     * }
+     * </pre>
+     *
+     * @return the theme to apply to the application globally.
+     */
+    // TODO(b/529845007): Explore the best mechanism to inform 3P developers about the App
+    //  Expression opt-in changes in CarApi 9.
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    public @CarAppTheme.Theme int getAppTheme() {
+        return CarAppTheme.SYSTEM_THEME;
     }
 
     /**

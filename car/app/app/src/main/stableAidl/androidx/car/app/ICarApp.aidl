@@ -69,4 +69,9 @@ oneway interface ICarApp {
    * Sends host information and negotiated API level to the app.
    */
   void onHandshakeCompleted(in Bundleable handshakeInfo, IOnDoneCallback callback) = 10;
+
+  /**
+   * Pulls the preferred theme style from the client app.
+   */
+  void getAppTheme(IOnDoneCallback callback) = 11;
 }
