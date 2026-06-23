@@ -21,6 +21,7 @@ import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuData
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys.AutofillKey
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys.CopyKey
@@ -72,6 +73,7 @@ class TextFieldTextContextMenuBuilderTest : FocusedWindowTest {
     private val textFieldTag = "BTF"
 
     @get:Rule val processTextRule = ProcessTextItemOverrideRule()
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     @Test
     @SdkSuppress(maxSdkVersion = 25)
