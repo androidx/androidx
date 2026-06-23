@@ -99,7 +99,7 @@ class AffectedModuleDetectorImplTest {
 
         root = ProjectBuilder.builder().withProjectDir(tmpDir).withName("root").build()
         // Project Graph expects supportRootFolder.
-        (root.properties.get("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
+        (root.property("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
         p1 =
             ProjectBuilder.builder()
                 .withProjectDir(tmpDir.resolve("p1"))
