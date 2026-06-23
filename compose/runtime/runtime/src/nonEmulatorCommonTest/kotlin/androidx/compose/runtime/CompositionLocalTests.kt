@@ -987,6 +987,193 @@ class CompositionLocalTests {
         expectChanges()
         validate { Text("ValueB") }
     }
+
+    @Test
+    fun staticComputedLocal_fallbackAndStaticOverride() = compositionTest {
+        val baseLocal = compositionLocalOf { 10 }
+        val staticComputedLocal = staticCompositionLocalWithComputedDefaultOf {
+            baseLocal.currentValue * 2
+        }
+
+        var overrideValue by mutableStateOf(100)
+        var recomposeCount = 0
+
+        compose {
+            CompositionLocalProvider(baseLocal provides 20) {
+                // Should fall back to baseLocal.currentValue * 2 = 40
+                Text("Fallback: ${staticComputedLocal.current}")
+            }
+
+            CompositionLocalProvider(staticComputedLocal provides overrideValue) {
+                recomposeCount++
+                Text("Override: ${staticComputedLocal.current}")
+            }
+        }
+
+        validate {
+            Text("Fallback: 40")
+            Text("Override: 100")
+        }
+
+        assertEquals(1, recomposeCount)
+
+        // Mutating overrideValue must structurally recompose the static override provider
+        overrideValue = 200
+        expectChanges()
+
+        validate {
+            Text("Fallback: 40")
+            Text("Override: 200")
+        }
+
+        assertEquals(2, recomposeCount)
+    }
+
+    @Test
+    fun staticComputedLocal_providesDefault_yieldsToExplicitOrOverridesFallback() =
+        compositionTest {
+            val baseLocal = compositionLocalOf { 1 }
+            val staticComputedLocal = staticCompositionLocalWithComputedDefaultOf {
+                baseLocal.currentValue * 10
+            }
+
+            compose {
+                // Scenario A: Omitted parent -> providesDefault overrides fallback
+                CompositionLocalProvider(staticComputedLocal providesDefault 50) {
+                    Text("OmittedParent: ${staticComputedLocal.current}")
+                }
+
+                // Scenario B: Provided parent -> providesDefault yields to explicit parent
+                CompositionLocalProvider(staticComputedLocal provides 100) {
+                    CompositionLocalProvider(staticComputedLocal providesDefault 50) {
+                        Text("ProvidedParent: ${staticComputedLocal.current}")
+                    }
+                }
+            }
+
+            validate {
+                Text("OmittedParent: 50")
+                Text("ProvidedParent: 100")
+            }
+        }
+
+    @Test
+    fun staticComputedLocal_propagationOfUpdatedBaseLocal() = compositionTest {
+        val baseLocal = compositionLocalOf { 10 }
+        val staticComputedLocal = staticCompositionLocalWithComputedDefaultOf {
+            baseLocal.currentValue * 2
+        }
+
+        var baseValue by mutableStateOf(10)
+
+        compose {
+            CompositionLocalProvider(baseLocal provides baseValue) {
+                Text("Value: ${staticComputedLocal.current}")
+            }
+        }
+
+        validate { Text("Value: 20") }
+
+        baseValue = 20
+        expectChanges()
+
+        validate { Text("Value: 40") }
+    }
+
+    @Test
+    fun staticComputedLocal_tracksDynamicDefaults_onlyWhenUnprovided() = compositionTest {
+        val baseLocal = compositionLocalOf { 10 }
+        val staticComputedLocal = staticCompositionLocalWithComputedDefaultOf {
+            baseLocal.currentValue * 2
+        }
+
+        var baseValue by mutableStateOf(10)
+        var recomposeCountUnprovided = 0
+        var recomposeCountProvided = 0
+
+        compose {
+            CompositionLocalProvider(baseLocal providesComputed { baseValue }) {
+                // Read staticComputedLocal when unprovided: should track baseLocal reads.
+                ReadIntLocal(staticComputedLocal) { recomposeCountUnprovided++ }
+
+                // Read staticComputedLocal when provided: should NOT track baseLocal reads.
+                CompositionLocalProvider(staticComputedLocal provides 100) {
+                    ReadIntLocal(staticComputedLocal) { recomposeCountProvided++ }
+                }
+            }
+        }
+
+        validate {
+            Text("Value: 20")
+            Text("Value: 100")
+        }
+        assertEquals(1, recomposeCountUnprovided)
+        assertEquals(1, recomposeCountProvided)
+
+        // Mutating baseValue should invalidate the unprovided reader scope
+        baseValue = 20
+        expectChanges()
+
+        validate {
+            Text("Value: 40")
+            Text("Value: 100")
+        }
+        assertEquals(2, recomposeCountUnprovided)
+        assertEquals(1, recomposeCountProvided) // Should NOT recompose!
+    }
+
+    @Test
+    fun staticComputedLocal_changingProvidedValueRecomposesSubtree() = compositionTest {
+        val staticComputedLocal = staticCompositionLocalWithComputedDefaultOf { 10 }
+
+        var providedValue by mutableStateOf(100)
+        var recomposeWithoutRead = 0
+        var recomposeWithRead = 0
+
+        compose {
+            CompositionLocalProvider(staticComputedLocal provides providedValue) {
+                NonReadChild { recomposeWithoutRead++ }
+                ReadChild(staticComputedLocal) { recomposeWithRead++ }
+            }
+        }
+
+        validate {
+            Text("NoRead")
+            Text("Read: 100")
+        }
+        assertEquals(1, recomposeWithoutRead)
+        assertEquals(1, recomposeWithRead)
+
+        providedValue = 200
+        expectChanges()
+
+        validate {
+            Text("NoRead")
+            Text("Read: 200")
+        }
+        // Since it is static when provided, changing the provided value invalidates the entire
+        // subtree
+        assertEquals(2, recomposeWithoutRead)
+        assertEquals(2, recomposeWithRead)
+    }
+}
+
+@Composable
+private fun ReadIntLocal(local: CompositionLocal<Int>, onRecompose: () -> Unit) {
+    onRecompose()
+    Text("Value: ${local.current}")
+}
+
+@Composable
+private fun NonReadChild(onRecompose: () -> Unit) {
+    onRecompose()
+    Text("NoRead")
+}
+
+@Composable
+private fun ReadChild(local: CompositionLocal<Int>, onRecompose: () -> Unit) {
+    onRecompose()
+    Text("Read: ${local.current}")
 }
 
 val LocalCache = staticCompositionLocalOf { "Unset" }

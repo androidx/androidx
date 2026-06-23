@@ -257,8 +257,8 @@ public fun <T> compositionLocalOf(
  * [staticCompositionLocalOf]. A color, or other theme like value, might change or even be animated
  * therefore a [compositionLocalOf] should be used.
  *
- * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a a call
- * to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
+ * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a call to
+ * [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
  * [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
  * [CompositionLocal.current] but not re-provided.
  *
@@ -316,6 +316,57 @@ internal class ComputedProvidableCompositionLocal<T>(
             state = null,
             compute = null,
             isDynamic = true,
+        )
+}
+
+/**
+ * Create a [CompositionLocal] that behaves like it was provided using
+ * [ProvidableCompositionLocal.providesComputed] by default. If a value is provided using
+ * [ProvidableCompositionLocal.provides] it behaves as if the [CompositionLocal] was produced by
+ * calling [staticCompositionLocalOf].
+ *
+ * Unlike [compositionLocalWithComputedDefaultOf], reads of a provided value for
+ * [staticCompositionLocalWithComputedDefaultOf] are not tracked by the composer and changing the
+ * value provided in the [CompositionLocalProvider] call will cause the entirety of the content to
+ * be recomposed instead of just the places where in the composition the local value is used. This
+ * lack of tracking, however, makes a [staticCompositionLocalWithComputedDefaultOf] more efficient
+ * when the value provided is highly unlikely to or will never change. For example, the android
+ * context, font loaders, or similar shared values, are unlikely to change for the components in the
+ * content of a the [CompositionLocalProvider] and should consider using a
+ * [staticCompositionLocalWithComputedDefaultOf]. A color, or other theme like value, might change
+ * or even be animated therefore a [compositionLocalWithComputedDefaultOf] should be used.
+ *
+ * Reads of the computed value are tracked and modifying the computed value results in only the
+ * invalidated parts of the composition being recomposed.
+ *
+ * [staticCompositionLocalWithComputedDefaultOf] creates a [ProvidableCompositionLocal] which can be
+ * used in a call to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is
+ * made public as [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
+ * [CompositionLocal.current] but not re-provided.
+ *
+ * @param defaultComputation default computation to run when this [CompositionLocal] is not provided
+ * @see staticCompositionLocalOf
+ * @see compositionLocalWithComputedDefaultOf
+ * @see ProvidableCompositionLocal
+ */
+public fun <T> staticCompositionLocalWithComputedDefaultOf(
+    defaultComputation: CompositionLocalAccessorScope.() -> T
+): ProvidableCompositionLocal<T> = StaticComputedProvidableCompositionLocal(defaultComputation)
+
+internal class StaticComputedProvidableCompositionLocal<T>(
+    defaultComputation: CompositionLocalAccessorScope.() -> T
+) : ProvidableCompositionLocal<T>({ composeRuntimeError("Unexpected call to default provider") }) {
+    override val defaultValueHolder = ComputedValueHolder(defaultComputation)
+
+    override fun defaultProvidedValue(value: T): ProvidedValue<T> =
+        ProvidedValue(
+            compositionLocal = this,
+            value = value,
+            explicitNull = value === null,
+            mutationPolicy = null,
+            state = null,
+            compute = null,
+            isDynamic = false,
         )
 }
 
