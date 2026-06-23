@@ -77,7 +77,10 @@ public fun animateFloatAsState(
     finishedListener: ((Float) -> Unit)? = null,
 ): State<Float> {
     val resolvedAnimSpec =
-        if (animationSpec === defaultAnimation) {
+        if (
+            animationSpec === defaultAnimation &&
+                visibilityThreshold != DefaultFloatVisibilityThreshold
+        ) {
             remember(visibilityThreshold) { spring(visibilityThreshold = visibilityThreshold) }
         } else {
             animationSpec
