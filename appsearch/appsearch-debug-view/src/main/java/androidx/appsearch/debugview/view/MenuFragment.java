@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.debugview.R;
 import androidx.fragment.app.Fragment;
 
@@ -31,9 +32,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A fragment for displaying page navigation shortcuts of the debug view.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MenuFragment extends Fragment {
 

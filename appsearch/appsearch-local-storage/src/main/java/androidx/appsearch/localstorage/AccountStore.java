@@ -21,6 +21,7 @@ import android.util.AtomicFile;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchAccount;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
@@ -65,9 +66,8 @@ import java.util.Set;
  *
  * <p>This class is not thread-safe. External synchronization is required if methods are called
  * from multiple threads concurrently.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalAppSearchApi
 public class AccountStore {

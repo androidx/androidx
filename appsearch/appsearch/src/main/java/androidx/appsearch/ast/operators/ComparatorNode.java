@@ -18,6 +18,7 @@ package androidx.appsearch.ast.operators;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.ast.Node;
@@ -49,8 +50,8 @@ public final class ComparatorNode implements Node {
     /**
      * Enums representing different comparators for numeric search expressions in the query
      * language.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {

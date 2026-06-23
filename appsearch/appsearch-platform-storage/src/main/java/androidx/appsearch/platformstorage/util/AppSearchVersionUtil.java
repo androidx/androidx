@@ -26,15 +26,15 @@ import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 
 /**
  * Utilities for retrieving platform AppSearch's module version code.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchVersionUtil {
     public static class TExtensionVersions {

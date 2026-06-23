@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchAccount;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 
@@ -26,8 +27,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Translates a {@link AppSearchAccount} into {@link AccountProto}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalAppSearchApi
 public class AccountToProtoConverter {

@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
@@ -34,9 +35,8 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>This class encapsulates optional dependencies and stateful builders (like stats collectors)
  * to keep the {@link AppSearchImpl#create} signature clean and extensible.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchUserPlugins {
     private final @Nullable VisibilityChecker mVisibilityChecker;

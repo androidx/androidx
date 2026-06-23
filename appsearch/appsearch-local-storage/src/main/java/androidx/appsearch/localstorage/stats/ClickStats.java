@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.stats.BaseStats;
 
 import org.jspecify.annotations.NonNull;
@@ -26,9 +27,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Class holds detailed stats of a click action, converted from
  * {@link androidx.appsearch.app.PutDocumentsRequest#getTakenActionGenericDocuments}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickStats extends BaseStats {
     private final long mTimestampMillis;

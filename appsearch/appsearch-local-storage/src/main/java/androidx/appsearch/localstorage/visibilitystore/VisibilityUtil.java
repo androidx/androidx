@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -24,8 +25,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for working with {@link VisibilityChecker} and {@link VisibilityStore}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityUtil {
     private VisibilityUtil() {}

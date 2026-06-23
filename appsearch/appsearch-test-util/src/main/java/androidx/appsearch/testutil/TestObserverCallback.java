@@ -18,6 +18,7 @@ package androidx.appsearch.testutil;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.SchemaChangeInfo;
@@ -33,9 +34,8 @@ import java.util.List;
  *
  * <p>You should wait for all notifications to be delivered using {@link #waitForNotificationCount}
  * before using the public lists to avoid concurrency issues.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TestObserverCallback implements ObserverCallback {
     private final Object mLock = new Object();

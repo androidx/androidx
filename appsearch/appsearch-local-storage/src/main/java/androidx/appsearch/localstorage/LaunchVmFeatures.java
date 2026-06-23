@@ -17,14 +17,14 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 /**
  * Handles the configuration of Virtual Machine features for system launches.
  *
  * <p>This class acts as a data holder and applier for VM enablement states.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LaunchVmFeatures {
     /*** Indicates if the primary Virtual Machine feature is enabled.*/

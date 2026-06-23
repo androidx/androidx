@@ -29,6 +29,7 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -91,7 +92,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     @Field(id = 7, getter = "getSearchStringParameters")
     private final @NonNull List<String> mSearchStringParameters;
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
     public SearchSuggestionSpec(
@@ -118,9 +119,8 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
 
     /**
      * Ranking Strategy for {@link SearchSuggestionResult}.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @IntDef(value = {
             SUGGESTION_RANKING_STRATEGY_NONE,
             SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT,
@@ -469,7 +469,6 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
             }
             return addFilterProperties(schema, propertyPathsArrayList);
         }
-
 
 // @exportToFramework:startStrip()
         /**

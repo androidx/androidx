@@ -21,6 +21,7 @@ import static androidx.appsearch.stats.SchemaMigrationStats.SECOND_CALL_APPLY_NE
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
@@ -31,9 +32,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SetSchemaStats extends BaseStats {
 

@@ -40,6 +40,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
@@ -201,9 +202,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </ul>
  *
  * <p>This class is thread safe.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @WorkerThread
 public final class AppSearchImpl implements Closeable {
@@ -880,7 +880,6 @@ public final class AppSearchImpl implements Closeable {
             mReadWriteLock.writeLock().unlock();
         }
     }
-
 
     /**
      * Updates the AppSearch schema for this app and dispatches change notifications, without
@@ -2867,7 +2866,6 @@ public final class AppSearchImpl implements Closeable {
         return getResultProto.getDocument();
     }
 
-
     /*
      * Returns a BatchGetResultProto from Icing. It contains GetResultProto for each id.
      */
@@ -3179,7 +3177,6 @@ public final class AppSearchImpl implements Closeable {
             queryStatsBuilder.setFirstNativeCallLatency(
                     searchResultProto.getQueryStats().getLatencyMs());
         }
-
 
         if (!Flags.enableClientSidePagination()) {
             long nextPageToken = searchResultProto.getNextPageToken();

@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PersistToDiskStats;
@@ -42,9 +43,8 @@ import org.jspecify.annotations.NonNull;
  * Class contains helper functions for logging.
  *
  * <p>E.g. we need to have helper functions to copy numbers from IcingLib to stats classes.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchLoggerHelper {
     private AppSearchLoggerHelper() {

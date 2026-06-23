@@ -17,11 +17,12 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 /**
  * Defines limits placed on users of AppSearch and enforced by {@link AppSearchImpl}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface LimitConfig {
     /**
@@ -70,7 +71,6 @@ public interface LimitConfig {
      * from being overwhelmed by a single app.
      */
     int getMaxSuggestionCount();
-
 
     /**
      * Returns the maximum number of {@link android.os.ParcelFileDescriptor} that a single app could

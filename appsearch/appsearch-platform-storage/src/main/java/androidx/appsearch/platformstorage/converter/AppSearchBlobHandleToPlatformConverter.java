@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -34,8 +35,8 @@ import java.util.Set;
 /**
  * Translates a jetpack {@link AppSearchBlobHandle} into a platform
  * {@link android.app.appsearch.AppSearchBlobHandle}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 public class AppSearchBlobHandleToPlatformConverter {

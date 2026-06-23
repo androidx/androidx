@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 
@@ -25,8 +26,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * An interface class for implementing a strategy to determine when to trigger
  * {@link AppSearchImpl#optimize()}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OptimizeStrategy {
 

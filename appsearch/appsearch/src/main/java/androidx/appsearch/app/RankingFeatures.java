@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.collection.ArraySet;
@@ -32,8 +33,8 @@ import java.util.Objects;
 /**
  * Represents a collection of ranking features that can be enabled or disabled for specific
  * search operations.
- * @exportToFramework:hide
  */
+@HideInPlatform
 // @exportToFramework:skipFile()
 //TODO(b/387291182) unhide this class when it is supported in SearchSpec
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

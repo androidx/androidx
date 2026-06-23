@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.core.util.Preconditions;
 
@@ -27,9 +28,8 @@ import java.util.List;
 
 /**
  * Abstract base class representing a collection of enabled features.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 // @exportToFramework:skipFile()
 //TODO(b/387291182) sync this class when the API is supported
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

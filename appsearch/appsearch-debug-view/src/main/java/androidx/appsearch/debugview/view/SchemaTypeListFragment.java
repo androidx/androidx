@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
@@ -48,9 +49,8 @@ import java.util.Collections;
 
 /**
  * A fragment for displaying a list of {@link AppSearchSchema} objects.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListFragment extends Fragment {
     private static final String TAG = "AppSearchSchemaTypeFrag";

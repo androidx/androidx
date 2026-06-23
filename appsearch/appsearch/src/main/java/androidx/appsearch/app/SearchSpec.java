@@ -30,6 +30,7 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -182,17 +183,15 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /**
      * Default number of documents per page.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_NUM_PER_PAGE = 10;
 
     /**
      * Default number of clusters to search for Approximate Nearest Neighbor (ANN) search.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_EMBEDDING_QUERY_PROBE_COUNT = 10;
 
@@ -205,9 +204,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /**
      * Term Match Type for the query.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link com.google.android.icing.proto.SearchSpecProto.termMatchType}
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -234,9 +232,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /**
      * Ranking Strategy for query result.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.RankingStrategy.Code}
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -287,9 +284,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /**
      * Order for query result.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.Order.Code}
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -308,9 +304,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /**
      * Grouping type for result limits.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @IntDef(flag = true, value = {
             GROUPING_TYPE_PER_PACKAGE,
             GROUPING_TYPE_PER_NAMESPACE,
@@ -343,9 +338,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
     /**
      * Type of scoring used to calculate similarity for embedding vectors. For details of each, see
      * comments above each value.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link SearchSpecProto.EmbeddingQueryMetricType.Code}
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -377,7 +371,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * Euclidean distance as metric for embedding search and ranking.
      */
     public static final int EMBEDDING_SEARCH_METRIC_TYPE_EUCLIDEAN = 3;
-
 
     @Constructor
     SearchSpec(
@@ -450,7 +443,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         mRetrieveEmbeddingMatchInfos = retrieveEmbeddingMatchInfos;
         mEmbeddingQueryProbeCount = embeddingQueryProbeCount;
     }
-
 
     /** Returns how the query terms should match terms in the index. */
     @TermMatch
@@ -710,7 +702,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         return mAdvancedRankingExpression;
     }
 
-
     /**
      * Gets a tag to indicate the source of this search, or {@code null} if
      * {@link Builder#setSearchSourceLogTag(String)} was not called.
@@ -843,8 +834,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * Get the list of enabled features that the caller is intending to use in this search call.
      *
      * @return the set of {@link Features} enabled in this {@link SearchSpec} Entry.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull List<String> getEnabledFeatures() {
         return mEnabledFeatures;
@@ -1109,7 +1100,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
             }
             return addFilterProperties(schema, propertyPathsArrayList);
         }
-
 
 // @exportToFramework:startStrip()
 

@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 
@@ -31,8 +32,8 @@ import org.jspecify.annotations.Nullable;
  *
  * This class captures various latency metrics and status codes related to the
  * process of persisting data from AppSearch's in-memory state to disk.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PersistToDiskStats extends BaseStats {
     private final @Nullable String mPackageName;

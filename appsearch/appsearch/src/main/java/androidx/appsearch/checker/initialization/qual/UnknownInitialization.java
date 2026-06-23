@@ -17,6 +17,7 @@
 package androidx.appsearch.checker.initialization.qual;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,9 +27,7 @@ import java.lang.annotation.Target;
 // This is an annotation stub to avoid dependencies on annotations that aren't
 // in the Android platform source tree.
 
-/**
- * <!--@exportToFramework:hide-->
- */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Target({
         ElementType.ANNOTATION_TYPE,

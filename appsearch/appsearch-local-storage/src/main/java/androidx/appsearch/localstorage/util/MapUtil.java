@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.util;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
@@ -25,9 +26,8 @@ import java.util.Map;
 /**
  * A utility class to avoid the clutter of checking whether or not {@link Map#getOrDefault} is
  * available.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class MapUtil {
     private MapUtil() {}

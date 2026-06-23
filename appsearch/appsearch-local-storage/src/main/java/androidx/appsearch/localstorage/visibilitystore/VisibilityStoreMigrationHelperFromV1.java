@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
@@ -39,9 +40,8 @@ import java.util.Set;
 /**
  * The helper class to store Visibility Document information of version 1 and handle the upgrade to
  * latest version
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityStoreMigrationHelperFromV1 {
     private VisibilityStoreMigrationHelperFromV1() {}

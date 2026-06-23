@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -735,8 +736,8 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * @param visibilitySettingSupported whether supported
          * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
          *                                      backend/Android API level.
-         * @exportToFramework:hide
          */
+        @HideInPlatform
          // Visibility setting is determined by SDK version, so it won't be needed in framework
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue

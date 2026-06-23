@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -33,9 +34,8 @@ import java.util.Set;
  * Caches and manages namespace information for AppSearch.
  *
  * This class is NOT thread safety.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NamespaceCache {
 

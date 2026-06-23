@@ -20,6 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
@@ -38,8 +39,8 @@ import java.util.function.Function;
  * @param <PlatformValue> The type of value in the Framework's
  *                        {@link android.app.appsearch.AppSearchBatchResult}.
  * @param <JetpackValue>  The type of value in Jetpack's {@link AppSearchBatchResult}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class BatchResultCallbackAdapter<K, PlatformValue, JetpackValue>

@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -35,8 +36,8 @@ import java.util.function.Function;
 /**
  * Translates {@link androidx.appsearch.app.AppSearchResult} and
  * {@link androidx.appsearch.app.AppSearchBatchResult} to platform versions.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class AppSearchResultToPlatformConverter {

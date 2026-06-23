@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
@@ -54,9 +55,8 @@ import java.util.concurrent.ExecutorService;
  * Manages interactions with AppSearch.
  *
  * <p>Instances of {@link DebugAppSearchManager} are created by calling {@link #create}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DebugAppSearchManager implements Closeable {
     private static final int PAGE_SIZE = 100;
@@ -178,7 +178,6 @@ public class DebugAppSearchManager implements Closeable {
                     mExecutor);
         }
     }
-
 
     /**
      * Converts the next page from the provided {@link SearchResults} instance to a list of

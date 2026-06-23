@@ -18,6 +18,7 @@ package androidx.appsearch.ast;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -40,8 +41,8 @@ import java.lang.annotation.RetentionPolicy;
 public interface FunctionNode extends Node {
     /**
      * Enums representing functions available to use in the query language.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({

@@ -19,6 +19,7 @@ package androidx.appsearch.utils;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
@@ -30,9 +31,8 @@ import java.util.Locale;
 
 /**
  * Helper class used to validate date time formats.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(LIBRARY)
 public final class DateTimeFormatValidator {
     private DateTimeFormatValidator() {}

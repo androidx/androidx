@@ -22,14 +22,14 @@ import android.content.Context;
 import android.provider.Settings;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
 /**
  * Helper class for device boot count.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(LIBRARY)
 public class BootCountUtil {
     private BootCountUtil() {}

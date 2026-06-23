@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.usagereporting;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
@@ -36,9 +37,8 @@ import org.jspecify.annotations.Nullable;
  *  click action
  *  -->
  * {@link GenericDocument}, which contains getters for click action properties.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickActionGenericDocument extends TakenActionGenericDocument {
     private static final String PROPERTY_PATH_QUERY = "query";

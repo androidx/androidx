@@ -16,8 +16,8 @@
 
 package androidx.appsearch.localstorage.converter;
 
-
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -29,8 +29,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Translates a {@link AppSearchBlobHandle} into {@link PropertyProto.BlobHandleProto}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class BlobHandleToProtoConverter {
     private BlobHandleToProtoConverter() {}

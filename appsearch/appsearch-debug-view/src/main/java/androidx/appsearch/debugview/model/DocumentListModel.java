@@ -19,6 +19,7 @@ package androidx.appsearch.debugview.model;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.debugview.DebugAppSearchManager;
@@ -45,9 +46,8 @@ import java.util.concurrent.ExecutorService;
  * {@link GenericDocument} object is truncated of all properties.
  *
  * <p>Instances of {@link DocumentListModel} are created by {@link DocumentListModelFactory}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListModel extends ViewModel {
     private static final String TAG = "DocumentListModel";

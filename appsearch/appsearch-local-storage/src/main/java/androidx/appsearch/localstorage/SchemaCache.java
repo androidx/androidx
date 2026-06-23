@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.checker.initialization.qual.UnknownInitialization;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -42,9 +43,8 @@ import java.util.Set;
 
 /**
  * Caches and manages schema information for AppSearch.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaCache {
     /**

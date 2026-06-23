@@ -17,6 +17,7 @@
 package androidx.appsearch.testutil;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.AppSearchLogger;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
@@ -37,9 +38,8 @@ import java.util.List;
 
 /**
  * Non-thread-safe simple logger implementation for testing.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SimpleTestLogger implements AppSearchLogger {
     /** Holds {@link CallStats} after logging. */

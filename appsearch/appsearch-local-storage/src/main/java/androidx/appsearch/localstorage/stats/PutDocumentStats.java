@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
@@ -27,9 +28,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * A class for holding detailed stats to log for each individual document put by a
  * {@link androidx.appsearch.app.AppSearchSession#putAsync} call.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class PutDocumentStats extends BaseStats {
     private final @NonNull String mPackageName;

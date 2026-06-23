@@ -17,6 +17,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PackageIdentifier;
@@ -30,8 +31,8 @@ import java.util.Set;
 
 /**
  * Holds the visibility settings in version 1 that apply to a schema type.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class VisibilityDocumentV1 extends GenericDocument {
     /**

@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.usagereporting;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.localstorage.stats.ClickStats;
 import androidx.appsearch.localstorage.stats.SearchIntentStats;
@@ -34,9 +35,8 @@ import java.util.Objects;
 /**
  * Extractor class for analyzing a list of taken action {@link GenericDocument} and creating a list
  * of {@link SearchSessionStats}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSessionStatsExtractor {
     // TODO(b/319285816): make thresholds configurable.

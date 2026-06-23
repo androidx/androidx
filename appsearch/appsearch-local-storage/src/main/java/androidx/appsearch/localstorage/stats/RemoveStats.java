@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.SearchSpec;
@@ -34,9 +35,8 @@ import java.lang.annotation.RetentionPolicy;
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#removeAsync(RemoveByDocumentIdRequest)} and
  * {@link androidx.appsearch.app.AppSearchSession#removeAsync(String, SearchSpec)}
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RemoveStats extends BaseStats {
     /** Types of stats available for remove API. */
@@ -86,7 +86,6 @@ public final class RemoveStats extends BaseStats {
     private final int mNumSchemaTypesFiltered;
     private final int mParseQueryLatencyMillis;
     private final int mDocumentRemovalLatencyMillis;
-
 
     RemoveStats(@NonNull Builder builder) {
         super(builder);

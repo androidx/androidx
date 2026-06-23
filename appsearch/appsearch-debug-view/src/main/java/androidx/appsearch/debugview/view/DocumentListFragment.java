@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.debugview.DebugAppSearchManager;
@@ -49,9 +50,8 @@ import java.util.Collections;
 
 /**
  * A fragment for displaying a list of {@link GenericDocument} objects.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListFragment extends Fragment {
     private static final String TAG = "DocumentListFragment";

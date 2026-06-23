@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
@@ -50,9 +51,8 @@ import java.util.concurrent.Executor;
  * dispatch.
  *
  * <p>This class is thread-safe.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ObserverManager {
     private static final String TAG = "AppSearchObserverManage";

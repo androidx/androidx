@@ -20,6 +20,7 @@ import android.util.ArraySet;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.SearchSpec;
@@ -38,9 +39,8 @@ import java.util.Set;
 /**
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#search(String, SearchSpec)}
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class QueryStats extends BaseStats {
     /** Types of Visibility scopes available for search. */

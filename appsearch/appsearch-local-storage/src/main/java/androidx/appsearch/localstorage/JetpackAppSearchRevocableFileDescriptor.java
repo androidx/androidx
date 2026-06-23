@@ -21,6 +21,7 @@ package androidx.appsearch.localstorage;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -34,8 +35,8 @@ import java.io.IOException;
  * won't cross the binder, we could revoke the {@link ParcelFileDescriptor} in the client side
  * by directly close the one in AppSearch side. This class just adding close listener to the
  * inner {@link ParcelFileDescriptor}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JetpackAppSearchRevocableFileDescriptor extends ParcelFileDescriptor
         implements AppSearchRevocableFileDescriptor {

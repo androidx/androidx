@@ -20,6 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -37,9 +38,8 @@ import org.jspecify.annotations.Nullable;
  * failed, we will directly throw an Exception. But AppSearch internal need to divert the
  * incompatible changes form other call flows. This class adds a {@link #isSuccess()} to indicate
  * if the call fails because of incompatible change.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SafeParcelable.Class(creator = "InternalSetSchemaResponseCreator")
 public class InternalSetSchemaResponse extends AbstractSafeParcelable {
@@ -104,7 +104,6 @@ private final @Nullable String mErrorMessage;
     public @NonNull SetSchemaResponse getSetSchemaResponse() {
         return mSetSchemaResponse;
     }
-
 
     /**
      * Returns the error message associated with this response.

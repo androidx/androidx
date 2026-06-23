@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
@@ -64,9 +65,8 @@ import java.lang.annotation.RetentionPolicy;
  *             AppSearchDebugActivity.STORAGE_TYPE_LOCAL);
  *     startActivity(intent);
  * </pre>
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AppSearchDebugActivity extends FragmentActivity {
     private static final String TAG = "AppSearchDebugActivity";

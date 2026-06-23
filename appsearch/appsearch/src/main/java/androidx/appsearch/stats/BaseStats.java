@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -34,8 +35,8 @@ import java.util.List;
  *
  * This class provides a convenient way to store and retrieve key statistics,
  * such as the result code and a bitmask of enabled features.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BaseStats {
 

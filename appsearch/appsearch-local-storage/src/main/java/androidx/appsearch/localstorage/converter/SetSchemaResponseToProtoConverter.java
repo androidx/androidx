@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.core.util.Preconditions;
 
@@ -26,9 +27,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Translates a {@link SetSchemaResultProto} into {@link SetSchemaResponse}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SetSchemaResponseToProtoConverter {
 

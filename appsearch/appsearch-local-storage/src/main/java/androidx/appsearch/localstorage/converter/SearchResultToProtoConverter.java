@@ -22,6 +22,7 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFrom
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GenericDocument;
@@ -50,9 +51,8 @@ import java.util.Set;
 
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResult}s.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {
     private SearchResultToProtoConverter() {

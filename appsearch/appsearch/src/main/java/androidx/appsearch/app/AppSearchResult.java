@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -48,8 +49,8 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Result codes from {@link AppSearchSession} methods.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @IntDef(value = {
             RESULT_OK,
             RESULT_UNKNOWN_ERROR,
@@ -257,9 +258,8 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull <ValueType> AppSearchResult<ValueType> newFailedResult(
             @NonNull AppSearchResult<?> otherFailedResult) {
@@ -269,7 +269,7 @@ public final class AppSearchResult<ValueType> {
                 otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
     }
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull <ValueType> AppSearchResult<ValueType> throwableToFailedResult(

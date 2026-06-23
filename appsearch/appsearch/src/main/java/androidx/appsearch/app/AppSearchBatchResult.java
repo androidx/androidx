@@ -17,6 +17,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
@@ -101,8 +102,8 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
 
     /**
      * Asserts that this {@link AppSearchBatchResult} has no failures.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void checkSuccess() {
         if (!isSuccess()) {
@@ -115,9 +116,8 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      *
      * <p>It is used to convert {@link ValueType} to {@link Void} for safe parcelable if the {@link
      * ValueType} is an internal only type and won't be returned to the client.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull AppSearchBatchResult<KeyType, Void> toVoidBatchResult() {
         Builder<KeyType, Void> builder = new Builder<>();

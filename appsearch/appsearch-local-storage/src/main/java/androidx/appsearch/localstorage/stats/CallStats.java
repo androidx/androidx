@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 import androidx.collection.ArraySet;
@@ -38,9 +39,8 @@ import java.util.Set;
  * <p>Some function calls may have their own detailed stats class like {@link PutDocumentStats}.
  * However, {@link CallStats} can still be used along with the detailed stats class for easy
  * aggregation/analysis with other function calls.
- *
- * <!--@exportToFramework:hide-->
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CallStats extends BaseStats {
 

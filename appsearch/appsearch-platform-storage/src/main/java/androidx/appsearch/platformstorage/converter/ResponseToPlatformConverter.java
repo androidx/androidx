@@ -22,6 +22,7 @@ import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.CommitBlobResponse;
 import androidx.appsearch.app.OpenBlobForReadResponse;
 import androidx.appsearch.app.OpenBlobForWriteResponse;
@@ -36,8 +37,8 @@ import java.util.function.Function;
 
 /**
  * Translates between Platform and Jetpack versions of responses.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class ResponseToPlatformConverter {

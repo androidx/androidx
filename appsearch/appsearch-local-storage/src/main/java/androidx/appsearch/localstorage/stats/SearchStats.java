@@ -17,6 +17,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.SearchSpec;
 
 import org.jspecify.annotations.NonNull;
@@ -28,9 +29,8 @@ import java.util.Locale;
  * {@link androidx.appsearch.app.AppSearchSession#search(String, SearchSpec)}.
  *
  * <p> Only valid for first page.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchStats {
 
@@ -318,7 +318,6 @@ public final class SearchStats {
             mNativeRankingStrategy = nativeRankingStrategy;
             return this;
         }
-
 
         /** Sets number of documents scored. */
         @CanIgnoreReturnValue

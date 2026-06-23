@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.os.UserHandle;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -35,9 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Contains utility methods for Framework implementation of AppSearch.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JetpackAppSearchEnvironment implements AppSearchEnvironment {
 

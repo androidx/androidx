@@ -26,6 +26,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSession;
@@ -82,8 +83,8 @@ import java.util.function.Function;
 /**
  * An implementation of {@link AppSearchSession} which proxies to a platform
  * {@link android.app.appsearch.AppSearchSession}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 class SearchSessionImpl implements AppSearchSession {
