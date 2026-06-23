@@ -80,7 +80,8 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
     @NonNull
     @Override
     public String toString() {
-        return "DrawTextOnPath ["
+        return CLASS_NAME
+                + " ["
                 + mPathId
                 + "] "
                 + Utils.floatToString(mFraction, mOutFraction)
@@ -113,7 +114,7 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      */
     @NonNull
     public static String name() {
-        return "DrawTextOnPath";
+        return CLASS_NAME;
     }
 
     /**
@@ -122,7 +123,7 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      * @return the opcode
      */
     public static int id() {
-        return Operations.DRAW_TEXT_ON_PATH;
+        return OP_CODE;
     }
 
     /**
@@ -173,6 +174,6 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
                 .addType(CLASS_NAME)
                 .add("pathId", mPathId)
                 .add("vOffset", mVOffset, mOutVOffset)
-                .add("hOffset", mFraction, mOutFraction);
+                .add("fraction", mFraction, mOutFraction);
     }
 }
