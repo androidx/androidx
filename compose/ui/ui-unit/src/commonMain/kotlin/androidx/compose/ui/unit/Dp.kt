@@ -17,6 +17,11 @@
 
 package androidx.compose.ui.unit
 
+// Note: Throughout this file, arithmetic operations and factory methods append `+ 0f` to Float
+// values to normalize `-0f` to `0f`. This ensures that negative zero (-0.0f) does not break value
+// class equality and hashCode contracts. In the future, this can be changed to modify compareTo,
+// equals, and hashCode. Currently, only compareTo can be overridden.
+
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.isSpecified
@@ -44,28 +49,40 @@ import kotlin.math.min
  */
 @Immutable
 @JvmInline
-value class Dp(val value: Float) : Comparable<Dp> {
+value class Dp
+/**
+ * Constructs a new [Dp] value. Use [Float.dp] instead to avoid problems with comparing `-0.0.dp`
+ * and `0.dp`. While the floating point values are treated the same, if the value passed to the
+ * constructor is `-0f`, the [Dp] value will not be considered equal to `0.dp`. When `-0f.dp` is
+ * used, the value will be constructed in a way that avoids the problem.
+ */
+constructor(val value: Float) : Comparable<Dp> {
     /** Add two [Dp]s together. */
-    @Stable inline operator fun plus(other: Dp) = Dp(this.value + other.value)
+    @Stable inline operator fun plus(other: Dp) = Dp((this.value + other.value) + 0f)
 
     /** Subtract a Dp from another one. */
-    @Stable inline operator fun minus(other: Dp) = Dp(this.value - other.value)
+    @Stable inline operator fun minus(other: Dp) = Dp((this.value - other.value) + 0f)
 
     /** This is the same as multiplying the Dp by -1.0. */
-    @Stable inline operator fun unaryMinus() = Dp(-value)
+    // +0f to normalize -0f
+    @Stable inline operator fun unaryMinus() = Dp(-value + 0f)
 
     /** Divide a Dp by a scalar. */
-    @Stable inline operator fun div(other: Float): Dp = Dp(value / other)
+    // +0f to normalize -0f
+    @Stable inline operator fun div(other: Float): Dp = Dp((value / other) + 0f)
 
-    @Stable inline operator fun div(other: Int): Dp = Dp(value / other)
+    // +0f to normalize -0f
+    @Stable inline operator fun div(other: Int): Dp = Dp((value / other) + 0f)
 
     /** Divide by another Dp to get a scalar. */
     @Stable inline operator fun div(other: Dp): Float = value / other.value
 
     /** Multiply a Dp by a scalar. */
-    @Stable inline operator fun times(other: Float): Dp = Dp(value * other)
+    // +0f to normalize -0f
+    @Stable inline operator fun times(other: Float): Dp = Dp((value * other) + 0f)
 
-    @Stable inline operator fun times(other: Int): Dp = Dp(value * other)
+    // +0f to normalize -0f
+    @Stable inline operator fun times(other: Int): Dp = Dp((value * other) + 0f)
 
     /** Support comparing Dimensions with comparison operators. */
     @OptIn(ExperimentalUnitApi::class)
@@ -120,18 +137,23 @@ inline val Int.dp: Dp
 /** Create a [Dp] using a [Double]: val left = 10.0 val x = left.dp // -- or -- val y = 10.0.dp */
 @Stable
 inline val Double.dp: Dp
-    get() = Dp(this.toFloat())
+    // +0f to normalize -0f
+    get() = Dp(this.toFloat() + 0f)
 
 /** Create a [Dp] using a [Float]: val left = 10f val x = left.dp // -- or -- val y = 10f.dp */
 @Stable
 inline val Float.dp: Dp
-    get() = Dp(this)
+    // +0f to normalize -0f
+    get() = Dp(this + 0f)
 
-@Stable inline operator fun Float.times(other: Dp) = Dp(this * other.value)
+// +0f to normalize -0f
+@Stable inline operator fun Float.times(other: Dp) = Dp((this * other.value) + 0f)
 
-@Stable inline operator fun Double.times(other: Dp) = Dp(this.toFloat() * other.value)
+// +0f to normalize -0f
+@Stable inline operator fun Double.times(other: Dp) = Dp((this.toFloat() * other.value) + 0f)
 
-@Stable inline operator fun Int.times(other: Dp) = Dp(this * other.value)
+// +0f to normalize -0f
+@Stable inline operator fun Int.times(other: Dp) = Dp((this * other.value) + 0f)
 
 @Stable inline fun min(a: Dp, b: Dp): Dp = Dp(min(a.value, b.value))
 
@@ -182,7 +204,8 @@ inline val Dp.isFinite: Boolean
  */
 @Stable
 fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
-    return Dp(lerp(start.value, stop.value, fraction))
+    // +0f to normalize -0f
+    return Dp(lerp(start.value, stop.value, fraction) + 0f)
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -282,10 +305,7 @@ inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset = if (isSpecifie
 @Stable
 fun lerp(start: DpOffset, stop: DpOffset, fraction: Float): DpOffset =
     DpOffset(
-        packFloats(
-            lerp(start.x.value, stop.x.value, fraction),
-            lerp(start.y.value, stop.y.value, fraction),
-        )
+        packFloats(lerp(start.x, stop.x, fraction).value, lerp(start.y, stop.y, fraction).value)
     )
 
 /** Constructs a [DpSize] from [width] and [height] [Dp] values. */

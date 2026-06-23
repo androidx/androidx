@@ -19,6 +19,7 @@ package androidx.compose.ui.unit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -244,5 +245,71 @@ class DpTest {
         assertTrue(Dp.Infinity != 1.dp)
         assertTrue(Dp.Infinity > 1.dp)
         assertFalse(Dp.Infinity < 1.dp)
+
+        assertTrue((-0.0).dp.compareTo(0.0.dp) == 0)
+        assertFalse((-0.0).dp < 0.0.dp)
+        assertFalse(0.0.dp < (-0.0).dp)
+        assertTrue(-0f.dp >= 0f.dp)
+        assertTrue(-0f.dp == 0f.dp)
+    }
+
+    @Test
+    fun testHashCode() {
+        assertEquals(1.dp.hashCode(), 1.dp.hashCode())
+        assertEquals(Dp.Unspecified.hashCode(), Dp.Unspecified.hashCode())
+        assertEquals((-0f).dp.hashCode(), 0f.dp.hashCode())
+        assertEquals((-0.0).dp.hashCode(), 0.0.dp.hashCode())
+        assertEquals(1.5.dp.hashCode(), 1.5f.dp.hashCode())
+
+        assertNotEquals(1.dp.hashCode(), 2.dp.hashCode())
+        assertNotEquals(1.dp.hashCode(), Dp.Unspecified.hashCode())
+        assertNotEquals(0.dp.hashCode(), Dp.Unspecified.hashCode())
+        assertNotEquals(Dp.Infinity.hashCode(), 1.dp.hashCode())
+    }
+
+    @Test
+    fun testNegativeZeroEquality() {
+        fun assertIsEqualZero(dp: Dp) {
+            assertEquals(0.dp, dp)
+            assertEquals(0.dp.hashCode(), dp.hashCode())
+        }
+
+        assertIsEqualZero((-0.0).dp)
+        assertIsEqualZero((-0f).dp)
+        assertIsEqualZero(0.dp)
+        assertIsEqualZero(0.0.dp)
+        assertIsEqualZero(-(0.dp))
+        assertIsEqualZero(0.dp / -1)
+        assertIsEqualZero(0.dp / -1f)
+        assertIsEqualZero(0.dp * -1)
+        assertIsEqualZero(0.dp * -1f)
+        assertIsEqualZero(-1 * 0.dp)
+        assertIsEqualZero(-1f * 0.dp)
+        assertIsEqualZero(-1.0 * 0.dp)
+        assertIsEqualZero((-0.0).dp + (-0.0).dp)
+        assertIsEqualZero((-0.0).dp - 0.0.dp)
+        assertIsEqualZero(lerp(-2.dp, 2.dp, 0.5f))
+    }
+
+    @Test
+    fun testDpOffsetLerpNegativeZero() {
+        // -Float.MIN_VALUE is used here to force a calculation underflow to -0.0f,
+        // verifying that lerp correctly normalizes the result of its internal arithmetic.
+        val start = DpOffset((-Float.MIN_VALUE).dp, (-Float.MIN_VALUE).dp)
+        val stop = DpOffset((-Float.MIN_VALUE).dp, (-Float.MIN_VALUE).dp)
+        val lerped = lerp(start, stop, 0.5f)
+        val expected = DpOffset(0.dp, 0.dp)
+        assertEquals(expected, lerped)
+    }
+
+    @Test
+    fun testDpSizeLerpNegativeZero() {
+        // -Float.MIN_VALUE is used here to force a calculation underflow to -0.0f,
+        // verifying that lerp correctly normalizes the result of its internal arithmetic.
+        val start = DpSize((-Float.MIN_VALUE).dp, (-Float.MIN_VALUE).dp)
+        val stop = DpSize((-Float.MIN_VALUE).dp, (-Float.MIN_VALUE).dp)
+        val lerped = lerp(start, stop, 0.5f)
+        val expected = DpSize(0.dp, 0.dp)
+        assertEquals(expected, lerped)
     }
 }
