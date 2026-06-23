@@ -67,7 +67,12 @@ public class OcrContextRepository(
                 val contexts = mutableListOf<OcrContext>()
                 for (keyedObject in keyedPdfObjects) {
                     val imageObject = keyedObject.pdfObject as? ImagePdfObject ?: continue
-                    val ocrResult = ocrProvider.recognizeText(imageObject.bitmap) ?: continue
+                    val ocrResult =
+                        try {
+                            ocrProvider.recognizeText(imageObject.bitmap)
+                        } catch (_: IllegalArgumentException) {
+                            null
+                        } ?: continue
 
                     contexts.add(
                         OcrContext(ocrResult, pageNum, imageObject.bounds, imageObject.bitmapSize)

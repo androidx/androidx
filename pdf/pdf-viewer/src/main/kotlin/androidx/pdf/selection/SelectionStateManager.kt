@@ -253,7 +253,24 @@ internal class SelectionStateManager(
         point: PdfPoint,
         imageObject: ImagePdfObject,
     ): Boolean {
-        val ocrResult = ocrProvider?.recognizeText(imageObject.bitmap)
+        val ocrResult =
+            try {
+                ocrProvider?.recognizeText(imageObject.bitmap)
+            } catch (e: IllegalArgumentException) {
+                val exception =
+                    RequestFailedException(
+                        requestMetadata =
+                            RequestMetadata(
+                                requestName = CONTENT_SELECTION_REQUEST_NAME,
+                                pageRange = pageNum..pageNum,
+                            ),
+                        throwable = e,
+                        // Non-critical failure, user can retry the operation.
+                        showError = false,
+                    )
+                errorFlow.emit(exception)
+                null
+            }
         if (ocrResult != null) {
             // Check for a word in image at this point.
             val context =
