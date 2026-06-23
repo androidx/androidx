@@ -9,6 +9,8 @@ plugins {
 dependencies {
     docs(project(":a2ui:a2ui-core"))
     docs(project(":a2ui:a2ui-compose"))
+    docs(project(":a2ui:a2ui-engine"))
+    docs(project(":a2ui:a2ui-model"))
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
     kmpDocs(project(":annotation:annotation"))
