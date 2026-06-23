@@ -755,24 +755,11 @@ private fun SpanStyle.copyWithDefaultFontSize(drawStyle: DrawStyle? = null): Spa
     )
 }
 
-// TODO: Remove from public
-@InternalTextApi
-fun FontStyle.toSkFontStyle(): SkFontStyle {
+internal fun FontStyle.toSkFontStyle(): SkFontStyle {
     return when (this) {
         FontStyle.Italic -> SkFontStyle.ITALIC
         else -> SkFontStyle.NORMAL
     }
-}
-
-// TODO: Remove from public
-@Suppress("unused")
-@Deprecated(
-    message = "This method was not intended to be public",
-    level = DeprecationLevel.HIDDEN
-)
-@InternalTextApi
-fun TextDecoration.toSkDecorationStyle(color: Color): SkDecorationStyle {
-    return toSkDecorationStyle(color, null)
 }
 
 private fun TextDecoration.toSkDecorationStyle(
@@ -808,9 +795,7 @@ private fun TextDecorationLineStyle.toSkDecorationLineStyle(): SkDecorationLineS
     }
 }
 
-// TODO: Remove from public
-@InternalTextApi
-fun PlaceholderVerticalAlign.toSkPlaceholderAlignment(): PlaceholderAlignment {
+private fun PlaceholderVerticalAlign.toSkPlaceholderAlignment(): PlaceholderAlignment {
     return when (this) {
         PlaceholderVerticalAlign.AboveBaseline -> PlaceholderAlignment.ABOVE_BASELINE
         PlaceholderVerticalAlign.TextTop -> PlaceholderAlignment.TOP
