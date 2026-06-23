@@ -36,7 +36,6 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
