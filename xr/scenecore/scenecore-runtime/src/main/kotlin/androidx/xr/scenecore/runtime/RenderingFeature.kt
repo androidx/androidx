@@ -33,8 +33,10 @@ public interface RenderingFeature {
     public fun getSubspaceNodeHolder(): NodeHolder<*>?
 
     /**
-     * Disposes the resources used by the feature. This is called by the corresponding entity's
-     * dispose method.
+     * Disposes system resources held by this feature.
+     *
+     * Once disposed, this [RenderingFeature] must not be used. This is called by the corresponding
+     * [Entity.dispose] method.
      */
     public fun dispose()
 }
