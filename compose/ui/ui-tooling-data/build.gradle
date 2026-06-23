@@ -31,9 +31,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.ui.tooling.data"
-        compileSdk = 35
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.ui.tooling.data"
+
+            compileSdk = 35
+        }
     }
     desktop()
 

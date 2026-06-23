@@ -23,106 +23,42 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
-import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
     id("JetBrainsAndroidXPlugin")
-    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.navigation.common"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+    redirect("androidx.navigation") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.navigation.common"
         }
-        androidResources.enable = true
-        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
-            it.returnDefaultValues = true
-        }
+        desktop()
+        linux()
+        mac()
+        watchos()
+        tvos()
+        ios()
+        js()
+        wasmJs()
     }
-    desktop()
-    linux()
-    mac()
-    watchos()
-    tvos()
-    ios()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        configureEach {
-            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        commonMain {
+            dependencies {
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.11.0-beta01")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.11.0-beta01")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.11.0-beta01")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-beta01")
+                api("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
+            }
         }
-
-        commonMain.dependencies {
-            api("androidx.annotation:annotation:1.9.1")
-            api("androidx.lifecycle:lifecycle-common:2.11.0-beta01")
-            api("androidx.lifecycle:lifecycle-runtime:2.11.0-beta01")
-            api("androidx.lifecycle:lifecycle-viewmodel:2.11.0-beta01")
-            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-beta01")
-            api("androidx.savedstate:savedstate:1.5.0")
-            implementation("androidx.collection:collection:1.5.0")
-            implementation(libs.kotlinSerializationCore)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation(libs.kotlinCoroutinesTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":navigation:navigation-testing"))
-        }
-
-        androidMain.dependencies {
-            api("androidx.savedstate:savedstate-ktx:1.5.0")
-            implementation("androidx.core:core-ktx:1.1.0")
-            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
-        }
-
-        androidHostTest.dependencies {
-            implementation("androidx.arch.core:core-testing:2.2.0")
-            implementation(libs.junit)
-            implementation(libs.mockitoCore4)
-            implementation(libs.truth)
-            implementation(libs.kotlinCoroutinesCore)
-            implementation(libs.kotlinCoroutinesTest)
-            runtimeOnly(libs.kotlinTestJunit)
-            runtimeOnly(libs.testCore)
-        }
-
-        androidDeviceTest.dependencies {
-            implementation(libs.junit)
-            implementation(libs.testExtJunit)
-            implementation(libs.testRunner)
-            implementation(libs.truth)
-            implementation(libs.mockitoCore)
-            implementation(libs.dexmakerMockito)
-        }
-
-        create("androidTest").dependsOn(jvmAndAndroidTest)
-        androidDeviceTest.dependsOn(androidTest)
-        androidHostTest.dependsOn(androidTest)
-
-        create("nonAndroidMain").dependsOn(commonMain)
-        desktopMain.dependsOn(nonAndroidMain)
-        nativeMain.dependsOn(nonAndroidMain)
-        webMain.dependsOn(nonAndroidMain)
-
-        create("nonAndroidTest").dependsOn(commonTest)
-        desktopTest.dependsOn(nonAndroidTest)
-        nativeTest.dependsOn(nonAndroidTest)
-        webTest.dependsOn(nonAndroidTest)
     }
-}
-
-dependencies {
-    lintPublish(project(":navigation:navigation-common-lint"))
 }
 
 androidx {

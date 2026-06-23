@@ -23,93 +23,31 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.lifecycle.viewmodel"
-        androidResources.enable = true
+    redirect("androidx.lifecycle") {
+        androidLibrary {
+            namespace = "org.jetbrains.lifecycle.viewmodel"
+            androidResources.enable = true
+        }
+        desktop()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
     }
-    desktop()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
-    sourceSets {
-        configureEach {
-            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
-        }
-
-        commonMain.dependencies {
-            api("androidx.annotation:annotation:1.9.1")
-            api(libs.kotlinCoroutinesCore)
-            implementation("androidx.collection:collection:1.5.0")
-        }
-
-        commonTest.dependencies {
-            implementation(project(":kruth:kruth"))
-            implementation(libs.kotlinTest)
-            implementation(libs.kotlinCoroutinesTest)
-        }
-
-        jvmAndAndroidTest.dependencies {
-            implementation(libs.junit)
-        }
-
-        androidMain.dependencies {
-            api(libs.kotlinCoroutinesAndroid)
-            implementation("androidx.core:core-viewtree:1.0.0")
-        }
-
-        androidHostTest.dependencies {
-            implementation(libs.mockitoCore4)
-        }
-
-        androidDeviceTest.dependencies {
-            implementation("androidx.core:core-ktx:1.2.0")
-            implementation(libs.testExtJunit)
-            implementation(libs.testCore)
-            implementation(libs.testRunner)
-        }
-
-        nativeMain.dependencies {
-            implementation(libs.atomicFu)
-        }
-
-        webTest.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-        }
-
-        unixMain { dependsOn(nativeMain) }
-        unixTest { dependsOn(nativeTest) }
-
-        linuxMain { dependsOn(unixMain) }
-        linuxTest { dependsOn(unixTest) }
-    }
-}
-
-dependencies {
-    constraints {
-        // Prevents symbols duplication with old versions of JetBrains' fork.
-        // Starting with version 2.9.5, this module is published as empty artifact with dependency
-        // to this androidx module.
-        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.5") {
-            because "prevents symbols duplication"
-        }
-    }
 }
 
 androidx {

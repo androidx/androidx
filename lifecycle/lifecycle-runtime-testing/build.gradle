@@ -75,11 +75,6 @@ androidXMultiplatform {
         desktopTest.dependsOn(jvmTest)
     }
 }
-
-dependencies {
-    lintPublish(project(":lifecycle:lifecycle-runtime-testing-lint"))
-}
-
 androidx {
     name = "Lifecycle Runtime Testing"
     type = SoftwareType.PUBLISHED_TEST_LIBRARY

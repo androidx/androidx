@@ -31,10 +31,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.animation.graphics"
-        androidResources.enable = true
+    redirect("androidx.compose.animation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.animation.graphics"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()

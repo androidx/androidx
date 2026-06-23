@@ -34,10 +34,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.ui.test"
-        androidResources.enable = true
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.ui.test"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -118,7 +121,7 @@ androidXMultiplatform {
             }
         }
 
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
 
         // TODO: Align naming: nonAndroidMain
         skikoMain {

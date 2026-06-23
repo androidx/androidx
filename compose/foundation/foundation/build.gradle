@@ -35,10 +35,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 37
-        namespace = "androidx.compose.foundation"
-        androidResources.enable = true
+    redirect("androidx.compose.foundation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.foundation"
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -61,7 +63,7 @@ androidXMultiplatform {
             implementation(project(":compose:foundation:foundation-layout"))
         }
 
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
@@ -211,7 +213,6 @@ androidXMultiplatform {
 
 dependencies {
     lintChecks(project(":compose:foundation:foundation-lint"))
-    lintPublish(project(":compose:foundation:foundation-lint"))
 }
 
 androidx {

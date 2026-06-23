@@ -35,10 +35,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.ui.text"
-        androidResources.enable = true
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.ui.text"
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -203,7 +205,6 @@ androidXMultiplatform {
 }
 
 dependencies {
-    lintPublish(project(":compose:ui:ui-text-lint"))
     lintChecks(project(":compose:ui:ui-text-lint"))
 }
 

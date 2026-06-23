@@ -33,13 +33,16 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.animation"
-        compileSdk = 35
-        // Define rules for R8 to strip out AnimationVisualDebug classes and methods in release builds
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("consumer-proguard-rules.pro"))
+    redirect("androidx.compose.animation") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.animation"
+
+            compileSdk = 35
+            // Define rules for R8 to strip out AnimationVisualDebug classes and methods in release builds
+            optimization {
+                it.consumerKeepRules.publish = true
+                it.consumerKeepRules.files.add(new File("consumer-proguard-rules.pro"))
+            }
         }
     }
     desktop()
@@ -123,10 +126,6 @@ androidXMultiplatform {
             dependsOn(nonJvmTest)
         }
     }
-}
-
-dependencies {
-    lintPublish(project(":compose:animation:animation-lint"))
 }
 
 androidx {

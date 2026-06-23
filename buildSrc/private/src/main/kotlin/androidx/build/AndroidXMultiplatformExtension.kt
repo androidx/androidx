@@ -35,10 +35,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.androidx.build.configureForkWebTarget
@@ -70,7 +68,6 @@ import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnPlugin
 import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnRootEnvSpec
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
-import org.tomlj.Toml
 
 /**
  * [AndroidXMultiplatformExtension] is an extension that wraps specific functionality of the Kotlin
@@ -133,6 +130,70 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
      * This may be a superset of the currently enabled platforms in [targetPlatforms].
      */
     val supportedPlatforms: MutableSet<PlatformIdentifier> = mutableSetOf()
+
+    /**
+     * Artifact-redirection (parallel-graph back-end): one entry per concrete target declared inside a
+     * `redirect { }` block. Each entry names a target that the fork builds *empty* (an empty,
+     * but valid, klib/jar/aar depending on the `androidx.*` coordinate) by re-rooting its
+     * source-sets onto an empty parallel graph (`redirectCommonMain`) instead of the real
+     * `commonMain`. The JetBrains plugin reads this registry in `afterEvaluate`.
+     *
+     * `redirectCoordinate` carries the `androidx.*` group from the `redirect("group") { }` argument
+     * (required) and the optional version override; when its version is null the back-end resolves it
+     * from the `[versions]` table of `redirectversions.toml`.
+     */
+    internal data class RedirectTargetDecl(
+        val targetName: String,
+        val redirectCoordinate: RedirectCoordinate
+    )
+
+    /** Targets registered for redirect via `redirect { }`. Consumed by the JetBrains plugin. */
+    internal val redirectTargetDecls: MutableList<RedirectTargetDecl> = mutableListOf()
+
+    /**
+     * Names of redirect targets, registered **before** the target is created (see `expectRedirect`).
+     * The hierarchy-template `excludeCompilations` predicate reads this to keep redirect targets out
+     * of the `commonMain` tree. Must be populated before the target's compilation is created, because
+     * the template evaluates the predicate at compilation-creation time.
+     */
+    internal val redirectTargetNames: MutableSet<String> = mutableSetOf()
+
+    /** Pre-register expected redirect target names so the hierarchy predicate excludes them. */
+    private fun expectRedirect(vararg names: String) { redirectTargetNames += names }
+
+    /** The `androidx.*` coordinate a `redirect("group", version) { }` block points its targets at. */
+    internal data class RedirectCoordinate(val group: String, val version: String?)
+
+    // Ambient state for the `redirect { … }` scope: non-null while a redirect block is executing
+    // (holding that block's coordinate), null otherwise. A plain target function called inside the
+    // block sees it (via `potentiallyRedirecting`) and redirects its target to the coordinate instead
+    // of fork-building.
+    private var redirectCoordinate: RedirectCoordinate? = null
+
+    /**
+     * Empty parallel root for redirect targets. Created lazily on the first redirect target (declared
+     * inside `redirect { }`) so that redirect leaves can be wired to it **at target-creation time** —
+     * this is what keeps them off the real `commonMain`. KGP applies the default hierarchy template
+     * only when a source-set
+     * has no manual `dependsOn` edge; adding one here (synchronously, during configuration) opts the
+     * redirect leaf out of the auto-wiring to `commonMain`. Doing this in `afterEvaluate` is too late
+     * (the dependsOn closure is computed reactively on edge add and is not recomputed on removal).
+     */
+    private val redirectCommonMain: org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet by lazy {
+        kotlinExtension.sourceSets.maybeCreate("redirectCommonMain")
+    }
+
+    private fun recordRedirect(target: KotlinTarget, targetName: String, redirectCoordinate: RedirectCoordinate) {
+        // Invariant: the name `potentiallyRedirecting` pre-registered must match the created target,
+        // otherwise the hierarchy predicate excluded the wrong name from `commonMain`.
+        assert(target.name == targetName) {
+            "redirect target name mismatch: expected '$targetName' but created target is '${target.name}'"
+        }
+        redirectTargetNames += target.name
+        redirectTargetDecls += RedirectTargetDecl(target.name, redirectCoordinate)
+        // Wire the target's main compilation source-set to the parallel root up-front.
+        target.compilations.findByName("main")?.defaultSourceSet?.dependsOn(redirectCommonMain)
+    }
 
     /**
      * The list of platforms that are currently enabled.
@@ -398,9 +459,9 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun jvm(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
+    fun jvm(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? = potentiallyRedirecting("jvm") {
         supportedPlatforms.add(PlatformIdentifier.JVM)
-        return if (project.enableJvm()) {
+        if (project.enableJvm()) {
             kotlinExtension.jvm { block?.execute(this) }
         } else {
             null
@@ -437,51 +498,55 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
-        return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeX86 { block?.execute(this) }
-        } else {
-            null
+    fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("androidNativeX86") {
+            supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
+            if (project.enableAndroidNative()) {
+                kotlinExtension.androidNativeX86 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
-        return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeX64 { block?.execute(this) }
-        } else {
-            null
+    fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("androidNativeX64") {
+            supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
+            if (project.enableAndroidNative()) {
+                kotlinExtension.androidNativeX64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
-        return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeArm64 { block?.execute(this) }
-        } else {
-            null
+    fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("androidNativeArm64") {
+            supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
+            if (project.enableAndroidNative()) {
+                kotlinExtension.androidNativeArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
-        return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeArm32 { block?.execute(this) }
-        } else {
-            null
+    fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("androidNativeArm32") {
+            supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
+            if (project.enableAndroidNative()) {
+                kotlinExtension.androidNativeArm32 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
     fun androidLibrary(
         block: Action<KotlinMultiplatformAndroidLibraryTarget>? = null
-    ): KotlinMultiplatformAndroidLibraryTarget? {
+    ): KotlinMultiplatformAndroidLibraryTarget? = potentiallyRedirecting("android") {
         supportedPlatforms.add(PlatformIdentifier.ANDROID)
-        return if (project.enableJvm()) {
+        if (project.enableJvm()) {
             agpKmpExtension.also { block?.execute(it) }
         } else {
             null
@@ -489,24 +554,26 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun desktop(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
-        supportedPlatforms.add(PlatformIdentifier.DESKTOP)
-        return if (project.enableDesktop()) {
-            kotlinExtension.jvm("desktop") { block?.execute(this) }
-        } else {
-            null
+    fun desktop(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? =
+        potentiallyRedirecting("desktop") {
+            supportedPlatforms.add(PlatformIdentifier.DESKTOP)
+            if (project.enableDesktop()) {
+                kotlinExtension.jvm("desktop") { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun mingwX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        supportedPlatforms.add(PlatformIdentifier.MINGW_X_64)
-        return if (project.enableWindows()) {
-            kotlinExtension.mingwX64 { block?.execute(this) }
-        } else {
-            null
+    fun mingwX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? =
+        potentiallyRedirecting("mingwX64") {
+            supportedPlatforms.add(PlatformIdentifier.MINGW_X_64)
+            if (project.enableWindows()) {
+                kotlinExtension.mingwX64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     /** Configures all mac targets supported by AndroidX. */
     @JvmOverloads
@@ -515,14 +582,15 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun macosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        supportedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.macosArm64 { block?.execute(this) }
-        } else {
-            null
+    fun macosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? =
+        potentiallyRedirecting("macosArm64") {
+            supportedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.macosArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     /** Configures all ios targets supported by AndroidX. */
     @JvmOverloads
@@ -531,24 +599,26 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun iosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.iosArm64 { block?.execute(this) }
-        } else {
-            null
+    fun iosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("iosArm64") {
+            supportedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.iosArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.iosSimulatorArm64 { block?.execute(this) }
-        } else {
-            null
+    fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("iosSimulatorArm64") {
+            supportedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.iosSimulatorArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     /** Configures all watchos targets supported by AndroidX. */
     @JvmOverloads
@@ -563,44 +633,48 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun watchosArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_32)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosArm32 { block?.execute(this) }
-        } else {
-            null
+    fun watchosArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("watchosArm32") {
+            supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_32)
+            if (project.enableMac()) {
+                kotlinExtension.watchosArm32 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosArm64 { block?.execute(this) }
-        } else {
-            null
+    fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("watchosArm64") {
+            supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.watchosArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun watchosDeviceArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_DEVICE_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosDeviceArm64 { block?.execute(this) }
-        } else {
-            null
+    fun watchosDeviceArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("watchosDeviceArm64") {
+            supportedPlatforms.add(PlatformIdentifier.WATCHOS_DEVICE_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.watchosDeviceArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun watchosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_SIMULATOR_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosSimulatorArm64 { block?.execute(this) }
-        } else {
-            null
+    fun watchosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("watchosSimulatorArm64") {
+            supportedPlatforms.add(PlatformIdentifier.WATCHOS_SIMULATOR_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.watchosSimulatorArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     /** Configures all tvos targets supported by AndroidX. */
     @JvmOverloads
@@ -609,24 +683,26 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun tvosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.TVOS_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.tvosArm64 { block?.execute(this) }
-        } else {
-            null
+    fun tvosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("tvosArm64") {
+            supportedPlatforms.add(PlatformIdentifier.TVOS_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.tvosArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun tvosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.TVOS_SIMULATOR_ARM_64)
-        return if (project.enableMac()) {
-            kotlinExtension.tvosSimulatorArm64 { block?.execute(this) }
-        } else {
-            null
+    fun tvosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("tvosSimulatorArm64") {
+            supportedPlatforms.add(PlatformIdentifier.TVOS_SIMULATOR_ARM_64)
+            if (project.enableMac()) {
+                kotlinExtension.tvosSimulatorArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
     fun linux(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
@@ -634,24 +710,26 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun linuxArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.LINUX_ARM_64)
-        return if (project.enableLinux()) {
-            kotlinExtension.linuxArm64 { block?.execute(this) }
-        } else {
-            null
+    fun linuxArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("linuxArm64") {
+            supportedPlatforms.add(PlatformIdentifier.LINUX_ARM_64)
+            if (project.enableLinux()) {
+                kotlinExtension.linuxArm64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
-    fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.LINUX_X_64)
-        return if (project.enableLinux()) {
-            kotlinExtension.linuxX64 { block?.execute(this) }
-        } else {
-            null
+    fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? =
+        potentiallyRedirecting("linuxX64") {
+            supportedPlatforms.add(PlatformIdentifier.LINUX_X_64)
+            if (project.enableLinux()) {
+                kotlinExtension.linuxX64 { block?.execute(this) }
+            } else {
+                null
+            }
         }
-    }
 
     @JvmOverloads
     fun linuxX64Stubs(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
@@ -671,27 +749,90 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? =
-        configureForkWebTarget(
-            platform = PlatformIdentifier.JS,
-            isEnabled = project.enableJs(),
-            createTarget = { configure -> kotlinExtension.js(configure) },
-            block = block,
-        )
+        potentiallyRedirecting("js") {
+            configureForkWebTarget(
+                platform = PlatformIdentifier.JS,
+                isEnabled = project.enableJs(),
+                createTarget = { configure -> kotlinExtension.js(configure) },
+                block = block,
+            )
+        }
 
     @OptIn(ExperimentalWasmDsl::class)
     @JvmOverloads
     fun wasmJs(block: Action<KotlinJsTargetDsl>? = null): KotlinWasmTargetDsl? =
-        configureForkWebTarget(
-            platform = PlatformIdentifier.WASM_JS,
-            isEnabled = project.enableWasmJs(),
-            createTarget = { configure -> kotlinExtension.wasmJs(configure) },
-            block = block,
-        )
+        potentiallyRedirecting("wasmJs") {
+            configureForkWebTarget(
+                platform = PlatformIdentifier.WASM_JS,
+                isEnabled = project.enableWasmJs(),
+                createTarget = { configure -> kotlinExtension.wasmJs(configure) },
+                block = block,
+            )
+        }
+
+    // --- Artifact redirection (parallel-graph back-end): see `redirect { }` below. --------------
+
+    /**
+     * Redirect scope: inside `redirect("androidx.foo") { … }` the plain target functions
+     * (`androidLibrary {}`, `ios()`, `jvm()`, …) build their target **empty** and redirect it to the
+     * `androidx.*` artifact instead of compiling the real `commonMain` — the parallel-graph back-end
+     * publishes an empty klib/jar/aar that depends on the androidx coordinate. Mix freely with plain
+     * (fork-built) targets declared outside the block for partial redirects (e.g.
+     * `redirect("androidx.foo") { androidLibrary {} }` then plain `desktop(); ios()`).
+     *
+     * [group] is the target `androidx.*` group and is **required** — every redirect declares it
+     * explicitly (no property fallback, no derivation). [version] is optional: omit it to resolve
+     * from the `[versions]` table of `redirectversions.toml`; one redirect coordinate per module.
+     *
+     * The receiver is the decorated `androidXMultiplatform` extension itself (no separate scope
+     * object), so the target list is not duplicated and Groovy nested config closures (e.g.
+     * `androidLibrary { namespace = … }`) delegate to their target as usual.
+     */
+    fun redirect(group: String, block: Action<AndroidXMultiplatformExtension>) =
+        redirect(group, null, block)
+
+    fun redirect(group: String, version: String?, block: Action<AndroidXMultiplatformExtension>) {
+        val prevRedirectScope = redirectCoordinate
+        redirectCoordinate = RedirectCoordinate(group, version)
+        try {
+            block.execute(this)
+        } finally {
+            redirectCoordinate = prevRedirectScope
+        }
+    }
+
+    /**
+     * Wraps a plain target function's creation. When called inside [redirect] { } the target's name
+     * is registered **before** the target (and its compilations) are created — so the
+     * default-hierarchy `excludeCompilations` predicate keeps the redirect leaf off the real
+     * `commonMain` — and the created target is recorded so the back-end re-roots it onto the empty
+     * `redirectCommonMain`. A no-op outside a redirect scope: the target is fork-built as usual.
+     *
+     * Every leaf target function (`jvm`, `androidLibrary`, `iosArm64`, …) routes its body through
+     * this helper, so any of them redirects automatically when invoked inside `redirect { }` —
+     * directly or via an aggregate like `ios()`/`mac()` that fans out to the leaves.
+     */
+    private fun <T> potentiallyRedirecting(targetName: String, create: () -> T): T {
+        val redirectScope = redirectCoordinate ?: return create()
+        expectRedirect(targetName)
+        return create().also {
+            (it as? KotlinTarget)?.let { target ->
+                recordRedirect(target, targetName, redirectScope)
+            }
+        }
+    }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     private fun KotlinMultiplatformExtension.applyAndroidXDefaultHierarchyTemplate() =
         applyDefaultHierarchyTemplate {
             common {
+                // Artifact redirection: keep redirect targets (declared inside `redirect { }`) OUT of
+                // the common hierarchy entirely, so the template never wires them to `commonMain`. Their
+                // leaf source-sets are instead wired to the empty `redirectCommonMain` at
+                // target-creation time (see recordRedirect). This predicate is evaluated lazily per
+                // compilation, so the redirect set — populated by `potentiallyRedirecting` before the
+                // target is created — is already visible here. No-op for modules that declare no redirects.
+                excludeCompilations { it.target.name in redirectTargetNames }
                 group("jvmAndAndroid") {
                     // TODO(b/442950553): Switch to withAndroidTarget when bug is fixed
                     withCompilations { it is KotlinMultiplatformAndroidCompilation }

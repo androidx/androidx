@@ -33,10 +33,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.navigation3.ui"
-        androidResources.enable = true
+    redirect("androidx.navigation3") {
+        androidLibrary {
+            compileSdk = 36
+            namespace = "org.jetbrains.androidx.navigation3.ui"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -47,8 +50,8 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def navigation3Version = project.redirectVersions.get('androidx.navigation3')
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
 
         commonMain.dependencies {
             api("androidx.navigation3:navigation3-runtime:$navigation3Version")

@@ -32,9 +32,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.ui.test.junit4"
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.ui.test.junit4"
+
+        }
     }
     desktop()
 

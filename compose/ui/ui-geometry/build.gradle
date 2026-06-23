@@ -31,8 +31,11 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.ui.geometry"
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.ui.geometry"
+
+        }
     }
     desktop()
     mac()

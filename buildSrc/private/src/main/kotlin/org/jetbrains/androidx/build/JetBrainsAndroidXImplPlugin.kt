@@ -18,8 +18,8 @@
 
 package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
-import androidx.build.multiplatformExtension
 import javax.inject.Inject
 import kotlinx.validation.ApiValidationExtension
 import kotlinx.validation.ExperimentalBCVApi
@@ -30,111 +30,8 @@ import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.create
-import org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinSoftwareComponentWithCoordinatesAndPublication
-import org.jetbrains.kotlin.gradle.plugin.mpp.external.DecoratedExternalKotlinTarget
-import org.jetbrains.kotlin.konan.target.KonanTarget
-
-open class JetBrainsExtensions(
-    val project: Project,
-    val multiplatformExtension: KotlinMultiplatformExtension
-) {
-
-    // check for example here: https://maven.google.com/web/index.html?q=lifecyc#androidx.lifecycle
-    val defaultKonanTargetsPublishedByAndroidx = setOf(
-        KonanTarget.LINUX_X64,
-        KonanTarget.IOS_X64,
-        KonanTarget.IOS_ARM64,
-        KonanTarget.IOS_SIMULATOR_ARM64,
-        KonanTarget.MACOS_X64,
-        KonanTarget.MACOS_ARM64,
-    )
-
-    @JvmOverloads
-    fun configureKNativeRedirectingDependenciesInKlibManifest(
-        konanTargets: Set<KonanTarget> = defaultKonanTargetsPublishedByAndroidx
-    ) {
-        multiplatformExtension.targets.all {
-            if (it is KotlinNativeTarget && it.konanTarget in konanTargets) {
-                it.substituteForRedirectedPublishedDependencies()
-            }
-        }
-    }
-
-    /**
-     * When https://youtrack.jetbrains.com/issue/KT-61096 is implemented,
-     * this workaround won't be needed anymore:
-     *
-     * K/Native stores the dependencies in klib manifest and tries to resolve them during compilation.
-     * Since we use project dependency - implementation(project(...)), the klib manifest will reference
-     * our groupId (for example org.jetbrains.compose.ui instead of androidx.compose.ui).
-     * Therefore, the dependency can't be resolved since we don't publish libs for some k/native targets.
-     *
-     * To workaround that, we need to make sure
-     * that the project dependency is substituted by a module dependency (from androidx).
-     * We do this here. It should be called only for those k/native targets which require
-     * redirection to androidx artefacts.
-     *
-     * For available androidx targets see:
-     * https://maven.google.com/web/index.html#androidx.lifecycle
-     * https://maven.google.com/web/index.html#androidx.navigation3
-     */
-    fun KotlinNativeTarget.substituteForRedirectedPublishedDependencies() {
-        val main = compilations.getByName("main")
-        val test = compilations.getByName("test")
-
-        val targetName = name.lowercase()
-
-        val rootProjectName = project.rootProject.name // compose-multiplatform-core
-        val redirectedProjects by lazy {
-            project.rootProject.subprojects.mapNotNull { project ->
-                project.takeIf {
-                    // we are not interested in intermediate (structural) projects which are not published.
-                    // they have a group name with rootProjectName in it
-                    !it.group.toString().contains(rootProjectName)
-                }?.artifactRedirection()?.takeIf {
-                    it.targetNames.contains(targetName)
-                }?.let {
-                    project.path to it.groupId + ":" + project.name + ":" + it.versionForTargetOrDefault(targetName)
-                }
-            }
-        }
-
-        listOf(main, test).flatMap {
-            val configurations = it.configurations
-            listOf(
-                configurations.compileDependencyConfiguration,
-                configurations.runtimeDependencyConfiguration,
-                configurations.apiConfiguration,
-                configurations.implementationConfiguration,
-                configurations.runtimeOnlyConfiguration,
-                configurations.compileOnlyConfiguration
-            )
-        }.forEach { c ->
-            // call after all projects configurations, but before dependency resolve
-            // because we iterate over all subprojects, and depend on
-            // overridden groupId in these projects (inside "artifactRedirection")
-            c?.incoming?.beforeResolve {
-                c.resolutionStrategy {
-                    it.dependencySubstitution { sub ->
-                        redirectedProjects.forEach { entry ->
-                            val path = entry.first
-                            val artifact = entry.second
-                            sub.substitute(sub.project(path)).using(sub.module(artifact))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-}
 
 class JetBrainsAndroidXImplPlugin @Inject constructor(
     val componentFactory: SoftwareComponentFactory
@@ -146,9 +43,10 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
 
         project.configureTests()
         project.changeMavenCoordinatesToJetBrains()
-        project.configureRedirectionCapability()
+//        project.configureRedirectionCapability() // TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
         project.configureMavenArtifactUpload(componentFactory)
         project.configureDependencyVerification()
+        project.registerRedirectVersionsExtension()
         project.plugins.all { plugin ->
             if (plugin is KotlinMultiplatformPluginWrapper) {
                 onKotlinMultiplatformPluginApplied(project)
@@ -157,21 +55,14 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
     }
 
     private fun onKotlinMultiplatformPluginApplied(project: Project) {
-        enableArtifactRedirectionPublishing(project)
         enableBinaryCompatibilityValidator(project)
         val multiplatformExtension =
             project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-        val extension = project.extensions.create<JetBrainsExtensions>(
-            "jetbrainsExtension",
-            project,
-            multiplatformExtension
-        )
-
-        // Note: Currently we call it unconditionally since Androidx provides the same set of
-        // Konan targets for all multiplatform libs they publish.
-        // In the future we might need to call it with non-default konan targets set in some modules
-        extension.configureKNativeRedirectingDependenciesInKlibManifest()
+        // Parallel-graph back-end: consume `redirect { }` target declarations and re-root each
+        // redirect target onto an empty `redirectCommonMain` that depends on the androidx.* coord.
+        project.extensions.findByType(AndroidXMultiplatformExtension::class.java)
+            ?.let { mpe -> project.applyParallelRedirectGraph(multiplatformExtension, mpe) }
     }
 }
 
@@ -188,37 +79,6 @@ private fun Project.configureTests() {
             showCauses = true
             showStackTraces = true
             exceptionFormat = TestExceptionFormat.FULL
-        }
-    }
-}
-
-@OptIn(ExternalKotlinTargetApi::class)
-private fun enableArtifactRedirectionPublishing(project: Project) {
-    if (!JetBrainsPublication.shouldPublish(project)) return
-    val redirection = project.artifactRedirection() ?: return
-
-    val ext = project.multiplatformExtension ?: error("expected a multiplatform project")
-
-    val newRootComponent: CustomRootComponent = run {
-        val rootComponent = project
-            .components
-            .withType(KotlinSoftwareComponentWithCoordinatesAndPublication::class.java)
-            .getByName("kotlin")
-
-        CustomRootComponent(rootComponent) { configuration ->
-            val targetVersion = redirection.versionForConfigurationOrDefault(configuration.name)
-            project.dependencies.create("${redirection.groupId}:${project.name}:${targetVersion}") as org.gradle.api.artifacts.ModuleDependency
-        }
-    }
-
-    @OptIn(InternalKotlinGradlePluginApi::class)
-    ext.targets.all { target ->
-        if (target.name.lowercase() in redirection.targetNames) {
-            if (target is AbstractKotlinTarget) {
-                project.setupRedirection(target, newRootComponent)
-            } else if (target is DecoratedExternalKotlinTarget) {
-                project.setupRedirection(target, newRootComponent)
-            }
         }
     }
 }

@@ -27,12 +27,20 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.androidx.build.JetBrainsPublication
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 
 /** Adds license file to published JAR, AAR, and Klib artifacts. */
 internal fun Project.addLicensesToPublishedArtifacts(license: License) {
-    val groupSubdir = androidXExtension.mavenGroup?.group!!.replace('.', '/')
+    // Use the fork's actual published group (org.jetbrains.*) for the license META-INF path, not the
+    // redirect-target androidx group. Otherwise a redirect stub's empty artifact and Google's real
+    // artifact both carry `META-INF/androidx/<g>/<n>/LICENSE.txt` at the SAME path and collide in the
+    // consumer's `mergeJavaResource`/AAR packaging. The license belongs at the publishing coordinate.
+    val forkGroup = runCatching {
+        JetBrainsPublication.mavenGroupFor(project.path)
+    }.getOrNull()
+    val groupSubdir = (forkGroup ?: androidXExtension.mavenGroup?.group!!).replace('.', '/')
     val projectSubdir = File(groupSubdir, project.name)
     val licenseFile = licenseUrlToLicenseFile[license.url]
 

@@ -28,9 +28,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.material.navigation"
+    redirect("androidx.compose.material") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.material.navigation"
+
+        }
     }
     desktop()
     mac()
@@ -99,7 +102,6 @@ androidXMultiplatform {
 androidx {
     name = "Compose Material Navigation"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Compose Material integration with Navigation"
     legacyDisableKotlinStrictApiMode = true

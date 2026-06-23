@@ -23,8 +23,6 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -33,112 +31,37 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.navigationevent.compose"
+    redirect("androidx.navigationevent") {
+        androidLibrary {
+            compileSdk = 36
+            namespace = "org.jetbrains.androidx.navigationevent.compose"
+
+        }
+        desktop()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
     }
-    desktop()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
-
         commonMain.dependencies {
-            api("androidx.navigationevent:navigationevent:$navigationEventVersion")
-            api(project(":compose:runtime:runtime"))
-            implementation(libs.kotlinCoroutinesCore)
-        }
-
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
-            implementation(project(":kruth:kruth"))
-        }
-
-        androidMain.dependencies {
-            // TODO(mgalhardo): Change this to constraint once Compose 1.11 prebuilds are released.
-             implementation("androidx.compose.ui:ui:1.11.0-rc01") {
-                because("Ensure we are using the Compose-UI 1.11 or above")
-            }
-        }
-
-        androidDeviceTest.dependencies {
-            implementation("androidx.compose.material:material:1.11.0-rc01")
-            implementation("androidx.compose.ui:ui-test:1.11.0-rc01")
-            implementation("androidx.compose.ui:ui-test-junit4:1.11.0-rc01")
-            implementation("androidx.compose.ui:ui-test-manifest:1.11.0-rc01")
-            implementation(libs.testExtJunit)
-            implementation(libs.testCore)
-            implementation(libs.testRunner)
-            implementation(libs.testRules)
-            implementation(libs.espressoCore)
-        }
-
-        create("nonAndroidMain").dependsOn(commonMain)
-        create("nonAndroidTest").dependsOn(commonTest)
-
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
-
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
-
-        wasmJsMain.dependencies {
-            implementation(libs.kotlinXw3c)
-		}
-		nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
+            // Keep direct references to fork versions to correctly resolve
+            // new redirections to Google's artifacts.
+            api("org.jetbrains.compose.runtime:runtime:1.11.0")
         }
     }
-}
-
-dependencies.constraints {
-    // TODO(mgalhardo): Add constraints to properly migrate from the JetBrains fork.
-    //  We need to prevent symbol duplication with old versions of the fork.
-    //  Once the fork publishes a version that redirects to this artifact.
 }
 
 androidx {
     name = "NavigationEvent Compose"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    samples(project(":navigationevent:navigationevent-samples"))
     inceptionYear = "2025"
     description = "Compose integration with NavigationEvent"
 }

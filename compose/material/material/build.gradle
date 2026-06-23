@@ -34,10 +34,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.material"
-        androidResources.enable = true
+    redirect("androidx.compose.material") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.material"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -48,7 +51,7 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
         commonMain.dependencies {
             api(project(":compose:animation:animation-core"))
             api(project(":compose:foundation:foundation"))
@@ -156,13 +159,11 @@ androidXMultiplatform {
 
 dependencies {
     lintChecks(project(":compose:material:material-lint"))
-    lintPublish(project(":compose:material:material-lint"))
 }
 
 androidx {
     name = "Compose Material Components"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2018"
     description = "Compose Material Design Components library"
     legacyDisableKotlinStrictApiMode = true

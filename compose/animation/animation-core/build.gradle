@@ -34,9 +34,11 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.animation.core"
+    redirect("androidx.compose.animation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.animation.core"
+        }
     }
     desktop()
     mac()
@@ -128,10 +130,6 @@ androidXMultiplatform {
             dependsOn(nonJvmTest)
         }
     }
-}
-
-dependencies {
-    lintPublish(project(":compose:animation:animation-core-lint"))
 }
 
 androidx {

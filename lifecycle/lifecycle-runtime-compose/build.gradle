@@ -21,88 +21,42 @@
  * modifying its settings.
  */
 
-
-import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.lifecycle.runtime.compose"
+    redirect("androidx.lifecycle") {
+        androidLibrary {
+            namespace = "org.jetbrains.lifecycle.runtime.compose"
+        }
+        desktop()
+        mingwX64()
+        linux()
+        mac()
+        ios()
+        tvos()
+        watchos()
+        js()
+        wasmJs()
     }
-    desktop()
-    mingwX64()
-    linux()
-    mac()
-    ios()
-    tvos()
-    watchos()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":lifecycle:lifecycle-runtime"))
-            api("androidx.annotation:annotation:1.9.1")
-            api("androidx.compose.runtime:runtime:1.11.0")
-        }
-
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-        }
-
-        androidMain.dependencies {
-            // Although this artifact is empty, it ensures that upgrading
-            // `lifecycle-runtime-compose` also updates `lifecycle-runtime-ktx`
-            // in cases where our constraints fail (e.g., internally in AndroidX
-            // when using project dependencies).
-            api(project(":lifecycle:lifecycle-runtime-ktx"))
-        }
-
-        androidDeviceTest.dependencies {
-            implementation(project(":lifecycle:lifecycle-runtime-testing"))
-            implementation(project(":compose:ui:ui-test"))
-            implementation(project(":compose:test-utils"))
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.kotlinTest)
-            implementation(project(":kruth:kruth"))
-        }
-
-        create("nonAndroidMain").dependsOn(commonMain)
-        create("nonAndroidTest").dependsOn(commonTest)
-
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
-
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
-    }
-}
-
-dependencies {
-    lintPublish(project(":lifecycle:lifecycle-runtime-compose-lint"))
-
-    constraints {
-        // Prevents runtime resolution failures. The reflection fallback for Compose 1.6.*
-        // was removed to eliminate brittle cross-package coupling. This constraint ensures
-        // the runtime provides the statically defined LocalLifecycleOwner.
-        androidMainImplementation("androidx.compose.ui:ui:1.7.0") {
-            because "Requires Compose 1.7+ to resolve LocalLifecycleOwner without reflection"
-        }
-
-        // Prevents symbols duplication with old versions of JetBrains' fork.
-        // Starting with version 2.9.5, this module is published as empty artifact with dependency
-        // to this androidx module.
-        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5") {
-            because "prevents symbols duplication"
+        commonMain {
+            dependencies {
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                implementation(project(":lifecycle:lifecycle-common"))
+                api(project(":lifecycle:lifecycle-runtime"))
+                api("org.jetbrains.compose.runtime:runtime:1.9.3")
+            }
         }
     }
 }
@@ -112,5 +66,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
-    samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }

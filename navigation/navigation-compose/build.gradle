@@ -28,10 +28,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.navigation.compose"
-        androidResources.enable = true
+    redirect("androidx.navigation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.navigation.compose"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()
@@ -176,7 +179,6 @@ androidXMultiplatform {
 
 dependencies {
     lintChecks(project(":navigation:navigation-compose-lint"))
-    lintPublish(project(":navigation:navigation-compose-lint"))
 }
 
 androidx {

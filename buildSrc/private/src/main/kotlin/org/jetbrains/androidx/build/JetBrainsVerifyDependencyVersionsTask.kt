@@ -113,7 +113,7 @@ internal fun Project.configureDependencyVerification() {
                     .targets
                     .filter { target ->
                         component.supportedPlatforms.any {
-                            it.matches(target.name) && !hasRedirection(it)
+                            it.matches(target.name)
                         }
                     }
                     .flatMap { target ->

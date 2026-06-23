@@ -1,0 +1,26 @@
+# Artifact-redirection version registry for the JetBrains Compose Multiplatform fork.
+#
+# Compose Multiplatform has no own implementation for some targets. When a consumer adds a
+# dependency on `org.jetbrains.*` for such a target, `androidx.*` is used instead (artifact
+# redirection). This file pins the `androidx.*` versions those redirects point at; versions should
+# equal the last merged to the branch.
+#
+# Keys are redirect-coordinate group prefixes, matched hierarchically from the most specific down to
+# the least specific (e.g. "androidx.compose" covers androidx.compose.*). Keep them quoted: a bare
+# dotted key would be parsed as nested TOML tables and collide (androidx.compose vs
+# androidx.compose.material3).
+[versions]
+"androidx.compose" = "1.12.0-beta01"
+"androidx.compose.material3" = "1.5.0-alpha22"
+"androidx.compose.material3.adaptive" = "1.3.0-beta02"
+"androidx.compose.material3.common" = "1.0.0-alpha01"
+"androidx.collection" = "1.5.0"
+"androidx.annotation" = "1.9.1"
+"androidx.graphics" = "1.1.0-alpha01"
+"androidx.lifecycle" = "2.11.0"
+"androidx.navigation" = "2.10.0-alpha05"
+"androidx.navigation3" = "1.2.0-alpha04"
+"androidx.navigationevent" = "1.1.1"
+"androidx.performance" = "1.0.0-alpha01"
+"androidx.savedstate" = "1.5.0-alpha01"
+"androidx.window" = "1.5.0"

@@ -32,9 +32,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.material.ripple"
-        compileSdk = 35
+    redirect("androidx.compose.material") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.material.ripple"
+
+            compileSdk = 35
+        }
     }
     desktop()
     mac()
@@ -103,7 +106,6 @@ androidXMultiplatform {
 androidx {
     name = "Compose Material Ripple"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2020"
     description = "Material ripple used to build interactive components"
     legacyDisableKotlinStrictApiMode = true

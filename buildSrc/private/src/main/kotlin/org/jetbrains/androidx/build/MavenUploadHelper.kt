@@ -24,6 +24,7 @@ import androidx.build.multiplatformExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
 import com.android.utils.forEach
+import com.android.utils.mapValuesNotNull
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
@@ -64,6 +65,7 @@ import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.w3c.dom.Node
 
@@ -152,11 +154,12 @@ private fun Project.configureComponentPublishing(
             }
         }
         publications.withType(MavenPublication::class.java).all { publication ->
-            if (artifactRedirection() != null && !JetBrainsPublication.isCompatibilityStubProject(project)) {
-                // Gradle cannot map variant capabilities into POM metadata, so redirected
-                // publications emit warning noise for their published component variants.
-                publication.suppressRedirectionPomMetadataWarnings()
-            }
+            // TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
+//            if (kmpExtension.redirectTargetDecls.isNotEmpty()) {
+//                // Gradle cannot map variant capabilities into POM metadata, so redirected
+//                // publications emit warning noise for their published component variants.
+//                publication.suppressRedirectionPomMetadataWarnings()
+//            }
             publication.pom { pom ->
                 addInformativeMetadata(extension, pom)
                 tweakDependenciesMetadata(
@@ -167,12 +170,12 @@ private fun Project.configureComponentPublishing(
     }
 
     project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { task ->
-        val capabilitiesToRemove = publishedRedirectionCapabilities()
+//        val capabilitiesToRemove = publishedRedirectionCapabilities() // TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
         task.doLast {
             val metadataFile = task.outputFile.asFile.get()
             val metadataString = metadataFile.readText()
             val modifiedMetadataString = modifyGradleMetadata(metadataString) { metadata ->
-                filterGradleMetadataCapabilities(metadata, capabilitiesToRemove)
+//                filterGradleMetadataCapabilities(metadata, capabilitiesToRemove)  // TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
                 sortGradleMetadataDependencies(metadata)
             }
 
@@ -218,9 +221,61 @@ private fun Project.configureComponentPublishing(
         }
     }
 }
+/**
+ * Build a `fork-coordinate -> androidx-coordinate` map used to rewrite published POM dependencies
+ * (see [modifyPomDependencies]). The fork publishes under `org.jetbrains.*` group ids that redirect
+ * to `androidx.*`; this discovers, per resolved first-level dependency, the `androidx.*` module it
+ * ultimately resolves to so the POM can reference the real coordinate.
+ *
+ * Workaround for
+ * https://youtrack.jetbrains.com/issue/CMP-7764/Redirection-of-artifacts-breaks-poms-for-multiplatform-libraries-that-use-them
+ * After it is resolved, this shouldn't be needed.
+ */
+internal fun Project.originalToRedirectedDependency(
+    componentName: String
+): Map<ModuleIdentifier, ModuleVersionIdentifier> {
+    /**
+     * Find a redirect to another group and version.
+     *
+     * Use heuristic method that compares modules names. Example:
+     *   [first-level-dependency] org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 ->
+     *   [artifact-with-the-same-name] androidx.lifecycle:lifecycle-runtime:2.8.5 ->
+     *   [artifact-with-the-same-name-plus-suffix] androidx.lifecycle:lifecycle-runtime-desktop:2.8.5
+     *
+     * The first dependency redirects to the last one.
+     */
+    fun ResolvedDependency.findRedirectedDependencyHeuristically() =
+        children
+            .find { it.moduleName == moduleName }
+            ?.children
+            // don't check `it.moduleName == "moduleName-$target"` here,
+            // as it can be resolved to any other suitable target
+            // (for example, to jvm, or any other custom)
+            ?.find { it.moduleName.startsWith(moduleName) }
+
+    fun mainConfiguration() =
+        configurations.find { it.name == "${componentName}RuntimeClasspath" } ?:
+        configurations.find { it.name == "${componentName}CompileKlibraries" }!!
+
+    /**
+     * Extract redirections for dependencies using heuristic method (for both project, and external)
+     *
+     * Example for compose:ui
+     * org.jetbrains.androidx.lifecycle:lifecycle-common=androidx.lifecycle:lifecycle-common-jvm:2.8.5
+     * org.jetbrains.androidx.lifecycle:lifecycle-runtime=androidx.lifecycle:lifecycle-runtime-desktop:2.8.5
+     * org.jetbrains.androidx.lifecycle:lifecycle-viewmodel=androidx.lifecycle:lifecycle-viewmodel-desktop:2.8.5
+     */
+    return mainConfiguration()
+        .resolvedConfiguration
+        .firstLevelModuleDependencies
+        .orEmpty()
+        .associateBy { DefaultModuleIdentifier.newId(it.moduleGroup, it.moduleName) }
+        .mapValuesNotNull { it.value.findRedirectedDependencyHeuristically()?.module?.id }
+}
 
 /**
  * Looks for a dependencies XML element within [pom], sorts its contents and modify it by redirecting coordinates
+ * TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
  */
 internal fun modifyPomDependencies(
     pom: String,

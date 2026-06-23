@@ -32,9 +32,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.material3.windowsizeclass"
-        compileSdk = 35
+    redirect("androidx.compose.material3") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.material3.windowsizeclass"
+
+            compileSdk = 35
+        }
     }
     desktop()
     mac()

@@ -32,9 +32,12 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.material3.adaptive.navigationsuite"
-        compileSdk = 35
+    redirect("androidx.compose.material3") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.material3.adaptive.navigationsuite"
+
+            compileSdk = 35
+        }
     }
     desktop()
     mac()
@@ -79,7 +82,6 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
             implementation(libs.truth)
             implementation(project(":compose:ui:ui"))
-            implementation(project(":window:window-core"))
         }
 
         // TODO: Align naming: nonAndroidMain

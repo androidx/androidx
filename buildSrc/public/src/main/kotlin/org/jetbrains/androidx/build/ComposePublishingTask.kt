@@ -61,27 +61,32 @@ open class ComposePublishingTask : DefaultTask() {
         val project = rootProject.findProject(component.path) ?:
             throw IllegalArgumentException("Cannot find project ${component.path}")
 
-        val useArtifactRedirectionPublication =
-            component.supportedPlatforms.any {
-                project.hasRedirection(it)
-            }
-
-        // To make ArtifactRedirection publishing work properly with kotlin >= 1.9.0,
-        // we use decorated `KotlinMultiplatform` publication named - 'KotlinMultiplatformDecorated'.
-        // see AndroidXComposeMultiplatformExtensionImpl.publishAndroidxReference for details.
-        if (useArtifactRedirectionPublication) {
-            val kotlinCommonPublicationName = "${ComposePlatforms.KotlinMultiplatform.name}Decorated"
-            dependsOnComposeTask("${component.path}:publish${kotlinCommonPublicationName}PublicationTo$repository")
-        } else {
-            dependsOnComposeTask("${component.path}:publish${ComposePlatforms.KotlinMultiplatform.name}PublicationTo$repository")
-        }
+        dependsOnComposeTask("${component.path}:publish${ComposePlatforms.KotlinMultiplatform.name}PublicationTo$repository")
 
         for (platform in component.supportedPlatforms) {
             if (platform !in targetPlatforms) continue
-            if (project.hasRedirection(platform)) continue
 
-            dependsOnComposeTask("${component.path}:publish${platform.name}PublicationTo$repository")
+            // Fall back to a platform's alternative names if the primary task doesn't exist.
+            // Some canonical stubs declare `jvm()` instead of `desktop()` (e.g. annotation,
+            // collection, lifecycle-common); their publish task is then
+            // `publishJvmPublicationToMavenLocal`, not `publishDesktopPublicationToMavenLocal`.
+            val publicationName = resolvePublicationName(project, platform, repository)
+            dependsOnComposeTask("${component.path}:publish${publicationName}PublicationTo$repository")
         }
         dependsOnComposeTask("${component.path}:jbVerifyDependencyVersions")
+    }
+
+    private fun resolvePublicationName(
+        project: Project,
+        platform: ComposePlatforms,
+        repository: String,
+    ): String {
+        val candidates = listOf(platform.name) + platform.alternativeNames
+        for (name in candidates) {
+            if (project.tasks.findByName("publish${name}PublicationTo$repository") != null) {
+                return name
+            }
+        }
+        return platform.name
     }
 }

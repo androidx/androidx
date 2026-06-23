@@ -16,6 +16,7 @@
 
 package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
 import org.gradle.api.Project
 import org.gradle.api.artifacts.CapabilityResolutionDetails
@@ -103,10 +104,48 @@ fun Project.configureJetBrainsCapabilityResolution() {
     }
 }
 
+// TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
+data class ArtifactRedirection(
+    val groupId: String,
+    val defaultVersion: String,
+    val targetNames: Set<String>,
+    val targetVersions: Map<String, String> = emptyMap()
+) {
+    fun versionForTargetOrDefault(targetName: String): String {
+        return targetVersions[targetName.lowercase()] ?: defaultVersion
+    }
+
+    fun versionForConfigurationOrDefault(configurationName: String): String {
+        // Configuration names are target-prefixed in Kotlin KMP publications, for example:
+        // "desktopApiElements" or "iosArm64MetadataElements".
+        val targetName = targetVersions.keys.firstOrNull {
+            configurationName.startsWith(it, ignoreCase = true)
+        }
+        return versionForTargetOrDefault(targetName ?: "")
+    }
+}
+
+fun Project.artifactRedirection(): ArtifactRedirection? {
+    val mpe = extensions.findByType(AndroidXMultiplatformExtension::class.java) ?: return null
+    val decls = mpe.redirectTargetDecls
+    if (decls.isEmpty()) return null
+    val groupId = decls.map { it.redirectCoordinate.group }.distinct().singleOrNull() ?: return null
+    val defaultVersion = decls.firstNotNullOfOrNull {
+        it.redirectCoordinate.version ?: findArtifactRedirectionVersion(it.redirectCoordinate.group)
+    } ?: return null
+    val targetNames = decls.map { it.targetName.lowercase() }.toSet()
+    return ArtifactRedirection(
+        groupId = groupId,
+        defaultVersion = defaultVersion,
+        targetNames = targetNames,
+    )
+}
+
+// TODO CMP-10368 fix old capability mechanism after migration to new artifact redirection
 fun Project.configureRedirectionCapability() {
-    // Compatibility stubs already wrap androidx artifacts directly; adding extra outgoing
-    // redirection capability here can break IDE metadata resolution for stubbed KMP modules.
-    if (JetBrainsPublication.isCompatibilityStubProject(this)) return
+//    // Compatibility stubs already wrap androidx artifacts directly; adding extra outgoing
+//    // redirection capability here can break IDE metadata resolution for stubbed KMP modules.
+//    if (JetBrainsPublication.isCompatibilityStubProject(this)) return
     if (!JetBrainsPublication.shouldPublish(this)) return
     val redirection = artifactRedirection() ?: return
     if (redirection.targetNames.isEmpty()) return

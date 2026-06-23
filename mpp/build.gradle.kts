@@ -1,10 +1,7 @@
 import org.jetbrains.androidx.build.ComposePublishingTask
-import org.jetbrains.androidx.build.ArtifactRedirection
 import org.jetbrains.androidx.build.ComposePlatforms
 import org.jetbrains.androidx.build.ComposeProperties
 import org.jetbrains.androidx.build.JetBrainsPublication
-import org.jetbrains.androidx.build.artifactRedirection
-import org.jetbrains.androidx.build.hasRedirection
 
 // this module depends on all other modules info, so we need to initialize them first
 (rootProject.allprojects - project).forEach {
@@ -131,7 +128,6 @@ fun apiValidationTasks(suffix: String) = buildSet<Task> {
             platforms.any {
                 component != null
                     && it in component.supportedPlatforms
-                    && !project.hasRedirection(it)
             }
         }
 
@@ -162,32 +158,3 @@ fun allTasksForPublishingProjectsWith(name: String): List<Task> =
          }
     }
 
-// ./gradlew printAllArtifactRedirectionVersions -PfilterProjectPath=lifecycle
-// or just ./gradlew printAllArtifactRedirectionVersions
-tasks.register("printAllArtifactRedirectionVersions") {
-    val filter = project.properties["filterProjectPath"] as? String ?: ""
-    doLast {
-        val map = libraryToComponents.values.flatten().filter { it.path.contains(filter) }
-            .joinToString("\n\n", prefix = "\n") {
-            val p = rootProject.findProject(it.path)!!
-            it.path + " --> \n" + (p.artifactRedirection().prettyText())
-        }
-
-        println(map)
-    }
-}
-
-fun ArtifactRedirection?.prettyText(): String {
-    val allLines = if (this != null) {
-        arrayOf(
-            "redirectGroupId = ${this.groupId}",
-            "redirectDefaultVersion = ${this.defaultVersion}",
-            "redirectForTargets = [${this.targetNames.joinToString().takeIf { it.isNotBlank() } ?: "android"}]",
-            "redirectTargetVersions = ${this.targetVersions}"
-        )
-    } else {
-        arrayOf("disabled")
-    }
-
-    return allLines.joinToString("") { " ".repeat(3) + "$it\n" }
-}

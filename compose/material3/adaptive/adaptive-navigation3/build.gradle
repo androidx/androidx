@@ -32,10 +32,13 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.compose.material3.adaptive.navigation3"
-        androidResources.enable = true
+    redirect("androidx.compose.material3.adaptive") {
+        androidLibrary {
+            compileSdk = 36
+            namespace = "org.jetbrains.androidx.compose.material3.adaptive.navigation3"
+
+            androidResources.enable = true
+        }
     }
     desktop()
     mac()

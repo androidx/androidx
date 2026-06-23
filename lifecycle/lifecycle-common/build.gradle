@@ -22,55 +22,27 @@
  */
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {
-    jvm()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
+    redirect("androidx.lifecycle") {
+        jvm()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
+    }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
-    sourceSets {
-        commonMain.dependencies {
-            api(libs.kotlinCoroutinesCore)
-            api("androidx.annotation:annotation:1.9.1")
-        }
-
-        jvmMain.dependencies {
-            api(libs.jspecify)
-        }
-
-        jvmTest.dependencies {
-            implementation(libs.junit)
-            implementation(libs.mockitoCore4)
-        }
-
-        nonJvmMain.dependencies {
-            implementation(libs.atomicFu)
-        }
-    }
-}
-
-dependencies {
-    constraints {
-        // Prevents symbols duplication with old versions of JetBrains' fork.
-        // Starting with version 2.9.5, this module is published as empty artifact with dependency
-        // to this androidx module.
-        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5") {
-            because "prevents symbols duplication"
-        }
-    }
 }
 
 androidx {

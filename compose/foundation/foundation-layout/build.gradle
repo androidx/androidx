@@ -33,9 +33,11 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.foundation.layout"
+    redirect("androidx.compose.foundation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.foundation.layout"
+        }
     }
     desktop()
     mac()

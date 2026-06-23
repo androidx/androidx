@@ -21,9 +21,8 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,75 +31,38 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.lifecycle.viewmodel.navigation3"
+    redirect("androidx.lifecycle") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.lifecycle.viewmodel.navigation3"
+
+        }
+        desktop()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
     }
-    desktop()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":lifecycle:lifecycle-viewmodel"))
-            api(project(":lifecycle:lifecycle-viewmodel-compose"))
-            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            api("androidx.compose.runtime:runtime:1.10.4")
-            api("androidx.compose.runtime:runtime-saveable:1.10.4")
-            api("androidx.navigation3:navigation3-runtime:1.0.1")
-            api("androidx.savedstate:savedstate:1.3.2")
-            api("androidx.savedstate:savedstate-compose:1.3.2")
-            implementation("androidx.collection:collection:1.5.0")
+        commonMain {
+            dependencies {
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-viewmodel-compose"))
+                api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                api("org.jetbrains.compose.runtime:runtime:1.10.2")
+                api("org.jetbrains.compose.runtime:runtime-saveable:1.10.2")
+                api("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
+                api("org.jetbrains.androidx.savedstate:savedstate-compose:1.4.0")
+            }
         }
-
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":compose:runtime:runtime-test-utils"))
-        }
-
-        androidMain.dependencies {
-            api("androidx.activity:activity-compose:1.12.0")
-        }
-
-        androidDeviceTest.dependencies {
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.junit)
-            implementation(libs.testExtJunitKtx)
-            implementation(libs.truth)
-            implementation(project(":navigation3:navigation3-ui"))
-            implementation(project(":compose:test-utils"))
-            implementation("androidx.compose.animation:animation:1.9.0")
-            implementation(project(":compose:ui:ui-test"))
-            implementation(project(":compose:ui:ui-test-junit4"))
-        }
-
-        create("nonAndroidMain").dependsOn(commonMain)
-        create("nonAndroidTest").dependsOn(commonTest)
-
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
-
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
-    }
-}
-
-dependencies.constraints {
-    // Prevents symbols duplication with old versions of JetBrains' fork.
-    // Starting with Compose Multiplatform 1.11.0, this module is published as empty
-    // artifact with dependency to this androidx module.
-    commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3:2.11.0-beta01") {
-        because "prevents symbols duplication"
     }
 }
 

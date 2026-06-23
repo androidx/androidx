@@ -31,8 +31,11 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.ui.tooling.preview"
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.ui.tooling.preview"
+
+        }
     }
     desktop()
     mac()

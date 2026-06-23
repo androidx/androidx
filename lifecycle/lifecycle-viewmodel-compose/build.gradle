@@ -23,134 +23,45 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
-    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.lifecycle.viewmodel.compose"
+    redirect("androidx.lifecycle") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.lifecycle.viewmodel.compose"
+
+        }
+        desktop()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
     }
-    desktop()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":lifecycle:lifecycle-common"))
-            api(project(":lifecycle:lifecycle-viewmodel"))
-            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            api("androidx.annotation:annotation:1.9.1")
-            api("androidx.compose.runtime:runtime:1.11.0")
-            api("androidx.compose.runtime:runtime-saveable:1.11.0")
-            api(libs.kotlinSerializationCore)
-            implementation(project(":lifecycle:lifecycle-runtime-compose"))
-        }
-
-        commonTest.dependencies {
-            implementation(project(":lifecycle:lifecycle-viewmodel-testing"))
-            implementation(project(":lifecycle:lifecycle-runtime-testing"))
-        }
-
-        androidMain.dependencies {
-            implementation("androidx.compose.ui:ui:1.11.0") {
-                because("Ensure we are using the Compose-UI 1.11 or above")
-            }
-            // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
-            // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
-            // `livedata` dependency directly works around the issue.
-            // See https://github.com/gradle/gradle/issues/14220 for details.
-            compileOnly(project(":lifecycle:lifecycle-livedata-core"))
-        }
-
-        androidDeviceTest.dependencies {
-            implementation("androidx.compose.foundation:foundation:1.11.0")
-            implementation("androidx.compose.ui:ui:1.11.0")
-            implementation(project(":compose:ui:ui-test-junit4"))
-            implementation(project(":compose:test-utils"))
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.junit)
-            implementation(libs.truth)
-            implementation("androidx.fragment:fragment:1.3.0")
-            implementation("androidx.appcompat:appcompat:1.3.0")
-            // old version of common-java8 conflicts with newer version, because both have
-            // DefaultLifecycleEventObserver.
-            // Outside of androidx this is resolved via constraint added to lifecycle-common,
-            // but it doesn't work in androidx.
-            // See aosp/1804059
-            implementation(project(":lifecycle:lifecycle-common-java8"))
-            implementation("androidx.activity:activity-compose:1.10.1")
-        }
-
-        nonAndroidMain.dependsOn(commonMain)
-
-        nonAndroidTest {
-            dependsOn(commonTest)
+        commonMain {
             dependencies {
-                implementation(libs.kotlinCoroutinesTest)
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                api(project(":lifecycle:lifecycle-common"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                api("org.jetbrains.compose.runtime:runtime:1.11.0")
+                api("org.jetbrains.compose.runtime:runtime-saveable:1.11.0")
             }
-        }
-
-        jvmMain.dependsOn(nonAndroidMain)
-        jvmTest.dependsOn(nonAndroidTest)
-        desktopMain.dependsOn(jvmMain)
-        desktopTest.dependsOn(jvmTest)
-
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(nonAndroidTest)
-            dependencies {
-                implementation(libs.skikoCurrentOs)
-            }
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
         }
     }
-}
-
-dependencies.constraints {
-    // Prevents symbols duplication with old versions of JetBrains' fork.
-    // Starting with Compose Multiplatform 1.11.0, this module is published as empty
-    // artifact with dependency to this androidx module.
-    commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-beta01") {
-        because "prevents symbols duplication"
-    }
-}
-
-dependencies {
-    lintPublish(project(":lifecycle:lifecycle-viewmodel-compose-lint"))
 }
 
 androidx {
@@ -158,5 +69,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
-    samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }

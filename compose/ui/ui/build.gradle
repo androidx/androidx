@@ -41,19 +41,21 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        withJava()
-        compileSdk = 37
-        androidResources.enable = true
-        namespace = "androidx.compose.ui"
-        // namespace has to be unique, but default androidx.compose.ui.test package is taken by
-        // the androidx.compose.ui:ui-test library
-        testNamespace = "androidx.compose.ui.tests"
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            withJava()
+            compileSdk = 35
+            androidResources.enable = true
+            namespace = "org.jetbrains.androidx.compose.ui"
+            // namespace has to be unique, but default androidx.compose.ui.test package is taken by
+            // the androidx.compose.ui:ui-test library
+            testNamespace = "androidx.compose.ui.tests"
 
-        packaging {
-            it.resources {
-                it.pickFirsts.add("mockito-extensions/org.mockito.plugins.MockMaker")
-                it.pickFirsts.add("mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider")
+            packaging {
+                it.resources {
+                    it.pickFirsts.add("mockito-extensions/org.mockito.plugins.MockMaker")
+                    it.pickFirsts.add("mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider")
+                }
             }
         }
     }
@@ -69,7 +71,7 @@ androidXMultiplatform {
     configureDarwinFlags()
 
     sourceSets {
-        def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
+        def composeVersion = project.redirectVersions.get('androidx.compose')
         commonMain.dependencies {
             implementation(libs.kotlinCoroutinesCore)
             api("androidx.annotation:annotation:1.9.1")
@@ -193,7 +195,7 @@ androidXMultiplatform {
             implementation(project(":compose:test-utils"))
         }
 
-        def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
+        def lifecycleVersion = project.redirectVersions.get('androidx.lifecycle')
         // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
@@ -300,7 +302,6 @@ androidXMultiplatform {
 
 dependencies {
     lintChecks(project(":compose:ui:ui-lint"))
-    lintPublish(project(":compose:ui:ui-lint"))
 }
 
 androidx {

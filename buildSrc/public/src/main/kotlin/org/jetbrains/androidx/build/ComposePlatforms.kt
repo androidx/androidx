@@ -126,6 +126,3 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
         }
     }
 }
-
-fun Project.hasRedirection(platform: ComposePlatforms) =
-    platform.matchesAnyIgnoringCase(artifactRedirection()?.targetNames.orEmpty())

@@ -31,7 +31,6 @@ plugins {
 
 dependencies {
     api("androidx.activity:activity:1.2.1")
-    lintPublish(project(":compose:ui:ui-test-manifest-lint"))
 }
 
 androidx {
