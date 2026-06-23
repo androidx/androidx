@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
     implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+    implementation(project(":camera:camera-common-testing"))
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

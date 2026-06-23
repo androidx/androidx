@@ -17,31 +17,39 @@
 package androidx.camera.camera2.pipe.media
 
 import android.graphics.Rect
+import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
+import android.hardware.SyncFence
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import java.nio.ByteBuffer
+import androidx.camera.common.ImageDataSpace
+import androidx.camera.common.ImagePlane
+import androidx.camera.common.ImageWrapper as CommonImageWrapper
 
 /**
  * Wrapper interfaces that mirrors the primary read-only properties of {@link android.media.Image}.
  */
-public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
+public interface ImageWrapper : CommonImageWrapper, UnsafeWrapper, AutoCloseable {
     /** @see {@link android.media.Image.getWidth} */
-    public val width: Int
+    override val width: Int
 
     /** @see {@link android.media.Image.getHeight} */
-    public val height: Int
+    override val height: Int
 
     /** @see {@link android.media.Image.getFormat} */
-    public val format: Int
+    override val format: Int
 
     /** @see {@link android.media.Image.getPlanes} */
+    @get:Deprecated("Use imagePlanes instead", ReplaceWith("imagePlanes"))
     public val planes: List<ImagePlane>
+        get() = imagePlanes
+
+    override val imagePlanes: List<ImagePlane>
 
     /** @see {@link android.media.Image.getTimestamp} */
-    public val timestamp: Long
+    override val timestamp: Long
 
     /** @see {@link android.media.Image.getCropRect} */
-    public var cropRect: Rect
+    override var cropRect: Rect
 
     /**
      * Returns a handle to the underlying image's hardware buffer, or `null` if this image does not
@@ -54,22 +62,19 @@ public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
      *
      * @see [android.media.Image.getHardwareBuffer]
      */
-    public val hardwareBuffer: HardwareBuffer?
+    override val hardwareBuffer: HardwareBuffer?
+        get() = null
+
+    /** @see {@link android.media.Image.getFence} */
+    override val syncFence: SyncFence?
         get() = null
 
     /** @see {@link android.media.Image.getDataSpace} */
-    public var dataSpace: Int?
-        get() = null
-        set(value) {}
-}
-
-public interface ImagePlane : UnsafeWrapper {
-    /** @see {@link android.media.Image.Plane.getRowStride */
-    public val rowStride: Int
-
-    /** @see {@link android.media.Image.Plane.getPixelStride */
-    public val pixelStride: Int
-
-    /** @see {@link android.media.Image.Plane.getBuffer */
-    public val buffer: ByteBuffer?
+    @get:ImageDataSpace
+    @setparam:ImageDataSpace
+    override var dataSpace: Int
+        get() = DataSpace.DATASPACE_UNKNOWN
+        set(value) {
+            // No-op by default in the interface
+        }
 }
