@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import androidx.pdf.PdfDocument
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.test.core.app.ActivityScenario
@@ -59,7 +58,6 @@ class PdfViewAutofillTest {
 
     @Before
     fun setUp() {
-        PdfFeatureFlags.isAutofillEnabled = true
         formEditInfos = Collections.synchronizedList(mutableListOf())
     }
 
