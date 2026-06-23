@@ -1258,6 +1258,51 @@ class SelectionStateManagerTest {
         assertThat(actualSelection).isInstanceOf(TextSelection::class.java)
         assertThat((actualSelection as TextSelection).text).isEqualTo("He")
     }
+
+    @Test
+    fun maybeSelectContentAtPoint_ocrThrowsIllegalArgumentException_emitsError() = runTest {
+        if (!isImageSelectionAvailableInSdk()) return@runTest
+
+        val ocrProvider =
+            object : androidx.pdf.ocr.OcrProvider {
+                override suspend fun recognizeText(image: Bitmap): androidx.pdf.ocr.OcrResult? {
+                    throw IllegalArgumentException("Fake OCR failure")
+                }
+
+                override fun close() {}
+            }
+
+        val imageBounds = RectF(0f, 0f, 100f, 100f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), imageBounds)
+        whenever(pdfDocument.getTopPageObjectAtPosition(any(), any())).thenReturn(imageObject)
+
+        val errorFlowReplay = MutableSharedFlow<Throwable>(replay = 1)
+        val localManager =
+            SelectionStateManager(
+                pdfDocument,
+                testScope,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlowReplay,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+        localManager.isImageSelectionEnabled = true
+        localManager.ocrProvider = ocrProvider
+
+        val selectionPoint = PointF(5f, 5f)
+        val selectionPdfPoint = PdfPoint(0, selectionPoint)
+
+        localManager.maybeSelectContentAtPoint(selectionPdfPoint)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        testDispatcher.scheduler.runCurrent()
+
+        val errors = errorFlowReplay.replayCache
+        assertThat(errors).hasSize(1)
+        val exception = errors[0] as RequestFailedException
+        assertThat(exception.requestMetadata.requestName).isEqualTo(CONTENT_SELECTION_REQUEST_NAME)
+        assertThat(exception.throwable).isInstanceOf(IllegalArgumentException::class.java)
+    }
 }
 
 private const val HANDLE_TOUCH_TARGET_PX = 48

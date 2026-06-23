@@ -136,4 +136,39 @@ class OcrContextRepositoryTest {
         assertEquals(RectF(0f, 0f, 10f, 10f), contexts[0].imageRect)
         assertEquals(RectF(20f, 20f, 30f, 30f), contexts[1].imageRect)
     }
+
+    @Test
+    fun testGetOcrContexts_handlesIllegalArgumentException() = runTest {
+        val pageNum = 0
+
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        val keyedObject1 = KeyedPdfObject("img1", ImagePdfObject(bitmap, RectF(0f, 0f, 10f, 10f)))
+        val keyedObject2 = KeyedPdfObject("img2", ImagePdfObject(bitmap, RectF(20f, 20f, 30f, 30f)))
+
+        val fakePdfDocument =
+            FakePdfDocument(
+                pageObjectsPerPage = mapOf(pageNum to listOf(keyedObject1, keyedObject2))
+            )
+
+        val ocrProvider =
+            object : OcrProvider {
+                var callCount = 0
+
+                override suspend fun recognizeText(image: Bitmap): OcrResult? {
+                    callCount++
+                    if (callCount == 1) {
+                        throw IllegalArgumentException("Fake OCR failure")
+                    }
+                    return FakeOcrResult()
+                }
+
+                override fun close() {}
+            }
+        val repository = OcrContextRepository(fakePdfDocument, ocrProvider)
+        val contexts = repository.getOcrContexts(pageNum)
+
+        // First image failed, second should succeed. Only one context should be returned.
+        assertEquals(1, contexts.size)
+        assertEquals(RectF(20f, 20f, 30f, 30f), contexts[0].imageRect)
+    }
 }
