@@ -16,7 +16,9 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
+import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -81,7 +83,18 @@ internal class SharedElementEntry(
         get() {
             if (!userState.config.permitTransformDuringDeferredTransition) return null
 
-            val transformState = boundsProvider?.modifierLocalTransformState
+            var currentTransition: Transition<*>? = boundsAnimation.transition
+            var isDeferred = false
+            while (currentTransition != null) {
+                if (currentTransition is DeferredTransition<*>) {
+                    isDeferred = true
+                    break
+                }
+                currentTransition = currentTransition.parentTransition
+            }
+            if (!isDeferred) return null
+
+            val transformState = boundsProvider?.modifierLocalTransformState ?: return null
 
             // During a deferred phase, the underlying transition state is held back at the original
             // state. This means the `target` property is temporarily inverted (exiting=true,
