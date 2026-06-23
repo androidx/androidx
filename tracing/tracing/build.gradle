@@ -14,17 +14,41 @@
  * limitations under the License.
  */
 
-import androidx.build.SoftwareType
+
 import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
 }
 
 androidXMultiplatform {
+    // Native Targets for Android specific JNI bindings.
+    def nativeTargets = [
+            KonanTarget.ANDROID_ARM32,
+            KonanTarget.ANDROID_ARM64,
+            KonanTarget.ANDROID_X64,
+            KonanTarget.ANDROID_X86,
+    ].collect { it.INSTANCE }
+
+    def tracingJni = createNativeCompilation("tracingJni") {
+        configureEachTarget { nativeCompilation ->
+            // JNI Headers
+            nativeCompilation.addJniHeaders()
+            // Source Files
+            nativeCompilation.sources.from(
+                    fileTree("src/androidMain/jni").matching { include "**/*.cpp" }
+            )
+            nativeCompilation.freeArgs.addAll(["-Wall", "-Werror", "-Oz"])
+        }
+        configureTargets(nativeTargets)
+    }
+
     desktop()
     androidLibrary {
         namespace = "androidx.tracing"
+        addNativeLibrariesToJniLibs(it, tracingJni)
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)

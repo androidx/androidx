@@ -34,6 +34,7 @@ import androidx.tracing.Trace
 import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
+import androidx.tracing.currentTaskId
 
 /**
  * Constructs a [TraceDriver] instance on Android.
@@ -135,18 +136,22 @@ internal constructor(
             // For the main thread on Android pid = tid
             // Main thread
             val mainTrack =
-                this.context.process.getOrCreateThreadTrack(id = longPid, name = processName)
+                this.context.process.getOrCreateThreadTrack(
+                    id = longPid,
+                    kernelTaskId = longPid,
+                    name = processName,
+                )
             // Thread Tracks
-            // There are multiple ways of obtaining tids.
-            // You can use android.Os.gettid(). This makes a JNI call under the hood (libcore)
-            // [SLOW].
-            // This method returns an `Int`.
-            // The fastest way of getting a `tid` is by relying on `Thread.currentThread().id`.
-            val thread = Thread.currentThread()
-            val tid = thread.id
+            val taskId = currentTaskId()
             // Populate additional thread tracks if necessary.
-            if (tid != longPid) {
-                this.context.process.getOrCreateThreadTrack(id = tid, name = thread.name)
+            if (taskId != longPid) {
+                val thread = Thread.currentThread()
+                val tid = thread.id
+                this.context.process.getOrCreateThreadTrack(
+                    id = tid,
+                    kernelTaskId = taskId,
+                    name = thread.name,
+                )
             }
             // Trace attributes
             if (attributes != null) {

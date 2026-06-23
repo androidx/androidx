@@ -72,9 +72,15 @@ public open class ProcessTrack(
      * @return A [ThreadTrack] for a given [ProcessTrack] using the unique thread [id] and a thread
      *   [name].
      */
-    public open fun getOrCreateThreadTrack(id: Long, name: String): ThreadTrack {
+    public open fun getOrCreateThreadTrack(
+        id: Long,
+        kernelTaskId: Long,
+        name: String,
+    ): ThreadTrack {
         return synchronized(threads) {
-            threads.getOrPut(key = id) { ThreadTrack(id = id, name = name, process = this) }
+            threads.getOrPut(key = id) {
+                ThreadTrack(id = id, kernelTaskId = kernelTaskId, name = name, process = this)
+            }
         }
     }
 
@@ -101,7 +107,13 @@ public open class ProcessTrack(
             l1 != null && l1.id == id -> l1
             l2 != null && l2.id == id -> l2
             else -> {
-                val track = getOrCreateThreadTrack(id = id, name = current.name)
+                val kernelTaskId = currentTaskId()
+                val track =
+                    getOrCreateThreadTrack(
+                        id = id,
+                        kernelTaskId = kernelTaskId,
+                        name = current.name,
+                    )
                 l2ThreadTrack = l1ThreadTrack
                 l1ThreadTrack = track
                 track
@@ -120,7 +132,8 @@ internal class EmptyProcessTrack(context: EmptyTraceContext) :
 
     private val emptyContext: EmptyTraceContext = context
 
-    override fun getOrCreateThreadTrack(id: Long, name: String): ThreadTrack = emptyContext.thread
+    override fun getOrCreateThreadTrack(id: Long, kernelTaskId: Long, name: String): ThreadTrack =
+        emptyContext.thread
 
     override fun getOrCreateCounterTrack(name: String): CounterTrack = emptyContext.counter
 }

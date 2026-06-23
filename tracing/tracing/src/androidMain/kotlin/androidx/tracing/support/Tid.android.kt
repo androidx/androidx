@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.tracing
+package androidx.tracing.support
 
-@Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-internal actual inline fun currentJavaThreadId(): Long {
-    return Thread.currentThread().id
+import androidx.annotation.RestrictTo
+import dalvik.annotation.optimization.CriticalNative
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object Tid {
+    init {
+        System.loadLibrary("tracingJni")
+    }
+
+    /** A re-implementation of `Os.gettid()` which is 5x faster. */
+    @CriticalNative @JvmStatic public external fun getTid(): Long
 }

@@ -22,8 +22,14 @@ import androidx.annotation.RestrictTo.Scope
 /** [Track] representing a `Thread` in the specified [ProcessTrack]. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public open class ThreadTrack(
-    /** The thread id. */
+    /** The thread id from the perspective of the VM. */
     public val id: Long,
+    /**
+     * The thread id from the perspective of the Kernel (maps to the lightweight process id under
+     * the hood). This is useful in the context of merging with system traces on Android, because
+     * Android always uses `Os.gettid()` as the canonical id.
+     */
+    public val kernelTaskId: Long,
     /** The name of the thread. */
     public val name: String,
     /** The process track that the thread belongs to. */
@@ -38,7 +44,7 @@ public open class ThreadTrack(
                 uuid = uuid,
                 parentUuid = process.uuid,
                 pid = process.id,
-                tid = id,
+                tid = kernelTaskId,
                 type = TRACK_DESCRIPTOR_TYPE_THREAD,
             )
         )
@@ -56,9 +62,9 @@ public open class ThreadTrack(
     public fun assertThreadIdWhenNotOptimized() {
         // Ideally we do this check in SliceTrack. But, SliceTrack is not thread id aware.
         // Therefore, we are doing this in ThreadTrack.
-        require(id == currentThreadId()) {
+        require(id == currentJavaThreadId()) {
             """
-                Invariant violation. Current thread id (${currentThreadId()} does not match
+                Invariant violation. Current thread id (${currentJavaThreadId()} does not match
                 expected $id. This means that there might be a race condition in the code
                 where begin and end sections are being called on separate threads.
             """
@@ -73,4 +79,9 @@ private const val EMPTY_THREAD_ID = -1L
 private const val EMPTY_THREAD_NAME = "Empty Thread"
 
 internal class EmptyThreadTrack(process: EmptyProcessTrack) :
-    ThreadTrack(id = EMPTY_THREAD_ID, name = EMPTY_THREAD_NAME, process = process)
+    ThreadTrack(
+        id = EMPTY_THREAD_ID,
+        kernelTaskId = EMPTY_THREAD_ID,
+        name = EMPTY_THREAD_NAME,
+        process = process,
+    )
