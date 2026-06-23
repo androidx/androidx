@@ -92,7 +92,6 @@ import androidx.compose.ui.util.fastCoerceIn
  *
  * @sample androidx.compose.material3.samples.LinearThickWavyProgressIndicatorSample
  */
-@Material3ExpressiveApi
 @Composable
 fun LinearWavyProgressIndicator(
     progress: () -> Float,
@@ -163,7 +162,6 @@ fun LinearWavyProgressIndicator(
  *   render an animation that moves the wave by one wave length per second.
  * @sample androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
  */
-@Material3ExpressiveApi
 @Composable
 fun LinearWavyProgressIndicator(
     modifier: Modifier = Modifier,
@@ -273,7 +271,6 @@ fun LinearWavyProgressIndicator(
  *
  * @sample androidx.compose.material3.samples.CircularThickWavyProgressIndicatorSample
  */
-@Material3ExpressiveApi
 @Composable
 fun CircularWavyProgressIndicator(
     progress: () -> Float,
@@ -344,7 +341,6 @@ fun CircularWavyProgressIndicator(
  *   wave shape.
  * @sample androidx.compose.material3.samples.IndeterminateCircularWavyProgressIndicatorSample
  */
-@Material3ExpressiveApi
 @Composable
 fun CircularWavyProgressIndicator(
     modifier: Modifier = Modifier,
@@ -380,7 +376,6 @@ fun CircularWavyProgressIndicator(
 }
 
 /** Contains the default values used for wavy progress indicators */
-@Material3ExpressiveApi
 object WavyProgressIndicatorDefaults {
 
     /**

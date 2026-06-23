@@ -204,7 +204,6 @@ fun IconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun IconButton(
     onClick: () -> Unit,
@@ -406,7 +405,6 @@ fun IconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun IconToggleButton(
     checked: Boolean,
@@ -549,7 +547,6 @@ fun FilledIconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun FilledIconButton(
     onClick: () -> Unit,
@@ -658,7 +655,6 @@ fun FilledIconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun FilledIconToggleButton(
     checked: Boolean,
@@ -774,7 +770,6 @@ fun FilledTonalIconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun FilledTonalIconButton(
     onClick: () -> Unit,
@@ -894,7 +889,6 @@ fun FilledTonalIconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun FilledTonalIconToggleButton(
     checked: Boolean,
@@ -1026,7 +1020,6 @@ fun OutlinedIconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun OutlinedIconButton(
     onClick: () -> Unit,
@@ -1141,7 +1134,6 @@ fun OutlinedIconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@Material3ExpressiveApi
 @Composable
 fun OutlinedIconToggleButton(
     checked: Boolean,
