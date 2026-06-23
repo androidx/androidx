@@ -259,8 +259,10 @@ public open class UriDeepLinkMatcher<T : Any>(
  * @param key the navigation key representing the deep link target
  * @param arguments the map of arguments extracted from the [DeepLinkRequest]
  */
-public open class UriMatchResult<T : Any>(key: T, public val arguments: Map<String, List<String>>) :
-    DeepLinkMatcher.MatchResult<T>(key) {
+public open class UriMatchResult<T : Any>(
+    key: T,
+    public val arguments: Map<String, List<String>> = emptyMap(),
+) : DeepLinkMatcher.MatchResult<T>(key) {
 
     /**
      * @param isExactPath true if path does not have wildcards or arguments
