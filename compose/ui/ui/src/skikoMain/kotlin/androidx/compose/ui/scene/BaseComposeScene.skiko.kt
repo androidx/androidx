@@ -38,6 +38,7 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.ProvidePlatformCompositionLocals
 import androidx.compose.ui.util.trace
+import kotlin.concurrent.Volatile
 
 /**
  * BaseComposeScene is an internal abstract class that implements the ComposeScene interface.
@@ -82,12 +83,25 @@ internal abstract class BaseComposeScene(
             }
         }
 
-    protected fun invokeInvalidationCallbacks() {
+    @Volatile
+    protected var hasForcedLayout: Boolean = false
+        private set
+
+    @Volatile
+    protected var hasForcedDraw: Boolean = false
+        private set
+
+    protected fun invokeInvalidationCallbacks(
+        forceLayout: Boolean = false,
+        forceDraw: Boolean = false,
+    ) {
+        hasForcedLayout = hasForcedLayout || forceLayout
+        hasForcedDraw = hasForcedDraw || forceDraw
         if (isInvalidationDisabled || isClosed || composition == null) return
-        if (hasPendingMeasureOrLayout) {
+        if (hasForcedLayout || hasPendingMeasureOrLayout) {
             invalidateLayout()
         }
-        if (hasPendingDraw) {
+        if (hasForcedDraw || hasPendingDraw) {
             invalidateDraw()
         }
     }
@@ -139,6 +153,7 @@ internal abstract class BaseComposeScene(
 
     override fun measureAndLayout() {
         if (isClosed) return
+        hasForcedLayout = false
 
         postponeInvalidation("BaseComposeScene:measureAndLayout") {
             doMeasureAndLayout()
@@ -154,6 +169,7 @@ internal abstract class BaseComposeScene(
 
     override fun draw(canvas: Canvas) {
         if (isClosed) return
+        hasForcedDraw = false
 
         postponeInvalidation("BaseComposeScene:draw") {
             // FIXME: Remove applying the global snapshot here.

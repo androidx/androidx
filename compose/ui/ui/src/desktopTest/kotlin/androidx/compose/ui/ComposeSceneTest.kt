@@ -468,7 +468,7 @@ class ComposeSceneTest {
         screenshotRule.snap(surface, "frame4_change_height")
 
         // see https://youtrack.jetbrains.com/issue/CMP-2171, we have extra rendered frames here
-        skipRenders()
+        skipRendersUntilIdle()
 
         assertFalse(hasRenders())
     }

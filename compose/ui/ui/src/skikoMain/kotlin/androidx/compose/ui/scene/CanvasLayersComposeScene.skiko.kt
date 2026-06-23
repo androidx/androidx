@@ -227,11 +227,11 @@ private class CanvasLayersComposeSceneImpl(
     }
 
     override val hasPendingMeasureOrLayout: Boolean
-        get() = mainOwner.hasPendingMeasureOrLayout
+        get() = hasForcedLayout || mainOwner.hasPendingMeasureOrLayout
             || layers.fastAny { it.owner.hasPendingMeasureOrLayout }
 
     override val hasPendingDraw: Boolean
-        get() = mainOwner.hasPendingDraw
+        get() = hasForcedDraw || mainOwner.hasPendingDraw
             || layers.fastAny { it.owner.hasPendingDraw }
 
     override fun createComposition(
@@ -517,7 +517,7 @@ private class CanvasLayersComposeSceneImpl(
         onOwnerAppended(layer.owner)
 
         inputHandler.onPointerUpdate()
-        invokeInvalidationCallbacks()
+        invokeInvalidationCallbacks(forceLayout = true, forceDraw = true)
     }
 
     private fun detachLayer(layer: AttachedComposeSceneLayer) {
@@ -528,7 +528,9 @@ private class CanvasLayersComposeSceneImpl(
         onOwnerRemoved(layer.owner)
 
         inputHandler.onPointerUpdate()
-        invokeInvalidationCallbacks()
+        // A detached layer was composited onto this scene's canvas, so its removal changes
+        // the scene's output even though no remaining owner is dirty.
+        invokeInvalidationCallbacks(forceLayout = true, forceDraw = true)
     }
 
     private fun requestFocus(layer: AttachedComposeSceneLayer) {

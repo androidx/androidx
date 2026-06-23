@@ -162,10 +162,10 @@ private class PlatformLayersComposeSceneImpl(
     }
 
     override val hasPendingMeasureOrLayout: Boolean
-        get() = mainOwner.hasPendingMeasureOrLayout
+        get() = hasForcedLayout || mainOwner.hasPendingMeasureOrLayout
 
     override val hasPendingDraw: Boolean
-        get() = mainOwner.hasPendingDraw
+        get() = hasForcedDraw || mainOwner.hasPendingDraw
 
     override fun createComposition(
         parentCompositionContext: CompositionContext,
