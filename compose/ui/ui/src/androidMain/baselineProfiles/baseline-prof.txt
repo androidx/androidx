@@ -171,7 +171,7 @@ HSPLandroidx/compose/ui/semantics/SemanticsModifierCore;->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsModifierKt**->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsNode;->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsNode$parent$1;->**(**)**
-HSPLandroidx/compose/ui/platform/SemanticsNodeWithAdjustedBounds;->**(**)**
+HSPLandroidx/compose/ui/semantics/AdjustedSemanticsNode;->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsNodeKt;->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsOwner;->**(**)**
 HSPLandroidx/compose/ui/semantics/SemanticsProperties**->**(**)**

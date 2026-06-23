@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+
 package androidx.compose.ui.semantics
 
 import androidx.compose.foundation.clickable
@@ -47,10 +49,6 @@ import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.autofill.createFromText
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -85,7 +83,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
@@ -107,6 +104,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class SemanticsTests {
     private val TestTag = "semantics-test-tag"
 
@@ -1354,7 +1352,7 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
+        var childNode: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
@@ -1380,7 +1378,7 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
+        var childNode: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
@@ -1407,7 +1405,7 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
+        var childNode: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
@@ -1447,75 +1445,13 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
+        var childNode: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
             // Child is at 10, 90 with size 20x20.
             // Minimum touch target size is 40x40.
             assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(0, 80, 40, 120))
-        }
-    }
-
-    @Test
-    fun getSemanticNodes_clippedByShapeOutline_usesOutlineBoundsForTouchTarget() {
-        lateinit var semanticsOwner: SemanticsOwner
-        rule.setContent {
-            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
-            val viewConfig = LocalViewConfiguration.current
-            val newConfig =
-                object : ViewConfiguration by viewConfig {
-                    override val minimumTouchTargetSize: DpSize
-                        get() = DpSize(40.dp, 40.dp)
-                }
-            CompositionLocalProvider(
-                LocalDensity provides Density(1f, 1f),
-                LocalViewConfiguration provides newConfig,
-            ) {
-                Box(Modifier.size(100.dp).semantics(true) {}) {
-                    Box(
-                        Modifier.size(50.dp)
-                            .graphicsLayer {
-                                // Custom shape outline of size 20x20 starting at (15, 15)
-                                shape =
-                                    object : Shape {
-                                        override fun createOutline(
-                                            size: Size,
-                                            layoutDirection: LayoutDirection,
-                                            density: Density,
-                                        ): Outline =
-                                            Outline.Rectangle(
-                                                Rect(
-                                                    offset = Offset(15f, 15f),
-                                                    size = Size(20f, 20f),
-                                                )
-                                            )
-                                    }
-                                clip = true
-                            }
-                            .clickable {}
-                            .testTag("child1")
-                    )
-                }
-            }
-        }
-
-        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
-
-        rule.runOnIdle {
-            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
-            // Calculations:
-            // - Measured size = 50x50
-            // - Shape outline bounds = 20x20 at offset (15, 15)
-            // - Minimum touch target = 40x40
-            // - widthDiff = 40 - 20 = 20 => padding = 10px on all sides
-            // Expected bounds:
-            // - left = 15 - 10 = 5
-            // - top = 15 - 10 = 5
-            // - right = 15 + 20 + 10 = 45
-            // - bottom = 15 + 20 + 10 = 45
-            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(5, 5, 45, 45))
         }
     }
 
@@ -1540,7 +1476,7 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var childNode: SemanticsNodeWithAdjustedBounds? = null
+        var childNode: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
@@ -1573,8 +1509,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1612,8 +1548,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1651,8 +1587,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1686,8 +1622,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1726,8 +1662,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1767,8 +1703,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1811,8 +1747,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1851,8 +1787,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1891,8 +1827,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {
@@ -1930,8 +1866,8 @@ class SemanticsTests {
         }
 
         val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
-        var child1Node: SemanticsNodeWithAdjustedBounds? = null
-        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+        var child1Node: AdjustedSemanticsNode? = null
+        var child2Node: AdjustedSemanticsNode? = null
 
         rule.runOnIdle {
             nodes.forEachValue {

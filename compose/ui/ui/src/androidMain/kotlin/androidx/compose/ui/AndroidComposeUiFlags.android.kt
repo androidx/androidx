@@ -110,4 +110,10 @@ object AndroidComposeUiFlags {
      */
     // TODO: b/522932901
     @field:Suppress("MutableBareField") @JvmField var isTraversalGroupSortingEnabled: Boolean = true
+
+    /** Enables propagation of hideFromAccessibility to children of merging parents. */
+    // TODO: b/522817006
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPropagateHideFromAccessibilityToMergingChildrenEnabled: Boolean = true
 }

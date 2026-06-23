@@ -155,9 +155,10 @@ internal val SemanticsNode.isHidden: Boolean
 private val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 
 /** Semantics node with adjusted bounds for the uncovered(by siblings) part. */
-internal class SemanticsNodeWithAdjustedBounds(
+internal class AdjustedSemanticsNode(
     val semanticsNode: SemanticsNode,
     val adjustedBounds: IntRect,
+    val isInMergingHiddenSubtree: Boolean = false,
 )
 
 /**
@@ -168,7 +169,7 @@ internal class SemanticsNodeWithAdjustedBounds(
 internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
     customRootNodeId: Int,
     shouldIgnoreNode: (SemanticsNode) -> Boolean,
-): IntObjectMap<SemanticsNodeWithAdjustedBounds> {
+): IntObjectMap<AdjustedSemanticsNode> {
     trace("getAllUncoveredSemanticsNodesToIntObjectMap") {
         val root = unmergedRootSemanticsNode
         if (!root.layoutNode.isPlaced || !root.layoutNode.isAttached) {
@@ -177,7 +178,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
         val rootBounds = root.boundsInRoot
 
         // Default capacity chosen to accommodate common scenarios
-        val nodes = MutableIntObjectMap<SemanticsNodeWithAdjustedBounds>(48)
+        val nodes = MutableIntObjectMap<AdjustedSemanticsNode>(48)
 
         fun virtualViewId(node: SemanticsNode) =
             if (node.id == root.id) {
@@ -186,7 +187,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                 node.id
             }
 
-        fun addFakeNode(node: SemanticsNode) {
+        fun addFakeNode(node: SemanticsNode, isInMergingHiddenSubtree: Boolean = false) {
             val parentNode = node.parent
             // use parent bounds for fake node
             val boundsForFakeNode =
@@ -196,7 +197,11 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     DefaultFakeNodeBounds
                 }
             nodes[virtualViewId(node)] =
-                SemanticsNodeWithAdjustedBounds(node, boundsForFakeNode.roundToIntRect())
+                AdjustedSemanticsNode(
+                    node,
+                    boundsForFakeNode.roundToIntRect(),
+                    isInMergingHiddenSubtree,
+                )
         }
 
         /**
@@ -209,6 +214,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
             currentNode: SemanticsNode,
             region: SemanticsRegion,
             unaccountedSpace: SemanticsRegion,
+            isInMergingHiddenSubtree: Boolean = false,
         ) {
             if (
                 !currentNode.layoutNode.isPlaced ||
@@ -216,7 +222,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     unaccountedSpace.isEmpty
             ) {
                 // The node not attached because this could be a fake node, so we should add it
-                if (currentNode.isFake) addFakeNode(currentNode)
+                if (currentNode.isFake) addFakeNode(currentNode, isInMergingHiddenSubtree)
                 return
             }
 
@@ -227,13 +233,17 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     .run { if (isEmpty) currentNode.unclippedBoundsInRoot else this }
                     .roundToIntRect()
             region.set(currentBounds)
+            val isCurrentHidden =
+                isInMergingHiddenSubtree ||
+                    (currentNode.unmergedConfig.isMergingSemanticsOfDescendants &&
+                        currentNode.unmergedConfig.contains(HideFromAccessibility))
             if (region.intersect(unaccountedSpace)) {
                 // For nodes that are partially visible in the root, we will continue reporting
                 // their clipped bounds. However, if the node is *fully* off-screen, we will add
                 // them with their unclipped bounds. But to send the correct signal to
                 // the accessibility services, we will mark them as invisible to user
                 nodes[virtualViewId(currentNode)] =
-                    SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)
+                    AdjustedSemanticsNode(currentNode, region.bounds, isCurrentHidden)
 
                 val children = currentNode.replacedChildren
                 for (i in children.size - 1 downTo 0) {
@@ -244,6 +254,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                         children[i],
                         region,
                         unaccountedSpace,
+                        isCurrentHidden,
                     )
                 }
                 if (currentNode.isImportantForAccessibility()) {
@@ -256,6 +267,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
             currentNode: SemanticsNode,
             region: SemanticsRegion,
             unaccountedSpace: SemanticsRegion,
+            isInMergingHiddenSubtree: Boolean = false,
         ) {
             val notAttachedOrPlaced =
                 !currentNode.layoutNode.isPlaced || !currentNode.layoutNode.isAttached
@@ -270,9 +282,15 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
 
             val virtualViewId = virtualViewId(currentNode)
 
+            val isCurrentHidden =
+                isInMergingHiddenSubtree ||
+                    (currentNode.unmergedConfig.isMergingSemanticsOfDescendants &&
+                        currentNode.unmergedConfig.contains(HideFromAccessibility))
+
             // Note that the `intersect` call updates the region
             if (region.intersect(unaccountedSpace)) {
-                nodes[virtualViewId] = SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)
+                nodes[virtualViewId] =
+                    AdjustedSemanticsNode(currentNode, region.bounds, isCurrentHidden)
 
                 // Children could be drawn outside of parent, but we are using clipped bounds for
                 // accessibility now, so let's put the children recursion inside of this if. If
@@ -300,6 +318,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                             children[i],
                             SemanticsRegion(),
                             childrenUnaccountedRegion,
+                            isCurrentHidden,
                         )
                     }
                 } else {
@@ -311,6 +330,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                             currentNode = children[i],
                             region = region,
                             unaccountedSpace = unaccountedSpace,
+                            isInMergingHiddenSubtree = isCurrentHidden,
                         )
                     }
                 }
@@ -319,7 +339,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                 }
             } else {
                 if (currentNode.isFake) {
-                    addFakeNode(currentNode)
+                    addFakeNode(currentNode, isInMergingHiddenSubtree)
                 } else if (virtualViewId == customRootNodeId) {
                     // Root view might have WRAP_CONTENT layout params in which case it will have
                     // zero
@@ -330,7 +350,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     // depend
                     // on accessibility info
                     nodes[virtualViewId] =
-                        SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)
+                        AdjustedSemanticsNode(currentNode, region.bounds, isCurrentHidden)
                 }
             }
         }

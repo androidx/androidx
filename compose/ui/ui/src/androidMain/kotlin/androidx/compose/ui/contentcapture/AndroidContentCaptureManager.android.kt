@@ -39,9 +39,9 @@ import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.getTextLayoutResult
 import androidx.compose.ui.platform.toLegacyClassName
+import androidx.compose.ui.semantics.AdjustedSemanticsNode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
@@ -119,8 +119,7 @@ internal class AndroidContentCaptureManager(
      * tree. They key is the virtual view id(the root node has a key of
      * AccessibilityNodeProviderCompat.HOST_VIEW_ID and other node has a key of its id).
      */
-    internal var currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds> =
-        intObjectMapOf()
+    internal var currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode> = intObjectMapOf()
         get() {
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
@@ -275,7 +274,7 @@ internal class AndroidContentCaptureManager(
 
     // Analogous to `sendSemanticsPropertyChangeEvents`
     private fun checkForContentCapturePropertyChanges(
-        newSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>
+        newSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>
     ) {
         newSemanticsNodes.forEachKey { id ->
             // We do doing this search because the new configuration is set as a whole, so we

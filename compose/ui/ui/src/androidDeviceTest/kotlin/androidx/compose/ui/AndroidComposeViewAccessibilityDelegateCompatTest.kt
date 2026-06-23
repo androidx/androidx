@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRectKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRegionKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeTypeKey
+import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.InvalidId
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -2660,6 +2661,288 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                             CONTENT_CHANGE_TYPE_CONTENT_INVALID or CONTENT_CHANGE_TYPE_ERROR
                     }
                 )
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testHideFromAccessibility_propagatesToMergedChildren() {
+        // Arrange.
+        val tagParent = "parent"
+        val tagMergingChild = "mergingChild"
+        val tagNonMergingChild = "nonMergingChild"
+        rule.setContentWithAccessibilityEnabled {
+            Column(
+                Modifier.semantics(mergeDescendants = true) { hideFromAccessibility() }
+                    .testTag(tagParent)
+                    .size(100.toDp())
+            ) {
+                Box(
+                    Modifier.semantics(mergeDescendants = true) { contentDescription = "child" }
+                        .testTag(tagMergingChild)
+                        .size(50.toDp())
+                )
+                Box(
+                    Modifier.semantics { contentDescription = "child2" }
+                        .testTag(tagNonMergingChild)
+                        .size(50.toDp())
+                )
+            }
+        }
+        val parentId = rule.onNodeWithTag(tagParent).semanticsId()
+        val mergingChildId =
+            rule.onNodeWithTag(tagMergingChild, useUnmergedTree = true).semanticsId()
+        val nonMergingChildId =
+            rule.onNodeWithTag(tagNonMergingChild, useUnmergedTree = true).semanticsId()
+
+        // Act.
+        val parentInfo = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(parentId) }
+        val mergingChildInfo =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(mergingChildId) }
+        val nonMergingChildInfo =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(nonMergingChildId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(parentInfo).isNotNull()
+            assertThat(parentInfo.isVisibleToUser).isFalse()
+            assertThat(parentInfo.isScreenReaderFocusable).isFalse()
+
+            assertThat(mergingChildInfo).isNotNull()
+            assertThat(mergingChildInfo.isVisibleToUser).isFalse()
+            assertThat(mergingChildInfo.isScreenReaderFocusable).isFalse()
+
+            assertThat(nonMergingChildInfo).isNotNull()
+            assertThat(nonMergingChildInfo.isVisibleToUser).isFalse()
+            assertThat(nonMergingChildInfo.isScreenReaderFocusable).isFalse()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testHideFromAccessibility_doesNotPropagateToMergedChildren_whenFlagDisabled() {
+        val previousFlagValue =
+            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled
+        AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled = false
+        try {
+            // Arrange.
+            val tagParent = "parent"
+            val tagMergingChild = "mergingChild"
+            val tagNonMergingChild = "nonMergingChild"
+            rule.setContentWithAccessibilityEnabled {
+                Column(
+                    Modifier.semantics(mergeDescendants = true) { hideFromAccessibility() }
+                        .testTag(tagParent)
+                        .size(100.toDp())
+                ) {
+                    Box(
+                        Modifier.semantics(mergeDescendants = true) { contentDescription = "child" }
+                            .testTag(tagMergingChild)
+                            .size(50.toDp())
+                    )
+                    Box(
+                        Modifier.semantics { contentDescription = "child2" }
+                            .testTag(tagNonMergingChild)
+                            .size(50.toDp())
+                    )
+                }
+            }
+            val parentId = rule.onNodeWithTag(tagParent).semanticsId()
+            val mergingChildId =
+                rule.onNodeWithTag(tagMergingChild, useUnmergedTree = true).semanticsId()
+            val nonMergingChildId =
+                rule.onNodeWithTag(tagNonMergingChild, useUnmergedTree = true).semanticsId()
+
+            // Act.
+            val parentInfo =
+                rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(parentId) }
+            val mergingChildInfo =
+                rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(mergingChildId) }
+            val nonMergingChildInfo =
+                rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(nonMergingChildId) }
+
+            // Assert.
+            rule.runOnIdle {
+                assertThat(parentInfo).isNotNull()
+                assertThat(parentInfo.isVisibleToUser).isFalse()
+                assertThat(parentInfo.isScreenReaderFocusable).isFalse()
+
+                assertThat(mergingChildInfo).isNotNull()
+                assertThat(mergingChildInfo.isVisibleToUser).isTrue() // NOT Propagated
+                assertThat(mergingChildInfo.isScreenReaderFocusable).isTrue()
+
+                assertThat(nonMergingChildInfo).isNotNull()
+                assertThat(nonMergingChildInfo.isVisibleToUser).isTrue() // NOT Propagated
+                assertThat(nonMergingChildInfo.isScreenReaderFocusable)
+                    .isFalse() // NOT focusable by design
+            }
+        } finally {
+            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled =
+                previousFlagValue
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testHideFromAccessibility_propagatesToDeeplyNestedMergedChildren() {
+        // Arrange.
+        val tagParent = "parent"
+        val tagChild = "child"
+        val tagGrandchild = "grandchild"
+        rule.setContentWithAccessibilityEnabled {
+            Column(
+                Modifier.semantics(mergeDescendants = true) { hideFromAccessibility() }
+                    .testTag(tagParent)
+                    .size(100.toDp())
+            ) {
+                Column(
+                    Modifier.semantics(mergeDescendants = true) { contentDescription = "child" }
+                        .testTag(tagChild)
+                        .size(50.toDp())
+                ) {
+                    Box(
+                        Modifier.semantics { contentDescription = "grandchild" }
+                            .testTag(tagGrandchild)
+                            .size(50.toDp())
+                    )
+                }
+            }
+        }
+        val parentId = rule.onNodeWithTag(tagParent).semanticsId()
+        val childId = rule.onNodeWithTag(tagChild, useUnmergedTree = true).semanticsId()
+        val grandchildId = rule.onNodeWithTag(tagGrandchild, useUnmergedTree = true).semanticsId()
+
+        // Act.
+        val parentInfo = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(parentId) }
+        val childInfo = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(childId) }
+        val grandchildInfo =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(grandchildId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(parentInfo).isNotNull()
+            assertThat(parentInfo.isVisibleToUser).isFalse()
+            assertThat(parentInfo.isScreenReaderFocusable).isFalse()
+
+            assertThat(childInfo).isNotNull()
+            assertThat(childInfo.isVisibleToUser).isFalse()
+            assertThat(childInfo.isScreenReaderFocusable).isFalse()
+
+            assertThat(grandchildInfo).isNotNull()
+            assertThat(grandchildInfo.isVisibleToUser).isFalse()
+            assertThat(grandchildInfo.isScreenReaderFocusable).isFalse()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testHitTest_doesNotHitHiddenMergedChildren() {
+        // Arrange.
+        val tagParent = "parent"
+        val tagChild = "child"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.semantics(mergeDescendants = true) { hideFromAccessibility() }
+                    .testTag(tagParent)
+                    .size(100.toDp())
+            ) {
+                Box(
+                    Modifier.semantics(mergeDescendants = true) { contentDescription = "child" }
+                        .testTag(tagChild)
+                        .size(50.toDp())
+                )
+            }
+        }
+        val childId = rule.onNodeWithTag(tagChild, useUnmergedTree = true).semanticsId()
+        val delegate = androidComposeView.composeAccessibilityDelegate
+
+        // Act.
+        val density = rule.density
+        val hitPx = with(density) { 25.toDp().toPx() }
+        val hitId = rule.runOnIdle { delegate.hitTestSemanticsAt(hitPx, hitPx) }
+
+        // Assert.
+        rule.runOnIdle {
+            // Should not hit the child because it is in a merging hidden subtree
+            assertThat(hitId).isEqualTo(InvalidId)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testHitTest_hitsMergedChildren_whenFlagDisabled() {
+        val previousFlagValue =
+            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled
+        AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled = false
+        try {
+            // Arrange.
+            val tagParent = "parent"
+            val tagChild = "child"
+            rule.setContentWithAccessibilityEnabled {
+                Box(
+                    Modifier.semantics(mergeDescendants = true) { hideFromAccessibility() }
+                        .testTag(tagParent)
+                        .size(100.toDp())
+                ) {
+                    Box(
+                        Modifier.semantics(mergeDescendants = true) { contentDescription = "child" }
+                            .testTag(tagChild)
+                            .size(50.toDp())
+                    )
+                }
+            }
+            val childId = rule.onNodeWithTag(tagChild, useUnmergedTree = true).semanticsId()
+            val delegate = androidComposeView.composeAccessibilityDelegate
+
+            // Act.
+            val density = rule.density
+            val hitPx = with(density) { 25.toDp().toPx() }
+            val hitId = rule.runOnIdle { delegate.hitTestSemanticsAt(hitPx, hitPx) }
+
+            // Assert.
+            rule.runOnIdle {
+                // Should hit the child because flag is disabled
+                assertThat(hitId).isEqualTo(childId)
+            }
+        } finally {
+            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled =
+                previousFlagValue
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testHideFromAccessibility_propagatesToFakeNodes() {
+        // Arrange.
+        val tagParent = "parent"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.semantics(mergeDescendants = true) {
+                        role = Role.Button
+                        hideFromAccessibility()
+                    }
+                    .testTag(tagParent)
+            ) {
+                Text("button")
+            }
+        }
+        val parentId = rule.onNodeWithTag(tagParent).semanticsId()
+        val fakeNodeId = parentId + RoleFakeNodeIdOffset
+
+        // Act.
+        val parentInfo = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(parentId) }
+        val fakeNodeInfo =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(fakeNodeId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(parentInfo).isNotNull()
+            assertThat(parentInfo.isVisibleToUser).isFalse()
+
+            assertThat(fakeNodeInfo).isNotNull()
+            assertThat(fakeNodeInfo.isVisibleToUser).isFalse()
         }
     }
 
