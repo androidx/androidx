@@ -194,7 +194,7 @@ open class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/UriDeepLinkMat
 }
 
 open class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/UriMatchResult : androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A> { // androidx.navigation3.runtime.deeplink/UriMatchResult|null[0]
-    constructor <init>(#A, kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>>) // androidx.navigation3.runtime.deeplink/UriMatchResult.<init>|<init>(1:0;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
+    constructor <init>(#A, kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ...) // androidx.navigation3.runtime.deeplink/UriMatchResult.<init>|<init>(1:0;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
 
     final val arguments // androidx.navigation3.runtime.deeplink/UriMatchResult.arguments|{}arguments[0]
         final fun <get-arguments>(): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> // androidx.navigation3.runtime.deeplink/UriMatchResult.arguments.<get-arguments>|<get-arguments>(){}[0]

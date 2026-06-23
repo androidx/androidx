@@ -214,7 +214,8 @@ package androidx.navigation3.runtime.deeplink {
   }
 
   public class UriMatchResult<T> extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T> {
-    ctor public UriMatchResult(T key, java.util.Map<java.lang.String,? extends java.util.List<java.lang.String>> arguments);
+    ctor @BytecodeOnly public UriMatchResult(Object!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public UriMatchResult(T key, optional java.util.Map<java.lang.String,? extends java.util.List<java.lang.String>> arguments);
     method @InaccessibleFromKotlin public final java.util.Map<java.lang.String,java.util.List<java.lang.String>> getArguments();
     method @InaccessibleFromKotlin protected final boolean isExactPath();
     method @InaccessibleFromKotlin protected final void setExactPath(boolean);
