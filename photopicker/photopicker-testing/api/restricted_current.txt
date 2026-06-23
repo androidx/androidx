@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.photopicker.testing {
 
-  @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public final class TestEmbeddedPhotoPickerProvider implements android.widget.photopicker.EmbeddedPhotoPickerProvider {
+  @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public final class TestEmbeddedPhotoPickerProvider implements android.widget.photopicker.EmbeddedPhotoPickerProvider {
     ctor public TestEmbeddedPhotoPickerProvider(android.content.Context context);
     method public static androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider get();
     method @InaccessibleFromKotlin public java.util.Set<android.widget.photopicker.EmbeddedPhotoPickerSession> getSessions();

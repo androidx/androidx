@@ -23,6 +23,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerClient
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerProvider
 import android.widget.photopicker.EmbeddedPhotoPickerSession
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.Executor
@@ -32,6 +33,7 @@ import java.util.concurrent.Executor
  * PhotoPicker and provides additional methods to allow tests to fake user interactions so that the
  * client side flows can be tested.
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 public class TestEmbeddedPhotoPickerProvider(private val context: Context) :
     EmbeddedPhotoPickerProvider {

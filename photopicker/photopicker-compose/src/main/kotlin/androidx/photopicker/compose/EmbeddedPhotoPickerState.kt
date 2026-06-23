@@ -25,6 +25,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerClient
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerProvider
 import android.widget.photopicker.EmbeddedPhotoPickerSession
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -61,6 +62,7 @@ import kotlinx.coroutines.withContext
  *
  * Callbacks to the underlying session are exposed here to push Compose state into the remote view.
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @ExperimentalPhotoPickerComposeApi
 public interface EmbeddedPhotoPickerState {
 
@@ -233,6 +235,7 @@ internal interface ClientCallbacks {
  * @property selectedMedia A read-only set of URIs representing the currently selected media items.
  *   Updated internally based on granted/revoked permissions.
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @ExperimentalPhotoPickerComposeApi
 internal class EmbeddedPhotoPickerStateImpl(
@@ -514,6 +517,7 @@ internal class EmbeddedPhotoPickerStateImpl(
  */
 @ExperimentalPhotoPickerComposeApi
 @Composable
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 public fun rememberEmbeddedPhotoPickerState(
     vararg inputs: Any?,

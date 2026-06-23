@@ -50,7 +50,7 @@ android {
     namespace = "androidx.photopicker.compose"
     compileSdk { version = release(37) }
     defaultConfig {
-        minSdk { version = release(34) }
+        minSdk { version = release(23) }
     }
 }
 

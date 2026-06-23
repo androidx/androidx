@@ -28,6 +28,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerClient
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 
 /**
@@ -46,6 +47,7 @@ import androidx.annotation.RequiresExtension
  * @property featureInfo
  * @property clientCallback
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 internal class TestEmbeddedPhotoPickerSession(
     context: Context,
