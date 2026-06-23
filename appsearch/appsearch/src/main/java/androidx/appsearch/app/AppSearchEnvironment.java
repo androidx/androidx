@@ -23,6 +23,7 @@ import android.os.UserHandle;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,9 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An interface which exposes environment specific methods for AppSearch.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchEnvironment {
 

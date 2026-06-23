@@ -22,6 +22,7 @@ import android.os.Parcelable.Creator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.AppSearchBlobHandleCreator;
@@ -78,8 +79,8 @@ public final class AppSearchBlobHandle extends AbstractSafeParcelable {
 
     /**
      * Build an {@link AppSearchBlobHandle}.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
     AppSearchBlobHandle(

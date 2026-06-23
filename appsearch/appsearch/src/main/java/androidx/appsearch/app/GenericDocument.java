@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.annotation.SystemApi;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
@@ -77,17 +78,15 @@ public class GenericDocument {
 
     /**
      * Fixed constant synthetic property for parent types.
-     *
-     * <!--@exportToFramework:hide-->
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PARENT_TYPES_SYNTHETIC_PROPERTY = "$$__AppSearch__parentTypes";
 
     /**
      * An immutable empty {@link GenericDocument}.
-     *
-     * <!--@exportToFramework:hide-->
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final GenericDocument EMPTY = new GenericDocument.Builder<>("", "", "").build();
 
@@ -144,8 +143,8 @@ public class GenericDocument {
      *
      * @param documentParcel Packaged {@link GenericDocument} data, such as the result of
      *                       {@link #getDocumentParcel()}.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("deprecation")
     public GenericDocument(@NonNull GenericDocumentParcel documentParcel) {
@@ -166,7 +165,6 @@ public class GenericDocument {
      *
      * @param dest The {@link Parcel} to write to.
      * @param flags The flags to use for parceling.
-     * @exportToFramework:hide
      */
     // GenericDocument is an open class that can be extended, whereas parcelable classes must be
     // final in those methods. Thus, we make this a system api to avoid 3p apps depending on it
@@ -183,7 +181,6 @@ public class GenericDocument {
      * Creates a {@link GenericDocument} from a {@link Parcel}.
      *
      * @param parcel The {@link Parcel} to read from.
-     * @exportToFramework:hide
      */
     // GenericDocument is an open class that can be extended, whereas parcelable classes must be
     // final in those methods. Thus, we make this a system api to avoid 3p apps depending on it
@@ -227,9 +224,8 @@ public class GenericDocument {
     /**
      * Returns the {@link GenericDocumentParcel} holding the values for this
      * {@link GenericDocument}.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull GenericDocumentParcel getDocumentParcel() {
         return mDocumentParcel;
@@ -257,8 +253,8 @@ public class GenericDocument {
      *
      * @deprecated Parent types should no longer be set in {@link GenericDocument}. Use
      * {@link SearchResult.Builder#getParentTypeMap()} instead.
-     * <!--@exportToFramework:hide-->
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated
     public @Nullable List<String> getParentTypes() {
@@ -1412,8 +1408,8 @@ public class GenericDocument {
          *
          * @deprecated Parent types should no longer be set in {@link GenericDocument}. Use
          * {@link SearchResult.Builder#setParentTypeMap(Map)} instead.
-         * <!--@exportToFramework:hide-->
          */
+        @HideInPlatform
         @CanIgnoreReturnValue
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated

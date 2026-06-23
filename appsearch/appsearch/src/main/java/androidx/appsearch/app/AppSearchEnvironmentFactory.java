@@ -18,14 +18,14 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
 /**
  * This is a factory class for implementations needed based on the environment.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchEnvironmentFactory {
     private static volatile AppSearchEnvironment sAppSearchEnvironment;

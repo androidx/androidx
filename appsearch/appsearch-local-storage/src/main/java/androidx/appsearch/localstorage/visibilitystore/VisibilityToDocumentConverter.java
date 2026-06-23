@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.InternalVisibilityConfig;
@@ -43,8 +44,8 @@ import java.util.Set;
 
 /**
  * Utilities for working with {@link VisibilityChecker} and {@link VisibilityStore}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityToDocumentConverter {
     private static final String TAG = "AppSearchVisibilityToDo";

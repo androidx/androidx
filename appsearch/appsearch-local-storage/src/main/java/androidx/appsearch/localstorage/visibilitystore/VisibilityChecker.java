@@ -16,14 +16,14 @@
 package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
 /**
  * An interface for classes that validate document visibility data.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface VisibilityChecker {
     /**

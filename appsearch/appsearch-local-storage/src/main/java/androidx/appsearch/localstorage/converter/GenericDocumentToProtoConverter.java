@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.EmbeddingVector;
@@ -46,9 +47,8 @@ import java.util.Map;
 
 /**
  * Translates a {@link GenericDocument} into a {@link DocumentProto}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class GenericDocumentToProtoConverter {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];

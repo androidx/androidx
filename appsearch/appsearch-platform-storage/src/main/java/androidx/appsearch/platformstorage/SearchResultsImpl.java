@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
@@ -46,8 +47,8 @@ import java.util.concurrent.Executor;
 /**
  * Platform implementation of {@link SearchResults} which proxies to the platform's
  * {@link android.app.appsearch.SearchResults}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 class SearchResultsImpl implements SearchResults {

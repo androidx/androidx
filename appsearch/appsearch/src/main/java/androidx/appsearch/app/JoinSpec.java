@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -157,17 +158,15 @@ public final class JoinSpec extends AbstractSafeParcelable {
      *
      * <p> For instance, if a document with an id of "id1" exists in the namespace "ns" within
      * the database "db" created by package "pkg", this would evaluate to "pkg$db/ns#id1".
-     *
-     * <!--@exportToFramework:hide-->
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String QUALIFIED_ID = "this.qualifiedId()";
 
     /**
      * Aggregation scoring strategy for join spec.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link JoinSpecProto.AggregationScoreStrategy.Code}
     @IntDef(value = {
@@ -212,7 +211,6 @@ public final class JoinSpec extends AbstractSafeParcelable {
         mMaxJoinedResultCount = maxJoinedResultCount;
         mAggregationScoringStrategy = aggregationScoringStrategy;
     }
-
 
     /**
      * Returns the query to run on the joined documents.

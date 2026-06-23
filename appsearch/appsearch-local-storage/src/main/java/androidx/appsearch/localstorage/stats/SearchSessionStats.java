@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
@@ -37,9 +38,8 @@ import java.util.List;
  *
  * <p>A search session is consist of a sequence of related search intents. See {@link
  * SearchIntentStats} for more details.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSessionStats extends BaseStats {
     private final @NonNull String mPackageName;

@@ -22,6 +22,7 @@ import android.os.Build;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
@@ -36,9 +37,8 @@ import java.util.Map;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SearchSuggestionSpec}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
         version = AppSearchVersionUtil.TExtensionVersions.U_BASE)

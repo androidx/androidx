@@ -20,6 +20,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.OnCloseListener;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
@@ -29,8 +30,8 @@ import java.io.IOException;
  * A custom {@link ParcelFileDescriptor} that provides an additional mechanism to register
  * a {@link ParcelFileDescriptor.OnCloseListener} which will be invoked when the file
  * descriptor is closed.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchRevocableFileDescriptor {
 

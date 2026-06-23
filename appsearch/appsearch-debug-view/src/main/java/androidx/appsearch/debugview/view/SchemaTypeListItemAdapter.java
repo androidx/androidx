@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.debugview.R;
 import androidx.core.util.Preconditions;
@@ -37,9 +38,8 @@ import java.util.List;
  * <p>This adapter displays each schema type with its name.
  *
  * <p>Schema types can be manually changed by calling {@link #setSchemaTypes}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListItemAdapter extends
         RecyclerView.Adapter<SchemaTypeListItemAdapter.ViewHolder> {

@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -24,8 +25,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Contains attributes of an API caller relevant to its access via visibility store.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CallerAccess {
     private final String mCallingPackageName;

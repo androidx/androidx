@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -41,9 +42,8 @@ import java.util.Set;
 /**
  * An expanded version of {@link SchemaVisibilityConfig} which includes fields for internal use by
  * AppSearch.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SafeParcelable.Class(creator = "InternalVisibilityConfigCreator")
 public final class InternalVisibilityConfig extends AbstractSafeParcelable {

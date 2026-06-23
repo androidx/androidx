@@ -18,12 +18,12 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
+import androidx.appsearch.annotation.HideInPlatform;
 
 /**
  * An internal class for put document response.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class InternalPutDocumentResponse {
     private final @CurrentTimeMillisLong long mDocumentExpirationTimestampMillis;

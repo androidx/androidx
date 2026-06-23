@@ -24,6 +24,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
@@ -43,9 +44,8 @@ import java.util.Set;
 
 /**
  * Holds data for a {@link GenericDocument}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SafeParcelable.Class(creator = "GenericDocumentParcelCreator")
 // This won't be used to send data over binder, and we have to use Parcelable for code sync purpose.

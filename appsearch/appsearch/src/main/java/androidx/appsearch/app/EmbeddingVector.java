@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -140,9 +141,7 @@ public final class EmbeddingVector extends AbstractSafeParcelable {
             return mQuantizedValues;
         }
 
-        /**
-         * @exportToFramework:hide
-         */
+        @HideInPlatform
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public @NonNull byte[] getPackedBytes() {
             ByteBuffer buffer =
@@ -240,8 +239,8 @@ public final class EmbeddingVector extends AbstractSafeParcelable {
      * @param quantizedData The pre-quantized data containing the quantizer header and vector data,
      *     if available.
      * @throws IllegalArgumentException if neither values nor quantized data are provided.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
     public EmbeddingVector(

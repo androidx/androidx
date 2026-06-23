@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
@@ -28,8 +29,8 @@ import java.util.Map;
 
 /**
  * A registry which maintains instances of {@link DocumentClassFactory}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @AnyThread
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class DocumentClassFactoryRegistry {

@@ -19,6 +19,7 @@ import android.os.Parcel;
 import android.os.Parcelable.Creator;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.aidl.AppSearchBatchResultParcelV2;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
@@ -74,8 +75,8 @@ public final class RemoveBlobResponse extends AbstractSafeParcelable {
 
     /**
      * Retrieves the underlying parcel representation of the batch result.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull AppSearchBatchResultParcelV2<AppSearchBlobHandle, Void> getResponseParcel() {
         return mResultParcel;

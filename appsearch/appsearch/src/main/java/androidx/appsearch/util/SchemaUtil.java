@@ -17,6 +17,7 @@
 package androidx.appsearch.util;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.PropertyPath;
 
@@ -29,9 +30,8 @@ import java.util.Set;
 
 /**
  * A util class with methods for working with {@link AppSearchSchema}s.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaUtil {
     private SchemaUtil() {}

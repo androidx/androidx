@@ -20,8 +20,6 @@ import androidx.room.compiler.processing.XElement
 /**
  * An exception thrown from the appsearch annotation processor to indicate a type element is not
  * found due to it being possibly generated at a later annotation processing round.
- *
- * @exportToFramework:hide
  */
 internal class MissingXTypeException(typeName: XElement) :
     Exception("Type ${typeName.name} is not present")

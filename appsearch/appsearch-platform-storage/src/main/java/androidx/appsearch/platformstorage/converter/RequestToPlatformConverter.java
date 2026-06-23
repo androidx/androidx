@@ -21,6 +21,7 @@ import android.os.Build;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -36,8 +37,8 @@ import java.util.Map;
 
 /**
  * Translates between Platform and Jetpack versions of requests.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class RequestToPlatformConverter {

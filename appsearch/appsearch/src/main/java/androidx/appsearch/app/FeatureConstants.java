@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.collection.ArraySet;
 
 import java.util.Arrays;
@@ -29,8 +30,8 @@ import java.util.Set;
  * <p>All fields in this class is referring in {@link Features}. If you add/remove any field in this
  * class, you should also change {@link Features}.
  * @see Features
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class FeatureConstants {
     /** Feature constants for {@link Features#NUMERIC_SEARCH}. */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
+// @exportToFramework:skipFile()
 package androidx.appsearch.annotation;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.annotation.HideInPlatform;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the return value of the annotated API is ignorable.
+ * An annotation to indicate that the target API should be annotated with `@Hide` in the platform
+ * Android Framework codebase.
+ *
+ * <p>This annotation is only used as a metadata signal for the codebase sync process and is
+ * stripped during export.
  */
-@HideInPlatform
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@Documented
-@Target({METHOD, CONSTRUCTOR, TYPE})
-@Retention(CLASS)
-public @interface CanIgnoreReturnValue {}
+@Target({TYPE, FIELD, METHOD, CONSTRUCTOR, PACKAGE})
+@Retention(RetentionPolicy.SOURCE)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public @interface HideInPlatform {}

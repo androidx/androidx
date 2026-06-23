@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.NamespaceCache;
 import androidx.appsearch.localstorage.SchemaCache;
 import androidx.collection.ArraySet;
@@ -32,8 +33,8 @@ import java.util.Set;
 /**
  * Utilities for working with {@link SearchSpecToProtoConverter} and
  * {@link SearchSuggestionSpecToProtoConverter}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchSpecToProtoConverterUtil {
     private SearchSpecToProtoConverterUtil() {}

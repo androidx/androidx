@@ -29,6 +29,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -104,14 +105,13 @@ public final class SearchResult extends AbstractSafeParcelable {
     @Field(id = 8)
     final @NonNull Bundle mParentTypeMap;
 
-
     /** Cache of the {@link GenericDocument}. Comes from mDocument at first use. */
     private @Nullable GenericDocument mDocumentCached;
 
     /** Cache of the inflated {@link MatchInfo}. Comes from inflating mMatchInfos at first use. */
     private @NonNull List<MatchInfo> mMatchInfosCached;
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @Constructor
     SearchResult(
             @Param(id = 1) @NonNull GenericDocumentParcel document,
@@ -368,7 +368,7 @@ public final class SearchResult extends AbstractSafeParcelable {
             mDatabaseName = Preconditions.checkNotNull(databaseName);
         }
 
-        /** @exportToFramework:hide */
+        @HideInPlatform
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public Builder(@NonNull SearchResult searchResult) {
@@ -489,7 +489,6 @@ public final class SearchResult extends AbstractSafeParcelable {
             return this;
         }
 
-
         /**
          * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
          * @param joinedResult The joined SearchResult to add.
@@ -503,9 +502,8 @@ public final class SearchResult extends AbstractSafeParcelable {
 
         /**
          * Clears the {@link MatchInfo}s.
-         *
-         * @exportToFramework:hide
          */
+        @HideInPlatform
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @CanIgnoreReturnValue
         public @NonNull Builder clearMatchInfos() {
@@ -514,12 +512,10 @@ public final class SearchResult extends AbstractSafeParcelable {
             return this;
         }
 
-
         /**
          * Clears the {@link SearchResult}s that were joined.
-         *
-         * @exportToFramework:hide
          */
+        @HideInPlatform
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @CanIgnoreReturnValue
         public @NonNull Builder clearJoinedResults() {
@@ -839,7 +835,7 @@ public final class SearchResult extends AbstractSafeParcelable {
                 mPropertyPath = Preconditions.checkNotNull(propertyPath);
             }
 
-            /** @exportToFramework:hide */
+            @HideInPlatform
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public Builder(@NonNull MatchInfo matchInfo) {
                 Preconditions.checkNotNull(matchInfo);
@@ -871,7 +867,6 @@ public final class SearchResult extends AbstractSafeParcelable {
                 mExactMatchRange = Preconditions.checkNotNull(matchRange);
                 return this;
             }
-
 
             /**
              * Sets the submatch {@link MatchRange} corresponding to the given entry.

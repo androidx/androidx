@@ -17,12 +17,12 @@
 package androidx.appsearch.usagereporting;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 /**
  * Wrapper class for action constants.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ActionConstants {
     /**

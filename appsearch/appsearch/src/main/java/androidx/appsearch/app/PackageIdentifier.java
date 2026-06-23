@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.core.util.Preconditions;
 
@@ -52,7 +53,7 @@ public class PackageIdentifier {
         mPackageIdentifierParcel = new PackageIdentifierParcel(packageName, sha256Certificate);
     }
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public PackageIdentifier(@NonNull PackageIdentifierParcel packageIdentifierParcel) {
         mPackageIdentifierParcel = Preconditions.checkNotNull(packageIdentifierParcel);
@@ -61,9 +62,8 @@ public class PackageIdentifier {
     /**
      * Returns the {@link PackageIdentifierParcel} holding the values for this
      * {@link PackageIdentifier}.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull PackageIdentifierParcel getPackageIdentifierParcel() {
         return mPackageIdentifierParcel;

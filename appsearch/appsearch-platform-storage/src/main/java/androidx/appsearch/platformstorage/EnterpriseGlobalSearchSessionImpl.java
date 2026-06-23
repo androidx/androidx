@@ -24,6 +24,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
 import androidx.appsearch.app.Features;
@@ -51,9 +52,8 @@ import java.util.concurrent.Executor;
 /**
  * An implementation of {@link EnterpriseGlobalSearchSession} which proxies to a
  * platform {@link android.app.appsearch.EnterpriseGlobalSearchSession}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
         version = AppSearchVersionUtil.TExtensionVersions.V_BASE)

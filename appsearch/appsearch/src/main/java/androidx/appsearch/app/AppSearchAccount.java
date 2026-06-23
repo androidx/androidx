@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 
@@ -45,20 +46,20 @@ public final class AppSearchAccount extends GenericDocument {
 
     /**
      * The property name of the type of an account.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     public static final String PROPERTY_ACCOUNT_TYPE = "accountType";
 
     /**
      * The property name of the name of an account.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     public static final String PROPERTY_ACCOUNT_NAME = "accountName";
 
     /**
      * The property name of the id of an account.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     public static final String PROPERTY_ACCOUNT_ID = "accountId";
 
     public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)

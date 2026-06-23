@@ -29,8 +29,8 @@
 # Causes the text appearing between startStrip() and endStrip() to be removed during export:
 #   // @exportToFramework:startStrip() ... // @exportToFramework:endStrip()
 #
-# Replaced with @hide:
-#   <!--@exportToFramework:hide-->
+# Replaced with @Hide annotation in platform:
+#   @HideInPlatform
 #
 # Removes the text appearing between ifJetpack() and else(), and causes the text appearing between
 # else() and --> to become uncommented, to support framework-only Javadocs:
@@ -39,9 +39,6 @@
 #   <!--@exportToFramework:else()
 #   Framework-only Javadoc
 #   -->
-# Note: Using the above pattern, you can hide a method in Jetpack but unhide it in Framework like
-# this:
-#   <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
 
 import os
 import re
@@ -178,6 +175,10 @@ class ExportToFramework:
                     'androidx.appsearch.annotation.SystemApi',
                     'android.annotation.SystemApi')
             .replace(
+                    'androidx.appsearch.annotation.HideInPlatform',
+                    'android.annotation.Hide')
+            .replace('@HideInPlatform', '@Hide')
+            .replace(
                     'androidx.appsearch.flags.appfunctions.Flags.',
                     'android.app.appfunctions.flags.Flags.')
             .replace('androidx.appsearch', 'android.app.appsearch')
@@ -203,8 +204,6 @@ class ExportToFramework:
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
-            .replace('<!--@exportToFramework:hide-->', '@hide')
-            .replace('@exportToFramework:hide', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
             .replace('@ExperimentalAppSearchApi', '')
             .replace('@OptIn(markerClass = ExperimentalAppSearchApi.class)', '')

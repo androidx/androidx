@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.FeatureConstants;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.localstorage.NamespaceCache;
@@ -38,9 +39,8 @@ import java.util.Set;
 
 /**
  * Translates a {@link SearchSuggestionSpec} into icing search protos.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSuggestionSpecToProtoConverter {
     private final String mSuggestionQueryExpression;

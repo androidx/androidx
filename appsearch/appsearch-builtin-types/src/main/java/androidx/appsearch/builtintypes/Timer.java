@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.utils.BootCountUtil;
 
@@ -37,7 +38,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Document(name = "builtin:Timer")
 public class Timer extends Thing {
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_STARTED, STATUS_PAUSED, STATUS_EXPIRED, STATUS_MISSED,
             STATUS_RESET})

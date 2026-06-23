@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
@@ -41,9 +42,8 @@ import java.util.List;
  * click actions (see {@link ClickStats}) on fetched result documents. Related information of a
  * search intent will be extracted from
  * {@link androidx.appsearch.app.PutDocumentsRequest#getTakenActionGenericDocuments}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchIntentStats extends BaseStats {
     /** AppSearch query correction type compared with the previous query. */

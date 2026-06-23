@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.util;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
@@ -29,8 +30,8 @@ import java.util.concurrent.Executor;
 
 /**
  * Utilities for working with {@link com.google.common.util.concurrent.ListenableFuture}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FutureUtil {
     private FutureUtil() {}

@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassFactoryRegistry;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -63,7 +64,7 @@ public final class ObserverSpec extends AbstractSafeParcelable {
     /** Populated on first use */
     private volatile @Nullable Set<String> mFilterSchemasCached;
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
     public ObserverSpec(

@@ -18,9 +18,10 @@ package androidx.appsearch.testutil;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 
 import org.jspecify.annotations.NonNull;
@@ -30,9 +31,8 @@ import org.jspecify.annotations.Nullable;
  * Encapsulates a {@link GenericDocument} that represent an email.
  *
  * <p>This class is a higher level implement of {@link GenericDocument}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchEmail extends GenericDocument {
     /** The name of the schema type for {@link AppSearchEmail} documents.*/

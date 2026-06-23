@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.TypePropertyMask;
@@ -29,9 +30,8 @@ import java.util.Map;
 
 /**
  * Translates a <code>Map<String, List<String>></code> into <code>List<TypePropertyMask></code>.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TypePropertyPathToProtoConverter {
     private TypePropertyPathToProtoConverter() {}

@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -39,8 +40,8 @@ import java.util.Objects;
  * therefore needs to implement Parcelable directly. Reassess if this is still needed once
  * VisibilityConfig becomes available, and if not we should switch to a SafeParcelable
  * implementation instead.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SafeParcelable.Class(creator = "PackageIdentifierParcelCreator")
 @SuppressLint("BanParcelableUsage")

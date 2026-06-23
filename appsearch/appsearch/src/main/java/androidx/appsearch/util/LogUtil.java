@@ -22,6 +22,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.Size;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchEnvironment;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 
@@ -30,8 +31,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for logging to logcat.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class LogUtil {
     /**

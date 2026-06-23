@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
@@ -149,15 +150,13 @@ public class LocalStorage {
                 return this;
             }
 
-
             /**
              * Sets the custom logger used to get the details stats from AppSearch.
              *
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
-             *
-             * @exportToFramework:hide
              */
+            @HideInPlatform
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public @NonNull Builder setLogger(@NonNull AppSearchLogger logger) {
                 mLogger = Preconditions.checkNotNull(logger);
@@ -173,9 +172,8 @@ public class LocalStorage {
              * <p>Note: This api is only added to facilitate early opt-ins by clients. It will be
              * deprecated and then deleted (with the new 'true' behavior enabled) once this change
              * has had sufficient time to soak.
-             *
-             * @exportToFramework:hide
              */
+            @HideInPlatform
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
             public Builder setPersistToDiskRecoveryProof(boolean persistToDiskRecoveryProof) {
@@ -256,9 +254,8 @@ public class LocalStorage {
              *
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
-             *
-             * @exportToFramework:hide
              */
+            @HideInPlatform
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public @NonNull Builder setLogger(@NonNull AppSearchLogger logger) {
                 mLogger = Preconditions.checkNotNull(logger);

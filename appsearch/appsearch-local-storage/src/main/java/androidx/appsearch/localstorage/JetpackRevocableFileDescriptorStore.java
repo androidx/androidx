@@ -20,6 +20,7 @@ package androidx.appsearch.localstorage;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 
 import org.jspecify.annotations.NonNull;
@@ -33,9 +34,8 @@ import org.jspecify.annotations.NonNull;
  * {@link ParcelFileDescriptor} in the server side, the one in the client side could still work.
  *
  * <p>This class is thread safety.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalAppSearchApi
 public class JetpackRevocableFileDescriptorStore extends
