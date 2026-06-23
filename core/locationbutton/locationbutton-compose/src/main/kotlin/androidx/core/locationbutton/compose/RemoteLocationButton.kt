@@ -161,6 +161,7 @@ internal fun RemoteLocationButton(
                 surfaceViewRef?.let { view ->
                     view.setChildSurfacePackage(session.surfacePackage)
                     view.setCompositionOrder(compositionOrder)
+                    sessionState.compositionOrder = compositionOrder
                     view.invalidate()
                 }
             }
@@ -337,6 +338,10 @@ internal fun RemoteLocationButton(
                         session.setTextColor(textColor.toArgb())
                         sessionState.textColor = textColor
                     }
+                    if (compositionOrder != sessionState.compositionOrder) {
+                        view.setCompositionOrder(compositionOrder)
+                        sessionState.compositionOrder = compositionOrder
+                    }
                 }
             },
         )
@@ -344,7 +349,8 @@ internal fun RemoteLocationButton(
 }
 
 /**
- * Holds the state of the remote location button. Values are in pixels, except colors and textType.
+ * Holds the state of the location button configurations. Values are in pixels, except colors and
+ * textType.
  */
 @RequiresApi(37)
 private class SessionState(
@@ -362,6 +368,7 @@ private class SessionState(
     var iconTint: Color = Color.Unspecified,
     var textType: Int = -1,
     var textColor: Color = Color.Unspecified,
+    var compositionOrder: Int = LocationButtonDefaults.defaultCompositionOrder,
 ) {
     fun initialize(request: LocationButtonRequest) {
         this.width = request.width
