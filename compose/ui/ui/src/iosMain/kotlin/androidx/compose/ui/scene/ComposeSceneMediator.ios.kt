@@ -871,6 +871,7 @@ internal class ComposeSceneMediator(
         override val dragAndDropManager get() = this@ComposeSceneMediator.dragAndDropManager
         override val windowInsets get() = this@ComposeSceneMediator.windowInsetsManager.windowInsets
         override val outOfFrameExecutor get() = this@ComposeSceneMediator.redrawer.outOfFrameExecutor
+        override val prefetchScheduler get() = this@ComposeSceneMediator.redrawer.prefetchScheduler
         override val isClearFocusOnMouseDownEnabled: Boolean
             get() = this@ComposeSceneMediator.isClearFocusOnMouseDownEnabled
 

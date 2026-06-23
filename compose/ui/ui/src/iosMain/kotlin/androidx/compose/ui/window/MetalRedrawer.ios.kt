@@ -19,6 +19,7 @@ package androidx.compose.ui.window
 import androidx.collection.IntIntPair
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.platform.PlatformOutOfFrameExecutor
+import androidx.compose.ui.platform.PlatformPrefetchScheduler
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.UIKitInteropAction
@@ -41,6 +42,7 @@ internal sealed interface MetalRedrawer {
     fun draw(waitUntilCompletion: Boolean)
     fun setNeedsRedraw()
     val outOfFrameExecutor: PlatformOutOfFrameExecutor
+    val prefetchScheduler: PlatformPrefetchScheduler
     var ongoingInteractionEventsCount: Int
     var preferredFramesPerSecond: NSInteger
     var isForcedToPresentWithTransactionEveryFrame: Boolean
@@ -74,7 +76,6 @@ internal class LegacyMetalRedrawer(
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
     override val outOfFrameExecutor = MetalOutOfFrameExecutor()
-
     private val inflightCommandBuffersGroup = dispatch_group_create()
     private val drawCanvasSemaphore = dispatch_semaphore_create(1)
     // A guard flag to have proper assertion when draw() method is called recursively.
@@ -94,12 +95,15 @@ internal class LegacyMetalRedrawer(
     override val currentTargetFrameDuration: NSTimeInterval?
         get() {
             val currentTargetTimestamp = currentTargetTimestamp ?: return null
-            val currentTimestamp = caDisplayLink?.timestamp ?: return null
-            return currentTargetTimestamp - currentTimestamp
+            val lastFrameTimestamp = lastFrameTimestamp ?: return null
+            return currentTargetTimestamp - lastFrameTimestamp
         }
 
     private val displayLinkConditions = DisplayLinkConditions { paused ->
         caDisplayLink?.paused = paused
+    }
+    override val prefetchScheduler = PlatformPrefetchSchedulerImpl { hasWork ->
+        displayLinkConditions.needsToPrefetch = hasWork
     }
 
     /**
@@ -151,17 +155,30 @@ internal class LegacyMetalRedrawer(
      */
     private var caDisplayLink: CADisplayLink? = CADisplayLink.displayLinkWithTarget(
         target = LegacyDisplayLinkProxy {
+            val lastFrameTimestamp = lastFrameTimestamp ?: return@LegacyDisplayLinkProxy
             val targetTimestamp = currentTargetTimestamp ?: return@LegacyDisplayLinkProxy
 
+            var didDraw = false
             displayLinkConditions.onDisplayLinkTick {
                 draw(waitUntilCompletion = false, targetTimestamp)
+                didDraw = true
             }
+            prefetchScheduler.execute(lastFrameTimestamp, targetTimestamp, didDraw)
         },
         selector = NSSelectorFromString(LegacyDisplayLinkProxy::handleDisplayLinkTick.name)
     )
 
+    /**
+     * Indicates when the [CADisplayLink]'s frame is expected to be displayed
+     */
     private val currentTargetTimestamp: NSTimeInterval?
         get() = caDisplayLink?.targetTimestamp
+
+    /**
+     * Indicates when the last frame displayed.
+     */
+    private val lastFrameTimestamp: NSTimeInterval?
+        get() = caDisplayLink?.timestamp
 
     init {
         val caDisplayLink = caDisplayLink
@@ -191,6 +208,7 @@ internal class LegacyMetalRedrawer(
     override fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
         outOfFrameExecutor.dispose()
+        prefetchScheduler.dispose()
 
         retrieveInteropTransaction = {
             object : UIKitInteropTransaction {

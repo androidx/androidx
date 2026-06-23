@@ -58,6 +58,14 @@ val LocalPlatformWindowInsets = staticCompositionLocalOf<PlatformWindowInsets> {
     error("CompositionLocal LocalPlatformWindowInsets not present")
 }
 
+/**
+ * The CompositionLocal providing prefetch scheduler associated with the current scene.
+ */
+@InternalComposeUiApi
+val LocalPlatformPrefetchScheduler = staticCompositionLocalOf<PlatformPrefetchScheduler> {
+    error("CompositionLocal LocalPlatformPrefetchScheduler not present")
+}
+
 @OptIn(InternalComposeApi::class)
 @Composable
 internal fun ProvidePlatformCompositionLocals(
@@ -85,6 +93,7 @@ internal fun ProvidePlatformCompositionLocals(
         *values,
         LocalPlatformScreenReader provides platformContext.screenReader,
         LocalPlatformWindowInsets provides platformContext.windowInsets,
+        LocalPlatformPrefetchScheduler provides platformContext.prefetchScheduler,
         androidx.lifecycle.compose.LocalLifecycleOwner provides platformContext.architectureComponentsOwner.lifecycleOwner,
         LocalSavedStateRegistryOwner provides platformContext.architectureComponentsOwner.savedStateRegistryOwner,
         LocalSaveableStateRegistry provides saveableStateRegistry,
