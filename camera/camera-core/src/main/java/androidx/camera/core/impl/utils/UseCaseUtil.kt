@@ -25,19 +25,21 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.stabilization.VideoStabilization
+import androidx.camera.core.streamsharing.StreamSharing
 
 public object UseCaseUtil {
     private const val TAG = "UseCaseUtil"
 
-    /** Checks if the receiver [UseCase] list contains a video capture use case instance. */
+    /**
+     * Checks if the receiver [UseCase] list contains a video capture use case instance, potentially
+     * nested within a [StreamSharing] use case.
+     */
     @JvmStatic
     public fun Collection<UseCase?>.containsVideoCapture(): Boolean {
-        forEach { useCase ->
-            if (useCase?.isVideoCapture() == true) {
-                return true
-            }
+        return any {
+            it?.isVideoCapture() == true ||
+                (it is StreamSharing && it.children.containsVideoCapture())
         }
-        return false
     }
 
     /** Checks if the receiver [UseCase] is a video capture use case instance. */

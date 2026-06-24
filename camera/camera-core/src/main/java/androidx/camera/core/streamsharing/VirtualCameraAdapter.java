@@ -166,7 +166,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         mutableConfig.insertOption(OPTION_TARGET_FRAME_RATE,
                 resolveTargetFrameRate(mChildrenConfigs));
 
-        // Merge Preview stabilization and video stabilization configs.
+        boolean isZslDisabled = false;
+
+        // Merge Preview stabilization, video stabilization and ZSL configs.
         for (UseCase useCase : mChildren) {
             UseCaseConfig<?> useCaseConfig = requireNonNull(mChildrenConfigsMap.get(useCase));
             if (useCaseConfig.getVideoStabilizationMode()
@@ -180,6 +182,13 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                 mutableConfig.insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
                         useCaseConfig.getPreviewStabilizationMode());
             }
+
+            if (!isZslDisabled && useCaseConfig.isZslDisabled(false)) {
+                isZslDisabled = true;
+            }
+        }
+        if (isZslDisabled) {
+            mutableConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
     }
 
