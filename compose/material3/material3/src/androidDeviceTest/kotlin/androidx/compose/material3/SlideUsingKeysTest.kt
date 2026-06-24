@@ -230,7 +230,6 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, state.value) }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun slider_vertical_keyboardNavigation() = runComposeUiTest {
         var sliderFocused = false
@@ -293,7 +292,6 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, currentValue.floatValue) }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun slider_vertical_reverseDirectionTrue_keyboardNavigation() = runComposeUiTest {
         var sliderFocused = false
@@ -323,7 +321,7 @@ class SlideUsingKeysTest {
                         trackCornerSize = 12.dp,
                     )
                 },
-                reverseDirection = true,
+                topToBottom = false,
             )
         }
 
@@ -357,7 +355,6 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, currentValue.floatValue) }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun slider_vertical_rtl_keyboardNavigation() = runComposeUiTest {
         var sliderFocused = false
@@ -422,7 +419,6 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, currentValue.floatValue) }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun slider_vertical_rtl_reverseDirectionTrue_keyboardNavigation() = runComposeUiTest {
         var sliderFocused = false
@@ -453,7 +449,7 @@ class SlideUsingKeysTest {
                             trackCornerSize = 12.dp,
                         )
                     },
-                    reverseDirection = true,
+                    topToBottom = false,
                 )
             }
         }
