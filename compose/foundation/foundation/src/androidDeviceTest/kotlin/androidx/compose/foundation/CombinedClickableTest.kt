@@ -17,7 +17,6 @@
 package androidx.compose.foundation
 
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -125,11 +124,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -141,7 +138,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CombinedClickableTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -152,13 +149,6 @@ class CombinedClickableTest {
     fun after() {
         isDebugInspectorInfoEnabled = false
     }
-
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
-    @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
 
     @Test
     fun defaultSemantics() {

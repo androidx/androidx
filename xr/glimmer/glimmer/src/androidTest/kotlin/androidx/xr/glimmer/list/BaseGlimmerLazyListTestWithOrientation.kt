@@ -40,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -62,13 +64,13 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 
 abstract class BaseGlimmerLazyListTestWithOrientation(protected val orientation: Orientation) {
 
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule(0) val rule: ComposeContentTestRule = createComposeRule(testDispatcher)
+    @get:Rule(0)
+    val rule: ComposeContentTestRule =
+        createComposeRule(ComposeUiTestConfig(inputMode = InputMode.Keyboard))
 
     @get:Rule(1) val glimmerRule = createGlimmerRule()
 

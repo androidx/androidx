@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,12 +51,9 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,13 +69,6 @@ import org.junit.runners.Parameterized
 class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     private val key: Key = Key(keyCode)
 
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
-    @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "keyCode={0}")
@@ -93,7 +82,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
             )
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun clickWithKey() {

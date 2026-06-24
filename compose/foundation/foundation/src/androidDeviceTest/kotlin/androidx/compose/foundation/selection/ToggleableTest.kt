@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.selection
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.TapIndicationDelay
 import androidx.compose.foundation.TestIndication
@@ -87,11 +86,9 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -102,7 +99,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ToggleableTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -113,13 +110,6 @@ class ToggleableTest {
     fun after() {
         isDebugInspectorInfoEnabled = false
     }
-
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
-    @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
 
     @Test
     fun toggleableTest_defaultSemantics() {

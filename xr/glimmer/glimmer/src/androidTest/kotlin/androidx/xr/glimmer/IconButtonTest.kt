@@ -28,9 +28,11 @@ import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -52,7 +54,6 @@ import androidx.xr.glimmer.testutils.createGlimmerRule
 import androidx.xr.glimmer.testutils.toIntArray
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,7 +63,8 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class IconButtonTest {
 
-    @get:Rule(0) val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule(0)
+    val rule = createComposeRule(config = ComposeUiTestConfig(inputMode = InputMode.Keyboard))
     @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     @Test
