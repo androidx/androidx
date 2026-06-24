@@ -1,0 +1,345 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 400
+    height: 200
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 400.0
+      height: 200.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 400.0
+        height: 200.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 200.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: OVERRIDE_GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 1.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 2.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 13
+          x: 150.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 3.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 400
+    height: 200
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 400.0
+      height: 200.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 400.0
+        height: 200.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 200.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: OVERRIDE_GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 1.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 2.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 13
+          x: 150.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 3.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 250
+    height: 200
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 250.0
+      height: 200.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 250.0
+        height: 200.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 250.0, height: 200.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: OVERRIDE_GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 1.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: OVERRIDE_GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 2.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 13
+          x: 0.0
+          y: 0.0
+          width: 150.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 150.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: CollapsiblePriorityModifierOperation, orientation: 0, priority: 3.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

@@ -1,0 +1,264 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 400
+    height: 400
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 400.0
+      height: 400.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: layout_state, varType: INT_TYPE}
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: STATE_LAYOUT
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 400.0
+        height: 400.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 400.0
+          height: 400.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 0.0
+          height: 0.0
+          visibility: GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        indexId: 42
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 400
+    height: 400
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 400.0
+      height: 400.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: layout_state, varType: INT_TYPE}
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: STATE_LAYOUT
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 400.0
+        height: 400.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 400.0
+          height: 400.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 0.0
+          height: 0.0
+          visibility: GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        indexId: 42
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 400
+    height: 400
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 400.0
+      height: 400.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: layout_state, varType: INT_TYPE}
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: STATE_LAYOUT
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 400.0
+        height: 400.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 400.0
+          height: 400.0
+          visibility: GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 400.0
+          height: 400.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        indexId: 42

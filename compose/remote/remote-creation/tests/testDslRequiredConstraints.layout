@@ -1,0 +1,178 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 100
+    height: 100
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 100.0
+      height: 100.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 100.0
+        height: 100.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: DimensionConstraintsModifierOperation
+              constraints: REQUIRED_HORIZONTAL
+              min: {type: Value, value: 200.0}
+              max: {type: Value, value: 200.0}
+            - type: DimensionConstraintsModifierOperation
+              constraints: REQUIRED_VERTICAL
+              min: {type: Value, value: 200.0}
+              max: {type: Value, value: 200.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 100
+    height: 100
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 100.0
+      height: 100.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: 10
+        x: 0.0
+        y: 0.0
+        width: 100.0
+        height: 100.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+            color: '0xffffffff', shapeType: RECTANGLE}
+        - type: BOX
+          id: 11
+          x: 0.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: 12
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: DimensionConstraintsModifierOperation
+              constraints: REQUIRED_HORIZONTAL
+              min: {type: Value, value: 200.0}
+              max: {type: Value, value: 200.0}
+            - type: DimensionConstraintsModifierOperation
+              constraints: REQUIRED_VERTICAL
+              min: {type: Value, value: 200.0}
+              max: {type: Value, value: 200.0}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
