@@ -2553,7 +2553,10 @@ internal fun <T : StateRecord> current(r: T, state: StateObject): T =
  *
  * @see readable
  */
-@Deprecated("Use the StateObject overload instead")
+@Deprecated(
+    "Use the overload that has a StateObject parameter instead; for example, " +
+        "next.withCurrent(this) { ... }"
+)
 public inline fun <T : StateRecord, R> T.withCurrent(block: (r: T) -> R): R = block(current(this))
 
 /**
