@@ -152,6 +152,8 @@ final class <#A: kotlin/Any> androidx.navigation3.runtime/SaveableStateHolderNav
 final class androidx.navigation3.runtime.deeplink/DeepLinkRequest { // androidx.navigation3.runtime.deeplink/DeepLinkRequest|null[0]
     final val action // androidx.navigation3.runtime.deeplink/DeepLinkRequest.action|{}action[0]
         final fun <get-action>(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkRequest.action.<get-action>|<get-action>(){}[0]
+    final val extras // androidx.navigation3.runtime.deeplink/DeepLinkRequest.extras|{}extras[0]
+        final fun <get-extras>(): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.navigation3.runtime.deeplink/DeepLinkRequest.extras.<get-extras>|<get-extras>(){}[0]
     final val mimeType // androidx.navigation3.runtime.deeplink/DeepLinkRequest.mimeType|{}mimeType[0]
         final fun <get-mimeType>(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkRequest.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
     final val uri // androidx.navigation3.runtime.deeplink/DeepLinkRequest.uri|{}uri[0]
