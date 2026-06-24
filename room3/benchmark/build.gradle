@@ -54,6 +54,9 @@ dependencies {
 
 android {
     namespace = "androidx.room3.benchmark"
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 }
 
 androidx {

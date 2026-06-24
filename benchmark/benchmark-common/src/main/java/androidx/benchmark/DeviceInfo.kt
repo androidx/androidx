@@ -352,8 +352,7 @@ object DeviceInfo {
      */
     val poisonTheRuntimeImage = !verifyClearsRuntimeImage && supportsRuntimeImages
 
-    val supportsCpuEventCounters =
-        Build.VERSION.SDK_INT < CpuEventCounter.MIN_API_ROOT_REQUIRED || isRooted
+    val supportsCpuEventCounters = isRooted
 
     @get:VisibleForTesting
     @set:VisibleForTesting

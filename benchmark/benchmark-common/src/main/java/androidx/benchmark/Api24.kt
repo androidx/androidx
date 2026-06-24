@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:RequiresApi(24)
-
 package androidx.benchmark
 
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.os.PowerManager
-import androidx.annotation.RequiresApi
 
 internal fun Instrumentation.isSustainedPerformanceModeSupported(): Boolean {
     val powerManager = targetContext.getSystemService(Context.POWER_SERVICE) as PowerManager

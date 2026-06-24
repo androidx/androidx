@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -131,12 +130,7 @@ object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
         if (argumentValue == "DEFAULT_VAL") {
-            return if (Build.VERSION.SDK_INT <= 21) {
-                // Have observed stack corruption on API 21, we haven't spent the time to find out
-                // why, or if it's better on other low API levels. See b/300658578
-                // TODO: consider adding warning here
-                null to true
-            } else if (DeviceInfo.methodTracingAffectsMeasurements) {
+            return if (DeviceInfo.methodTracingAffectsMeasurements) {
                 // We warn here instead of in Errors since this doesn't affect all measurements -
                 // BenchmarkState throws rather than measuring incorrectly, and the first benchmark
                 // can still measure with a trace safely

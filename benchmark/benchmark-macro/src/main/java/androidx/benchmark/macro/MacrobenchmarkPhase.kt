@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
@@ -106,22 +105,7 @@ internal fun TraceProcessor.runPhase(
                     config =
                         experimentalConfig?.perfettoConfig
                             ?: PerfettoConfig.Benchmark(
-                                /**
-                                 * Prior to API 24, every package name was joined into a single
-                                 * setprop which can overflow, and disable *ALL* app level tracing.
-                                 *
-                                 * For safety here, we only trace the macrobench package on newer
-                                 * platforms, and use reflection in the macrobench test process to
-                                 * trace important sections
-                                 *
-                                 * @see androidx.benchmark.macro.perfetto.ForceTracing
-                                 */
-                                appTagPackages =
-                                    if (Build.VERSION.SDK_INT >= 24) {
-                                        listOf(packageName, macrobenchmarkPackageName)
-                                    } else {
-                                        listOf(packageName)
-                                    },
+                                appTagPackages = listOf(packageName, macrobenchmarkPackageName),
                                 useStackSamplingConfig = true,
                             ),
                     perfettoSdkConfig = perfettoSdkConfig,

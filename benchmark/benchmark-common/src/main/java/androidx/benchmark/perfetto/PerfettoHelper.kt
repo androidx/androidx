@@ -91,21 +91,7 @@ class PerfettoHelper(
                     val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                     // Move the config to a directory that unbundled perfetto has permissions for.
                     Shell.rm(path)
-                    if (Build.VERSION.SDK_INT == 23) {
-                        // Observed stderr output (though command still completes successfully) on:
-                        // google/shamu/shamu:6.0.1/MOB31T/3671974:userdebug/dev-keys
-                        // Doesn't repro on all API 23 devices :|
-                        Shell.executeScriptCaptureStdoutStderr("cp $configFilePath $path").also {
-                            check(
-                                it.stdout.isBlank() &&
-                                    (it.stderr.isBlank() || it.stderr.startsWith("mv: chown"))
-                            ) {
-                                "Observed unexpected output: it"
-                            }
-                        }
-                    } else {
-                        Shell.cp(from = configFilePath, to = path)
-                    }
+                    Shell.cp(from = configFilePath, to = path)
                     path
                 } else {
                     configFilePath

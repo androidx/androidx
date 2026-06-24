@@ -24,6 +24,9 @@ dependencies {
 
 android {
     compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.activity.compose.benchmark"
 
     // DO NOT CHECK IN! Enable experimental benchmarking with R8 - for local runs only

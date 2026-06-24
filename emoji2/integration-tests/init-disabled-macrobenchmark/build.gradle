@@ -20,6 +20,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.emoji2.integration.macrobenchmark.disabled"
     targetProjectPath = ":emoji2:integration-tests:init-disabled-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

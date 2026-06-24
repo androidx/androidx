@@ -49,5 +49,8 @@ androidx {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.profileinstaller.benchmark"
 }

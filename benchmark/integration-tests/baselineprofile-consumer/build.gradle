@@ -31,6 +31,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     sourceSets {
         // This is required because of release variant specific code used by hilt.
         releaseLibrariesOnly {

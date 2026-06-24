@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.benchmark.macro {
 
-  @RequiresApi(24) public final class ArtMetric extends androidx.benchmark.macro.Metric {
+  public final class ArtMetric extends androidx.benchmark.macro.Metric {
     ctor public ArtMetric();
   }
 
@@ -70,11 +70,11 @@ package androidx.benchmark.macro {
     field public static final androidx.benchmark.macro.CompilationMode.Interpreted INSTANCE;
   }
 
-  @RequiresApi(24) public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
+  public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
     ctor public CompilationMode.None();
   }
 
-  @RequiresApi(24) public static final class CompilationMode.Partial extends androidx.benchmark.macro.CompilationMode {
+  public static final class CompilationMode.Partial extends androidx.benchmark.macro.CompilationMode {
     ctor public CompilationMode.Partial();
     ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode);
     ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode, optional @IntRange(from=0L) int warmupIterations);

@@ -30,6 +30,7 @@ plugins {
 
 android {
     defaultConfig {
+        minSdk { version = release(24) }
         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
 
     }

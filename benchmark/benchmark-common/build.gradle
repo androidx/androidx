@@ -37,6 +37,7 @@ plugins {
 android {
     namespace = "androidx.benchmark"
     defaultConfig {
+        minSdk { version = release(24) }
         externalNativeBuild {
             cmake {
                 cppFlags ''

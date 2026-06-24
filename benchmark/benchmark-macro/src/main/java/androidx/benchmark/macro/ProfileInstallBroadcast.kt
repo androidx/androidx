@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.Shell
@@ -152,7 +151,6 @@ object ProfileInstallBroadcast {
      *
      * Returned error strings aren't thrown, to let the calling function decide strictness.
      */
-    @RequiresApi(24)
     fun saveProfile(packageName: String): String? {
         Log.d(TAG, "Profile Installer - Save Profile")
         val action = "androidx.profileinstaller.action.SAVE_PROFILE"
@@ -265,7 +263,6 @@ object ProfileInstallBroadcast {
     }
 
     @SuppressLint("BanThreadSleep")
-    @RequiresApi(24)
     fun saveProfilesForAllProcesses(packageName: String): SaveProfileResult {
         val processes = Shell.getRunningPidsAndProcessesForPackage(packageName)
         processes

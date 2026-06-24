@@ -48,17 +48,8 @@ object Outputs {
     /**
      * The usable output directory, given permission issues with `adb shell` on Android R. Both the
      * app and the shell have access to this output folder.
-     *
-     * This dir can be read/written by app This dir can be read by shell (see
-     * [forceFilesForShellAccessible] for API 21/22!)
      */
     val dirUsableByAppAndShell: File
-
-    /**
-     * Any file created by this process for the shell to use must be explicitly made filesystem
-     * globally readable, as prior to API 23 the shell didn't have access by default.
-     */
-    val forceFilesForShellAccessible: Boolean = Build.VERSION.SDK_INT in 21..22
 
     init {
         // Be explicit about the TimeZone for stable formatting
@@ -79,24 +70,12 @@ object Outputs {
                         Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
                     }
                 }
-                Build.VERSION.SDK_INT <= 22 -> {
-                    // prior to API 23, shell didn't have access to externalCacheDir
-                    context.cacheDir
-                }
                 else -> context.externalCacheDir
             }
                 ?: throw IllegalStateException(
                     "Unable to select a directory for writing files, " +
                         "additionalTestOutputDir argument required to declare output dir."
                 )
-
-        if (forceFilesForShellAccessible) {
-            // By default, shell doesn't have access to app dirs on 21/22 so we need to modify
-            // this so that the shell can output here too
-            dirUsableByAppAndShell.setReadable(true, false)
-            dirUsableByAppAndShell.setWritable(true, false)
-            dirUsableByAppAndShell.setExecutable(true, false)
-        }
 
         Log.d(BenchmarkState.TAG, "Usable output directory: $dirUsableByAppAndShell")
 

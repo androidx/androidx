@@ -20,6 +20,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.profileinstaller.integration.macrobenchmark"
     targetProjectPath = ":profileinstaller:integration-tests:init-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

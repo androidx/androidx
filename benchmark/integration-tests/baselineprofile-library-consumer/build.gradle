@@ -21,6 +21,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.benchmark.integration.baselineprofile.library.consumer"
 }
 
