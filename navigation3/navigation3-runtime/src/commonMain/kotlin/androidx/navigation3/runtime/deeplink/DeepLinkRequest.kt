@@ -16,23 +16,28 @@
 
 package androidx.navigation3.runtime.deeplink
 
-import kotlin.jvm.JvmStatic
-
 /**
  * Represents a requested deep link.
  *
  * @param uri The URI for the deep link.
- * @param mimeType The mime type for the deep link.
- * @param action The action for the deep link.
  * @param extras The map of additional information for the request.
  */
-public class DeepLinkRequest
-internal constructor(
+public class DeepLinkRequest(
     public val uri: DeepLinkUri?,
-    public val mimeType: String?,
-    public val action: String?,
     public val extras: Map<String, Any> = emptyMap(),
 ) {
+    /**
+     * Constructs a [DeepLinkRequest] with a string uri.
+     *
+     * @param uriString the string uri of the requested deep link
+     * @param extras The map holding pairs of [String] to [Any] to provide extra information to the
+     *   [DeepLinkRequest], such a mimeType.
+     */
+    public constructor(
+        uriString: String,
+        extras: Map<String, Any> = emptyMap(),
+    ) : this(DeepLinkUri(uriString), extras)
+
     public override fun toString(): String {
         return buildString {
             append("DeepLinkRequest")
@@ -40,14 +45,6 @@ internal constructor(
             if (uri != null) {
                 append(" uri=")
                 append(uri.toString())
-            }
-            if (action != null) {
-                append(" action=")
-                append(action)
-            }
-            if (mimeType != null) {
-                append(" mimetype=")
-                append(mimeType)
             }
             if (extras.isNotEmpty()) {
                 append(" extras=")
@@ -58,74 +55,17 @@ internal constructor(
     }
 
     public companion object {
-        /**
-         * Creates a [DeepLinkRequest] with a [DeepLinkUri].
-         *
-         * @param uri The URI for the deep link.
-         * @param mimeType The mime type for the deep link.
-         * @param action The action for the deep link.
-         * @return a [DeepLinkRequest] instance
-         */
-        @JvmStatic
-        public fun fromUri(
-            uri: DeepLinkUri,
-            mimeType: String? = null,
-            action: String? = null,
-        ): DeepLinkRequest = DeepLinkRequest(uri, mimeType, action)
+        /** The key of the mimeType stored inside the map returned by [mimeTypeExtra]. */
+        public object MimeTypeExtrasKey : RequestExtrasKey<String>
 
         /**
-         * Creates a [DeepLinkRequest] with a string uri.
+         * Returns a Map<String, Any> that stores the provided [mimeTypeExtra] with the key
+         * [MimeTypeExtrasKey].
          *
-         * @param uri The URI for the deep link.
-         * @param mimeType The mime type for the deep link.
-         * @param action The action for the deep link.
-         * @return a [DeepLinkRequest] instance
+         * The value can be retrieved via map.get([MimeTypeExtrasKey]).
          */
-        @JvmStatic
-        public fun fromUriString(
-            uri: String,
-            mimeType: String? = null,
-            action: String? = null,
-        ): DeepLinkRequest = DeepLinkRequest(DeepLinkUri(uri), mimeType, action)
-
-        /**
-         * Creates a [DeepLinkRequest] with an action.
-         *
-         * @param uri The URI for the deep link.
-         * @param mimeType The mime type for the deep link.
-         * @param action The action for the deep link.
-         * @return a [DeepLinkRequest] instance
-         * @throws IllegalArgumentException if the action is empty.
-         */
-        @JvmStatic
-        public fun fromAction(
-            action: String,
-            uri: DeepLinkUri? = null,
-            mimeType: String? = null,
-        ): DeepLinkRequest {
-            require(action.isNotEmpty()) { "Cannot create DeepLinkRequest from an empty action." }
-            return DeepLinkRequest(uri, mimeType, action)
-        }
-
-        /**
-         * Creates a [DeepLinkRequest] with a mimeType.
-         *
-         * @param uri The URI for the deep link.
-         * @param mimeType The mime type for the deep link.
-         * @param action The action for the deep link.
-         * @return a [DeepLinkRequest] instance
-         * @throws IllegalArgumentException if the mimeType is empty.
-         */
-        @JvmStatic
-        public fun fromMimeType(
-            mimeType: String,
-            uri: DeepLinkUri? = null,
-            action: String? = null,
-        ): DeepLinkRequest {
-            require(mimeType.isNotEmpty()) {
-                "Cannot create DeepLinkRequest from an empty mimeType."
-            }
-            return DeepLinkRequest(uri, mimeType, action)
+        public fun mimeTypeExtra(mimeType: String): Map<String, Any> = requestExtras {
+            put(MimeTypeExtrasKey, mimeType)
         }
     }
 }

@@ -26,25 +26,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable object ImageKey : NavKey
 
-private class MimeTypeFilter(private val mimeType: String) : DeepLinkMatcher.Filter {
-    override fun filterRequest(request: DeepLinkRequest): Boolean {
-        return mimeType == request.mimeType
-    }
-}
-
 private const val SAMPLE_BASE_PATH = "www.nav3deeplinksample.com"
 
 @Sampled
 fun staticKeyDeepLinkMatcherSample() {
     // declare a matcher based on mime type
-    val mimeTypeFilter = MimeTypeFilter("image/jpg")
+    val mimeType = "image/jpg"
+    val mimeTypeFilter = DeepLinkMatcher.mimeTypeFilter(mimeType)
     val matcher = StaticKeyDeepLinkMatcher(ImageKey, listOf(mimeTypeFilter))
 
     // when handling a request
     val request =
-        DeepLinkRequest.fromUri(
+        DeepLinkRequest(
             uri = DeepLinkUri("$SAMPLE_BASE_PATH/images/"),
-            mimeType = "image/jpg",
+            extras = DeepLinkRequest.mimeTypeExtra(mimeType),
         )
     // returns a valid result as long as mimeType matches
     val matchResult: DeepLinkMatcher.MatchResult<ImageKey>? = matcher.match(request)

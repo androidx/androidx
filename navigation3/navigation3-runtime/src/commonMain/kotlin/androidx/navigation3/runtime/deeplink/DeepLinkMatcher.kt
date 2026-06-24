@@ -16,6 +16,7 @@
 
 package androidx.navigation3.runtime.deeplink
 
+import androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion.MimeTypeExtrasKey
 import androidx.navigation3.runtime.fastForEachOrForEach
 
 /**
@@ -108,7 +109,8 @@ public abstract class DeepLinkMatcher<out T : Any>(
          *   matcher did not define any actions, false otherwise.
          */
         public fun mimeTypeFilter(mimeType: String): Filter = Filter { request ->
-            mimeType.equals(request.mimeType, true)
+            val requestedMime = request.extras[MimeTypeExtrasKey]
+            mimeType.equals(requestedMime, true)
         }
     }
 }
