@@ -25,8 +25,8 @@ public interface XrNativeInstanceProvider : Service {
     /**
      * Initializes the provider with the provided context.
      *
-     * @param context The application context.
-     * @param extraExtensions A list of extra OpenXR extension names to enable.
+     * @param context the application context
+     * @param extraExtensions a list of extra OpenXR extension names to enable
      */
     public fun initialize(context: Context, extraExtensions: List<String> = emptyList())
 

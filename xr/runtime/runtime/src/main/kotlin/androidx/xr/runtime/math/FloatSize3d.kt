@@ -17,7 +17,7 @@
 package androidx.xr.runtime.math
 
 /**
- * Size of a 3d object represented as a Float, such as the dimensions of a spatial volume in meters.
+ * 3D size represented as a Float (e.g., spatial volume dimensions in meters).
  *
  * @property width the width of the object
  * @property height the height of the object
@@ -98,8 +98,7 @@ public class FloatSize3d(
 
     public companion object {
         /**
-         * Creates a [FloatSize3d] from a [Vector3], using the Vector3's x, y, and z components as
-         * the width, height, and depth respectively.
+         * Creates a [FloatSize3d] from a [Vector3] using its components.
          *
          * @param vector the source [Vector3]
          * @return a new [FloatSize3d] instance

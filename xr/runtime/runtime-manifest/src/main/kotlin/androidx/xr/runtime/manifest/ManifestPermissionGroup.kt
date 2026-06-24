@@ -19,8 +19,7 @@
 package androidx.xr.runtime.manifest
 
 /**
- * Used for permissions that are associated with accessing XR tracked information about the person
- * using the device and the environment around them.
+ * Group for permissions accessing user and environment XR tracking data.
  *
  * Constant Value: "android.permission-group.XR_TRACKING"
  */

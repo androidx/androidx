@@ -22,7 +22,7 @@ import kotlin.math.abs
 import kotlin.math.asin
 
 /**
- * Represents an immutable rigid transformation from one coordinate space to another.
+ * Immutable rigid transformation from one coordinate space to another.
  *
  * @property translation the translation component of this pose
  * @property rotation the rotation component of this pose
@@ -85,26 +85,23 @@ constructor(
     public fun rotate(rotation: Quaternion): Pose = Pose(this.translation, this.rotation * rotation)
 
     /**
-     * Transforms the provided [point] by the pose by applying both the [rotation] and the
-     * [translation] components of the pose. This is because a point represents a specific location
-     * in space. It needs to account for the position, scale and orientation of the space it is in.
+     * Transforms [point] using pose rotation and translation. A point represents a specific
+     * location in space and is affected by translation, scale, and orientation.
      */
     public infix fun transformPoint(point: Vector3): Vector3 = rotation * point + translation
 
     /**
-     * Transforms the provided [vector] by the pose by only applying the [rotation] component of the
-     * pose. This is because a vector represents a direction and magnitude, not a specific location.
-     * It only needs to account for the scale and orientation of the space it is in since it has no
-     * position.
+     * Transforms [vector] using only pose rotation. A vector represents a direction and magnitude,
+     * not a specific location. It only needs to account for the scale and orientation of the space
+     * it is in since it has no position.
      */
     public infix fun transformVector(vector: Vector3): Vector3 = rotation * vector
 
     /**
-     * Calculates a rotation to align this pose's local Z-axis [forward] with the given pose's [up]
-     * direction.
+     * Calculates rotation to align local Z-axis [forward] with [other]'s [up] direction.
      *
-     * @param other The given pose.
-     * @return A Quaternion representing the rotation to apply to the pose.
+     * @param other the given pose
+     * @return a Quaternion representing the rotation to apply to the pose
      */
     public fun getForwardVectorToUpRotation(other: Pose): Quaternion {
         val otherPoseUp = other.up.toNormalized()
@@ -120,11 +117,10 @@ constructor(
     }
 
     /**
-     * Calculates a rotation to align this pose's local Y-axis [up] with the given pose's up
-     * direction.
+     * Calculates rotation to align local Y-axis [up] with [other]'s up direction.
      *
-     * @param other The given pose.
-     * @return A Quaternion representing the rotation to apply to the pose.
+     * @param other the given pose
+     * @return a Quaternion representing the rotation to apply to the pose
      */
     public fun getUpVectorToUpRotation(other: Pose): Quaternion {
         val otherPoseUp: Vector3 = other.up.toNormalized()
@@ -185,8 +181,7 @@ constructor(
         private const val EPSILON = 1e-6f
 
         /**
-         * Returns a new pose oriented to look at [target] from [eye] position with [up] as the up
-         * vector.
+         * Creates a pose looking at [target] from [eye] with [up] vector.
          *
          * @param eye the position from which to look at [target]
          * @param target the target position to look at
@@ -217,9 +212,9 @@ constructor(
             Vector3.distance(lhs.translation, rhs.translation)
 
         /**
-         * Returns a new pose that is linearly interpolated between [start] and [end] using the
-         * interpolation amount [ratio]. The position is [lerped][Vector3.lerp], but the rotation
-         * will be [slerped][Quaternion.slerp] if the angles are far apart.
+         * Linearly interpolates between [start] and [end] by [ratio]. The position is
+         * [lerped][Vector3.lerp], but the rotation will be [slerped][Quaternion.slerp] if the
+         * angles are far apart.
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned pose will be extrapolated.
          *

@@ -30,8 +30,8 @@ public interface PerceptionRuntimeFactory : Service {
      * The provided [coroutineScope] will be used for any asynchronous operations initiated by the
      * runtime.
      *
-     * @param context The host [Context].
-     * @param coroutineScope The [CoroutineScope] for the runtime to use.
+     * @param context the host [Context]
+     * @param coroutineScope the [CoroutineScope] for the runtime to use
      */
     public fun createRuntime(context: Context, coroutineScope: CoroutineScope): JxrRuntime
 }

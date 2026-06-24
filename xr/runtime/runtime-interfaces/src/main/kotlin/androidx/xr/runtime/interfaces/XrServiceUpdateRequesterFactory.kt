@@ -27,8 +27,8 @@ public interface XrServiceUpdateRequesterFactory : Service {
     /**
      * Creates an [XrServiceUpdateRequester].
      *
-     * @param context The [Context] used to connect to an update service
-     * @param coroutineContext The [CoroutineContext] used to execute background operations
+     * @param context the [Context] used to connect to an update service
+     * @param coroutineContext the [CoroutineContext] used to execute background operations
      */
     public fun create(
         context: Context,

@@ -45,7 +45,7 @@ public fun XrDevice.getNativeInstanceData(context: Context): NativeInstanceData 
  * events on their own.
  *
  * @throws [IllegalStateException] if the session is not using a runtime backed by a native session
- *   or the session has been destroyed.
+ *   or the session has been destroyed
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Session.getNativeSessionData(): NativeSessionData {

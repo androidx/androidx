@@ -17,7 +17,7 @@
 package androidx.xr.runtime.math
 
 /**
- * Size of a 2d object represented as an Int, such as the dimensions of the panel in pixels.
+ * 2D size represented as an Int (e.g., panel dimensions in pixels).
  *
  * @property width the width of the object
  * @property height the height of the object

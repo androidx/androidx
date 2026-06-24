@@ -29,8 +29,8 @@ public interface SessionResultProviderFactory : Service {
      * The provided [coroutineScope] will be used for any asynchronous operations initiated by the
      * provider.
      *
-     * @param context The host [Context].
-     * @param coroutineScope The [CoroutineScope] for the provider to use.
+     * @param context the host [Context]
+     * @param coroutineScope the [CoroutineScope] for the provider to use
      */
     public fun createProvider(
         context: Context,

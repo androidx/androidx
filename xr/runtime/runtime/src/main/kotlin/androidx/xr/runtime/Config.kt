@@ -18,37 +18,37 @@ package androidx.xr.runtime
 import androidx.annotation.RestrictTo
 
 /**
- * Defines a configuration state of all available features to be set at runtime.
+ * Configuration state of all available features to be set at runtime.
  *
  * An instance of this class should be passed to [Session.configure] to set the current
  * configuration. Use [Builder] to specify individual configuration settings, and use
  * [Builder.build] to create an instance of [Config] to pass to [Session.configure].
  *
- * @property planeTracking Feature that allows tracking of and provides information about scene
- *   planes. See [PlaneTrackingMode].
- * @property handTracking Feature that allows tracking of the user's hands and hand joints. See
- *   [HandTrackingMode].
- * @property deviceTracking Feature that allows tracking of the AR device. See [DeviceTrackingMode].
- * @property depthEstimation Feature that allows more accurate information about scene depth and
- *   meshes. See [DepthEstimationMode].
- * @property anchorPersistence Feature that allows anchors to be persisted through sessions. See
- *   [AnchorPersistenceMode].
- * @property faceTracking Feature that allows the tracking of human faces. See [FaceTrackingMode].
- * @property geospatial Feature that allows geospatial localization and tracking. See
- *   [GeospatialMode].
- * @property augmentedObjectCategories Feature that allows tracking of recognizable objects in the
- *   environment. See [AugmentedObjectCategory].
- * @property eyeTracking Feature that allows tracking of the users gaze direction. See
- *   [EyeTrackingMode].
- * @property augmentedImageDatabase The current active [AugmentedImageDatabase]. If not empty, the
- *   image tracking feature will be enabled.
- * @property qrCodeTracking Feature that allows tracking of and provides information about QR codes.
- *   See [QrCodeTrackingMode].
- * @property qrCodeSizeMeters The physical size in meters of the QR code. If zero, the physical size
+ * @property planeTracking feature that allows tracking of and provides information about scene
+ *   planes. See [PlaneTrackingMode]
+ * @property handTracking feature that allows tracking of the user's hands and hand joints. See
+ *   [HandTrackingMode]
+ * @property deviceTracking feature that allows tracking of the AR device. See [DeviceTrackingMode]
+ * @property depthEstimation feature that allows more accurate information about scene depth and
+ *   meshes. See [DepthEstimationMode]
+ * @property anchorPersistence feature that allows anchors to be persisted through sessions. See
+ *   [AnchorPersistenceMode]
+ * @property faceTracking feature that allows the tracking of human faces. See [FaceTrackingMode]
+ * @property geospatial feature that allows geospatial localization and tracking. See
+ *   [GeospatialMode]
+ * @property augmentedObjectCategories feature that allows tracking of recognizable objects in the
+ *   environment. See [AugmentedObjectCategory]
+ * @property eyeTracking feature that allows tracking of the users gaze direction. See
+ *   [EyeTrackingMode]
+ * @property augmentedImageDatabase the current active [AugmentedImageDatabase]. If not empty, the
+ *   image tracking feature will be enabled
+ * @property qrCodeTracking feature that allows tracking of and provides information about QR codes
+ *   See [QrCodeTrackingMode]
+ * @property qrCodeSizeMeters the physical size in meters of the QR code. If zero, the physical size
  *   will be estimated if the device supports it. If physical size estimation is not supported,
  *   configuring the [Session] adding an entry with qrCodeSizeMeters being 0f or lower will throw an
  *   [IllegalStateException]. It requires [qrCodeTracking] to be different from
- *   [QrCodeTrackingMode.DISABLED].
+ *   [QrCodeTrackingMode.DISABLED]
  */
 public class Config
 private constructor(
@@ -386,7 +386,7 @@ private constructor(
          *
          * The default value is null.
          *
-         * @param augmentedImageDatabase Nullable [AugmentedImageDatabase] value to configure the
+         * @param augmentedImageDatabase nullable [AugmentedImageDatabase] value to configure the
          *   [Session]
          * @return a [Builder] that builds a [Config] with the supplied augmented image database
          */

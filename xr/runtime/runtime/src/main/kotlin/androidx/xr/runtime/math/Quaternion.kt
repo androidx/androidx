@@ -27,9 +27,9 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Represents a rotation component in three-dimensional space. Any vector can be provided and the
- * resulting quaternion will be normalized at construction time. A zero-length input (all components
- * zero) cannot be normalized and falls back to the identity rotation.
+ * Rotation component in three-dimensional space. Any vector can be provided and the resulting
+ * quaternion will be normalized at construction time. A zero-length input (all components zero)
+ * cannot be normalized and falls back to the identity rotation.
  *
  * @property x the x value of the quaternion
  * @property y the y value of the quaternion
@@ -147,10 +147,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
     public inline infix fun dot(other: Quaternion): Float =
         x * other.x + y * other.y + z * other.z + w * other.w
 
-    /**
-     * Get a [Vector3] containing the pitch, yaw and roll in degrees, extracted in YXZ (yaw, pitch,
-     * roll) order.
-     */
+    /** Gets pitch, yaw, and roll (in degrees) extracted in YXZ (yaw, pitch, roll) order. */
     private fun toYawPitchRoll(): Vector3 {
         val test = w * x - y * z
         if (test > EULER_THRESHOLD) {
@@ -340,8 +337,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
 
         /**
-         * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
-         * (yaw, pitch, roll) order.
+         * Creates a quaternion using Euler angles (in degrees) in YXZ (yaw, pitch, roll) order.
          *
          * @param eulerAngles the Euler angles in degrees
          */
@@ -352,8 +348,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                 Quaternion(fromAxisAngle(Vector3.Backward, eulerAngles.z))
 
         /**
-         * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
-         * (yaw, pitch, roll) order.
+         * Creates a quaternion using Euler angles (in degrees) in YXZ (yaw, pitch, roll) order.
          *
          * @param pitch the pitch in degrees
          * @param yaw the yaw in degrees
@@ -366,8 +361,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                 Quaternion(fromAxisAngle(Vector3.Backward, roll))
 
         /**
-         * Returns a new quaternion that is linearly interpolated between [start] and [end] using
-         * the interpolation amount [ratio].
+         * Linearly interpolates between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.
@@ -386,10 +380,9 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
 
         /**
-         * Returns a new quaternion that is spherically interpolated between [start] and [end] using
-         * the interpolation amount [ratio]. If [ratio] is 0, this returns [start]. As [ratio]
-         * approaches 1, the result of this function may approach either `+end` or `-end` (whichever
-         * is closest to [start]).
+         * Spherically interpolates between [start] and [end] by [ratio]. If [ratio] is 0, this
+         * returns [start]. As [ratio] approaches 1, the result of this function may approach either
+         * `+end` or `-end` (whichever is closest to [start]).
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.

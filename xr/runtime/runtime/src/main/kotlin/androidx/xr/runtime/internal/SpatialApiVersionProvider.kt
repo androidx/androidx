@@ -19,7 +19,7 @@ package androidx.xr.runtime
 import androidx.annotation.RestrictTo
 
 /**
- * Provides the version of Spatial APIs available to Jetpack XR at runtime.
+ * Version provider for Spatial APIs available to Jetpack XR at runtime.
  *
  * This is a service provider interface that can be implemented by different XR runtimes.
  */

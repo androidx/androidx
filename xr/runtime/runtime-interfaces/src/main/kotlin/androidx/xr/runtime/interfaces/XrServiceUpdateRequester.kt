@@ -18,7 +18,7 @@ package androidx.xr.runtime.interfaces
 
 import androidx.annotation.RestrictTo
 
-/** Provides a way to request updates for XR services. */
+/** Requester for XR service updates. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface XrServiceUpdateRequester {
 

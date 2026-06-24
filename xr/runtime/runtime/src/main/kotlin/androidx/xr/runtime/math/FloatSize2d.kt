@@ -17,7 +17,7 @@
 package androidx.xr.runtime.math
 
 /**
- * Size of a 2d object represented as a Float, such as the dimensions of a panel in meters.
+ * 2D size represented as a Float (e.g., panel dimensions in meters).
  *
  * @property width the width of the object
  * @property height the height of the object
@@ -28,8 +28,7 @@ public class FloatSize2d(public val width: Float = 0f, public val height: Float 
     }
 
     /**
-     * Returns a new [FloatSize3d] with the same [width] and [height] of this [FloatSize2d], and the
-     * given [depth].
+     * Converts to [FloatSize3d] using [width], [height], and the given [depth].
      *
      * @param depth the depth of the new 3D size
      * @return a new [FloatSize3d] with the specified dimensions

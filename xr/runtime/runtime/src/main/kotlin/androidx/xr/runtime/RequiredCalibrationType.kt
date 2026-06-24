@@ -16,10 +16,7 @@
 
 package androidx.xr.runtime
 
-/**
- * Represents the type of tracking calibration as indicated by
- * [SessionConfigureCalibrationRequired].
- */
+/** Tracking calibration type as indicated by [SessionConfigureCalibrationRequired]. */
 public class RequiredCalibrationType private constructor(private val value: Int) {
     public companion object {
         /** The [Session]'s [Config] requires face tracking to be calibrated. */

@@ -40,7 +40,7 @@ internal object PackageManagerUtils {
     /**
      * Returns Projected platform API version if it's available.
      *
-     * @throws IllegalStateException if the API version is unavailable.
+     * @throws [IllegalStateException] if the API version is unavailable
      */
     @RequiresApi(Build.VERSION_CODES.S)
     internal fun getProjectedPlatformApiVersion(context: Context): Int {

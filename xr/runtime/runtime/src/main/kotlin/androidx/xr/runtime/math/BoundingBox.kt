@@ -23,8 +23,7 @@ private fun Vector3.hasNaN(): Boolean = x.isNaN() || y.isNaN() || z.isNaN()
 private fun FloatSize3d.hasNaN(): Boolean = width.isNaN() || height.isNaN() || depth.isNaN()
 
 /**
- * Represents an axis-aligned bounding box in 3D space, defined by its minimum and maximum corner
- * points.
+ * Axis-aligned bounding box in 3D space, defined by minimum and maximum corners.
  *
  * @property min a [Vector3] representing the minimum corner of the box (lowest x, y, and z values)
  * @property max a [Vector3] representing the maximum corner of the box (highest x, y, and z values)
@@ -74,7 +73,7 @@ private constructor(
          * @param max a [Vector3] representing the maximum corner of the box (highest x, y, and z
          *   values). Its components must not be `NaN`
          * @return a new [BoundingBox] instance
-         * @throws IllegalArgumentException if any component of [min] or [max] is `NaN`, or if any
+         * @throws [IllegalArgumentException] if any component of [min] or [max] is `NaN`, or if any
          *   component of [min] is greater than the corresponding component of [max]
          */
         @JvmStatic
@@ -107,8 +106,8 @@ private constructor(
          * @param halfExtents the distance from the center to each face of the box. Its components
          *   must not be `NaN` and must be greater than or equal to zero
          * @return a new [BoundingBox] instance
-         * @throws IllegalArgumentException if any component of [center] or [halfExtents] is `NaN`,
-         *   or if any component of [halfExtents] is negative
+         * @throws [IllegalArgumentException] if any component of [center] or [halfExtents] is
+         *   `NaN`, or if any component of [halfExtents] is negative
          */
         @JvmStatic
         public fun fromCenterAndHalfExtents(

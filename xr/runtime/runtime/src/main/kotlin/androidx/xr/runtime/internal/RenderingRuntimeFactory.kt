@@ -26,9 +26,9 @@ public interface RenderingRuntimeFactory : Service {
     /**
      * Creates a RenderingRuntime.
      *
-     * @param runtimes The runtimes for the session which must include an instance that implements
-     *   both SceneRuntime and RenderingEntityFactory.
-     * @param activity The host [Activity] for the session.
+     * @param runtimes the runtimes for the session which must include an instance that implements
+     *   both SceneRuntime and RenderingEntityFactory
+     * @param activity the host [Activity] for the session
      */
     public fun create(runtimes: List<JxrRuntime>, activity: Activity): JxrRuntime
 }

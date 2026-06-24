@@ -18,7 +18,7 @@ package androidx.xr.runtime
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-/** Defines the valid integer constants for *stable* Spatial API versions. */
+/** Valid integer constants for *stable* Spatial API versions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
@@ -51,8 +51,7 @@ public object SpatialApiVersions {
 }
 
 /**
- * Denotes that the annotated element should only be called on devices that support a given Spatial
- * API version.
+ * Annotates elements that require a specific Spatial API version.
  *
  * The Spatial API version required by an element is specified by the [value] parameter. The value
  * should be one of the constants from [androidx.xr.runtime.SpatialApiVersions].

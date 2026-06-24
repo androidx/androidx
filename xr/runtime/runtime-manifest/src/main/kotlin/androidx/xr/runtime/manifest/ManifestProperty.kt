@@ -20,9 +20,8 @@ package androidx.xr.runtime.manifest
 
 /**
  * Application or Activity level
- * [PackageManager.Property][android.content.pm.PackageManager.Property] for an app to inform the
- * system of the activity launch mode in XR. When it is declared at the application level, all
- * activities are set to the defined value, unless it is overridden at the activity level.
+ * [PackageManager.Property][android.content.pm.PackageManager.Property] for launch mode in XR.
+ * Declaring at application level sets all activities unless overridden at activity level.
  *
  * The default value is [XR_ACTIVITY_START_MODE_UNDEFINED].
  *
@@ -52,9 +51,8 @@ public val PROPERTY_XR_ACTIVITY_START_MODE: String =
     "android.window.PROPERTY_XR_ACTIVITY_START_MODE"
 
 /**
- * Defines the value to launch an activity in unmanaged full space mode in XR, where the activity
- * itself is rendering the space and controls its own scene graph. This should be used for all
- * activities that use OpenXR to render.
+ * Value to launch an activity in unmanaged full space mode. The activity itself renders the space
+ * and controls its own scene graph. Use this for all activities using OpenXR to render.
  *
  * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  *
@@ -77,9 +75,10 @@ public val XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED: String =
 @JvmField public val XR_ACTIVITY_START_MODE_UNDEFINED: String = "XR_ACTIVITY_START_MODE_UNDEFINED"
 
 /**
- * Defines the value to launch an activity in <a
+ * Value to launch an activity in managed full space mode. The system renders the activity from a
+ * scene graph. See <a
  * href="https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space">managed
- * full space mode</a> in XR, where the system is rendering the activity from a scene graph.
+ * full space mode</a>.
  *
  * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  *
@@ -90,7 +89,7 @@ public val XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED: String =
     "XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED"
 
 /**
- * Defines the value to launch an activity in <a
+ * Value to launch an activity in <a
  * href="https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space">home
  * space mode</a> in XR.
  *
@@ -102,11 +101,9 @@ public val XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED: String =
 
 /**
  * Application or Activity level
- * [PackageManager.Property][android.content.pm.PackageManager.Property] for an app to inform the
- * system of the type of safety boundary recommended for the activity. When it is declared at the
- * application level, all activities are set to the defined value, unless it is overridden at the
- * activity level. When not declared, the system will not enforce any recommendations for a type of
- * safety boundary and will continue to use the type that is currently in use.
+ * [PackageManager.Property][android.content.pm.PackageManager.Property] for recommended safety
+ * boundaries. Declaring at application level sets all activities unless overridden at activity
+ * level. When not declared, the system uses the safety boundary currently in use.
  *
  * The default value is [XR_BOUNDARY_TYPE_NO_RECOMMENDATION].
  *
@@ -132,8 +129,8 @@ public val PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED: String =
     "android.window.PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED"
 
 /**
- * Defines the value to launch an activity with no recommendations for the type of safety boundary.
- * The system will continue to use the type of safety boundary that is currently in use.
+ * Value to launch an activity with no recommendations for the type of safety boundary. The system
+ * continues to use the type of safety boundary currently in use.
  *
  * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
  *
@@ -143,10 +140,10 @@ public val PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED: String =
 public val XR_BOUNDARY_TYPE_NO_RECOMMENDATION: String = "XR_BOUNDARY_TYPE_NO_RECOMMENDATION"
 
 /**
- * Defines the value to launch an activity with a large boundary recommended. This is useful for
- * activities which expect users to be moving around. The system will ask the user to use a larger
- * size for their safety boundary and check that their space is clear, if the larger size is not
- * already in use. This larger size will be determined by the system.
+ * Value to launch an activity with a large boundary recommended. Useful for activities where users
+ * are expected to move around. The system will ask the user to use a larger size for their safety
+ * boundary and check that their space is clear, if the larger size is not already in use. This
+ * larger size is determined by the system.
  *
  * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
  *
@@ -156,13 +153,10 @@ public val XR_BOUNDARY_TYPE_NO_RECOMMENDATION: String = "XR_BOUNDARY_TYPE_NO_REC
 
 /**
  * Application or Activity level
- * [PackageManager.Property][android.content.pm.PackageManager.Property] to inform the system if it
- * should play a system provided default animation when the app requests to enter or exit <a
- * href="https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space">managed
- * full space mode</a> in XR. When set to `true`, the system provided default animation is not
- * played and the app is responsible for playing a custom enter or exit animation. When it is
- * declared at the application level, all activities are set to the defined value, unless it is
- * overridden at the activity level.
+ * [PackageManager.Property][android.content.pm.PackageManager.Property] controlling default
+ * enter/exit animations. If `true`, the default animation is disabled, and the app plays a custom
+ * animation. Declaring at application level sets all activities unless overridden at activity
+ * level.
  *
  * The default value is `false`.
  *
@@ -183,8 +177,7 @@ public val PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION: String =
     "android.window.PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION"
 
 /**
- * Intent category to inform the system that the activity should be displayed in the launcher of a
- * projected XR device.
+ * Intent category for displaying the activity in a projected XR launcher.
  *
  * **Syntax:**
  *
@@ -207,8 +200,7 @@ public val CATEGORY_XR_PROJECTED_LAUNCHER: String = "android.intent.category.XR_
 /**
  * Activity level
  * [ActivityInfo.requiredDisplayCategory][android.content.pm.ActivityInfo.requiredDisplayCategory]
- * to inform the system that the activity should be displayed on a projected display, rather than on
- * the device display.
+ * to display on projected displays.
  *
  * **Syntax:**
  *
