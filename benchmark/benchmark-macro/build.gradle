@@ -103,7 +103,6 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
-        minSdkForFtlOverride = 24 // b/521361918 - API 23 emulators are untrustworthy
     }
 }
 
