@@ -91,12 +91,20 @@ class SerialExecutorTest {
         val serialExecutor = SerialExecutor(baseExecutor)
         val result = mutableListOf<Int>()
         val latch = CountDownLatch(2)
+        val exception = RuntimeException("Test failure")
+        var caughtException: Throwable? = null
 
         serialExecutor.execute {
             synchronized(result) { result.add(1) }
             latch.countDown()
         }
-        serialExecutor.execute { throw RuntimeException("Test failure") }
+        serialExecutor.execute {
+            // Set an uncaught exception handler to avoid logging a default error system.
+            Thread.setDefaultUncaughtExceptionHandler { _, e -> caughtException = e }
+            throw exception
+        }
+        // Reset the uncaught exception handler to keep tests hermetic.
+        Thread.setDefaultUncaughtExceptionHandler(null)
         serialExecutor.execute {
             synchronized(result) { result.add(3) }
             latch.countDown()
@@ -105,5 +113,6 @@ class SerialExecutorTest {
         latch.await(1, TimeUnit.SECONDS)
 
         assertEquals(listOf(1, 3), result)
+        assertEquals(exception, caughtException)
     }
 }
