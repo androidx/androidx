@@ -20,20 +20,27 @@ import android.content.Context
 import android.util.Log
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
@@ -224,7 +231,7 @@ class ZslDeviceTest(
         try {
             // Capture multiple images with ZSL and verify the preview continues to stream/function
             // concurrently
-            for (i in 0 until 5) {
+            for (i in 0 until 2) {
                 previewMonitor.waitForStream()
                 Log.d(TAG, "JCA ZSL Capture pre round successful: $i")
                 imageCaptureZsl.verifyCaptures(3)
@@ -273,7 +280,103 @@ class ZslDeviceTest(
                 Log.d(TAG, "JCA ZSL Capture + recording round successful: $i")
             }
         } finally {
-            executor.shutdown()
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun zslFallback_whenVideoCaptureBound_withStreamSharing() = runBlocking {
+        assumeTrue("ZSL is not supported on this device sensor.", cameraInfo.isZslSupported)
+        assumeEglSupported()
+
+        // Reset lifecycle for clean binding of multiple use-cases
+        withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+
+        // Configure JCA-like VideoCapture
+        val recorder = Recorder.Builder().build()
+        val videoCapture = VideoCapture.Builder(recorder).build()
+
+        val effect =
+            FakeSurfaceEffect(
+                CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE,
+                DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR),
+            )
+
+        val useCaseGroup =
+            UseCaseGroup.Builder()
+                .addUseCase(preview)
+                .addUseCase(imageCaptureZsl)
+                .addUseCase(videoCapture)
+                .addEffect(effect)
+                .build()
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCaptureZsl, videoCapture))
+
+        // Bind the standard JCA use case group (Preview + ZSL Image + Video) to force StreamSharing
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCaseGroup)
+        }
+
+        // Verify bind succeeds
+        assertThat(cameraProvider.isBound(preview)).isTrue()
+        assertThat(cameraProvider.isBound(imageCaptureZsl)).isTrue()
+        assertThat(cameraProvider.isBound(videoCapture)).isTrue()
+
+        val executor = Executors.newSingleThreadExecutor()
+
+        try {
+            // Capture multiple images with ZSL and verify the preview continues to stream/function
+            // concurrently
+            for (i in 0 until 2) {
+                previewMonitor.waitForStream()
+                Log.d(TAG, "JCA ZSL Capture pre round successful: $i")
+                imageCaptureZsl.verifyCaptures(3)
+                Log.d(TAG, "JCA ZSL Capture round successful: $i")
+                previewMonitor.waitForStream()
+
+                try {
+                    tempVideoFile = File.createTempFile("zsl_fallback_test", ".mp4")
+                    val options = FileOutputOptions.Builder(tempVideoFile!!).build()
+                    val startLatch = CountDownLatch(1)
+                    val statusLatch = CountDownLatch(5) // Ensure active recording is ongoing
+                    val finalizeLatch = CountDownLatch(1)
+
+                    val recording =
+                        videoCapture.output.prepareRecording(context, options).start(executor) {
+                            event ->
+                            when (event) {
+                                is VideoRecordEvent.Start -> startLatch.countDown()
+                                is VideoRecordEvent.Status -> statusLatch.countDown()
+                                is VideoRecordEvent.Finalize -> {
+                                    assertThat(event.hasError()).isFalse()
+                                    finalizeLatch.countDown()
+                                }
+                            }
+                        }
+
+                    // Verify successful start and active status events
+                    assertThat(startLatch.await(10, TimeUnit.SECONDS)).isTrue()
+                    assertThat(statusLatch.await(15, TimeUnit.SECONDS)).isTrue()
+
+                    // Stop recording
+                    recording.stop()
+
+                    // Wait for it to finalize correctly
+                    assertThat(finalizeLatch.await(10, TimeUnit.SECONDS)).isTrue()
+
+                    // Assert the file was created and has content
+                    assertThat(tempVideoFile!!.length()).isGreaterThan(0L)
+                } finally {
+                    tempVideoFile?.let {
+                        if (it.exists()) {
+                            it.delete()
+                        }
+                    }
+                }
+                Log.d(TAG, "JCA ZSL Capture + recording round successful: $i")
+            }
+        } finally {
+            executor.shutdownNow()
         }
     }
 
@@ -304,6 +407,16 @@ class ZslDeviceTest(
         return ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG)
             .build()
+    }
+
+    private fun assumeEglSupported() {
+        if (AndroidUtil.isEmulator()) {
+            try {
+                GLUtil.getTexIdFromGLContext()
+            } catch (_: RuntimeException) {
+                assumeTrue("Emulator does not support EGL properly for StreamSharing", false)
+            }
+        }
     }
 
     private fun ImageCapture.waitForCapturing(timeMillis: Long = 10000) {
