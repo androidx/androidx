@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.xr.glimmer.ActionCard
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
@@ -135,7 +136,7 @@ private fun CardWithHeaderImage(title: String) {
 
 @Composable
 private fun CardWithActionButton(title: String) {
-    Card(
+    ActionCard(
         title = { Text(title) },
         action = {
             Button(

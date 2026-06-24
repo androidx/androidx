@@ -493,7 +493,7 @@ class CardTest {
     @Test
     fun action_cardIsNotInteractable() {
         rule.setGlimmerThemeContent {
-            Card(
+            ActionCard(
                 modifier = Modifier.testTag("card"),
                 action = { Box(Modifier.size(50.dp).testTag("action")) },
             ) {
@@ -516,7 +516,7 @@ class CardTest {
         rule.setGlimmerThemeContent {
             smallSpacing = GlimmerTheme.componentSpacingValues.small
             mediumSpacing = GlimmerTheme.componentSpacingValues.medium
-            Card(
+            ActionCard(
                 modifier = Modifier.testTag("cardAndAction"),
                 action = { Box(Modifier.size(actionSize).testTag("action")) },
             ) {
@@ -561,7 +561,7 @@ class CardTest {
         rule.setGlimmerThemeContent {
             smallSpacing = GlimmerTheme.componentSpacingValues.small
             mediumSpacing = GlimmerTheme.componentSpacingValues.medium
-            Card(
+            ActionCard(
                 modifier =
                     Modifier.sizeIn(maxWidth = cardSize, maxHeight = cardSize)
                         .testTag("cardAndAction"),
@@ -608,7 +608,7 @@ class CardTest {
         val cardSize = 150.dp
 
         rule.setGlimmerThemeContent {
-            Card(
+            ActionCard(
                 modifier = Modifier.size(cardSize).testTag("cardAndAction"),
                 action = { Box(Modifier.fillMaxSize().testTag("action")) },
             ) {
@@ -911,7 +911,7 @@ class CardTest {
             mediumSpacing = GlimmerTheme.componentSpacingValues.medium
             Column {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
-                Card(
+                ActionCard(
                     modifier = Modifier.testTag("card"),
                     action = { Button(onClick = {}, Modifier.testTag("action")) { Text("Send") } },
                 ) {
@@ -1222,7 +1222,7 @@ class CardTest {
             mediumSpacing = GlimmerTheme.componentSpacingValues.medium
             Column(Modifier.width(300.dp)) {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
-                Card(
+                ActionCard(
                     action = { Button(onClick = {}, Modifier.testTag("action")) { Text("Send") } },
                     modifier = Modifier.testTag("card"),
                     title = { Text("Title", modifier = Modifier.testTag("title")) },

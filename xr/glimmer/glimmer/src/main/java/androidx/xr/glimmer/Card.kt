@@ -237,21 +237,21 @@ public fun Card(
 }
 
 /**
- * Card is a component used to group related information into a single digestible unit. A card can
- * adapt to display a wide range of content, from simple text blurbs to more complex summaries with
- * multiple elements. A card contains text [content], and may also have any combination of [title],
- * [subtitle], [leadingIcon], and [trailingIcon]. If specified, [title] is placed on top of the
- * [subtitle], which is placed on top of the [content]. A card fills the maximum width available by
- * default.
+ * ActionCard is a version of a card that contains a primary [action] that is placed in the center
+ * of the bottom edge of the card. The action should be a [Button], and represents the action that
+ * will be performed when this card is interacted with. The main card itself is not focusable - the
+ * [action] takes the focus instead.
  *
- * This Card contains an [action] that is placed on the center of the bottom edge of the card. The
- * action should be a [Button], and represents the action that will be performed when this card is
- * interacted with. The main card itself is not focusable - the [action] takes the focus instead.
+ * ActionCard is a component used to group related information into a single digestible unit. An
+ * action card can adapt to display a wide range of content, from simple text blurbs to more complex
+ * summaries with multiple elements. An action card contains text [content], and may also have any
+ * combination of [title], [subtitle], [leadingIcon], and [trailingIcon]. If specified, [title] is
+ * placed on top of the [subtitle], which is placed on top of the [content]. An action card fills
+ * the maximum width available by default.
  *
- * For more documentation and samples of the other card parameters, see the other card overload
- * without an action.
+ * For more documentation and samples of the other cards, see [Card].
  *
- * @sample androidx.xr.glimmer.samples.CardWithTitleAndActionSample
+ * @sample androidx.xr.glimmer.samples.ActionCardWithTitleSample
  * @param action the action for this card. This should be a [Button], and represents the action
  *   performed when a user interacts with this card. The action is placed overlapping the bottom
  *   edge of the card.
@@ -280,7 +280,7 @@ public fun Card(
  *   be limited to 10 lines of text.
  */
 @Composable
-public fun Card(
+public fun ActionCard(
     action: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit)? = null,

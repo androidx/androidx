@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.dp
+import androidx.xr.glimmer.ActionCard
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
@@ -83,7 +84,7 @@ private fun GlimmerHorizontalPagerWithVariousContentDemo() {
                     )
                 }
             2 ->
-                Card(
+                ActionCard(
                     title = {
                         Text(
                             text = "Page: $page",
