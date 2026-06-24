@@ -86,7 +86,7 @@ class MinLinesConstrainerTest {
     }
 
     @Test
-    fun minConstrainer_from_cachedReused() {
+    fun minConstrainer_from_notCached() {
         val layoutDirection = LayoutDirection.Rtl
 
         val previous =
@@ -107,6 +107,6 @@ class MinLinesConstrainerTest {
                 fontFamilyResolver,
             )
 
-        assertThat(previous === minMaxConstrainer).isTrue()
+        assertThat(previous === minMaxConstrainer).isFalse()
     }
 }
