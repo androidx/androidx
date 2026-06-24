@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,6 @@ import androidx.wear.compose.materialcore.currentTimeMillis
 import androidx.wear.compose.materialcore.is24HourFormat
 import androidx.wear.compose.materialcore.isRoundDevice
 import java.util.Calendar
-import java.util.Locale
 
 /**
  * Layout to show the current time and a label at the top of the screen. If device has a round
@@ -173,7 +173,7 @@ public object TimeTextDefaults {
     @Composable
     public fun timeFormat(): String {
         val format = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
-        return DateFormat.getBestDateTimePattern(Locale.getDefault(), format)
+        return DateFormat.getBestDateTimePattern(Locale.current.platformLocale, format)
             .replace("a", "")
             .trim()
     }
