@@ -66,12 +66,29 @@ expect fun createComposeRule(
  * androidTest/AndroidManifest.xml). If your Android test requires a specific Activity to be
  * launched, see [createAndroidComposeRule].
  *
- * The default [ComposeUiTestConfig] has a `testTimeout` of 60 seconds and sets the
- * [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Touch].
- *
  * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
 expect fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule
+
+/**
+ * Factory method to provide an implementation of [ComposeContentTestRule].
+ *
+ * This method is useful for tests in compose libraries where it is irrelevant where the compose
+ * content is hosted (e.g. an Activity on Android). Such tests typically set compose content
+ * themselves via [setContent][ComposeContentTestRule.setContent] and only instrument and assert
+ * that content.
+ *
+ * For Android this will use the default Activity (android.app.Activity). You need to add a
+ * reference to this activity into the manifest file of the corresponding tests (usually in
+ * androidTest/AndroidManifest.xml). If your Android test requires a specific Activity to be
+ * launched, see [createAndroidComposeRule].
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * to run with a different input mode (such as
+ * [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard]) or customize other
+ * environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ */
+expect fun createComposeRule(): ComposeContentTestRule

@@ -26,3 +26,5 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
 
 actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule =
     implementedInJetBrainsFork()
+
+actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()
