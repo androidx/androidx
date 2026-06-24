@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -38,14 +39,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -213,6 +212,7 @@ public fun RemoteText(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
+@SuppressLint("RemoteCompositionLocalUsage")
 internal fun RemoteText(
     text: RemoteString,
     color: RemoteColor,
@@ -233,14 +233,12 @@ internal fun RemoteText(
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
-    val localDensity = LocalDensity.current
     RemoteComposeNode(
         factory = ::RemoteTextNode,
         update = {
             set(text) { this.text = it }
             set(modifier) { this.modifier = it }
             set(color) { this.color = it }
-            set(localDensity) { this.localDensity = it }
             set(fontWeightAdjustment) { this.fontWeightAdjustment = it }
             set(fontWeight) { this.fontWeight = it }
             set(fontStyle) { this.fontStyle = it }
@@ -264,7 +262,6 @@ internal class RemoteTextNode : RemoteComposeNode() {
     lateinit var text: RemoteString
     lateinit var color: RemoteColor
     lateinit var fontSize: RemoteTextUnit
-    lateinit var localDensity: Density
     var fontWeightAdjustment: Int = 0
     var fontWeight: RemoteFloat = 400f.rf
     var fontStyle: FontStyle = FontStyle.Normal
@@ -304,24 +301,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
 
         val (fontAxisNames, fontAxisValues) = extractFontSettings(fontVariationSettings?.settings)
 
-        val effectiveDensity =
-            if (localDensity.density != creationState.creationDisplayInfo.density.density) {
-                localDensity.density.rf
-            } else {
-                creationState.remoteDensity.density
-            }
-
-        val effectiveFontScale =
-            if (localDensity.fontScale != creationState.creationDisplayInfo.density.fontScale) {
-                localDensity.fontScale.rf
-            } else {
-                creationState.remoteDensity.fontScale
-            }
-
-        val fontSizePxId =
-            fontSize
-                .toPx(RemoteDensity(effectiveDensity, effectiveFontScale))
-                .getFloatIdForCreationState(creationState)
+        val fontSizePxId = fontSize.toPx(remoteDensity).getFloatIdForCreationState(creationState)
 
         val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
         val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
@@ -351,8 +331,9 @@ internal class RemoteTextNode : RemoteComposeNode() {
                     )
             }
 
+        val scope = overriddenScope(creationState)
         creationState.document.startTextComponent(
-            with(modifier) { creationState.toRecordingModifier() },
+            scope.toRecordingModifier(modifier),
             textIdValue,
             -1,
             colorInt,

@@ -21,7 +21,11 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.asRdp
+import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * Represents the screen density and font scale factor used for unit conversions in a remote
@@ -31,6 +35,14 @@ import androidx.compose.remote.creation.compose.state.rf
  * @property fontScale The current user preference for the scaling factor for fonts.
  */
 public class RemoteDensity(public val density: RemoteFloat, public val fontScale: RemoteFloat) {
+    /** Converts a [TextUnit] to pixels using this [RemoteDensity]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun TextUnit.toPx(): RemoteFloat = asRemoteTextUnit().toPx(this@RemoteDensity)
+
+    /** Converts a [Dp] to pixels using this [RemoteDensity]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun Dp.toPx(): RemoteFloat = asRdp().toPx(this@RemoteDensity)
+
     public companion object {
         private const val DEFAULT_FONT_SIZE = 14f
 

@@ -43,7 +43,7 @@ internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
-        return size.toPx()
+        return size.toPx(density)
     }
 }
 

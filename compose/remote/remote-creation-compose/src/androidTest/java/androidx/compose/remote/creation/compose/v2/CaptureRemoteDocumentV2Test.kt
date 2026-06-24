@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -370,7 +371,12 @@ class CaptureRemoteDocumentV2Test {
                                 DeviceConfigurationOverride.FontScale(2.0f) then
                                     DeviceConfigurationOverride.FontWeightAdjustment(200)
                             ) {
-                                RemoteText(text = "Font scale override".rs, fontSize = 12.rsp)
+                                CompositionLocalProvider(
+                                    LocalRemoteDensity provides
+                                        RemoteDensity(LocalRemoteDensity.current.density, 2.0f.rf)
+                                ) {
+                                    RemoteText(text = "Font scale override".rs, fontSize = 12.rsp)
+                                }
                             }
                         }
                     }

@@ -34,7 +34,8 @@ internal class RemoteBoxNode : RemoteComposeNode() {
     var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val recordingModifier = creationState.toRecordingModifier(modifier)
+        val scope = overriddenScope(creationState)
+        val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startBox(
             recordingModifier,
             horizontalAlignment.toRemote(layoutDirection),

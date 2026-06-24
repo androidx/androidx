@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
@@ -51,6 +51,7 @@ import androidx.compose.remote.player.compose.test.utils.GoldenScreenshotNameTes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -191,15 +192,17 @@ class RemoteTextFontScaleComparisonTest {
             horizontalAlignment = RemoteAlignment.Start,
             verticalArrangement = RemoteArrangement.Center,
         ) {
-            val state = LocalRemoteComposeCreationState.current
             val density = LocalDensity.current
-            state.remoteDensity =
-                RemoteDensity(density = density.density.rf, fontScale = fontScale.rf)
-
-            RemoteText(text = text.rs, fontSize = size1.rsp, color = RemoteColor(Color.White))
-            RemoteText(text = text.rs, fontSize = size2.rsp, color = RemoteColor(Color.White))
-            RemoteText(text = text.rs, fontSize = size3.rsp, color = RemoteColor(Color.White))
-            RemoteText(text = text.rs, fontSize = size4.rsp, color = RemoteColor(Color.White))
+            val remoteDensity =
+                remember(density, fontScale) {
+                    RemoteDensity(density = density.density.rf, fontScale = fontScale.rf)
+                }
+            CompositionLocalProvider(LocalRemoteDensity provides remoteDensity) {
+                RemoteText(text = text.rs, fontSize = size1.rsp, color = RemoteColor(Color.White))
+                RemoteText(text = text.rs, fontSize = size2.rsp, color = RemoteColor(Color.White))
+                RemoteText(text = text.rs, fontSize = size3.rsp, color = RemoteColor(Color.White))
+                RemoteText(text = text.rs, fontSize = size4.rsp, color = RemoteColor(Color.White))
+            }
         }
     }
 
