@@ -141,6 +141,9 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
         const val MEDIA_SCHEMA_PRINT = "androidx.appfunctions.test#mediaSchema_print"
         const val MEDIA_SCHEMA2_PRINT = "androidx.appfunctions.test#mediaSchema2_print"
 
+        const val DYNAMIC_REGISTRATION_RETURN_SUCCESS =
+            "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success"
+
         const val ADDITIONAL_LEGACY_CREATE_NOTE =
             "com.example.android.architecture.blueprints.todoapp#NoteFunctions_createNote"
     }
@@ -208,6 +211,28 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 isEnabled = true,
                 description = "Test function without schema, successful execution expected.",
+            )
+
+        val DYNAMIC_REGISTRATION_RETURN_SUCCESS =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = "androidx.appfunctions.test",
+                        functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    ),
+                schema = null,
+                parameters = emptyList<AppFunctionParameterMetadata>(),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "androidx.appfunctions.test",
+                        components = sharedComponents,
+                    ),
+                isEnabled = false,
+                description = "",
             )
 
         val NO_SCHEMA_ENABLED_BY_DEFAULT =

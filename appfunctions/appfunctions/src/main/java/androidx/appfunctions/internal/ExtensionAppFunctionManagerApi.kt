@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
 import android.os.Build
 import android.os.CancellationSignal
@@ -28,10 +29,12 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEF
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
 import androidx.appfunctions.AppFunctionSystemUnknownException
+import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionManager as ExtensionAppFunctionManager
+import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -163,6 +166,15 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
             return AppFunctionFunctionNotFoundException("App function not found.")
         }
         return exception
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    override fun registerAppFunction(
+        functionId: String,
+        executor: Executor,
+        appFunction: CallbackAppFunction,
+    ): AppFunctionRegistration {
+        throw UnsupportedOperationException("Not implemented")
     }
 
     @ExtensionAppFunctionManager.EnabledState

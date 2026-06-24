@@ -19,6 +19,7 @@ package androidx.appfunctions
 import android.Manifest
 import android.app.UiAutomation
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
@@ -30,6 +31,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -377,6 +379,8 @@ class AppFunctionManagerTest {
                     AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
                 )
         }
 
@@ -431,6 +435,8 @@ class AppFunctionManagerTest {
                     AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
                 )
         }
 
@@ -630,6 +636,89 @@ class AppFunctionManagerTest {
                 )
                 .isTrue()
         }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun selfExecuteActivityScopedRegisteredFunction_shouldSucceed() = runBlocking {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val expectedResult = "self_execution_result"
+
+        val intent =
+            Intent(context, TestActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        val activity = InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
+        assumeNotNull(activity)
+
+        // Check first that platform indexed the function
+        metadataTestHelper.awaitAppFunctionIndexed(setOf(functionId))
+
+        try {
+            val activityAppFunctionManager = AppFunctionManager.getInstance(activity)
+            checkNotNull(activityAppFunctionManager)
+
+            val callbackAppFunction = createReturnStringAppFunction(expectedResult)
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+
+            try {
+                val request =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName =
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS
+                                .packageName,
+                        functionIdentifier = functionId,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response = mAppFunctionManager.executeAppFunction(request)
+
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse = response as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult)
+            } finally {
+                registration.unregister()
+            }
+        } finally {
+            activity.finish()
+        }
+    }
+
+    private fun createReturnStringAppFunction(returnValue: String): CallbackAppFunction {
+        return CallbackAppFunction { _, _, callback ->
+            val responseType =
+                AppFunctionObjectTypeMetadata(
+                    properties =
+                        mapOf(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE to
+                                AppFunctionStringTypeMetadata(isNullable = false)
+                        ),
+                    required = emptyList(),
+                    qualifiedName = "androidx.appfunctions.test#noSchema_executionSucceedResponse",
+                    isNullable = false,
+                )
+            val responseData =
+                AppFunctionData.Builder(responseType, AppFunctionComponentsMetadata(emptyMap()))
+                    .setString(
+                        ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
+                        returnValue,
+                    )
+                    .build()
+            callback.accept(ExecuteAppFunctionResponse.Success(responseData))
+        }
+    }
 
     private companion object {
         const val ADDITIONAL_APP_PACKAGE = "com.google.android.app.notes"

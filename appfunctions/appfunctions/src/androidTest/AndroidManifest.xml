@@ -5,6 +5,13 @@
         <property
             android:name="android.app.appfunctions.app_metadata"
             android:resource="@xml/app_metadata" />
+        <property
+            android:name="android.app.appfunctions.v2"
+            android:value="app_level_app_functions.xml" />
+        <activity
+            android:name="androidx.appfunctions.TestActivity"
+            android:exported="true"
+            tools:targetApi="36" />
         <service
             android:name="androidx.appfunctions.PlatformAppFunctionService"
             android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
