@@ -205,6 +205,24 @@ package androidx.navigation3.runtime.deeplink {
     method public static android.net.Uri DeepLinkUri(String uriString);
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface RequestExtrasDsl {
+  }
+
+  public interface RequestExtrasKey<T> {
+  }
+
+  public final class RequestExtrasKt {
+    method public static operator <T> boolean contains(java.util.Map<java.lang.String,?>, androidx.navigation3.runtime.deeplink.RequestExtrasKey<T> key);
+    method public static operator <T> T? get(java.util.Map<java.lang.String,?>, androidx.navigation3.runtime.deeplink.RequestExtrasKey<T> key);
+    method public static inline java.util.Map<java.lang.String,java.lang.Object> requestExtras(kotlin.jvm.functions.Function1<? super androidx.navigation3.runtime.deeplink.RequestExtrasScope,kotlin.Unit> builder);
+  }
+
+  @androidx.navigation3.runtime.deeplink.RequestExtrasDsl public final class RequestExtrasScope {
+    ctor public RequestExtrasScope();
+    method @kotlin.PublishedApi internal java.util.Map<java.lang.String,java.lang.Object> build();
+    method public <T> void put(androidx.navigation3.runtime.deeplink.RequestExtrasKey<T> key, T value);
+  }
+
   public final class StaticKeyDeepLinkMatcher<T> extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher<T> {
     ctor public StaticKeyDeepLinkMatcher(T key, java.util.List<? extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter> filters);
     method @InaccessibleFromKotlin public T getKey();
