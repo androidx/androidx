@@ -1568,7 +1568,6 @@ object ButtonDefaults {
      * @param hasStartIcon Whether the button has a leading icon
      * @param hasEndIcon Whether the button has a trailing icon
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun contentPaddingFor(
         buttonHeight: Dp,
         hasStartIcon: Boolean = false,
