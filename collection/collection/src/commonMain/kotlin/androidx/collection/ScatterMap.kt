@@ -607,7 +607,7 @@ internal inline fun convertMetadataForCleanup(metadata: LongArray, capacity: Int
 }
 
 /**
- * Returns the hash code of [k]. The hash spreads low bits to to minimize collisions in high 25-bits
+ * Returns the hash code of [k]. The hash spreads low bits to minimize collisions in high 25-bits
  * that are used for probing.
  */
 internal inline fun hash(k: Any?): Int {
