@@ -34,3 +34,6 @@ actual fun runComposeUiTest(
     config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = implementedInJetBrainsFork()
+
+actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
+    implementedInJetBrainsFork()

@@ -104,10 +104,7 @@ expect fun runComposeUiTest(
  *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
  *
- * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch].
- *
- * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestConfigSample
  * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
@@ -117,3 +114,30 @@ expect fun runComposeUiTest(
     config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult
+
+/**
+ * Sets up the test environment, runs the given [test][block] and then tears down the test
+ * environment. Use the methods on [ComposeUiTest] in the test to find Compose content and make
+ * assertions on it. If you need access to platform specific elements (such as the Activity on
+ * Android), use one of the platform specific variants of this method, e.g.
+ * `runAndroidComposeUiTest` on Android.
+ *
+ * Implementations of this method will launch a Compose host (such as an Activity on Android) for
+ * you. If your test needs to launch its own host, use a platform specific variant that doesn't
+ * launch anything for you (if available), e.g. `runEmptyComposeUiTest` on Android. Always make sure
+ * that the Compose content is set during execution of the [test lambda][block] so the test
+ * framework is aware of the content. Whether you need to launch the host from within the test
+ * lambda as well depends on the platform.
+ *
+ * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * * to run with a different input mode (such as
+ *   [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard])
+ * * or customize other environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ *
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestConfigSample
+ * @param block The test function.
+ */
+expect fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult

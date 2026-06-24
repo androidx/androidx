@@ -18,8 +18,10 @@ package androidx.compose.ui.test.v2
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.AndroidComposeUiTest
+import androidx.compose.ui.test.AndroidComposeUiTestFlags
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ComposeUiTestConfig
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.getActivity
 import androidx.test.core.app.ActivityScenario
@@ -105,9 +107,6 @@ actual fun runComposeUiTest(
  * [runComposeUiTest][block] or any of their respective variants. Since these APIs independently
  * manage the test environment, mixing them may lead to unexpected behavior.
  *
- * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test.
- *
  * @sample androidx.compose.ui.test.samples.RunComposeUiTestConfigSample
  * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
  *   over the [CoroutineContext] used for composition, the test timeout, and other
@@ -121,6 +120,49 @@ actual fun runComposeUiTest(
 ): TestResult {
     return runAndroidComposeUiTest(ComponentActivity::class.java, config, block)
 }
+
+/**
+ * Sets up the test environment, runs the given [test][block] and then tears down the test
+ * environment. Use the methods on [ComposeUiTest] in the test to find Compose content and make
+ * assertions on it. If you need access to platform specific elements (such as the Activity on
+ * Android), use one of the platform specific variants of this method, e.g.
+ * [runAndroidComposeUiTest] on Android.
+ *
+ * Implementations of this method will launch a Compose host (such as an Activity on Android) for
+ * you. If your test needs to launch its own host, use a platform specific variant that doesn't
+ * launch anything for you (if available), e.g. [runEmptyComposeUiTest] on Android. Always make sure
+ * that the Compose content is set during execution of the [test lambda][block] so the test
+ * framework is aware of the content. Whether you need to launch the host from within the test
+ * lambda as well depends on the platform.
+ *
+ * Keeping a reference to the [ComposeUiTest] outside of this function is an error. Also avoid using
+ * [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runComposeUiTest][block] or any of their respective variants. Since these APIs independently
+ * manage the test environment, mixing them may lead to unexpected behavior.
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * to run with a different input mode (such as
+ * [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard]) or customize other
+ * environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ *
+ * @param block The suspendable test body.
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestConfigSample
+ * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
+ */
+@OptIn(ExperimentalTestApi::class)
+@Suppress("KotlinRunTestResultUnused")
+actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
+    if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
+        runComposeUiTest(ComposeUiTestConfig(), block)
+    } else {
+        runComposeUiTest(
+            effectContext = EmptyCoroutineContext,
+            runTestContext = EmptyCoroutineContext,
+            testTimeout = 60.seconds,
+            block,
+        )
+    }
 
 /**
  * Variant of [runComposeUiTest] that allows you to specify which Activity should be launched. Be
@@ -172,9 +214,6 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
  * independently manage the test environment, mixing them may lead to unexpected behavior.
  *
- * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test.
- *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content.
  * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
@@ -189,6 +228,31 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
 ): TestResult {
     return runAndroidComposeUiTest(A::class.java, config, block)
 }
+
+/**
+ * Variant of [runComposeUiTest] that allows you to specify which Activity should be launched. Be
+ * aware that if the Activity [sets content][androidx.activity.compose.setContent] during its
+ * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
+ * this would override the content and can lead to subtle bugs.
+ *
+ * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
+ * independently manage the test environment, mixing them may lead to unexpected behavior.
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * to run with a different input mode (such as
+ * [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard]) or customize other
+ * environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ *
+ * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
+ *   Compose content.
+ * @param block The test function.
+ * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
+ */
+inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
+    noinline block: suspend AndroidComposeUiTest<A>.() -> Unit
+): TestResult = runAndroidComposeUiTest(A::class.java, block)
 
 /**
  * Variant of [runComposeUiTest] that allows you to specify which Activity should be launched. Be
@@ -252,9 +316,6 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
  * independently manage the test environment, mixing them may lead to unexpected behavior.
  *
- * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test.
- *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content.
  * @param activityClass The [Class] of the Activity type to be launched, corresponding to [A].
@@ -275,6 +336,51 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
         activityClass = activityClass,
         block = block,
     )
+}
+
+/**
+ * Variant of [runComposeUiTest] that allows you to specify which Activity should be launched. Be
+ * aware that if the Activity [sets content][androidx.activity.compose.setContent] during its
+ * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
+ * this would override the content and can lead to subtle bugs.
+ *
+ * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
+ * independently manage the test environment, mixing them may lead to unexpected behavior.
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * * to run with a different input mode (such as
+ *   [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard])
+ * * or customize other environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ *
+ * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
+ *   Compose content.
+ * @param activityClass The [Class] of the Activity type to be launched, corresponding to [A].
+ * @param block The test function.
+ * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
+ */
+@OptIn(ExperimentalTestApi::class)
+@Suppress("RedundantUnitReturnType", "KotlinRunTestResultUnused")
+fun <A : ComponentActivity> runAndroidComposeUiTest(
+    activityClass: Class<A>,
+    block: suspend AndroidComposeUiTest<A>.() -> Unit,
+): TestResult {
+    return if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
+        runAndroidComposeUiTest(
+            activityClass = activityClass,
+            config = ComposeUiTestConfig(),
+            block = block,
+        )
+    } else {
+        runAndroidComposeUiTest(
+            activityClass = activityClass,
+            effectContext = EmptyCoroutineContext,
+            runTestContext = EmptyCoroutineContext,
+            testTimeout = 60.seconds,
+            block = block,
+        )
+    }
 }
 
 @Suppress("RedundantUnitReturnType")
@@ -448,9 +554,6 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * [ActivityScenario] (that the caller launches _within_ the lambda passed to [runTest]), but one is
  * not limited to this pattern.
  *
- * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
- * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test.
- *
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
  *   activity that was launched and hosts the Compose content.
  * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
@@ -466,5 +569,59 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     return object : androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A>(config) {
         override val activity: A?
             get() = activityProvider.invoke()
+    }
+}
+
+/**
+ * Creates an [AndroidComposeUiTestEnvironment] that retrieves the
+ * [host Activity][AndroidComposeUiTest.activity] by delegating to the given [activityProvider]. Use
+ * this if you need to launch an Activity in a way that is not compatible with any of the existing
+ * [runComposeUiTest], [runAndroidComposeUiTest], or [runEmptyComposeUiTest] methods.
+ *
+ * Valid use cases include, but are not limited to, creating your own JUnit test rule that
+ * implements [AndroidComposeUiTest] by delegating to
+ * [androidx.compose.ui.test.AndroidComposeUiTestEnvironment.test]. See
+ * [AndroidComposeTestRule][androidx.compose.ui.test.junit4.AndroidComposeTestRule] for a reference
+ * implementation.
+ *
+ * The [activityProvider] is called every time [activity][AndroidComposeUiTest.activity] is called,
+ * which in turn is called when [setContent][ComposeUiTest.setContent] is called.
+ *
+ * The most common implementation of an [activityProvider] retrieves the activity from a backing
+ * [ActivityScenario] (that the caller launches _within_ the lambda passed to [runTest]), but one is
+ * not limited to this pattern.
+ *
+ * The default [ComposeUiTestConfig] sets the [InputMode][androidx.compose.ui.input.InputMode] to
+ * [Touch][androidx.compose.ui.input.InputMode.Companion.Touch] for each test. To configure the test
+ * to run with a different input mode (such as
+ * [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard]) or customize other
+ * environment settings, use the overload that accepts a [ComposeUiTestConfig].
+ *
+ * @param activityProvider A lambda that should return the current Activity instance of type [A], if
+ *   it is available. If it is not available, it should return `null`.
+ * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
+ *   activity that was launched and hosts the Compose content.
+ * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
+ */
+@OptIn(ExperimentalTestApi::class)
+fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
+    activityProvider: () -> A?
+): androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> {
+    return if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
+        object :
+            androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A>(ComposeUiTestConfig()) {
+            override val activity: A?
+                get() = activityProvider.invoke()
+        }
+    } else {
+        object :
+            androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A>(
+                effectContext = EmptyCoroutineContext,
+                runTestContext = EmptyCoroutineContext,
+                testTimeout = 60.seconds,
+            ) {
+            override val activity: A?
+                get() = activityProvider.invoke()
+        }
     }
 }
