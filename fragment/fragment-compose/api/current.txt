@@ -2,9 +2,10 @@
 package androidx.fragment.compose {
 
   public final class AndroidFragmentKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T extends androidx.fragment.app.Fragment> void AndroidFragment(optional androidx.compose.ui.Modifier modifier, optional androidx.fragment.compose.FragmentState fragmentState, optional android.os.Bundle arguments, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> onUpdate);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T extends androidx.fragment.app.Fragment> void AndroidFragment(Class<T>, androidx.compose.ui.Modifier?, androidx.fragment.compose.FragmentState?, android.os.Bundle?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static <T extends androidx.fragment.app.Fragment> void AndroidFragment(Class<T> clazz, optional androidx.compose.ui.Modifier modifier, optional androidx.fragment.compose.FragmentState fragmentState, optional android.os.Bundle arguments, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> onUpdate);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T extends androidx.fragment.app.Fragment> void AndroidFragment(optional androidx.compose.ui.Modifier modifier, optional androidx.fragment.compose.FragmentState fragmentState, optional android.os.Bundle arguments, optional androidx.lifecycle.Lifecycle.State maxLifecycle, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> onUpdate);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void AndroidFragment(Class!, androidx.compose.ui.Modifier!, androidx.fragment.compose.FragmentState!, android.os.Bundle!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T extends androidx.fragment.app.Fragment> void AndroidFragment(Class<T>, androidx.compose.ui.Modifier?, androidx.fragment.compose.FragmentState?, android.os.Bundle?, androidx.lifecycle.Lifecycle.State?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T extends androidx.fragment.app.Fragment> void AndroidFragment(Class<T> clazz, optional androidx.compose.ui.Modifier modifier, optional androidx.fragment.compose.FragmentState fragmentState, optional android.os.Bundle arguments, optional androidx.lifecycle.Lifecycle.State maxLifecycle, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> onUpdate);
   }
 
   public final class FragmentKt {

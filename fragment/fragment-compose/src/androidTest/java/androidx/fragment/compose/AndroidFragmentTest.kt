@@ -212,6 +212,46 @@ class AndroidFragmentTest {
         onView(withText("My name is ${FragmentForCompose2::class.simpleName}"))
             .check(matches(isDisplayed()))
     }
+
+    @Test
+    fun maxLifecycleLimitsFragmentLifecycle() {
+        testRule.setContent {
+            AndroidFragment<FragmentForCompose>(maxLifecycle = Lifecycle.State.STARTED)
+        }
+
+        testRule.waitForIdle()
+
+        val fragment =
+            testRule.activity.supportFragmentManager.fragments
+                .filterIsInstance<FragmentForCompose>()
+                .first()
+
+        // Even though the Activity is RESUMED, the Fragment should be capped at STARTED
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+    }
+
+    @Test
+    fun updateMaxLifecycleRecomposes() {
+        var maxState by mutableStateOf(Lifecycle.State.STARTED)
+
+        testRule.setContent { AndroidFragment<FragmentForCompose>(maxLifecycle = maxState) }
+
+        testRule.waitForIdle()
+
+        val fragment =
+            testRule.activity.supportFragmentManager.fragments
+                .filterIsInstance<FragmentForCompose>()
+                .first()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        // Update the maxLifecycle state
+        testRule.runOnIdle { maxState = Lifecycle.State.RESUMED }
+        testRule.waitForIdle()
+
+        // Fragment should now be allowed to reach RESUMED
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
 }
 
 class FragmentForCompose : Fragment(R.layout.content) {
