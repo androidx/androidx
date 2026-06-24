@@ -53,8 +53,6 @@
     <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"FRA"</string>
     <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"markeret"</string>
     <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"ikke markeret"</string>
-    <!-- no translation found for one_handed_gesture_primary_action_accessibility_text (2122419773237007989) -->
-    <skip />
-    <!-- no translation found for one_handed_gesture_dismiss_action_accessibility_text (8288713291513299429) -->
-    <skip />
+    <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"Bevægelsen Knib fingrene sammen to gange for at %s"</string>
+    <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"Bevægelsen Håndledsdrejning for at %s"</string>
 </resources>
