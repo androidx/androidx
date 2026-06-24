@@ -122,16 +122,27 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
             };
 
     private void saveMacro(@NonNull String name, @NonNull RemoteComposeBuffer buffer) {
-        mLoadedMacros.put(name, buffer);
-        if (mInner.getDocument() != null) {
-            // mInner.getDocument().getDocument().addMacro(name, buffer);
-            // mInner.getDocument().reinflate();
-        }
         File folder = new File(getContext().getFilesDir(), "macros");
         if (!folder.exists()) {
             folder.mkdirs();
         }
         File file = new File(folder, name + ".mrc");
+        try {
+            String canonicalFolderPath = folder.getCanonicalPath();
+            String canonicalFilePath = file.getCanonicalPath();
+            if (!canonicalFilePath.startsWith(canonicalFolderPath + File.separator)) {
+                Log.e("RemoteComposePlayer", "Invalid macro name (path traversal detected)");
+                return;
+            }
+        } catch (IOException e) {
+            Log.e("RemoteComposePlayer", "Failed to resolve canonical path for macro", e);
+            return;
+        }
+        mLoadedMacros.put(name, buffer);
+        if (mInner.getDocument() != null) {
+            // mInner.getDocument().getDocument().addMacro(name, buffer);
+            // mInner.getDocument().reinflate();
+        }
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(buffer.getBuffer().cloneBytes());
         } catch (IOException e) {
