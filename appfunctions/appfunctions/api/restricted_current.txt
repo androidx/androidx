@@ -263,6 +263,15 @@ package androidx.appfunctions {
     property public abstract int scope;
   }
 
+  public final class AppFunctionState {
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public android.util.ArraySet<android.app.appfunctions.AppFunctionActivityId>? getActivityIds();
+    method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionName getFunctionName();
+    method @InaccessibleFromKotlin public boolean isEnabled();
+    property @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public android.util.ArraySet<android.app.appfunctions.AppFunctionActivityId>? activityIds;
+    property public androidx.appfunctions.metadata.AppFunctionName functionName;
+    property public boolean isEnabled;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
     ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
     method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
