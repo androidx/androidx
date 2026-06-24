@@ -41,6 +41,9 @@ dependencies {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.testutils.macrobenchmark"
 }
 

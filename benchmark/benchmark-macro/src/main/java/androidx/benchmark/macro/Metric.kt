@@ -762,7 +762,6 @@ class TraceSectionMetric(
  * Some classes will be verified at runtime rather than install time due to limitations in the
  * compiler and runtime or due to being malformed.
  */
-@RequiresApi(24)
 class ArtMetric : Metric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,

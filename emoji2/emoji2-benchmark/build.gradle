@@ -34,6 +34,9 @@ ext {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.emoji2.benchmark"
 }
 

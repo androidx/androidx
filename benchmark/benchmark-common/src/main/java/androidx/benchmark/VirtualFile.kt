@@ -22,7 +22,6 @@ import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.ShellFile.Companion.rootState
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.DataInputStream
@@ -137,11 +136,6 @@ class UserFile(private val file: File) : VirtualFile() {
     companion object {
         fun inOutputsDir(name: String): UserFile {
             val file = File(Outputs.dirUsableByAppAndShell, name)
-            if (Outputs.forceFilesForShellAccessible) {
-                // script content must be readable by shell, and for some reason
-                // doesn't inherit shell readability from dirUsableByAppAndShell
-                file.setReadable(true, false)
-            }
             return UserFile(file)
         }
     }

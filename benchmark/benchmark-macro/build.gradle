@@ -34,6 +34,7 @@ plugins {
 
 android {
     defaultConfig {
+        minSdk { version = release(24) }
 
         // We don't care about perf from these correctness tests, so suppress
         // anything that may otherwise block these tests

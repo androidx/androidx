@@ -24,6 +24,9 @@ android {
     compileSdk {
         version = release(37)
     }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 
     buildTypes {
         // This benchmark buildType is used for benchmarking, and should function like your

@@ -20,6 +20,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     buildTypes {
         release {
             optimization {

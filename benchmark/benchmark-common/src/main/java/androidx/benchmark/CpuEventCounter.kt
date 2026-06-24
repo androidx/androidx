@@ -16,8 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.io.Closeable
 import java.util.Locale
@@ -156,8 +154,6 @@ class CpuEventCounter : Closeable {
     }
 
     companion object {
-        const val MIN_API_ROOT_REQUIRED = 23
-
         fun checkPerfEventSupport(): String? = CpuCounterJni.checkPerfEventSupport()
 
         /**
@@ -166,18 +162,14 @@ class CpuEventCounter : Closeable {
          * Reset still required if failure occurs partway through
          */
         fun forceEnable(): String? {
-            if (Build.VERSION.SDK_INT >= 23) {
-                Api23Enabler.forceEnable()?.let {
-                    return it
-                }
+            Api23Enabler.forceEnable()?.let {
+                return it
             }
             return checkPerfEventSupport()
         }
 
         fun reset() {
-            if (Build.VERSION.SDK_INT >= 23) {
-                Api23Enabler.reset()
-            }
+            Api23Enabler.reset()
         }
 
         /**
@@ -186,7 +178,6 @@ class CpuEventCounter : Closeable {
          * Lower APIs not tested, but selinux is documented to be enforced starting in Android 5
          * (API 23).
          */
-        @RequiresApi(23)
         object Api23Enabler {
             private val perfHardenProp = PropOverride("security.perf_harden", "0")
             private var shouldResetEnforce1 = false

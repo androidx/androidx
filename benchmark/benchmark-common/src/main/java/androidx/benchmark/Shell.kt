@@ -24,7 +24,6 @@ import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.CheckResult
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
@@ -226,11 +225,6 @@ object Shell {
 
         try {
             writableExecutableFile.outputStream().use { inputStream.copyTo(it) }
-            if (Outputs.forceFilesForShellAccessible) {
-                // executable must be readable by shell to be moved, and for some reason
-                // doesn't inherit shell readability from dirUsableByAppAndShell
-                writableExecutableFile.setReadable(true, false)
-            }
             moveToTmpAndMakeExecutable(
                 src = writableExecutableFile.absolutePath,
                 dst = runnableExecutablePath,
@@ -331,7 +325,6 @@ object Shell {
 
     @CheckResult
     fun getCompilationMode(packageName: String): String {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) return "speed"
         val dump = executeScriptCaptureStdout("cmd package dump $packageName").trim()
         return parseCompilationMode(Build.VERSION.SDK_INT, dump)
     }
@@ -611,14 +604,12 @@ object Shell {
         }
     }
 
-    @RequiresApi(24)
     fun disableBackgroundDexOpt() {
         // Cancels the active job if any
         ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --cancel")
         ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --disable")
     }
 
-    @RequiresApi(24)
     fun enableBackgroundDexOpt() {
         ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --enable")
     }

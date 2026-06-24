@@ -37,6 +37,7 @@ android {
     compileSdk { version = release(35) }
     namespace = "androidx.metrics.performance.benchmark"
     defaultConfig {
+        minSdk { version = release(24) }
         // Enable measuring on an emulator, devices with low battery, and eng builds
         // We are only concerned with allocations in this benchmark, so runtime performance
         // problems with these configurations are not relevant

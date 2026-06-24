@@ -23,7 +23,6 @@ import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
-import androidx.benchmark.Shell
 import androidx.benchmark.ShellFile
 import androidx.benchmark.UserFile
 import androidx.benchmark.UserInfo
@@ -94,12 +93,6 @@ class PerfettoCaptureWrapper {
                 }
             } else {
                 capture!!.stop(it.absolutePath, inMemoryTracingLabel)
-                if (Outputs.forceFilesForShellAccessible) {
-                    // This shell written file must be made readable to be later accessed by this
-                    // process (e.g. for appending UiState). Unlike in other places, shell
-                    // must increase access, since it's giving the app access
-                    Shell.chmod(path = it.absolutePath, args = "777")
-                }
             }
         }
     }

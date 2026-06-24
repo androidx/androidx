@@ -147,16 +147,12 @@ public class IsolationActivity : android.app.Activity() {
         }
 
         internal fun isSustainedPerformanceModeSupported(): Boolean =
-            if (Build.VERSION.SDK_INT >= 24) {
-                InstrumentationRegistry.getInstrumentation().isSustainedPerformanceModeSupported()
-            } else {
-                false
-            }
+            InstrumentationRegistry.getInstrumentation().isSustainedPerformanceModeSupported()
 
         private val activityLifecycleCallbacks =
             object : Application.ActivityLifecycleCallbacks {
                 override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
-                    if (sustainedPerformanceModeInUse && Build.VERSION.SDK_INT >= 24) {
+                    if (sustainedPerformanceModeInUse) {
                         activity.setSustainedPerformanceMode(true)
                     }
 

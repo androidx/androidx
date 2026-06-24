@@ -34,6 +34,10 @@ plugins {
 androidXMultiplatform {
     // HACK: We consume the artifacts from this target in :collection:collection-benchmark-android
     jvm()
+    androidLibrary {
+        namespace = "androidx.collection.benchmark.kmp"
+        minSdk { version = release(24) }
+    }
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")

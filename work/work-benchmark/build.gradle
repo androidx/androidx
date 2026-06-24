@@ -50,5 +50,8 @@ androidx {
 
 android {
     compileSdk { version = release(35) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.work.benchmark"
 }

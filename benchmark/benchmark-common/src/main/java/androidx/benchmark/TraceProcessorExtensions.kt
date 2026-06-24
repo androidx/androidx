@@ -19,11 +19,9 @@
 package androidx.benchmark
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.security.NetworkSecurityPolicy
 import android.util.Log
 import androidx.annotation.CheckResult
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -33,7 +31,6 @@ import androidx.benchmark.traceprocessor.ServerLifecycleManager
 import androidx.benchmark.traceprocessor.TraceProcessor
 import java.io.IOException
 
-@RequiresApi(24)
 private object Api24Impl {
     fun isCleartextTrafficPermittedForLocalhost() =
         NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost")
@@ -75,10 +72,7 @@ internal class ShellServerLifecycleManager : ServerLifecycleManager {
     @SuppressLint("BanThreadSleep")
     override fun start(): Int {
         inMemoryTrace("ShellServerLifecycleManager#start") {
-            if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                    !Api24Impl.isCleartextTrafficPermittedForLocalhost()
-            ) {
+            if (!Api24Impl.isCleartextTrafficPermittedForLocalhost()) {
                 throw IOException(
                     """
                     Macrobenchmark requires cleartext HTTP traffic to the on-device localhost to enable
