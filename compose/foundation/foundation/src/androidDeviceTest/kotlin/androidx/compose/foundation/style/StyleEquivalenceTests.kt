@@ -48,10 +48,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
@@ -63,8 +67,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -207,6 +213,45 @@ class StyleEquivalenceTests {
                     background = SolidColor(Color.Blue),
                 ) {
                     Box(modifier = Modifier.size(20.dp))
+                }
+            },
+        )
+    }
+
+    @Test
+    fun border_customShape_respectsShapeBounds() {
+        val customShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline {
+                    val path = Path().apply { addRect(Rect(25f, 25f, 75f, 75f)) }
+                    return Outline.Generic(path)
+                }
+            }
+        checkEquivalence(
+            styleVersion = {
+                BaseStyleableButton(
+                    onClick = {},
+                    style = {
+                        border(10.dp, Color.Red)
+                        shape(customShape)
+                        background(Color.Blue)
+                    },
+                ) {
+                    Box(modifier = Modifier.size(40.dp))
+                }
+            },
+            modifierVersion = {
+                BaseModifierButton(
+                    onClick = {},
+                    border = BorderStroke(10.dp, Color.Red),
+                    shape = customShape,
+                    background = SolidColor(Color.Blue),
+                ) {
+                    Box(modifier = Modifier.size(40.dp))
                 }
             },
         )
