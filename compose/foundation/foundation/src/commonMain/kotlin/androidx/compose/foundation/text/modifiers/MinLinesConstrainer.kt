@@ -48,10 +48,6 @@ internal class MinLinesConstrainer
     private var oneLineHeightCache: Float = Float.NaN
 
     companion object {
-        // LRU cache of one since this tends to be used for similar styles
-        // ... it may be useful to increase this cache if requested by some dev use case
-        private var last: MinLinesConstrainer? = null
-
         /** Returns a coercer (possibly cached) with these parameters */
         fun from(
             minMaxUtil: MinLinesConstrainer?,
@@ -70,25 +66,14 @@ internal class MinLinesConstrainer
                     return it
                 }
             }
-            last?.let {
-                if (
-                    layoutDirection == it.layoutDirection &&
-                        resolveDefaults(paramStyle, layoutDirection) == it.inputTextStyle &&
-                        density.density == it.density.density &&
-                        fontFamilyResolver === it.fontFamilyResolver
-                ) {
-                    return it
-                }
-            }
             return MinLinesConstrainer(
-                    layoutDirection,
-                    resolveDefaults(paramStyle, layoutDirection),
-                    // other density implementations may hold references to views/activities
-                    // which the cache outlives, potentially causing memory leak.
-                    Density(density.density, density.fontScale),
-                    fontFamilyResolver,
-                )
-                .also { last = it }
+                layoutDirection,
+                resolveDefaults(paramStyle, layoutDirection),
+                // other density implementations may hold references to views/activities
+                // which the cache outlives, potentially causing memory leak.
+                Density(density.density, density.fontScale),
+                fontFamilyResolver,
+            )
         }
     }
 
