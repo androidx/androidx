@@ -138,7 +138,7 @@ private const val STRICT_SCHEME_PATTERN = "https://"
  * @param serializer The serializer to instantiate an instance of [T]
  * @param filters an optional list of filters to filter a [DeepLinkRequest] when matching
  */
-public open class UriDeepLinkMatcher<T : Any>(
+public open class UriDeepLinkMatcher<out T : Any>(
     private val uriPattern: DeepLinkUri,
     private val serializer: KSerializer<T>,
     filters: List<Filter> = emptyList(),
@@ -259,7 +259,7 @@ public open class UriDeepLinkMatcher<T : Any>(
  * @param key the navigation key representing the deep link target
  * @param arguments the map of arguments extracted from the [DeepLinkRequest]
  */
-public open class UriMatchResult<T : Any>(
+public open class UriMatchResult<out T : Any>(
     key: T,
     public val arguments: Map<String, List<String>> = emptyMap(),
 ) : DeepLinkMatcher.MatchResult<T>(key) {
@@ -289,6 +289,7 @@ public open class UriMatchResult<T : Any>(
     protected var isExactPath: Boolean = false
     private var matchingPathArgumentCount: Int = -1
 
+    // UnsafeVariance is safe here because the class and its function cannot mutate the key
     /**
      * Compares this matcher with the [other] for sorting order.
      *
@@ -300,7 +301,7 @@ public open class UriMatchResult<T : Any>(
      * @param other the other [MatchResult] to compare with
      * @see [UriMatchResult] for matching priority
      */
-    override fun compareTo(other: DeepLinkMatcher.MatchResult<T>): Int {
+    override fun compareTo(other: DeepLinkMatcher.MatchResult<@UnsafeVariance T>): Int {
         if (other !is UriMatchResult) return 1
         if (isExactPath && !other.isExactPath) {
             return 1
