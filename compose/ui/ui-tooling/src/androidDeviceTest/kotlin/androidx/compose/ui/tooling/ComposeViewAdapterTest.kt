@@ -781,6 +781,45 @@ class ComposeViewAdapterTest {
         checkDesignInfoList("ScaffoldDesignInfoProvider", "A", "ObjectA, x=0, y=0")
     }
 
+    @Test
+    fun testFakeOnBackPressedDispatcherOwnerExistsInComposeViewAdapter() {
+        val composeViewAdapterClass = ComposeViewAdapter::class.java
+        val field = composeViewAdapterClass.getDeclaredField("FakeOnBackPressedDispatcherOwner")
+        field.isAccessible = true
+        val fakeOnBackPressedDispatcherOwner = field.get(composeViewAdapter)
+
+        val actualMethods =
+            fakeOnBackPressedDispatcherOwner.javaClass.declaredMethods
+                .map { method ->
+                    val params = method.parameterTypes.joinToString(",") { it.simpleName }
+                    "${method.name}($params): ${method.returnType.simpleName}"
+                }
+                .toSet()
+
+        val expectedMethods =
+            listOf(
+                // Back navigation APIs
+                "canBackPress(): boolean",
+                "onBackPressStarted(String): void",
+                "onBackPressProgress(float,String): void",
+                "onBackPressCompleted(): void",
+                "onBackPressCancelled(): void",
+                // Forward navigation APIs
+                "canForwardPress(): boolean",
+                "onForwardPressStarted(String): void",
+                "onForwardPressProgress(float,String): void",
+                "onForwardPressCompleted(): void",
+                "onForwardPressCancelled(): void",
+            )
+
+        for (expectedMethod in expectedMethods) {
+            assertTrue(
+                "Method '$expectedMethod' should be present in FakeOnBackPressedDispatcherOwner",
+                actualMethods.contains(expectedMethod),
+            )
+        }
+    }
+
     private fun checkDesignInfoList(
         methodName: String,
         customArgument: String,

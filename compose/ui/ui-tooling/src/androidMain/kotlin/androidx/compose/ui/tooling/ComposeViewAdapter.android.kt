@@ -69,6 +69,14 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEvent.Companion.EDGE_LEFT
+import androidx.navigationevent.NavigationEvent.Companion.EDGE_NONE
+import androidx.navigationevent.NavigationEvent.Companion.EDGE_RIGHT
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -418,6 +426,7 @@ internal class ComposeViewAdapter : FrameLayout {
             LocalFontLoader provides LayoutlibFontResourceLoader(context),
             LocalFontFamilyResolver provides createFontFamilyResolver(context),
             LocalOnBackPressedDispatcherOwner provides FakeOnBackPressedDispatcherOwner,
+            LocalNavigationEventDispatcherOwner provides FakeOnBackPressedDispatcherOwner,
             LocalActivityResultRegistryOwner provides FakeActivityResultRegistryOwner,
         ) {
             Inspectable(slotTableRecord, content)
@@ -650,11 +659,145 @@ internal class ComposeViewAdapter : FrameLayout {
         }
 
     private val FakeOnBackPressedDispatcherOwner =
-        object : OnBackPressedDispatcherOwner {
+        object : OnBackPressedDispatcherOwner, NavigationEventDispatcherOwner {
+
             override val onBackPressedDispatcher = OnBackPressedDispatcher()
+
+            override val navigationEventDispatcher =
+                NavigationEventDispatcher(
+                    onBackCompletedFallback = { onBackPressedDispatcher.onBackPressed() }
+                )
+
+            private val directNavigationEventInput: DirectNavigationEventInput by lazy {
+                DirectNavigationEventInput().also { input ->
+                    navigationEventDispatcher.addInput(input)
+                }
+            }
 
             override val lifecycle: LifecycleRegistry
                 get() = FakeSavedStateRegistryOwner.lifecycleRegistry
+
+            /**
+             * Checks if back navigation is possible.
+             *
+             * @return `true` if back navigation can be performed, `false` otherwise
+             */
+            fun canBackPress(): Boolean {
+                val history = navigationEventDispatcher.history.value
+                return history.currentIndex > 0
+            }
+
+            /**
+             * Starts back navigation.
+             *
+             * @param edge string describing the edge used for back navigation:
+             *     - `"EDGE_LEFT"`: indicates the navigation gesture originates from the left edge
+             *       of the screen, see [EDGE_LEFT]
+             *     - `"EDGE_RIGHT"`: indicates the navigation gesture originates from the right edge
+             *       of the screen, see [EDGE_RIGHT]
+             *     - any other value: indicates the navigation event was not caused by an edge
+             *       swipe, such as a 3-button navigation press or a hardware back button event, see
+             *       [EDGE_NONE]
+             */
+            fun onBackPressStarted(edge: String) {
+                directNavigationEventInput.backStarted(
+                    NavigationEvent(getNavigationEdgeFromString(edge))
+                )
+            }
+
+            /**
+             * Sets the progress of back navigation.
+             *
+             * @param progress progress of back navigation
+             * @param edge string describing the edge used for back navigation:
+             *     - `"EDGE_LEFT"`: indicates the navigation gesture originates from the left edge
+             *       of the screen, see [EDGE_LEFT]
+             *     - `"EDGE_RIGHT"`: indicates the navigation gesture originates from the right edge
+             *       of the screen, see [EDGE_RIGHT]
+             *     - any other value: indicates the navigation event was not caused by an edge
+             *       swipe, such as a 3-button navigation press or a hardware back button event, see
+             *       [EDGE_NONE]
+             */
+            fun onBackPressProgress(progress: Float, edge: String) {
+                directNavigationEventInput.backProgressed(
+                    NavigationEvent(getNavigationEdgeFromString(edge), progress)
+                )
+            }
+
+            /** Performs back navigation. */
+            fun onBackPressCompleted() {
+                directNavigationEventInput.backCompleted()
+            }
+
+            /** Cancels back navigation progress. */
+            fun onBackPressCancelled() {
+                directNavigationEventInput.backCancelled()
+            }
+
+            /**
+             * Checks if forward navigation is possible.
+             *
+             * @return `true` if forward navigation can be performed, `false` otherwise
+             */
+            fun canForwardPress(): Boolean {
+                val history = navigationEventDispatcher.history.value
+                return history.currentIndex >= 0 &&
+                    history.currentIndex < history.mergedHistory.size - 1
+            }
+
+            /**
+             * Starts forward navigation.
+             *
+             * @param edge string describing the edge used for forward navigation:
+             *     - `"EDGE_LEFT"`: indicates the navigation gesture originates from the left edge
+             *       of the screen, see [EDGE_LEFT]
+             *     - `"EDGE_RIGHT"`: indicates the navigation gesture originates from the right edge
+             *       of the screen, see [EDGE_RIGHT]
+             *     - any other value: indicates the navigation event was not caused by an edge
+             *       swipe, such as a 3-button navigation press or a hardware back button event, see
+             *       [EDGE_NONE]
+             */
+            fun onForwardPressStarted(edge: String) {
+                directNavigationEventInput.forwardStarted(
+                    NavigationEvent(getNavigationEdgeFromString(edge))
+                )
+            }
+
+            /**
+             * Sets the progress of forward navigation.
+             *
+             * @param progress progress of forward navigation
+             * @param edge string describing the edge used for forward navigation:
+             *     - `"EDGE_LEFT"`: indicates the navigation gesture originates from the left edge
+             *       of the screen, see [EDGE_LEFT]
+             *     - `"EDGE_RIGHT"`: indicates the navigation gesture originates from the right edge
+             *       of the screen, see [EDGE_RIGHT]
+             *     - any other value: indicates the navigation event was not caused by an edge
+             *       swipe, such as a 3-button navigation press or a hardware back button event, see
+             *       [EDGE_NONE]
+             */
+            fun onForwardPressProgress(progress: Float, edge: String) {
+                directNavigationEventInput.forwardProgressed(
+                    NavigationEvent(getNavigationEdgeFromString(edge), progress)
+                )
+            }
+
+            /** Performs forward navigation. */
+            fun onForwardPressCompleted() {
+                directNavigationEventInput.forwardCompleted()
+            }
+
+            /** Cancels forward navigation progress. */
+            fun onForwardPressCancelled() {
+                directNavigationEventInput.forwardCancelled()
+            }
+
+            private fun getNavigationEdgeFromString(edge: String): Int =
+                when (edge) {
+                    "EDGE_LEFT" -> EDGE_LEFT
+                    "EDGE_RIGHT" -> EDGE_RIGHT
+                    else -> EDGE_NONE
+                }
         }
 
     private val FakeActivityResultRegistryOwner =
