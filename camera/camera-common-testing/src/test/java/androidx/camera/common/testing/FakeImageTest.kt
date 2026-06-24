@@ -150,6 +150,6 @@ class FakeImageTest {
         assertThat(planes).hasSize(1)
         assertThat(planes[0].pixelStride).isEqualTo(1)
         assertThat(planes[0].rowStride).isEqualTo(640)
-        assertThat(planes[0].buffer!!.capacity()).isEqualTo((640 * 480 * 3) / 4)
+        assertThat(planes[0].buffer!!.capacity()).isEqualTo(640 * 480 * 2)
     }
 }

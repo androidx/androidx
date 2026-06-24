@@ -69,6 +69,17 @@ import androidx.annotation.RestrictTo
             android.graphics.ImageFormat.PRIVATE,
             android.graphics.ImageFormat.HEIC,
             android.graphics.ImageFormat.YCBCR_P010,
+            android.graphics.ImageFormat.JPEG_R,
+            IMAGE_FORMAT_RAW_DEPTH,
+            IMAGE_FORMAT_RAW_DEPTH10,
+            IMAGE_FORMAT_Y16,
+            IMAGE_FORMAT_YCBCR_P210,
+            IMAGE_FORMAT_HEIC_ULTRAHDR,
+            IMAGE_FORMAT_R_8,
+            IMAGE_FORMAT_HSV_888,
+            IMAGE_FORMAT_R_16,
+            IMAGE_FORMAT_RG_1616,
+            IMAGE_FORMAT_RGBA_10101010,
             android.graphics.PixelFormat.UNKNOWN,
             android.graphics.PixelFormat.TRANSLUCENT,
             android.graphics.PixelFormat.TRANSPARENT,
@@ -97,3 +108,30 @@ import androidx.annotation.RestrictTo
         ]
 )
 public annotation class ImageFormat
+
+// =============================================================================================
+// Compatibility constants for formats that may be missing from the compile SDK.
+// These are internal to the camera-common module.
+// =============================================================================================
+
+// Defined in frameworks/base/graphics/java/android/graphics/ImageFormat.java
+// Link:
+// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/graphics/java/android/graphics/ImageFormat.java
+internal const val IMAGE_FORMAT_RAW_DEPTH: Int = 0x1002
+internal const val IMAGE_FORMAT_RAW_DEPTH10: Int = 0x1003
+internal const val IMAGE_FORMAT_Y16: Int = 0x20363159
+internal const val IMAGE_FORMAT_YCBCR_P210: Int = 0x3c // Also in HardwareBuffer.java
+internal const val IMAGE_FORMAT_HEIC_ULTRAHDR: Int = 0x1006
+
+// Defined in frameworks/base/graphics/java/android/graphics/PixelFormat.java
+// Link:
+// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/graphics/java/android/graphics/PixelFormat.java
+internal const val IMAGE_FORMAT_R_8: Int = 0x38 // Also in HardwareBuffer.java
+internal const val IMAGE_FORMAT_HSV_888: Int = 0x37
+
+// Defined in frameworks/base/core/java/android/hardware/HardwareBuffer.java
+// Link:
+// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/hardware/HardwareBuffer.java
+internal const val IMAGE_FORMAT_R_16: Int = 0x39
+internal const val IMAGE_FORMAT_RG_1616: Int = 0x3a
+internal const val IMAGE_FORMAT_RGBA_10101010: Int = 0x3b

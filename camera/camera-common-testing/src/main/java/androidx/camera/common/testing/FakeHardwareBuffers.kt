@@ -22,13 +22,15 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.camera.common.ImageFormat
+import androidx.camera.common.ImageFormats
 
 /** Utility functions for creating and verifying fake [HardwareBuffer] objects. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal object FakeHardwareBuffers {
 
     /** Estimates the size of a raw flat binary buffer for compressed and unstructured formats. */
-    internal fun estimateBlobBufferSize(width: Int, height: Int): Int = (width * height * 3) / 4
+    internal fun estimateBlobBufferSize(width: Int, height: Int): Int =
+        ImageFormats.bytesPerImage(android.graphics.ImageFormat.JPEG, width, height).toInt()
 
     /**
      * Creates a fake [HardwareBuffer] for the specified image properties.

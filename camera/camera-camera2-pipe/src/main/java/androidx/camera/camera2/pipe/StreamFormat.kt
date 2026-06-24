@@ -17,7 +17,8 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
-import kotlin.math.max
+import androidx.camera.common.ImageFormat
+import androidx.camera.common.ImageFormats
 
 /**
  * Platform-independent Android ImageFormats and their associated values.
@@ -28,7 +29,7 @@ import kotlin.math.max
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class StreamFormat(public val value: Int) {
+public value class StreamFormat(@ImageFormat public val value: Int) {
     public companion object {
         public val UNKNOWN: StreamFormat = StreamFormat(0)
         public val PRIVATE: StreamFormat = StreamFormat(0x22)
@@ -68,14 +69,7 @@ public value class StreamFormat(public val value: Int) {
         /** Checks to see if the format is likely a compressed rgb format. */
         @JvmStatic
         public fun isCompressedRgb(format: StreamFormat): Boolean {
-            return when (format) {
-                JPEG_R,
-                DEPTH_JPEG,
-                HEIC,
-                JPEG,
-                BLOB -> true
-                else -> false
-            }
+            return ImageFormats.isCompressedRgb(format.value)
         }
 
         /**
@@ -84,15 +78,7 @@ public value class StreamFormat(public val value: Int) {
          */
         @JvmStatic
         public fun isRaw(format: StreamFormat): Boolean {
-            return when (format) {
-                RAW10,
-                RAW12,
-                RAW_PRIVATE,
-                RAW_SENSOR,
-                RAW_DEPTH,
-                RAW_DEPTH10 -> true
-                else -> false
-            }
+            return ImageFormats.isRaw(format.value)
         }
 
         /**
@@ -105,57 +91,7 @@ public value class StreamFormat(public val value: Int) {
          */
         @JvmStatic
         public fun bytesPerImage(format: StreamFormat, width: Int, height: Int): Long {
-            var bpp = format.bitsPerPixel
-
-            if (bpp <= 0 && format == DEPTH_POINT_CLOUD) {
-                // TODO: This is a temporary fix for certain devices returning depth data in a
-                // different
-                //  format.
-                bpp = 16
-            }
-
-            // Assume that unknown formats are compressed formats, and estimate the size.
-            if (bpp <= 0 && isCompressedRgb(format)) {
-                return estimateCompressedRgbBytesPerImage(width, height)
-            }
-
-            if (bpp <= 0 && format == PRIVATE) {
-                bpp = estimatePrivateBitsPerPixel()
-            }
-
-            bpp = max(bpp, 0)
-            val bitsPerRow = width * bpp
-            return (bitsPerRow.toLong() * height) / 8L
-        }
-
-        /**
-         * This makes the assumption that compressible formats are *likely* 8 bit rgb based, and
-         * that the compression is equivalent or better than jpeg compression at 100 quality.
-         */
-        private fun estimateCompressedRgbBytesPerImage(width: Int, height: Int): Long {
-            val rgbBitsPerPixel = 24
-
-            // A few different places estimated that jpeg compression at 100 is
-            // worst-case: ~3.5
-            // best-case:  ~12
-            // median:     ~5
-
-            // This value is set to be near the worst-case since it's usually better to
-            // over-estimate
-            // the memory usage than to under-estimate it.
-            val estimatedCompressionFactor = 4
-
-            val rgbBitsPerRow = width * rgbBitsPerPixel
-            val rgbBytes = (rgbBitsPerRow.toLong() * height) / 8L
-            return rgbBytes / estimatedCompressionFactor
-        }
-
-        /**
-         * This makes the assumption that PRIVATE formats is same as [YUV_420_888] in some specific
-         * platforms.
-         */
-        private fun estimatePrivateBitsPerPixel(): Int {
-            return YUV_420_888.bitsPerPixel
+            return ImageFormats.bytesPerImage(format.value, width, height)
         }
     }
 
@@ -170,31 +106,7 @@ public value class StreamFormat(public val value: Int) {
      *   of bits per pixel.
      */
     public val bitsPerPixel: Int
-        get() {
-            when (this) {
-                DEPTH16 -> return 16
-                FLEX_RGB_888 -> return 24
-                FLEX_RGBA_8888 -> return 32
-                NV16 -> return 16
-                NV21 -> return 12
-                RAW10 -> return 10
-                RAW12 -> return 12
-                RAW_DEPTH -> return 16
-                RAW_SENSOR -> return 16
-                RGB_565 -> return 16
-                Y12 -> return 12
-                Y16 -> return 16
-                Y8 -> return 8
-                YCBCR_P010 -> return 16
-                YUV_420_888 -> return 12
-                YUV_422_888 -> return 16
-                YUV_444_888 -> return 24
-                YUY2 -> return 16
-                YV12 -> return 12
-            }
-
-            return -1
-        }
+        get() = ImageFormats.bitsPerPixel(value)
 
     /**
      * This function returns a human-readable string for the associated format.
@@ -202,38 +114,5 @@ public value class StreamFormat(public val value: Int) {
      * @return a human-readable string representation of the StreamFormat.
      */
     public val name: String
-        get() {
-            when (this) {
-                UNKNOWN -> return "UNKNOWN"
-                PRIVATE -> return "PRIVATE"
-                DEPTH16 -> return "DEPTH16"
-                DEPTH_JPEG -> return "DEPTH_JPEG"
-                DEPTH_POINT_CLOUD -> return "DEPTH_POINT_CLOUD"
-                FLEX_RGB_888 -> return "FLEX_RGB_888"
-                FLEX_RGBA_8888 -> return "FLEX_RGBA_8888"
-                HEIC -> return "HEIC"
-                JPEG -> return "JPEG"
-                JPEG_R -> return "JPEG_R"
-                NV16 -> return "NV16"
-                NV21 -> return "NV21"
-                RAW10 -> return "RAW10"
-                RAW12 -> return "RAW12"
-                RAW_DEPTH -> return "RAW_DEPTH"
-                RAW_DEPTH10 -> return "RAW_DEPTH10"
-                RAW_PRIVATE -> return "RAW_PRIVATE"
-                RAW_SENSOR -> return "RAW_SENSOR"
-                RGB_565 -> return "RGB_565"
-                Y12 -> return "Y12"
-                Y16 -> return "Y16"
-                Y8 -> return "Y8"
-                YCBCR_P010 -> return "YCBCR_P010"
-                YUV_420_888 -> return "YUV_420_888"
-                YUV_422_888 -> return "YUV_422_888"
-                YUV_444_888 -> return "YUV_444_888"
-                YUY2 -> return "YUY2"
-                YV12 -> return "YV12"
-                BLOB -> return "BLOB"
-            }
-            return "UNKNOWN(${this.value.toString(16)})"
-        }
+        get() = ImageFormats.name(value)
 }
