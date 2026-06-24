@@ -1808,6 +1808,49 @@ class XAnnotationTest(private val preCompiled: Boolean) {
         }
     }
 
+    @Test
+    fun propertyAnnotationsOnField_deduplication() {
+        val kotlinSource =
+            Source.kotlin(
+                "foo.bar.Subject.kt",
+                """
+                package foo.bar
+                @Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY)
+                annotation class TargetBoth
+                class Subject {
+                    @TargetBoth val field: String = ""
+                }
+                """
+                    .trimIndent(),
+            )
+        val config = XProcessingEnvConfig.DEFAULT.copy(includePropertyAnnotationsInFields = true)
+        runTest(sources = listOf(kotlinSource), config = config) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+            val field = subject.getDeclaredField("field")
+
+            // KAPT cannot read synthetic $annotations methods from precompiled class files,
+            // so the annotation will be entirely missing in that setup.
+            val isKaptPrecompiled = !invocation.isKsp && preCompiled
+            val expectedSize = if (isKaptPrecompiled) 0 else 1
+            // Test getAllAnnotations()
+            val allAnnotations =
+                field.getAllAnnotations().filter { it.qualifiedName == "foo.bar.TargetBoth" }
+            assertWithMessage(
+                    "getAllAnnotations() size mismatch (precompiled=$preCompiled, isKsp=${invocation.isKsp})"
+                )
+                .that(allAnnotations)
+                .hasSize(expectedSize)
+
+            // Test getAnnotations(String)
+            val annotationsByName = field.getAnnotations("foo.bar.TargetBoth")
+            assertWithMessage(
+                    "getAnnotations(String) size mismatch (precompiled=$preCompiled, isKsp=${invocation.isKsp})"
+                )
+                .that(annotationsByName)
+                .hasSize(expectedSize)
+        }
+    }
+
     // helper function to read what we need
     private fun XAnnotated.getSuppressValues(): List<String>? {
         return this.findAnnotation<TestSuppressWarnings>()?.getAsStringList("value")

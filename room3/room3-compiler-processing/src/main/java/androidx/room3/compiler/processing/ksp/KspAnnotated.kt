@@ -90,7 +90,7 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
         val b: KspAnnotated,
     ) : KspAnnotated(env) {
         override val ksAnnotations: Sequence<KSAnnotation>
-            get() = a.ksAnnotations + b.ksAnnotations
+            get() = (a.ksAnnotations + b.ksAnnotations).distinct()
     }
 
     private class NotAnnotated(env: KspProcessingEnv) : KspAnnotated(env) {
