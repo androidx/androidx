@@ -16,13 +16,16 @@
 
 package androidx.compose.animation.benchmark
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
@@ -44,12 +47,22 @@ class TransitionBenchmark {
 
     @get:Rule val rule = ComposeBenchmarkRule()
 
-    /**
-     * Measures the cost of creating a new [androidx.compose.animation.core.Transition] instance.
-     */
+    /** Measures the cost of calling [updateTransition]. */
     @Test
     fun createTransitionThroughUpdateTransition() {
-        rule.benchmarkFirstCompose(::TransitionInstantiationTestCase)
+        rule.benchmarkFirstCompose(::UpdateTransitionTestCase)
+    }
+
+    /** Measures the cost of calling [rememberTransition]. */
+    @Test
+    fun createTransitionThroughRememberTransition() {
+        rule.benchmarkFirstCompose { RememberTransitionTestCase(sameState = true) }
+    }
+
+    /** Measures the cost of calling [rememberTransition] with different initial state. */
+    @Test
+    fun createTransitionThroughRememberTransition_differentState() {
+        rule.benchmarkFirstCompose { RememberTransitionTestCase(sameState = false) }
     }
 
     /** Measures the cost of running a [androidx.compose.animation.core.Transition]. */
@@ -59,10 +72,22 @@ class TransitionBenchmark {
     }
 }
 
-private class TransitionInstantiationTestCase : LayeredComposeTestCase() {
+private class UpdateTransitionTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         updateTransition(targetState = Unit, label = null)
+    }
+}
+
+private class RememberTransitionTestCase(private val sameState: Boolean) :
+    LayeredComposeTestCase() {
+    @Composable
+    override fun MeasuredContent() {
+        val state = remember { MutableTransitionState(true) }
+        if (!sameState) {
+            state.targetState = false
+        }
+        rememberTransition(state, label = null)
     }
 }
 
