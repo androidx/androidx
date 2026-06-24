@@ -355,6 +355,7 @@ abstract class AndroidXExtension(
                 project.path.startsWith(":privacysandbox:ads:") ->
                     mutableListOf("privacysandbox", "privacysandbox_ads")
                 project.path.startsWith(":wear:watchface") -> mutableListOf("wear_optin")
+                project.path.startsWith(":xr:") -> mutableListOf("xr_optin")
                 else -> mutableListOf()
             }
         if (deviceTests.enableAlsoRunningOnPhysicalDevices) {
