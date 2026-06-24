@@ -191,7 +191,7 @@ import androidx.compose.ui.node.ancestors
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.setOfAncestors
-import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
+import androidx.compose.ui.platform.Api29Impl.isValidMotionEvent
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.relocation.BringIntoViewModifierNode
 import androidx.compose.ui.scrollcapture.ScrollCapture
@@ -1072,11 +1072,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         setWillNotDraw(false)
         isFocusable = true
         if (SDK_INT >= O) {
-            AndroidComposeViewVerificationHelperMethodsO.focusable(
-                this,
-                focusable = FOCUSABLE,
-                defaultFocusHighlightEnabled = false,
-            )
+            Api26Impl.focusable(this, focusable = FOCUSABLE, defaultFocusHighlightEnabled = false)
         }
         isFocusableInTouchMode = true
         clipChildren = false
@@ -1085,7 +1081,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         setOnDragListener(dragAndDropManager)
 
         // Support for this feature in Compose is tracked here: b/207654434
-        if (SDK_INT >= Q) AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
+        if (SDK_INT >= Q) Api29Impl.disallowForceDark(this)
 
         if (isArrEnabled) {
             val view =
@@ -1158,7 +1154,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     override fun dispatchProvideStructure(structure: ViewStructure) {
         if (SDK_INT in 23..27) {
-            AndroidComposeViewAssistHelperMethodsO.setClassName(structure, view)
+            Api23Impl.setClassName(structure, view)
         } else {
             super.dispatchProvideStructure(structure)
         }
@@ -1641,7 +1637,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             )
         @Suppress("DEPRECATION")
         return if (SDK_INT >= N) {
-            AndroidComposeViewStartDragAndDropN.startDragAndDrop(
+            Api24Impl.startDragAndDrop(
                 view = this,
                 transferData = transferData,
                 dragShadowBuilder = shadowBuilder,
@@ -2402,7 +2398,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         viewTreeObserver.addOnScrollChangedListener(this)
         viewTreeObserver.addOnTouchModeChangeListener(this)
 
-        if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(this)
+        if (SDK_INT >= S) Api31Impl.setViewTranslationCallback(this)
         autofillManager?.let {
             focusOwner.listeners += it
             semanticsOwner.listeners += it
@@ -2460,7 +2456,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         lifecycleRetainedValuesStoreOwnerEntry?.release()
         lifecycleRetainedValuesStoreOwnerEntry = null
 
-        if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
+        if (SDK_INT >= S) Api31Impl.clearViewTranslationCallback(this)
         autofillManager?.let {
             semanticsOwner.listeners -= it
             focusOwner.listeners -= it
@@ -3034,19 +3030,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     private fun calculateMatrixToWindow(matrix: Matrix) {
         if (SDK_INT >= Q) {
-            CalculateMatrixToWindowApi29.calculateMatrixToWindow(
-                this,
-                matrix,
-                tmpAndroidMatrix,
-                tmpPositionArray,
-            )
+            Api29Impl.calculateMatrixToWindow(this, matrix, tmpAndroidMatrix, tmpPositionArray)
         } else {
-            CalculateMatrixToWindowApi21.calculateMatrixToWindow(
-                this,
-                matrix,
-                tmpMatrix,
-                tmpPositionArray,
-            )
+            Api21Impl.calculateMatrixToWindow(this, matrix, tmpMatrix, tmpPositionArray)
         }
     }
 
@@ -3235,10 +3221,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         ) {
             val icon = pointerIconService.getStylusHoverIcon()
             if (icon != null) {
-                return AndroidComposeViewVerificationHelperMethodsN.toAndroidPointerIcon(
-                    context,
-                    icon,
-                )
+                return Api24Impl.toAndroidPointerIcon(context, icon)
             }
         }
         // TODO: This will cause a class verification error on M and earlier
@@ -3257,10 +3240,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             override fun setIcon(value: PointerIcon?) {
                 currentMouseCursorIcon = value ?: PointerIcon.Default
                 if (SDK_INT >= N) {
-                    AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
-                        this@AndroidComposeView,
-                        currentMouseCursorIcon,
-                    )
+                    Api24Impl.setPointerIcon(this@AndroidComposeView, currentMouseCursorIcon)
                 }
             }
 
@@ -3297,7 +3277,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override fun incrementSensitiveComponentCount() {
         if (SDK_INT >= 35) {
             if (sensitiveComponentCount == 0) {
-                AndroidComposeViewSensitiveContent35.setContentSensitivity(view, true)
+                Api35Impl.setContentSensitivity(view, true)
             }
             sensitiveComponentCount += 1
         }
@@ -3306,7 +3286,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override fun decrementSensitiveComponentCount() {
         if (SDK_INT >= 35) {
             if (sensitiveComponentCount == 1) {
-                AndroidComposeViewSensitiveContent35.setContentSensitivity(view, false)
+                Api35Impl.setContentSensitivity(view, false)
             }
             sensitiveComponentCount -= 1
         }
@@ -3749,102 +3729,27 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 }
 
-@RequiresApi(S)
-private object AndroidComposeViewTranslationCallback : ViewTranslationCallback {
-    override fun onShowTranslation(view: View): Boolean {
-        val androidComposeView = view as AndroidComposeView
-        androidComposeView.contentCaptureManager.onShowTranslation()
-        return true
-    }
+// --- View & Matrix Helper Functions ---
 
-    override fun onHideTranslation(view: View): Boolean {
-        val androidComposeView = view as AndroidComposeView
-        androidComposeView.contentCaptureManager.onHideTranslation()
-        return true
+private fun View.containsDescendant(other: View): Boolean {
+    if (other == this) return false
+    var viewParent = other.parent
+    while (viewParent != null) {
+        if (viewParent === this) return true
+        viewParent = viewParent.parent
     }
-
-    override fun onClearTranslation(view: View): Boolean {
-        val androidComposeView = view as AndroidComposeView
-        androidComposeView.contentCaptureManager.onClearTranslation()
-        return true
-    }
+    return false
 }
 
-/**
- * These classes are here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes which
- * use this method will pass.
- */
-@RequiresApi(O)
-private object AndroidComposeViewVerificationHelperMethodsO {
-    @RequiresApi(O)
-    @DoNotInline
-    fun focusable(view: View, focusable: Int, defaultFocusHighlightEnabled: Boolean) {
-        view.focusable = focusable
-        // not to add the default focus highlight to the whole compose view
-        view.defaultFocusHighlightEnabled = defaultFocusHighlightEnabled
-    }
+private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionWrapper? {
+    ViewCompatShims.setImportantForContentCapture(
+        this,
+        ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES,
+    )
+    return ViewCompatShims.getContentCaptureSession(this)
 }
 
-@SuppressLint("ObsoleteSdkInt")
-@RequiresApi(M)
-private object AndroidComposeViewAssistHelperMethodsO {
-    @DoNotInline
-    fun setClassName(structure: ViewStructure, view: View) {
-        structure.setClassName(view.accessibilityClassName.toString())
-    }
-}
-
-@RequiresApi(N)
-private object AndroidComposeViewVerificationHelperMethodsN {
-    @RequiresApi(N)
-    fun toAndroidPointerIcon(context: Context, icon: PointerIcon?): android.view.PointerIcon =
-        when (icon) {
-            is AndroidPointerIcon -> icon.pointerIcon
-            is AndroidPointerIconType -> android.view.PointerIcon.getSystemIcon(context, icon.type)
-            else ->
-                android.view.PointerIcon.getSystemIcon(
-                    context,
-                    android.view.PointerIcon.TYPE_DEFAULT,
-                )
-        }
-
-    @DoNotInline
-    @RequiresApi(N)
-    fun setPointerIcon(view: View, icon: PointerIcon?) {
-        val iconToSet = toAndroidPointerIcon(view.context, icon)
-
-        if (view.pointerIcon != iconToSet) {
-            view.pointerIcon = iconToSet
-        }
-    }
-}
-
-@RequiresApi(Q)
-private object AndroidComposeViewForceDarkModeQ {
-    @DoNotInline
-    @RequiresApi(Q)
-    fun disallowForceDark(view: View) {
-        view.isForceDarkAllowed = false
-    }
-}
-
-@RequiresApi(S)
-internal object AndroidComposeViewTranslationCallbackS {
-    @DoNotInline
-    @RequiresApi(S)
-    fun setViewTranslationCallback(view: View) {
-        view.setViewTranslationCallback(AndroidComposeViewTranslationCallback)
-    }
-
-    @DoNotInline
-    @RequiresApi(S)
-    fun clearViewTranslationCallback(view: View) {
-        view.clearViewTranslationCallback()
-    }
-}
-
-/** Sets this [Matrix] to be the result of this * [other] */
+/** Sets this [Matrix] to be the result of `this` times [other] */
 private fun Matrix.preTransform(other: Matrix) {
     val v00 = dot(other, 0, this, 0)
     val v01 = dot(other, 0, this, 1)
@@ -3895,46 +3800,11 @@ private fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
         m1[row, 3] * m2[3, column]
 }
 
-@RequiresApi(35)
-private object AndroidComposeViewSensitiveContent35 {
-    @DoNotInline
-    @RequiresApi(35)
-    fun setContentSensitivity(view: View, isSensitiveContent: Boolean) {
-        if (isSensitiveContent) {
-            view.setContentSensitivity(View.CONTENT_SENSITIVITY_SENSITIVE)
-        } else {
-            view.setContentSensitivity(View.CONTENT_SENSITIVITY_AUTO)
-        }
-    }
-}
+// --- Top-Level SDK Implementation Helper Objects ---
 
-@RequiresApi(Q)
-private object CalculateMatrixToWindowApi29 {
+private object Api21Impl {
+    @JvmStatic
     @DoNotInline
-    fun calculateMatrixToWindow(
-        view: View,
-        matrix: Matrix,
-        tmpMatrix: android.graphics.Matrix,
-        tmpPosition: IntArray,
-    ) {
-        tmpMatrix.reset()
-        view.transformMatrixToGlobal(tmpMatrix)
-        var parent = view.parent
-        var root = view
-        while (parent is View) {
-            root = parent
-            parent = root.parent
-        }
-        root.getLocationOnScreen(tmpPosition)
-        val (screenX, screenY) = tmpPosition
-        root.getLocationInWindow(tmpPosition)
-        val (windowX, windowY) = tmpPosition
-        tmpMatrix.postTranslate((windowX - screenX).toFloat(), (windowY - screenY).toFloat())
-        matrix.setFrom(tmpMatrix)
-    }
-}
-
-private object CalculateMatrixToWindowApi21 {
     fun calculateMatrixToWindow(
         view: View,
         matrix: Matrix,
@@ -3979,18 +3849,43 @@ private object CalculateMatrixToWindowApi21 {
     }
 }
 
-@RequiresApi(29)
-private object MotionEventVerifierApi29 {
+@SuppressLint("ObsoleteSdkInt")
+@RequiresApi(23)
+private object Api23Impl {
+    @JvmStatic
     @DoNotInline
-    fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
-        return event.getRawX(index).fastIsFinite() && event.getRawY(index).fastIsFinite()
+    fun setClassName(structure: ViewStructure, view: View) {
+        structure.setClassName(view.accessibilityClassName.toString())
     }
 }
 
-@RequiresApi(N)
-private object AndroidComposeViewStartDragAndDropN {
+@RequiresApi(24)
+private object Api24Impl {
+    @JvmStatic
     @DoNotInline
-    @RequiresApi(N)
+    fun toAndroidPointerIcon(context: Context, icon: PointerIcon?): android.view.PointerIcon =
+        when (icon) {
+            is AndroidPointerIcon -> icon.pointerIcon
+            is AndroidPointerIconType -> android.view.PointerIcon.getSystemIcon(context, icon.type)
+            else ->
+                android.view.PointerIcon.getSystemIcon(
+                    context,
+                    android.view.PointerIcon.TYPE_DEFAULT,
+                )
+        }
+
+    @JvmStatic
+    @DoNotInline
+    fun setPointerIcon(view: View, icon: PointerIcon?) {
+        val iconToSet = toAndroidPointerIcon(view.context, icon)
+
+        if (view.pointerIcon != iconToSet) {
+            view.pointerIcon = iconToSet
+        }
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun startDragAndDrop(
         view: View,
         transferData: DragAndDropTransferData,
@@ -4004,41 +3899,117 @@ private object AndroidComposeViewStartDragAndDropN {
         )
 }
 
-private fun View.containsDescendant(other: View): Boolean {
-    if (other == this) return false
-    var viewParent = other.parent
-    while (viewParent != null) {
-        if (viewParent === this) return true
-        viewParent = viewParent.parent
+@RequiresApi(26)
+private object Api26Impl {
+    @JvmStatic
+    @DoNotInline
+    fun focusable(view: View, focusable: Int, defaultFocusHighlightEnabled: Boolean) {
+        view.focusable = focusable
+        // not to add the default focus highlight to the whole compose view
+        view.defaultFocusHighlightEnabled = defaultFocusHighlightEnabled
     }
-    return false
 }
 
-private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionWrapper? {
-    ViewCompatShims.setImportantForContentCapture(
-        this,
-        ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES,
-    )
-    return ViewCompatShims.getContentCaptureSession(this)
+@RequiresApi(29)
+private object Api29Impl {
+    @JvmStatic
+    @DoNotInline
+    fun disallowForceDark(view: View) {
+        view.isForceDarkAllowed = false
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun calculateMatrixToWindow(
+        view: View,
+        matrix: Matrix,
+        tmpMatrix: android.graphics.Matrix,
+        tmpPosition: IntArray,
+    ) {
+        tmpMatrix.reset()
+        view.transformMatrixToGlobal(tmpMatrix)
+        var parent = view.parent
+        var root = view
+        while (parent is View) {
+            root = parent
+            parent = root.parent
+        }
+        root.getLocationOnScreen(tmpPosition)
+        val (screenX, screenY) = tmpPosition
+        root.getLocationInWindow(tmpPosition)
+        val (windowX, windowY) = tmpPosition
+        tmpMatrix.postTranslate((windowX - screenX).toFloat(), (windowY - screenY).toFloat())
+        matrix.setFrom(tmpMatrix)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
+        return event.getRawX(index).fastIsFinite() && event.getRawY(index).fastIsFinite()
+    }
 }
 
 /** Split out to avoid class verification errors. This class will only be loaded when SDK >= 30. */
 @RequiresApi(30)
 private object Api30Impl {
-    @DoNotInline fun isShowingLayoutBounds(view: View) = view.isShowingLayoutBounds
+    @JvmStatic @DoNotInline fun isShowingLayoutBounds(view: View) = view.isShowingLayoutBounds
 }
 
 /** Split out to avoid class verification errors. This class will only be loaded when SDK >= 31. */
 @RequiresApi(31)
 private object Api31Impl {
+    @JvmStatic
+    @DoNotInline
+    fun setViewTranslationCallback(view: View) {
+        view.setViewTranslationCallback(AndroidComposeViewTranslationCallback)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun clearViewTranslationCallback(view: View) {
+        view.clearViewTranslationCallback()
+    }
+
+    @JvmStatic
     @DoNotInline
     fun getConstantForFocusDirection(direction: Int, isFastScrolling: Boolean): Int {
         return SoundEffectConstants.getConstantForFocusDirection(direction, isFastScrolling)
+    }
+
+    private object AndroidComposeViewTranslationCallback : ViewTranslationCallback {
+        override fun onShowTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.contentCaptureManager.onShowTranslation()
+            return true
+        }
+
+        override fun onHideTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.contentCaptureManager.onHideTranslation()
+            return true
+        }
+
+        override fun onClearTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.contentCaptureManager.onClearTranslation()
+            return true
+        }
     }
 }
 
 @RequiresApi(35)
 private object Api35Impl {
+    @JvmStatic
+    @SuppressLint("WrongConstant") // Lint warning is wrong
+    @DoNotInline
+    fun setContentSensitivity(view: View, isSensitiveContent: Boolean) {
+        if (isSensitiveContent) {
+            view.setContentSensitivity(View.CONTENT_SENSITIVITY_SENSITIVE)
+        } else {
+            view.setContentSensitivity(View.CONTENT_SENSITIVITY_AUTO)
+        }
+    }
+
     @JvmStatic
     @DoNotInline
     fun setRequestedFrameRate(view: View, frameRate: Float) {
