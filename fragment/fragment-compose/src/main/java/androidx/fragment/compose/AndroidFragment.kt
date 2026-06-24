@@ -32,8 +32,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.addObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 
 /**
  * Allows for adding a [Fragment] directly into Compose. It creates a fragment of the given class
@@ -49,13 +51,57 @@ import androidx.lifecycle.LifecycleOwner
  * @param onUpdate callback that provides the created fragment
  */
 @Composable
+@Deprecated(
+    message = "Maintained for binary compatibility. Use the overload with `maxLifecycle`.",
+    level = DeprecationLevel.HIDDEN,
+)
 public inline fun <reified T : Fragment> AndroidFragment(
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
     noinline onUpdate: (T) -> Unit = {},
 ) {
-    AndroidFragment(clazz = T::class.java, modifier, fragmentState, arguments, onUpdate)
+    AndroidFragment(
+        clazz = T::class.java,
+        modifier,
+        fragmentState,
+        arguments,
+        maxLifecycle = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value,
+        onUpdate,
+    )
+}
+
+/**
+ * Allows for adding a [Fragment] directly into Compose. It creates a fragment of the given class
+ * and adds it to the fragment manager.
+ *
+ * Updating the [T] or [fragmentState] parameters will result in a new fragment instance being added
+ * to the fragment manager and invoke the [onUpdate] callback with the new instance.
+ *
+ * @sample androidx.fragment.compose.samples.BasicAndroidFragment
+ * @param modifier the modifier to be applied to the layout
+ * @param fragmentState the savedState of the fragment
+ * @param arguments args to be passed to the fragment
+ * @param maxLifecycle the max lifecycle state for the fragment
+ * @param onUpdate callback that provides the created fragment
+ */
+@Composable
+public inline fun <reified T : Fragment> AndroidFragment(
+    modifier: Modifier = Modifier,
+    fragmentState: FragmentState = rememberFragmentState(),
+    arguments: Bundle = Bundle.EMPTY,
+    maxLifecycle: Lifecycle.State =
+        LocalLifecycleOwner.current.lifecycle.currentStateAsState().value,
+    noinline onUpdate: (T) -> Unit = {},
+) {
+    AndroidFragment(
+        clazz = T::class.java,
+        modifier,
+        fragmentState,
+        arguments,
+        maxLifecycle,
+        onUpdate,
+    )
 }
 
 /**
@@ -72,13 +118,51 @@ public inline fun <reified T : Fragment> AndroidFragment(
  * @param arguments args to be passed to the fragment
  * @param onUpdate callback that provides the created fragment
  */
-@Suppress("MissingJvmstatic")
+@Composable
+@Deprecated(
+    message = "Maintained for binary compatibility. Use the overload with `maxLifecycle`.",
+    level = DeprecationLevel.HIDDEN,
+)
+public fun <T : Fragment> AndroidFragment(
+    clazz: Class<T>,
+    modifier: Modifier = Modifier,
+    fragmentState: FragmentState = rememberFragmentState(),
+    arguments: Bundle = Bundle.EMPTY,
+    onUpdate: (T) -> Unit = {},
+) {
+    AndroidFragment(
+        clazz,
+        modifier,
+        fragmentState,
+        arguments,
+        maxLifecycle = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value,
+        onUpdate,
+    )
+}
+
+/**
+ * Allows for adding a [Fragment] directly into Compose. It creates a fragment of the given class
+ * and adds it to the fragment manager.
+ *
+ * Updating the [clazz] or [fragmentState] parameters will result in a new fragment instance being
+ * added to the fragment manager and invoke the [onUpdate] callback with the new instance.
+ *
+ * @sample androidx.fragment.compose.samples.BasicAndroidFragment
+ * @param clazz fragment class to be created
+ * @param modifier the modifier to be applied to the layout
+ * @param fragmentState the savedState of the fragment
+ * @param arguments args to be passed to the fragment
+ * @param maxLifecycle the max lifecycle state for the fragment
+ * @param onUpdate callback that provides the created fragment
+ */
 @Composable
 public fun <T : Fragment> AndroidFragment(
     clazz: Class<T>,
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
+    maxLifecycle: Lifecycle.State =
+        LocalLifecycleOwner.current.lifecycle.currentStateAsState().value,
     onUpdate: (T) -> Unit = {},
 ) {
     val updateCallback = rememberUpdatedState(onUpdate)
@@ -104,6 +188,9 @@ public fun <T : Fragment> AndroidFragment(
                                 .beginTransaction()
                                 .setReorderingAllowed(true)
                                 .add(containerFactory.container, this, "$hashKey")
+                        if (maxLifecycle.isAtLeast(Lifecycle.State.CREATED)) {
+                            transaction.setMaxLifecycle(this, maxLifecycle)
+                        }
                         if (fragmentManager.isStateSaved) {
                             // If the state is saved when we add the fragment,
                             // we want to remove the Fragment in onDispose
@@ -111,14 +198,12 @@ public fun <T : Fragment> AndroidFragment(
                             // of this AndroidFragment - we use a LifecycleObserver
                             // on the Fragment as a proxy for that signal
                             removeEvenIfStateIsSaved = true
-                            lifecycle.addObserver(
-                                object : DefaultLifecycleObserver {
-                                    override fun onStart(owner: LifecycleOwner) {
-                                        removeEvenIfStateIsSaved = false
-                                        lifecycle.removeObserver(this)
-                                    }
+                            lifecycle.addObserver { _, event ->
+                                if (event.targetState.isAtLeast(Lifecycle.State.STARTED)) {
+                                    removeEvenIfStateIsSaved = false
+                                    lifecycle.removeObserver(this)
                                 }
-                            )
+                            }
                             transaction.commitNowAllowingStateLoss()
                         } else {
                             transaction.commitNow()
@@ -140,6 +225,21 @@ public fun <T : Fragment> AndroidFragment(
                 fragmentManager.commitNow { remove(fragment) }
             }
         }
+    }
+
+    DisposableEffect(maxLifecycle) {
+        val fragment = fragmentManager.findFragmentById(containerFactory.container.id)
+        if (
+            fragment != null &&
+                !fragmentManager.isStateSaved &&
+                maxLifecycle.isAtLeast(Lifecycle.State.CREATED)
+        ) {
+            fragmentManager.commitNow {
+                setReorderingAllowed(true)
+                setMaxLifecycle(fragment, maxLifecycle)
+            }
+        }
+        onDispose {}
     }
 }
 
