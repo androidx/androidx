@@ -19,7 +19,7 @@
 package androidx.xr.runtime.manifest
 
 /**
- * Allows an application to get approximate eye gaze.
+ * Gets approximate eye gaze.
  *
  * Protection level: dangerous
  *
@@ -28,7 +28,7 @@ package androidx.xr.runtime.manifest
 public const val EYE_TRACKING_COARSE: String = "android.permission.EYE_TRACKING_COARSE"
 
 /**
- * Allows an application to get face tracking data.
+ * Gets face tracking data.
  *
  * Protection level: dangerous
  *
@@ -37,7 +37,7 @@ public const val EYE_TRACKING_COARSE: String = "android.permission.EYE_TRACKING_
 public const val FACE_TRACKING: String = "android.permission.FACE_TRACKING"
 
 /**
- * Allows an application to get hand tracking data.
+ * Gets hand tracking data.
  *
  * Protection level: dangerous
  *
@@ -46,7 +46,7 @@ public const val FACE_TRACKING: String = "android.permission.FACE_TRACKING"
 public const val HAND_TRACKING: String = "android.permission.HAND_TRACKING"
 
 /**
- * Allows an application to get data derived by sensing the user's environment.
+ * Gets data derived by sensing the user's environment.
  *
  * Protection level: dangerous
  *
@@ -56,7 +56,7 @@ public const val SCENE_UNDERSTANDING_COARSE: String =
     "android.permission.SCENE_UNDERSTANDING_COARSE"
 
 /**
- * Allows an application to get precise eye gaze data.
+ * Gets precise eye gaze data.
  *
  * Protection level: dangerous
  *
@@ -65,8 +65,8 @@ public const val SCENE_UNDERSTANDING_COARSE: String =
 public const val EYE_TRACKING_FINE: String = "android.permission.EYE_TRACKING_FINE"
 
 /**
- * Allows an application to get head tracking data. Unmanaged activities (OpenXR activities with the
- * manifest property "android.window.PROPERTY_XR_ACTIVITY_START_MODE" set to
+ * Gets head tracking data. Unmanaged activities (OpenXR activities with the manifest property
+ * "android.window.PROPERTY_XR_ACTIVITY_START_MODE" set to
  * "XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED") do not require this permission to get head
  * tracking data.
  *
@@ -80,8 +80,7 @@ public const val EYE_TRACKING_FINE: String = "android.permission.EYE_TRACKING_FI
 public const val HEAD_TRACKING: String = "android.permission.HEAD_TRACKING"
 
 /**
- * Allows an application to get highly precise data derived by sensing the user's environment, such
- * as a depth map.
+ * Gets highly precise data derived by sensing the user's environment, such as a depth map.
  *
  * Protection level: dangerous
  *

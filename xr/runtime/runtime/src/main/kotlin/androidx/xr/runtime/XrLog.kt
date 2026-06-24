@@ -19,10 +19,7 @@ package androidx.xr.runtime
 import android.util.Log
 import androidx.annotation.RestrictTo
 
-/**
- * Provides a set of common functions for logging JetpackXR messages, as well as controlling at
- * compile time which messages will actually be printed to Android Logcat.
- */
+/** Logging utilities for JetpackXR messages and Logcat compile-time print controls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object XrLog {
 
@@ -37,15 +34,9 @@ public object XrLog {
             @JvmField public val DEBUG: Level = Level(Log.DEBUG)
             /** Info messages log standard, useful information about the state of the system. */
             @JvmField public val INFO: Level = Level(Log.INFO)
-            /**
-             * Warning logs are used when something unexpected may lead to a crash or fatal
-             * exception later on as a result of the unusual circumstances.
-             */
+            /** Logs warning messages for unexpected events that may lead to subsequent failures. */
             @JvmField public val WARN: Level = Level(Log.WARN)
-            /**
-             * Error logs are reserved for something unexpected that will lead to a crash or data
-             * loss.
-             */
+            /** Logs errors for unexpected events that cause failures or data loss. */
             @JvmField public val ERROR: Level = Level(Log.ERROR)
         }
 
@@ -63,10 +54,10 @@ public object XrLog {
     public var level: Level = Level.DEBUG
 
     /**
-     * Error logs are reserved for something unexpected that will lead to a crash or data loss.
+     * Logs errors for unexpected events that cause failures or data loss.
      *
-     * @param throwable An optional exception for Android to log in addition to your message.
-     * @param message The message you want logged.
+     * @param throwable an optional exception for Android to log in addition to your message
+     * @param message the message you want logged
      */
     public fun error(throwable: Throwable? = null, message: () -> String) {
         if (isEnabled && isLoggable(Level.ERROR)) {
@@ -75,18 +66,17 @@ public object XrLog {
     }
 
     /**
-     * Error logs are reserved for something unexpected that will lead to a crash or data loss.
+     * Logs errors for unexpected events that cause failures or data loss.
      *
-     * @param message The message you want logged.
+     * @param message the message you want logged
      */
     public fun error(message: String): Unit = error { message }
 
     /**
-     * Warning logs are used when something unexpected may lead to a crash or fatal exception later
-     * on as a result of the unusual circumstances.
+     * Logs warning messages for unexpected events that may lead to subsequent failures.
      *
-     * @param throwable An optional exception for Android to log in addition to your message.
-     * @param message The message you want logged.
+     * @param throwable an optional exception for Android to log in addition to your message
+     * @param message the message you want logged
      */
     public fun warn(throwable: Throwable? = null, message: () -> String) {
         if (isEnabled && isLoggable(Level.WARN)) {
@@ -95,18 +85,17 @@ public object XrLog {
     }
 
     /**
-     * Warning logs are used when something unexpected may lead to a crash or fatal exception later
-     * on as a result of the unusual circumstances.
+     * Logs warning messages for unexpected events that may lead to subsequent failures.
      *
-     * @param message The message you want logged.
+     * @param message the message you want logged
      */
     public fun warn(message: String): Unit = warn { message }
 
     /**
      * Info messages log standard, useful information about the state of the system.
      *
-     * @param throwable An optional exception for Android to log in addition to your message.
-     * @param message The message you want logged.
+     * @param throwable an optional exception for Android to log in addition to your message
+     * @param message the message you want logged
      */
     public fun info(throwable: Throwable? = null, message: () -> String) {
         if (isEnabled && isLoggable(Level.INFO)) {
@@ -117,15 +106,15 @@ public object XrLog {
     /**
      * Info messages log standard, useful information about the state of the system.
      *
-     * @param message The message you want logged.
+     * @param message the message you want logged
      */
     public fun info(message: String): Unit = info { message }
 
     /**
      * Debug functions log noisy information related to the internals of the system.
      *
-     * @param throwable An optional exception for Android to log in addition to your message.
-     * @param message The message you want logged.
+     * @param throwable an optional exception for Android to log in addition to your message
+     * @param message the message you want logged
      */
     public fun debug(throwable: Throwable? = null, message: () -> String) {
         if (isEnabled && isLoggable(Level.DEBUG)) {
@@ -136,15 +125,15 @@ public object XrLog {
     /**
      * Debug functions log noisy information related to the internals of the system.
      *
-     * @param message The message you want logged.
+     * @param message the message you want logged
      */
     public fun debug(message: String): Unit = debug { message }
 
     /**
      * Verbose messages contain extra noisy information, often used for detailed tracing.
      *
-     * @param throwable An optional exception for Android to log in addition to your message.
-     * @param message The message you want logged.
+     * @param throwable an optional exception for Android to log in addition to your message
+     * @param message the message you want logged
      */
     public fun verbose(throwable: Throwable? = null, message: () -> String) {
         if (isEnabled && isLoggable(Level.VERBOSE)) {
@@ -155,7 +144,7 @@ public object XrLog {
     /**
      * Verbose messages contain extra noisy information, often used for detailed tracing.
      *
-     * @param message The message you want logged.
+     * @param message the message you want logged
      */
     public fun verbose(message: String): Unit = verbose { message }
 

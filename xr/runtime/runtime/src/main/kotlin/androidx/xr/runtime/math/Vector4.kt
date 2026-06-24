@@ -23,7 +23,7 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Represents a four-dimensional position in space.
+ * Four-dimensional position in space.
  *
  * @property x the x component of the vector
  * @property y the y component of the vector
@@ -67,10 +67,7 @@ constructor(
      */
     public operator fun times(c: Float): Vector4 = Vector4(x * c, y * c, z * c, w * c)
 
-    /**
-     * Returns a new vector with each component of this vector multiplied by each corresponding
-     * component of the [other] vector.
-     */
+    /** Returns a new vector by component-wise multiplying this vector by [other]. */
     public fun scale(other: Vector4): Vector4 =
         Vector4(x * other.x, y * other.y, z * other.z, w * other.w)
 
@@ -110,8 +107,7 @@ constructor(
     }
 
     /**
-     * Returns a new vector with the each component of this vector clamped between corresponding
-     * components of [min] and [max] vectors.
+     * Returns a new vector with components clamped between [min] and [max].
      *
      * @param min the minimum clamp values
      * @param max the maximum clamp values
@@ -204,8 +200,7 @@ constructor(
         public fun distance(vector1: Vector4, vector2: Vector4): Float = (vector1 - vector2).length
 
         /**
-         * Returns a new vector that is linearly interpolated between [start] and [end] using the
-         * interpolation amount [ratio].
+         * Returns a new vector linearly interpolated between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
          *

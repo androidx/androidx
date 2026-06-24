@@ -25,14 +25,11 @@ public class DisplayBlendMode private constructor(private val value: Int) {
         /** Blending is not supported. */
         public val NO_DISPLAY: DisplayBlendMode = DisplayBlendMode(0)
         /**
-         * Virtual content is added to the real world by adding the pixel values for each of Red,
-         * Green, and Blue components. Alpha is ignored. Black pixels will appear transparent.
+         * Adds pixel values of RGB components to blend virtual content with the real world. Alpha
+         * is ignored. Black pixels will appear transparent.
          */
         public val ADDITIVE: DisplayBlendMode = DisplayBlendMode(1)
-        /**
-         * Virtual content is added to the real world by alpha blending the pixel values based on
-         * the Alpha component.
-         */
+        /** Alpha-blends pixel values to blend virtual content with the real world. */
         public val ALPHA_BLEND: DisplayBlendMode = DisplayBlendMode(2)
     }
 }

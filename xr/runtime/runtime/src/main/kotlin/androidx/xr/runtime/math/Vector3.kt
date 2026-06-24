@@ -23,7 +23,7 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Represents a three-dimensional position in space.
+ * Three-dimensional position in space.
  *
  * The coordinate system is right-handed. The [x]-axis points to the right, the [y]-axis up and the
  * [z]-axis back.
@@ -64,10 +64,7 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
      */
     public operator fun times(c: Float): Vector3 = Vector3(x * c, y * c, z * c)
 
-    /**
-     * Returns a new vector with each component of this vector multiplied by each corresponding
-     * component of the [other] vector.
-     */
+    /** Returns a new vector by component-wise multiplying this vector by [other]. */
     public fun scale(other: Vector3): Vector3 = Vector3(x * other.x, y * other.y, z * other.z)
 
     /**
@@ -213,8 +210,7 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
         public fun distance(vector1: Vector3, vector2: Vector3): Float = (vector1 - vector2).length
 
         /**
-         * Returns a new vector that is linearly interpolated between [start] and [end] using the
-         * interpolated amount [ratio].
+         * Returns a new vector linearly interpolated between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
          *

@@ -19,12 +19,11 @@ package androidx.xr.runtime
 import android.graphics.Bitmap
 
 /**
- * Defines an augmented image database entry that is going to be added to an
- * [AugmentedImageDatabase]
+ * Entry in an [AugmentedImageDatabase].
  *
- * @property bitmap The bitmap of the image in [android.graphics.Bitmap.Config.ARGB_8888] format
- * @property mode The [AugmentedImageDatabaseEntryMode] used to detect the image
- * @property widthInMeters The physical width of the image in meters. If zero, the physical width
+ * @property bitmap the bitmap of the image in [android.graphics.Bitmap.Config.ARGB_8888] format
+ * @property mode the [AugmentedImageDatabaseEntryMode] used to detect the image
+ * @property widthInMeters the physical width of the image in meters. If zero, the physical width
  *   will be estimated if the device supports it. If physical size estimation is not supported,
  *   configuring the [Session] adding an entry with widthInMeters being 0f or lower will throw an
  *   [IllegalArgumentException]

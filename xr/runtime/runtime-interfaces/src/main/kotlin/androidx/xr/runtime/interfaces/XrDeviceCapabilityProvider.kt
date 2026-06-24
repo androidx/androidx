@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.LifecycleOwner
 
-/** Provides capabilities of the XR device. */
+/** Capabilities of the XR device. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface XrDeviceCapabilityProvider : LifecycleOwner {
     public val context: Context

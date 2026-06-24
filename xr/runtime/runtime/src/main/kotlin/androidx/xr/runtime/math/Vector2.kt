@@ -25,7 +25,7 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Represents a position in the 2D plane.
+ * Position in the 2D plane.
  *
  * @property x the x component of the vector
  * @property y the y component of the vector
@@ -59,10 +59,7 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
      */
     public inline operator fun times(c: Float): Vector2 = Vector2(x * c, y * c)
 
-    /**
-     * Returns a new vector with each component of this vector multiplied by each corresponding
-     * component of the [other] vector.
-     */
+    /** Returns a new vector by component-wise multiplying this vector by [other]. */
     public inline fun scale(other: Vector2): Vector2 = Vector2(this.x * other.x, this.y * other.y)
 
     /**
@@ -192,8 +189,7 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         }
 
         /**
-         * Returns a new vector that is linearly interpolated between [start] and [end] using the
-         * interpolation amount [ratio].
+         * Returns a new vector linearly interpolated between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
          *

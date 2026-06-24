@@ -52,19 +52,13 @@ public class Matrix3(dataToCopy: FloatArray) {
     /** Returns the rotation component of this matrix. */
     public val rotation: Quaternion by lazy(LazyThreadSafetyMode.NONE) { rotation() }
 
-    /**
-     * Returns true if this matrix is a valid transformation matrix that can be decomposed into
-     * rotation and scale using determinant properties.
-     */
+    /** True if the matrix represents a valid rotation-scale transformation. */
     public val isTrs: Boolean by lazy(LazyThreadSafetyMode.NONE) { determinant() != 0.0f }
 
     /** Creates a new matrix with a deep copy of the data from the [other] [Matrix3]. */
     public constructor(other: Matrix3) : this(other.data.copyOf())
 
-    /**
-     * Returns a new matrix with the matrix multiplication product of this matrix and the [other]
-     * matrix.
-     */
+    /** Multiplies this matrix by [other]. */
     public operator fun times(other: Matrix3): Matrix3 {
         // multiplyMM is not supported for 3x3 matrices so we manually do the multiplication.
         val resultData = FloatArray(9)

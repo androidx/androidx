@@ -19,23 +19,17 @@ package androidx.xr.runtime.interfaces
 import androidx.annotation.RestrictTo
 
 /**
- * A class that represents a service that can be loaded dynamically. Each implementation of this
- * interface may require different features that the device must support in order to be loaded.
+ * Service that can be loaded dynamically. Each implementation of this interface may require
+ * different features that the device must support in order to be loaded.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Service {
 
-    /**
-     * The set of features that this service requires in order to be loaded by the
-     * [androidx.xr.runtime.Session].
-     */
+    /** Features required by this service to be loaded by a [androidx.xr.runtime.Session]. */
     public val requirements: Set<Feature>
 }
 
-/**
- * Describes a set of system capabilities (usually derived from the APK's metadata) that a service
- * may require.
- */
+/** System capabilities a service may require (usually from APK metadata). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Feature private constructor(private val value: Int) {
     public companion object {

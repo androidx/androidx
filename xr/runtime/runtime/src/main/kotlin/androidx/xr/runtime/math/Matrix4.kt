@@ -70,10 +70,7 @@ public class Matrix4(dataToCopy: FloatArray) {
     public val pose: Pose
         get() = toPose()
 
-    /**
-     * Returns true if this matrix is a valid transformation matrix that can be decomposed into
-     * translation, rotation and scale using determinant properties.
-     */
+    /** True if the matrix represents a valid translation-rotation-scale transformation. */
     public val isTrs: Boolean by lazy(LazyThreadSafetyMode.NONE) { determinant() != 0.0f }
 
     /** Converts this matrix to a [Pose] object. */
@@ -82,10 +79,7 @@ public class Matrix4(dataToCopy: FloatArray) {
     /** Creates a new matrix with a deep copy of the data from the [other] [Matrix4]. */
     public constructor(other: Matrix4) : this(other.data.copyOf())
 
-    /**
-     * Returns a new matrix with the matrix multiplication product of this matrix and the [other]
-     * matrix.
-     */
+    /** Multiplies this matrix by [other]. */
     public operator fun times(other: Matrix4): Matrix4 {
         val resultData = FloatArray(16)
         android.opengl.Matrix.multiplyMM(

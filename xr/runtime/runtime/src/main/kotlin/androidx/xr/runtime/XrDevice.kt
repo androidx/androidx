@@ -29,7 +29,7 @@ import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-/** Provides hardware capabilities of the device. */
+/** Device hardware capabilities. */
 public class XrDevice
 private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?) {
 
@@ -39,7 +39,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
      * The value will be the Projected device's lifecycle if its [Context] was used when calling
      * [getCurrentDevice].
      *
-     * @throws IllegalStateException if there is no lifecycle associated with this XrDevice.
+     * @throws [IllegalStateException] if there is no lifecycle associated with this XrDevice
      */
     public fun getLifecycle(): Lifecycle =
         xrDeviceCapabilityProvider?.lifecycle
@@ -61,7 +61,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
          *
          * @param context the [Context] associated with the device
          * @param coroutineContext the [CoroutineContext] to use for the XrDevice operations
-         * @throws IllegalArgumentException if the provided [Context] is not supported
+         * @throws [IllegalArgumentException] if the provided [Context] is not supported
          */
         @JvmStatic
         @JvmOverloads
@@ -104,10 +104,10 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
          * @param context the [Context] associated with the device
          * @param extensions the list of extra OpenXR extension names to inject
          * @param coroutineContext the [CoroutineContext] to use for the XrDevice operations
-         * @throws IllegalArgumentException if the provided [Context] is not supported
-         * @throws IllegalStateException if the OpenXR instance has already been created or the
+         * @throws [IllegalArgumentException] if the provided [Context] is not supported
+         * @throws [IllegalStateException] if the OpenXR instance has already been created or the
          *   XrDevice is not backed by an OpenXR instance
-         * @throws UnsupportedOperationException if any of the requested extensions are not
+         * @throws [UnsupportedOperationException] if any of the requested extensions are not
          *   supported by the device
          */
         @JvmStatic
@@ -140,9 +140,9 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
     /**
      * Returns the preferred display blend mode for this session.
      *
-     * @return The [DisplayBlendMode] that is preferred by the [Session] for rendering.
+     * @return the [DisplayBlendMode] that is preferred by the [Session] for rendering
      *   [DisplayBlendMode.NO_DISPLAY] will be returned if there are no supported blend modes
-     *   available.
+     *   available
      */
     public fun getPreferredDisplayBlendMode(): androidx.xr.runtime.DisplayBlendMode {
         return androidx.xr.runtime.DisplayBlendMode.fromInternalDisplayBlendMode(
@@ -156,7 +156,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
     /**
      * Returns the [XrDevice]'s support for the given [HandTrackingMode].
      *
-     * @return whether the device supports the supplied [HandTrackingMode].
+     * @return whether the device supports the supplied [HandTrackingMode]
      */
     public fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
         return xrDeviceCapabilityProvider?.isHandTrackingModeSupported(
@@ -170,7 +170,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
     /**
      * Returns the [XrDevice]'s support for the given [EyeTrackingMode].
      *
-     * @return whether the device supports the supplied [EyeTrackingMode].
+     * @return whether the device supports the supplied [EyeTrackingMode]
      */
     public fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
         return xrDeviceCapabilityProvider?.isEyeTrackingModeSupported(
@@ -184,7 +184,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
     /**
      * Returns the [XrDevice]'s support for the given [GeospatialMode].
      *
-     * @return whether the device supports the supplied [GeospatialMode].
+     * @return whether the device supports the supplied [GeospatialMode]
      */
     public fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
         return xrDeviceCapabilityProvider?.isGeospatialModeSupported(
@@ -202,7 +202,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
      *   [RenderingMode.MONO], RenderViewpoint.mono(session) is expected to be non-null. For devices
      *   that support [RenderingMode.STEREO], RenderViewpoint.left(session),
      *   RenderViewpoint.right(session), and RenderViewpoint.mono(session) are all expected to be
-     *   non-null.
+     *   non-null
      */
     public fun isRenderingModeSupported(mode: RenderingMode): Boolean {
         return xrDeviceCapabilityProvider?.isRenderingModeSupported(mode.toInternalRenderingMode())
@@ -214,7 +214,7 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
     /**
      * Returns the [XrDevice]'s support for the given [DepthEstimationMode].
      *
-     * @return whether the device supports the supplied [DepthEstimationMode].
+     * @return whether the device supports the supplied [DepthEstimationMode]
      */
     public fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
         return xrDeviceCapabilityProvider?.isDepthEstimationModeSupported(

@@ -147,16 +147,16 @@ public constructor(
          * }
          * ```
          *
-         * @param context the [context] provided for the session's resources.
+         * @param context the [context] provided for the session's resources
          * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
-         *   coroutines.
+         *   coroutines
          * @param lifecycleOwner the [lifecycleOwner] whose lifecycle controls the runtime state of
-         *   the session. Defaults to using the [context] as the owner if not provided.
+         *   the session. Defaults to using the [context] as the owner if not provided
          * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
          *   newly created session, or another [SessionCreateResult] if a certain criteria was not
-         *   met.
+         *   met
          * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
-         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
+         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application
          */
         @JvmOverloads
         @JvmStatic
@@ -427,15 +427,15 @@ public constructor(
      * Note that enabling most configurations will increase hardware resource consumption and should
      * only be enabled if needed.
      *
-     * @param config the [Config] that will be enabled if successful.
+     * @param config the [Config] that will be enabled if successful
      * @return the result of the operation. This will be a [SessionConfigureSuccess] if the
      *   configuration was successful, or another [SessionConfigureResult] if a certain
      *   configuration criteria was not met. In the case of the latter, the previous
-     *   [Session.config] will remain active.
-     * @throws [IllegalStateException] if the session has been destroyed.
-     * @throws [UnsupportedOperationException] if the configuration is not supported.
+     *   [Session.config] will remain active
+     * @throws [IllegalStateException] if the session has been destroyed
+     * @throws [UnsupportedOperationException] if the configuration is not supported
      * @throws [SecurityException] if the necessary permissions have not been granted to the calling
-     *   application for the provided configuration.
+     *   application for the provided configuration
      */
     public fun configure(config: Config): SessionConfigureResult {
         // Fast-path framework check: fail fast outside runBlocking if the lifecycle is already

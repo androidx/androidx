@@ -30,14 +30,11 @@ public class DisplayBlendMode private constructor(private val value: Int) {
         /** Blending is not supported. */
         @JvmField public val NO_DISPLAY: DisplayBlendMode = DisplayBlendMode(0)
         /**
-         * Virtual content is added to the real world by adding the pixel values for each of Red,
-         * Green, and Blue components. Alpha is ignored. Black pixels will appear transparent.
+         * Blends virtual content with the real world by adding pixel values for RGB components.
+         * Alpha is ignored. Black pixels will appear transparent.
          */
         @JvmField public val ADDITIVE: DisplayBlendMode = DisplayBlendMode(1)
-        /**
-         * Virtual content is added to the real world by alpha blending the pixel values based on
-         * the Alpha component.
-         */
+        /** Alpha-blends pixel values to blend virtual content with the real world. */
         @JvmField public val ALPHA_BLEND: DisplayBlendMode = DisplayBlendMode(2)
     }
 }
@@ -108,10 +105,9 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
          */
         @JvmField public val DISABLED: DeviceTrackingMode = DeviceTrackingMode(0)
         /**
-         * The device pose will be tracked and the last known pose (6dof, including position &
-         * orientation) from the system at the time of runtime update will be provided. Note that
-         * there is generally a delay between the actual device pose and the pose provided by the
-         * system by the time of the update.
+         * Tracks device pose and provides the last known 6DoF (rotation and translation) pose from
+         * the system. Note that there is generally a delay between the actual device pose and the
+         * pose provided by the system by the time of the update.
          *
          * Supported runtimes:
          * - OpenXR
@@ -123,9 +119,9 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
         @JvmField public val SPATIAL: DeviceTrackingMode = DeviceTrackingMode(1)
 
         /**
-         * The device pose will be tracked and the last known pose from the system at the time of
-         * runtime update will be provided. Note that there is generally a delay between the actual
-         * device pose and the pose provided by the system by the time of the update.
+         * Tracks device pose and provides the last known pose from the system. Note that there is
+         * generally a delay between the actual device pose and the pose provided by the system by
+         * the time of the update.
          *
          * Supported runtimes:
          * - OpenXR
@@ -146,10 +142,9 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
         public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = SPATIAL
 
         /**
-         * The device pose will be tracked with 3DoF (rotation only) and the last known pose from
-         * the system at the time of runtime update will be provided. Note that there is generally a
-         * delay between the actual device pose and the pose provided by the system by the time of
-         * the update.
+         * Tracks device pose with 3DoF (rotation only) and provides the last known pose from the
+         * system. Note that there is generally a delay between the actual device pose and the pose
+         * provided by the system by the time of the update.
          *
          * Supported runtimes:
          * - Projected

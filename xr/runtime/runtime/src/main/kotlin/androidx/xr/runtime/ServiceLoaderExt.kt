@@ -37,9 +37,9 @@ import java.util.ServiceLoader
  * This is useful in some app configurations where the APK is too big and the default service loader
  * implementation is not able to automatically find all the available service providers.
  *
- * @param service the service to load.
- * @param providersClassNames the list of known service providers to load.
- * @return the list of loaded service providers.
+ * @param service the service to load
+ * @param providersClassNames the list of known service providers to load
+ * @return the list of loaded service providers
  */
 internal fun <S : Any> loadProviders(
     service: Class<S>,
@@ -131,10 +131,7 @@ private fun getVirtualDevice(context: Context) =
         it.deviceId == context.deviceId
     }
 
-/**
- * Returns the first service provider from [providers] that has its requirements satisfied by the
- * [features] supported by the current device.
- */
+/** Selects the first provider in [providers] satisfying the device's [features] requirements. */
 internal fun <S : Service> selectProvider(providers: List<S>, features: Set<Feature>): S? =
     providers.firstOrNull { features.containsAll(it.requirements) }
 
