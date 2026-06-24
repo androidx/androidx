@@ -32,6 +32,7 @@ import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.text.style.isApplicable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -139,7 +140,7 @@ private fun generateFallbackSpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     val hasBackgroundColor = background != Color.Unspecified && background != Color.Transparent
-    val hasBaselineShift = baselineShift != null && baselineShift != BaselineShift.None
+    val hasBaselineShift = baselineShift?.isApplicable == true
 
     return if (!hasLetterSpacing && !hasBackgroundColor && !hasBaselineShift) {
         null

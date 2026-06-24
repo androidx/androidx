@@ -711,6 +711,81 @@ class AndroidParagraphTest {
     }
 
     @Test
+    fun testAnnotatedString_setBaselineShiftNone_doesNotAddSpan() {
+        val text = "abcde"
+        val spanStyle = SpanStyle(baselineShift = BaselineShift.None)
+
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+                width = 100.0f,
+            )
+
+        assertThat(paragraph.charSequence).doesNotHaveSpan(BaselineShiftSpan::class)
+    }
+
+    @Test
+    fun testAnnotatedString_setBaselineShiftUnspecified_doesNotAddSpan() {
+        val text = "abcde"
+        val spanStyle = SpanStyle(baselineShift = BaselineShift.Unspecified)
+
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+                width = 100.0f,
+            )
+
+        assertThat(paragraph.charSequence).doesNotHaveSpan(BaselineShiftSpan::class)
+    }
+
+    @Test
+    fun testAnnotatedString_setBaselineShiftPositiveInfinity_doesNotAddSpan() {
+        val text = "abcde"
+        val spanStyle = SpanStyle(baselineShift = BaselineShift(Float.POSITIVE_INFINITY))
+
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+                width = 100.0f,
+            )
+
+        assertThat(paragraph.charSequence).doesNotHaveSpan(BaselineShiftSpan::class)
+    }
+
+    @Test
+    fun testAnnotatedString_setBaselineShiftNegativeInfinity_doesNotAddSpan() {
+        val text = "abcde"
+        val spanStyle = SpanStyle(baselineShift = BaselineShift(Float.NEGATIVE_INFINITY))
+
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+                width = 100.0f,
+            )
+
+        assertThat(paragraph.charSequence).doesNotHaveSpan(BaselineShiftSpan::class)
+    }
+
+    @Test
+    fun testAnnotatedString_setBaselineShiftCustomZeroMultiplier_doesNotAddSpan() {
+        val text = "abcde"
+        val spanStyle = SpanStyle(baselineShift = BaselineShift(multiplier = 0.0f))
+
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+                width = 100.0f,
+            )
+
+        assertThat(paragraph.charSequence).doesNotHaveSpan(BaselineShiftSpan::class)
+    }
+
+    @Test
     fun testAnnotatedString_setDefaultTextGeometricTransform() {
         val text = "abcde"
         val spanStyle = SpanStyle(textGeometricTransform = TextGeometricTransform())

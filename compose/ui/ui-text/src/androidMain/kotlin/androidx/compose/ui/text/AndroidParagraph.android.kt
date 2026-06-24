@@ -92,6 +92,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.text.style.TextOverflow.Companion.MiddleEllipsis
 import androidx.compose.ui.text.style.TextOverflow.Companion.StartEllipsis
+import androidx.compose.ui.text.style.isApplicable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -171,7 +172,7 @@ internal class AndroidParagraph(
         get() =
             !paragraphIntrinsics.softWrap &&
                 !paragraphIntrinsics.mayHaveNewLine &&
-                paragraphIntrinsics.style.baselineShift == null &&
+                paragraphIntrinsics.style.baselineShift?.isApplicable != true &&
                 AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
 
     /**
