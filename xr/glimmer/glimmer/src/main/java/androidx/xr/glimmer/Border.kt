@@ -19,8 +19,10 @@ package androidx.xr.glimmer
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.boundingRect
 import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -37,7 +39,6 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscreen
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.ceil
 import kotlin.math.max
@@ -49,8 +50,10 @@ import kotlin.math.min
  * concurrently, create a new instance of this class for each border. Each instance must be
  * remembered across recompositions and cached across draw phases.
  *
- * This draws an 'inner' border, so the outer edge of the border lines up with the canvas boundary.
+ * This draws an 'inner' border, so the outer edge of the border lines up with the [Outline]
+ * boundary.
  */
+// TODO(b/487676841): Unify border forks for Glimmer / Style & Modifier.Border
 @Suppress("NOTHING_TO_INLINE")
 internal class BorderLogic @RememberInComposition constructor() {
     // BorderPath object that is lazily allocated depending on the type of shape
@@ -58,7 +61,7 @@ internal class BorderLogic @RememberInComposition constructor() {
     // radius sizes.
     private var borderPath: Path? = null
 
-    private var borderWidth: (() -> Dp)? = null
+    private var borderWidth: (() -> Float)? = null
     private var lastBrush: Brush? = null
     private var lastOutline: Outline? = null
     // Cached draw border that will be reused if the above parameters don't change
@@ -80,7 +83,7 @@ internal class BorderLogic @RememberInComposition constructor() {
      */
     internal fun drawBorder(
         drawScope: DrawScope,
-        width: () -> Dp,
+        width: () -> Float,
         brush: Brush,
         layerProvider: () -> GraphicsLayer,
         outline: Outline,
@@ -106,25 +109,21 @@ internal class BorderLogic @RememberInComposition constructor() {
 
                         is Outline.Rounded -> createDrawRoundRectBorder(brush, outline)
 
-                        is Outline.Rectangle -> createDrawRectBorder(brush)
+                        is Outline.Rectangle -> createDrawRectBorder(brush, outline)
                     }
             }
+
             drawBorder!!()
         }
 
     /**
-     * Calculates the stroke width from the provided width in Dp. [Dp.Hairline] is converted to a
-     * width of one pixel. The stroke width returned is at most half of the smallest dimension we
-     * are drawing into, to make sure that both sides of the border can fit into the canvas boundary
-     * when drawn.
+     * Calculates the stroke width from the provided width in pixels. The stroke width returned is
+     * at most half of the smallest dimension we are drawing into, to make sure that both sides of
+     * the border can fit into the canvas boundary when drawn.
      */
-    private inline fun DrawScope.strokeWidthPx(): Float {
+    private inline fun DrawScope.strokeWidthPx(bounds: Rect): Float {
         val width = borderWidth!!.invoke()
-        return min(
-                if (width == Dp.Hairline) 1f else ceil(width.toPx()),
-                ceil(size.minDimension / 2),
-            )
-            .coerceAtLeast(0f)
+        return min(ceil(width.coerceAtLeast(0f)), ceil(bounds.minDimension / 2)).coerceAtLeast(0f)
     }
 
     /**
@@ -133,9 +132,9 @@ internal class BorderLogic @RememberInComposition constructor() {
      * stroke by half the stroke width to ensure that the outer edge of the stroke lines up with the
      * outer edge of component's size.
      */
-    private inline fun topLeft(strokeWidthPx: Float): Offset {
+    private inline fun topLeft(bounds: Rect, strokeWidthPx: Float): Offset {
         val halfStroke = strokeWidthPx / 2
-        return Offset(halfStroke, halfStroke)
+        return Offset(bounds.left + halfStroke, bounds.top + halfStroke)
     }
 
     /**
@@ -143,8 +142,8 @@ internal class BorderLogic @RememberInComposition constructor() {
      *   canvas size, with half of the stroke width removed from each side. Drawing a border with
      *   this size will lead to the outer edge of the border being aligned with the canvas boundary.
      */
-    private inline fun DrawScope.borderSize(strokeWidthPx: Float): Size {
-        return Size(size.width - strokeWidthPx, size.height - strokeWidthPx)
+    private inline fun borderSize(bounds: Rect, strokeWidthPx: Float): Size {
+        return Size(bounds.width - strokeWidthPx, bounds.height - strokeWidthPx)
     }
 
     /**
@@ -152,9 +151,9 @@ internal class BorderLogic @RememberInComposition constructor() {
      *   solid shape, as opposed to a stroked one (since there will be no empty space inside the
      *   stroke).
      */
-    private inline fun DrawScope.fillArea(strokeWidthPx: Float): Boolean {
+    private inline fun fillArea(bounds: Rect, strokeWidthPx: Float): Boolean {
         // The stroke is larger than the drawing area so just draw a full shape instead
-        return (strokeWidthPx * 2) > size.minDimension
+        return (strokeWidthPx * 2) > bounds.minDimension
     }
 
     /**
@@ -180,8 +179,8 @@ internal class BorderLogic @RememberInComposition constructor() {
             IntSize(ceil(pathBounds.width).toInt(), ceil(pathBounds.height).toInt())
 
         return {
-            val strokeWidth = strokeWidthPx()
-            val fillArea = fillArea(strokeWidth)
+            val strokeWidth = strokeWidthPx(pathBounds)
+            val fillArea = fillArea(pathBounds, strokeWidth)
             if (fillArea) {
                 drawPath(outline.path, brush = brush)
             } else {
@@ -201,10 +200,15 @@ internal class BorderLogic @RememberInComposition constructor() {
                                 style = Stroke(strokeWidth * 2),
                             )
 
+                            val pathWidth = pathBounds.width
+                            val pathHeight = pathBounds.height
+                            val scaleX = if (pathWidth > 0f) (pathWidth + 1f) / pathWidth else 1f
+                            val scaleY = if (pathHeight > 0f) (pathHeight + 1f) / pathHeight else 1f
+                            val exactPivot = pathBounds.center
                             // Scale the canvas slightly to cover the background that may be
                             // visible
                             // after clearing the outer stroke
-                            scale((size.width + 1) / size.width, (size.height + 1) / size.height) {
+                            scale(scaleX, scaleY, pivot = exactPivot) {
                                 // Remove the outer stroke by clearing the inverted mask path
                                 drawPath(
                                     path = maskPath,
@@ -227,20 +231,27 @@ internal class BorderLogic @RememberInComposition constructor() {
         brush: Brush,
         outline: Outline.Rounded,
     ): DrawScope.() -> Unit {
-        if (outline.roundRect.isSimple) {
+        val roundRect = outline.roundRect
+        val bounds = roundRect.boundingRect
+        if (roundRect.isSimple) {
             return {
-                val strokeWidth = strokeWidthPx()
-                val topLeft = topLeft(strokeWidth)
-                val borderSize = borderSize(strokeWidth)
-                val fillArea = fillArea(strokeWidth)
-                val cornerRadius = outline.roundRect.topLeftCornerRadius
+                val strokeWidth = strokeWidthPx(bounds)
+                val topLeft = topLeft(bounds, strokeWidth)
+                val borderSize = borderSize(bounds, strokeWidth)
+                val fillArea = fillArea(bounds, strokeWidth)
+                val cornerRadius = roundRect.topLeftCornerRadius
                 val halfStroke = strokeWidth / 2
                 val borderStroke = Stroke(strokeWidth)
                 when {
                     fillArea -> {
                         // If the drawing area is smaller than the stroke being drawn
                         // drawn all around it just draw a filled in rounded rect
-                        drawRoundRect(brush, cornerRadius = cornerRadius)
+                        drawRoundRect(
+                            brush = brush,
+                            topLeft = bounds.topLeft,
+                            size = bounds.size,
+                            cornerRadius = cornerRadius,
+                        )
                     }
                     cornerRadius.x < halfStroke -> {
                         // If the corner radius is smaller than half of the stroke width
@@ -248,13 +259,18 @@ internal class BorderLogic @RememberInComposition constructor() {
                         // In this case just draw a normal filled in rounded rect with the
                         // desired corner radius but clipping out the interior rectangle
                         clipRect(
-                            strokeWidth,
-                            strokeWidth,
-                            size.width - strokeWidth,
-                            size.height - strokeWidth,
+                            roundRect.left + strokeWidth,
+                            roundRect.top + strokeWidth,
+                            roundRect.right - strokeWidth,
+                            roundRect.bottom - strokeWidth,
                             clipOp = ClipOp.Difference,
                         ) {
-                            drawRoundRect(brush, cornerRadius = cornerRadius)
+                            drawRoundRect(
+                                brush,
+                                topLeft = bounds.topLeft,
+                                size = bounds.size,
+                                cornerRadius = cornerRadius,
+                            )
                         }
                     }
                     else -> {
@@ -278,11 +294,10 @@ internal class BorderLogic @RememberInComposition constructor() {
             var roundedRectPath: Path? = null
 
             return {
-                val strokeWidthPx = strokeWidthPx()
-                val fillArea = fillArea(strokeWidthPx)
+                val strokeWidthPx = strokeWidthPx(bounds)
+                val fillArea = fillArea(bounds, strokeWidthPx)
                 if (lastStrokeWidth != strokeWidthPx) {
-                    roundedRectPath =
-                        createRoundRectPath(path, outline.roundRect, strokeWidthPx, fillArea)
+                    roundedRectPath = createRoundRectPath(path, roundRect, strokeWidthPx, fillArea)
                     lastStrokeWidth = strokeWidthPx
                 }
                 drawPath(roundedRectPath!!, brush = brush)
@@ -291,18 +306,22 @@ internal class BorderLogic @RememberInComposition constructor() {
     }
 
     /** Border implementation for rectangular borders */
-    private fun createDrawRectBorder(brush: Brush): DrawScope.() -> Unit {
+    private fun createDrawRectBorder(
+        brush: Brush,
+        outline: Outline.Rectangle,
+    ): DrawScope.() -> Unit {
+        val bounds = outline.rect
         return {
-            val strokeWidthPx = strokeWidthPx()
-            val topLeft = topLeft(strokeWidthPx)
-            val borderSize = borderSize(strokeWidthPx)
-            val fillArea = fillArea(strokeWidthPx)
+            val strokeWidthPx = strokeWidthPx(bounds)
+            val topLeft = topLeft(bounds, strokeWidthPx)
+            val borderSize = borderSize(bounds, strokeWidthPx)
+            val fillArea = fillArea(bounds, strokeWidthPx)
             // If we are drawing a rectangular stroke, just offset it by half the stroke
             // width as strokes are always drawn centered on their geometry.
             // If the border is larger than the drawing area, just fill the area with a
             // solid rectangle
-            val rectTopLeft = if (fillArea) Offset.Zero else topLeft
-            val size = if (fillArea) size else borderSize
+            val rectTopLeft = if (fillArea) bounds.topLeft else topLeft
+            val size = if (fillArea) bounds.size else borderSize
             val style = if (fillArea) Fill else Stroke(strokeWidthPx)
             drawRect(brush = brush, topLeft = rectTopLeft, size = size, style = style)
         }
@@ -330,10 +349,10 @@ private fun createRoundRectPath(
 
 private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
     RoundRect(
-        left = widthPx,
-        top = widthPx,
-        right = roundedRect.width - widthPx,
-        bottom = roundedRect.height - widthPx,
+        left = roundedRect.left + widthPx,
+        top = roundedRect.top + widthPx,
+        right = roundedRect.right - widthPx,
+        bottom = roundedRect.bottom - widthPx,
         topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
         topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
         bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),

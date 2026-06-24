@@ -197,6 +197,46 @@ class SurfaceTest {
     }
 
     @Test
+    fun surface_border_customShape_respectsShapeBounds() {
+        val customShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline {
+                    val path = Path().apply { addRect(Rect(25f, 25f, 75f, 75f)) }
+                    return Outline.Generic(path)
+                }
+            }
+
+        var backgroundColor: Color = Color.Unspecified
+        rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
+            with(LocalDensity.current) {
+                backgroundColor = GlimmerTheme.colors.background
+                Box(
+                    Modifier.size(100.toDp())
+                        .testTag("surface")
+                        .surface(
+                            shape = customShape,
+                            color = Color.Blue,
+                            border = BorderStroke(10.toDp(), Color.Red),
+                        )
+                )
+            }
+        }
+
+        rule.onNodeWithTag("surface").captureToImage().assertPixels {
+            val inOuterBox = it.x in 25..74 && it.y in 25..74
+            val inInnerBox = it.x in 35..64 && it.y in 35..64
+
+            if (inOuterBox) {
+                if (inInnerBox) Color.Blue else Color.Red
+            } else backgroundColor
+        }
+    }
+
+    @Test
     fun surfaceDefaults_cachesBorder() {
         lateinit var defaultBorder: BorderStroke
         lateinit var anotherDefaultBorder: BorderStroke
