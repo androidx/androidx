@@ -379,7 +379,6 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
  *   activity that was launched and hosts the Compose content
  */
-@ExperimentalTestApi
 sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest, IdlingResourceOwner {
     /**
      * Returns the current activity of type [A] used in this [ComposeUiTest]. If no such activity is
@@ -480,8 +479,8 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
  *   settings.
  */
-@ExperimentalTestApi
-@OptIn(ExperimentalCoroutinesApi::class)
+// Added OptIn(ExperimentalTestApi::class) for TestMonotonicFrameClock.
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>
 internal constructor(
     private val config: ComposeTestConfig,
@@ -1173,7 +1172,6 @@ internal interface TestOwnerProvider {
  * [androidx.compose.ui.test.accessibility.disableAccessibilityChecks] to manage accessibility
  * checks in your tests. Passing `null` here disables the checks.
  */
-@ExperimentalTestApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun ComposeUiTest.setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?) {
     val owner =

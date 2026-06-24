@@ -85,7 +85,6 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
  * @return An [ImageBitmap] cropped specifically to the bounding box of the provided nodes.
  */
 @Suppress("ListIterator")
-@ExperimentalTestApi
 @RequiresApi(Build.VERSION_CODES.O)
 private fun processMultiWindowScreenshot(
     nodes: List<SemanticsNode>,

@@ -113,7 +113,6 @@ expect fun runComposeUiTest(
  * An instance of [ComposeUiTest] can be obtained through [runComposeUiTest] or any of its platform
  * specific variants, the argument to which will have it as the receiver scope.
  */
-@ExperimentalTestApi
 interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     /**
      * Current device screen's density. Note that it is technically possible for a Compose hierarchy
@@ -131,6 +130,9 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * Runs the given [action] on the UI thread.
      *
      * This method blocks until the action is complete.
+     *
+     * @param action action to execute on the UI thread
+     * @return result of [action]
      */
     fun <T> runOnUiThread(action: () -> T): T
 
@@ -140,6 +142,9 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * assertions on shared variables.
      *
      * This method blocks until the action is complete.
+     *
+     * @param action action to execute after the UI is idle
+     * @return result of [action]
      */
     fun <T> runOnIdle(action: () -> T): T
 
@@ -163,6 +168,8 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * and the UI is known to be in a stable state at the specific frame being tested (for example,
      * by calling waitForIdle() before this block).
      *
+     * @param block test body for assertions to run with implicit synchronization suppressed
+     * @return result of [block]
      * @sample androidx.compose.ui.test.samples.runWithoutImplicitWaitSample
      * @see runOnUiThread
      * @see hasPendingWork
@@ -235,6 +242,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * Sets the given [composable] as the content to be tested. This should be called exactly once
      * per test.
      *
+     * @param composable [Composable] content under test
      * @throws IllegalStateException if called more than once per test, or if the implementation
      *   doesn't have access to a host to set content in.
      */
@@ -254,6 +262,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * if work is queued but the framework hasn't auto-advanced yet, making the result fleeting and
      * unreliable for driving test logic.
      *
+     * @return true if there is pending work, false otherwise
      * @sample androidx.compose.ui.test.samples.hasPendingWorkSample
      */
     fun hasPendingWork(): Boolean
@@ -296,7 +305,6 @@ fun ComposeUiTest.waitUntilNodeCount(
  *   [matcher] is not [count] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-@ExperimentalTestApi
 fun ComposeUiTest.waitUntilNodeCount(
     matcher: SemanticsMatcher,
     count: Int,
@@ -346,7 +354,6 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-@ExperimentalTestApi
 fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
@@ -389,7 +396,6 @@ fun ComposeUiTest.waitUntilExactlyOneExists(
  *   given [matcher] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-@ExperimentalTestApi
 fun ComposeUiTest.waitUntilExactlyOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
@@ -426,7 +432,6 @@ fun ComposeUiTest.waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-@ExperimentalTestApi
 fun ComposeUiTest.waitUntilDoesNotExist(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
@@ -443,7 +448,6 @@ fun ComposeUiTest.waitUntilDoesNotExist(
  * @return true if the implementation supports [IdlingResource] registration, false otherwise.
  * @see IdlingResourceOwner
  */
-@ExperimentalTestApi
 fun ComposeUiTest.isIdlingResourceSupported(): Boolean {
     return this is IdlingResourceOwner
 }
@@ -454,10 +458,10 @@ fun ComposeUiTest.isIdlingResourceSupported(): Boolean {
  * This implementation checks [isIdlingResourceSupported] before attempting to register the
  * resource.
  *
+ * @param idlingResource [IdlingResource] to register in the test
  * @return true if the idling resource was successfully registered, or false if the implementation
  *   does not support idling resources.
  */
-@ExperimentalTestApi
 fun ComposeUiTest.registerIdlingResource(idlingResource: IdlingResource): Boolean {
     if (!isIdlingResourceSupported()) {
         return false
@@ -472,10 +476,10 @@ fun ComposeUiTest.registerIdlingResource(idlingResource: IdlingResource): Boolea
  * This implementation checks [isIdlingResourceSupported] before attempting to unregister the
  * resource.
  *
+ * @param idlingResource [IdlingResource] to unregister from the test
  * @return true if the idling resource was successfully unregistered, or false if the implementation
  *   does not support idling resources.
  */
-@ExperimentalTestApi
 fun ComposeUiTest.unregisterIdlingResource(idlingResource: IdlingResource): Boolean {
     if (!isIdlingResourceSupported()) {
         return false

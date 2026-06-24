@@ -281,7 +281,6 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   the [matcher] is not [count] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
-    @ExperimentalTestApi
     fun waitUntilNodeCount(
         matcher: SemanticsMatcher,
         count: Int,
@@ -307,7 +306,6 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
-    @ExperimentalTestApi
     fun waitUntilAtLeastOneExists(
         matcher: SemanticsMatcher,
         timeoutMillis: Long = 1_000L,
@@ -332,7 +330,6 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   the given [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
-    @ExperimentalTestApi
     fun waitUntilExactlyOneExists(
         matcher: SemanticsMatcher,
         timeoutMillis: Long = 1_000L,
@@ -353,7 +350,6 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      *   [matcher] after [timeoutMillis] (in wall clock time).
      * @see ComposeTestRule.waitUntil
      */
-    @ExperimentalTestApi
     fun waitUntilDoesNotExist(
         matcher: SemanticsMatcher,
         timeoutMillis: Long = 1_000L,

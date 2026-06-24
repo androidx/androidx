@@ -17,7 +17,6 @@
 package androidx.compose.ui.test.v2
 
 import androidx.compose.ui.test.ComposeUiTest
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MainTestClock
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -81,7 +80,6 @@ import kotlinx.coroutines.test.TestResult
  *   platform specific timeout exception will be thrown.
  * @param block The test function.
  */
-@ExperimentalTestApi
 expect fun runComposeUiTest(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
@@ -114,7 +112,6 @@ expect fun runComposeUiTest(
  *   settings.
  * @param block The test function.
  */
-@ExperimentalTestApi
 expect fun runComposeUiTest(
     config: ComposeTestConfig,
     block: suspend ComposeUiTest.() -> Unit,

@@ -278,7 +278,6 @@ fun createEmptyComposeRule(
         },
     )
 
-@OptIn(ExperimentalTestApi::class)
 class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
 private constructor(
     val activityRule: R,
@@ -544,7 +543,6 @@ private constructor(
     override fun waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis: Long) =
         composeTest.waitUntilDoesNotExist(matcher, timeoutMillis, false)
 
-    @ExperimentalTestApi
     override fun waitUntilNodeCount(
         matcher: SemanticsMatcher,
         count: Int,
@@ -552,21 +550,18 @@ private constructor(
         useUnmergedTree: Boolean,
     ) = composeTest.waitUntilNodeCount(matcher, count, timeoutMillis, useUnmergedTree)
 
-    @ExperimentalTestApi
     override fun waitUntilAtLeastOneExists(
         matcher: SemanticsMatcher,
         timeoutMillis: Long,
         useUnmergedTree: Boolean,
     ) = composeTest.waitUntilAtLeastOneExists(matcher, timeoutMillis, useUnmergedTree)
 
-    @ExperimentalTestApi
     override fun waitUntilExactlyOneExists(
         matcher: SemanticsMatcher,
         timeoutMillis: Long,
         useUnmergedTree: Boolean,
     ) = composeTest.waitUntilExactlyOneExists(matcher, timeoutMillis, useUnmergedTree)
 
-    @ExperimentalTestApi
     override fun waitUntilDoesNotExist(
         matcher: SemanticsMatcher,
         timeoutMillis: Long,
@@ -628,8 +623,8 @@ internal fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScena
     return activity!!
 }
 
+@OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION")
-@ExperimentalTestApi
 private fun <A : ComponentActivity> createTestEnvironment(
     config: ComposeTestConfig,
     useStandardTestDispatcher: Boolean,
