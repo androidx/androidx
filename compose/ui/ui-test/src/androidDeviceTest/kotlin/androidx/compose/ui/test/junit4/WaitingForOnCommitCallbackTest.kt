@@ -20,6 +20,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -122,7 +123,7 @@ class WaitingForOnCommitCallbackTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun cascadingOnCommits_suspendedWait_unconfinedTestDispatcher() =
-        runComposeUiTest(UnconfinedTestDispatcher()) {
+        runComposeUiTest(config = ComposeUiTestConfig(UnconfinedTestDispatcher())) {
             runBlocking {
                 // Collect unique values (markers) at each step during the process and
                 // at the end verify that they were collected in the right order

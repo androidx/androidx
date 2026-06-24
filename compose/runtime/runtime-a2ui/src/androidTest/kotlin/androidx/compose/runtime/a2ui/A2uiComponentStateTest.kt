@@ -39,7 +39,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -111,247 +110,229 @@ class A2uiComponentStateTest {
     }
 
     @Test
-    fun observe_missingComponent_returnsLoadingState() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
+    fun observe_missingComponent_returnsLoadingState() = runComposeUiTest {
+        val surface = createSurfaceModel()
 
-            setContent {
-                val state = observeA2uiComponentState(surface)
-                BasicText("State: ${state::class.simpleName}")
-            }
-
-            onNodeWithText("State: Loading").assertIsDisplayed()
+        setContent {
+            val state = observeA2uiComponentState(surface)
+            BasicText("State: ${state::class.simpleName}")
         }
+
+        onNodeWithText("State: Loading").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_errorComponent_returnsErrorState() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.reportError(
-                "root",
-                A2uiValidationException("Invalid root component", path = "/"),
-            )
+    fun observe_errorComponent_returnsErrorState() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.reportError(
+            "root",
+            A2uiValidationException("Invalid root component", path = "/"),
+        )
 
-            setContent {
-                val state = observeA2uiComponentState(surface)
-                if (state is A2uiComponentState.Error) {
-                    BasicText("Error: ${state.exception.message}")
-                }
+        setContent {
+            val state = observeA2uiComponentState(surface)
+            if (state is A2uiComponentState.Error) {
+                BasicText("Error: ${state.exception.message}")
             }
-
-            onNodeWithText("Error: Invalid root component").assertIsDisplayed()
         }
+
+        onNodeWithText("Error: Invalid root component").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_validComponent_returnsSuccessState() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Button", mapOf("label" to "Click Me")))
-            )
+    fun observe_validComponent_returnsSuccessState() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Button", mapOf("label" to "Click Me")))
+        )
 
-            setContent {
-                val state = observeA2uiComponentState(surface)
-                if (state is A2uiComponentState.Success) {
-                    val label = state.component.properties.raw["label"] as? String
-                    BasicText("Success: ${state.component.type} - $label")
-                }
+        setContent {
+            val state = observeA2uiComponentState(surface)
+            if (state is A2uiComponentState.Success) {
+                val label = state.component.properties.raw["label"] as? String
+                BasicText("Success: ${state.component.type} - $label")
             }
-
-            onNodeWithText("Success: Button - Click Me").assertIsDisplayed()
         }
+
+        onNodeWithText("Success: Button - Click Me").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_loadingToSuccess_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
+    fun observe_loadingToSuccess_triggersRecomposition() = runComposeUiTest {
+        val surface = createSurfaceModel()
 
-            setContent {
-                when (val state = observeA2uiComponentState(surface)) {
-                    is A2uiComponentState.Loading -> BasicText("Loading")
-                    is A2uiComponentState.Success -> BasicText("Ready: ${state.component.type}")
-                    is A2uiComponentState.Error -> BasicText("Error")
-                }
+        setContent {
+            when (val state = observeA2uiComponentState(surface)) {
+                is A2uiComponentState.Loading -> BasicText("Loading")
+                is A2uiComponentState.Success -> BasicText("Ready: ${state.component.type}")
+                is A2uiComponentState.Error -> BasicText("Error")
             }
-
-            onNodeWithText("Loading").assertIsDisplayed()
-
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Text", emptyMap()))
-            )
-            waitForIdle()
-
-            onNodeWithText("Loading").assertIsNotDisplayed()
-            onNodeWithText("Ready: Text").assertIsDisplayed()
         }
+
+        onNodeWithText("Loading").assertIsDisplayed()
+
+        surface.componentRegistry.update(listOf(A2uiComponentPayload("root", "Text", emptyMap())))
+        waitForIdle()
+
+        onNodeWithText("Loading").assertIsNotDisplayed()
+        onNodeWithText("Ready: Text").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_errorToSuccess_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.reportError(
-                "root",
-                A2uiValidationException("Initial failure", path = "/"),
-            )
+    fun observe_errorToSuccess_triggersRecomposition() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.reportError(
+            "root",
+            A2uiValidationException("Initial failure", path = "/"),
+        )
 
-            setContent {
-                when (observeA2uiComponentState(surface)) {
-                    is A2uiComponentState.Error -> BasicText("State: Error")
-                    is A2uiComponentState.Success -> BasicText("State: Success")
-                    else -> {}
-                }
+        setContent {
+            when (observeA2uiComponentState(surface)) {
+                is A2uiComponentState.Error -> BasicText("State: Error")
+                is A2uiComponentState.Success -> BasicText("State: Success")
+                else -> {}
             }
-
-            onNodeWithText("State: Error").assertIsDisplayed()
-
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Button", emptyMap()))
-            )
-            waitForIdle()
-
-            onNodeWithText("State: Error").assertIsNotDisplayed()
-            onNodeWithText("State: Success").assertIsDisplayed()
         }
+
+        onNodeWithText("State: Error").assertIsDisplayed()
+
+        surface.componentRegistry.update(listOf(A2uiComponentPayload("root", "Button", emptyMap())))
+        waitForIdle()
+
+        onNodeWithText("State: Error").assertIsNotDisplayed()
+        onNodeWithText("State: Success").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_successToError_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Button", emptyMap()))
-            )
+    fun observe_successToError_triggersRecomposition() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(listOf(A2uiComponentPayload("root", "Button", emptyMap())))
 
-            setContent {
-                when (observeA2uiComponentState(surface)) {
-                    is A2uiComponentState.Success -> BasicText("State: Success")
-                    is A2uiComponentState.Error -> BasicText("State: Error")
-                    else -> {}
-                }
+        setContent {
+            when (observeA2uiComponentState(surface)) {
+                is A2uiComponentState.Success -> BasicText("State: Success")
+                is A2uiComponentState.Error -> BasicText("State: Error")
+                else -> {}
             }
-
-            onNodeWithText("State: Success").assertIsDisplayed()
-
-            surface.componentRegistry.reportError(
-                "root",
-                A2uiValidationException("Subsequent failure", path = "/"),
-            )
-            waitForIdle()
-
-            onNodeWithText("State: Success").assertIsNotDisplayed()
-            onNodeWithText("State: Error").assertIsDisplayed()
         }
+
+        onNodeWithText("State: Success").assertIsDisplayed()
+
+        surface.componentRegistry.reportError(
+            "root",
+            A2uiValidationException("Subsequent failure", path = "/"),
+        )
+        waitForIdle()
+
+        onNodeWithText("State: Success").assertIsNotDisplayed()
+        onNodeWithText("State: Error").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_identicalComponentUpdate_doesNotRecompose() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "A")))
-            )
+    fun observe_identicalComponentUpdate_doesNotRecompose() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "A")))
+        )
 
-            var recompositions = 0
+        var recompositions = 0
 
-            setContent {
-                val state = observeA2uiComponentState(surface)
-                recompositions++
-                if (state is A2uiComponentState.Success) {
-                    BasicText("Recompositions: $recompositions")
-                }
+        setContent {
+            val state = observeA2uiComponentState(surface)
+            recompositions++
+            if (state is A2uiComponentState.Success) {
+                BasicText("Recompositions: $recompositions")
             }
-
-            onNodeWithText("Recompositions: 1").assertIsDisplayed()
-            val initialRecompositions = recompositions
-
-            // Update with identical payload
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "A")))
-            )
-            waitForIdle()
-
-            onNodeWithText("Recompositions: 1").assertIsDisplayed()
-            assertThat(recompositions).isEqualTo(initialRecompositions)
         }
+
+        onNodeWithText("Recompositions: 1").assertIsDisplayed()
+        val initialRecompositions = recompositions
+
+        // Update with identical payload
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "A")))
+        )
+        waitForIdle()
+
+        onNodeWithText("Recompositions: 1").assertIsDisplayed()
+        assertThat(recompositions).isEqualTo(initialRecompositions)
+    }
 
     @Test
-    fun observe_componentUpdateWithNewData_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface = createSurfaceModel()
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "Version 1")))
-            )
+    fun observe_componentUpdateWithNewData_triggersRecomposition() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "Version 1")))
+        )
 
-            setContent {
-                val state = observeA2uiComponentState(surface)
-                if (state is A2uiComponentState.Success) {
-                    val text = state.component.properties.raw["text"] as? String
-                    BasicText("Success: $text")
-                }
+        setContent {
+            val state = observeA2uiComponentState(surface)
+            if (state is A2uiComponentState.Success) {
+                val text = state.component.properties.raw["text"] as? String
+                BasicText("Success: $text")
             }
-
-            onNodeWithText("Success: Version 1").assertIsDisplayed()
-
-            surface.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "Version 2")))
-            )
-            waitForIdle()
-
-            onNodeWithText("Success: Version 1").assertIsNotDisplayed()
-            onNodeWithText("Success: Version 2").assertIsDisplayed()
         }
+
+        onNodeWithText("Success: Version 1").assertIsDisplayed()
+
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Text", mapOf("text" to "Version 2")))
+        )
+        waitForIdle()
+
+        onNodeWithText("Success: Version 1").assertIsNotDisplayed()
+        onNodeWithText("Success: Version 2").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_surfaceChange_recreatesState() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val surface1 = createSurfaceModel()
-            surface1.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Surface 1 Content", emptyMap()))
-            )
+    fun observe_surfaceChange_recreatesState() = runComposeUiTest {
+        val surface1 = createSurfaceModel()
+        surface1.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Surface 1 Content", emptyMap()))
+        )
 
-            val surface2 = createSurfaceModel()
-            surface2.componentRegistry.update(
-                listOf(A2uiComponentPayload("root", "Surface 2 Content", emptyMap()))
-            )
+        val surface2 = createSurfaceModel()
+        surface2.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "Surface 2 Content", emptyMap()))
+        )
 
-            var currentSurface by mutableStateOf(surface1)
+        var currentSurface by mutableStateOf(surface1)
 
-            setContent {
-                val state = observeA2uiComponentState(currentSurface)
-                if (state is A2uiComponentState.Success) {
-                    BasicText("Ready: ${state.component.type}")
-                }
+        setContent {
+            val state = observeA2uiComponentState(currentSurface)
+            if (state is A2uiComponentState.Success) {
+                BasicText("Ready: ${state.component.type}")
             }
-
-            onNodeWithText("Ready: Surface 1 Content").assertIsDisplayed()
-
-            currentSurface = surface2
-            waitForIdle()
-
-            onNodeWithText("Ready: Surface 1 Content").assertIsNotDisplayed()
-            onNodeWithText("Ready: Surface 2 Content").assertIsDisplayed()
         }
+
+        onNodeWithText("Ready: Surface 1 Content").assertIsDisplayed()
+
+        currentSurface = surface2
+        waitForIdle()
+
+        onNodeWithText("Ready: Surface 1 Content").assertIsNotDisplayed()
+        onNodeWithText("Ready: Surface 2 Content").assertIsDisplayed()
+    }
 
     @Test
-    fun observe_invalidRegistry_throwsException() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val invalidRegistry =
-                object : A2uiCoreComponentRegistry {
-                    override fun update(components: List<A2uiComponentPayload>) {}
+    fun observe_invalidRegistry_throwsException() = runComposeUiTest {
+        val invalidRegistry =
+            object : A2uiCoreComponentRegistry {
+                override fun update(components: List<A2uiComponentPayload>) {}
 
-                    override fun reportError(id: String, exception: A2uiException) {}
+                override fun reportError(id: String, exception: A2uiException) {}
 
-                    override fun close() {}
-                }
-            val surface = createSurfaceModel(registry = invalidRegistry)
+                override fun close() {}
+            }
+        val surface = createSurfaceModel(registry = invalidRegistry)
 
-            val caughtException =
-                assertFailsWith<IllegalArgumentException> {
-                    setContent { observeA2uiComponentState(surface) }
-                }
+        val caughtException =
+            assertFailsWith<IllegalArgumentException> {
+                setContent { observeA2uiComponentState(surface) }
+            }
 
-            assertThat(caughtException)
-                .hasMessageThat()
-                .contains("requires an A2uiComponentRegistry")
-        }
+        assertThat(caughtException).hasMessageThat().contains("requires an A2uiComponentRegistry")
+    }
 
     private fun createSurfaceModel(
         registry: A2uiCoreComponentRegistry = A2uiComponentRegistry()
