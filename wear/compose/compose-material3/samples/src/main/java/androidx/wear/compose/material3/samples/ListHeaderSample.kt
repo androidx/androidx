@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
@@ -34,124 +35,139 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.TimeText
-import androidx.wear.compose.material3.curvedText
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 
 @Sampled
 @Preview
 @Composable
 fun ListHeaderSample() {
+    val transformationSpec = rememberTransformationSpec()
     val scrollState = rememberTransformingLazyColumnState()
 
-    ScreenScaffold(
-        scrollState = scrollState,
-        timeText = { TimeText { time -> curvedText(time) } },
-    ) { contentPadding ->
-        TransformingLazyColumn(
-            state = scrollState,
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = contentPadding,
-        ) {
-            item {
-                ListHeader(
-                    modifier =
-                        Modifier.minimumVerticalContentPadding(
-                            ListHeaderDefaults.minimumTopListContentPadding,
-                            ListHeaderDefaults.minimumBottomListContentPadding,
-                        )
-                ) {
-                    Text("Settings")
+    AppScaffold {
+        ScreenScaffold(scrollState = scrollState) { contentPadding ->
+            TransformingLazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = contentPadding,
+            ) {
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    ListHeaderDefaults.minimumTopListContentPadding,
+                                    ListHeaderDefaults.minimumBottomListContentPadding,
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text("Settings")
+                    }
                 }
-            }
-            item {
-                ListSubHeader(
-                    modifier =
-                        Modifier.minimumVerticalContentPadding(
-                            ListHeaderDefaults.minimumTopListContentPadding,
-                            ListHeaderDefaults.minimumBottomListContentPadding,
-                        ),
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_connectivity),
-                            contentDescription = "Connectivity",
-                        )
-                    },
-                    label = { Text("Connectivity") },
-                )
-            }
-            item {
-                Button(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .minimumVerticalContentPadding(
-                                ButtonDefaults.minimumVerticalListContentPadding
-                            ),
-                    onClick = {},
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_bluetooth),
-                            contentDescription = "Bluetooth",
-                            modifier = Modifier.size(ButtonDefaults.IconSize),
-                        )
-                    },
-                ) {
-                    Text("Bluetooth")
+                item {
+                    ListSubHeader(
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    ListHeaderDefaults.minimumTopListContentPadding,
+                                    ListHeaderDefaults.minimumBottomListContentPadding,
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_connectivity),
+                                contentDescription = "Connectivity",
+                            )
+                        },
+                        label = { Text("Connectivity") },
+                    )
                 }
-            }
-            item {
-                Button(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .minimumVerticalContentPadding(
-                                ButtonDefaults.minimumVerticalListContentPadding
-                            ),
-                    onClick = {},
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_wifi),
-                            contentDescription = "Wifi",
-                            modifier = Modifier.size(ButtonDefaults.IconSize),
-                        )
-                    },
-                ) {
-                    Text("Wifi")
+                item {
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_bluetooth),
+                                contentDescription = "Bluetooth",
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                            )
+                        },
+                    ) {
+                        Text("Bluetooth")
+                    }
                 }
-            }
-            item {
-                ListSubHeader(
-                    modifier =
-                        Modifier.minimumVerticalContentPadding(
-                            ListHeaderDefaults.minimumTopListContentPadding,
-                            ListHeaderDefaults.minimumBottomListContentPadding,
-                        )
-                ) {
-                    Text("Display")
+                item {
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_wifi),
+                                contentDescription = "Wifi",
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                            )
+                        },
+                    ) {
+                        Text("Wifi")
+                    }
                 }
-            }
-            item {
-                Button(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .minimumVerticalContentPadding(
-                                ButtonDefaults.minimumVerticalListContentPadding
-                            ),
-                    onClick = {},
-                ) {
-                    Text("Change Watchface")
+                item {
+                    ListSubHeader(
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    ListHeaderDefaults.minimumTopListContentPadding,
+                                    ListHeaderDefaults.minimumBottomListContentPadding,
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text("Display")
+                    }
                 }
-            }
-            item {
-                Button(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .minimumVerticalContentPadding(
-                                ButtonDefaults.minimumVerticalListContentPadding
-                            ),
-                    onClick = {},
-                ) {
-                    Text("Brightness")
+                item {
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        onClick = {},
+                    ) {
+                        Text("Change Watchface")
+                    }
+                }
+                item {
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        onClick = {},
+                    ) {
+                        Text("Brightness")
+                    }
                 }
             }
         }
