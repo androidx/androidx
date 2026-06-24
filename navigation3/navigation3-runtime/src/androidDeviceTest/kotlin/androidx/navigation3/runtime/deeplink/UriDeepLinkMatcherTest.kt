@@ -672,4 +672,7 @@ class UriDeepLinkMatcherTest {
         assertThat(results.first().key).isEqualTo(DerivedKey1)
         assertThat(results.last().key).isEqualTo(DerivedKey2)
     }
+
+    private fun DeepLinkRequest.Companion.fromUriString(uri: String) =
+        DeepLinkRequest(uri = DeepLinkUri(uri))
 }

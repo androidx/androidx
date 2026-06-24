@@ -24,43 +24,30 @@ import kotlin.test.Test
 class DeepLinkRequestTest {
 
     @Test
-    fun fromUri() {
-        val string = "navigation3.test.com/test"
-        val uri = DeepLinkUri(string)
-        val request = DeepLinkRequest.fromUri(uri)
-
-        assertThat(request.uri).isEqualTo(uri)
-        assertThat(request.mimeType).isNull()
-        assertThat(request.action).isNull()
-    }
-
-    @Test
-    fun fromMimeType() {
-        val mimeType = "image/png"
-        val request = DeepLinkRequest.fromMimeType(mimeType)
-
-        assertThat(request.uri).isNull()
-        assertThat(request.mimeType).isEqualTo(mimeType)
-        assertThat(request.action).isNull()
-    }
-
-    @Test
-    fun fromAction() {
-        val action = "action"
-        val request = DeepLinkRequest.fromAction(action)
-
-        assertThat(request.uri).isNull()
-        assertThat(request.mimeType).isNull()
-        assertThat(request.action).isEqualTo(action)
-    }
-
-    @Test
     fun testExtra() {
         val testKey = "TestKey"
-        val request = DeepLinkRequest(null, null, null, mapOf(testKey to 1))
+        val request = DeepLinkRequest(null, mapOf(testKey to 1))
 
         assertThat(request.uri).isNull()
         assertThat(request.extras[testKey]).isNotNull()
         assertThat(request.extras[testKey]).isEqualTo(1)
+    }
+
+    @Test
+    fun fromExtraDsl() {
+        val testKey = object : RequestExtrasKey<Boolean> {}
+        val request = DeepLinkRequest(null, requestExtras { put(testKey, true) })
+
+        assertThat(request.uri).isNull()
+        assertThat(request.extras[testKey]).isNotNull()
+        assertThat(request.extras[testKey]).isEqualTo(true)
+    }
+
+    @Test
+    fun testExtraWrongKey() {
+        val request = DeepLinkRequest(null, mapOf("TestKey" to 1))
+
+        assertThat(request.uri).isNull()
+        assertThat(request.extras["wrongKey"]).isNull()
     }
 }
