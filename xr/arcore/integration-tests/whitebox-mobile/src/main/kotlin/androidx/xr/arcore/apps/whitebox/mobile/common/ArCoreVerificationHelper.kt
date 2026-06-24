@@ -24,6 +24,8 @@ import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateResult
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -149,16 +151,16 @@ class ArCoreVerificationHelper(
     suspend fun remoteQueryArCoreAvailability() {
         var attempt = 0
         while (queryRequested) {
-            // TODO: b/414854001 - Implement exponential backoff.
-            delay(REQUEST_DELAY_BETWEEN_ATTEMPTS_MS)
+            // exponential backoff to increase delay time before each attempt
+            val durationMs = ((2.0f.pow(attempt.toFloat()) - 1) * REQUEST_BASE_DELAY_MS).toLong()
+            delay(durationMs.milliseconds)
             when (arCoreApkInstance.checkAvailability(activity)) {
                 ArCoreApk.Availability.SUPPORTED_INSTALLED -> {
                     queryRequested = false
                     onArCoreVerified()
                 }
                 ArCoreApk.Availability.UNKNOWN_CHECKING -> {
-                    attempt++
-                    if (attempt >= REQUEST_MAX_ATTEMPTS) {
+                    if (attempt < REQUEST_MAX_ATTEMPTS) {
                         continue
                     } else {
                         queryRequested = false
@@ -172,6 +174,7 @@ class ArCoreVerificationHelper(
                     throw RuntimeException("Unable to determine ARCore availability.")
                 }
             }
+            attempt++
         }
     }
 
@@ -182,7 +185,7 @@ class ArCoreVerificationHelper(
             Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
         }
 
-        const val REQUEST_DELAY_BETWEEN_ATTEMPTS_MS: Long = 200L
+        const val REQUEST_BASE_DELAY_MS: Long = 200L
         const val REQUEST_MAX_ATTEMPTS: Int = 5
         const private val ARCORE_PACKAGE_NAME = "com.google.ar.core"
     }
