@@ -1420,6 +1420,18 @@ internal fun MeasureScope.breakDownItems(
     val crossAxisSizesArray = IntArray(endBreakLineList.size)
     crossAxisTotalSize = 0
 
+    val subMeasureScope =
+        object : MeasureScope {
+            override val density: Float
+                get() = this@breakDownItems.density
+
+            override val fontScale: Float
+                get() = this@breakDownItems.fontScale
+
+            override val layoutDirection: LayoutDirection
+                get() = this@breakDownItems.layoutDirection
+        }
+
     var startIndex = 0
     endBreakLineList.forEachIndexed { currentLineIndex, endIndex ->
         var crossAxisSize = crossAxisSizes[currentLineIndex]
@@ -1436,7 +1448,7 @@ internal fun MeasureScope.breakDownItems(
                 mainAxisMax = subsetConstraints.mainAxisMax,
                 crossAxisMax = crossAxisMaxSize,
                 spacing,
-                this,
+                subMeasureScope,
                 measurables,
                 arrayOfPlaceables,
                 startIndex,
