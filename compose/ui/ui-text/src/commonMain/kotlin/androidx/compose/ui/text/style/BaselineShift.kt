@@ -56,6 +56,13 @@ inline val BaselineShift.isSpecified: Boolean
     get() = !multiplier.isNaN()
 
 /**
+ * Returns `true` if this baseline shift is applicable (i.e. not [BaselineShift.None], not
+ * [BaselineShift.Unspecified], and is a finite number).
+ */
+internal inline val BaselineShift.isApplicable: Boolean
+    get() = multiplier.isFinite() && multiplier != 0f
+
+/**
  * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
  * returned.
  */

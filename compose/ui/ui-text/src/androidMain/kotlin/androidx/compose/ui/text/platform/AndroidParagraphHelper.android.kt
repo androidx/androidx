@@ -41,6 +41,7 @@ import androidx.compose.ui.text.platform.extensions.setTextIndent
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.isApplicable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.isUnspecified
 import androidx.emoji2.text.EmojiCompat
@@ -121,12 +122,11 @@ internal fun createCharSequence(
         // 1. Soft wrapping is enabled (may result in multiple lines).
         // 2. The text contains explicit newlines (guaranteed multi-line).
         // 3. Baseline shift is applied (forces StaticLayout anyway).
-        val hasBaselineShift = contextTextStyle.baselineShift != null
         if (
             !AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled ||
                 softWrap ||
                 mayHaveNewLine ||
-                hasBaselineShift
+                contextTextStyle.baselineShift?.isApplicable == true
         ) {
             val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
             spannableString.setLineHeight(
