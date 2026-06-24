@@ -169,9 +169,11 @@ package androidx.navigation3.runtime.deeplink {
     method public static androidx.navigation3.runtime.deeplink.DeepLinkRequest fromUri(android.net.Uri uri, optional String? mimeType, optional String? action);
     method public static androidx.navigation3.runtime.deeplink.DeepLinkRequest fromUriString(String uri, optional String? mimeType, optional String? action);
     method @InaccessibleFromKotlin public String? getAction();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object> getExtras();
     method @InaccessibleFromKotlin public String? getMimeType();
     method @InaccessibleFromKotlin public android.net.Uri? getUri();
     property public String? action;
+    property public java.util.Map<java.lang.String,java.lang.Object> extras;
     property public String? mimeType;
     property public android.net.Uri? uri;
     field public static final androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion Companion;

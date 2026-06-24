@@ -53,4 +53,14 @@ class DeepLinkRequestTest {
         assertThat(request.mimeType).isNull()
         assertThat(request.action).isEqualTo(action)
     }
+
+    @Test
+    fun testExtra() {
+        val testKey = "TestKey"
+        val request = DeepLinkRequest(null, null, null, mapOf(testKey to 1))
+
+        assertThat(request.uri).isNull()
+        assertThat(request.extras[testKey]).isNotNull()
+        assertThat(request.extras[testKey]).isEqualTo(1)
+    }
 }

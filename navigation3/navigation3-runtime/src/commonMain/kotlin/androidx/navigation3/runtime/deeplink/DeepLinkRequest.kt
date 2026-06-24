@@ -30,6 +30,7 @@ internal constructor(
     public val uri: DeepLinkUri?,
     public val mimeType: String?,
     public val action: String?,
+    public val extras: Map<String, Any> = emptyMap(),
 ) {
     public override fun toString(): String {
         return buildString {
@@ -46,6 +47,10 @@ internal constructor(
             if (mimeType != null) {
                 append(" mimetype=")
                 append(mimeType)
+            }
+            if (extras.isNotEmpty()) {
+                append(" extras=")
+                append("$extras")
             }
             append(" }")
         }
