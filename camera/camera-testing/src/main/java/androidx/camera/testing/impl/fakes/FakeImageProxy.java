@@ -27,8 +27,14 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.common.ImagePlane;
+import androidx.camera.common.testing.FakeImage;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -38,13 +44,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * A fake implementation of {@link ImageProxy} where the values are settable.
  */
-public final class FakeImageProxy implements ImageProxy {
-    private Rect mCropRect = new Rect();
-    private int mFormat = 0;
-    private int mHeight = 0;
-    private int mWidth = 0;
-
-    private PlaneProxy @NonNull [] mPlaneProxy = new PlaneProxy[0];
+public final class FakeImageProxy extends FakeImage implements ImageProxy {
+    private ImageProxy.PlaneProxy @NonNull [] mPlaneProxy = new ImageProxy.PlaneProxy[0];
 
     private boolean mClosed = false;
 
@@ -62,10 +63,13 @@ public final class FakeImageProxy implements ImageProxy {
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
 
     public FakeImageProxy(@NonNull ImageInfo imageInfo) {
+        super(0, 0, 0, imageInfo.getTimestamp(), null, null, new Rect());
         mImageInfo = imageInfo;
     }
 
     public FakeImageProxy(@NonNull ImageInfo imageInfo, @NonNull Bitmap bitmap) {
+        super(bitmap.getWidth(), bitmap.getHeight(), 0, imageInfo.getTimestamp(), null, null,
+                new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
         mImageInfo = imageInfo;
         mBitmap = bitmap;
     }
@@ -84,55 +88,66 @@ public final class FakeImageProxy implements ImageProxy {
     @Override
     public @NonNull Rect getCropRect() {
         synchronized (mReleaseLock) {
-            if (mClosed) {
+            if (isClosed()) {
                 throw new IllegalStateException("FakeImageProxy already closed");
             }
-            return mCropRect;
+            return super.getCropRect();
         }
     }
 
     @Override
     public void setCropRect(@Nullable Rect rect) {
-        mCropRect = rect != null ? rect : new Rect();
+        super.setCropRect(rect != null ? rect : new Rect());
     }
 
     @Override
     public int getFormat() {
         synchronized (mReleaseLock) {
-            if (mClosed) {
+            if (isClosed()) {
                 throw new IllegalStateException("FakeImageProxy already closed");
             }
-            return mFormat;
+            return super.getFormat();
         }
     }
 
     @Override
     public int getHeight() {
         synchronized (mReleaseLock) {
-            if (mClosed) {
+            if (isClosed()) {
                 throw new IllegalStateException("FakeImageProxy already closed");
             }
-            return mHeight;
+            return super.getHeight();
         }
     }
 
     @Override
     public int getWidth() {
         synchronized (mReleaseLock) {
-            if (mClosed) {
+            if (isClosed()) {
                 throw new IllegalStateException("FakeImageProxy already closed");
             }
-            return mWidth;
+            return super.getWidth();
         }
     }
 
     @Override
-    public PlaneProxy @NonNull [] getPlanes() {
+    @SuppressWarnings("deprecation")
+    public ImageProxy.PlaneProxy @NonNull [] getPlanes() {
         synchronized (mReleaseLock) {
-            if (mClosed) {
+            if (isClosed()) {
                 throw new IllegalStateException("FakeImageProxy already closed");
             }
             return mPlaneProxy;
+        }
+    }
+
+    @Override
+    public @NonNull List<ImagePlane> getImagePlanes() {
+        synchronized (mReleaseLock) {
+            if (isClosed()) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return super.getImagePlanes();
         }
     }
 
@@ -157,26 +172,46 @@ public final class FakeImageProxy implements ImageProxy {
      * Checks the image close status.
      * @return true if image closed, false otherwise.
      */
+    @Override
     public boolean isClosed() {
         synchronized (mReleaseLock) {
             return mClosed;
         }
     }
 
+
+
+    @Override
     public void setFormat(int format) {
-        mFormat = format;
+        super.setFormat(format);
     }
 
+    @Override
     public void setHeight(int height) {
-        mHeight = height;
+        super.setHeight(height);
     }
 
+    @Override
     public void setWidth(int width) {
-        mWidth = width;
+        super.setWidth(width);
     }
 
-    public void setPlanes(PlaneProxy @NonNull [] planeProxy) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T unwrapAs(@NonNull Class<T> type) {
+        T result = super.unwrapAs(type);
+        if (result != null) {
+            return result;
+        }
+        if (Build.VERSION.SDK_INT >= 26 && type == HardwareBuffer.class) {
+            return (T) mHardwareBuffer;
+        }
+        return null;
+    }
+
+    public void setPlanes(ImageProxy.PlaneProxy @NonNull [] planeProxy) {
         mPlaneProxy = planeProxy;
+        super.setImagePlanes(Arrays.asList(planeProxy));
     }
 
     public void setImageInfo(@NonNull ImageInfo imageInfo) {

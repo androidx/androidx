@@ -58,6 +58,9 @@ class AndroidImageProxyTest {
         `when`(mVPlane.pixelStride).thenReturn(1)
         `when`(mVPlane.buffer).thenReturn(ByteBuffer.allocateDirect(320 * 240))
         `when`(mImage.timestamp).thenReturn(INITIAL_TIMESTAMP)
+        `when`(mImage.width).thenReturn(640)
+        `when`(mImage.height).thenReturn(480)
+        `when`(mImage.format).thenReturn(ImageFormat.YUV_420_888)
 
         mImageProxy = AndroidImageProxy(mImage)
     }

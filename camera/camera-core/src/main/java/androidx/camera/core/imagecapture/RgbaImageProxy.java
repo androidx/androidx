@@ -37,11 +37,14 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 import androidx.camera.core.processing.Packet;
+import androidx.camera.common.ImagePlane;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A {@link ImageProxy} that is backed by a RGBA_8888 ByteBuffer.
@@ -64,6 +67,8 @@ public final class RgbaImageProxy implements ImageProxy {
     // Null if the ImageProxy is closed. Otherwise non-null.
     @GuardedBy("mLock")
     PlaneProxy @Nullable [] mPlaneProxy;
+    @GuardedBy("mLock")
+    private List<ImagePlane> mImagePlanes;
 
     private final @NonNull ImageInfo mImageInfo;
 
@@ -114,6 +119,7 @@ public final class RgbaImageProxy implements ImageProxy {
         mPlaneProxy = new PlaneProxy[]{
                 createPlaneProxy(byteBuffer, width * pixelStride, pixelStride)
         };
+        mImagePlanes = Arrays.asList(mPlaneProxy);
     }
 
     @Override
@@ -122,6 +128,7 @@ public final class RgbaImageProxy implements ImageProxy {
             checkNotClosed();
             // Nullify so it can be GCed.
             mPlaneProxy = null;
+            mImagePlanes = null;
         }
     }
 
@@ -168,10 +175,19 @@ public final class RgbaImageProxy implements ImageProxy {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public PlaneProxy @NonNull [] getPlanes() {
         synchronized (mLock) {
             checkNotClosed();
             return requireNonNull(mPlaneProxy);
+        }
+    }
+
+    @Override
+    public @NonNull List<ImagePlane> getImagePlanes() {
+        synchronized (mLock) {
+            checkNotClosed();
+            return requireNonNull(mImagePlanes);
         }
     }
 
@@ -198,7 +214,7 @@ public final class RgbaImageProxy implements ImageProxy {
     public @NonNull Bitmap createBitmap() {
         synchronized (mLock) {
             checkNotClosed();
-            return createBitmapFromPlane(getPlanes(), getWidth(), getHeight());
+            return createBitmapFromPlane(getImagePlanes(), getWidth(), getHeight());
         }
     }
 
@@ -224,6 +240,11 @@ public final class RgbaImageProxy implements ImageProxy {
             @Override
             public @NonNull ByteBuffer getBuffer() {
                 return byteBuffer;
+            }
+
+            @Override
+            public <T> T unwrapAs(@NonNull Class<T> type) {
+                return null;
             }
         };
     }

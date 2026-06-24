@@ -24,18 +24,24 @@ import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
+import android.hardware.SyncFence;
 import android.media.Image;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import androidx.camera.common.ImagePlane;
+import androidx.camera.common.ImageWrapper;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /** An image proxy which has a similar interface as {@link android.media.Image}. */
-public interface ImageProxy extends AutoCloseable {
+public interface ImageProxy extends ImageWrapper, AutoCloseable {
     /**
      * Closes the underlying {@link android.media.Image}.
      *
@@ -49,6 +55,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getCropRect()
      */
+    @Override
     @SuppressWarnings("GetterSetterNullability")
     @NonNull Rect getCropRect();
 
@@ -60,6 +67,16 @@ public interface ImageProxy extends AutoCloseable {
     void setCropRect(@Nullable Rect rect);
 
     /**
+     * Returns the timestamp.
+     *
+     * @see android.media.Image#getTimestamp()
+     */
+    @Override
+    default long getTimestamp() {
+        return getImageInfo().getTimestamp();
+    }
+
+    /**
      * Returns the image format.
      *
      * <p> The image format can be one of the {@link ImageFormat} or
@@ -67,6 +84,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getFormat()
      */
+    @Override
     int getFormat();
 
     /**
@@ -74,6 +92,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getHeight()
      */
+    @Override
     int getHeight();
 
     /**
@@ -81,7 +100,21 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getWidth()
      */
+    @Override
     int getWidth();
+
+
+
+    @Override
+    default @Nullable SyncFence getSyncFence() {
+        return null;
+    }
+
+    @Override
+    @SuppressLint("MethodNameUnits")
+    default int getDataSpace() {
+        return 0;
+    }
 
     /**
      * Returns the array of planes.
@@ -91,16 +124,23 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getPlanes()
      */
+    @NonNull
     @SuppressLint("ArrayReturn")
     PlaneProxy @NonNull [] getPlanes();
 
+    @Override
+    default @NonNull List<@NonNull ImagePlane> getImagePlanes() {
+        return Arrays.asList(getPlanes());
+    }
+
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
-    interface PlaneProxy {
+    interface PlaneProxy extends ImagePlane {
         /**
          * Returns the row stride.
          *
          * @see android.media.Image.Plane#getRowStride()
          */
+        @Override
         int getRowStride();
 
         /**
@@ -108,6 +148,7 @@ public interface ImageProxy extends AutoCloseable {
          *
          * @see android.media.Image.Plane#getPixelStride()
          */
+        @Override
         int getPixelStride();
 
         /**
@@ -115,7 +156,13 @@ public interface ImageProxy extends AutoCloseable {
          *
          * @see android.media.Image.Plane#getBuffer()
          */
+        @Override
         @NonNull ByteBuffer getBuffer();
+
+        @Override
+        default <T> @Nullable T unwrapAs(@NonNull Class<T> type) {
+            return null;
+        }
     }
 
     /** Returns the {@link ImageInfo}. */
@@ -140,6 +187,15 @@ public interface ImageProxy extends AutoCloseable {
     @ExperimentalGetImage
     @Nullable Image getImage();
 
+    @Override
+    @SuppressWarnings("unchecked")
+    default <T> @Nullable T unwrapAs(@NonNull Class<T> type) {
+        if (type.isInstance(this)) {
+            return (T) this;
+        }
+        return null;
+    }
+
     /**
      * Returns the {@link HardwareBuffer} for this image.
      *
@@ -158,6 +214,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @return the hardware buffer, or {@code null} if it is not available.
      */
+    @Override
     @RequiresApi(Build.VERSION_CODES.P)
     default @Nullable HardwareBuffer getHardwareBuffer() {
         return null;

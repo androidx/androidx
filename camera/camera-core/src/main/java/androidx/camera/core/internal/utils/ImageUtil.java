@@ -19,6 +19,7 @@ package androidx.camera.core.internal.utils;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.nio.ByteBuffer.allocateDirect;
+import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +34,7 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.IntRange;
+import androidx.camera.common.ImagePlane;
 import androidx.camera.core.ImageProcessingUtil;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -46,6 +48,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Utility class for image related operations.
@@ -96,18 +99,18 @@ public final class ImageUtil {
      * 4).
      */
     public static @NonNull Bitmap createBitmapFromPlane(
-            ImageProxy.PlaneProxy @NonNull [] planes, int width, int height) {
-        checkArgument(planes.length == 1, "Expect a single plane");
-        checkArgument(planes[0].getPixelStride() == DEFAULT_RGBA_PIXEL_STRIDE,
+            @NonNull List<ImagePlane> planes, int width, int height) {
+        checkArgument(planes.size() == 1, "Expect a single plane");
+        checkArgument(planes.get(0).getPixelStride() == DEFAULT_RGBA_PIXEL_STRIDE,
                 "Expect pixelStride=" + DEFAULT_RGBA_PIXEL_STRIDE);
         checkArgument(
-                planes[0].getRowStride() == DEFAULT_RGBA_PIXEL_STRIDE * width,
+                planes.get(0).getRowStride() == DEFAULT_RGBA_PIXEL_STRIDE * width,
                 "Expect rowStride=width*" + DEFAULT_RGBA_PIXEL_STRIDE);
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         // Rewind the buffer just to be safe.
-        planes[0].getBuffer().rewind();
-        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes[0].getBuffer(),
-                planes[0].getRowStride());
+        requireNonNull(planes.get(0).getBuffer()).rewind();
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes.get(0).getBuffer(),
+                planes.get(0).getRowStride());
         return bitmap;
     }
 
@@ -170,8 +173,8 @@ public final class ImageUtil {
                     "Incorrect image format of the input image proxy: " + image.getFormat());
         }
 
-        ImageProxy.PlaneProxy[] planes = image.getPlanes();
-        ByteBuffer buffer = planes[0].getBuffer();
+        List<ImagePlane> planes = image.getImagePlanes();
+        ByteBuffer buffer = requireNonNull(planes.get(0).getBuffer());
         buffer.rewind();
         byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
@@ -234,13 +237,14 @@ public final class ImageUtil {
 
     /** {@link android.media.Image} to NV21 byte array. */
     public static byte @NonNull [] yuv_420_888toNv21(@NonNull ImageProxy image) {
-        ImageProxy.PlaneProxy yPlane = image.getPlanes()[0];
-        ImageProxy.PlaneProxy uPlane = image.getPlanes()[1];
-        ImageProxy.PlaneProxy vPlane = image.getPlanes()[2];
+        List<ImagePlane> planes = image.getImagePlanes();
+        ImagePlane yPlane = planes.get(0);
+        ImagePlane uPlane = planes.get(1);
+        ImagePlane vPlane = planes.get(2);
 
-        ByteBuffer yBuffer = yPlane.getBuffer();
-        ByteBuffer uBuffer = uPlane.getBuffer();
-        ByteBuffer vBuffer = vPlane.getBuffer();
+        ByteBuffer yBuffer = requireNonNull(yPlane.getBuffer());
+        ByteBuffer uBuffer = requireNonNull(uPlane.getBuffer());
+        ByteBuffer vBuffer = requireNonNull(vPlane.getBuffer());
         yBuffer.rewind();
         uBuffer.rewind();
         vBuffer.rewind();
@@ -446,9 +450,10 @@ public final class ImageUtil {
                 imageProxy.getHeight(),
                 Bitmap.Config.ARGB_8888);
         // Rewind the buffer just to be safe.
-        imageProxy.getPlanes()[0].getBuffer().rewind();
-        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, imageProxy.getPlanes()[0].getBuffer(),
-                imageProxy.getPlanes()[0].getRowStride());
+        ByteBuffer buffer = requireNonNull(imageProxy.getImagePlanes().get(0).getBuffer());
+        buffer.rewind();
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, buffer,
+                imageProxy.getImagePlanes().get(0).getRowStride());
         return bitmap;
     }
 

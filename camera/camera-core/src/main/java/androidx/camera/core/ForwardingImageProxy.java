@@ -16,19 +16,24 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
+import android.hardware.SyncFence;
 import android.media.Image;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.common.ImagePlane;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +71,11 @@ public abstract class ForwardingImageProxy implements ImageProxy {
     }
 
     @Override
+    public <T> T unwrapAs(@NonNull Class<T> type) {
+        return mImage.unwrapAs(type);
+    }
+
+    @Override
     public @NonNull Rect getCropRect() {
         return mImage.getCropRect();
     }
@@ -73,6 +83,24 @@ public abstract class ForwardingImageProxy implements ImageProxy {
     @Override
     public void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
+    }
+
+
+
+    @Override
+    public long getTimestamp() {
+        return mImage.getTimestamp();
+    }
+
+    @Override
+    @SuppressLint("MethodNameUnits")
+    public int getDataSpace() {
+        return mImage.getDataSpace();
+    }
+
+    @Override
+    public @Nullable SyncFence getSyncFence() {
+        return mImage.getSyncFence();
     }
 
     @Override
@@ -93,6 +121,11 @@ public abstract class ForwardingImageProxy implements ImageProxy {
     @Override
     public ImageProxy.PlaneProxy @NonNull [] getPlanes() {
         return mImage.getPlanes();
+    }
+
+    @Override
+    public @NonNull List<ImagePlane> getImagePlanes() {
+        return mImage.getImagePlanes();
     }
 
     @Override
