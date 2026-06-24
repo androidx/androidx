@@ -426,7 +426,7 @@ class MovableComponentTest {
         // Simulates a move start event from runtime.
         rtMovableComponent.onMoveEvent(rtMoveEvent)
         // Expects to receive a scenecore event.
-        var expectedEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+        var expectedEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
 
         assertThat(moveListener.onMoveStartedCount).isEqualTo(1)
         assertThat(moveListener.stateMatchesEvent(entity, expectedEvent)).isTrue()
@@ -448,7 +448,7 @@ class MovableComponentTest {
         // Simulates a move ongoing event from runtime.
         rtMovableComponent.onMoveEvent(rtMoveEvent)
         // Expects to receive a scenecore event.
-        expectedEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+        expectedEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
 
         assertThat(moveListener.onMoveUpdatedCount).isEqualTo(1)
         assertThat(moveListener.stateMatchesEvent(entity, expectedEvent)).isTrue()
@@ -471,10 +471,50 @@ class MovableComponentTest {
         // Simulates a move end event from runtime.
         rtMovableComponent.onMoveEvent(rtMoveEvent)
         // Expects to receive a scenecore event.
-        expectedEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+        expectedEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
 
         assertThat(moveListener.onMoveEndedCount).isEqualTo(1)
         assertThat(moveListener.stateMatchesEvent(entity, expectedEvent)).isTrue()
+    }
+
+    @Test
+    fun movableComponent_ignoresMoveEvent_whenParentNotRegistered() {
+        createCustomSession()
+        val entity = Entity.create(session, "test")
+
+        assertThat(entity).isNotNull()
+
+        val movableComponent = MovableComponent.createSystemMovable(session)
+
+        assertThat(entity.addComponent(movableComponent)).isTrue()
+
+        val moveListener = FakeEntityMoveListener()
+        movableComponent.addMoveListener(directExecutor(), moveListener)
+
+        val rtMoveEvent =
+            RtMoveEvent(
+                MoveEvent.MOVE_STATE_START,
+                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                Pose(),
+                Pose(),
+                Vector3(1f, 1f, 1f),
+                Vector3(1f, 1f, 1f),
+                fakeActivitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        // We remove fakeActivitySpace from registry to simulate it being GC'd
+        session.scene.entityRegistry.removeEntity(fakeActivitySpace)
+
+        val rtMovableComponent = movableComponent.rtMovableComponent as FakeMovableComponent
+        // Simulates a move start event from runtime.
+        rtMovableComponent.onMoveEvent(rtMoveEvent)
+
+        // Expects the listener NOT to be called
+        assertThat(moveListener.onMoveStartedCount).isEqualTo(0)
+        assertThat(moveListener.onMoveUpdatedCount).isEqualTo(0)
+        assertThat(moveListener.onMoveEndedCount).isEqualTo(0)
     }
 
     @Test
@@ -511,7 +551,7 @@ class MovableComponentTest {
         // Simulates a move start event from runtime.
         rtMovableComponent.onMoveEvent(rtMoveEvent)
         // Expects to receive a scenecore event.
-        val expectedEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+        val expectedEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
 
         assertThat(moveListener1.onMoveStartedCount).isEqualTo(1)
         assertThat(moveListener1.stateMatchesEvent(entity, expectedEvent)).isTrue()
@@ -553,7 +593,7 @@ class MovableComponentTest {
         // Simulates a move start event from runtime.
         rtMovableComponent.onMoveEvent(rtMoveEvent)
         // Expects to receive a scenecore event.
-        val expectedEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+        val expectedEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
 
         assertThat(moveListener1.onMoveStartedCount).isEqualTo(1)
         assertThat(moveListener1.stateMatchesEvent(entity, expectedEvent)).isTrue()
@@ -645,7 +685,7 @@ class MovableComponentTest {
             // Simulates a move start event from runtime.
             rtMovableComponent.onMoveEvent(rtMoveEvent)
             // Expects to receive a scenecore event.
-            val moveEvent = rtMoveEvent.toMoveEvent(session.scene.entityRegistry)
+            val moveEvent = requireNotNull(rtMoveEvent.toMoveEvent(session.scene.entityRegistry))
             advanceUntilIdle()
 
             assertThat(moveListener.onMoveStartedCount).isEqualTo(1)

@@ -88,7 +88,9 @@ private constructor(
     private val moveListenersMap = ConcurrentHashMap<EntityMoveListener, Executor>()
 
     private val rtMoveEventListener: RtMoveEventListener = RtMoveEventListener { rtMoveEvent ->
-        val moveEvent = rtMoveEvent.toMoveEvent(entityRegistry)
+        // The converted move event can be null if the move event cannot be constructed and we
+        // return early.
+        val moveEvent = rtMoveEvent.toMoveEvent(entityRegistry) ?: return@RtMoveEventListener
         var updatedReformEventInfo: UpdatedReformEventInfo? = null
         if (anchorable) {
             updatedReformEventInfo = getUpdatedReformEventPoseAndParent(moveEvent)
