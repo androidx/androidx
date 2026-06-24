@@ -16,12 +16,16 @@
 
 package androidx.compose.ui.adaptive
 
+import android.content.res.Configuration
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.UiMediaScope
@@ -34,27 +38,47 @@ import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.findViewTreeComposeViewContext
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.WindowSize
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMediaQueryApi::class, ExperimentalTestApi::class)
+@OptIn(
+    ExperimentalMediaQueryApi::class,
+    ExperimentalTestApi::class,
+    ExperimentalComposeUiApi::class,
+)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class MediaQueryTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val scope = TestUiMediaScope()
+
+    @Before
+    fun setUp() {
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+    }
+
+    @After
+    fun tearDown() {
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = false
+    }
 
     @Test
     fun derivedMediaQuery_returnsTrue_whenConditionMet() {
@@ -275,6 +299,85 @@ class MediaQueryTest {
         rule.waitForIdle()
 
         assertThat(result).isEqualTo(100)
+    }
+
+    // Regression test for b/525259151
+    @Test
+    @SdkSuppress(maxSdkVersion = 32)
+    fun mediaQuery_updatesOnGlobalLayout_afterStaleConfigChange() {
+        var capturedWindowWidth = 0.dp
+        var containerSize = IntSize.Zero
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            capturedWindowWidth = mediaQuery { windowWidth }
+            containerSize = LocalWindowInfo.current.containerSize
+        }
+
+        val density = view.context.resources.displayMetrics.density
+        val initialSize = rule.runOnIdle { containerSize }
+        val newSize = IntSize(initialSize.width + 100, initialSize.height + 100)
+
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            // Set test window size to initialSize (simulating stale bounds during config change)
+            composeViewContext?.testWindowSize = initialSize
+
+            val resources = view.context.resources
+            val configuration = Configuration(resources.configuration)
+            configuration.screenWidthDp = (newSize.width / density).roundToInt()
+            configuration.screenHeightDp = (newSize.height / density).roundToInt()
+
+            composeViewContext?.onConfigurationChanged(configuration)
+        }
+
+        // On API <= 32, bounds could be stale on config change
+        rule.runOnIdle {
+            assertThat(capturedWindowWidth).isEqualTo((initialSize.width / density).dp)
+        }
+
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            // Now update test window size to newSize (simulating correct bounds on layout)
+            composeViewContext?.testWindowSize = newSize
+            view.viewTreeObserver.dispatchOnGlobalLayout()
+        }
+
+        // After layout pass, updated size is reflected
+        rule.runOnIdle { assertThat(capturedWindowWidth).isEqualTo((newSize.width / density).dp) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    fun mediaQuery_updatesSynchronously_afterConfigChange() {
+        var capturedWindowWidth = 0.dp
+        var containerSize = IntSize.Zero
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            capturedWindowWidth = mediaQuery { windowWidth }
+            containerSize = LocalWindowInfo.current.containerSize
+        }
+
+        val density = view.context.resources.displayMetrics.density
+        val initialSize = rule.runOnIdle { containerSize }
+        val newSize = IntSize(initialSize.width + 100, initialSize.height + 100)
+
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            // Set the test window size directly to newSize (simulating correct bounds immediately)
+            composeViewContext?.testWindowSize = newSize
+
+            val resources = view.context.resources
+            val configuration = Configuration(resources.configuration)
+            configuration.screenWidthDp = (newSize.width / density).roundToInt()
+            configuration.screenHeightDp = (newSize.height / density).roundToInt()
+
+            composeViewContext?.onConfigurationChanged(configuration)
+        }
+
+        // On API >= 33, new size should be updated immediately on config change
+        rule.runOnIdle { assertThat(capturedWindowWidth).isEqualTo((newSize.width / density).dp) }
     }
 
     @Composable

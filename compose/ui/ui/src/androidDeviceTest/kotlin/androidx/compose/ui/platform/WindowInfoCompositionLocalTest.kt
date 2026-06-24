@@ -66,6 +66,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
@@ -490,25 +491,78 @@ class WindowInfoCompositionLocalTest {
     }
 
     @Test
-    fun containerSizeUpdatesWhenDeviceSizeChanges() {
+    @SdkSuppress(minSdkVersion = 33)
+    fun containerSize_updatesSynchronously_afterConfigChange() {
         var containerSize = IntSize.Zero
         lateinit var view: View
         rule.setContent {
             view = LocalView.current
             containerSize = LocalWindowInfo.current.containerSize
         }
+
+        val initialSize = containerSize
+        val newSize = IntSize(initialSize.width + 100, initialSize.height + 100)
+
         rule.runOnIdle {
             val composeViewContext = view.findViewTreeComposeViewContext()
+            // Set the test window size directly to newSize (simulating correct bounds immediately)
+            composeViewContext?.testWindowSize = newSize
+
             val resources = rule.activity.resources
             val configuration = Configuration(resources.configuration)
-            configuration.screenWidthDp = (1000 / resources.displayMetrics.density).roundToInt()
-            configuration.screenHeightDp = (2000 / resources.displayMetrics.density).roundToInt()
-            configuration.smallestScreenWidthDp = 1000
-            composeViewContext?.testWindowSize = IntSize(1000, 2000)
+            configuration.screenWidthDp =
+                (newSize.width / resources.displayMetrics.density).roundToInt()
+            configuration.screenHeightDp =
+                (newSize.height / resources.displayMetrics.density).roundToInt()
+
             composeViewContext?.onConfigurationChanged(configuration)
         }
 
-        rule.runOnIdle { assertThat(containerSize).isEqualTo(IntSize(1000, 2000)) }
+        // On API >= 33, new size should be updated immediately on config change
+        rule.runOnIdle { assertThat(containerSize).isEqualTo(newSize) }
+    }
+
+    // Regression test for b/525259151 and b/508799456
+    @Test
+    @SdkSuppress(maxSdkVersion = 32)
+    fun containerSize_updatesOnGlobalLayout_afterStaleConfigChange() {
+        var containerSize = IntSize.Zero
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            containerSize = LocalWindowInfo.current.containerSize
+        }
+
+        val initialSize = containerSize
+        val newSize = IntSize(initialSize.width + 100, initialSize.height + 100)
+
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            // Set test window size to initialSize (simulating stale bounds during config change)
+            composeViewContext?.testWindowSize = initialSize
+
+            val resources = rule.activity.resources
+            val configuration = Configuration(resources.configuration)
+            configuration.screenWidthDp =
+                (newSize.width / resources.displayMetrics.density).roundToInt()
+            configuration.screenHeightDp =
+                (newSize.height / resources.displayMetrics.density).roundToInt()
+
+            composeViewContext?.onConfigurationChanged(configuration)
+        }
+
+        // On API <= 32, bounds could be stale on config change
+        rule.runOnIdle { assertThat(containerSize).isEqualTo(initialSize) }
+
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            // Now update test size to newSize (simulating correct bounds on layout)
+            composeViewContext?.testWindowSize = newSize
+            view.viewTreeObserver.dispatchOnGlobalLayout()
+        }
+
+        // After layout pass, updated size is reflected
+        rule.runOnIdle { assertThat(containerSize).isEqualTo(newSize) }
     }
 }
 

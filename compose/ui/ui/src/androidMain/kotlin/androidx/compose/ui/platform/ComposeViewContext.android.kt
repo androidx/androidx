@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
@@ -287,6 +288,12 @@ private constructor(
      */
     @get:VisibleForTesting internal var testWindowSize: IntSize = IntSize.Zero
 
+    /**
+     * Flag to indicate that a window size update is pending. Used to defer size updates to the next
+     * global layout pass when the platform returns stale bounds during configuration changes.
+     */
+    private var pendingWindowInfoUpdate = false
+
     /** Used for recalculating the window size whenever there is a change to the Window. */
     private val calculateWindowSizeLambda = {
         if (testWindowSize == IntSize.Zero) {
@@ -313,7 +320,10 @@ private constructor(
      * changes, and [view] attach state changes.
      */
     private val callback =
-        object : ComponentCallbacks2, ViewTreeObserver.OnWindowFocusChangeListener {
+        object :
+            ComponentCallbacks2,
+            ViewTreeObserver.OnWindowFocusChangeListener,
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onConfigurationChanged(configuration: Configuration) {
                 this@ComposeViewContext.onConfigurationChanged(configuration)
             }
@@ -331,6 +341,13 @@ private constructor(
 
             override fun onWindowFocusChanged(hasFocus: Boolean) {
                 windowInfo.isWindowFocused = hasFocus
+            }
+
+            override fun onGlobalLayout() {
+                if (pendingWindowInfoUpdate) {
+                    pendingWindowInfoUpdate = false
+                    windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
+                }
             }
         }
 
@@ -373,6 +390,8 @@ private constructor(
         windowInfo.setOnInitializeContainerSize(calculateWindowSizeLambda)
         windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
         view.viewTreeObserver.addOnWindowFocusChangeListener(callback)
+        view.viewTreeObserver.addOnGlobalLayoutListener(callback)
+        pendingWindowInfoUpdate = false
     }
 
     /** Stop observing configuration changes and window changes. */
@@ -380,6 +399,8 @@ private constructor(
         view.context.unregisterComponentCallbacks(callback)
         windowInfo.setOnInitializeContainerSize(null)
         view.viewTreeObserver.removeOnWindowFocusChangeListener(callback)
+        view.viewTreeObserver.removeOnGlobalLayoutListener(callback)
+        pendingWindowInfoUpdate = false
     }
 
     /**
@@ -397,7 +418,13 @@ private constructor(
                 fontFamilyResolver.value = createFontFamilyResolver(view.context)
             }
             if (changedFlags and MaskForNonWindowMetricsChanges.inv() != 0) {
-                windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
+                // Defer bounds updates on API <= 32 because the platform can return stale window
+                // metrics during config changes (b/525259151).
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
+                } else {
+                    pendingWindowInfoUpdate = true
+                }
             }
         }
     }
