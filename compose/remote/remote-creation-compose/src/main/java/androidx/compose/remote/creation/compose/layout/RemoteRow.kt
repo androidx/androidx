@@ -49,7 +49,8 @@ internal class RemoteRowNode : RemoteComposeNode() {
     var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val recordingModifier = creationState.toRecordingModifier(modifier)
+        val scope = overriddenScope(creationState)
+        val recordingModifier = scope.toRecordingModifier(modifier)
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
         }

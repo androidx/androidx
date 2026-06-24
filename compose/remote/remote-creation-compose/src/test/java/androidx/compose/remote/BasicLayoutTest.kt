@@ -22,11 +22,15 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.view.View
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -41,6 +45,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -56,6 +61,7 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.radialGradient
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteEnum
@@ -76,12 +82,15 @@ import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -1092,6 +1101,162 @@ list:
                 }
             }
         }
+    }
+
+    @Test
+    fun testClipRoundedCornerDynamicDensity() {
+        val expectedLayout =
+            """
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  ComponentValue value 42 set to WIDTH of Component -2
+  ComponentValue value 43 set to HEIGHT of Component -2
+  BOX [-3:-1] = [0.0, 0.0, 275.0, 275.0] VISIBLE
+    MODIFIERS
+      WIDTH = 100.0 dp
+      HEIGHT = 100.0 dp
+      ROUNDED_CLIP_RECT = [275.0, 275.0, 27.5, 27.5, 27.5, 27.5]
+      BACKGROUND = [0.0, 0.0, 275.0, 275.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+"""
+        testLayout(expectedLayout) {
+            CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity.Host) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .clip(RemoteRoundedCornerShape(10.rdp))
+                            .background(Color.Red)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTextClipRoundedCornerOverriddenDensity() {
+        val expectedLayout =
+            """
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  DATA_TEXT<42> = "Test"
+  ComponentValue value 43 set to WIDTH of Component -2
+  ComponentValue value 44 set to HEIGHT of Component -2
+  CORE_TEXT [-3:-1] = [0.0, 0.0, 275.0, 275.0] VISIBLE (42:"Test")
+    MODIFIERS
+      WIDTH = 100.0 dp
+      HEIGHT = 100.0 dp
+      ROUNDED_CLIP_RECT = [275.0, 275.0, 10.0, 10.0, 10.0, 10.0]
+"""
+        testLayout(expectedLayout) {
+            CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity(1f.rf, 1f.rf)) {
+                RemoteText(
+                    text = "Test",
+                    modifier = RemoteModifier.size(100.rdp).clip(RemoteRoundedCornerShape(10.rdp)),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testRowRtl() {
+        val result =
+            """
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  ROW [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+    MODIFIERS
+    BOX [-5:-1] = [165.0, 0.0, 275.0, 825.0] VISIBLE
+      MODIFIERS
+        WIDTH = 100.0 dp
+        BACKGROUND = [0.0, 0.0, 275.0, 825.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
+    BOX [-7:-1] = [440.0, 0.0, 275.0, 825.0] VISIBLE
+      MODIFIERS
+        WIDTH = 100.0 dp
+        BACKGROUND = [0.0, 0.0, 275.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+"""
+        testLayout(result) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                RemoteRow(
+                    modifier = RemoteModifier.fillMaxSize(),
+                    horizontalArrangement = RemoteArrangement.Start,
+                ) {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Red)
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Blue)
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testLocalRemoteDensityOverride() {
+        // Host density is 2.75.
+        // Default text size: 12sp -> 12 * 2.75 = 33.0 pixels.
+        // Overridden text size: 12sp * 1.0 = 12.0 pixels.
+        assertDensityOverrideFontSizes(33.0f, 12.0f) {
+            RemoteColumn {
+                RemoteText("Default", fontSize = 12.rsp)
+                CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity(1f.rf, 1f.rf)) {
+                    RemoteText("Overridden", fontSize = 12.rsp)
+                }
+            }
+        }
+    }
+
+    private fun assertDensityOverrideFontSizes(
+        expectedDefaultPx: Float,
+        expectedOverriddenPx: Float,
+        contentUnderTest: @Composable @RemoteComposable () -> Unit,
+    ) {
+        val documentBytes = runBlocking {
+            captureSingleRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = creationDisplayInfo,
+                    content = contentUnderTest,
+                )
+                .bytes
+        }
+
+        val remoteDocument = RemoteDocument(documentBytes)
+        val configuration =
+            Configuration(context.resources.configuration).apply {
+                densityDpi = (2.75 * 160).toInt()
+            }
+        val fixedContext = context.createConfigurationContext(configuration)
+        val player = RemoteComposePlayer(fixedContext)
+        player.setDocument(remoteDocument)
+
+        val width = creationDisplayInfo.size.width.toInt()
+        val height = creationDisplayInfo.size.height.toInt()
+        player.measure(
+            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
+        )
+        player.layout(0, 0, width, height)
+
+        // Force draw to resolve variables
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        player.draw(canvas)
+
+        val root = player.document.document.rootLayoutComponent!!
+        val column = root.list.first { it is LayoutComponent } as LayoutComponent
+        val defaultText = column.childrenComponents[0] as CoreText
+        val overriddenText = column.childrenComponents[1] as CoreText
+
+        fun getFontSize(text: CoreText): Float? {
+            val serializer = YAMLSerializer()
+            text.serialize(serializer.serializeMap())
+            val map = serializer.toObject() as? Map<*, *> ?: return null
+            val fontSizeMap = map["fontSize"] as? Map<*, *> ?: return null
+            return (fontSizeMap["value"] as? Number)?.toFloat()
+        }
+
+        val defaultFontSize: Float? = getFontSize(defaultText)
+        val overriddenFontSize: Float? = getFontSize(overriddenText)
+
+        assertThat(defaultFontSize).isEqualTo(expectedDefaultPx)
+        assertThat(overriddenFontSize).isEqualTo(expectedOverriddenPx)
     }
 }
 

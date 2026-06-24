@@ -27,7 +27,8 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
     var onDraw: (RemoteDrawScope.() -> Unit) = {}
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val recordingModifier = creationState.toRecordingModifier(modifier)
+        val scope = overriddenScope(creationState)
+        val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startCanvas(recordingModifier)
 
         val drawWithContent = modifier.find<DrawWithContentModifier>()
