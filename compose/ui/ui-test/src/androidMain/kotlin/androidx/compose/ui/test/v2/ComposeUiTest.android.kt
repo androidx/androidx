@@ -19,7 +19,6 @@ package androidx.compose.ui.test.v2
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ComposeUiTest
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.getActivity
 import androidx.test.core.app.ActivityScenario
@@ -71,7 +70,6 @@ import kotlinx.coroutines.test.runTest
  * @param block The suspendable test body.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,
     runTestContext: CoroutineContext,
@@ -116,7 +114,6 @@ actual fun runComposeUiTest(
  * @param block The suspendable test body.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 actual fun runComposeUiTest(
     config: ComposeTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
@@ -155,7 +152,6 @@ actual fun runComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
@@ -186,7 +182,6 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
     config: ComposeTestConfig,
     noinline block: suspend AndroidComposeUiTest<A>.() -> Unit,
@@ -226,7 +221,6 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
@@ -269,7 +263,6 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
     config: ComposeTestConfig,
@@ -284,7 +277,6 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
 }
 
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 private fun <A : ComponentActivity> runAndroidComposeUiTest(
     config: ComposeTestConfig,
     enforceInputModeFromConfig: Boolean = false,
@@ -364,9 +356,10 @@ private fun <A : ComponentActivity> runAndroidComposeUiTest(
  * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
  * [runEmptyComposeUiTest][block] or any of their respective variants. Since these APIs
  * independently manage the test environment, mixing them may lead to unexpected behavior.
+ *
+ * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-@ExperimentalTestApi
 fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
     return AndroidComposeUiTestEnvironment {
             error(
@@ -403,10 +396,6 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
  * [ActivityScenario] (that the caller launches _within_ the lambda passed to [runTest]), but one is
  * not limited to this pattern.
  *
- * @param activityProvider A lambda that should return the current Activity instance of type [A], if
- *   it is available. If it is not available, it should return `null`.
- * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
- *   activity that was launched and hosts the Compose content.
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher], it is used for composition and the [MainTestClock].
@@ -417,8 +406,11 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
  *   and [effectContext] must not share [TestCoroutineScheduler].
  * @param testTimeout The [Duration] within which the test is expected to complete, otherwise a
  *   platform specific timeout exception will be thrown.
+ * @param activityProvider A lambda that should return the current Activity instance of type [A], if
+ *   it is available. If it is not available, it should return `null`.
+ * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
+ *   activity that was launched and hosts the Compose content.
  */
-@ExperimentalTestApi
 inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
@@ -466,7 +458,6 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * @param activityProvider A lambda that should return the current Activity instance of type [A], if
  *   it is available. If it is not available, it should return `null`.
  */
-@ExperimentalTestApi
 inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     config: ComposeTestConfig,
     crossinline activityProvider: () -> A?,

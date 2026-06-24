@@ -25,17 +25,17 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.sequences.forEach
 
 /**
- * Scopes the Compose interaction to the View hierarchy matched by the provided Espresso
- * [ViewInteraction].
+ * Scopes Compose interactions to the [View] hierarchy matched by an Espresso [ViewInteraction].
  *
- * It resolves the View from the Espresso [interaction], locates all Compose roots within that view
- * hierarchy, and creates a new, scoped SemanticsNodeInteractionsProvider.
+ * Resolves the [View] from [interaction], locates all Compose roots within that hierarchy, and
+ * creates a scoped [SemanticsNodeInteractionsProvider].
  *
+ * @param interaction [ViewInteraction] matching the target [View] hierarchy
+ * @return scoped [SemanticsNodeInteractionsProvider] for the matched [View] hierarchy
  * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionBasicSample
  * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionRecyclerViewSample
  * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionFragmentSample
  */
-@ExperimentalTestApi
 fun ComposeUiTest.onRootWithViewInteraction(
     interaction: ViewInteraction
 ): SemanticsNodeInteractionsProvider {

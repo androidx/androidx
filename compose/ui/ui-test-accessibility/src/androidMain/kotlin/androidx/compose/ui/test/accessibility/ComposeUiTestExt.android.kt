@@ -22,15 +22,13 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.test.ComposeAccessibilityValidator
 import androidx.compose.ui.test.ComposeUiTest
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.setComposeAccessibilityValidator
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 
 /**
- * Enables accessibility checks using an [accessibilityValidator] that will be run before every
- * action that is expected to change the UI.
+ * Enables accessibility checks before actions that change the UI.
  *
- * This requires API 34+ (Android U), and currently does not work on Robolectric.
+ * Note: Requires API 34+ (Android U) and is not supported on Robolectric.
  *
  * @sample androidx.compose.ui.test.accessibility.samples.accessibilityChecks_withComposeUiTest_sample
  * @sample androidx.compose.ui.test.accessibility.samples.accessibilityChecks_withAndroidComposeUiTest_sample
@@ -40,9 +38,10 @@ import com.google.android.apps.common.testing.accessibility.framework.integratio
  * configuration in the following way:
  *
  * @sample androidx.compose.ui.test.accessibility.samples.accessibilityChecks_interopWithEspresso_withTestFunction
+ * @param accessibilityValidator [AccessibilityValidator] to run accessibility checks before UI
+ *   actions
  * @see disableAccessibilityChecks
  */
-@ExperimentalTestApi
 @RequiresApi(34)
 public fun ComposeUiTest.enableAccessibilityChecks(
     accessibilityValidator: AccessibilityValidator =
@@ -67,7 +66,6 @@ public fun ComposeUiTest.enableAccessibilityChecks(
  * @sample androidx.compose.ui.test.accessibility.samples.accessibilityChecks_withComposeUiTest_sample
  * @see enableAccessibilityChecks
  */
-@ExperimentalTestApi
 @RequiresApi(34)
 public fun ComposeUiTest.disableAccessibilityChecks() {
     setComposeAccessibilityValidator(null)
