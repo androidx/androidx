@@ -24,6 +24,7 @@ import android.hardware.SyncFence
 import android.os.Build
 import androidx.camera.common.ImageDataSpace
 import androidx.camera.common.ImageFormat
+import androidx.camera.common.ImageFormats
 import androidx.camera.common.ImagePlane
 import androidx.camera.common.MutableImageWrapper
 import androidx.camera.common.testing.FakeByteBuffers.sliceNative
@@ -181,7 +182,8 @@ constructor(
         }
     }
 
-    override fun toString(): String = "FakeImage-$debugId-$format-w${width}h$height-t$timestamp"
+    override fun toString(): String =
+        "FakeImage-$debugId-${ImageFormats.name(format)}-w${width}h$height-t$timestamp"
 
     private companion object {
         private val debugIds = atomic(0)
@@ -191,13 +193,13 @@ constructor(
 private fun FakeImage.estimateMinimumByteBufferSize(): Int? =
     when (format) {
         GraphicsImageFormat.YUV_420_888,
-        GraphicsImageFormat.NV21 -> (width * height * 3) / 2
+        GraphicsImageFormat.NV21,
         GraphicsImageFormat.JPEG,
         GraphicsImageFormat.HEIC,
         GraphicsImageFormat.DEPTH_JPEG,
         GraphicsImageFormat.JPEG_R,
         GraphicsImageFormat.DEPTH_POINT_CLOUD ->
-            FakeHardwareBuffers.estimateBlobBufferSize(width, height)
+            ImageFormats.bytesPerImage(format, width, height).toInt()
         GraphicsImageFormat.PRIVATE,
         GraphicsImageFormat.UNKNOWN -> 0
         else -> null

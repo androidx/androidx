@@ -137,7 +137,8 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
     override val imagePlanes: List<ImagePlane>
         get() = readPlanes()
 
-    override fun toString(): String = "Image-$format-w${width}h$height-t$timestamp"
+    override fun toString(): String =
+        "Image-${ImageFormats.name(format)}-w${width}h$height-t$timestamp"
 
     override fun close() {
         image.close()
