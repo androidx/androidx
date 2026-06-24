@@ -129,8 +129,8 @@ internal class SurfaceMetalView(
         cancelPendingDrawableDrain()
 
         val screen = window?.screen ?: return
-        redrawer.maximumFramesPerSecond = screen.maximumFramesPerSecond
-        redrawer.preferredFramesPerSecond = screen.maximumFramesPerSecond
+        redrawer.displayLinkFrameRate?.maximumFramesPerSecond = screen.maximumFramesPerSecond
+        redrawer.displayLinkFrameRate?.preferredFramesPerSecond = screen.maximumFramesPerSecond
 
         contentScaleFactor = screen.scale
         metalLayer.contentsScale = screen.scale

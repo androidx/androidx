@@ -33,6 +33,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.window.LegacyMetalRedrawer
+import androidx.compose.ui.window.MetalRedrawer
+import androidx.compose.ui.window.SurfaceMetalRedrawer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -88,6 +91,12 @@ internal class FrameRateTest {
         }
     }
 }
+
+private val MetalRedrawer.preferredFramesPerSecond: Long?
+    get() = when (this) {
+        is LegacyMetalRedrawer -> displayLinkFrameRate?.preferredFramesPerSecond
+        is SurfaceMetalRedrawer -> displayLinkFrameRate?.preferredFramesPerSecond
+    }
 
 private fun checkEqual(expected: Double, actual: Double, absoluteTolerance: Double): Boolean =
     try {

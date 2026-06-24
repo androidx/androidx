@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.collection.IntIntPair
-import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.uikit.utils.CMPMetalLayer
 import androidx.compose.ui.uikit.utils.CMPDrawable
 import androidx.compose.ui.util.trace
@@ -156,18 +155,9 @@ internal class SurfaceMetalRedrawer(
             attr = dispatch_queue_attr_make_with_qos_class(null, QOS_CLASS_USER_INTERACTIVE, 0)
         )
 
-    var maximumFramesPerSecond: NSInteger = 0
-
     // https://youtrack.jetbrains.com/issue/CMP-9722
     // Left here for compatibility reasons. Does not make any effect and must be removed.
     override var isForcedToPresentWithTransactionEveryFrame: Boolean = false
-
-    override var preferredFramesPerSecond: NSInteger
-        get() = caDisplayLink?.preferredFramesPerSecond ?: 0
-        set(value) {
-            if (caDisplayLink?.preferredFramesPerSecond == value) return
-            caDisplayLink?.preferredFramesPerSecond = value
-        }
 
     override val currentTargetFrameDuration: NSTimeInterval?
         get() {
@@ -304,6 +294,8 @@ internal class SurfaceMetalRedrawer(
 
         releaseCachedCommandQueue(queue)
 
+        displayLinkFrameRate = null
+
         caDisplayLink?.invalidate()
         caDisplayLink = null
 
@@ -331,26 +323,11 @@ internal class SurfaceMetalRedrawer(
         draw(waitUntilCompletion, CACurrentMediaTime())
     }
 
-    private var currentFrameRate: Float = Float.NaN
+    var displayLinkFrameRate: DisplayLinkFrameRate? = caDisplayLink?.let { DisplayLinkFrameRate(it) }
+        private set
 
     override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
-        val frameRateCategoryValue = when (frameRateCategory) {
-            FrameRateCategory.Default.value -> CAFrameRateRangeDefault.preferred
-            FrameRateCategory.Normal.value -> 60f
-            FrameRateCategory.High.value -> maximumFramesPerSecond.toFloat()
-            else -> Float.NaN
-        }
-
-        val resolvedFrameRate = when {
-            !frameRate.isNaN() && !frameRateCategoryValue.isNaN() -> maxOf(frameRate, frameRateCategoryValue)
-            !frameRate.isNaN() -> frameRate
-            !frameRateCategoryValue.isNaN() -> frameRateCategoryValue
-            else -> return
-        }
-
-        if (currentFrameRate.isNaN() || resolvedFrameRate > currentFrameRate) {
-            currentFrameRate = resolvedFrameRate
-        }
+        displayLinkFrameRate?.voteFrameRate(frameRate, frameRateCategory)
     }
 
     private fun awaitRenderingQueueTasksCompletion() {
@@ -406,10 +383,7 @@ internal class SurfaceMetalRedrawer(
                     pictureRecorder.finishRecordingAsPicture()
                 }
 
-                if (!currentFrameRate.isNaN()) {
-                    preferredFramesPerSecond = currentFrameRate.toLong()
-                    currentFrameRate = Float.NaN
-                }
+                displayLinkFrameRate?.updateFrameRateIfNeeded()
 
                 val transaction = retrieveInteropTransaction()
                 isInteropActive = transaction.isInteropActive

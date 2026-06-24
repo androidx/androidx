@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.collection.IntIntPair
-import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.platform.PlatformOutOfFrameExecutor
 import androidx.compose.ui.platform.PlatformPrefetchScheduler
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
@@ -44,7 +43,6 @@ internal sealed interface MetalRedrawer {
     val outOfFrameExecutor: PlatformOutOfFrameExecutor
     val prefetchScheduler: PlatformPrefetchScheduler
     var ongoingInteractionEventsCount: Int
-    var preferredFramesPerSecond: NSInteger
     var isForcedToPresentWithTransactionEveryFrame: Boolean
     val currentTargetFrameDuration: NSTimeInterval?
     fun voteFrameRate(frameRate: Float, frameRateCategory: Float)
@@ -82,15 +80,6 @@ internal class LegacyMetalRedrawer(
     private var isDrawRecursiveCall = false
 
     override var isForcedToPresentWithTransactionEveryFrame = false
-
-    var maximumFramesPerSecond: NSInteger = 0
-
-    override var preferredFramesPerSecond: NSInteger
-        get() = caDisplayLink?.preferredFramesPerSecond ?: 0
-        set(value) {
-            if (caDisplayLink?.preferredFramesPerSecond == value) return
-            caDisplayLink?.preferredFramesPerSecond = value
-        }
 
     override val currentTargetFrameDuration: NSTimeInterval?
         get() {
@@ -221,6 +210,8 @@ internal class LegacyMetalRedrawer(
 
         releaseCachedCommandQueue(queue)
 
+        displayLinkFrameRate = null
+
         caDisplayLink?.invalidate()
         caDisplayLink = null
 
@@ -246,26 +237,11 @@ internal class LegacyMetalRedrawer(
         draw(waitUntilCompletion, CACurrentMediaTime())
     }
 
-    private var currentFrameRate: Float = Float.NaN
+    var displayLinkFrameRate: DisplayLinkFrameRate? = caDisplayLink?.let { DisplayLinkFrameRate(it) }
+        private set
 
     override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
-        val frameRateCategoryValue = when (frameRateCategory) {
-            FrameRateCategory.Default.value -> CAFrameRateRangeDefault.preferred
-            FrameRateCategory.Normal.value -> 60f
-            FrameRateCategory.High.value -> maximumFramesPerSecond.toFloat()
-            else -> Float.NaN
-        }
-
-        val resolvedFrameRate = when {
-            !frameRate.isNaN() && !frameRateCategoryValue.isNaN() -> maxOf(frameRate, frameRateCategoryValue)
-            !frameRate.isNaN() -> frameRate
-            !frameRateCategoryValue.isNaN() -> frameRateCategoryValue
-            else -> return
-        }
-
-        if (currentFrameRate.isNaN() || resolvedFrameRate > currentFrameRate) {
-            currentFrameRate = resolvedFrameRate
-        }
+        displayLinkFrameRate?.voteFrameRate(frameRate, frameRateCategory)
     }
 
     /**
@@ -310,10 +286,7 @@ internal class LegacyMetalRedrawer(
                     pictureRecorder.finishRecordingAsPicture()
                 }
 
-                if (!currentFrameRate.isNaN()) {
-                    preferredFramesPerSecond = currentFrameRate.toLong()
-                    currentFrameRate = Float.NaN
-                }
+                displayLinkFrameRate?.updateFrameRateIfNeeded()
 
                 val metalDrawable = trace("MetalRedrawer:draw:nextDrawable") {
                     metalDrawablesHandler.nextDrawable()
