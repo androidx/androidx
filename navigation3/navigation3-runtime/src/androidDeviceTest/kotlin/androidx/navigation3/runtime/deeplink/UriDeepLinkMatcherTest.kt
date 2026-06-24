@@ -639,4 +639,37 @@ class UriDeepLinkMatcherTest {
         val request = DeepLinkRequest.fromUriString("https://example.com/path?map=1")
         kotlin.test.assertFailsWith<IllegalArgumentException> { matcher.match(request) }
     }
+
+    @Test
+    fun match_hierarchicalKeys() {
+        val matcher1 =
+            object :
+                UriDeepLinkMatcher<DerivedKey1>(
+                    DeepLinkUri("pattern1"),
+                    serializer<DerivedKey1>(),
+                ) {
+                override fun matchRequest(request: DeepLinkRequest): UriMatchResult<DerivedKey1> {
+                    return UriMatchResult(DerivedKey1)
+                }
+            }
+        val matcher2 =
+            object :
+                UriDeepLinkMatcher<DerivedKey2>(
+                    DeepLinkUri("pattern2"),
+                    serializer<DerivedKey2>(),
+                ) {
+                override fun matchRequest(request: DeepLinkRequest): UriMatchResult<DerivedKey2> {
+                    return UriMatchResult(DerivedKey2)
+                }
+            }
+        val matchers: List<UriDeepLinkMatcher<BaseKey>> = listOf(matcher1, matcher2)
+
+        val request = DeepLinkRequest.fromUriString("www.testuri.com")
+        val results: List<DeepLinkMatcher.MatchResult<BaseKey>> = buildList {
+            matchers.forEach { add(it.match(request)!!) }
+        }
+        assertThat(results.size).isEqualTo(2)
+        assertThat(results.first().key).isEqualTo(DerivedKey1)
+        assertThat(results.last().key).isEqualTo(DerivedKey2)
+    }
 }

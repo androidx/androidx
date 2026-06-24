@@ -28,7 +28,9 @@ import androidx.navigation3.runtime.fastForEachOrForEach
  *
  * @param filters an optional list of [Filter] to apply to the [DeepLinkRequest] during matching
  */
-public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter> = emptyList()) {
+public abstract class DeepLinkMatcher<out T : Any>(
+    private val filters: List<Filter> = emptyList()
+) {
     /**
      * Matches a [DeepLinkRequest] to a [DeepLinkMatcher].
      *
@@ -79,19 +81,21 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter>
         public fun filterRequest(request: DeepLinkRequest): Boolean
     }
 
+    // UnsafeVariance is safe here because the class and its function cannot mutate the key
     /**
      * The class that is returned when a [DeepLinkMatcher] matches with a [DeepLinkRequest]
      *
      * @param key the navigation key representing the deep link target
      */
-    public open class MatchResult<T>(public val key: T) : Comparable<MatchResult<T>> {
+    public open class MatchResult<out T>(public val key: T) :
+        Comparable<MatchResult<@UnsafeVariance T>> {
         /**
          * Compares this [MatchResult] to [other] and returns an Int result.
          *
          * Returns zero if this result is equal to the other result, a negative number if it's less
          * than the other, or a positive number if it's greater than the other.
          */
-        public override fun compareTo(other: MatchResult<T>): Int = 0
+        public override fun compareTo(other: MatchResult<@UnsafeVariance T>): Int = 0
     }
 
     public companion object {

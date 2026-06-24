@@ -19,6 +19,7 @@ package androidx.navigation3.runtime.deeplink
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
+import kotlinx.serialization.Serializable
 
 private const val filterString = "filterString"
 
@@ -121,7 +122,39 @@ class DeepLinkMatcherTest {
         assertThat(result2).isNull()
     }
 
+    @Test
+    fun match_hierarchicalKeys() {
+        val matcher1 =
+            object : DeepLinkMatcher<DerivedKey1>() {
+                override fun matchRequest(request: DeepLinkRequest): MatchResult<DerivedKey1> {
+                    return MatchResult(DerivedKey1)
+                }
+            }
+        val matcher2 =
+            object : DeepLinkMatcher<DerivedKey2>() {
+                override fun matchRequest(request: DeepLinkRequest): MatchResult<DerivedKey2> {
+                    return MatchResult(DerivedKey2)
+                }
+            }
+        val matchers: List<DeepLinkMatcher<BaseKey>> = listOf(matcher1, matcher2)
+
+        val request = DeepLinkRequest.fromUriString("www.testuri.com")
+
+        val results: List<DeepLinkMatcher.MatchResult<BaseKey>> = buildList {
+            matchers.forEach { add(it.match(request)!!) }
+        }
+        assertThat(results.size).isEqualTo(2)
+        assertThat(results.first().key).isEqualTo(DerivedKey1)
+        assertThat(results.last().key).isEqualTo(DerivedKey2)
+    }
+
     private object First : NavKey
 
     private object Second : NavKey
 }
+
+interface BaseKey : NavKey
+
+@Serializable object DerivedKey1 : BaseKey
+
+@Serializable object DerivedKey2 : BaseKey

@@ -162,9 +162,9 @@ package androidx.navigation3.runtime.deeplink {
     method public boolean filterRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest request);
   }
 
-  public static class DeepLinkMatcher.MatchResult<T> implements java.lang.Comparable<androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T>> {
+  public static class DeepLinkMatcher.MatchResult<T> implements java.lang.Comparable<androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T>> {
     ctor public DeepLinkMatcher.MatchResult(T key);
-    method public int compareTo(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T> other);
+    method public int compareTo(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T> other);
     method @InaccessibleFromKotlin public final T getKey();
     property public final T key;
   }
