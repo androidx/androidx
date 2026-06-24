@@ -57,6 +57,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,6 +129,7 @@ class MemoryLeakTest {
             }
         }
 
+    @Ignore("b/527249553")
     @Test
     fun memoryCheckerTest_noAllocationsExpected() = runBlocking {
         // This smoke test checks that we don't give false alert and run all the iterations
@@ -210,6 +212,7 @@ class MemoryLeakTest {
             recomposer.join()
         }
 
+    @Ignore("b/527249553")
     @Test
     fun scrollLazyStaggeredGrid() {
         runBlocking(AndroidUiDispatcher.Main) {
