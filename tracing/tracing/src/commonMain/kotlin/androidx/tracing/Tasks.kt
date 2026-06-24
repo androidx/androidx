@@ -16,7 +16,7 @@
 
 package androidx.tracing
 
-@Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-internal actual inline fun currentJavaThreadId(): Long {
-    return Thread.currentThread().id
-}
+import androidx.annotation.RestrictTo
+
+/** @return The current threads `task id` when applicable. Fallback to `Thread.id` otherwise. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public expect inline fun currentTaskId(): Long

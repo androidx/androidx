@@ -16,7 +16,11 @@
 
 package androidx.tracing
 
+import androidx.annotation.RestrictTo
+
 @Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-internal actual inline fun currentJavaThreadId(): Long {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public actual inline fun currentTaskId(): Long {
+    // We don't map to Kernel tasks ids on the JVM.
     return Thread.currentThread().id
 }

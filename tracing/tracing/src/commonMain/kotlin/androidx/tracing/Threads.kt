@@ -16,4 +16,4 @@
 
 package androidx.tracing
 
-internal expect inline fun currentThreadId(): Long
+internal expect inline fun currentJavaThreadId(): Long

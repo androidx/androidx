@@ -52,7 +52,7 @@ internal constructor(
     init {
         synchronized(this) {
             // Always starts in a `begin` state.
-            started[currentThreadId()] = STATE_BEGIN
+            started[currentJavaThreadId()] = STATE_BEGIN
         }
     }
 
@@ -62,7 +62,7 @@ internal constructor(
             // Treat the absence of an entry here as `STATE_END` given we have not emitted a
             // trace packet yet on this Thread. This is true for every child coroutine, but
             // **not** for the coroutine that kicked things off (handled by the init block).
-            val id = currentThreadId()
+            val id = currentJavaThreadId()
             val current = started.getOrDefault(key = id, defaultValue = STATE_END)
             if (current == expected) {
                 started[id] = newValue

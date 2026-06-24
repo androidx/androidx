@@ -516,7 +516,12 @@ class TracingTest {
     internal fun manyTracksShouldNotCauseOutOfMemory() {
         driver.use {
             repeat(1000) {
-                driver.context.process.getOrCreateThreadTrack(it.toLong(), "Thread $it")
+                val id = it.toLong()
+                driver.context.process.getOrCreateThreadTrack(
+                    id = id,
+                    kernelTaskId = id,
+                    name = "Thread $it",
+                )
             }
         }
     }

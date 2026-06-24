@@ -27,6 +27,7 @@ import androidx.tracing.PerfettoTracer
 import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
+import androidx.tracing.currentTaskId
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -112,7 +113,12 @@ internal constructor(
             context.createProcessTrack(id = pid.toInt(), name = name)
             // Eagerly populate the current thread track
             val thread = Thread.currentThread()
-            val track = context.process.getOrCreateThreadTrack(id = thread.id, name = thread.name)
+            val track =
+                context.process.getOrCreateThreadTrack(
+                    id = thread.id,
+                    kernelTaskId = currentTaskId(),
+                    name = thread.name,
+                )
             // Trace Attributes
             if (attributes != null) {
                 val attributes = track.traceAttributes()

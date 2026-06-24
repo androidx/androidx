@@ -16,7 +16,11 @@
 
 package androidx.tracing
 
-@Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-internal actual inline fun currentJavaThreadId(): Long {
-    return Thread.currentThread().id
+import androidx.annotation.RestrictTo
+import androidx.tracing.support.Tid
+
+@Suppress("NOTHING_TO_INLINE")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public actual inline fun currentTaskId(): Long {
+    return Tid.getTid()
 }
