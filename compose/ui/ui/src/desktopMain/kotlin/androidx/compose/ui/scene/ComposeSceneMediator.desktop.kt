@@ -823,17 +823,25 @@ internal class ComposeSceneMediator(
         override val architectureComponentsOwner get() = this@ComposeSceneMediator.architectureComponentsOwner
         override val isWindowTransparent: Boolean get() = windowContext.isWindowTransparent
 
-        override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
-            windowContext.convertLocalToWindowPosition(container, localPosition)
+        override fun convertLocalToWindowPosition(localPosition: Offset): Offset {
+            val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
+            return windowContext.convertLocalToWindowPosition(container, localPosition + sceneBoundsOffset)
+        }
 
-        override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset =
-            windowContext.convertWindowToLocalPosition(container, positionInWindow)
+        override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset {
+            val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
+            return windowContext.convertWindowToLocalPosition(container, positionInWindow) - sceneBoundsOffset
+        }
 
-        override fun convertLocalToScreenPosition(localPosition: Offset): Offset =
-            windowContext.convertLocalToScreenPosition(container, localPosition)
+        override fun convertLocalToScreenPosition(localPosition: Offset): Offset {
+            val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
+            return windowContext.convertLocalToScreenPosition(container, localPosition + sceneBoundsOffset)
+        }
 
-        override fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset =
-            windowContext.convertScreenToLocalPosition(container, positionOnScreen)
+        override fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset {
+            val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
+            return windowContext.convertScreenToLocalPosition(container, positionOnScreen) - sceneBoundsOffset
+        }
 
         override val measureDrawLayerBounds: Boolean = this@ComposeSceneMediator.measureDrawLayerBounds
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()

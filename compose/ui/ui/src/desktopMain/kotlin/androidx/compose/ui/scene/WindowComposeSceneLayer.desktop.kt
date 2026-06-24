@@ -61,6 +61,7 @@ internal class WindowComposeSceneLayer(
 
     private val windowContext = PlatformWindowContext().also {
         it.isWindowTransparent = true
+        it.setWindowContainer(windowContainer)
         it.setContainerSizeFromComponent(windowContainer)
     }
 

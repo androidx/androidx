@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -34,16 +33,25 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
+import androidx.compose.ui.background
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.sendMousePress
 import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
@@ -52,6 +60,7 @@ import java.awt.BorderLayout
 import java.awt.Window
 import javax.swing.JFrame
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -359,5 +368,75 @@ class DesktopPopupTest {
                 assertTrue(window.isFocused)
             }
         }
+    }
+
+    @Test
+    fun popup_reportsCorrectPositionInWindow_onSameCanvasLayerType() =
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnSameCanvas) {
+            popup_reportsCorrectPositionInWindow()
+        }
+
+    @Test
+    fun popup_reportsCorrectPositionInWindow_onComponentLayerType() =
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnComponent) {
+            popup_reportsCorrectPositionInWindow()
+        }
+
+    @Test
+    fun popup_reportsCorrectPositionInWindow_onWindowLayerType() =
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnWindow) {
+            popup_reportsCorrectPositionInWindow()
+        }
+
+    private fun popup_reportsCorrectPositionInWindow() = runApplicationTest {
+        val popupOffset = IntOffset(40, 70)
+        var showPopup by mutableStateOf(false)
+        var popupCoordinates: LayoutCoordinates? = null
+        launchTestWindowApplication {
+            Box(Modifier.size(300.dp))
+            if (showPopup) {
+                Popup(
+                    popupPositionProvider = object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = popupOffset
+                    }
+                ) {
+                    // Capture the coordinates here and read positionInWindow() once after
+                    // idle (below) instead of inside the callback, so the assertion
+                    // observes the final, settled position.
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .background(Color.Red)
+                            .onGloballyPositioned { popupCoordinates = it }
+                    )
+                }
+            }
+        }
+
+        awaitIdle()
+
+        showPopup = true
+        awaitIdle()
+
+        val coordinates = assertNotNull(
+            popupCoordinates,
+            "popup content was never positioned"
+        )
+        val positionInWindow = coordinates.positionInWindow()
+        // Before the fix this was Offset.Unspecified (NaN) for the WINDOW layer, because
+        // its window container wasn't set, so the conversion bailed out.
+        assertTrue(
+            positionInWindow.isSpecified,
+            "positionInWindow must be specified, was $positionInWindow"
+        )
+        // The popup content origin must map back to the offset it was placed at, with no
+        // double-counting of the scene bounds offset.
+        assertEquals(popupOffset.x.toFloat(), positionInWindow.x)
+        assertEquals(popupOffset.y.toFloat(), positionInWindow.y)
     }
 }
