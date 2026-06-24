@@ -147,9 +147,12 @@ internal fun Space.toRtSpace(): Int {
 /**
  * Extension function that converts a [androidx.xr.scenecore.runtime.MoveEvent] to a [MoveEvent].
  */
-internal fun RtMoveEvent.toMoveEvent(entityRegistry: EntityRegistry): MoveEvent {
-
+internal fun RtMoveEvent.toMoveEvent(entityRegistry: EntityRegistry): MoveEvent? {
     disposedEntity?.let { entityRegistry.removeEntity(it) }
+    // This can be null if the parent Entity wrapper has been garbage-collected (e.g., for an
+    // AnchorEntity that the application didn't retain a strong reference to) while a runtime
+    // event was being processed.
+    val parentEntity = entityRegistry.getEntityForRtEntity(initialParent) ?: return null
     return MoveEvent(
         moveState.toMoveState(),
         Ray(initialInputRay.origin, initialInputRay.direction),
@@ -158,7 +161,7 @@ internal fun RtMoveEvent.toMoveEvent(entityRegistry: EntityRegistry): MoveEvent 
         currentPose,
         previousScale.x,
         currentScale.x,
-        entityRegistry.getEntityForRtEntity(initialParent)!!,
+        parentEntity,
         updatedParent?.let {
             entityRegistry.getEntityForRtEntity(it)
                 ?: AnchorSpace.create(it as RtAnchorEntity, entityRegistry)

@@ -126,19 +126,21 @@ class UtilsTest {
         val mockEntity = mock<Entity>()
         entityRegistry.setEntityForRtEntity(activitySpace, mockEntity)
         val moveEvent =
-            RuntimeMoveEvent(
-                    RuntimeMoveEvent.MOVE_STATE_ONGOING,
-                    initialInputRay,
-                    currentInputRay,
-                    Pose(),
-                    Pose(vector1, Quaternion.Identity),
-                    vector1,
-                    vector1,
-                    activitySpace,
-                    null,
-                    null,
-                )
-                .toMoveEvent(entityRegistry)
+            requireNotNull(
+                RuntimeMoveEvent(
+                        RuntimeMoveEvent.MOVE_STATE_ONGOING,
+                        initialInputRay,
+                        currentInputRay,
+                        Pose(),
+                        Pose(vector1, Quaternion.Identity),
+                        vector1,
+                        vector1,
+                        activitySpace,
+                        null,
+                        null,
+                    )
+                    .toMoveEvent(entityRegistry)
+            )
 
         assertThat(moveEvent.moveState).isEqualTo(MoveEvent.MOVE_STATE_ONGOING)
 
@@ -175,6 +177,35 @@ class UtilsTest {
         assertThat(moveEvent.previousScale).isEqualTo(1f)
 
         assertThat(moveEvent.currentScale).isEqualTo(1f)
+    }
+
+    @Test
+    fun toMoveEvent_returnsNull_whenParentNotRegistered() {
+        val vector0 = Vector3(0f, 0f, 0f)
+        val vector1 = Vector3(1f, 1f, 1f)
+        val vector2 = Vector3(2f, 2f, 2f)
+
+        val initialInputRay = Ray(vector0, vector1)
+        val currentInputRay = Ray(vector1, vector2)
+        val entityRegistry = EntityRegistry()
+        val activitySpace = mock<RtActivitySpace>()
+
+        val moveEvent =
+            RuntimeMoveEvent(
+                    RuntimeMoveEvent.MOVE_STATE_ONGOING,
+                    initialInputRay,
+                    currentInputRay,
+                    Pose(),
+                    Pose(vector1, Quaternion.Identity),
+                    vector1,
+                    vector1,
+                    activitySpace,
+                    null,
+                    null,
+                )
+                .toMoveEvent(entityRegistry)
+
+        assertThat(moveEvent).isNull()
     }
 
     @Test
