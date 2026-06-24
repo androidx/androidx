@@ -24,6 +24,7 @@ import kotlin.jvm.JvmStatic
  * @param uri The URI for the deep link.
  * @param mimeType The mime type for the deep link.
  * @param action The action for the deep link.
+ * @param extras The map of additional information for the request.
  */
 public class DeepLinkRequest
 internal constructor(
