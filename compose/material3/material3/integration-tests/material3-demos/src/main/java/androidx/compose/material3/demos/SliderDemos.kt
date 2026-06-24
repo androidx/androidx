@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderState
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
 /** Demo for a volume-style slider with orientation and direction controls. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SysUiVolumeSliderDemo() {
     var volume by remember { mutableFloatStateOf(0.5f) }
@@ -76,6 +79,7 @@ fun SysUiVolumeSliderDemo() {
 }
 
 /** Customized slider with system-ui style dimensions. */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VolumeSlider(
     value: Float,
@@ -104,9 +108,9 @@ private fun VolumeSlider(
                 trackCornerSize = SliderTrackRoundedCorner,
             )
         },
-        thumb = { _, interactionSource ->
+        thumb = { sliderState, interactionSource ->
             SliderDefaults.Thumb(
-                isVertical = isVertical,
+                sliderState = sliderState,
                 interactionSource = interactionSource,
                 thumbSize = thumbSize,
             )
@@ -116,6 +120,7 @@ private fun VolumeSlider(
 }
 
 /** Generic wrapper for Slider and VerticalSlider with stable state management. */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SysUiSlider(
     value: Float,
@@ -154,7 +159,7 @@ private fun SysUiSlider(
     if (isVertical) {
         VerticalSlider(
             state = sliderState,
-            topToBottom = !isReverseDirection,
+            reverseDirection = isReverseDirection,
             interactionSource = interactionSource,
             track = track,
             thumb = { thumb(it, interactionSource) },
