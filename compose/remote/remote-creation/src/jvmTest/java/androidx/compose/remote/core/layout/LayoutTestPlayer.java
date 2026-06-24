@@ -63,8 +63,8 @@ public class LayoutTestPlayer {
      * @param writer
      * @param ops
      * @param testParameters
-     * @param tw1
-     * @param th1
+     * @param tw1 width
+     * @param th1 height
      */
     @SuppressWarnings("unchecked")
     public static void play(
@@ -74,6 +74,44 @@ public class LayoutTestPlayer {
             int tw1,
             int th1) {
         play(writer, ops, testParameters, tw1, th1, false);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer
+     * @param bufferSize
+     * @param ops
+     * @param testParameters
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters) {
+        play(byteBuffer, bufferSize, ops, testParameters, 1000, 1000);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer
+     * @param bufferSize
+     * @param ops
+     * @param testParameters
+     * @param tw1
+     * @param th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1) {
+        play(byteBuffer, bufferSize, ops, testParameters, tw1, th1, false);
     }
 
     /**
@@ -94,10 +132,32 @@ public class LayoutTestPlayer {
             int tw1,
             int th1,
             boolean overridePlayerSize) {
+        play(writer.buffer(), writer.bufferSize(), ops, testParameters,
+                tw1, th1, overridePlayerSize);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer the serialized document buffer
+     * @param bufferSize the size of the buffer
+     * @param ops a list of TestOperation
+     * @param testParameters parameters for the test
+     * @param tw1 document width
+     * @param th1 document height
+     * @param overridePlayerSize if true, set the player size to tw1, th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1,
+            boolean overridePlayerSize) {
         List<Map<String, Object>> commands = new ArrayList<>();
 
-        byte[] byteBuffer = writer.buffer();
-        int bufferSize = writer.bufferSize();
         CoreDocument doc = new CoreDocument(testParameters.getClock());
         RemoteComposeBuffer buffer =
                 RemoteComposeBuffer.fromInputStream(
