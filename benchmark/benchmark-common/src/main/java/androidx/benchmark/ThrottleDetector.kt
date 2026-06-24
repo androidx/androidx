@@ -22,8 +22,11 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
+import org.jetbrains.annotations.TestOnly
 
 internal object ThrottleDetector {
+    @TestOnly var insertSingleFakeThrottleDetection: Boolean = false
+
     private var initNs = 0.0
 
     /** Copies 400K, 10 times. */
@@ -95,6 +98,11 @@ internal object ThrottleDetector {
      * single-threaded CPU work.
      */
     fun isDeviceThermalThrottled(): Boolean {
+        if (insertSingleFakeThrottleDetection) {
+            insertSingleFakeThrottleDetection = false
+            return true
+        }
+
         if (Build.VERSION.SDK_INT >= 29) {
             return Api29Helper.isDeviceThermalThrottled()
         }

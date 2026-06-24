@@ -154,6 +154,7 @@ internal class MicrobenchmarkPhase(
                     inMemoryTrace("Sleep due to Thermal Throttle") {
                         delay(
                             TimeUnit.SECONDS.toMillis(Arguments.thermalThrottleSleepDurationSeconds)
+                                .coerceAtLeast(1) // force yield, even in tests
                         )
                     }
                     val sleepTimeNs = System.nanoTime() - startTimeNs
