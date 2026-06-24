@@ -671,6 +671,9 @@ public final class ImageCapture extends UseCase {
         }
 
         synchronized (mLockedFlashMode) {
+            if (getFlashMode() == flashMode) {
+                return;
+            }
             mFlashMode = flashMode;
             trySetFlashModeToCameraControl();
         }
