@@ -1,14 +1,15 @@
 // Signature format: 4.0
 package androidx.camera.common.testing {
 
-  public final class FakeImage implements androidx.camera.common.MutableImageWrapper {
+  public class FakeImage implements androidx.camera.common.MutableImageWrapper {
     ctor public FakeImage(int width, int height, int format, long timestamp);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer, optional android.hardware.HardwareBuffer? hardwareBuffer);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer, optional android.hardware.HardwareBuffer? hardwareBuffer, optional android.graphics.Rect cropRect);
-    ctor @BytecodeOnly public FakeImage(int, int, int, long, java.nio.ByteBuffer!, android.hardware.HardwareBuffer!, android.graphics.Rect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeImage(int, int, int, long, java.nio.ByteBuffer!, android.hardware.HardwareBuffer!, android.graphics.Rect!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer, optional android.hardware.HardwareBuffer? hardwareBuffer, optional android.graphics.Rect cropRect, optional java.util.List<? extends androidx.camera.common.ImagePlane> imagePlanes);
     method public void close();
-    method @InaccessibleFromKotlin public int getCloseCount();
+    method @InaccessibleFromKotlin public final int getCloseCount();
     method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
     method @InaccessibleFromKotlin public int getFormat();
     method @InaccessibleFromKotlin public int getHeight();
@@ -18,10 +19,14 @@ package androidx.camera.common.testing {
     method @InaccessibleFromKotlin public boolean isClosed();
     method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
     method @InaccessibleFromKotlin public void setDataSpace(int);
+    method @InaccessibleFromKotlin public void setFormat(int);
+    method @InaccessibleFromKotlin public void setHeight(int);
+    method @InaccessibleFromKotlin public void setImagePlanes(java.util.List<? extends androidx.camera.common.ImagePlane>);
     method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
     method @InaccessibleFromKotlin public void setTimestamp(long);
+    method @InaccessibleFromKotlin public void setWidth(int);
     method public <T> T? unwrapAs(Class<T> type);
-    property public int closeCount;
+    property public final int closeCount;
     property public android.graphics.Rect cropRect;
     property public int dataSpace;
     property public int format;

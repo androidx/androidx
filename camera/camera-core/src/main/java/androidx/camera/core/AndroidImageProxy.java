@@ -16,23 +16,31 @@
 
 package androidx.camera.core;
 
+import java.io.IOException;
+
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
+import android.hardware.SyncFence;
 import android.media.Image;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+import androidx.camera.common.AndroidImage;
+import androidx.camera.common.ImagePlane;
 import androidx.camera.core.impl.TagBundle;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /** An {@link ImageProxy} which wraps around an {@link Image}. */
 final class AndroidImageProxy implements ImageProxy {
-    private final Image mImage;
+    private final AndroidImage mAndroidImage;
 
     private final PlaneProxy[] mPlanes;
 
@@ -44,21 +52,17 @@ final class AndroidImageProxy implements ImageProxy {
      * @param image to wrap
      */
     AndroidImageProxy(@NonNull Image image) {
-        mImage = image;
+        mAndroidImage = new AndroidImage(image);
 
-        Image.Plane[] originalPlanes = image.getPlanes();
-        if (originalPlanes != null) {
-            mPlanes = new PlaneProxy[originalPlanes.length];
-            for (int i = 0; i < originalPlanes.length; ++i) {
-                mPlanes[i] = new PlaneProxy(originalPlanes[i]);
-            }
-        } else {
-            mPlanes = new PlaneProxy[0];
+        List<ImagePlane> planes = mAndroidImage.getImagePlanes();
+        mPlanes = new PlaneProxy[planes.size()];
+        for (int i = 0; i < planes.size(); i++) {
+            mPlanes[i] = new PlaneProxy(planes.get(i));
         }
 
         mImageInfo = ImmutableImageInfo.create(
                 TagBundle.emptyBundle(),
-                image.getTimestamp(),
+                mAndroidImage.getTimestamp(),
                 0,
                 new Matrix(),
                 FlashState.UNKNOWN);
@@ -66,32 +70,32 @@ final class AndroidImageProxy implements ImageProxy {
 
     @Override
     public void close() {
-        mImage.close();
+        mAndroidImage.close();
     }
 
     @Override
     public @NonNull Rect getCropRect() {
-        return mImage.getCropRect();
+        return mAndroidImage.getCropRect();
     }
 
     @Override
     public void setCropRect(@Nullable Rect rect) {
-        mImage.setCropRect(rect);
+        mAndroidImage.setCropRect(rect);
     }
 
     @Override
     public int getFormat() {
-        return mImage.getFormat();
+        return mAndroidImage.getFormat();
     }
 
     @Override
     public int getHeight() {
-        return mImage.getHeight();
+        return mAndroidImage.getHeight();
     }
 
     @Override
     public int getWidth() {
-        return mImage.getWidth();
+        return mAndroidImage.getWidth();
     }
 
     @Override
@@ -99,11 +103,23 @@ final class AndroidImageProxy implements ImageProxy {
         return mPlanes;
     }
 
-    /** An {@link ImageProxy.PlaneProxy} which wraps around an {@link Image.Plane}. */
-    private static final class PlaneProxy implements ImageProxy.PlaneProxy {
-        private final Image.Plane mPlane;
+    @Override
+    public @NonNull List<ImagePlane> getImagePlanes() {
+        return mAndroidImage.getImagePlanes();
+    }
 
-        PlaneProxy(Image.Plane plane) {
+
+
+    @Override
+    public @Nullable SyncFence getSyncFence() {
+        return mAndroidImage.getSyncFence();
+    }
+
+    /** An {@link ImageProxy.PlaneProxy} which wraps around an {@link ImagePlane}. */
+    private static final class PlaneProxy implements ImageProxy.PlaneProxy {
+        private final ImagePlane mPlane;
+
+        PlaneProxy(ImagePlane plane) {
             mPlane = plane;
         }
 
@@ -119,7 +135,12 @@ final class AndroidImageProxy implements ImageProxy {
 
         @Override
         public @NonNull ByteBuffer getBuffer() {
-            return mPlane.getBuffer();
+            return java.util.Objects.requireNonNull(mPlane.getBuffer());
+        }
+
+        @Override
+        public <T> T unwrapAs(@NonNull Class<T> type) {
+            return mPlane.unwrapAs(type);
         }
     }
 
@@ -131,22 +152,17 @@ final class AndroidImageProxy implements ImageProxy {
     @Override
     @ExperimentalGetImage
     public Image getImage() {
-        return mImage;
+        return mAndroidImage.unwrapAs(Image.class);
     }
 
     @Override
     @RequiresApi(Build.VERSION_CODES.P)
     public @Nullable HardwareBuffer getHardwareBuffer() {
-        return Api28Impl.getHardwareBuffer(mImage);
+        return mAndroidImage.getHardwareBuffer();
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
-    private static class Api28Impl {
-        private Api28Impl() {
-        }
-
-        static @Nullable HardwareBuffer getHardwareBuffer(@NonNull Image image) {
-            return image.getHardwareBuffer();
-        }
+    @Override
+    public <T> T unwrapAs(@NonNull Class<T> type) {
+        return mAndroidImage.unwrapAs(type);
     }
 }

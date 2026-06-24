@@ -244,6 +244,11 @@ public final class ImageProxyUtil {
             public @NonNull ByteBuffer getBuffer() {
                 return mBuffer;
             }
+
+            @Override
+            public <T> T unwrapAs(@NonNull Class<T> type) {
+                return null;
+            }
         };
     }
 

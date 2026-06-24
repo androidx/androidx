@@ -65,7 +65,7 @@ final class ProcessingInput2Packet implements
             try {
                 exif = createFromImageProxy(image);
                 // Rewind the buffer after reading.
-                image.getPlanes()[0].getBuffer().rewind();
+                checkNotNull(image.getImagePlanes().get(0).getBuffer()).rewind();
             } catch (IOException e) {
                 throw new ImageCaptureException(ERROR_FILE_IO, "Failed to extract EXIF data.", e);
             }

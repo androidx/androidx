@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl.fakes;
 
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 
 import org.jspecify.annotations.NonNull;
@@ -52,5 +53,10 @@ public class FakePlaneProxy implements ImageProxy.PlaneProxy {
     @Override
     public @NonNull ByteBuffer getBuffer() {
         return mByteBuffer;
+    }
+
+    @Override
+    public <T> T unwrapAs(@NonNull Class<T> type) {
+        return null;
     }
 }

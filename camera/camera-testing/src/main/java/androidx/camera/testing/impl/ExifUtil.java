@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
 
 import android.graphics.ImageFormat;
 
+import androidx.camera.common.ImagePlane;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.core.util.Consumer;
@@ -35,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Utility class for creating fake {@link Exif}s for testing.
@@ -103,8 +105,11 @@ public class ExifUtil {
      */
     public static @Nullable Exif getExif(@NonNull ImageProxy image) {
         if (image.getFormat() == ImageFormat.JPEG) {
-            ImageProxy.PlaneProxy[] planes = image.getPlanes();
-            ByteBuffer buffer = planes[0].getBuffer();
+            List<ImagePlane> planes = image.getImagePlanes();
+            ByteBuffer buffer = planes.get(0).getBuffer();
+            if (buffer == null) {
+                return null;
+            }
             buffer.rewind();
             byte[] data = new byte[buffer.remaining()];
             buffer.get(data);

@@ -533,24 +533,20 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageProxy getOutputImage();
   }
 
-  public interface ImageProxy extends java.lang.AutoCloseable {
+  public interface ImageProxy extends androidx.camera.common.ImageWrapper java.lang.AutoCloseable {
     method public void close();
-    method public android.graphics.Rect getCropRect();
-    method public int getFormat();
-    method @RequiresApi(android.os.Build.VERSION_CODES.P) public default android.hardware.HardwareBuffer? getHardwareBuffer();
-    method public int getHeight();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
-    method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
-    method public int getWidth();
+    method public default java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
+    method public androidx.camera.core.ImageProxy.PlaneProxy[] getPlanes();
+    method public default long getTimestamp();
     method public void setCropRect(android.graphics.Rect?);
     method public default android.graphics.Bitmap toBitmap();
+    method public default <T> T? unwrapAs(Class<T>);
   }
 
-  public static interface ImageProxy.PlaneProxy {
-    method public java.nio.ByteBuffer getBuffer();
-    method public int getPixelStride();
-    method public int getRowStride();
+  public static interface ImageProxy.PlaneProxy extends androidx.camera.common.ImagePlane {
+    method public default <T> T? unwrapAs(Class<T>);
   }
 
   public class InitializationException extends java.lang.Exception {

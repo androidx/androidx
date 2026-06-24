@@ -37,6 +37,7 @@ dependencies {
     api(project(":camera:camera-lifecycle"))
     api(project(":camera:camera-video"))
     api("androidx.annotation:annotation:1.8.1")
+    api(project(":camera:camera-common-testing"))
 
     // ensuring implementation versions stay consistent with androidTestImplementation
     def testCoreVersion = "1.5.0"
