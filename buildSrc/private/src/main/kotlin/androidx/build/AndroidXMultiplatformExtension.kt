@@ -111,15 +111,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
 
     // Kotlin multiplatform plugin is only applied if at least one target / sourceset is added.
     private val kotlinExtensionDelegate = lazy {
-        project.afterEvaluate {
-            // Workaround for KT-77732
-            project.tasks
-                .named { it == "commonizeNativeDistribution" }
-                .configureEach { it.dependsOn("downloadKotlinNativeDistribution") }
-            project.tasks
-                .named { it == "downloadKotlinNativeDistribution" }
-                .configureEach { it.outputs.cacheIf { false } }
-        }
         project.validateMultiplatformPluginHasNotBeenApplied()
         project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
         project.multiplatformExtension!!.also { it.applyAndroidXDefaultHierarchyTemplate() }
