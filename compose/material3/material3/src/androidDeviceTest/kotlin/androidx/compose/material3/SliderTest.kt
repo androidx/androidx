@@ -243,6 +243,7 @@ class SliderTest {
         rule.runOnIdle { Truth.assertThat(state.value).isWithin(SliderTolerance).of(expected) }
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun vertical_slider_tap() {
         val state = SliderState(0f)
@@ -1486,6 +1487,7 @@ class SliderTest {
         }
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun verticalSlider_thumbPosition_staysSameWhenFocused_insetRing() {
         var thumbPositionY = 0f
@@ -1550,6 +1552,7 @@ class SliderTest {
         }
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun verticalSlider_reversed_thumbPosition_staysSameWhenFocused_insetRing() {
         var thumbPositionY = 0f
@@ -1569,7 +1572,7 @@ class SliderTest {
                             state = state,
                             interactionSource = interactionSource,
                             modifier = Modifier.testTag(tag),
-                            topToBottom = false,
+                            reverseDirection = true,
                             track = { sliderState ->
                                 SliderDefaults.Track(
                                     sliderState = sliderState,
