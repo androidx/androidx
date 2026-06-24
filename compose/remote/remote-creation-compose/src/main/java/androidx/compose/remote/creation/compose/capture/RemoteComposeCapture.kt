@@ -43,6 +43,7 @@ import java.io.ByteArrayInputStream
 public fun rememberRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     writerEvents: WriterEvents = WriterEvents(),
     onCreate: ((CoreDocument) -> Unit)? = null,
     clock: RemoteClock = RemoteClock.SYSTEM,
@@ -55,6 +56,7 @@ public fun rememberRemoteDocument(
         val document =
             captureSingleRemoteDocument(
                 creationDisplayInfo = creationDisplayInfo,
+                remoteDensity = remoteDensity,
                 layoutDirection = layoutDirection,
                 context = context,
                 content = content,
