@@ -17,6 +17,7 @@
 package androidx.appfunctions.internal
 
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
+import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
 import android.os.Build
 import android.os.CancellationSignal
@@ -27,10 +28,12 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEFAULT
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
+import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -40,7 +43,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Provides the AppFunctionManager backend through the platform API. */
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-internal class PlatformAppFunctionManagerApi(private val context: Context) : AppFunctionManagerApi {
+internal class PlatformAppFunctionManagerApi(
+    private val context: Context,
+    private val appFunctionReader: AppFunctionReader,
+) : AppFunctionManagerApi {
 
     private val appFunctionManager: PlatformAppFunctionManager by lazy {
         context.getSystemService(PlatformAppFunctionManager::class.java)
@@ -138,6 +144,16 @@ internal class PlatformAppFunctionManagerApi(private val context: Context) : App
                 },
             )
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    override fun registerAppFunction(
+        functionId: String,
+        executor: Executor,
+        appFunction: CallbackAppFunction,
+    ): AppFunctionRegistration {
+        val platformAppFunction = appFunction.toPlatformAppFunction(appFunctionReader, executor)
+        return appFunctionManager.registerAppFunction(functionId, executor, platformAppFunction)
     }
 
     private fun convertToPlatformEnabledState(

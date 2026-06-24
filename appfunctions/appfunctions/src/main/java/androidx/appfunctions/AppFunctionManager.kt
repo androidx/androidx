@@ -17,10 +17,12 @@
 package androidx.appfunctions
 
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
+import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
 import android.os.Build
 import android.os.UserManager
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AppFunctionManagerApi
@@ -35,6 +37,7 @@ import androidx.appfunctions.internal.Translator
 import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
+import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -239,6 +242,71 @@ public constructor(
         return appFunctionReader.searchAppFunctionsMetadata(searchSpec)
     }
 
+    /**
+     * Registers a runtime implementation for an app function, that can be executed using
+     * [executeAppFunction].
+     *
+     * [executeAppFunction] targeting an app function provided by this method will trigger the
+     * [CallbackAppFunction.execute] method of the provided implementation, as long as the process
+     * registering it is not frozen, and the [android.content.Context] registering it is not
+     * destroyed (at which point the registration will be removed).
+     *
+     * You must declare the app function in your `AndroidManifest.xml` using an application-level
+     * `<property>` named `android.app.appfunctions`. See
+     * [androidx.appfunctions.metadata.AppFunctionMetadata] for details on the XML schema
+     * (`your_app_functions.xml` in the example below).
+     *
+     * **Example manifest declaration:**
+     *
+     * ```xml
+     * <application ...>
+     *   <property
+     *       android:name="android.app.appfunctions"
+     *       android:value="your_app_functions.xml" />
+     *   ...
+     * </application>
+     * ```
+     *
+     * Function implementations can only be registered from [android.app.Activity] or
+     * [android.app.Service] contexts. If registering from an [android.app.Activity], strongly
+     * consider [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY] for your
+     * function definition.
+     *
+     * The `functionId` must correspond to an app function declared in your app's application-level
+     * XML assets. If the identifier is not found, this method will throw an
+     * [IllegalArgumentException]. Attempting to register a duplicate function for the same scope
+     * will throw an [IllegalStateException].
+     *
+     * The system holds a strong reference to the provided [CallbackAppFunction] implementation as
+     * long as it is registered. To prevent memory leaks and ensure the system is aware that the
+     * function is no longer available, you must explicitly call
+     * [AppFunctionRegistration.unregister] when the function is no longer relevant (e.g., in
+     * [android.app.Activity.onStop] or before [android.app.Service.stopForeground]).
+     *
+     * @param functionId The unique identifier for the function, which must match an entry in the
+     *   app's XML resource declarations.
+     * @param executor The [Executor] on which the function will be invoked and the incoming
+     *   [ExecuteAppFunctionRequest] will be validated (verifying that the incoming platform request
+     *   aligns with the declared [androidx.appfunctions.metadata.AppFunctionMetadata]).
+     * @param appFunction The [CallbackAppFunction] implementation to be executed when the function
+     *   is triggered.
+     * @return A [AppFunctionRegistration] object that can be used to unregister the function.
+     * @throws IllegalStateException if a duplicate function is already registered for the same
+     *   scope, or if not called from [android.app.Activity] or [android.app.Service] contexts.
+     * @throws IllegalArgumentException if the provided [functionId] is not declared in the app's
+     *   application-level XML resources or if an activity-scoped function is registered from a
+     *   non-Activity context.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun registerAppFunction(
+        functionId: String,
+        executor: Executor,
+        appFunction: CallbackAppFunction,
+    ): AppFunctionRegistration {
+        return appFunctionManagerApi.registerAppFunction(functionId, executor, appFunction)
+    }
+
     @IntDef(
         value =
             [APP_FUNCTION_STATE_DEFAULT, APP_FUNCTION_STATE_ENABLED, APP_FUNCTION_STATE_DISABLED]
@@ -297,7 +365,7 @@ public constructor(
          *   `null`.
          */
         @JvmStatic
-        public fun getInstance(context: Context): androidx.appfunctions.AppFunctionManager? {
+        public fun getInstance(context: Context): AppFunctionManager? {
             // Required AppSearch is only available on U+.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return null
@@ -310,21 +378,22 @@ public constructor(
 
             return when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN -> {
+                    val reader =
+                        PlatformAppFunctionReader(context, Dependencies.schemaAppFunctionInventory)
                     AppFunctionManager(
                         context,
-                        PlatformAppFunctionReader(context, Dependencies.schemaAppFunctionInventory),
-                        PlatformAppFunctionManagerApi(context),
+                        reader,
+                        PlatformAppFunctionManagerApi(context, reader),
                         Dependencies.translatorSelector,
                     )
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA -> {
+                    val reader =
+                        AppSearchAppFunctionReader(context, Dependencies.schemaAppFunctionInventory)
                     AppFunctionManager(
                         context,
-                        AppSearchAppFunctionReader(
-                            context,
-                            Dependencies.schemaAppFunctionInventory,
-                        ),
-                        PlatformAppFunctionManagerApi(context),
+                        reader,
+                        PlatformAppFunctionManagerApi(context, reader),
                         Dependencies.translatorSelector,
                     )
                 }
