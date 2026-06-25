@@ -33,6 +33,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.pdf.PdfDocument
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.featureflag.PdfFeatureFlags
+import androidx.pdf.ocr.OcrProvider
+import androidx.pdf.ocr.playservices.MlKitOcrProvider
 import androidx.pdf.testapp.R
 import androidx.pdf.testapp.ui.FeatureFlagListener
 import androidx.pdf.testapp.ui.FeatureFlagNames.FORM_FILLING
@@ -114,6 +116,10 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
     override fun onDestroyView() {
         super.onDestroyView()
         activePdfDocument = null
+    }
+
+    override fun onCreateOcrProvider(): OcrProvider {
+        return MlKitOcrProvider()
     }
 
     fun resetThumbnails() {
