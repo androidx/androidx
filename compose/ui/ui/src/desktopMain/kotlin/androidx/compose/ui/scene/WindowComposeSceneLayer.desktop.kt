@@ -38,9 +38,11 @@ import androidx.compose.ui.window.getDialogScrimBlendMode
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Point
+import java.awt.Window
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import javax.swing.JDialog
+import javax.swing.JWindow
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.DelicateSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
@@ -65,10 +67,9 @@ internal class WindowComposeSceneLayer(
         it.setContainerSizeFromComponent(windowContainer)
     }
 
-    private val layerWindow = JDialog(parentWindow).also {
-        it.isAlwaysOnTop = true
+    private val layerWindow = JWindow(parentWindow).also {
         it.focusableWindowState = focusable
-        it.isUndecorated = true
+        it.type = Window.Type.POPUP
 
         @OptIn(DelicateSkikoApi::class)
         it.background =
