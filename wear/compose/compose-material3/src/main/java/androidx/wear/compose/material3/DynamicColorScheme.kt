@@ -32,6 +32,9 @@ import androidx.compose.ui.graphics.toArgb
  * dynamic color scheme can be used and returns null otherwise. It is expected that callers will
  * check the return value and fallback to their own default color scheme if it is null.
  *
+ * Example using a dynamic color scheme to theme buttons in a column:
+ *
+ * @sample androidx.wear.compose.material3.samples.DynamicColorSchemeSample
  * @param context The context required to get system resource data.
  */
 public fun dynamicColorScheme(context: Context): ColorScheme? =
