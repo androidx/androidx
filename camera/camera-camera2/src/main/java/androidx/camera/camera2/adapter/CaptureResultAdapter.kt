@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 import androidx.camera.common.unwrapAs
 import androidx.camera.core.impl.CameraCaptureMetaData.AeMode
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState

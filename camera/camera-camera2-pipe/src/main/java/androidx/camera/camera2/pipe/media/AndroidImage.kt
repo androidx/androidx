@@ -25,7 +25,6 @@ import androidx.camera.common.AndroidImage as CommonAndroidImage
 import androidx.camera.common.ImageDataSpace
 import androidx.camera.common.ImagePlane
 import java.lang.Class
-import kotlin.reflect.KClass
 
 /**
  * An [ImageWrapper] backed by an [Image].
@@ -60,14 +59,6 @@ public class AndroidImage(private val image: Image) : ImageWrapper {
         get() = delegate.dataSpace
         set(value) {
             delegate.dataSpace = value
-        }
-
-    @Deprecated("Use unwrapAs(Class) instead", replaceWith = ReplaceWith("unwrapAs(type.java)"))
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
-        when {
-            type.isInstance(this) -> this as T
-            else -> delegate.unwrapAs(type.java)
         }
 
     @Suppress("UNCHECKED_CAST")

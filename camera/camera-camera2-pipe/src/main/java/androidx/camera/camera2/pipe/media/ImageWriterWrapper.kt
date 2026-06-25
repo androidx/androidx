@@ -18,7 +18,7 @@ package androidx.camera.camera2.pipe.media
 
 import android.media.ImageWriter
 import androidx.camera.camera2.pipe.InputStreamId
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 
 /** Simplified wrapper for [ImageWriter]-like classes. */
 public interface ImageWriterWrapper : UnsafeWrapper, AutoCloseable {

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.compat.Api35Compat
 import androidx.camera.camera2.pipe.compat.Camera2ColorSpaceProfiles
 import androidx.camera.camera2.pipe.compat.Camera2MultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.compat.Camera2StreamConfigurationMap
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].

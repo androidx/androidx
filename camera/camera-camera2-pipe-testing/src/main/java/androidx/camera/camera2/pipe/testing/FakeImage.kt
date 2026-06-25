@@ -25,7 +25,6 @@ import androidx.camera.common.ImagePlane
 import androidx.camera.common.MutableImageWrapper
 import androidx.camera.common.testing.FakeImage as CommonFakeImage
 import java.lang.Class
-import kotlin.reflect.KClass
 
 /** FakeImage that can be used for testing classes that accept [ImageWrapper]. */
 public class FakeImage(
@@ -83,14 +82,6 @@ public class FakeImage(
 
     public val isClosed: Boolean
         get() = delegate.isClosed
-
-    @Deprecated("Use unwrapAs(Class) instead", replaceWith = ReplaceWith("unwrapAs(type.java)"))
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
-        when {
-            type.isInstance(this) -> this as T
-            else -> delegate.unwrapAs(type.java)
-        }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =

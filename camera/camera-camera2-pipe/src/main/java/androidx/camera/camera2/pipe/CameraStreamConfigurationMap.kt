@@ -20,6 +20,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RestrictTo
+import androidx.camera.common.UnsafeWrapper
 
 /** A compatibility wrapper for [android.hardware.camera2.params.StreamConfigurationMap]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

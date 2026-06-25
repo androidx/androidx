@@ -25,7 +25,7 @@ import androidx.annotation.OptIn
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector

@@ -57,7 +57,7 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPreviewStab
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsTorchStrength
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 import androidx.camera.common.unwrapAs
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector

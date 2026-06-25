@@ -33,12 +33,12 @@ import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.OutputStream.SensorPixelMode
 import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase
-import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
+import androidx.camera.common.UnsafeWrapper
 import java.lang.Class
 import java.util.concurrent.Executor
 

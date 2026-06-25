@@ -21,6 +21,7 @@ import android.hardware.camera2.TotalCaptureResult
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.graph.LatestFrameMetadataImpl
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * A [FrameNumber] is the identifier that represents a specific exposure by the Camera. FrameNumbers

@@ -21,7 +21,7 @@ import android.media.ImageReader
 import android.view.Surface
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 
 /** Simplified wrapper for [ImageReader]-like classes. */
 public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {

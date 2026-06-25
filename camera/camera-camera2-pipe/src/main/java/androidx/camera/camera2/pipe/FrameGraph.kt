@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import androidx.camera.common.UnsafeWrapper
 
 /** [FrameGraph] extends the capabilities of [CameraGraph] to provide stream controls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

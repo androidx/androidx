@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.OutputImage.Companion.toLogString
-import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /**
@@ -53,10 +52,6 @@ internal class TrackedOutputImage(
         // Evaluate evictable state on creation
         updateEvictableState()
     }
-
-    @Suppress("UNCHECKED_CAST")
-    @Deprecated("Use the reified unwrapAs<T>() extension function instead")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = unwrapAs(type.java)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
