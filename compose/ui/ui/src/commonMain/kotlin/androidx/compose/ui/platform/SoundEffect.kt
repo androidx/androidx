@@ -35,3 +35,9 @@ interface SoundEffect {
      */
     fun playClickSound()
 }
+
+internal object NoSoundEffect : SoundEffect {
+    override fun playClickSound() {
+        // This platform does not support sound, or sound effects are disabled/silenced
+    }
+}

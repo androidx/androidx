@@ -16,28 +16,52 @@
 
 package androidx.compose.ui.platform
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.view.View
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.res.ImageVectorCache
-import androidx.compose.ui.res.ResourceIdCache
+import androidx.compose.runtime.staticCompositionLocalWithComputedDefaultOf
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
+
+@SuppressLint("NullAnnotationGroup", "BanInlineOptIn")
+@OptIn(ExperimentalComposeUiApi::class)
+private inline fun <T : Any> computedDefaultOf(
+    name: String,
+    crossinline compute: androidx.compose.runtime.CompositionLocalAccessorScope.() -> T,
+): ProvidableCompositionLocal<T> =
+    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
+        staticCompositionLocalWithComputedDefaultOf { compute() }
+    } else {
+        staticCompositionLocalOf { noLocalProvidedFor(name) }
+    }
 
 /**
  * The Android [Configuration]. The [Configuration] is useful for determining how to organize the
  * UI.
  */
-val LocalConfiguration =
-    compositionLocalOf<Configuration> { noLocalProvidedFor("LocalConfiguration") }
+@SuppressLint("NullAnnotationGroup")
+@OptIn(ExperimentalComposeUiApi::class)
+val LocalConfiguration: ProvidableCompositionLocal<Configuration> =
+    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
+        compositionLocalWithComputedDefaultOf { LocalContext.currentValue.resources.configuration }
+    } else {
+        compositionLocalOf { noLocalProvidedFor("LocalConfiguration") }
+    }
 
 /** Provides a [Context] that can be used by Android applications. */
-val LocalContext = staticCompositionLocalOf<Context> { noLocalProvidedFor("LocalContext") }
+val LocalContext =
+    computedDefaultOf<Context>("LocalContext") {
+        LocalAndroidComposeView.currentValue?.context ?: noLocalProvidedFor("LocalContext")
+    }
 
 /**
  * The Android [Resources]. This will be updated when [LocalConfiguration] changes, to ensure that
@@ -58,10 +82,16 @@ val LocalResources =
     }
 
 internal val LocalImageVectorCache =
-    staticCompositionLocalOf<ImageVectorCache> { noLocalProvidedFor("LocalImageVectorCache") }
+    computedDefaultOf("LocalImageVectorCache") {
+        LocalAndroidComposeView.currentValue?.composeViewContext?.imageVectorCache
+            ?: noLocalProvidedFor("LocalImageVectorCache")
+    }
 
 internal val LocalResourceIdCache =
-    staticCompositionLocalOf<ResourceIdCache> { noLocalProvidedFor("LocalResourceIdCache") }
+    computedDefaultOf("LocalResourceIdCache") {
+        LocalAndroidComposeView.currentValue?.composeViewContext?.resourceIdCache
+            ?: noLocalProvidedFor("LocalResourceIdCache")
+    }
 
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
@@ -79,7 +109,10 @@ val LocalSavedStateRegistryOwner
     get() = LocalSavedStateRegistryOwner
 
 /** The CompositionLocal containing the current Compose [View]. */
-val LocalView = staticCompositionLocalOf<View> { noLocalProvidedFor("LocalView") }
+val LocalView =
+    computedDefaultOf<View>("LocalView") {
+        LocalAndroidComposeView.currentValue ?: noLocalProvidedFor("LocalView")
+    }
 
 private fun noLocalProvidedFor(name: String): Nothing {
     error("CompositionLocal $name not present")

@@ -346,6 +346,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
+    private var _hostDefaultProvider: ViewTreeHostDefaultProvider? = null
+    val hostDefaultProvider: ViewTreeHostDefaultProvider
+        get() =
+            _hostDefaultProvider
+                ?: ViewTreeHostDefaultProvider(this).also { _hostDefaultProvider = it }
+
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
 
@@ -668,6 +674,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override val clipboard: Clipboard
         get() = composeViewContext.clipboard
 
+    override val uriHandler: UriHandler
+        get() = composeViewContext.uriHandler
+
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         val exceptionHandler = uncaughtExceptionHandler
         var command =
@@ -962,9 +971,18 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     /** Set to `true` when [sendHoverExitEvent] has been posted. */
     private var hoverExitReceived = false
 
+    private var _playNavigationSoundEffect: ((FocusDirection, Boolean) -> Unit)? = null
+
     @VisibleForTesting
-    internal var playNavigationSoundEffect: (FocusDirection, Boolean) -> Unit =
-        AndroidComposeViewNavigationSoundEffect(this)
+    internal var playNavigationSoundEffect: (FocusDirection, Boolean) -> Unit
+        get() =
+            _playNavigationSoundEffect
+                ?: AndroidComposeViewNavigationSoundEffect(this).also {
+                    _playNavigationSoundEffect = it
+                }
+        set(value) {
+            _playNavigationSoundEffect = value
+        }
 
     // Determines scroll/swipe to next or previous focusable element for indirect pointer events.
     private val indirectPointerNavigationGestureDetector =
@@ -3252,6 +3270,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 currentStylusHoverIcon = value
             }
         }
+
+    override val soundEffect: SoundEffect
+        get() = composeViewContext.soundEffect
 
     /**
      * This overrides an @hide method in ViewGroup. Because of the @hide, the override keyword

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import android.annotation.SuppressLint
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -32,9 +33,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.AndroidComposeUiFlags
@@ -200,13 +201,16 @@ private constructor(
             AndroidAccessibilityManager(view.context)
         }
 
-    /** [UriHandler] provided by [LocalUriHandler] */
-    internal val uriHandler: AndroidUriHandler =
+    private var _uriHandler: AndroidUriHandler? =
         if (matchesContext) {
             composeViewContext!!.uriHandler
         } else {
-            AndroidUriHandler(view.context)
+            null
         }
+
+    /** [UriHandler] provided by [LocalUriHandler] */
+    internal val uriHandler: AndroidUriHandler
+        get() = _uriHandler ?: AndroidUriHandler(view.context).also { _uriHandler = it }
 
     /** [ClipboardManager] provided by [LocalClipboardManager] */
     internal val clipboardManager: AndroidClipboardManager =
@@ -305,7 +309,7 @@ private constructor(
 
     private var _soundEffect: SoundEffect? = null
     @OptIn(ExperimentalComposeUiApi::class)
-    private val soundEffect: SoundEffect
+    internal val soundEffect: SoundEffect
         get() =
             _soundEffect
                 ?: if (AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
@@ -495,6 +499,7 @@ private constructor(
     }
 
     /** Provide common CompositionLocals. */
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
     @Suppress("DEPRECATION")
     @Composable
@@ -512,41 +517,56 @@ private constructor(
             currentComposer.collectParameterInformation()
         }
 
-        val hostDefaultProvider = remember(owner.view) { ViewTreeHostDefaultProvider(owner.view) }
         @Suppress("UNCHECKED_CAST")
-        CompositionLocalProvider(
-            LocalLifecycleOwner provides lifecycleOwner,
-            LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
-            LocalImageVectorCache provides imageVectorCache,
-            LocalResourceIdCache provides resourceIdCache,
-            LocalSoundEffect providesComputed { soundEffect },
-            LocalContext provides owner.context,
-            LocalInspectionTables provides inspectionTable,
-            LocalConfiguration provides owner.configuration,
-            LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
-            LocalView provides owner.view,
-            LocalProvidableScrollCaptureInProgress providesComputed
-                {
-                    owner.scrollCaptureInProgress
-                },
-            LocalViewConfiguration provides owner.viewConfiguration,
-            LocalHostDefaultProvider provides hostDefaultProvider,
-        ) {
-            if (isMediaQueryIntegrationEnabled) {
-                val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)
-                CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
-                    ProvideCommonCompositionLocals(
-                        owner = owner,
-                        uriHandler = uriHandler,
-                        content = content,
-                    )
+        if (androidx.compose.ui.ComposeUiFlags.isMinimalistLocalsEnabled) {
+            CompositionLocalProvider(
+                LocalAndroidComposeView provides owner,
+                LocalLifecycleOwner provides lifecycleOwner,
+                LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
+                LocalInspectionTables provides inspectionTable,
+                LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
+                LocalProvidableScrollCaptureInProgress providesComputed
+                    {
+                        owner.scrollCaptureInProgress
+                    },
+                LocalHostDefaultProvider providesComputed { owner.hostDefaultProvider },
+            ) {
+                if (isMediaQueryIntegrationEnabled) {
+                    val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)
+                    CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                        ProvideCommonCompositionLocals(owner = owner, content = content)
+                    }
+                } else {
+                    ProvideCommonCompositionLocals(owner = owner, content = content)
                 }
-            } else {
-                ProvideCommonCompositionLocals(
-                    owner = owner,
-                    uriHandler = uriHandler,
-                    content = content,
-                )
+            }
+        } else {
+            CompositionLocalProvider(
+                LocalLifecycleOwner provides lifecycleOwner,
+                LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
+                LocalImageVectorCache provides imageVectorCache,
+                LocalResourceIdCache provides resourceIdCache,
+                LocalSoundEffect providesComputed { soundEffect },
+                LocalContext provides owner.context,
+                LocalInspectionTables provides inspectionTable,
+                LocalConfiguration provides owner.configuration,
+                LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
+                LocalView provides owner.view,
+                LocalProvidableScrollCaptureInProgress providesComputed
+                    {
+                        owner.scrollCaptureInProgress
+                    },
+                LocalViewConfiguration provides owner.viewConfiguration,
+                LocalHostDefaultProvider provides owner.hostDefaultProvider,
+            ) {
+                if (isMediaQueryIntegrationEnabled) {
+                    val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)
+                    CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                        ProvideCommonCompositionLocals(owner = owner, content = content)
+                    }
+                } else {
+                    ProvideCommonCompositionLocals(owner = owner, content = content)
+                }
             }
         }
     }
@@ -577,6 +597,4 @@ private const val MaskForNonWindowMetricsChanges =
         ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT or
         ActivityInfo.CONFIG_ASSETS_PATHS
 
-private object NoSoundEffect : SoundEffect {
-    override fun playClickSound() {}
-}
+internal val LocalAndroidComposeView = staticCompositionLocalOf<AndroidComposeView?> { null }

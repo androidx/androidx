@@ -146,4 +146,12 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isTrackpadPinchReinterpretationEnabled: Boolean = true
+
+    /**
+     * Reduce provided CompositionLocals by letting them pull from LocalOwner /
+     * LocalAndroidComposeView dynamically when unprovided, instead of eagerly providing all of
+     * them.
+     */
+    // TODO: b/523295932 - Cleanup feature flag
+    @field:Suppress("MutableBareField") @JvmField var isMinimalistLocalsEnabled: Boolean = false
 }

@@ -166,6 +166,7 @@ package androidx.compose.ui {
     property public boolean isFocusRestorationEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
+    property public boolean isMinimalistLocalsEnabled;
     property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     property public boolean isTrackpadPinchReinterpretationEnabled;
     property public boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
@@ -177,6 +178,7 @@ package androidx.compose.ui {
     field public static boolean isFocusRestorationEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
+    field public static boolean isMinimalistLocalsEnabled;
     field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     field public static boolean isTrackpadPinchReinterpretationEnabled;
     field public static boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
