@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.action.pendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rc
@@ -33,7 +34,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.color
 import androidx.glance.wear.core.WearWidgetParams
-import androidx.glance.wear.tooling.preview.SquircleAllWidgetPreviewParams
+import androidx.glance.wear.tooling.preview.RoundAllWidgetPreviewParams
 import androidx.glance.wear.tooling.preview.WearWidgetPreview
 import androidx.wear.compose.remote.material3.RemoteText
 
@@ -41,12 +42,13 @@ import androidx.wear.compose.remote.material3.RemoteText
 @Preview
 @Composable
 fun PendingIntentPreview(
-    @PreviewParameter(SquircleAllWidgetPreviewParams::class) params: WearWidgetParams
+    @PreviewParameter(RoundAllWidgetPreviewParams::class) params: WearWidgetParams
 ) =
     WearWidgetPreview(params = params, background = WearWidgetBrush.color(Color.White.rc)) {
         RemoteBox(
             modifier =
                 RemoteModifier.fillMaxSize()
+                    .background(Color.Cyan.rc)
                     .clickable(
                         pendingIntentAction { context ->
                             PendingIntent.getActivity(
