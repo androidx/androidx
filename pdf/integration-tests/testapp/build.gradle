@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":pdf:pdf-viewer-fragment"))
     implementation(project(":pdf:pdf-compose"))
     implementation(project(":pdf:pdf-ink"))
+    implementation(project(":pdf:pdf-ocr-play-services"))
     implementation("androidx.compose.ui:ui:1.7.8")
     implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation(libs.constraintLayout)
