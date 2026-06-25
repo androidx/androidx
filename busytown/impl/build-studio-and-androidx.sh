@@ -48,7 +48,7 @@ export ANDROID_HOME="$ANDROIDX_DIR/prebuilts/fullsdk-$plat"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
-  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
+  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR -PadditionalBazelArgs='--config=dl-ci' publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
     echo built studio successfully
   else
     cat "$STUDIO_BUILD_LOG" >&2
