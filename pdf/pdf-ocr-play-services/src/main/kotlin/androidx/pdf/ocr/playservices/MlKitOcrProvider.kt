@@ -19,7 +19,6 @@ package androidx.pdf.ocr.playservices
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
-import androidx.annotation.RestrictTo
 import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.ocr.OcrResult
 import androidx.pdf.ocr.OcrText
@@ -31,7 +30,6 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
 
 /** Implementation of [OcrProvider] using ML Kit's Text Recognition. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MlKitOcrProvider : OcrProvider {
     private val recognizerDelegate = lazy {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -67,8 +65,8 @@ public class MlKitOcrProvider : OcrProvider {
     }
 
     private companion object {
-        const val MIN_IMAGE_WIDTH = 32
-        const val MIN_IMAGE_HEIGHT = 32
+        private const val MIN_IMAGE_WIDTH = 32
+        private const val MIN_IMAGE_HEIGHT = 32
     }
 }
 
