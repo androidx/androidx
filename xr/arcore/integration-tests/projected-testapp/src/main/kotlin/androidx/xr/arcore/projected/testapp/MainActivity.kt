@@ -16,6 +16,8 @@
 
 package androidx.xr.arcore.projected.testapp
 
+import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -43,8 +45,37 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
 @OptIn(ExperimentalProjectedApi::class)
 class MainActivity : ComponentActivity() {
+    private val activeProjectedActivities = mutableListOf<Activity>()
+
+    private val lifecycleCallbacks =
+        object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                if (activity != this@MainActivity) {
+                    activeProjectedActivities.add(activity)
+                }
+            }
+
+            override fun onActivityDestroyed(activity: Activity) {
+                if (activity != this@MainActivity) {
+                    activeProjectedActivities.remove(activity)
+                }
+            }
+
+            override fun onActivityStarted(activity: Activity) {}
+
+            override fun onActivityResumed(activity: Activity) {}
+
+            override fun onActivityPaused(activity: Activity) {}
+
+            override fun onActivityStopped(activity: Activity) {}
+
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        application.registerActivityLifecycleCallbacks(lifecycleCallbacks)
 
         setContent {
             Column(
@@ -89,6 +120,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        activeProjectedActivities.forEach { it.moveTaskToBack(true) }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        application.unregisterActivityLifecycleCallbacks(lifecycleCallbacks)
+        activeProjectedActivities.forEach { it.finish() }
+        activeProjectedActivities.clear()
     }
 
     @Composable
