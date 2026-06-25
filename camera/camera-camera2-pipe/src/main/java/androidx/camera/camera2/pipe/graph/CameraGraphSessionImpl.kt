@@ -197,18 +197,21 @@ internal class CameraGraphSessionImpl(
         // ae, af and awb respectively. If not supported return an exception or return early with
         // the right status code.
         return controller3A.lock3A(
-            aeRegions,
-            afRegions,
-            awbRegions,
-            aeLockBehavior,
-            afLockBehavior,
-            awbLockBehavior,
-            afTriggerStartAeMode,
-            convergedCondition,
-            lockedCondition,
-            frameLimit,
-            convergedTimeLimitNs,
-            lockedTimeLimitNs,
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode = awbMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions,
+            aeLockBehavior = aeLockBehavior,
+            afLockBehavior = afLockBehavior,
+            awbLockBehavior = awbLockBehavior,
+            afTriggerStartAeMode = afTriggerStartAeMode,
+            convergedCondition = convergedCondition,
+            lockedCondition = lockedCondition,
+            frameLimit = frameLimit,
+            convergedTimeLimitNs = convergedTimeLimitNs,
+            lockedTimeLimitNs = lockedTimeLimitNs,
         )
     }
 
