@@ -15,6 +15,8 @@
  */
 package androidx.compose.material3
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -266,15 +270,29 @@ object ScrollFieldDefaults {
      */
     @Composable
     fun Item(index: Int, selected: Boolean, colors: ScrollFieldColors = colors()) {
+        val targetColor =
+            if (selected) colors.selectedContentColor else colors.unselectedContentColor
+
+        val selectionFraction by
+            animateFloatAsState(
+                targetValue = if (selected) 1f else 0f,
+                animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+            )
+        val color by
+            animateColorAsState(
+                targetValue = targetColor,
+                animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+            )
+
         Text(
             text = index.toLocalString(minDigits = 2),
             style =
-                if (selected) {
-                    MaterialTheme.typography.displayLarge
-                } else {
-                    MaterialTheme.typography.displayMedium
-                },
-            color = if (selected) colors.selectedContentColor else colors.unselectedContentColor,
+                lerp(
+                    MaterialTheme.typography.displayMedium,
+                    MaterialTheme.typography.displayLargeEmphasized,
+                    selectionFraction.coerceIn(0f, 1f),
+                ),
+            color = color,
         )
     }
 }
