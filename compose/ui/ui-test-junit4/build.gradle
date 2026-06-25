@@ -105,4 +105,5 @@ androidx {
     description = "Compose testing integration with JUnit4"
     legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
+    samples(project(":compose:ui:ui-test-junit4:ui-test-junit4-samples"))
 }
