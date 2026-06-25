@@ -2,9 +2,23 @@
 package androidx.glance.wear.tooling.preview {
 
   public abstract class BaseWidgetPreviewParams implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<androidx.glance.wear.core.WearWidgetParams> {
-    ctor public BaseWidgetPreviewParams(kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values);
+    ctor public BaseWidgetPreviewParams(kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values, String previewPrefix);
+    method @InaccessibleFromKotlin public final String getPreviewPrefix();
     method @InaccessibleFromKotlin public kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> getValues();
+    property public final String previewPrefix;
     property public kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values;
+  }
+
+  public final class RoundAllWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RoundAllWidgetPreviewParams();
+  }
+
+  public final class RoundLargeWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RoundLargeWidgetPreviewParams();
+  }
+
+  public final class RoundSmallWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RoundSmallWidgetPreviewParams();
   }
 
   public final class SquircleAllWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {

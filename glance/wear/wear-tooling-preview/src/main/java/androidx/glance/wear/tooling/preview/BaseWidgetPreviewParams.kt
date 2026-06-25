@@ -32,16 +32,19 @@ import androidx.glance.wear.core.WearWidgetParams
  * identifies the widget type and its dimensions.
  *
  * @property values The sequence of [WearWidgetParams] configurations to be supplied to the preview.
+ * @property previewPrefix The prefix to use for the display name of the preview parameters.
  */
-public abstract class BaseWidgetPreviewParams(override val values: Sequence<WearWidgetParams>) :
-    PreviewParameterProvider<WearWidgetParams> {
+public abstract class BaseWidgetPreviewParams(
+    override val values: Sequence<WearWidgetParams>,
+    public val previewPrefix: String,
+) : PreviewParameterProvider<WearWidgetParams> {
 
     /**
      * Returns a descriptive name for the preview configuration at the specified [index].
      *
      * The returned string includes the widget's container type (Small or Large) and its specific
-     * dimensions in DP, following the format: "{Type} Widget {Width}x{Height}dp". For example:
-     * "Squircle Small 166x72dp".
+     * dimensions in DP, following the format: "{previewPrefix} {Type} {Width}x{Height}dp". For
+     * example: "Squircle Small 166x72dp".
      *
      * @param index The index of the parameter in the [values] sequence.
      * @return A human-readable label for the Android Studio preview tool.
@@ -54,6 +57,6 @@ public abstract class BaseWidgetPreviewParams(override val values: Sequence<Wear
                 ContainerInfo.CONTAINER_TYPE_LARGE -> "Large"
                 else -> "Unknown"
             }
-        return "Squircle $type ${param.widthDp.toInt()}x${param.heightDp.toInt()}dp"
+        return "$previewPrefix $type ${param.widthDp.toInt()}x${param.heightDp.toInt()}dp"
     }
 }
