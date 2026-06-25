@@ -423,6 +423,9 @@ constructor(
      * lockedTimeLimitNs) to complete.
      */
     suspend fun lock3A(
+        aeMode: AeMode? = null,
+        afMode: AfMode? = null,
+        awbMode: AwbMode? = null,
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
@@ -444,11 +447,31 @@ constructor(
             return deferredResult3AOk
         }
 
+        // Fetch the current 3A state snapshot before updating it, so that we can compare the
+        // previous
+        // modes with the new ones.
+        val currentState3A = state3ASnapshot()
+
         // Update the 3A state of camera graph with the given metering regions. If metering regions
         // are given as null, then they are ignored and the current metering regions continue to be
         // applied in subsequent requests to the camera device.
-        graphState3A.update(aeRegions = aeRegions, afRegions = afRegions, awbRegions = awbRegions)
-        graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
+        graphState3A.update(
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode = awbMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions,
+        )
+        var parameters = graphState3A.toCaptureRequestParametersMap()
+        if (
+            afLockBehavior == Lock3ABehavior.IMMEDIATE &&
+                afMode != currentState3A.afMode &&
+                afMode != null
+        ) {
+            parameters = parameters + parameterForAfTriggerStart
+        }
+        graphProcessor.update3AParameters(parameters)
 
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or trigger set a new listener.
@@ -805,6 +828,8 @@ constructor(
             return resultForLocked!!
         }
 
+        // TODO: If Af is already locked, we don't need to lock Af again. Update this part once we
+        // make sure of the side effects of removing this aeMode.
         var lastAeMode: AeMode? = null
         afTriggerStartAeMode?.let {
             lastAeMode = graphState3A.current.aeMode
