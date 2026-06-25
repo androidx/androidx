@@ -543,32 +543,74 @@ public class RemoteComposeJsonParser {
                 ? parseFloat(component.get("fontWeight"))
                 : TextStyle.DEFAULT_FONT_WEIGHT;
 
+        int textStyleId = component.optInt("textStyleId", -1);
+        float minFontSize = component.has("minFontSize")
+                ? parseFloat(component.get("minFontSize")) : -1f;
+        float maxFontSize = component.has("maxFontSize")
+                ? parseFloat(component.get("maxFontSize")) : -1f;
+
+        int fontStyle = 0;
+        String fontStyleStr = component.optString("fontStyle", null);
+        if ("italic".equalsIgnoreCase(fontStyleStr)) {
+            fontStyle = 1;
+        } else if (component.has("fontStyle")) {
+            fontStyle = component.optInt("fontStyle", 0);
+        }
+
+        String fontFamily = component.optString("fontFamily", null);
+        float letterSpacing = component.has("letterSpacing")
+                ? parseFloat(component.get("letterSpacing")) : 0f;
+        float lineHeightAdd = component.has("lineHeightAdd")
+                ? parseFloat(component.get("lineHeightAdd")) : 0f;
+        float lineHeightMultiplier = component.has("lineHeightMultiplier")
+                ? parseFloat(component.get("lineHeightMultiplier")) : 1f;
+
+        int lineBreakStrategy = component.optInt("lineBreakStrategy", 0);
+        int hyphenationFrequency = component.optInt("hyphenationFrequency", 0);
+        int justificationMode = component.optInt("justificationMode", 0);
+        boolean underline = component.optBoolean("underline", false);
+        boolean strikethrough = component.optBoolean("strikethrough", false);
+        boolean autoSize = component.optBoolean("autoSize", false);
+
+        String[] fontAxis = null;
+        float[] fontAxisValues = null;
+        if (component.has("fontAxis") && component.has("fontAxisValues")) {
+            JSONArray axisArr = component.getJSONArray("fontAxis");
+            JSONArray valArr = component.getJSONArray("fontAxisValues");
+            fontAxis = new String[axisArr.length()];
+            fontAxisValues = new float[valArr.length()];
+            for (int i = 0; i < axisArr.length(); i++) {
+                fontAxis[i] = axisArr.getString(i);
+                fontAxisValues[i] = (float) valArr.getDouble(i);
+            }
+        }
+
         mWriter.textComponent(
                 modifier,
                 textId,
-                -1, // textStyleId
+                textStyleId,
                 color,
-                colorId, // colorId
+                colorId,
                 fontSize,
-                -1f,
-                -1f,
-                0, // fontstyle
+                minFontSize,
+                maxFontSize,
+                fontStyle,
                 fontWeight,
-                null, // fontFamily
+                fontFamily,
                 parseTextAlign(component.optString("textAlign", "start")),
                 overflow,
                 maxLines,
-                0f, // letterspacing
-                0f, // lineHeightAdd
-                1f, // lineHeightMultiplier,
-                0, // lineBreakStrategy
-                0, // hyphenationFrequency
-                0, // justification mode
-                false, // undeerline
-                false, // strikethrough,
-                null, // explicitStringArray
-                null, // explicitFloatArray
-                false, // autosize,
+                letterSpacing,
+                lineHeightAdd,
+                lineHeightMultiplier,
+                lineBreakStrategy,
+                hyphenationFrequency,
+                justificationMode,
+                underline,
+                strikethrough,
+                fontAxis,
+                fontAxisValues,
+                autoSize,
                 0, () -> {});
     }
 

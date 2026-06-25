@@ -263,6 +263,104 @@ public class RemoteComposeComparisonTest {
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    public void testStage1Comparison() throws JSONException {
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = new RemoteComposeWriter.HTag[] {
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 800),
+            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stage1"),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, 769)
+        };
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.collapsiblePriority(1 /* VERTICAL */, 2.0f);
+            mod.verticalScroll(10.0f, 5);
+            expectedWriter.startFlow(mod, BoxLayout.START, BoxLayout.TOP, 4, 2);
+
+            int strId = expectedWriter.textCreateId("Hello Stage 1");
+            expectedWriter.startTextComponent(
+                    new RecordingModifier(),
+                    strId,
+                    -1, // textStyleId
+                    0xFF000000,
+                    -1,
+                    18f,
+                    -1f, // minFontSize
+                    -1f, // maxFontSize
+                    1, // fontStyle italic
+                    400f,
+                    "sans-serif", // fontFamily
+                    1, // textAlign start
+                    1, // overflow clip
+                    Integer.MAX_VALUE, // maxLines
+                    1.5f, // letterSpacing
+                    2.0f, // lineHeightAdd
+                    1.2f, // lineHeightMultiplier
+                    0, // lineBreakStrategy
+                    0, // hyphenationFrequency
+                    0, // justificationMode
+                    true, // underline
+                    true, // strikethrough
+                    null, // fontAxis
+                    null, // fontAxisValues
+                    true, // autosize
+                    0 // flags
+            );
+            expectedWriter.endTextComponent();
+            expectedWriter.endFlow();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769,"
+                + " \"width\": 400, \"height\": 800,"
+                + " \"contentDescription\": \"Stage1\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"flow\","
+                + "    \"maxColumns\": 4,"
+                + "    \"maxLines\": 2,"
+                + "    \"modifiers\": ["
+                + "      { \"collapsiblePriority\": { \"orientation\": \"vertical\","
+                + " \"priority\": 2.0 } },"
+                + "      { \"verticalScroll\": { \"position\": 10.0, \"notches\": 5 } }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"text\","
+                + "        \"value\": \"Hello Stage 1\","
+                + "        \"fontSize\": 18,"
+                + "        \"fontStyle\": \"italic\","
+                + "        \"fontFamily\": \"sans-serif\","
+                + "        \"textAlign\": \"left\","
+                + "        \"letterSpacing\": 1.5,"
+                + "        \"lineHeightAdd\": 2.0,"
+                + "        \"lineHeightMultiplier\": 1.2,"
+                + "        \"underline\": true,"
+                + "        \"strikethrough\": true,"
+                + "        \"autoSize\": true"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+
+        RemoteComposeWriter.HTag[] actualTags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int actualApiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter actualWriter =
+                new RemoteComposeWriter(platform, actualApiLevel, actualTags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!java.util.Arrays.equals(expected, actual)) {
+            printMismatch("Stage1", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
     private void generateTickerKotlin(RemoteComposeWriter writer) {
         writer.beginGlobal();
         int bgId = writer.addThemedColor(null, 0xFFEEEEEE, null, 0xFF111111);

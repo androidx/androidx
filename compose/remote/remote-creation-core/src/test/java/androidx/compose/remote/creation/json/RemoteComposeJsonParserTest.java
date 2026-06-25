@@ -522,6 +522,40 @@ public class RemoteComposeJsonParserTest {
         org.junit.Assert.assertNotNull(result);
     }
 
+    @Test
+    public void testStage1Features() throws JSONException {
+        String json = "{"
+                + "  \"root\": {"
+                + "    \"type\": \"flow\","
+                + "    \"maxColumns\": 4,"
+                + "    \"maxLines\": 2,"
+                + "    \"modifiers\": ["
+                + "      { \"verticalScroll\": { \"position\": 10.0, \"notches\": 5 } },"
+                + "      { \"collapsiblePriority\": { \"orientation\": \"vertical\","
+                + " \"priority\": 2.0 } }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"text\","
+                + "        \"value\": \"Styled Text\","
+                + "        \"fontSize\": 18,"
+                + "        \"fontStyle\": \"italic\","
+                + "        \"fontFamily\": \"sans-serif\","
+                + "        \"letterSpacing\": 1.5,"
+                + "        \"lineHeightAdd\": 2.0,"
+                + "        \"lineHeightMultiplier\": 1.2,"
+                + "        \"underline\": true,"
+                + "        \"strikethrough\": true,"
+                + "        \"autoSize\": true"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {
