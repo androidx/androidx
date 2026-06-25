@@ -46,14 +46,14 @@ androidXMultiplatform {
             // Keep pinned unless there is a need for tip of tree behavior
             implementation("androidx.collection:collection:1.4.5")
             // unpinning to use `Style`, will pin to next Alpha.
-            implementation("androidx.compose.animation:animation-core:1.12.0-alpha03")
-            implementation("androidx.compose.ui:ui-util:1.12.0-alpha03")
-            api("androidx.compose.foundation:foundation-layout:1.12.0-alpha03")
-            api("androidx.compose.material:material-ripple:1.12.0-alpha03")
-            api("androidx.compose.runtime:runtime:1.12.0-alpha03")
-            api("androidx.compose.ui:ui:1.12.0-alpha03")
-            api("androidx.compose.foundation:foundation:1.12.0-alpha03")
-            api("androidx.compose.ui:ui-text:1.12.0-alpha03")
+            implementation("androidx.compose.animation:animation-core:1.12.0-beta01")
+            implementation("androidx.compose.ui:ui-util:1.12.0-beta01")
+            api("androidx.compose.foundation:foundation-layout:1.12.0-beta01")
+            api("androidx.compose.material:material-ripple:1.12.0-beta01")
+            api("androidx.compose.runtime:runtime:1.12.0-beta01")
+            api("androidx.compose.ui:ui:1.12.0-beta01")
+            api("androidx.compose.foundation:foundation:1.12.0-beta01")
+            api("androidx.compose.ui:ui-text:1.12.0-beta01")
             api("androidx.graphics:graphics-shapes:1.0.1")
         }
 
