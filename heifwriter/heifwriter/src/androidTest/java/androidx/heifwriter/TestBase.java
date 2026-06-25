@@ -31,6 +31,11 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.opengl.GLES20;
+import android.opengl.EGL14;
+import android.opengl.EGLConfig;
+import android.opengl.EGLDisplay;
+import android.opengl.EGLExt;
+import java.util.Objects;
 import android.os.Handler;
 import android.util.Log;
 
@@ -262,6 +267,32 @@ public class TestBase {
         mInputEglSurface.setPresentationTime(1000 * computePresentationTime(mInputIndex));
         mInputEglSurface.swapBuffers();
         mInputIndex++;
+    }
+
+    protected boolean is10BitEglSupported() {
+        EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+        if (Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
+            return false;
+        }
+        int[] version = new int[2];
+        if (!EGL14.eglInitialize(eglDisplay, version, 0, version, 1)) {
+            return false;
+        }
+        int[] configAttribList = {
+            EGL14.EGL_RED_SIZE, 10,
+            EGL14.EGL_GREEN_SIZE, 10,
+            EGL14.EGL_BLUE_SIZE, 10,
+            EGL14.EGL_ALPHA_SIZE, 2,
+            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+            EGLExt.EGL_RECORDABLE_ANDROID, 0,
+            EGL14.EGL_NONE
+        };
+        EGLConfig[] configs = new EGLConfig[1];
+        int[] numConfigs = new int[1];
+        boolean result = EGL14.eglChooseConfig(eglDisplay, configAttribList, 0, configs, 0,
+            configs.length, numConfigs, 0);
+        EGL14.eglTerminate(eglDisplay);
+        return result && numConfigs[0] > 0;
     }
 
     protected static class TestConfig {

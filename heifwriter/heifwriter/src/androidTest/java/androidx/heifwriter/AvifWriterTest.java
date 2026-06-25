@@ -335,14 +335,18 @@ public class AvifWriterTest extends TestBase {
         doTest(builder.setNumImages(1).build());
         doTest(builder.setNumImages(8).build());
 
-        builder.setHighBitDepthEnabled(true);
-        builder.setNumImages(1);
-        doTest(builder.setRotation(270).build());
-        doTest(builder.setRotation(180).build());
-        doTest(builder.setRotation(90).build());
-        doTest(builder.setRotation(0).build());
-        doTest(builder.setNumImages(1).build());
-        doTest(builder.setNumImages(8).build());
+        if (builder.mInputMode == INPUT_MODE_BUFFER || is10BitEglSupported()) {
+            builder.setHighBitDepthEnabled(true);
+            builder.setNumImages(1);
+            doTest(builder.setRotation(270).build());
+            doTest(builder.setRotation(180).build());
+            doTest(builder.setRotation(90).build());
+            doTest(builder.setRotation(0).build());
+            doTest(builder.setNumImages(1).build());
+            doTest(builder.setNumImages(8).build());
+        } else {
+            Log.i(TAG, "Skipping 10-bit EGL tests as 10-bit EGL is not supported");
+        }
     }
 
     private boolean shouldSkip() {
