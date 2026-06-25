@@ -17,15 +17,41 @@
 package androidx.navigation3.runtime.deeplink
 
 import android.content.Intent
+import androidx.savedstate.read
 
 /**
  * Creates a [DeepLinkRequest] with an [Intent].
  *
- * @param intent The Intent with the metadata to add to the DeepLinkRequest
+ * The returned [DeepLinkRequest] will be populated with the following data:
+ * 1. [DeepLinkRequest.uri] will be [Intent.getData] if not null
+ * 2. [DeepLinkRequest.extras] will contain any non-null information from [Intent.getType],
+ *    [Intent.getAction], and [Intent.getExtras].
+ *
+ * @param intent The Intent with the metadata to construct a DeepLinkRequest
+ * @param extras The map holding pairs of [String] to [Any] to provide extra information to the
+ *   [DeepLinkRequest], such a mimeType. If stored under the same key, all information inside the
+ *   [extras] map will take precedence over the information in the [intent].
  * @return a [DeepLinkRequest] instance
  */
-public fun DeepLinkRequest.Companion.fromIntent(intent: Intent): DeepLinkRequest =
-    DeepLinkRequest(uri = intent.data)
+public operator fun DeepLinkRequest.Companion.invoke(
+    intent: Intent,
+    extras: Map<String, Any> = emptyMap(),
+): DeepLinkRequest {
+    val uri = intent.data?.toString()?.let { DeepLinkUri(it) }
+    val intentExtra = buildMap {
+        intent.extras?.read {
+            val extrasMap = toMap()
+            for ((key, value) in extrasMap) {
+                if (value != null) put(key, value)
+            }
+        }
+    }
+    val mimeExtra =
+        if (intent.type != null) DeepLinkRequest.mimeTypeExtra(intent.type!!) else emptyMap()
+    val actionExtra =
+        if (intent.action != null) DeepLinkRequest.actionExtra(intent.action!!) else emptyMap()
+    return DeepLinkRequest(uri, mimeExtra + actionExtra + intentExtra + extras)
+}
 
 /**
  * Creates a [DeepLinkMatcher.Filter] that filters a [DeepLinkRequest] with the [action]. Matching

@@ -192,8 +192,9 @@ package androidx.navigation3.runtime.deeplink {
   public final class DeepLinkRequest_androidKt {
     method public static java.util.Map<java.lang.String,java.lang.Object> actionExtra(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion, String action);
     method public static androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter actionFilter(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Companion, String action);
-    method public static androidx.navigation3.runtime.deeplink.DeepLinkRequest fromIntent(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion, android.content.Intent intent);
     method @InaccessibleFromKotlin public static androidx.navigation3.runtime.deeplink.RequestExtrasKey<java.lang.String> getActionExtrasKey(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion);
+    method public static operator androidx.navigation3.runtime.deeplink.DeepLinkRequest invoke(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion, android.content.Intent intent, optional java.util.Map<java.lang.String,?> extras);
+    method @BytecodeOnly public static androidx.navigation3.runtime.deeplink.DeepLinkRequest! invoke$default(androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion!, android.content.Intent!, java.util.Map!, int, Object!);
     property public static androidx.navigation3.runtime.deeplink.RequestExtrasKey<java.lang.String> androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion.ActionExtrasKey;
   }
 
