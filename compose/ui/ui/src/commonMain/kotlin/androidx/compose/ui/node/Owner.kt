@@ -36,9 +36,12 @@ import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.NoSoundEffect
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.SoundEffect
 import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -129,6 +132,9 @@ internal interface Owner : PositionCalculator {
 
     val pointerIconService: PointerIconService
 
+    val soundEffect: SoundEffect
+        get() = NoSoundEffect
+
     /**
      * Semantics owner that provides access to
      * [SemanticsInfo][androidx.compose.ui.semantics.SemanticsInfo] and
@@ -174,6 +180,10 @@ internal interface Owner : PositionCalculator {
 
     /** `true` when layout should draw debug bounds. */
     var showLayoutBounds: Boolean
+
+    /** [UriHandler] provided by [androidx.compose.ui.platform.LocalUriHandler] */
+    val uriHandler: UriHandler
+        get() = EmptyUriHandler
 
     /**
      * Called by [LayoutNode] to request the Owner a new measurement+layout. [forceRequest] defines
@@ -408,5 +418,11 @@ internal interface Owner : PositionCalculator {
 
     interface OnLayoutCompletedListener {
         fun onLayoutComplete()
+    }
+}
+
+private object EmptyUriHandler : UriHandler {
+    override fun openUri(uri: String) {
+        throw NotImplementedError("Owner must implement uriHandler")
     }
 }
