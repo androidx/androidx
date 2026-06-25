@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import androidx.annotation.RestrictTo
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * A compatibility wrapper for

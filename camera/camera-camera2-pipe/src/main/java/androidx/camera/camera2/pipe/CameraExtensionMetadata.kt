@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RestrictTo
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * [CameraExtensionMetadata] is a compatibility wrapper around [CameraExtensionCharacteristics].

@@ -51,6 +51,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.testing.VerifyResultListener
 import androidx.camera.camera2.testing.toCameraControlAdapter
 import androidx.camera.camera2.testing.toCameraInfoAdapter
+import androidx.camera.common.unwrapAs
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -385,7 +386,7 @@ class Camera2CameraControlDeviceTest {
         // Assert.
         registerListener()
             .verify({ _, captureResult: FrameInfo ->
-                captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
+                captureResult.unwrapAs<TotalCaptureResult>()!!.let { totalCaptureResult ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         totalCaptureResult.physicalCameraTotalResults.containsKey(physicalCameraId)
                     } else {

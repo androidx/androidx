@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageWrapper
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted

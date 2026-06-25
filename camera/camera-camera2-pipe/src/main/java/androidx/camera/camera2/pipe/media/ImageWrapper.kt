@@ -20,10 +20,10 @@ import android.graphics.Rect
 import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
 import android.hardware.SyncFence
-import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.common.ImageDataSpace
 import androidx.camera.common.ImagePlane
 import androidx.camera.common.ImageWrapper as CommonImageWrapper
+import androidx.camera.common.UnsafeWrapper
 
 /**
  * Wrapper interfaces that mirrors the primary read-only properties of {@link android.media.Image}.
