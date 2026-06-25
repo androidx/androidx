@@ -363,9 +363,6 @@ constructor(
         requests.removeIndices(prunedIndices).forEach { it.onRemoved() }
 
         // Step 4: Determine whether we abort the current request.
-        if (!flags.cameraOpenAbortEnabled) {
-            return false
-        }
         if (currentRequest == null) {
             return false
         }
