@@ -285,6 +285,7 @@ public class HeifWriterTest extends TestBase {
                 outputPath, 1920, 1080, INPUT_MODE_SURFACE)
                 .setMaxImages(1)
                 .build();
+        heifWriter.start();
 
         try {
             byte[] exifData = new byte[100];
@@ -309,6 +310,7 @@ public class HeifWriterTest extends TestBase {
                 outputPath, 1920, 1080, INPUT_MODE_SURFACE)
                 .setMaxImages(1)
                 .build();
+        heifWriter.start();
 
         try {
             byte[] exifData = new byte[100];

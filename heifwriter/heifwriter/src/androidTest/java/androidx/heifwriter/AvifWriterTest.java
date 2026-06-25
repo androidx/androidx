@@ -284,6 +284,7 @@ public class AvifWriterTest extends TestBase {
                 outputPath, 1920, 1080, INPUT_MODE_SURFACE)
                 .setMaxImages(1)
                 .build();
+        avifWriter.start();
 
         try {
             byte[] exifData = new byte[100];
@@ -308,6 +309,7 @@ public class AvifWriterTest extends TestBase {
                 outputPath, 1920, 1080, INPUT_MODE_SURFACE)
                 .setMaxImages(1)
                 .build();
+        avifWriter.start();
 
         try {
             byte[] exifData = new byte[100];
