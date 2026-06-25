@@ -134,10 +134,12 @@ package androidx.navigationevent {
     method @MainThread protected final void dispatchOnForwardCompleted();
     method @MainThread protected final void dispatchOnForwardProgressed(androidx.navigationevent.NavigationEvent event);
     method @MainThread protected final void dispatchOnForwardStarted(androidx.navigationevent.NavigationEvent event);
+    method @InaccessibleFromKotlin public final boolean hasEnabledHandlers();
     method @EmptySuper @MainThread protected void onAdded(androidx.navigationevent.NavigationEventDispatcher dispatcher);
     method @EmptySuper @MainThread protected void onHasEnabledHandlersChanged(boolean hasEnabledHandlers);
     method @EmptySuper @MainThread protected void onHistoryChanged(androidx.navigationevent.NavigationEventHistory history);
     method @EmptySuper @MainThread protected void onRemoved();
+    property public final boolean hasEnabledHandlers;
   }
 
   public final class NavigationEventKt {
