@@ -84,6 +84,7 @@
             android:exported="true" />
         <activity
             android:name=".model.GltfModelMaterialTextureActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".meshentity.MeshEntityActivity"
@@ -91,6 +92,7 @@
             android:exported="true" />
         <activity
             android:name=".model.GltfModelAnimationActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".surfacecustommesh.SurfaceEntityCustomMeshActivity"
