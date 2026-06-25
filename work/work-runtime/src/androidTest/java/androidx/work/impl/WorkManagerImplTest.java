@@ -115,14 +115,17 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.testutils.TestOverrideClock;
+import androidx.work.impl.testutils.TrackingWorkerFactory;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.impl.workers.ConstraintTrackingWorkerKt;
 import androidx.work.worker.InfiniteTestWorker;
+import androidx.work.worker.LatchWorker;
 import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
@@ -137,6 +140,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -2476,6 +2480,56 @@ public class WorkManagerImplTest {
         mWorkManagerImpl.cancelWorkById(work.getId());
     }
     */
+
+    @Test
+    @LargeTest
+    public void testBlockingWorkers_taskExecutionStillWorks() throws Exception {
+        TrackingWorkerFactory factory = new TrackingWorkerFactory();
+        Configuration configuration = new Configuration.Builder()
+                .setWorkerFactory(factory)
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build();
+
+        WorkManagerTaskExecutor workTaskExecutor =
+                new WorkManagerTaskExecutor(configuration.getTaskExecutor());
+        WorkManagerImpl workManager = createWorkManager(mContext, configuration, workTaskExecutor);
+
+        try {
+            int numWorkers = Runtime.getRuntime().availableProcessors() + 2;
+            List<OneTimeWorkRequest> requests = new ArrayList<>();
+            for (int i = 0; i < numWorkers; i++) {
+                requests.add(new OneTimeWorkRequest.Builder(LatchWorker.class).build());
+            }
+
+            workManager.enqueue(requests).getResult().get();
+
+            // Wait until all poolSize workers have started and are blocked.
+            // This is safe because the default executor has capacity poolSize.
+            int poolSize = Configuration.calculateExecutorParallelismLimit();
+            for (int i = 0; i < poolSize; i++) {
+                UUID id = requests.get(i).getId();
+                LatchWorker worker = (LatchWorker) factory.awaitWorker(id);
+                worker.mEntrySignal.await();
+            }
+
+            UUID targetId = requests.get(0).getId();
+            // This will throw a TimeoutException if taskExecutor is starved/blocked
+            WorkInfo workInfo = workManager.getWorkInfoById(targetId).get(5, TimeUnit.SECONDS);
+            assertThat(workInfo, is(notNullValue()));
+            assertThat(workInfo.getId(), is(targetId));
+
+        } finally {
+            // Unblock any workers that were started so they can exit
+            java.util.Map<UUID, androidx.work.ListenableWorker> createdWorkers =
+                    factory.getCreatedWorkers().getValue();
+            for (androidx.work.ListenableWorker worker : createdWorkers.values()) {
+                if (worker instanceof LatchWorker) {
+                    ((LatchWorker) worker).mLatch.countDown();
+                }
+            }
+            workManager.closeDatabase();
+        }
+    }
 
     private void insertWorkSpecAndTags(WorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());

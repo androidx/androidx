@@ -62,7 +62,6 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
-import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.NeverResolvedWorker;
 
 import org.jspecify.annotations.NonNull;
@@ -162,7 +161,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @LargeTest
     public void testOnStopJob_ReschedulesWhenNotCancelled() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class).build();
         insertWork(work);
 
         mInstrumentation.runOnMainSync(() -> {
@@ -175,7 +174,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @LargeTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class).build();
         insertWork(work);
 
         mInstrumentation.runOnMainSync(() -> {
@@ -189,7 +188,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @LargeTest
     public void testStartJob_ReturnsFalseWithDuplicateJob() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class).build();
         insertWork(work);
 
         mInstrumentation.runOnMainSync(() -> {
