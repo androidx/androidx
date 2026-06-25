@@ -87,7 +87,7 @@ class Camera2CameraControllerTest {
     private val fakeGraphListener: GraphListener = mock()
     private val fakeSurfaceTracker: SurfaceTracker = mock()
 
-    // TODO: b/372258646 - Implement a proper fake implementation to simulate status changes.
+    // TODO(b/372258646): Implement a proper fake implementation to simulate status changes.
     private val fakeCameraStatusMonitor = FakeCameraStatusMonitor(cameraId)
 
     private val fakeCaptureSessionFactory: CaptureSessionFactory = mock()

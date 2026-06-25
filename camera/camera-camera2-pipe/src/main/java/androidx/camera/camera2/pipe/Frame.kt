@@ -184,7 +184,7 @@ public interface Frame : FrameReference, AutoCloseable {
         /**
          * Invoked after the output for a given [StreamId] has been produced.
          *
-         * TODO: b/474658963 - Deprecate this API once the new await/get image APIs are implemented.
+         * TODO(b/474658963): Deprecate this API once the new await/get image APIs are implemented.
          */
         public fun onImageAvailable(streamId: StreamId) {}
 
