@@ -34,7 +34,7 @@ dependencies {
     api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.arch.core:core-common:2.2.0")
-    implementation(project(":tracing:tracing"))
+    implementation("androidx.tracing:tracing:2.0.0-alpha09")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.leakcanaryInstrumentation)
