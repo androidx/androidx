@@ -101,10 +101,10 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      * and the UI is known to be in a stable state at the specific frame being tested (for example,
      * by calling waitForIdle() before this block).
      *
+     * @sample androidx.compose.ui.test.junit4.samples.runWithoutImplicitWaitSample
      * @see runOnUiThread
      * @see hasPendingWork
      */
-    // TODO(b/503573187): Add samples here
     fun <T> runWithoutImplicitWait(block: () -> T): T {
         throw NotImplementedError("runWithoutImplicitWait is not implemented.")
     }
@@ -372,7 +372,13 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      * clock or drain the main message queue.
      *
      * This is particularly useful when `autoAdvance` is disabled, allowing you to inspect the state
-     * of the UI while an animation or other work is still active.
+     * of the UI while an animation or other work is still active. If `autoAdvance` is `true`, the
+     * testing framework continuously processes pending work. In that scenario, calling this method
+     * acts as a momentary snapshot and will generally return `false`. It may briefly return `true`
+     * if work is queued but the framework hasn't auto-advanced yet, making the result fleeting and
+     * unreliable for driving test logic.
+     *
+     * @sample androidx.compose.ui.test.junit4.samples.hasPendingWorkSample
      */
     fun hasPendingWork(): Boolean {
         throw NotImplementedError("hasPendingWork() is not implemented.")

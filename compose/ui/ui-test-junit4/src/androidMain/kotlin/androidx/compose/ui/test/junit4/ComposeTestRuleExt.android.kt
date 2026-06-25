@@ -26,9 +26,9 @@ import androidx.test.espresso.ViewInteraction
  * It resolves the View from the Espresso [interaction], locates all Compose roots within that view
  * hierarchy, and creates a new, scoped SemanticsNodeInteractionsProvider.
  *
- * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionBasicSample
- * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionRecyclerViewSample
- * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionFragmentSample
+ * @sample androidx.compose.ui.test.junit4.samples.onRootWithViewInteractionBasicSample
+ * @sample androidx.compose.ui.test.junit4.samples.onRootWithViewInteractionRecyclerViewSample
+ * @sample androidx.compose.ui.test.junit4.samples.onRootWithViewInteractionFragmentSample
  */
 fun ComposeTestRule.onRootWithViewInteraction(
     interaction: ViewInteraction
