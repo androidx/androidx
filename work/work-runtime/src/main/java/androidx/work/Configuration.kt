@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.tracing.Trace
 import androidx.work.impl.DefaultRunnableScheduler
@@ -33,6 +34,7 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmStatic
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.CoroutineDispatcher
@@ -731,6 +733,15 @@ public class Configuration internal constructor(builder: Builder) {
          * [android.app.job.JobScheduler] or [android.app.AlarmManager].
          */
         public const val MIN_SCHEDULER_LIMIT: Int = 20
+
+        /** Calculates the maximum number of threads the executor should use. */
+        @VisibleForTesting
+        @JvmStatic
+        @JvmName("calculateExecutorParallelismLimit")
+        internal fun calculateExecutorParallelismLimit(): Int {
+            // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
+            return max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4))
+        }
     }
 }
 
@@ -747,11 +758,7 @@ private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
                 return Thread(runnable, "$prefix${threadCount.incrementAndGet()}")
             }
         }
-    return Executors.newFixedThreadPool(
-        // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
-        max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4)),
-        factory,
-    )
+    return Executors.newFixedThreadPool(Configuration.calculateExecutorParallelismLimit(), factory)
 }
 
 private fun createDefaultTracer(): Tracer {
