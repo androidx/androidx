@@ -68,9 +68,18 @@ abstract class CreateRJavaTask : DefaultTask() {
             val compileDir = File(temporaryDir, "compile")
             compile(compileDir, resourceDirs)
             link(compileDir.listFiles()?.toList() ?: emptyList())
+
             // Don't include private resources in the final output
             val privateResources = generatedR.dir(PRIVATE_RESOURCE_PACKAGE).get().asFile
             privateResources.deleteRecursively()
+
+            // Sometimes AAPT2 also generates a Manifest.java files, but the Manifest class can't be
+            // accessed by library clients.
+            for (file in generatedR.asFileTree.files) {
+                if (file.name != "R.java") {
+                    file.delete()
+                }
+            }
         }
     }
 
