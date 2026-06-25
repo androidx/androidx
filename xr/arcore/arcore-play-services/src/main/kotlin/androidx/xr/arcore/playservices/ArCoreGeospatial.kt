@@ -355,14 +355,6 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
                     )
                 )
             }
-            ARCore1xTerrainAnchorState.TASK_IN_PROGRESS -> {
-                // TASK_IN_PROGRESS should not be possible when called from the Anchor callback.
-                continuation.resumeWithException(
-                    AnchorRuntimeFailureException(
-                        Throwable("Callback resumed on incomplete Terrain Anchor Future.")
-                    )
-                )
-            }
             ARCore1xTerrainAnchorState.ERROR_INTERNAL -> {
                 continuation.resumeWithException(
                     AnchorRuntimeFailureException(
@@ -375,6 +367,13 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             }
             ARCore1xTerrainAnchorState.ERROR_UNSUPPORTED_LOCATION -> {
                 continuation.resumeWithException(AnchorUnsupportedLocationException())
+            }
+            else -> {
+                continuation.resumeWithException(
+                    AnchorRuntimeFailureException(
+                        Throwable("Callback resumed on incomplete Terrain Anchor Future.")
+                    )
+                )
             }
         }
     }
