@@ -163,7 +163,7 @@ public interface CameraPipe {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public data class Flags(
         val strictModeEnabled: Boolean = false,
-        val cameraOpenAbortEnabled: Boolean = false,
+        val cameraOpenAbortEnabled: Boolean = true,
     )
 
     /**
