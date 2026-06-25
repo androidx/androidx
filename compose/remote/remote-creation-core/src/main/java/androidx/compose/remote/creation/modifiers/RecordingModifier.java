@@ -323,6 +323,15 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a horizontal scroll modifier with notches
+     */
+    public @NonNull RecordingModifier horizontalScroll(float position, int notches) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.HORIZONTAL, position, notches));
+        return this;
+    }
+
+    /**
      * Add a vertical scroll modifier
      */
     public @NonNull RecordingModifier verticalScroll() {
@@ -337,6 +346,15 @@ public class RecordingModifier {
     public @NonNull RecordingModifier verticalScroll(float position) {
         mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
         mList.add(new ScrollModifier(ScrollModifier.VERTICAL, position, 0));
+        return this;
+    }
+
+    /**
+     * Add a vertical scroll modifier with notches
+     */
+    public @NonNull RecordingModifier verticalScroll(float position, int notches) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.VERTICAL, position, notches));
         return this;
     }
 

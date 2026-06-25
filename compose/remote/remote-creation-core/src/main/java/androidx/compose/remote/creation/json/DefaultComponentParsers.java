@@ -79,7 +79,7 @@ class DefaultComponentParsers {
                     parser.getHorizontalAlign(component, "start"),
                     parser.getVerticalAlign(component, "top"),
                     component.optInt("maxColumns", Integer.MAX_VALUE),
-                    Integer.MAX_VALUE);
+                    component.optInt("maxLines", Integer.MAX_VALUE));
             parser.parseChildren(component.optJSONArray("children"));
             writer.endFlow();
         });

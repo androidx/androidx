@@ -118,11 +118,45 @@ class DefaultModifierParsers {
             recordingModifier.border(width, corner, color, shape);
         });
         p.registerModifierParser("verticalscroll", (mod, key, recordingModifier, parser) -> {
-            RcFloat positionRc = new RcFloat(parser.getWriter(), parser.parseFloat(mod.get(key)));
-            recordingModifier.then(new VerticalScrollRcFloatModifier(positionRc));
+            Object val = mod.get(key);
+            if (val instanceof JSONObject) {
+                JSONObject obj = (JSONObject) val;
+                float pos = parser.parseFloat(obj.get("position"));
+                int notches = obj.optInt("notches", 0);
+                recordingModifier.verticalScroll(pos, notches);
+            } else {
+                RcFloat positionRc = new RcFloat(parser.getWriter(), parser.parseFloat(val));
+                recordingModifier.then(new VerticalScrollRcFloatModifier(positionRc));
+            }
         });
         p.registerModifierParser("horizontalscroll", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.horizontalScroll(parser.parseFloat(mod.get(key)));
+            Object val = mod.get(key);
+            if (val instanceof JSONObject) {
+                JSONObject obj = (JSONObject) val;
+                float pos = parser.parseFloat(obj.get("position"));
+                int notches = obj.optInt("notches", 0);
+                recordingModifier.horizontalScroll(pos, notches);
+            } else {
+                recordingModifier.horizontalScroll(parser.parseFloat(val));
+            }
+        });
+        p.registerModifierParser("collapsiblepriority", (mod, key, recordingModifier, parser) -> {
+            Object val = mod.get(key);
+            int orientation = 0;
+            float priority = 0f;
+            if (val instanceof JSONObject) {
+                JSONObject obj = (JSONObject) val;
+                String orientStr = obj.optString("orientation", "horizontal");
+                orientation = orientStr.equalsIgnoreCase("vertical") ? 1 : 0;
+                priority = (float) obj.optDouble("priority", 0.0);
+            } else if (val instanceof JSONArray) {
+                JSONArray arr = (JSONArray) val;
+                orientation = arr.getInt(0);
+                priority = (float) arr.getDouble(1);
+            } else {
+                priority = parser.parseFloat(val);
+            }
+            recordingModifier.collapsiblePriority(orientation, priority);
         });
         p.registerModifierParser("widthin", (mod, key, recordingModifier, parser) -> {
             JSONArray wi = mod.getJSONArray(key);
