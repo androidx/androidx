@@ -694,16 +694,18 @@ public fun OutlinedCard(
  * Example of a [TitleCardContent] layout with OneHandedGestureIndicator:
  *
  * @sample androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
- * @param title A slot for displaying the title of the card, expected to be one of two lines of
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of
  *   text.
- * @param modifier Modifier to be applied to the title card content layout.
+ * @param modifier Modifier to be applied to the card.
  * @param time An optional slot for displaying the time relevant to the contents of the card,
  *   expected to be a short piece of text. Depending on whether we have a [content] or not, can be
  *   placed at the end of the [title] line or above it.
  * @param subtitle An optional slot for displaying the subtitle of the card, expected to be one line
  *   of text.
- * @param colors [CardColors] that will be used to resolve the colors used for this card.
- * @param content The optional body content of the card.
+ * @param colors [CardColors] that will be used to resolve the colors used for this card in
+ *   different states. See [CardDefaults.cardColors].
+ * @param content The optional body content of the card. If not provided then title and subtitle are
+ *   expected to be provided.
  */
 @Composable
 public fun TitleCardContent(
@@ -781,14 +783,18 @@ public fun TitleCardContent(
  * Example of an [AppCardContent] layout with OneHandedGestureIndicator:
  *
  * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
- * @param appName A slot for providing the app name.
- * @param title A slot for providing the card's title.
- * @param modifier Modifier to be applied to the app card content layout.
- * @param colors [CardColors] that will be used to resolve the content, title, and app name colors
- *   in different states. See [CardDefaults.cardColors].
- * @param appImage A slot for providing the app icon.
- * @param time A slot for providing the time.
- * @param content A slot for providing the card's body content.
+ * @param appName A slot for displaying the application name, expected to be a single line of start
+ *   aligned text.
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of
+ *   start aligned text.
+ * @param modifier Modifier to be applied to the card.
+ * @param colors [CardColors] that will be used to resolve the colors used for this card in
+ *   different states. See [CardDefaults.cardColors].
+ * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
+ *   [Image] associated with the application.
+ * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
+ *   short piece of end aligned text.
+ * @param content The main slot for a content of this card.
  */
 @Composable
 public fun AppCardContent(

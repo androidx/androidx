@@ -555,9 +555,10 @@ public fun ChildButton(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default, Button
+ *   applies Material3 UX guidelines, so that `Text` will be start aligned, with ellipsis for
+ *   overflow and maximum 2 lines (although this can be overridden by setting those parameters
+ *   explicitly on `Text`). label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -578,8 +579,10 @@ public fun ChildButton(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, Button applies Material3
+ *   UX guidelines, so that `Text` will be start aligned if there is an [icon] or [secondaryLabel]
+ *   present and center aligned if not, with ellipsis for overflow and maximum 3 lines (although
+ *   this can be overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -669,9 +672,10 @@ public fun Button(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default, Button
+ *   applies Material3 UX guidelines, so that `Text` will be start aligned, with ellipsis for
+ *   overflow and maximum 2 lines (although this can be overridden by setting those parameters
+ *   explicitly on `Text`). label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -695,8 +699,10 @@ public fun Button(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, Button applies Material3
+ *   UX guidelines, so that `Text` will be start aligned if there is an [icon] or [secondaryLabel]
+ *   present and center aligned if not, with ellipsis for overflow and maximum 3 lines (although
+ *   this can be overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -793,9 +799,11 @@ public fun Button(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default,
+ *   FilledTonalButton applies Material3 UX guidelines, so that `Text` will be start aligned, with
+ *   ellipsis for overflow and maximum 2 lines (although this can be overridden by setting those
+ *   parameters explicitly on `Text`). label and secondaryLabel contents should be consistently
+ *   aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -815,8 +823,10 @@ public fun Button(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, FilledTonalButton applies
+ *   Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon] or
+ *   [secondaryLabel] present and center aligned if not, with ellipsis for overflow and maximum 3
+ *   lines (although this can be overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -906,9 +916,11 @@ public fun FilledTonalButton(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default,
+ *   OutlinedButton applies Material3 UX guidelines, so that `Text` will be start aligned, with
+ *   ellipsis for overflow and maximum 2 lines (although this can be overridden by setting those
+ *   parameters explicitly on `Text`). label and secondaryLabel contents should be consistently
+ *   aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -928,8 +940,10 @@ public fun FilledTonalButton(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, OutlinedButton applies
+ *   Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon] or
+ *   [secondaryLabel] present and center aligned if not, with ellipsis for overflow and maximum 3
+ *   lines (although this can be overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -1019,9 +1033,10 @@ public fun OutlinedButton(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default, ChildButton
+ *   applies Material3 UX guidelines, so that `Text` will be start aligned, with ellipsis for
+ *   overflow and maximum 2 lines (although this can be overridden by setting those parameters
+ *   explicitly on `Text`). label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -1041,8 +1056,10 @@ public fun OutlinedButton(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, ChildButton applies
+ *   Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon] or
+ *   [secondaryLabel] present and center aligned if not, with ellipsis for overflow and maximum 3
+ *   lines (although this can be overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -1181,9 +1198,10 @@ public fun ChildButton(
  *   still happen internally.
  * @param transformation Transformation to be used when button appears inside a container that needs
  *   to dynamically change its content separately from the background.
- * @param label A slot for providing the button's main label. The contents are expected to be a
- *   single line of text which is "start" aligned if there is an icon present and "center" aligned
- *   if not.
+ * @param label A slot for providing the button's main label. By default, CompactButton applies
+ *   Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon] present and
+ *   center aligned if not, with ellipsis for overflow and maximum 1 line (although this can be
+ *   overridden by setting those parameters explicitly on `Text`).
  */
 // TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
@@ -1268,9 +1286,11 @@ public fun CompactButton(
  *
  * @sample androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
  * @param modifier Modifier to be applied to the button content layout.
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
+ * @param secondaryLabel A slot for providing the button's secondary label. By default,
+ *   ButtonContent applies Material3 UX guidelines, so that `Text` will be start aligned, with
+ *   ellipsis for overflow and maximum 2 lines (although this can be overridden by setting those
+ *   parameters explicitly on `Text`). label and secondaryLabel contents should be consistently
+ *   aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
  *   [ButtonDefaults.LargeIconSize].
@@ -1278,8 +1298,10 @@ public fun CompactButton(
  *   be displayed in a disabled style.
  * @param colors [ButtonColors] that will be used to resolve the content, secondary content, and
  *   icon colors in different states. See [ButtonDefaults.buttonColors].
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
+ * @param label A slot for providing the button's main label. By default, ButtonContent applies
+ *   Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon] or
+ *   [secondaryLabel] present and center aligned if not, with ellipsis for overflow and maximum 3
+ *   lines (although this can be overridden by setting those parameters explicitly on `Text`).
  */
 @Composable
 public fun ButtonContent(
@@ -1352,15 +1374,24 @@ public fun ButtonContent(
  * indicator like OneHandedGestureIndicator) while maintaining standard typography, colors, and
  * spacing.
  *
+ * Both the icon and label are optional however it is expected that at least one will be provided.
+ *
  * Example of a [CompactButtonContent] layout with OneHandedGestureIndicator:
  *
  * @sample androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
  * @param modifier Modifier to be applied to the compact button content layout.
- * @param icon A slot for providing the button's icon.
- * @param enabled Controls the enabled state of the button content.
- * @param colors [ButtonColors] that will be used to resolve the content and icon colors in
- *   different states. See [ButtonDefaults.buttonColors].
- * @param label A slot for providing the button's main label.
+ * @param icon A slot for providing the button's icon. The contents are expected to be a
+ *   horizontally and vertically aligned icon of size [CompactButtonDefaults.ExtraSmallIconSize]
+ *   when used with a label or [CompactButtonDefaults.SmallIconSize] when used as the only content
+ *   in the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable.
+ * @param colors [ButtonColors] that will be used to resolve the background and content color for
+ *   this button in different states. See [ButtonDefaults.buttonColors].
+ * @param label A slot for providing the button's main label. By default, CompactButtonContent
+ *   applies Material3 UX guidelines, so that `Text` will be start aligned if there is an [icon]
+ *   present and center aligned if not, with ellipsis for overflow and maximum 1 line (although this
+ *   can be overridden by setting those parameters explicitly on `Text`).
  */
 @Composable
 public fun CompactButtonContent(
