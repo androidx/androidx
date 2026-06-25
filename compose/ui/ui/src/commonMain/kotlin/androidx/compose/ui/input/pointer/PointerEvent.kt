@@ -1115,15 +1115,14 @@ fun PointerInputChange.changedToUpIgnoreConsumed() = previousPressed && !pressed
  * True if this [PointerInputChange] represents a pointer moving on the screen and some of that
  * movement has not been consumed.
  */
-fun PointerInputChange.positionChanged() =
-    this.positionChangeInternal(false) != Offset.Companion.Zero
+fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != Offset.Zero
 
 /**
  * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much of
  * that movement may have been consumed.
  */
 fun PointerInputChange.positionChangedIgnoreConsumed() =
-    this.positionChangeInternal(true) != Offset.Companion.Zero
+    this.positionChangeInternal(true) != Offset.Zero
 
 /**
  * The distance that the pointer has moved on the screen minus any distance that has been consumed.
