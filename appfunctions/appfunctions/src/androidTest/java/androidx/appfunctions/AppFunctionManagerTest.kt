@@ -19,7 +19,6 @@ package androidx.appfunctions
 import android.Manifest
 import android.app.UiAutomation
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
@@ -31,7 +30,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -58,7 +56,9 @@ class AppFunctionManagerTest {
     private val metadataTestHelper: AppFunctionMetadataTestHelper =
         AppFunctionMetadataTestHelper(context)
 
-    private lateinit var mAppFunctionManager: AppFunctionManager
+    private val appFunctionManager: AppFunctionManager by lazy {
+        checkNotNull(AppFunctionManager.getInstance(context))
+    }
 
     private val uiAutomation: UiAutomation =
         InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -73,9 +73,7 @@ class AppFunctionManagerTest {
 
     @Before
     fun setup() {
-        val appFunctionManagerOrNull = AppFunctionManager.getInstance(context)
-        assumeNotNull(appFunctionManagerOrNull)
-        mAppFunctionManager = checkNotNull(appFunctionManagerOrNull)
+        assumeNotNull(AppFunctionManager.getInstance(context))
 
         uiAutomation.adoptShellPermissionIdentity(
             Manifest.permission.INSTALL_PACKAGES,
@@ -87,7 +85,7 @@ class AppFunctionManagerTest {
 
             // Reset all test ids
             for (functionIds in resetFunctionIds) {
-                mAppFunctionManager.setAppFunctionEnabled(
+                appFunctionManager.setAppFunctionEnabled(
                     functionIds,
                     AppFunctionManager.Companion.APP_FUNCTION_STATE_DEFAULT,
                 )
@@ -104,7 +102,7 @@ class AppFunctionManagerTest {
     @Test
     fun testSelfIsAppFunctionEnabled_defaultEnabledState() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT
             )
         }
@@ -115,7 +113,7 @@ class AppFunctionManagerTest {
     @Test
     fun testSelfIsAppFunctionEnabled_defaultDisabledState() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT
             )
         }
@@ -126,7 +124,7 @@ class AppFunctionManagerTest {
     @Test
     fun testIsAppFunctionEnabled_defaultEnabledState() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
             )
@@ -138,7 +136,7 @@ class AppFunctionManagerTest {
     @Test
     fun testIsAppFunctionEnabled_defaultDisabledState() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
             )
@@ -150,11 +148,11 @@ class AppFunctionManagerTest {
     @Test
     fun testSetAppFunctionEnabled_overrideToDisable() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
             )
@@ -166,11 +164,11 @@ class AppFunctionManagerTest {
     @Test
     fun testSetAppFunctionEnabled_overrideToEnabled() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
             )
@@ -182,15 +180,15 @@ class AppFunctionManagerTest {
     @Test
     fun testSetAppFunctionEnabled_resetToEnabled() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
             )
@@ -202,15 +200,15 @@ class AppFunctionManagerTest {
     @Test
     fun testSetAppFunctionEnabled_resetToDisabled() {
         val isEnabled = runBlocking {
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            mAppFunctionManager.isAppFunctionEnabled(
+            appFunctionManager.isAppFunctionEnabled(
                 context.packageName,
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
             )
@@ -228,7 +226,7 @@ class AppFunctionManagerTest {
                 functionParameters = AppFunctionData.EMPTY,
             )
 
-        val response = runBlocking { mAppFunctionManager.executeAppFunction(request) }
+        val response = runBlocking { appFunctionManager.executeAppFunction(request) }
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
         assertThat((response as ExecuteAppFunctionResponse.Error).error)
@@ -247,7 +245,7 @@ class AppFunctionManagerTest {
                     functionParameters = AppFunctionData.EMPTY,
                 )
 
-            val response = mAppFunctionManager.executeAppFunction(request)
+            val response = appFunctionManager.executeAppFunction(request)
 
             assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
             assertThat(
@@ -270,7 +268,7 @@ class AppFunctionManagerTest {
                     functionParameters = AppFunctionData.EMPTY,
                 )
 
-            val response = mAppFunctionManager.executeAppFunction(request)
+            val response = appFunctionManager.executeAppFunction(request)
 
             assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
             assertThat((response as ExecuteAppFunctionResponse.Error).error)
@@ -282,8 +280,7 @@ class AppFunctionManagerTest {
         runBlocking<Unit> {
             val searchFunctionSpec = AppFunctionSearchSpec(schemaName = "")
 
-            assertThat(mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first())
-                .isEmpty()
+            assertThat(appFunctionManager.observeAppFunctions(searchFunctionSpec).first()).isEmpty()
         }
 
     @Test
@@ -291,8 +288,7 @@ class AppFunctionManagerTest {
         runBlocking<Unit> {
             val searchFunctionSpec = AppFunctionSearchSpec(schemaCategory = "")
 
-            assertThat(mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first())
-                .isEmpty()
+            assertThat(appFunctionManager.observeAppFunctions(searchFunctionSpec).first()).isEmpty()
         }
 
     @Test
@@ -344,7 +340,7 @@ class AppFunctionManagerTest {
             )
 
         val appFunctions: List<AppFunctionMetadata> =
-            mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                 it.appFunctions
             }
 
@@ -360,7 +356,7 @@ class AppFunctionManagerTest {
             val searchFunctionSpec = AppFunctionSearchSpec()
 
             val appFunctionPackages: List<AppFunctionPackageMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first()
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first()
 
             // At least one app should be indexed, can be more due to system apps implementing app
             // functions.
@@ -391,7 +387,7 @@ class AppFunctionManagerTest {
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
 
             val appFunctionPackages: List<AppFunctionPackageMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first()
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first()
 
             val testAppPackage = appFunctionPackages.single()
             val frenchContext = getContextWithLocale(context, Locale.FRENCH)
@@ -406,7 +402,7 @@ class AppFunctionManagerTest {
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
 
             val appFunctionPackages: List<AppFunctionPackageMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first()
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first()
 
             val testAppPackage = appFunctionPackages.single()
             val frenchContext = getContextWithLocale(context, Locale.KOREAN)
@@ -422,7 +418,7 @@ class AppFunctionManagerTest {
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
 
             val appFunctions: List<AppFunctionMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                     it.appFunctions
                 }
 
@@ -448,7 +444,7 @@ class AppFunctionManagerTest {
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
 
             val appFunctions: List<AppFunctionMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                     it.appFunctions
                 }
 
@@ -466,7 +462,7 @@ class AppFunctionManagerTest {
             val searchFunctionSpec = AppFunctionSearchSpec(schemaName = "print")
 
             val appFunctions: List<AppFunctionMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                     it.appFunctions
                 }
 
@@ -484,7 +480,7 @@ class AppFunctionManagerTest {
             val searchFunctionSpec = AppFunctionSearchSpec(schemaCategory = "media")
 
             val appFunctions: List<AppFunctionMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                     it.appFunctions
                 }
 
@@ -501,7 +497,7 @@ class AppFunctionManagerTest {
             val searchFunctionSpec = AppFunctionSearchSpec(minSchemaVersion = 2)
 
             val appFunctions: List<AppFunctionMetadata> =
-                mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                     it.appFunctions
                 }
 
@@ -515,13 +511,13 @@ class AppFunctionManagerTest {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
             val searchFunctionSpec =
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
 
             val appFunctionMetadata =
-                mAppFunctionManager
+                appFunctionManager
                     .observeAppFunctions(searchFunctionSpec)
                     .first()
                     .flatMap { it.appFunctions }
@@ -536,13 +532,13 @@ class AppFunctionManagerTest {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA2_PRINT
             val searchFunctionSpec =
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
 
             val appFunctionMetadata =
-                mAppFunctionManager
+                appFunctionManager
                     .observeAppFunctions(searchFunctionSpec)
                     .first()
                     .flatMap { it.appFunctions }
@@ -557,7 +553,7 @@ class AppFunctionManagerTest {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
             val searchFunctionSpec =
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
-            val appFunctionSearchFlow = mAppFunctionManager.observeAppFunctions(searchFunctionSpec)
+            val appFunctionSearchFlow = appFunctionManager.observeAppFunctions(searchFunctionSpec)
             val emittedValues =
                 appFunctionSearchFlow.shareIn(
                     scope = CoroutineScope(Dispatchers.Default),
@@ -567,7 +563,7 @@ class AppFunctionManagerTest {
             emittedValues.first() // Allow emitting initial value and registering callback.
 
             // Modify the runtime document.
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
@@ -605,7 +601,7 @@ class AppFunctionManagerTest {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
             val searchFunctionSpec =
                 AppFunctionSearchSpec(packageNames = setOf(context.packageName))
-            val appFunctionSearchFlow = mAppFunctionManager.observeAppFunctions(searchFunctionSpec)
+            val appFunctionSearchFlow = appFunctionManager.observeAppFunctions(searchFunctionSpec)
             val emittedValues =
                 appFunctionSearchFlow.shareIn(
                     scope = CoroutineScope(Dispatchers.Default),
@@ -615,11 +611,11 @@ class AppFunctionManagerTest {
             emittedValues.first() // Allow emitting initial value and registering callback.
 
             // Modify the runtime document twice.
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
-            mAppFunctionManager.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
@@ -636,89 +632,6 @@ class AppFunctionManagerTest {
                 )
                 .isTrue()
         }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
-    fun selfExecuteActivityScopedRegisteredFunction_shouldSucceed() = runBlocking {
-        val functionId =
-            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val expectedResult = "self_execution_result"
-
-        val intent =
-            Intent(context, TestActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        val activity = InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
-        assumeNotNull(activity)
-
-        // Check first that platform indexed the function
-        metadataTestHelper.awaitAppFunctionIndexed(setOf(functionId))
-
-        try {
-            val activityAppFunctionManager = AppFunctionManager.getInstance(activity)
-            checkNotNull(activityAppFunctionManager)
-
-            val callbackAppFunction = createReturnStringAppFunction(expectedResult)
-
-            val registration =
-                activityAppFunctionManager.registerAppFunction(
-                    functionId,
-                    activity.mainExecutor,
-                    callbackAppFunction,
-                )
-
-            try {
-                val request =
-                    ExecuteAppFunctionRequest(
-                        targetPackageName =
-                            AppFunctionMetadataTestHelper.FunctionMetadata
-                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS
-                                .packageName,
-                        functionIdentifier = functionId,
-                        functionParameters = AppFunctionData.EMPTY,
-                    )
-
-                val response = mAppFunctionManager.executeAppFunction(request)
-
-                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-                val successResponse = response as ExecuteAppFunctionResponse.Success
-                assertThat(
-                        successResponse.returnValue.getString(
-                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                        )
-                    )
-                    .isEqualTo(expectedResult)
-            } finally {
-                registration.unregister()
-            }
-        } finally {
-            activity.finish()
-        }
-    }
-
-    private fun createReturnStringAppFunction(returnValue: String): CallbackAppFunction {
-        return CallbackAppFunction { _, _, callback ->
-            val responseType =
-                AppFunctionObjectTypeMetadata(
-                    properties =
-                        mapOf(
-                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE to
-                                AppFunctionStringTypeMetadata(isNullable = false)
-                        ),
-                    required = emptyList(),
-                    qualifiedName = "androidx.appfunctions.test#noSchema_executionSucceedResponse",
-                    isNullable = false,
-                )
-            val responseData =
-                AppFunctionData.Builder(responseType, AppFunctionComponentsMetadata(emptyMap()))
-                    .setString(
-                        ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                        returnValue,
-                    )
-                    .build()
-            callback.accept(ExecuteAppFunctionResponse.Success(responseData))
-        }
-    }
 
     private companion object {
         const val ADDITIONAL_APP_PACKAGE = "com.google.android.app.notes"
