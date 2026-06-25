@@ -29,9 +29,6 @@ import androidx.work.impl.utils.INITIAL_ID
 import androidx.work.multiprocess.RemoteWorkManager.DEFAULT_SESSION_TIMEOUT_MILLIS
 import androidx.work.multiprocess.RemoteWorkManager.MAX_SESSION_TIMEOUT_MILLIS
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmStatic
@@ -218,7 +215,8 @@ public class Configuration internal constructor(builder: Builder) {
         executor =
             builder.executor
                 ?: builderWorkerDispatcher?.asExecutor()
-                ?: createDefaultExecutor(isTaskExecutor = false)
+                ?: Dispatchers.Default.limitedParallelism(calculateExecutorParallelismLimit())
+                    .asExecutor()
 
         workerCoroutineContext =
             when {
@@ -233,7 +231,7 @@ public class Configuration internal constructor(builder: Builder) {
         // This executor is used for *both* WorkManager's tasks and Room's query executor.
         // So this should not be a single threaded executor. Writes will still be serialized
         // as this will be wrapped with an SerialExecutor.
-        taskExecutor = builder.taskExecutor ?: createDefaultExecutor(isTaskExecutor = true)
+        taskExecutor = builder.taskExecutor ?: Dispatchers.Default.asExecutor()
         clock = builder.clock ?: SystemClock()
         workerFactory = builder.workerFactory ?: DefaultWorkerFactory
         inputMergerFactory = builder.inputMergerFactory ?: NoOpInputMergerFactory
@@ -740,26 +738,12 @@ public class Configuration internal constructor(builder: Builder) {
         @JvmName("calculateExecutorParallelismLimit")
         internal fun calculateExecutorParallelismLimit(): Int {
             // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
-            return max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4))
+            return max(1, min(Runtime.getRuntime().availableProcessors() - 1, 4))
         }
     }
 }
 
 internal const val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
-
-private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
-    val factory =
-        object : ThreadFactory {
-            private val threadCount = AtomicInteger(0)
-
-            override fun newThread(runnable: Runnable): Thread {
-                // Thread names are constrained to a max of 15 characters by the Linux Kernel.
-                val prefix = if (isTaskExecutor) "WM.task-" else "androidx.work-"
-                return Thread(runnable, "$prefix${threadCount.incrementAndGet()}")
-            }
-        }
-    return Executors.newFixedThreadPool(Configuration.calculateExecutorParallelismLimit(), factory)
-}
 
 private fun createDefaultTracer(): Tracer {
     // Delegate to AndroidX Tracing while leaving the implementation open-ended for a pluggable
