@@ -17,8 +17,8 @@
 package androidx.appstate.transform
 
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -36,10 +36,10 @@ internal object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
     private val sent = AtomicBoolean(false)
 
-    internal fun ensureStarted() {
+    internal fun ensureStarted(dispatcher: CoroutineDispatcher) {
         if (started.compareAndSet(false, true)) {
             val channel = Channel<Unit>(1)
-            CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(dispatcher).launch {
                 channel.consumeEach {
                     sent.set(false)
                     Snapshot.sendApplyNotifications()

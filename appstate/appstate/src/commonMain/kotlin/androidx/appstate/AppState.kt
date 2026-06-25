@@ -25,9 +25,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlin.collections.getOrPut
-import kotlin.coroutines.CoroutineContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -105,17 +105,17 @@ public class AppState {
     /**
      * Adds a listener that can be used to listen for particular [State] from this AppState.
      *
-     * @param context the context that should be used to execute the listener
+     * @param dispatcher the dispatcher that should be used to execute the listener
      * @param listener composable lambda that should be used to observe specific states
      * @return an AppStateToken that should be used with [removeAppStateListener]
      */
     public fun addAppStateListener(
-        context: CoroutineContext = Dispatchers.Default,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         listener: @Composable AppStateToken.(Map<AppStateKey<*>, State<*>>) -> Unit,
     ): AppStateToken {
-        val scope = CoroutineScope(context + SupervisorJob())
+        val scope = CoroutineScope(dispatcher + SupervisorJob())
         val token = AppStateToken()
-        transform(defaultValue = Unit, context = scope.coroutineContext, scope = scope) {
+        transform(defaultValue = Unit, scope = scope, dispatcher = dispatcher) {
             listener(token, stateStore)
         }
         appStateListeners[token] = scope
