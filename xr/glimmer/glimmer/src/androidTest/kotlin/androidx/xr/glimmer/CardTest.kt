@@ -48,7 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -64,7 +63,6 @@ import androidx.compose.ui.test.isNotFocusable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -323,24 +321,14 @@ class CardTest {
 
         rule.runOnIdle { interactions.clear() }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            down(Offset.Zero)
-        }
+        rule.sendGlimmerIndirectPointerInput { down(Offset.Zero) }
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             advanceEventTime(200L)
             up()
         }
