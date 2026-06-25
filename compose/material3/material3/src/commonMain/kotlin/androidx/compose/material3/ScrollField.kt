@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -162,7 +164,8 @@ fun ScrollField(
                         selected = isSelected,
                         onClick = { scope.launch { state.animateScrollToOption(index) } },
                         role = Role.Carousel,
-                    ),
+                    )
+                    .semantics { traversalIndex = if (isSelected) -1f else page.toFloat() },
             contentAlignment = Alignment.Center,
         ) {
             field(index, isSelected)

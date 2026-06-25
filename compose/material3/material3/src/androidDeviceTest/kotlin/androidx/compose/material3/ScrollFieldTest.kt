@@ -16,6 +16,10 @@
 
 package androidx.compose.material3
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -62,5 +66,48 @@ class ScrollFieldTest {
 
         assertThat(state.selectedOption).isEqualTo(1)
         rule.onNodeWithText("01").assertIsSelected()
+    }
+
+    @Test
+    fun scrollField_traversalIndex() {
+        val itemCount = 10
+        val initialIndex = 5
+        lateinit var state: ScrollFieldState
+        rule.setContent {
+            state = rememberScrollFieldState(itemCount = itemCount, index = initialIndex)
+            ScrollField(state = state)
+        }
+
+        // Verify selected item has traversalIndex -1f
+        rule
+            .onNodeWithText("05")
+            .assert(
+                SemanticsMatcher("Selected item traversalIndex") {
+                    it.config.getOrNull(SemanticsProperties.TraversalIndex) == -1f
+                }
+            )
+
+        val nextText = "06"
+
+        rule.onNodeWithText(nextText).performClick()
+        rule.waitForIdle()
+
+        // Verify new selected item has traversalIndex -1f
+        rule
+            .onNodeWithText(nextText)
+            .assert(
+                SemanticsMatcher("New selected item traversalIndex") {
+                    it.config.getOrNull(SemanticsProperties.TraversalIndex) == -1f
+                }
+            )
+
+        // Verify previous item no longer has -1f
+        rule
+            .onNodeWithText("05")
+            .assert(
+                SemanticsMatcher("Previous item traversalIndex") {
+                    it.config.getOrNull(SemanticsProperties.TraversalIndex) != -1f
+                }
+            )
     }
 }
