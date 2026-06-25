@@ -24,9 +24,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -38,23 +39,23 @@ import kotlinx.coroutines.launch
  * automatically recomposed whenever any Compose state it reads is updated, and the newly returned
  * value is pushed into the resulting [State].
  *
- * @param context The [CoroutineContext] to use for the composition's recomposer.
- * @param scope The [CoroutineScope] in which the recomposer and frame clock will run.
  * @param defaultValue The initial value to populate the returned [State] before the first
  *   composition completes.
+ * @param scope The [CoroutineScope] in which the recomposer and frame clock will run.
+ * @param dispatcher The [CoroutineDispatcher] thread this transform should run on.
  * @param onUpdate The [Composable] block that computes the value of type [R].
  * @return A [State] containing the latest result of the [transform] block.
  */
 public fun <R> transform(
     defaultValue: R,
-    context: CoroutineContext,
-    scope: CoroutineScope = CoroutineScope(context),
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable () -> R,
 ): State<R> {
-    GlobalSnapshotManager.ensureStarted()
+    GlobalSnapshotManager.ensureStarted(dispatcher)
     // TODO: Figure out the appropriate frame clock
-    val clockContext = GatedFrameClock(scope, context)
-    val finalContext = context + clockContext
+    val clockContext = GatedFrameClock(scope, dispatcher)
+    val finalContext = dispatcher + clockContext
 
     // TODO: Determine whether a single recomposer is the correct approach
     val recomposer = Recomposer(finalContext)
@@ -80,20 +81,18 @@ public fun <R> transform(
  *
  * @param defaultValue The initial value to populate the returned [State] before the first
  *   composition completes.
+ * @param dispatcher The [CoroutineDispatcher] thread this transform should run on.
  * @param onUpdate The [Composable] block that computes the value of type [R].
  * @return A [State] containing the latest result of the [transform] block.
  */
 @Composable
-public fun <R> transform(defaultValue: R, onUpdate: @Composable () -> R): State<R> {
+public fun <R> transform(
+    defaultValue: R,
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    onUpdate: @Composable () -> R,
+): State<R> {
     val scope = rememberCoroutineScope()
-    return remember(scope) {
-        transform(
-            defaultValue = defaultValue,
-            context = scope.coroutineContext,
-            scope = scope,
-            onUpdate = onUpdate,
-        )
-    }
+    return remember(scope) { transform(defaultValue, scope, dispatcher, onUpdate) }
 }
 
 private object UnitApplier : AbstractApplier<Unit>(Unit) {

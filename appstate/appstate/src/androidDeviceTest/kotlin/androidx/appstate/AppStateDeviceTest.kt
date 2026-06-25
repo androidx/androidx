@@ -16,14 +16,15 @@
 
 package androidx.appstate
 
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.ContinuationInterceptor
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,40 +32,44 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class AppStateDeviceTest {
-
-    private val testDispatcher = StandardTestDispatcher()
-
     @Serializable object StringKey : AppStateKey<String>()
 
     @Test
-    fun testAddAppStateListener() =
-        runTest(testDispatcher) {
-            Dispatchers.setMain(testDispatcher)
-            val appState = AppState()
-            var receivedValue: String? = null
+    fun testAddAppStateListener() = runTest {
+        val appState = AppState()
+        var receivedValue: String? = null
 
-            appState.setState(StringKey, "initial")
+        appState.setState(StringKey, "initial")
 
-            val token =
-                appState.addAppStateListener(coroutineContext) { map ->
-                    receivedValue = map[StringKey]?.value as? String
-                }
+        val token =
+            appState.addAppStateListener(testDispatcher) { map ->
+                receivedValue = map[StringKey]?.value as? String
+            }
 
-            // Wait for first composition
-            runCurrent()
-            assertThat(receivedValue).isEqualTo("initial")
+        // Wait for first composition
+        runRecomposition()
+        assertThat(receivedValue).isEqualTo("initial")
 
-            // Update state and verify listener is called again
-            appState.setState(StringKey, "updated")
-            runCurrent()
-            assertThat(receivedValue).isEqualTo("updated")
+        // Update state and verify listener is called again
+        appState.setState(StringKey, "updated")
+        runRecomposition()
+        assertThat(receivedValue).isEqualTo("updated")
 
-            // Remove listener
-            appState.removeAppStateListener(token)
+        // Remove listener
+        appState.removeAppStateListener(token)
 
-            // Update state again and verify listener is NOT called
-            appState.setState(StringKey, "ignored")
-            runCurrent()
-            assertThat(receivedValue).isEqualTo("updated")
-        }
+        // Update state again and verify listener is NOT called
+        appState.setState(StringKey, "ignored")
+        runRecomposition()
+        assertThat(receivedValue).isEqualTo("updated")
+    }
+
+    private fun TestScope.runRecomposition() {
+        runCurrent()
+        Snapshot.sendApplyNotifications()
+        runCurrent()
+    }
 }
+
+private val TestScope.testDispatcher: CoroutineDispatcher
+    get() = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
