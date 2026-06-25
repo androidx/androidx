@@ -48,6 +48,20 @@ import org.robolectric.Shadows.shadowOf
 /** JUnit Rule containing properties that affect the results of [XrDevice] capability APIs. */
 public class XrDeviceTestRule : ExternalResource() {
     internal var capabilityProvider: FakeXrDeviceCapabilityProvider? = null
+        set(value) {
+            field = value
+            attemptToRunCapabilityProviderTasks()
+        }
+
+    private val capabilityProviderTaskList: MutableList<() -> Unit> = mutableListOf()
+
+    private fun attemptToRunCapabilityProviderTasks() {
+        if (capabilityProvider != null) {
+            capabilityProviderTaskList.forEach { task -> task.invoke() }
+            capabilityProviderTaskList.clear()
+        }
+    }
+
     internal var spatialApiVersionProvider: FakeSpatialApiVersionProvider? = null
 
     /**
@@ -59,7 +73,10 @@ public class XrDeviceTestRule : ExternalResource() {
     public var preferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.ALPHA_BLEND
         set(value) {
             field = value
-            capabilityProvider?.preferredDisplayBlendMode = value.toInternal()
+            capabilityProviderTaskList.add {
+                capabilityProvider?.preferredDisplayBlendMode = value.toInternal()
+            }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -71,14 +88,17 @@ public class XrDeviceTestRule : ExternalResource() {
     public var supportedHandTrackingModes: Set<HandTrackingMode> = setOf(HandTrackingMode.DISABLED)
         set(value) {
             field = value
-            capabilityProvider?.let { capabilityProvider ->
-                capabilityProvider.supportedHandTrackingModes.clear()
-                value.forEach { mode ->
-                    capabilityProvider.supportedHandTrackingModes.add(
-                        mode.toInternalHandTrackingMode()
-                    )
+            capabilityProviderTaskList.add {
+                capabilityProvider?.let { capabilityProvider ->
+                    capabilityProvider.supportedHandTrackingModes.clear()
+                    value.forEach { mode ->
+                        capabilityProvider.supportedHandTrackingModes.add(
+                            mode.toInternalHandTrackingMode()
+                        )
+                    }
                 }
             }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -90,14 +110,17 @@ public class XrDeviceTestRule : ExternalResource() {
     public var supportedEyeTrackingModes: Set<EyeTrackingMode> = setOf(EyeTrackingMode.DISABLED)
         set(value) {
             field = value
-            capabilityProvider?.let { capabilityProvider ->
-                capabilityProvider.supportedEyeTrackingModes.clear()
-                value.forEach { mode ->
-                    capabilityProvider.supportedEyeTrackingModes.add(
-                        mode.toInternalEyeTrackingMode()
-                    )
+            capabilityProviderTaskList.add {
+                capabilityProvider?.let { capabilityProvider ->
+                    capabilityProvider.supportedEyeTrackingModes.clear()
+                    value.forEach { mode ->
+                        capabilityProvider.supportedEyeTrackingModes.add(
+                            mode.toInternalEyeTrackingMode()
+                        )
+                    }
                 }
             }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -110,14 +133,17 @@ public class XrDeviceTestRule : ExternalResource() {
         setOf(DepthEstimationMode.DISABLED)
         set(value) {
             field = value
-            capabilityProvider?.let { capabilityProvider ->
-                capabilityProvider.supportedDepthEstimationModes.clear()
-                value.forEach { mode ->
-                    capabilityProvider.supportedDepthEstimationModes.add(
-                        mode.toInternalDepthEstimationMode()
-                    )
+            capabilityProviderTaskList.add {
+                capabilityProvider?.let { capabilityProvider ->
+                    capabilityProvider.supportedDepthEstimationModes.clear()
+                    value.forEach { mode ->
+                        capabilityProvider.supportedDepthEstimationModes.add(
+                            mode.toInternalDepthEstimationMode()
+                        )
+                    }
                 }
             }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -129,12 +155,17 @@ public class XrDeviceTestRule : ExternalResource() {
     public var supportedGeospatialModes: Set<GeospatialMode> = setOf(GeospatialMode.DISABLED)
         set(value) {
             field = value
-            capabilityProvider?.let { capabilityProvider ->
-                capabilityProvider.supportedGeospatialModes.clear()
-                value.forEach { mode ->
-                    capabilityProvider.supportedGeospatialModes.add(mode.toInternalGeospatialMode())
+            capabilityProviderTaskList.add {
+                capabilityProvider?.let { capabilityProvider ->
+                    capabilityProvider.supportedGeospatialModes.clear()
+                    value.forEach { mode ->
+                        capabilityProvider.supportedGeospatialModes.add(
+                            mode.toInternalGeospatialMode()
+                        )
+                    }
                 }
             }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -146,12 +177,17 @@ public class XrDeviceTestRule : ExternalResource() {
     public var supportedRenderingModes: Set<RenderingMode> = setOf()
         set(value) {
             field = value
-            capabilityProvider?.let { capabilityProvider ->
-                capabilityProvider.supportedRenderingModes.clear()
-                value.forEach { mode ->
-                    capabilityProvider.supportedRenderingModes.add(mode.toInternalRenderingMode())
+            capabilityProviderTaskList.add {
+                capabilityProvider?.let { capabilityProvider ->
+                    capabilityProvider.supportedRenderingModes.clear()
+                    value.forEach { mode ->
+                        capabilityProvider.supportedRenderingModes.add(
+                            mode.toInternalRenderingMode()
+                        )
+                    }
                 }
             }
+            attemptToRunCapabilityProviderTasks()
         }
 
     /**
@@ -189,8 +225,9 @@ public class XrDeviceTestRule : ExternalResource() {
      */
     public var lifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
         set(value) {
-            capabilityProvider?.lifecycleState = value
             field = value
+            capabilityProviderTaskList.add { capabilityProvider?.lifecycleState = value }
+            attemptToRunCapabilityProviderTasks()
         }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
