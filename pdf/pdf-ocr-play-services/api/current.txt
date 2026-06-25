@@ -1,1 +1,11 @@
 // Signature format: 4.0
+package androidx.pdf.ocr.playservices {
+
+  public final class MlKitOcrProvider implements androidx.pdf.ocr.OcrProvider {
+    ctor public MlKitOcrProvider();
+    method public void close();
+    method public suspend Object? recognizeText(android.graphics.Bitmap image, kotlin.coroutines.Continuation<? super androidx.pdf.ocr.OcrResult?>);
+  }
+
+}
+
