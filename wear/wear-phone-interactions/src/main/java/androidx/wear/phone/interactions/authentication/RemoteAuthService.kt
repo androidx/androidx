@@ -85,6 +85,16 @@ public abstract class RemoteAuthService : Service() {
             response: OAuthResponse,
             packageNameAndRequestId: Pair<String, Int>,
         ) {
+            val expectedPackageName = packageNameAndRequestId.first
+            val responseUrl = response.responseUrl
+
+            if (responseUrl != null && responseUrl.lastPathSegment != expectedPackageName) {
+                throw SecurityException(
+                    "Response URL package segment '${responseUrl.lastPathSegment}' " +
+                        "does not match the registered receiver '$expectedPackageName'"
+                )
+            }
+
             try {
                 callbacksByPackageNameAndRequestID[packageNameAndRequestId]?.onResult(
                     buildBundleFromResponse(response, packageNameAndRequestId.first)
@@ -157,13 +167,35 @@ public abstract class RemoteAuthService : Service() {
                     throw SecurityException("Failed to verify the Requester's package name")
                 }
 
+                val requestUrl: Uri =
+                    request.getParcelable(RemoteAuthClient.KEY_REQUEST_URL)
+                        ?: throw SecurityException("Missing requestUrl")
+
+                val redirectUriString =
+                    requestUrl.getQueryParameter("redirect_uri")
+                        ?: throw SecurityException("Missing redirect_uri in requestUrl")
+
+                val redirectUri = Uri.parse(redirectUriString)
+                if (redirectUri.lastPathSegment != packageName) {
+                    throw SecurityException(
+                        "redirect_uri package segment '${redirectUri.lastPathSegment}' " +
+                            "does not match verified caller package '$packageName'"
+                    )
+                }
+
+                try {
+                    OAuthRequest.checkValidity(requestUrl)
+                } catch (e: IllegalArgumentException) {
+                    throw SecurityException("Invalid OAuth request format: ${e.message}", e)
+                }
+
                 val packageNameAndRequestId = Pair(packageName!!, secureRandom.nextInt())
+
                 callbacksByPackageNameAndRequestID[packageNameAndRequestId] =
                     authenticationRequestCallback
 
-                val requestUrl: Uri? = request.getParcelable(RemoteAuthClient.KEY_REQUEST_URL)
                 remoteAuthRequestHandler.sendAuthRequest(
-                    OAuthRequest(packageName, requestUrl!!),
+                    OAuthRequest(packageName, requestUrl),
                     packageNameAndRequestId,
                 )
             } else {
