@@ -35,6 +35,7 @@ import androidx.appfunction.integration.test.sharedschema.SetField
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
@@ -71,7 +72,7 @@ import org.junit.Test
 @LargeTest
 class SearchAppFunctionIntegrationTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-    private lateinit var appFunctionCaller: AppFunctionCaller
+    private lateinit var appFunctionManager: AppFunctionManager
     private val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     private val targetAppApkFile =
@@ -82,7 +83,7 @@ class SearchAppFunctionIntegrationTest {
     fun setup() = doBlocking {
         uiAutomation.grantAppFunctionAccess(targetContext, TARGET_APP_PACKAGE)
 
-        appFunctionCaller = AppFunctionCaller(targetContext)
+        appFunctionManager = checkNotNull(AppFunctionManager.getInstance(targetContext))
 
         uiAutomation.apply {
             adoptShellPermissionIdentity(
@@ -107,12 +108,16 @@ class SearchAppFunctionIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionCaller.searchAppFunctions(searchFunctionSpec)
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
 
         val aggregatedFunctionCount = 22
         val multiServiceFunctionCount = 6
+        val dynamicFunctionsCount = 1
         if (Build.VERSION.SDK_INT >= 37) {
-            assertThat(appFunctions).hasSize(aggregatedFunctionCount + multiServiceFunctionCount)
+            assertThat(appFunctions)
+                .hasSize(
+                    aggregatedFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
+                )
         } else {
             assertThat(appFunctions).hasSize(aggregatedFunctionCount)
         }
@@ -124,7 +129,7 @@ class SearchAppFunctionIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionCaller.searchAppFunctions(searchFunctionSpec)
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
 
         assertThat(appFunctions).hasSize(1)
     }
@@ -136,7 +141,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#add")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -160,7 +165,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#add")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -189,7 +194,7 @@ class SearchAppFunctionIntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -209,7 +214,7 @@ class SearchAppFunctionIntegrationTest {
                 "androidx.appfunctions.integration.testapp.TestFactory#isCreatedByFactory"
             )
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -231,7 +236,7 @@ class SearchAppFunctionIntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -254,7 +259,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#doThrow")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -276,7 +281,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#createNote")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         createNoteMetadata.packageName,
@@ -328,7 +333,7 @@ class SearchAppFunctionIntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -377,7 +382,7 @@ class SearchAppFunctionIntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -432,7 +437,7 @@ class SearchAppFunctionIntegrationTest {
         val dateTime = LocalDateTime.of(1, 1, 1, 1, 1)
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -480,7 +485,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#updateNote")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -525,7 +530,7 @@ class SearchAppFunctionIntegrationTest {
             searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#updateNote")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -561,7 +566,7 @@ class SearchAppFunctionIntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNote_success() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .searchAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -600,7 +605,7 @@ class SearchAppFunctionIntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
@@ -614,7 +619,7 @@ class SearchAppFunctionIntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNoteSerialization_success() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .searchAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -651,7 +656,7 @@ class SearchAppFunctionIntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
@@ -665,7 +670,7 @@ class SearchAppFunctionIntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNote_readInvalidFieldFail() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .searchAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -704,7 +709,7 @@ class SearchAppFunctionIntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
@@ -751,7 +756,7 @@ class SearchAppFunctionIntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         assertThat(
@@ -800,7 +805,7 @@ class SearchAppFunctionIntegrationTest {
     }
 
     private suspend fun searchAppFunction(id: String): AppFunctionMetadata {
-        return appFunctionCaller.searchAppFunctions(AppFunctionSearchSpec()).single { it.id == id }
+        return appFunctionManager.searchAppFunctions(AppFunctionSearchSpec()).single { it.id == id }
     }
 
     private fun AppFunctionUriGrant.getValidPersistableUriFlags(): Int {
