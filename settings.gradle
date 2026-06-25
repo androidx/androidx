@@ -144,14 +144,9 @@ def pushSetting = providers.environmentVariable("IS_POSTSUBMIT")
 switch (cacheSetting) {
     case ["true", "gcp"]:
         settings.buildCache {
-            def europe = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE_EUROPE")
             remote(androidx.build.gradle.gcpbuildcache.GcpBuildCache) {
                 projectId = "androidx-ge"
-                if (europe == "true") {
-                    bucketName = "androidx-gradle-remote-cache-europe"
-                } else {
-                    bucketName = "androidx-gradle-remote-cache"
-                }
+                bucketName = "androidx-gradle-remote-cache"
                 messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
                         "Please regenerate credentials following the steps below and try again:\n" +
                         "gcloud auth application-default login --project androidx-ge"
