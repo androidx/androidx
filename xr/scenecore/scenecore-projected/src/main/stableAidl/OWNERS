@@ -1,4 +1,3 @@
-# Bug component: 1524104
 # AIDL files act as a platform API commitment.
 # Require Android XR API review for changes
 set noparent
