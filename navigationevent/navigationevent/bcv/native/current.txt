@@ -59,6 +59,9 @@ abstract class androidx.navigationevent/NavigationEventInfo { // androidx.naviga
 abstract class androidx.navigationevent/NavigationEventInput { // androidx.navigationevent/NavigationEventInput|null[0]
     constructor <init>() // androidx.navigationevent/NavigationEventInput.<init>|<init>(){}[0]
 
+    final var hasEnabledHandlers // androidx.navigationevent/NavigationEventInput.hasEnabledHandlers|{}hasEnabledHandlers[0]
+        final fun <get-hasEnabledHandlers>(): kotlin/Boolean // androidx.navigationevent/NavigationEventInput.hasEnabledHandlers.<get-hasEnabledHandlers>|<get-hasEnabledHandlers>(){}[0]
+
     final fun dispatchOnBackCancelled() // androidx.navigationevent/NavigationEventInput.dispatchOnBackCancelled|dispatchOnBackCancelled(){}[0]
     final fun dispatchOnBackCompleted() // androidx.navigationevent/NavigationEventInput.dispatchOnBackCompleted|dispatchOnBackCompleted(){}[0]
     final fun dispatchOnBackProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnBackProgressed|dispatchOnBackProgressed(androidx.navigationevent.NavigationEvent){}[0]

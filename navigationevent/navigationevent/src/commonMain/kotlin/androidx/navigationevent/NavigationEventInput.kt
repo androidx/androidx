@@ -22,6 +22,7 @@ import androidx.navigationevent.NavigationEventTransitionState.Companion.TRANSIT
 import androidx.navigationevent.NavigationEventTransitionState.Companion.TRANSITIONING_FORWARD
 import androidx.navigationevent.NavigationEventTransitionState.Idle
 import androidx.navigationevent.NavigationEventTransitionState.InProgress
+import kotlin.jvm.JvmName
 
 /**
  * An abstract class for components that generate and dispatch navigation events.
@@ -39,7 +40,7 @@ import androidx.navigationevent.NavigationEventTransitionState.InProgress
  * @see NavigationEventDispatcher
  * @see NavigationEventHandler
  */
-public abstract class NavigationEventInput() {
+public abstract class NavigationEventInput {
 
     /** The current [NavigationEventDispatcher] that this input is connected to. */
     private var currentDispatcher: NavigationEventDispatcher? = null
@@ -69,6 +70,14 @@ public abstract class NavigationEventInput() {
      * @see [NavigationEventProcessor.isPredictiveInProgress]
      */
     private var isPredictiveForwardInProgress = false
+
+    /**
+     * Tracks whether the connected [NavigationEventDispatcher] has any enabled
+     * [NavigationEventHandler] matching this input's priority scope.
+     */
+    @get:JvmName("hasEnabledHandlers")
+    public var hasEnabledHandlers: Boolean = false
+        private set
 
     /** @see [NavigationEventProcessor.addInput] */
     @MainThread
@@ -107,6 +116,7 @@ public abstract class NavigationEventInput() {
 
     @MainThread
     internal fun doOnHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
+        this.hasEnabledHandlers = hasEnabledHandlers
         onHasEnabledHandlersChanged(hasEnabledHandlers)
     }
 
