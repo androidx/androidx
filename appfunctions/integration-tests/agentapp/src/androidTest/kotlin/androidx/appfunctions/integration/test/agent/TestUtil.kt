@@ -23,6 +23,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import com.google.common.truth.Truth.assertThat
 import java.security.MessageDigest
 import kotlinx.coroutines.CoroutineScope
@@ -167,6 +168,16 @@ internal object TestUtil {
         if (Build.VERSION.SDK_INT < 37) return
         executeShellCommand("cmd app_function purge-allowlist-cache")
         executeShellCommand("cmd allowlist clear-shell-allowlist $APP_FUNCTION_ALLOWLIST_ID")
+    }
+
+    /** Starts a background service using shell command to bypass background start restrictions. */
+    fun UiAutomation.startService(packageName: String, className: String, action: String) {
+        executeShellCommandSync("cmd deviceidle tempwhitelist -d 10000 $packageName")
+        executeShellCommandSync("am startservice -a $action -n $packageName/$className")
+    }
+
+    private fun UiAutomation.executeShellCommandSync(command: String) {
+        AutoCloseInputStream(executeShellCommand(command)).bufferedReader().use { it.readText() }
     }
 
     private const val RETRY_CHECK_INTERVAL_MILLIS: Long = 500

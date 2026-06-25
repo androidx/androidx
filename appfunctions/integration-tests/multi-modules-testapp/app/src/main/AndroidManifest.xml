@@ -19,6 +19,9 @@
     <application
         android:name=".TestApplication"
         android:supportsRtl="true">
+        <property
+            android:name="android.app.appfunctions.v2"
+            android:value="manual_app_level_definitions.xml" />
         <provider
             android:name=".TestContentProvider"
             android:authorities="androidx.appfunctions.integration.testapp.provider"
@@ -93,5 +96,9 @@
                 <action android:name="android.app.appfunctions.AppFunctionService" />
             </intent-filter>
         </service>
+        <service
+            android:name=".DynamicRegistrationService"
+            android:exported="true"
+            tools:targetApi="37" />
     </application>
 </manifest>

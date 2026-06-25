@@ -41,6 +41,7 @@ import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionResourceContainer.Companion.asAppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionTextResource
@@ -93,7 +94,7 @@ import org.junit.Test
 @LargeTest
 class IntegrationTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-    private lateinit var appFunctionCaller: AppFunctionCaller
+    private lateinit var appFunctionManager: AppFunctionManager
     private val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     private val targetAppApkFile =
@@ -104,7 +105,7 @@ class IntegrationTest {
     fun setup() = doBlocking {
         uiAutomation.grantAppFunctionAccess(targetContext, TARGET_APP_PACKAGE)
 
-        appFunctionCaller = AppFunctionCaller(targetContext)
+        appFunctionManager = checkNotNull(AppFunctionManager.getInstance(targetContext))
 
         uiAutomation.apply {
             adoptShellPermissionIdentity(
@@ -130,7 +131,7 @@ class IntegrationTest {
             findAppFunctionMetadata("androidx.appfunctions.integration.testapp.TestFunctions#add")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -155,7 +156,7 @@ class IntegrationTest {
             findAppFunctionMetadata("androidx.appfunctions.integration.testapp.TestFunctions#add")
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -182,14 +183,18 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionCaller.observeAppFunctions(searchFunctionSpec).first().flatMap {
+            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                 it.appFunctions
             }
 
         val aggregatedFunctionCount = 22
         val multiServiceFunctionCount = 6
+        val dynamicFunctionsCount = 1
         if (Build.VERSION.SDK_INT >= 37) {
-            assertThat(appFunctions).hasSize(aggregatedFunctionCount + multiServiceFunctionCount)
+            assertThat(appFunctions)
+                .hasSize(
+                    aggregatedFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
+                )
         } else {
             assertThat(appFunctions).hasSize(aggregatedFunctionCount)
         }
@@ -201,7 +206,7 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val enumFunctionMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(searchFunctionSpec)
                 .first()
                 .flatMap { it.appFunctions }
@@ -235,7 +240,7 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val enumFunctionMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(searchFunctionSpec)
                 .first()
                 .flatMap { it.appFunctions }
@@ -298,7 +303,7 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(searchFunctionSpec)
                 .first()
                 .flatMap { it.appFunctions }
@@ -351,7 +356,7 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val dataTypeMetadata: Map<String, AppFunctionDataTypeMetadata> =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(searchFunctionSpec)
                 .first()
                 .flatMap { it -> it.appFunctions }
@@ -379,7 +384,7 @@ class IntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionCaller.observeAppFunctions(searchFunctionSpec).first().flatMap {
+            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
                 it.appFunctions
             }
 
@@ -395,7 +400,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -417,7 +422,7 @@ class IntegrationTest {
         // A factory is set to create the enclosing class of the function.
         // See [TestApplication.appFunctionConfiguration].
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -442,7 +447,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -462,7 +467,7 @@ class IntegrationTest {
     @Test
     fun executeAppFunction_functionNotFound_fail() = doBlocking {
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         TARGET_APP_PACKAGE,
@@ -485,7 +490,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -509,7 +514,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         createNoteMetadata.packageName,
@@ -562,7 +567,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -612,7 +617,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -677,7 +682,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         targetPackageName = metadata.packageName,
@@ -719,7 +724,7 @@ class IntegrationTest {
         val dateTime = LocalDateTime.of(1, 1, 1, 1, 1)
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -770,7 +775,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -818,7 +823,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -855,7 +860,7 @@ class IntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNote_success() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -896,7 +901,7 @@ class IntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -911,7 +916,7 @@ class IntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNoteSerialization_success() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -950,7 +955,7 @@ class IntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -965,7 +970,7 @@ class IntegrationTest {
     @Test
     fun executeAppFunction_schemaCreateNote_readInvalidFieldFail() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -1006,7 +1011,7 @@ class IntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -1020,7 +1025,7 @@ class IntegrationTest {
     @Test
     fun prepareAppFunctionData_wrongTopLevelParameterName_fail() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -1058,7 +1063,7 @@ class IntegrationTest {
     @Test
     fun prepareAppFunctionData_wrongNestedParameterName_fail() = doBlocking {
         val createNoteMetadata =
-            appFunctionCaller
+            appFunctionManager
                 .observeAppFunctions(
                     AppFunctionSearchSpec(
                         packageNames = setOf(TARGET_APP_PACKAGE),
@@ -1128,7 +1133,7 @@ class IntegrationTest {
             )
 
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -1163,7 +1168,7 @@ class IntegrationTest {
                     "androidx.appfunctions.integration.testapp.TestFunctions#echoClassWithOptionalValues"
                 )
             val response =
-                appFunctionCaller.executeAppFunction(
+                appFunctionManager.executeAppFunction(
                     request =
                         ExecuteAppFunctionRequest(
                             metadata.packageName,
@@ -1227,7 +1232,7 @@ class IntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata = findAppFunctionMetadata(ECHO_FUNCTION_WITH_OPTIONAL_PARAMETERS)
         val response =
-            appFunctionCaller.executeAppFunction(
+            appFunctionManager.executeAppFunction(
                 request =
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
@@ -1364,7 +1369,7 @@ class IntegrationTest {
             assumeTrue(isDynamicIndexerAvailable(targetContext))
             val metadata = findAppFunctionMetadata(ECHO_FUNCTION_WITH_OPTIONAL_PARAMETERS)
             val response =
-                appFunctionCaller.executeAppFunction(
+                appFunctionManager.executeAppFunction(
                     request =
                         ExecuteAppFunctionRequest(
                             metadata.packageName,
@@ -1430,7 +1435,7 @@ class IntegrationTest {
                 functionParameters = AppFunctionData.EMPTY,
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -1458,7 +1463,7 @@ class IntegrationTest {
                 functionParameters = AppFunctionData.EMPTY,
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
         val filesData =
@@ -1505,8 +1510,8 @@ class IntegrationTest {
                 functionParameters = AppFunctionData.EMPTY,
             )
         // Execute two functions simultaneously
-        val responseADeferred = async { appFunctionCaller.executeAppFunction(requestA) }
-        val responseBDeferred = async { appFunctionCaller.executeAppFunction(requestB) }
+        val responseADeferred = async { appFunctionManager.executeAppFunction(requestA) }
+        val responseBDeferred = async { appFunctionManager.executeAppFunction(requestB) }
 
         // Cancel responseA execution
         responseADeferred.cancel()
@@ -1556,7 +1561,7 @@ class IntegrationTest {
                         .build(),
             )
 
-        val response = appFunctionCaller.executeAppFunction(request)
+        val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -1627,7 +1632,7 @@ class IntegrationTest {
                             .build(),
                 )
 
-            val response = appFunctionCaller.executeAppFunction(request)
+            val response = appFunctionManager.executeAppFunction(request)
 
             assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
             val successResponse = response as ExecuteAppFunctionResponse.Success
@@ -1709,7 +1714,7 @@ class IntegrationTest {
     }
 
     private suspend fun findAppFunctionMetadata(id: String): AppFunctionMetadata {
-        return appFunctionCaller
+        return appFunctionManager
             .observeAppFunctions(AppFunctionSearchSpec())
             .first()
             .flatMap { it.appFunctions }
