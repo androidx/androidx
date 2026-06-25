@@ -32,9 +32,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -164,6 +166,7 @@ public class AuthTabIntentTest {
     }
 
     @Test
+    @TargetApi(Build.VERSION_CODES.Q)
     public void testPutsEphemeralBrowsing() {
         Intent intent = new AuthTabIntent.Builder()
                 .setEphemeralBrowsingEnabled(true)

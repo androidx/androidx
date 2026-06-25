@@ -61,7 +61,7 @@ package androidx.browser.auth {
     method public androidx.browser.auth.AuthTabIntent.Builder setColorScheme(@IntRange(from=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM, to=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK) int);
     method public androidx.browser.auth.AuthTabIntent.Builder setColorSchemeParams(@IntRange(from=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT, to=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK) int, androidx.browser.auth.AuthTabColorSchemeParams);
     method public androidx.browser.auth.AuthTabIntent.Builder setDefaultColorSchemeParams(androidx.browser.auth.AuthTabColorSchemeParams);
-    method public androidx.browser.auth.AuthTabIntent.Builder setEphemeralBrowsingEnabled(boolean);
+    method @RequiresApi(android.os.Build.VERSION_CODES.Q) public androidx.browser.auth.AuthTabIntent.Builder setEphemeralBrowsingEnabled(boolean);
     method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public androidx.browser.auth.AuthTabIntent.Builder setPendingSession(androidx.browser.auth.AuthTabSession.PendingSession);
     method public androidx.browser.auth.AuthTabIntent.Builder setSession(androidx.browser.auth.AuthTabSession);
   }
