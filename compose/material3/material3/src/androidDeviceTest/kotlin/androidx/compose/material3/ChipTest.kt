@@ -189,10 +189,19 @@ class ChipTest {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
+        val density = rule.density
+        val expectedLeft = with(density) { (8.dp.roundToPx() + 8.dp.roundToPx()).toDp() }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx = 8.dp.roundToPx() * 4
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(16.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -218,10 +227,23 @@ class ChipTest {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + AssistChipDefaults.IconSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx = 8.dp.roundToPx() * 4 + AssistChipDefaults.IconSize.roundToPx()
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + AssistChipDefaults.IconSize + 8.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - AssistChipDefaults.IconSize - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -250,19 +272,31 @@ class ChipTest {
             )
         }
 
+        val density = rule.density
+        val expectedLabelLeft =
+            with(density) {
+                (horizontalPadding.roundToPx() +
+                        AssistChipDefaults.IconSize.roundToPx() +
+                        horizontalPadding.roundToPx())
+                    .toDp()
+            }
+        val expectedTrailingLeft =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val paddingEndPx = horizontalPadding.roundToPx()
+                val trailingIconPx = AssistChipDefaults.IconSize.roundToPx()
+                (chipWidthPx - paddingEndPx - trailingIconPx).toDp()
+            }
+
         rule
             .onNodeWithTag("Leading", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(horizontalPadding)
         rule
             .onNodeWithText("Test chip", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                horizontalPadding + AssistChipDefaults.IconSize + horizontalPadding
-            )
+            .assertLeftPositionInRootIsEqualTo(expectedLabelLeft)
         rule
             .onNodeWithTag("Trailing", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                chipWidth - horizontalPadding - AssistChipDefaults.IconSize
-            )
+            .assertLeftPositionInRootIsEqualTo(expectedTrailingLeft)
     }
 
     @Test
@@ -296,16 +330,26 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (4.dp.roundToPx() + AssistChipDefaults.IconSize.roundToPx() + 6.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    4.dp.roundToPx() * 2 +
+                        AssistChipDefaults.IconSize.roundToPx() * 2 +
+                        6.dp.roundToPx() * 2
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + AssistChipDefaults.IconSize + 6.dp)
-            .assertWidthIsEqualTo(
-                chipWidth -
-                    10.dp -
-                    AssistChipDefaults.IconSize -
-                    AssistChipDefaults.IconSize -
-                    10.dp
-            )
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -454,10 +498,19 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft = with(density) { (8.dp.roundToPx() + 8.dp.roundToPx()).toDp() }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx = 8.dp.roundToPx() * 4
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(16.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -483,10 +536,23 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + FilterChipDefaults.IconSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx = 8.dp.roundToPx() * 4 + FilterChipDefaults.IconSize.roundToPx()
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 8.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - FilterChipDefaults.IconSize - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -519,16 +585,24 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + FilterChipDefaults.IconSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    8.dp.roundToPx() * 4 + FilterChipDefaults.IconSize.roundToPx() * 2
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 8.dp)
-            .assertWidthIsEqualTo(
-                chipWidth -
-                    16.dp -
-                    FilterChipDefaults.IconSize -
-                    FilterChipDefaults.IconSize -
-                    16.dp
-            )
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -563,16 +637,26 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (4.dp.roundToPx() + FilterChipDefaults.IconSize.roundToPx() + 6.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    4.dp.roundToPx() * 2 +
+                        FilterChipDefaults.IconSize.roundToPx() * 2 +
+                        6.dp.roundToPx() * 2
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + FilterChipDefaults.IconSize + 6.dp)
-            .assertWidthIsEqualTo(
-                chipWidth -
-                    10.dp -
-                    FilterChipDefaults.IconSize -
-                    FilterChipDefaults.IconSize -
-                    10.dp
-            )
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -601,10 +685,17 @@ class ChipTest {
             }
         }
 
+        val density = rule.density
+        val expectedWidth =
+            with(density) {
+                val paddingPx = 8.dp.roundToPx()
+                (labelWidth.roundToPx() + paddingPx * 4).toDp()
+            }
+
         rule
             .onNode(hasClickAction())
             .assertHeightIsEqualTo(FilterChipDefaults.Height)
-            .assertWidthIsEqualTo(labelWidth + horizontalPadding * 2)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -638,27 +729,32 @@ class ChipTest {
 
         val labelMaxWidth =
             rule.onNodeWithTag("labelMax", useUnmergedTree = true).getUnclippedBoundsInRoot().width
+        val density = rule.density
+        val expectedMaxWidth =
+            with(density) {
+                val iconPx = iconSize.roundToPx()
+                val paddingPx = horizontalPadding.roundToPx()
+                (iconPx + labelMaxWidth.roundToPx() + iconPx + paddingPx * 4).toDp()
+            }
+
         rule
             .onNodeWithTag("chipMax")
             .assertHeightIsEqualTo(minTouchTarget)
-            .assertWidthIsEqualTo(
-                iconSize +
-                    labelMaxWidth +
-                    iconSize +
-                    horizontalPadding * 4 // chip start, chip end, label start, label end
-            )
+            .assertWidthIsEqualTo(expectedMaxWidth)
 
         val labelMinWidth =
             rule.onNodeWithTag("labelMin", useUnmergedTree = true).getUnclippedBoundsInRoot().width
+        val expectedMinWidth =
+            with(density) {
+                val iconPx = iconSize.roundToPx()
+                val paddingPx = horizontalPadding.roundToPx()
+                (iconPx + labelMinWidth.roundToPx() + iconPx + paddingPx * 4).toDp()
+            }
+
         rule
             .onNodeWithTag("chipMin")
             .assertHeightIsEqualTo(minTouchTarget)
-            .assertWidthIsEqualTo(
-                iconSize +
-                    labelMinWidth +
-                    iconSize +
-                    horizontalPadding * 4 // chip start, chip end, label start, label end
-            )
+            .assertWidthIsEqualTo(expectedMinWidth)
     }
 
     @Test
@@ -931,10 +1027,24 @@ class ChipTest {
         }
 
         // Note that InputChip has slightly different padding than the other Chips.
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + InputChipDefaults.IconSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    8.dp.roundToPx() * 3 + InputChipDefaults.IconSize.roundToPx() + 4.dp.roundToPx()
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + InputChipDefaults.IconSize + 8.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - InputChipDefaults.IconSize - 12.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -962,10 +1072,26 @@ class ChipTest {
         }
 
         // Note that InputChip has slightly different padding than the other Chips.
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (4.dp.roundToPx() + InputChipDefaults.AvatarSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    4.dp.roundToPx() * 2 +
+                        InputChipDefaults.AvatarSize.roundToPx() +
+                        8.dp.roundToPx() * 2
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + InputChipDefaults.AvatarSize + 8.dp)
-            .assertWidthIsEqualTo(chipWidth - 12.dp - InputChipDefaults.AvatarSize - 12.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -993,10 +1119,24 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (6.dp.roundToPx() + InputChipDefaults.AvatarSize.roundToPx() + 6.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    6.dp.roundToPx() * 4 + InputChipDefaults.AvatarSize.roundToPx()
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(6.dp + InputChipDefaults.AvatarSize + 6.dp)
-            .assertWidthIsEqualTo(chipWidth - 12.dp - InputChipDefaults.AvatarSize - 12.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -1110,10 +1250,19 @@ class ChipTest {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
+        val density = rule.density
+        val expectedLeft = with(density) { (8.dp.roundToPx() + 8.dp.roundToPx()).toDp() }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx = 8.dp.roundToPx() * 4
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(16.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -1139,10 +1288,24 @@ class ChipTest {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + SuggestionChipDefaults.IconSize.roundToPx() + 8.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    8.dp.roundToPx() * 4 + SuggestionChipDefaults.IconSize.roundToPx()
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + SuggestionChipDefaults.IconSize + 8.dp)
-            .assertWidthIsEqualTo(chipWidth - 16.dp - SuggestionChipDefaults.IconSize - 16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -1169,10 +1332,26 @@ class ChipTest {
         rule.runOnIdle {
             chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (4.dp.roundToPx() + AssistChipDefaults.IconSize.roundToPx() + 6.dp.roundToPx())
+                    .toDp()
+            }
+        val expectedWidth =
+            with(density) {
+                val chipWidthPx = chipWidth.roundToPx()
+                val nonLabelWidthPx =
+                    4.dp.roundToPx() * 2 +
+                        AssistChipDefaults.IconSize.roundToPx() +
+                        6.dp.roundToPx() * 2
+                (chipWidthPx - nonLabelWidthPx).toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + AssistChipDefaults.IconSize + 6.dp)
-            .assertWidthIsEqualTo(chipWidth - 10.dp - AssistChipDefaults.IconSize - 10.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
+            .assertWidthIsEqualTo(expectedWidth)
     }
 
     @Test
@@ -1338,9 +1517,12 @@ class ChipTest {
 
         // Expected position: ContentPadding.start (8.dp) + DefaultHorizontalArrangement spacing
         // (8.dp) = 16.dp
+        val density = rule.density
+        val expectedLeft = with(density) { (8.dp.roundToPx() + 8.dp.roundToPx()).toDp() }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(16.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1365,9 +1547,16 @@ class ChipTest {
 
         // Expected Label: 8.dp (padding) + IconSize (18.dp) + ExpressiveHorizontalSpacing (4.dp) =
         // 30.dp
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + FilterChipDefaults.IconSize.roundToPx() + 4.dp.roundToPx())
+                    .toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1386,9 +1575,12 @@ class ChipTest {
         }
 
         // Expected Label: 8.dp (padding) + spacing2 (4.dp) = 12.dp
+        val density = rule.density
+        val expectedLeft = with(density) { (8.dp.roundToPx() + 4.dp.roundToPx()).toDp() }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1413,9 +1605,16 @@ class ChipTest {
             .onNodeWithTag("Leading", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp)
 
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + FilterChipDefaults.IconSize.roundToPx() + 4.dp.roundToPx())
+                    .toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1461,9 +1660,12 @@ class ChipTest {
 
         // Expected position: contentPadding.start (4.dp) + DefaultHorizontalArrangement spacing
         // (8.dp) = 12.dp
+        val density = rule.density
+        val expectedLeft = with(density) { (4.dp.roundToPx() + 8.dp.roundToPx()).toDp() }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(12.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1486,9 +1688,16 @@ class ChipTest {
 
         // Expected Label: 8.dp (padding) + IconSize (18.dp) + ExpressiveHorizontalSpacing (4.dp) =
         // 30.dp
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (8.dp.roundToPx() + InputChipDefaults.IconSize.roundToPx() + 4.dp.roundToPx())
+                    .toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp + InputChipDefaults.IconSize + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1509,9 +1718,16 @@ class ChipTest {
 
         // Expected Label: 4.dp (padding) + AvatarSize (24.dp) + ExpressiveHorizontalSpacing (4.dp)
         // = 32.dp
+        val density = rule.density
+        val expectedLeft =
+            with(density) {
+                (4.dp.roundToPx() + InputChipDefaults.AvatarSize.roundToPx() + 4.dp.roundToPx())
+                    .toDp()
+            }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + InputChipDefaults.AvatarSize + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -1530,9 +1746,12 @@ class ChipTest {
         }
 
         // Expected Label: contentPadding.start (4.dp) + spacing2 (4.dp) = 8.dp
+        val density = rule.density
+        val expectedLeft = with(density) { (4.dp.roundToPx() + 4.dp.roundToPx()).toDp() }
+
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(4.dp + 4.dp)
+            .assertLeftPositionInRootIsEqualTo(expectedLeft)
     }
 }
 
