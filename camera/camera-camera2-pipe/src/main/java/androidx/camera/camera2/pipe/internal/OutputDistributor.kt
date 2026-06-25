@@ -128,7 +128,7 @@ internal class OutputDistributor<T>(
             //   is ignored, and nothing will be done for it.
             //
             // Please see b/324320062 and b/324940238 for context.
-            // TODO: b/327289130 - Make sure we finalize all OutputResults if multiple are returned.
+            // TODO(b/327289130): Make sure we finalize all OutputResults if multiple are returned.
             startedOutputs
                 .firstOrNull { it.cameraFrameNumber == cameraFrameNumber }
                 ?.let {

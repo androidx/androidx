@@ -204,7 +204,7 @@ public interface OutputStream {
                 streamUseHint: StreamUseHint? = null,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config =
-                // TODO: b/430431303 - Move this lazy/non-lazy selection logic to backend
+                // TODO(b/430431303): Move this lazy/non-lazy selection logic to backend
                 if (outputType.isLazilyConfigurable()) {
                     LazyOutputConfig(
                         size,

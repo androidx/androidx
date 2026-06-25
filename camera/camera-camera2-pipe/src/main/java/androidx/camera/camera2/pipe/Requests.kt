@@ -202,7 +202,7 @@ public class Request(
          * @param stream the internal stream that will not receive a buffer for this frame.
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureBufferLost
          *
-         * TODO: b/474658963 - Remove this method once deprecated usages are removed.
+         * TODO(b/474658963): Remove this method once deprecated usages are removed.
          */
         @Deprecated("Use the onBufferLost with OutputId.")
         public fun onBufferLost(

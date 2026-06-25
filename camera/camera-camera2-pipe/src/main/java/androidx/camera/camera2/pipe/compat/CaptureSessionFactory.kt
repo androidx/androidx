@@ -422,7 +422,7 @@ internal fun buildOutputConfigurations(
             for (outputIdx in outputs.indices) {
                 val outputStream = outputs[outputIdx]
                 val outputConfiguration = outputConfigurations[outputIdx]
-                // TODO: b/470146651 - Validate the paired OutputConfiguration on newer API levels.
+                // TODO(b/470146651): Validate the paired OutputConfiguration on newer API levels.
 
                 val outputConfig = checkNotNull(streamGraph.outputConfigMap[outputStream])
                 check(outputConfig.externalOutputConfig == null) {
