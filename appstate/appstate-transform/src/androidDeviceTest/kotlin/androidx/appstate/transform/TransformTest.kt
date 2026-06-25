@@ -20,18 +20,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlin.coroutines.ContinuationInterceptor
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -127,14 +122,4 @@ class TransformTest {
         runRecomposition()
         assertThat(state.value).isEqualTo(60)
     }
-
-    // TODO (b/527915161): Remove if we get something nice from Compose.
-    private fun TestScope.runRecomposition() {
-        runCurrent()
-        Snapshot.sendApplyNotifications()
-        runCurrent()
-    }
 }
-
-private val TestScope.testDispatcher: CoroutineDispatcher
-    get() = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
