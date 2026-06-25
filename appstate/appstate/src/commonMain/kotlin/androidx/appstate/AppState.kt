@@ -17,21 +17,19 @@
 
 package androidx.appstate
 
-import androidx.appstate.transform.transform
-import androidx.compose.runtime.Composable
+import androidx.appstate.transform.listener
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import kotlin.collections.getOrPut
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -43,10 +41,25 @@ import kotlinx.serialization.Transient
  */
 public class AppState {
     // The map of the compose state being stored inside the AppState
-    private val stateStore: MutableMap<AppStateKey<*>, MutableState<*>> = mutableMapOf()
+    private val stateStore: SnapshotStateMap<AppStateKey<*>, MutableState<*>> = mutableStateMapOf()
 
-    // Map of AppStateTokens to CoroutineScopes so that we maintain the running listeners
-    private val appStateListeners = mutableMapOf<AppStateToken, CoroutineScope>()
+    /**
+     * The set of keys that are currently added to this AppState.
+     *
+     * This can be used in conjunction with the androidx.appstate.transform APIs to provide a
+     * mechanism for reacting to state changes.
+     *
+     * ```
+     * val scope = CoroutineScope(context + SupervisorJob())
+     * val job = scope.launch {
+     *     listen {
+     *         val keys = appState.keys
+     *         // Do some processing of the keys
+     *     }
+     * }
+     * ```
+     */
+    public val keys: Set<AppStateKey<*>> = stateStore.keys
 
     /**
      * Returns the state associated with the given key.
@@ -74,14 +87,21 @@ public class AppState {
      */
     public fun <T> setState(stateKey: AppStateKey<T>, value: T) {
         if (!stateStore.contains(stateKey) && stateKey.autoClearKey != null) {
-            addAppStateListener { map ->
-                val key = stateKey.autoClearKey
-                val currentValue = map[key]?.value
-                val initialValue = remember { currentValue }
-                if (currentValue != initialValue && stateKey.shouldClearState(this@AppState)) {
-                    LaunchedEffect(currentValue) {
-                        stateStore.remove(stateKey)
-                        removeAppStateListener(this@addAppStateListener)
+            val key = stateKey.autoClearKey
+            val initialTriggerValue = stateStore[key]?.value
+            val dispatcher = Dispatchers.Unconfined
+            val scope = CoroutineScope(dispatcher + SupervisorJob())
+            scope.launch {
+                listener(dispatcher) {
+                    val currentValue = stateStore[key]?.value
+                    if (
+                        currentValue != initialTriggerValue &&
+                            stateKey.shouldClearState(this@AppState)
+                    ) {
+                        LaunchedEffect(currentValue) {
+                            stateStore.remove(stateKey)
+                            scope.cancel()
+                        }
                     }
                 }
             }
@@ -101,36 +121,6 @@ public class AppState {
         val currentState = getState(stateKey, defaultValue)
         setState(stateKey, update(currentState.value))
     }
-
-    /**
-     * Adds a listener that can be used to listen for particular [State] from this AppState.
-     *
-     * @param dispatcher the dispatcher that should be used to execute the listener
-     * @param listener composable lambda that should be used to observe specific states
-     * @return an AppStateToken that should be used with [removeAppStateListener]
-     */
-    public fun addAppStateListener(
-        dispatcher: CoroutineDispatcher = Dispatchers.Default,
-        listener: @Composable AppStateToken.(Map<AppStateKey<*>, State<*>>) -> Unit,
-    ): AppStateToken {
-        val scope = CoroutineScope(dispatcher + SupervisorJob())
-        val token = AppStateToken()
-        transform(defaultValue = Unit, scope = scope, dispatcher = dispatcher) {
-            listener(token, stateStore)
-        }
-        appStateListeners[token] = scope
-        return token
-    }
-
-    /**
-     * Removes the listener associated with the given token.
-     *
-     * @param token the token of the listener to remove.
-     */
-    public fun removeAppStateListener(token: AppStateToken) {
-        val scope = appStateListeners.remove(token)
-        scope?.cancel()
-    }
 }
 
 /**
@@ -149,26 +139,3 @@ public open class AppStateKey<T>(
     @Transient public val autoClearKey: AppStateKey<T>? = null,
     @Transient public val shouldClearState: (AppState) -> Boolean = { true },
 )
-
-/**
- * Token that should be returned to callers of [AppState.addAppStateListener] and passed to
- * [AppState.removeAppStateListener] to stop the listener
- */
-public class AppStateToken internal constructor() {
-    private val id: String = Uuid.random().toString()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        other as AppStateToken
-        return id == other.id
-    }
-
-    override fun hashCode(): Int {
-        return 31 * id.hashCode()
-    }
-
-    override fun toString(): String {
-        return "AppStateToken(id='$id')"
-    }
-}
