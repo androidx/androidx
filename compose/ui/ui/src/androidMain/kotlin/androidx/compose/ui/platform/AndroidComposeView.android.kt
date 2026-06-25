@@ -2453,6 +2453,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         super.onDetachedFromWindow()
         isAttached = false
 
+        indirectPointerNavigationGestureDetector.dispose()
+
         if (areWindowInsetsRulersEnabled) {
             insetsListener.onViewDetachedFromWindow(this)
         }
@@ -4125,8 +4127,39 @@ internal class IndirectPointerNavigationGestureDetector(
         return gestureDetector.onTouchEvent(motionEvent)
     }
 
+    /**
+     * Resets the active gesture axis tracking and marks the current event stream to be ignored.
+     *
+     * This is called during active event dispatch when the gesture is consumed by another
+     * component. We do not cancel the underlying [GestureDetector] immediately here because we must
+     * continue passing subsequent events of the gesture (like ACTION_UP) to it to keep its state
+     * machine consistent and avoid NullPointerExceptions (e.g. from a cleared VelocityTracker).
+     */
     fun cancelCurrentEventStream() {
         primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
         ignoreCurrentGestureStream = true
+    }
+
+    /**
+     * Disposes of the detector, clearing any scheduled messages from its internal message queue.
+     *
+     * This should be called when the host view is detached or when the detector is being destroyed.
+     * It sends an ACTION_CANCEL event to the [GestureDetector] to clear any pending messages (like
+     * SHOW_PRESS or LONG_PRESS) that could otherwise lead to memory leaks.
+     */
+    fun dispose() {
+        primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
+        ignoreCurrentGestureStream = true
+        val cancelEvent =
+            MotionEvent.obtain(
+                /* downTime = */ 0L,
+                /* eventTime = */ 0L,
+                MotionEvent.ACTION_CANCEL,
+                /* x = */ 0f,
+                /* y = */ 0f,
+                /* metaState = */ 0,
+            )
+        gestureDetector.onTouchEvent(cancelEvent)
+        cancelEvent.recycle()
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.IndirectPointerNavigationGestureDetector
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -65,6 +66,13 @@ class IndirectPointerNavigationGestureDetectorTest {
             // All tests in file require the primary axis to be X:
             indirectPointerNavigationGestureDetector.primaryDirectionalMotionAxis =
                 IndirectPointerEventPrimaryDirectionalMotionAxis.X
+        }
+    }
+
+    @After
+    fun tearDown() {
+        if (::indirectPointerNavigationGestureDetector.isInitialized) {
+            indirectPointerNavigationGestureDetector.dispose()
         }
     }
 
