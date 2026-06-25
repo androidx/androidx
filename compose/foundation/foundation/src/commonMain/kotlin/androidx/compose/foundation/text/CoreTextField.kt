@@ -626,6 +626,11 @@ internal fun CoreTextField(
                                         layoutDirection,
                                         prevResult,
                                     )
+
+                                // ensure measure restarts
+                                // when hasStaleResolvedFonts by reading in measure
+                                result.multiParagraph.intrinsics.hasStaleResolvedFonts
+
                                 if (prevResult != result) {
                                     state.layoutResult =
                                         TextLayoutResultProxy(
