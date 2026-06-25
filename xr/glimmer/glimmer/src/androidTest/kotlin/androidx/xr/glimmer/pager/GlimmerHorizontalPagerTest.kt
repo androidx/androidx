@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -47,14 +46,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.horizontalExternalInputDeviceSize
 import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
+import androidx.xr.glimmer.sendGlimmerIndirectPointerInput
 import androidx.xr.glimmer.setGlimmerThemeContent
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
@@ -413,11 +411,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
 
         val moveDistance = state.layoutInfo.pageSize * 0.5f * config.scrollSign
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             val start =
                 if (moveDistance < 0f) {
                     inputDeviceTopRight
@@ -429,9 +423,9 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
             // issues (this test isn't meant to test that).
             val moveX =
                 if (moveDistance < 0) {
-                    moveDistance.coerceAtLeast(-horizontalExternalInputDeviceSize.width.toFloat())
+                    moveDistance.coerceAtLeast(-inputDeviceTopRight.x)
                 } else {
-                    moveDistance.coerceAtMost(horizontalExternalInputDeviceSize.width.toFloat())
+                    moveDistance.coerceAtMost(inputDeviceTopRight.x)
                 }
 
             down(start)
@@ -453,13 +447,7 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
                 .isZero()
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            up()
-        }
+        rule.sendGlimmerIndirectPointerInput { up() }
         rule.waitForIdle()
 
         rule.onRoot().captureToImage().run {

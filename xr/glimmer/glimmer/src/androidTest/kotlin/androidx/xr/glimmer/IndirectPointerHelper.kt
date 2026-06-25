@@ -45,10 +45,10 @@ import androidx.compose.ui.unit.IntSize
 internal val horizontalExternalInputDeviceSize = IntSize(3082, 616)
 
 // Vertical external indirect pointer input device
-internal val verticalExternalInputDeviceSize = IntSize(616, 3082)
+private val verticalExternalInputDeviceSize = IntSize(616, 3082)
 
 // Square external indirect pointer input device
-internal val squareExternalInputDeviceSize = IntSize(3082, 3082)
+private val squareExternalInputDeviceSize = IntSize(3082, 3082)
 
 internal const val defaultPeriodBetweenEventsMillis = 16L
 
@@ -59,17 +59,13 @@ internal const val defaultDelayForMoveToVelocityTrigger: Long = 10
 internal const val defaultDelayForIncrementedMove: Long = 200L
 
 // Provides standard glimmer defaults to simplify calls
-fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
-    indirectPointerEventPrimaryDirectionalMotionAxis:
-        IndirectPointerEventPrimaryDirectionalMotionAxis =
-        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-    inputDeviceSize: IntSize = horizontalExternalInputDeviceSize,
-    block: IndirectPointerInjectionScope.() -> Unit,
+internal fun SemanticsNodeInteractionsProvider.sendGlimmerIndirectPointerInput(
+    block: IndirectPointerInjectionScope.() -> Unit
 ) {
     sendIndirectPointerInput(
         indirectPointerEventPrimaryDirectionalMotionAxis =
-            indirectPointerEventPrimaryDirectionalMotionAxis,
-        inputDeviceSize = inputDeviceSize,
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+        inputDeviceSize = horizontalExternalInputDeviceSize,
         block = block,
     )
 }
@@ -80,7 +76,11 @@ internal fun SemanticsNodeInteractionsProvider.oneMoveSwipeAlongXAxis(
     moveDuration: Long = defaultDelayForIncrementedMove,
     inputDeviceSize: IntSize = horizontalExternalInputDeviceSize,
 ) {
-    sendIndirectPointerInput(inputDeviceSize = inputDeviceSize) {
+    sendIndirectPointerInput(
+        indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+        inputDeviceSize = inputDeviceSize,
+    ) {
         val start =
             if (xDistance >= 0f) {
                 inputDeviceTopLeft

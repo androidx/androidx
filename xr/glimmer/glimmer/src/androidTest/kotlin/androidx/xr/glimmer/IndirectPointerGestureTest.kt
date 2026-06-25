@@ -88,11 +88,7 @@ class IndirectPointerGestureTest {
         }
 
         // Perform all known gestures
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             click()
             swipeRight()
             swipeLeft()
@@ -115,13 +111,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -151,11 +141,7 @@ class IndirectPointerGestureTest {
         }
 
         // Perform a click that lasts longer than the long press timeout
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(Offset.Zero)
             advanceEventTime(longPressTimeoutMillis + 50L)
             up()
@@ -189,13 +175,7 @@ class IndirectPointerGestureTest {
                         .focusTarget()
             )
         }
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -337,13 +317,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -373,11 +347,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             val start = inputDeviceCenterRight
             val end = inputDeviceCenterLeft
 
@@ -430,11 +400,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             val start = inputDeviceCenter
             val end0 = inputDeviceCenterLeft
             val end1 = inputDeviceCenterRight
@@ -490,11 +456,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(Offset.Zero)
             moveTo(Offset(touchSlop + 1f, 0f))
             moveTo(Offset.Zero)
@@ -529,11 +491,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(0, inputDeviceCenterLeft)
             down(1, inputDeviceCenterLeft)
             moveTo(1, inputDeviceCenterRight)
@@ -547,13 +505,7 @@ class IndirectPointerGestureTest {
             assertThat(onSwipeBackwardCount).isEqualTo(0)
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            up(0)
-        }
+        rule.sendGlimmerIndirectPointerInput { up(0) }
 
         // The gesture is processed based on p0, which was a click.
         rule.runOnIdle {
@@ -594,11 +546,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             val start = inputDeviceCenterLeft
             val end = inputDeviceCenterRight
 
@@ -663,11 +611,7 @@ class IndirectPointerGestureTest {
         val swipeDistanceThreshold = touchSlop * 1.3f
         val swipeDistance = swipeDistanceThreshold * 0.98f
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             swipe(start = Offset.Zero, end = Offset(swipeDistance, 0f), durationMillis = 10)
         }
 
@@ -702,11 +646,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(Offset.Zero)
             // The resulting X velocity is 23, which is below the 34f threshold.
             val repeatCount = 100
@@ -750,11 +690,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(Offset.Zero)
             // Move forward
             moveBy(Offset(touchSlop * 4, 0f))
@@ -817,11 +753,7 @@ class IndirectPointerGestureTest {
 
         rule.onNodeWithTag(CHILD_TEST_TAG).requestFocus()
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(inputDeviceCenter)
             moveTo(inputDeviceCenterRight)
             // This up (0) is consumed by child (see content definition).
@@ -836,13 +768,7 @@ class IndirectPointerGestureTest {
         }
 
         // A new, valid gesture should be processed correctly
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(1)
@@ -896,11 +822,7 @@ class IndirectPointerGestureTest {
 
         rule.onNodeWithTag(CHILD_TEST_TAG).requestFocus()
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             down(0, inputDeviceCenter)
             // This move (0) is consumed by child (see content definition).
             moveTo(0, inputDeviceCenterRight)
@@ -915,13 +837,7 @@ class IndirectPointerGestureTest {
         }
 
         // A new, valid gesture should be processed correctly
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -949,11 +865,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
+        rule.sendGlimmerIndirectPointerInput {
             // Start gesture while enabled
             down(0, Offset.Zero)
         }
@@ -961,13 +873,7 @@ class IndirectPointerGestureTest {
         // Disable mid-gesture
         enabled.value = false
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            up(0)
-        }
+        rule.sendGlimmerIndirectPointerInput { up(0) }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -999,13 +905,7 @@ class IndirectPointerGestureTest {
             )
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(0)
@@ -1015,13 +915,7 @@ class IndirectPointerGestureTest {
 
         enabled.value = true
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle {
             assertThat(onClickCount).isEqualTo(1)
@@ -1046,13 +940,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(1)
@@ -1079,13 +967,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(0)
@@ -1112,13 +994,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle {
             assertThat(innerOnClickCount).isEqualTo(0)
@@ -1155,13 +1031,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle {
             assertThat(draggableOnStartCalled).isTrue()
@@ -1199,13 +1069,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle {
             assertThat(draggableOnStartCalled).isTrue()
@@ -1235,13 +1099,7 @@ class IndirectPointerGestureTest {
                 )
             }
         }
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(onClickCount).isEqualTo(1) }
     }
@@ -1266,13 +1124,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(1) }
     }
@@ -1300,13 +1152,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }
     }
@@ -1334,13 +1180,7 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
     }
@@ -1372,24 +1212,12 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(1) }
@@ -1422,24 +1250,12 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }
@@ -1471,37 +1287,19 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(0) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeBackwardCount).isEqualTo(1) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle { assertThat(outerOnClickCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(innerOnSwipeForwardCount).isEqualTo(1) }
@@ -1537,37 +1335,19 @@ class IndirectPointerGestureTest {
             }
         }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            click()
-        }
+        rule.sendGlimmerIndirectPointerInput { click() }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(0) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeLeft()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeLeft() }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(0) }
         rule.runOnIdle { assertThat(outerOnSwipeBackwardCount).isEqualTo(1) }
 
-        rule.sendIndirectPointerInput(
-            indirectPointerEventPrimaryDirectionalMotionAxis =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
-            inputDeviceSize = horizontalExternalInputDeviceSize,
-        ) {
-            swipeRight()
-        }
+        rule.sendGlimmerIndirectPointerInput { swipeRight() }
 
         rule.runOnIdle { assertThat(innerOnClickCount).isEqualTo(1) }
         rule.runOnIdle { assertThat(outerOnSwipeForwardCount).isEqualTo(1) }

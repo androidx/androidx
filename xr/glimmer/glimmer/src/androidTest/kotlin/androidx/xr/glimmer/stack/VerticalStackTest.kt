@@ -62,7 +62,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.evenlyDividedMoveX
 import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
-import androidx.xr.glimmer.sendIndirectPointerInput
+import androidx.xr.glimmer.sendGlimmerIndirectPointerInput
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
@@ -351,20 +351,20 @@ class VerticalStackTest {
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
 
-        rule.sendIndirectPointerInput {
+        rule.sendGlimmerIndirectPointerInput {
             down(Offset.Zero)
             evenlyDividedMoveX(itemHeight / 2f)
         }
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isGreaterThan(0.3f)
-        rule.sendIndirectPointerInput { evenlyDividedMoveX(-itemHeight / 2f) }
+        rule.sendGlimmerIndirectPointerInput { evenlyDividedMoveX(-itemHeight / 2f) }
 
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isLessThan(0.1f)
 
-        rule.sendIndirectPointerInput { up() }
+        rule.sendGlimmerIndirectPointerInput { up() }
 
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(0)
@@ -804,7 +804,7 @@ class VerticalStackTest {
                 .isEqualTo(Color.Green)
         }
 
-        rule.sendIndirectPointerInput { down(inputDeviceCenter) }
+        rule.sendGlimmerIndirectPointerInput { down(inputDeviceCenter) }
 
         rule.onRoot().captureToImage().run {
             val pixels = toPixelMap()
@@ -820,7 +820,7 @@ class VerticalStackTest {
                 .isZero()
         }
 
-        rule.sendIndirectPointerInput { up() }
+        rule.sendGlimmerIndirectPointerInput { up() }
 
         rule.onRoot().captureToImage().run {
             val pixels = toPixelMap()
@@ -984,7 +984,7 @@ class VerticalStackTest {
         rule.waitForIdle()
         assertThat(state.topItem).isEqualTo(2)
 
-        rule.sendIndirectPointerInput {
+        rule.sendGlimmerIndirectPointerInput {
             // Start at the center to allow maximum travel forward and backward within bounds
             down(inputDeviceCenter)
             // Move to the far right edge
