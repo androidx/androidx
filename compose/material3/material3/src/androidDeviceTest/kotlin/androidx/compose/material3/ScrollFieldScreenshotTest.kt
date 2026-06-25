@@ -76,7 +76,7 @@ class ScrollFieldScreenshotTest() {
         ScrollField(
             state = state,
             // Since this is a static screenshot, a no-op is appropriate.
-            modifier = Modifier.size(width = 80.dp, height = 160.dp).testTag(ScrollFieldTestTag),
+            modifier = Modifier.size(width = 100.dp, height = 120.dp).testTag(ScrollFieldTestTag),
         )
     }
 }

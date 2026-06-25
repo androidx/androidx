@@ -78,7 +78,7 @@ fun ScrollFieldSample() {
                         text = valueToShow.toString(),
                         style =
                             if (isSelected) {
-                                MaterialTheme.typography.displayLarge
+                                MaterialTheme.typography.displayLargeEmphasized
                             } else {
                                 MaterialTheme.typography.displayMedium
                             },
@@ -122,7 +122,7 @@ fun TimeScrollFieldSample() {
         ScrollField(
             state = hourState,
             modifier =
-                Modifier.size(width = 80.dp, height = 160.dp).semantics {
+                Modifier.size(width = 100.dp, height = 120.dp).semantics {
                     contentDescription = "Select hour"
                 },
         )
@@ -137,7 +137,7 @@ fun TimeScrollFieldSample() {
         ScrollField(
             state = minuteState,
             modifier =
-                Modifier.size(width = 80.dp, height = 160.dp).semantics {
+                Modifier.size(width = 100.dp, height = 120.dp).semantics {
                     contentDescription = "Select minute"
                 },
         )
