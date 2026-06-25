@@ -398,12 +398,15 @@ public class EncoderBase implements AutoCloseable,
         }
 
         MediaFormat codecFormat;
+        // Choose image encoder if useHeicEncoder is true, otherwise fall back to
+        // video encoder (HEVC or AV1)
         if (useHeicEncoder) {
             codecFormat = MediaFormat.createVideoFormat(
                 MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC, mWidth, mHeight);
         } else {
-            codecFormat = MediaFormat.createVideoFormat(
-                MediaFormat.MIMETYPE_VIDEO_HEVC, gridWidth, gridHeight);
+            String mime = MIME.equals("AVIF") ?
+                MediaFormat.MIMETYPE_VIDEO_AV1 : MediaFormat.MIMETYPE_VIDEO_HEVC;
+            codecFormat = MediaFormat.createVideoFormat(mime, gridWidth, gridHeight);
         }
 
         if (useGrid) {
