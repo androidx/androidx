@@ -225,3 +225,4 @@ Then, if you see any errors from classes not found at runtime, you can add
 proguard rules
 [here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/benchmark-utils/proguard-rules.pro),
 or in a similar place for your module.
+

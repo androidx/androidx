@@ -63,7 +63,7 @@ If you just want to grab a recent benchmark trace from CI, you can get it from
 either Sponge or AnTS.
 
 For more information on the metrics shown here, check out the
-[metrics docs](../metrics.md).
+[metrics docs](/docs/metrics.md).
 
 If you'd like to look at traces or information from the test run, click on a
 data point and select the `ATI Page` link. You'll also see information like
