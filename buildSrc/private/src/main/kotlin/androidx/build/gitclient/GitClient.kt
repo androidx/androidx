@@ -16,7 +16,6 @@
 
 package androidx.build.gitclient
 
-import androidx.build.SharedProviderService
 import androidx.build.getCheckoutRoot
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -55,18 +54,10 @@ fun Project.getChangedFilesProvider(baseCommitOverride: Provider<String>): Provi
 }
 
 /**
- * @return shared instance of HEAD SHA provider. It will use MANIFEST to get the SHA if the
- *   environmental variable is set, otherwise it will default to using git.
+ * @return provider of HEAD SHA. It will use MANIFEST to get the SHA if the environmental variable
+ *   is set, otherwise it will default to using git.
  */
 fun Project.getHeadShaProvider(): Provider<String> {
-    return SharedProviderService.registerOrGet(project).getHeadShaProvider()
-}
-
-/**
- * @return new instance of provider of HEAD SHA. It will use MANIFEST to get the SHA if the
- *   environmental variable is set, otherwise it will default to using git.
- */
-fun Project.createHeadShaProvider(): Provider<String> {
     return providers
         .of(NonGitHeadShaSource::class.java) {
             it.parameters.projectDirRelativeToRoot.set(
