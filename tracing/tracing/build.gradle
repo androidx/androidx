@@ -24,37 +24,9 @@ plugins {
 }
 
 androidXMultiplatform {
-    // Native Targets for Android specific JNI bindings.
-    def nativeTargets = [
-            KonanTarget.ANDROID_ARM32,
-            KonanTarget.ANDROID_ARM64,
-            KonanTarget.ANDROID_X64,
-            KonanTarget.ANDROID_X86,
-            // We don't really use the remaining targets, but leave them in here
-            // for supporting tests that use Robolectric.
-            KonanTarget.MACOS_ARM64,
-            KonanTarget.MINGW_X64,
-            KonanTarget.LINUX_X64,
-            KonanTarget.LINUX_ARM64,
-    ].collect { it.INSTANCE }
-
-    def tracingJni = createNativeCompilation("tracingJni") {
-        configureEachTarget { nativeCompilation ->
-            // JNI Headers
-            nativeCompilation.addJniHeaders()
-            // Source Files
-            nativeCompilation.sources.from(
-                    fileTree("src/androidMain/jni").matching { include "**/*.cpp" }
-            )
-            nativeCompilation.freeArgs.addAll(["-Wall", "-Werror", "-Oz"])
-        }
-        configureTargets(nativeTargets)
-    }
-
     desktop()
     androidLibrary {
         namespace = "androidx.tracing"
-        addNativeLibrariesToJniLibs(it, tracingJni)
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
