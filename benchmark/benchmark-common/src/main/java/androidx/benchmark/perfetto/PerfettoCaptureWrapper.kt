@@ -89,7 +89,7 @@ class PerfettoCaptureWrapper {
                     inProcessTracingEnabled = response.isSuccess()
                 }
                 // Perfetto SDK
-                if (Build.VERSION.SDK_INT >= 30) {
+                if (Build.VERSION.SDK_INT >= 30 && tracingLibraryConfig.enablePerfettoSdk) {
                     val (resultCode, message) = enableAndroidxTracingPerfetto(tracingLibraryConfig)
                     Log.d(LOG_TAG, "Enable full tracing result=$message")
                     // We only want to fail when we cannot enable the Perfetto SDK.
