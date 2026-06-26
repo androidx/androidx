@@ -35,6 +35,8 @@ dependencies {
     implementation(project(":compose:remote:remote-player-core"))
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.compose.foundation:foundation:$composeVersion")
+
+    lintChecks(project(":glance:wear:wear-lint"))
 }
 
 android {
