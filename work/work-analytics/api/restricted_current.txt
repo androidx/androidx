@@ -47,6 +47,7 @@ package androidx.work.analytics {
     ctor public WorkMetricsInfoRepository(android.content.Context context);
     ctor public WorkMetricsInfoRepository(android.content.Context context, optional java.util.concurrent.Executor? dbExecutor);
     ctor @BytecodeOnly public WorkMetricsInfoRepository(android.content.Context!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.work.analytics.WorkMetricsInfo> getFinishedWorkMetricsInfoFlow();
     method public suspend Object? getWorkMetricsInfoById(java.util.UUID workId, kotlin.coroutines.Continuation<? super java.util.List<androidx.work.analytics.WorkMetricsInfo>>);
     method public suspend Object? onCancelled(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? onEnqueued(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -57,6 +58,7 @@ package androidx.work.analytics {
     method public suspend Object? onStopped(int stopReason, androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? onUnblocked(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? onUpdated(androidx.work.WorkInfo oldWorkInfo, androidx.work.WorkInfo updatedWorkInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.Flow<androidx.work.analytics.WorkMetricsInfo> finishedWorkMetricsInfoFlow;
     field public static final androidx.work.analytics.WorkMetricsInfoRepository.Companion Companion;
   }
 

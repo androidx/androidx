@@ -76,6 +76,22 @@ internal interface WorkMetricsSpecDao {
     fun getCurrentWorkMetricsSpec(workId: String): WorkMetricsSpec?
 
     /**
+     * Retrieves a specific [WorkMetricsSpec] record matching the primary keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @return The matching [WorkMetricsSpec] record, or null if none exists.
+     */
+    @Query(
+        """
+        SELECT * FROM WorkMetricsSpec
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun getWorkMetricsSpec(workId: String, generation: Int, periodCount: Int): WorkMetricsSpec?
+
+    /**
      * Updates the state of a [WorkMetricsSpec] matching the specified primary keys.
      *
      * @param workId The identifier of the [androidx.work.WorkRequest].

@@ -28,7 +28,11 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
 import java.util.UUID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -419,6 +423,100 @@ class WorkMetricsInfoRepositoryTest {
         assertEquals(4000L, currentPeriod.enqueueTimeMillis)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun onFinished_success_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, results[0].state)
+    }
+
+    @Test
+    fun onFinished_failure_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.failure(),
+            workInfo.copy(state = WorkInfo.State.FAILED),
+        )
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
+    fun onFinished_periodicSuccesses_emitsMultipleInfos() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, isPeriodic = true)
+
+        // 1st period
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        testClock.currentTime = 2000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2nd period
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        testClock.currentTime = 3000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        assertEquals(2, results.size)
+        for (result in results) {
+            assertEquals(workId, result.workSpecId)
+            assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
+        }
+        assertEquals(results[0].finishTimeMillis, 2000L)
+        assertEquals(results[1].finishTimeMillis, 3000L)
+    }
+
     @Test
     fun onCancelled_finalizesRecord() = runTest {
         val workId = UUID.randomUUID()
@@ -435,6 +533,28 @@ class WorkMetricsInfoRepositoryTest {
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.CANCELLED, result.state)
         assertEquals(3000L, result.finishTimeMillis)
+    }
+
+    @Test
+    fun onCancelled_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onCancelled(workInfo.copy(state = WorkInfo.State.CANCELLED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.CANCELLED, results[0].state)
     }
 
     @Test
@@ -471,6 +591,29 @@ class WorkMetricsInfoRepositoryTest {
     }
 
     @Test
+    fun onUpdated_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfoGen0 = createTestWorkInfo(id = workId, generation = 0)
+
+        repository.onEnqueued(workInfoGen0)
+        val workInfoGen1 = workInfoGen0.copy(generation = 1)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, results[0].state)
+    }
+
+    @Test
     fun onException_finalizesRecordAsFailed() = runTest {
         val workId = UUID.randomUUID()
         val workInfo = createTestWorkInfo(id = workId)
@@ -494,6 +637,29 @@ class WorkMetricsInfoRepositoryTest {
     }
 
     @Test
+    fun onException_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onException(RuntimeException(), workInfo.copy(state = WorkInfo.State.FAILED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
     fun onPrerequisiteFailed_finalizesRecordAsFailed() = runTest {
         val workId = UUID.randomUUID()
         val workInfo = createTestWorkInfo(id = workId, state = WorkInfo.State.BLOCKED)
@@ -507,6 +673,27 @@ class WorkMetricsInfoRepositoryTest {
         val result = repository.getWorkMetricsInfoById(workId)[0]
         assertEquals(WorkMetricsInfo.State.FAILED, result.state)
         assertEquals(2000L, result.finishTimeMillis)
+    }
+
+    @Test
+    fun onPrerequisiteFailed_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onPrerequisiteFailed(workInfo.copy(state = WorkInfo.State.FAILED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
     }
 
     private fun WorkInfo.copy(
