@@ -1186,6 +1186,45 @@ public class RemoteComposeJsonParser {
                 });
                 break;
             }
+            case "performHaptic":
+                mWriter.performHaptic(command.getInt("constant"));
+                break;
+            case "playSound":
+                mWriter.playSound(resolveTextId(command.get("id")));
+                break;
+            case "textSubtext": {
+                int txtId = resolveTextId(command.get("text"));
+                float start = parseFloat(command.get("start"));
+                float len = parseFloat(command.get("len"));
+                int id = mWriter.textSubtext(txtId, start, len);
+                String varName = command.optString("varName", null);
+                if (varName != null) {
+                    mVariables.put(varName, (float) id);
+                }
+                break;
+            }
+            case "textTransform": {
+                int txtId = resolveTextId(command.get("text"));
+                float start = parseFloat(command.get("start"));
+                float len = parseFloat(command.get("len"));
+                String opStr = command.getString("operation");
+                int op = 0;
+                if ("uppercase".equalsIgnoreCase(opStr)) {
+                    op = 1;
+                } else if ("lowercase".equalsIgnoreCase(opStr)) {
+                    op = 2;
+                } else if ("capitalize".equalsIgnoreCase(opStr)) {
+                    op = 3;
+                } else {
+                    op = command.optInt("operation", 0);
+                }
+                int id = mWriter.textTransform(txtId, start, len, op);
+                String varName = command.optString("varName", null);
+                if (varName != null) {
+                    mVariables.put(varName, (float) id);
+                }
+                break;
+            }
             case "variable": {
                 String varName = command.getString("name");
                 String varType = command.optString("vtype", "float");

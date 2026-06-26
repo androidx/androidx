@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
+import androidx.compose.remote.creation.actions.ValueFloatChange;
 import androidx.compose.remote.creation.dsl.RcFloat;
 import androidx.compose.remote.creation.dsl.VerticalScrollRcFloatModifier;
 import androidx.compose.remote.creation.json.RemoteComposeJsonParser;
@@ -357,6 +358,89 @@ public class RemoteComposeComparisonTest {
 
         if (!java.util.Arrays.equals(expected, actual)) {
             printMismatch("Stage1", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testStage2Comparison() throws JSONException {
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = new RemoteComposeWriter.HTag[] {
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 800),
+            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stage2"),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, 769)
+        };
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        float targetIdFloat = expectedWriter.addNamedFloat("val", 0.0f);
+        int targetId = Utils.idFromNan(targetIdFloat);
+
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.onTouchDown(new ValueFloatChange(targetId, 1.0f));
+            mod.onTouchUp(new ValueFloatChange(targetId, 0.0f));
+            mod.onTouchCancel(new ValueFloatChange(targetId, 0.0f));
+            expectedWriter.startBox(mod);
+
+            expectedWriter.startCanvas(new RecordingModifier());
+            expectedWriter.performHaptic(1);
+            int clickSoundId = expectedWriter.textCreateId("clickSound");
+            expectedWriter.playSound(clickSoundId);
+
+            int fullTxtId = expectedWriter.textCreateId("Full String");
+            int subId = expectedWriter.textSubtext(fullTxtId, 0.0f, 4.0f);
+            expectedWriter.textTransform(fullTxtId, 0.0f, 4.0f, 1 /* UPPERCASE */);
+
+            expectedWriter.endCanvas();
+            expectedWriter.endBox();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 800, \"contentDescription\": \"Stage2\" },"
+                + "  \"resources\": {"
+                + "    \"variables\": ["
+                + "      { \"name\": \"val\", \"value\": 0.0, \"export\": true }"
+                + "    ]"
+                + "  },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"modifiers\": ["
+                + "      { \"onTouchDown\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 1.0 } },"
+                + "      { \"onTouchUp\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 0.0 } },"
+                + "      { \"onTouchCancel\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 0.0 } }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"canvas\","
+                + "        \"commands\": ["
+                + "          { \"type\": \"performHaptic\", \"constant\": 1 },"
+                + "          { \"type\": \"playSound\", \"id\": \"clickSound\" },"
+                + "          { \"type\": \"textSubtext\", \"text\": \"Full String\","
+                + " \"start\": 0.0, \"len\": 4.0 },"
+                + "          { \"type\": \"textTransform\", \"text\": \"Full String\","
+                + " \"start\": 0.0, \"len\": 4.0, \"operation\": \"uppercase\" }"
+                + "        ]"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+
+        RemoteComposeWriter.HTag[] actualTags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int actualApiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter actualWriter =
+                new RemoteComposeWriter(platform, actualApiLevel, actualTags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!java.util.Arrays.equals(expected, actual)) {
+            printMismatch("Stage2", expected, actual);
         }
         assertArrayEquals(expected, actual);
     }
