@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.scene
 
-import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.JLayeredPaneWithTransparencyHack
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.awt.hasMacOsShadow
@@ -53,7 +52,6 @@ internal class WindowComposeSceneLayer(
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
     private val renderSettings: RenderSettings,
     private val transparent: Boolean,
-    compositionContext: CompositionContext,
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
@@ -133,7 +131,7 @@ internal class WindowComposeSceneLayer(
             eventListener = eventListener,
             measureDrawLayerBounds = true,
             architectureComponentsOwner = composeContainer.architectureComponentsOwner,
-            coroutineContext = compositionContext.effectCoroutineContext,
+            coroutineContext = composeContainer.coroutineContext,
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
         ).also {

@@ -324,6 +324,8 @@ internal class ComposeContainer(
                     onFocusConditionsChanged = ::onFocusConditionsChanged,
                     focusedViewsList = if (focusable) focusedViewsList.childFocusedViewsList() else null,
                     consumePointerInputOutside = consumePointerInputOutside,
+                    // FIXME: Do not use [compositionContext.effectCoroutineContext] for
+                    //  [FrameRecomposer] creation.
                     parentCoroutineContext = frameRecomposer.compositionContext.effectCoroutineContext,
                     ownerProvider = architectureComponentsOwner,
                     interfaceOrientationState = interfaceOrientationState,

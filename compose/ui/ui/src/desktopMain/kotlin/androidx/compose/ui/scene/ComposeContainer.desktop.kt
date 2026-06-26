@@ -137,6 +137,9 @@ internal class ComposeContainer(
     @VisibleForTesting
     val architectureComponentsOwner = DefaultArchitectureComponentsOwner(savedState)
 
+    val coroutineContext: CoroutineContext =
+        coroutineContext + MainUIDispatcher + DesktopCoroutineExceptionHandler()
+
     private val mediator = ComposeSceneMediator(
         container = container,
         isWindowLevel = isWindowLevel,
@@ -149,7 +152,7 @@ internal class ComposeContainer(
             BlockingInputLayerEventFilter()
         ),
         architectureComponentsOwner = architectureComponentsOwner,
-        coroutineContext = coroutineContext + MainUIDispatcher + DesktopCoroutineExceptionHandler(),
+        coroutineContext = this.coroutineContext,
         skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
     )
@@ -492,7 +495,6 @@ internal class ComposeContainer(
                 skiaLayerAnalytics = skiaLayerAnalytics,
                 renderSettings = renderSettings,
                 transparent = true, // TODO: Consider allowing opaque window layers
-                compositionContext = mediator.frameRecomposer.compositionContext,
                 density = density,
                 layoutDirection = layoutDirection,
                 focusable = focusable,
@@ -500,7 +502,6 @@ internal class ComposeContainer(
             LayerType.OnComponent -> SwingComposeSceneLayer(
                 composeContainer = this,
                 skiaLayerAnalytics = skiaLayerAnalytics,
-                compositionContext = mediator.frameRecomposer.compositionContext,
                 density = density,
                 layoutDirection = layoutDirection,
                 focusable = focusable,

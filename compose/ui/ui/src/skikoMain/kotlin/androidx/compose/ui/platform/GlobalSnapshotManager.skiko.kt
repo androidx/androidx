@@ -88,6 +88,17 @@ internal object GlobalSnapshotManager {
         if (!dispatcher.isDispatchNeeded(dispatcher)) {
             return null
         }
+        // FlushCoroutineDispatcher is an internal class, and all cases where it's passed here are
+        // about using [Recomposer.effectCoroutineContext] and means that we're already registered
+        // Snapshot forwarding in this tread in parent composition.
+        // This check is temporary to prevent multiple registrations. The proper solution is to
+        // avoid creating a separate [Recomposer] for all child compositions if they are in
+        // the same window. In case if they are not, it shouldn't use the parent's
+        // [Recomposer.effectCoroutineContext].
+        // TODO: Remove this check once all platform properly adapt shared [Recomposer].
+        if (dispatcher is FlushCoroutineDispatcher) {
+            return null
+        }
         val registration = synchronized(lock) {
             registrations.getOrPut(dispatcher) { Registration(dispatcher) }
                 .also { it.refCount++ }

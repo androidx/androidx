@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.scene
 
-import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -40,7 +39,6 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 internal class SwingComposeSceneLayer(
     composeContainer: ComposeContainer,
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
-    compositionContext: CompositionContext,
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
@@ -114,7 +112,7 @@ internal class SwingComposeSceneLayer(
             eventListener = eventListener,
             measureDrawLayerBounds = true,
             architectureComponentsOwner = composeContainer.architectureComponentsOwner,
-            coroutineContext = compositionContext.effectCoroutineContext,
+            coroutineContext = composeContainer.coroutineContext,
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
         ).also {
