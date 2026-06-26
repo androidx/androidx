@@ -378,6 +378,7 @@ dependencies {
     docs(project(":wear:wear-phone-interactions"))
     docs(project(":wear:wear-remote-interactions"))
     docs(project(":wear:wear-tooling-preview"))
+    docs(project(":web:web-compose"))
     docs(project(":webgpu:webgpu"))
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))

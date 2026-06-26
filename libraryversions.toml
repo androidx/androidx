@@ -172,6 +172,7 @@ WEAR_TILES = "1.7.0-alpha01"
 WEAR_TOOLING_PREVIEW = "1.0.0-rc01"
 WEAR_WATCHFACE = "1.4.0-alpha01"
 WEAR_WATCHFACEPUSH = "1.0.0-rc01"
+WEB = "1.0.0-alpha01"
 WEBGPU = "1.0.0-alpha05"
 WEBKIT = "1.17.0-alpha04"
 # Adding a comment to prevent merge conflicts for Window artifact
@@ -315,6 +316,7 @@ WEAR_PROTOLAYOUT = { group = "androidx.wear.protolayout", atomicGroupVersion = "
 WEAR_TILES = { group = "androidx.wear.tiles", atomicGroupVersion = "versions.WEAR_TILES" }
 WEAR_WATCHFACE = { group = "androidx.wear.watchface", atomicGroupVersion = "versions.WEAR_WATCHFACE" }
 WEAR_WATCHFACEPUSH = { group = "androidx.wear.watchfacepush", atomicGroupVersion = "versions.WEAR_WATCHFACEPUSH" }
+WEB = { group = "androidx.web", atomicGroupVersion = "versions.WEB" }
 WEBGPU = { group = "androidx.webgpu", atomicGroupVersion = "versions.WEBGPU" }
 WEBKIT = { group = "androidx.webkit", atomicGroupVersion = "versions.WEBKIT" }
 WINDOW = { group = "androidx.window", atomicGroupVersion = "versions.WINDOW" }

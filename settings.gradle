@@ -1203,6 +1203,7 @@ includeProject(":wear:watchface:watchface-complications-data-source", [BuildType
 includeProject(":wear:watchface:watchface-complications-data-source-ktx", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source-samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchfacepush:watchfacepush", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":web:web-compose", [BuildType.COMPOSE])
 includeProject(":webgpu:webgpu", [BuildType.MAIN])
 includeProject(":webkit:integration-tests:instrumentation", [BuildType.MAIN])
 includeProject(":webkit:integration-tests:common", [BuildType.MAIN])
