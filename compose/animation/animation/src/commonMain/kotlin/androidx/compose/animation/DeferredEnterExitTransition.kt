@@ -432,7 +432,7 @@ internal fun SharedMutableTransformState.getHandoffExit(): ExitTransition {
             handoffExit += slideOut(targetOffset = this.slideHandoffOffset)
         }
         if (this.transformScope.isVeilMutated) {
-            val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
+            val matchParentSize = this.lastMutableData?.veilMatchParentSize ?: false
             handoffExit += veilOut(targetColor = this.lastVeil, matchParentSize = matchParentSize)
         }
     }
@@ -459,7 +459,7 @@ internal fun SharedMutableTransformState.getHandoffEnter(): EnterTransition {
             handoffEnter += slideIn(initialOffset = this.slideHandoffOffset)
         }
         if (this.transformScope.isVeilMutated) {
-            val matchParentSize = this.mutableData?.veilMatchParentSize ?: false
+            val matchParentSize = this.lastMutableData?.veilMatchParentSize ?: false
             handoffEnter +=
                 unveilIn(initialColor = this.lastVeil, matchParentSize = matchParentSize)
         }
