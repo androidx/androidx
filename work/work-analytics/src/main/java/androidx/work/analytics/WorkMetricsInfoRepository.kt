@@ -31,6 +31,8 @@ import androidx.work.analytics.impl.model.WorkMetricsSpec
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.jvm.JvmOverloads
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 private const val WORK_METRICS_DB_NAME = "androidx.work.analytics.workmetricsdb"
 private val TAG = Logger.tagWithPrefix("WorkMetricsInfoRepository")
@@ -62,7 +64,18 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
         dbExecutor: Executor? = null,
     ) : this(createDatabase(context, dbExecutor), Clock { System.currentTimeMillis() })
 
+    private val finishedMetricsInfos = MutableSharedFlow<WorkMetricsInfo>(extraBufferCapacity = 64)
+
     private val dao = database.workMetricsSpecDao()
+
+    /**
+     * A hot [Flow] that emits a [WorkMetricsInfo] whenever one finishes.
+     *
+     * A [WorkMetricsInfo] is considered finished when the request period is complete or obsolete,
+     * either because the work finished or a new request period started (e.g. if the work request is
+     * updated or a periodic request completes a period).
+     */
+    public val finishedWorkMetricsInfoFlow: Flow<WorkMetricsInfo> = finishedMetricsInfos
 
     /**
      * Gets a list of [WorkMetricsInfo] snapshots for a given work id.
@@ -90,6 +103,7 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
     override suspend fun onUpdated(oldWorkInfo: WorkInfo, updatedWorkInfo: WorkInfo) {
         val id = oldWorkInfo.id.toString()
         val currentTime = clock.currentTimeMillis()
+        var finishedMetricsInfo: WorkMetricsInfo? = null
         database.runInTransaction {
             val spec = dao.getCurrentWorkMetricsSpec(id)
             if (!checkCurrentMetricsSpec(spec, oldWorkInfo, "onUpdated")) {
@@ -107,11 +121,22 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.OBSOLETE_UPDATED,
             )
+            finishedMetricsInfo =
+                dao.getWorkMetricsSpec(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )!!
+                    .toWorkMetricsInfo()
+
             var updatedSpec = updatedWorkInfo.toWorkMetricsSpec()
             if (updatedWorkInfo.state == WorkInfo.State.ENQUEUED) {
                 updatedSpec.unblockTimeMillis = currentTime
             }
             insertWorkMetricsSpec(updatedSpec)
+        }
+        if (finishedMetricsInfo != null) {
+            finishedMetricsInfos.emit(finishedMetricsInfo)
         }
     }
 
@@ -139,6 +164,7 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
 
     override suspend fun onCancelled(workInfo: WorkInfo) {
         val id = workInfo.id.toString()
+        var finishedMetricsInfo: WorkMetricsInfo? = null
         database.runInTransaction {
             val spec = dao.getCurrentWorkMetricsSpec(id)
             if (!checkCurrentMetricsSpec(spec, workInfo, "onCancelled")) {
@@ -156,6 +182,16 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.CANCELLED,
             )
+            finishedMetricsInfo =
+                dao.getWorkMetricsSpec(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )!!
+                    .toWorkMetricsInfo()
+        }
+        if (finishedMetricsInfo != null) {
+            finishedMetricsInfos.emit(finishedMetricsInfo)
         }
     }
 
@@ -229,6 +265,7 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
         val id = workInfo.id.toString()
         val currentTime = clock.currentTimeMillis()
         val isPeriodic = workInfo.periodicityInfo != null
+        var finishedMetricsInfo: WorkMetricsInfo? = null
 
         database.runInTransaction {
             val state =
@@ -269,6 +306,14 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                     periodCount = spec.periodCount,
                     state = state,
                 )
+                finishedMetricsInfo =
+                    dao.getWorkMetricsSpec(
+                            workId = spec.workSpecId,
+                            generation = spec.generation,
+                            periodCount = spec.periodCount,
+                        )!!
+                        .toWorkMetricsInfo()
+
                 if (isPeriodic) {
                     var newSpec = workInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
                     newSpec.state = WorkMetricsInfo.State.ENQUEUED_PENDING
@@ -276,10 +321,14 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 }
             }
         }
+        if (finishedMetricsInfo != null) {
+            finishedMetricsInfos.emit(finishedMetricsInfo)
+        }
     }
 
     override suspend fun onException(throwable: Throwable, workInfo: WorkInfo) {
         val id = workInfo.id.toString()
+        var finishedMetricsInfo: WorkMetricsInfo? = null
         database.runInTransaction {
             val spec = dao.getCurrentWorkMetricsSpec(id)
             if (!checkCurrentMetricsSpec(spec, workInfo, "onException")) {
@@ -297,11 +346,22 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.FAILED,
             )
+            finishedMetricsInfo =
+                dao.getWorkMetricsSpec(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )!!
+                    .toWorkMetricsInfo()
+        }
+        if (finishedMetricsInfo != null) {
+            finishedMetricsInfos.emit(finishedMetricsInfo)
         }
     }
 
     override suspend fun onPrerequisiteFailed(workInfo: WorkInfo) {
         val id = workInfo.id.toString()
+        var finishedMetricsInfo: WorkMetricsInfo? = null
         database.runInTransaction {
             val spec = dao.getCurrentWorkMetricsSpec(id)
             if (!checkCurrentMetricsSpec(spec, workInfo, "onPrerequisiteFailed")) {
@@ -319,6 +379,16 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.FAILED,
             )
+            finishedMetricsInfo =
+                dao.getWorkMetricsSpec(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )!!
+                    .toWorkMetricsInfo()
+        }
+        if (finishedMetricsInfo != null) {
+            finishedMetricsInfos.emit(finishedMetricsInfo)
         }
     }
 
