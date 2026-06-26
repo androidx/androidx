@@ -98,12 +98,16 @@ class AppFunctionStateTest {
         fun createAppFunctionActivityId(
             binder: android.os.IBinder
         ): android.app.appfunctions.AppFunctionActivityId {
-            val constructor =
-                android.app.appfunctions.AppFunctionActivityId::class
-                    .java
-                    .getDeclaredConstructor(android.os.IBinder::class.java)
-            constructor.isAccessible = true
-            return constructor.newInstance(binder)
+            val parcel = android.os.Parcel.obtain()
+            try {
+                parcel.writeStrongBinder(binder)
+                parcel.setDataPosition(0)
+                return android.app.appfunctions.AppFunctionActivityId.CREATOR.createFromParcel(
+                    parcel
+                )
+            } finally {
+                parcel.recycle()
+            }
         }
 
         fun createAppFunctionState(
