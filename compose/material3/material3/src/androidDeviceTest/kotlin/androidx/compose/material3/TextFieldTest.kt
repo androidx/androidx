@@ -2360,6 +2360,22 @@ class TextFieldTest {
             )
         }
     }
+
+    @Test
+    fun testTextField_prefixAndSuffix_semantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("google"),
+                prefix = { Text("www.") },
+                suffix = { Text(".com") },
+                modifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        val rootNode = rule.onNodeWithTag("TextField", useUnmergedTree = false).fetchSemanticsNode()
+        val textList = rootNode.config.getOrNull(SemanticsProperties.Text)?.map { it.text }
+        assertThat(textList).containsExactly("www.", "google", ".com").inOrder()
+    }
 }
 
 private val View.isSoftwareKeyboardShown: Boolean
