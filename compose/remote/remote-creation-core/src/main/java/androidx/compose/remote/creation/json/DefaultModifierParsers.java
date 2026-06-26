@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.dsl.VerticalScrollRcFloatModifier;
 import androidx.compose.remote.creation.modifiers.ClickActionModifier;
 import androidx.compose.remote.creation.modifiers.IncludeReferencedOperationsModifier;
 import androidx.compose.remote.creation.modifiers.MacroCallModifier;
+import androidx.compose.remote.creation.modifiers.TouchActionModifier;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -194,18 +195,34 @@ class DefaultModifierParsers {
             recordingModifier.then(new IncludeReferencedOperationsModifier(styleId));
         });
         p.registerModifierParser("onclick", (mod, key, recordingModifier, parser) -> {
-            Object clickVal = mod.get(key);
-            List<Action> actions = new ArrayList<>();
-            if (clickVal instanceof JSONArray) {
-                JSONArray arr = (JSONArray) clickVal;
-                for (int i = 0; i < arr.length(); i++) {
-                    actions.add(parseAction(arr.getJSONObject(i), parser));
-                }
-            } else if (clickVal instanceof JSONObject) {
-                actions.add(parseAction((JSONObject) clickVal, parser));
-            }
-            recordingModifier.then(new ClickActionModifier(actions));
+            recordingModifier.then(new ClickActionModifier(parseActions(mod.get(key), parser)));
         });
+        p.registerModifierParser("ontouchdown", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.DOWN, parseActions(mod.get(key), parser)));
+        });
+        p.registerModifierParser("ontouchup", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.UP, parseActions(mod.get(key), parser)));
+        });
+        p.registerModifierParser("ontouchcancel", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.CANCEL, parseActions(mod.get(key), parser)));
+        });
+    }
+
+    private static List<Action> parseActions(
+            Object clickVal, RemoteComposeJsonParser parser) throws JSONException {
+        List<Action> actions = new ArrayList<>();
+        if (clickVal instanceof JSONArray) {
+            JSONArray arr = (JSONArray) clickVal;
+            for (int i = 0; i < arr.length(); i++) {
+                actions.add(parseAction(arr.getJSONObject(i), parser));
+            }
+        } else if (clickVal instanceof JSONObject) {
+            actions.add(parseAction((JSONObject) clickVal, parser));
+        }
+        return actions;
     }
 
     private static Action parseAction(

@@ -556,6 +556,45 @@ public class RemoteComposeJsonParserTest {
         org.junit.Assert.assertNotNull(result);
     }
 
+    @Test
+    public void testStage2Features() throws JSONException {
+        String json = "{"
+                + "  \"resources\": {"
+                + "    \"variables\": ["
+                + "      { \"name\": \"val\", \"value\": 0.0, \"export\": true }"
+                + "    ]"
+                + "  },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"modifiers\": ["
+                + "      { \"onTouchDown\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 1.0 } },"
+                + "      { \"onTouchUp\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 0.0 } },"
+                + "      { \"onTouchCancel\": { \"type\": \"ValueFloatChange\", \"targetId\":"
+                + " \"@vars.val\", \"value\": 0.0 } }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"canvas\","
+                + "        \"commands\": ["
+                + "          { \"type\": \"performHaptic\", \"constant\": 1 },"
+                + "          { \"type\": \"playSound\", \"id\": \"clickSound\" },"
+                + "          { \"type\": \"textSubtext\", \"text\": \"Full String\","
+                + " \"start\": 0.0, \"len\": 4.0, \"varName\": \"subText\" },"
+                + "          { \"type\": \"textTransform\", \"text\": \"subText\","
+                + " \"start\": 0.0, \"len\": 4.0, \"operation\": \"uppercase\","
+                + " \"varName\": \"upperText\" }"
+                + "        ]"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {
