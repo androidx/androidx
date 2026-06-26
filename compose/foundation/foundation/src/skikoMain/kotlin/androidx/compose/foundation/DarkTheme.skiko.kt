@@ -19,12 +19,11 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.LocalSystemTheme
-import org.jetbrains.skiko.SystemTheme
+import androidx.compose.ui.isUiSystemInDarkTheme
 
 @OptIn(InternalComposeUiApi::class)
 @Composable
 @ReadOnlyComposable
 internal actual fun _isSystemInDarkTheme(): Boolean {
-    return LocalSystemTheme.current == SystemTheme.DARK
+    return isUiSystemInDarkTheme()
 }

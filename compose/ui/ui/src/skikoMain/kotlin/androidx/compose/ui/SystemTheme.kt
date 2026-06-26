@@ -16,7 +16,10 @@
 
 package androidx.compose.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import org.jetbrains.skiko.SystemTheme
 import org.jetbrains.skiko.currentSystemTheme
 
 @Deprecated("This class was made public by mistake and will be removed in a future release")
@@ -24,5 +27,11 @@ enum class SystemTheme {
     Dark, Light, Unknown
 }
 
+internal val LocalSystemTheme = staticCompositionLocalOf { currentSystemTheme }
+
 @InternalComposeUiApi
-val LocalSystemTheme = staticCompositionLocalOf { currentSystemTheme }
+@Composable
+@ReadOnlyComposable
+fun isUiSystemInDarkTheme(): Boolean {
+    return LocalSystemTheme.current == SystemTheme.DARK
+}
