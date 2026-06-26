@@ -18,13 +18,13 @@ package androidx.compose.ui.input
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.TextField
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.background
@@ -35,6 +35,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.isClearFocusOnMouseDownEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
@@ -42,15 +43,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
-import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.pointerevents.PointerEvent
 import org.w3c.dom.pointerevents.PointerEventInit
 
@@ -161,32 +157,40 @@ class TextFieldFocusTest : OnCanvasTests {
     )
 
     @Test
-    fun mouseClickOutsideClearsFocusByDefault() = runApplicationTest {
-        val focusRequester = FocusRequester()
-        var focusState: FocusState? = null
+    fun mouseClickOutsideClearsFocusWithClearFocusOnMouseDownEnabled() {
+        val prevClearFocusOnMouseDownEnabled = ComposeUiFlags.isClearFocusOnMouseDownEnabled
+        ComposeUiFlags.isClearFocusOnMouseDownEnabled = true
+        try {
+            runApplicationTest {
+                val focusRequester = FocusRequester()
+                var focusState: FocusState? = null
 
-        createComposeWindow {
-            Column(Modifier.size(300.dp, 400.dp)) {
-                Box(Modifier.testTag("box").size(100.dp).background(Color.Gray))
-                BasicTextField(
-                    state = rememberTextFieldState(),
-                    modifier = Modifier
-                        .testTag("textField")
-                        .focusRequester(focusRequester)
-                        .onFocusChanged {
-                            focusState = it
+                createComposeWindow {
+                    Column(Modifier.size(300.dp, 400.dp)) {
+                        Box(Modifier.testTag("box").size(100.dp).background(Color.Gray))
+                        BasicTextField(
+                            state = rememberTextFieldState(),
+                            modifier = Modifier
+                                .testTag("textField")
+                                .focusRequester(focusRequester)
+                                .onFocusChanged {
+                                    focusState = it
+                                }
+                        )
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
                         }
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+                    }
                 }
-            }
-        }
-        assertTrue(focusState!!.isFocused, "Expected to be focused after requestFocus")
+                assertTrue(focusState!!.isFocused, "Expected to be focused after requestFocus")
 
-        dispatchEvents(mouseDownPointerEvent(50, 50))
-        awaitIdle()
-        assertFalse(focusState!!.isFocused, "Expected to lose focus after clicking outside")
+                dispatchEvents(mouseDownPointerEvent(50, 50))
+                awaitIdle()
+                assertFalse(focusState!!.isFocused, "Expected to lose focus after clicking outside")
+            }
+        } finally {
+            ComposeUiFlags.isClearFocusOnMouseDownEnabled = prevClearFocusOnMouseDownEnabled
+        }
     }
 
     @Test

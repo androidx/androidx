@@ -25,7 +25,7 @@ internal object SkikoComposeUiFlags {
 
     @Suppress("MutableBareField")
     @JvmField
-    var isClearFocusOnMouseDownEnabled: Boolean = true
+    var isClearFocusOnMouseDownEnabled: Boolean = false
 
     @Suppress("MutableBareField")
     @JvmField

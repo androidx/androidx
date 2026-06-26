@@ -34,12 +34,15 @@ import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.isClearFocusOnMouseDownEnabled
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.testTag
@@ -271,27 +274,36 @@ class ClickableFocusTest {
         override fun equals(other: Any?) = super.equals(other)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun mouseClickOutsideClearsFocus() = runComposeUiTest {
-        val focusRequester = FocusRequester()
-        setContent {
-            Column(Modifier.size(300.dp, 400.dp)) {
-                BasicTextField(
-                    state = rememberTextFieldState(),
-                    modifier = Modifier
-                        .testTag("textField")
-                        .focusRequester(focusRequester)
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+    fun mouseClickOutsideClearsFocusWithClearFocusOnMouseDownEnabled() {
+        val prevClearFocusOnMouseDownEnabled = ComposeUiFlags.isClearFocusOnMouseDownEnabled
+        ComposeUiFlags.isClearFocusOnMouseDownEnabled = true
+        try {
+            runComposeUiTest {
+                val focusRequester = FocusRequester()
+                setContent {
+                    Column(Modifier.size(300.dp, 400.dp)) {
+                        BasicTextField(
+                            state = rememberTextFieldState(),
+                            modifier = Modifier
+                                .testTag("textField")
+                                .focusRequester(focusRequester)
+                        )
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
+                        }
+                        Box(Modifier.testTag("box").fillMaxWidth().weight(1f))
+                    }
                 }
-                Box(Modifier.testTag("box").fillMaxWidth().weight(1f))
-            }
-        }
 
-        onNodeWithTag("textField").assertIsFocused()
-        onNodeWithTag("box").performMouseInput { click() }
-        onNodeWithTag("textField").assertIsNotFocused()
-        onNode(isFocused()).assertDoesNotExist()
+                onNodeWithTag("textField").assertIsFocused()
+                onNodeWithTag("box").performMouseInput { click() }
+                onNodeWithTag("textField").assertIsNotFocused()
+                onNode(isFocused()).assertDoesNotExist()
+            }
+        } finally {
+            ComposeUiFlags.isClearFocusOnMouseDownEnabled = prevClearFocusOnMouseDownEnabled
+        }
     }
 }
