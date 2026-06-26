@@ -3066,10 +3066,12 @@ public final class ModifiersBuilders {
     @ProtoLayoutExperimental
     public interface SlideBound {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         ModifiersProto.@NonNull SlideBound toSlideBoundProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

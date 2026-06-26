@@ -53,6 +53,7 @@ public final class DynamicDataBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicDataValue<T extends DynamicBuilders.DynamicType> {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicDataProto.@NonNull DynamicDataValue toDynamicDataValueProto();
 
@@ -304,6 +305,7 @@ public final class DynamicDataBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

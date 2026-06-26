@@ -35,10 +35,12 @@ import androidx.compose.ui.unit.LayoutDirection
  * - Vertical: [Top], [CenterVertically], [Bottom]
  */
 public interface RemoteAlignment {
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val horizontal: Horizontal
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val vertical: Vertical
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val horizontal: Horizontal
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val vertical: Vertical
 
     /**
      * A remote equivalent of [androidx.compose.ui.Alignment.Horizontal]. It is used to define how a

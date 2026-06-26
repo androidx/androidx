@@ -148,6 +148,7 @@ public interface PdfDocument : Closeable {
      *
      * TODO: b/500570239 Expose it as public api
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getSelectionBounds(
         pageNumber: Int,
@@ -162,6 +163,7 @@ public interface PdfDocument : Closeable {
      * @param pageNumber The page on which text to be selected.
      * @return A [PageSelection] object representing the selection bounds on the page.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection?
 
@@ -201,6 +203,7 @@ public interface PdfDocument : Closeable {
      *   objects on the page.
      * @throws IllegalArgumentException if the page number is invalid.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun getPageObjects(
         pageNum: Int,
@@ -237,6 +240,7 @@ public interface PdfDocument : Closeable {
      * @return The topmost [PdfObject] at the specified point or returns null if no page object is
      *   present.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject?
 
@@ -381,6 +385,7 @@ public interface PdfDocument : Closeable {
      * @param feature the [PdfFeature] being queried
      * @return true if supported, false otherwise
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isFeatureSupported(feature: PdfFeature): Boolean
 

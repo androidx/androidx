@@ -32,6 +32,7 @@ public interface WearWidgetData {
      * @param params the parameters for the wear widget.
      * @param isInspectionMode whether the capture is in inspection mode (e.g., for IDE previews).
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(LIBRARY_GROUP)
     public suspend fun captureRawContent(
         context: Context,

@@ -113,6 +113,7 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -153,6 +154,7 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -189,6 +191,7 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -225,6 +228,7 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,

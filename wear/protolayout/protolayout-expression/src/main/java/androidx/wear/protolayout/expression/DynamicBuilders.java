@@ -1355,10 +1355,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicInt32 extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicInt32 toDynamicInt32Proto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicInt32 toDynamicInt32Proto(boolean withFingerprint);
 
@@ -2340,6 +2342,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -3094,10 +3097,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicString extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicString toDynamicStringProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicString toDynamicStringProto(boolean withFingerprint);
 
@@ -3239,6 +3244,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -3885,10 +3891,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicFloat extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicFloat toDynamicFloatProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicFloat toDynamicFloatProto(boolean withFingerprint);
 
@@ -4808,6 +4816,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -5457,10 +5466,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicBool extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicBool toDynamicBoolProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicBool toDynamicBoolProto(boolean withFingerprint);
 
@@ -5616,6 +5627,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -6160,10 +6172,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicColor extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicColor toDynamicColorProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicColor toDynamicColorProto(boolean withFingerprint);
 
@@ -6358,6 +6372,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -6627,10 +6642,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicInstant extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicInstant toDynamicInstantProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicInstant toDynamicInstantProto(boolean withFingerprint);
 
@@ -6897,6 +6914,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -7662,10 +7680,12 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicDuration extends DynamicType {
         /** Get the protocol buffer representation of this object, without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicDuration toDynamicDurationProto();
 
         /** Get the protocol buffer representation of this object, with or without fingerprint. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicDuration toDynamicDurationProto(boolean withFingerprint);
 
@@ -7964,6 +7984,7 @@ public final class DynamicBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

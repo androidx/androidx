@@ -52,6 +52,7 @@ public interface CameraProvider {
      * @sample androidx.camera.core.samples.bindConcurrentCameraSample
      * @return List of combinations of [CameraInfo].
      */
+    @get:Suppress("HiddenAbstractMethodInInterface")
     @get:RestrictTo(Scope.LIBRARY_GROUP)
     public val availableConcurrentCameraInfos: List<List<CameraInfo>>
 
@@ -60,7 +61,9 @@ public interface CameraProvider {
      *
      * @return `true` if there is a [ConcurrentCamera] bound, otherwise `false`.
      */
-    @get:RestrictTo(Scope.LIBRARY_GROUP) public val isConcurrentCameraModeOn: Boolean
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(Scope.LIBRARY_GROUP)
+    public val isConcurrentCameraModeOn: Boolean
 
     /**
      * Checks whether this provider supports at least one camera that meets the requirements from a

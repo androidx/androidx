@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.LayoutDirection
 /** Scope for accessing remote state IDs. */
 public interface RemoteStateScope {
     /** The [RemoteComposeCreationState] associated with the document being drawn into. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val parentScope: RemoteStateScope
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val parentScope: RemoteStateScope
 
     /** The [RemoteDensity] associated with the document being drawn into. */
     public val remoteDensity: RemoteDensity

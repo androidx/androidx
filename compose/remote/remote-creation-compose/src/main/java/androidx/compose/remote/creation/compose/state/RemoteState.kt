@@ -65,7 +65,9 @@ public interface RemoteState<T> {
         get() = this
 
     /** Returns the expression as a human-readable string. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toDebugString(): String
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toDebugString(): String
 
     /**
      * Represents the domain (namespace) for named remote states.

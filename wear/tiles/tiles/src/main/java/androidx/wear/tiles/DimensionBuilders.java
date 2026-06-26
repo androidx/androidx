@@ -513,10 +513,12 @@ public final class DimensionBuilders {
     /** Interface defining a dimension that can be applied to a container. */
     public interface ContainerDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull ContainerDimension toContainerDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -550,10 +552,12 @@ public final class DimensionBuilders {
     /** Interface defining a dimension that can be applied to an image. */
     public interface ImageDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull ImageDimension toImageDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -586,10 +590,12 @@ public final class DimensionBuilders {
     /** Interface defining a dimension that can be applied to a spacer. */
     public interface SpacerDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull SpacerDimension toSpacerDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
