@@ -24,6 +24,7 @@ import android.os.Build
 import android.util.ArrayMap
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraControls3A.Companion.REQUEST_3A_KEYS
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
@@ -204,8 +205,10 @@ internal class Camera2CaptureSequenceProcessor(
                 // Apply request parameters to the builder.
                 requestBuilder.writeParameters(request.parameters)
 
-                // Finally, write required parameters to the request builder. This will override any
-                // value that has ben previously set.
+                // Finally, write required parameters to the request builder. If the parameter is
+                // 3A and is already set, skip the parameter. Ideally, client should only apply 3A
+                // via the 3A methods, but as there are some existing use cases that client did not
+                // follow that guideline, we are not overwriting 3A parameters that's been set here.
                 //
                 // TODO(sushilnath@): Implement one of the two options
                 //  (1) Apply the 3A parameters from internal 3A state machine at last and provide
@@ -214,7 +217,19 @@ internal class Camera2CaptureSequenceProcessor(
                 //  (2) Let clients override the 3A parameters freely and when that happens
                 //      intercept those parameters from the request and keep the internal 3A state
                 //      machine in sync.
-                requestBuilder.writeParameters(requiredParameters)
+                val filteredRequiredParameters =
+                    requiredParameters.filterKeys { key ->
+                        val is3AKey = key is CaptureRequest.Key<*> && REQUEST_3A_KEYS.contains(key)
+                        if (!is3AKey) {
+                            return@filterKeys true
+                        }
+                        val isAlreadySetKey =
+                            defaultParameters.containsKey(key) ||
+                                graphParameters.containsKey(key) ||
+                                request.parameters.containsKey(key)
+                        !isAlreadySetKey
+                    }
+                requestBuilder.writeParameters(filteredRequiredParameters)
             }
             val requestNumber = nextRequestNumber()
 
