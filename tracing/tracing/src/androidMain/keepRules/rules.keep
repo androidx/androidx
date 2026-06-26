@@ -2,6 +2,3 @@
 -assumenosideeffects class androidx.tracing.ThreadTrack {
     public void assertThreadIdWhenNotOptimized(...);
 }
-
-# Custom JNI registration, so entire class must be kept
--keepclassmembers,includedescriptorclasses class androidx.tracing.support.Tid { *; }

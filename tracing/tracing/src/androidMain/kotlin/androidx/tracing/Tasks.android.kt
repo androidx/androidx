@@ -16,11 +16,13 @@
 
 package androidx.tracing
 
+import android.system.Os
 import androidx.annotation.RestrictTo
-import androidx.tracing.support.Tid
 
 @Suppress("NOTHING_TO_INLINE")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual inline fun currentTaskId(): Long {
-    return Tid.getTid()
+    // This is slow (~145 ns vs 30 ns for the optimal implementation): b/527131317.
+    // We only do this once per track creation, and not when looking up the track.
+    return Os.gettid().toLong()
 }
