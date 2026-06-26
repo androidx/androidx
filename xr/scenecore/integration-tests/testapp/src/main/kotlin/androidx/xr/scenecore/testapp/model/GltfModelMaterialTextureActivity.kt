@@ -272,9 +272,9 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
                 rotY.value = p.rotation.y.snap().coerceIn(-1f, 1f)
                 rotZ.value = p.rotation.z.snap().coerceIn(-1f, 1f)
                 rotW.value = p.rotation.w.snap().coerceIn(-1f, 1f)
-                scaleX.value = s.x.snap().coerceIn(0f, 10f)
-                scaleY.value = s.y.snap().coerceIn(0f, 10f)
-                scaleZ.value = s.z.snap().coerceIn(0f, 10f)
+                scaleX.value = s.x.snap().coerceIn(0.5f, 10f)
+                scaleY.value = s.y.snap().coerceIn(0.5f, 10f)
+                scaleZ.value = s.z.snap().coerceIn(0.5f, 10f)
             }
         }
         findViewById<Button>(R.id.gltf_model_button5_1).setOnClickListener {

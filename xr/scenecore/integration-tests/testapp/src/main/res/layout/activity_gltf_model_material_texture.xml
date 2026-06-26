@@ -441,17 +441,17 @@
             <TextView android:text="Model Node scale" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                 <TextView android:text="X: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.5" android:valueTo="10.0" android:stepSize="0.01"/>
                 <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                 <TextView android:text="Y: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.5" android:valueTo="10.0" android:stepSize="0.01"/>
                 <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                 <TextView android:text="Z: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.5" android:valueTo="10.0" android:stepSize="0.01"/>
                 <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
 
