@@ -242,8 +242,7 @@ fun TextFieldWithErrorState() {
         label = { Text(if (isError) "Username*" else "Username") },
         supportingText = {
             Row {
-                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
-                Spacer(Modifier.weight(1f))
+                Text(if (isError) errorMessage else "", Modifier.weight(1f).clearAndSetSemantics {})
                 Text("Limit: ${state.text.length}/$charLimit")
             }
         },
@@ -838,8 +837,7 @@ fun ExpressiveTextFieldWithErrorState() {
         label = { Text(if (isError) "Username*" else "Username") },
         supportingText = {
             Row {
-                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
-                Spacer(Modifier.weight(1f))
+                Text(if (isError) errorMessage else "", Modifier.weight(1f).clearAndSetSemantics {})
                 Text("Limit: ${state.text.length}/$charLimit")
             }
         },
@@ -875,8 +873,7 @@ fun ExpressiveOutlinedTextFieldWithErrorState() {
         label = { Text(if (isError) "Username*" else "Username") },
         supportingText = {
             Row {
-                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
-                Spacer(Modifier.weight(1f))
+                Text(if (isError) errorMessage else "", Modifier.weight(1f).clearAndSetSemantics {})
                 Text("Limit: ${state.text.length}/$charLimit")
             }
         },
