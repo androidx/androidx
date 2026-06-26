@@ -12,7 +12,8 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         import-toml)
             # Priority Check: If this argument is present, print and exit immediately
-            (cd $SCRIPT_DIR && ./gradlew -q -PimportToml)
+            # TODO(b/458454333): Remove -Dmaven.repo.local flag when https://github.com/gradle/gradle/issues/38329 is fixed
+            (cd $SCRIPT_DIR && ./gradlew -q -Dmaven.repo.local="$(mktemp -d)" -PimportToml)
             exit 0
             ;;
         --metalava-build-id)
@@ -65,4 +66,5 @@ if [[ -z "$ARTIFACTS" ]]; then
 fi
 
 # run importMaven
-(cd $SCRIPT_DIR && ./gradlew -q $ARGUMENTS)
+# TODO(b/458454333): Remove -Dmaven.repo.local flag when https://github.com/gradle/gradle/issues/38329 is fixed
+(cd $SCRIPT_DIR && ./gradlew -q -Dmaven.repo.local="$(mktemp -d)" $ARGUMENTS)
