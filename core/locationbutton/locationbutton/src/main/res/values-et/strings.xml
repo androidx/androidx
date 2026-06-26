@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="location_button_precise_location" msgid="5241783482235223479">"Täpne asukoht"</string>
-    <string name="location_button_use_precise_location" msgid="5668502346176484768">"Täpse asukoha kasutamine"</string>
+    <string name="location_button_use_precise_location" msgid="5668502346176484768">"Kasuta täpset asukohta"</string>
     <string name="location_button_share_precise_location" msgid="78203277332221590">"Täpse asukoha jagamine"</string>
     <string name="location_button_near_my_precise_location" msgid="1377333689776099558">"Minu täpse asukoha lähedal"</string>
     <string name="location_button_near_your_precise_location" msgid="156923413620474751">"Teie täpse asukoha lähedal"</string>
