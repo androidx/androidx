@@ -25,9 +25,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -214,5 +217,30 @@ public class MediaRouter2UtilsTest {
 
         assertThat(routeInfo.getRequiredPermissions()).containsExactlyElementsIn(
                 List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @Test
+    public void toMediaRouteDescriptor_withPollutedControlFilters_ignoresInvalidTypes() {
+        Bundle extras = new Bundle();
+        extras.putBundle(KEY_EXTRAS, new Bundle());
+        extras.putInt(KEY_DEVICE_TYPE, MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
+        ArrayList<Parcelable> pollutedList = new ArrayList<>();
+        pollutedList.add(new IntentFilter("fakeControlAction"));
+        pollutedList.add(new Intent());
+        extras.putParcelableArrayList(KEY_CONTROL_FILTERS, pollutedList);
+        MediaRoute2Info routeInfo =
+                new MediaRoute2Info.Builder(
+                                FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .addFeature(MediaRoute2Info.FEATURE_REMOTE_PLAYBACK)
+                        .setExtras(extras)
+                        .build();
+
+        MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(routeInfo);
+
+        assertThat(descriptor).isNotNull();
+        List<IntentFilter> controlFilters = descriptor.getControlFilters();
+        assertThat(controlFilters).hasSize(1);
+        assertEquals("fakeControlAction", controlFilters.get(0).getAction(0));
     }
 }

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
@@ -33,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -347,5 +349,25 @@ public class MediaRouteDescriptorTest {
         Set<String> allowedPackages = routeDescriptor.getAllowedPackages();
 
         assertThat(allowedPackages).containsExactly(FAKE_PACKAGE_NAME);
+    }
+
+    @Test
+    @SmallTest
+    public void testAddControlFilters_withHeapPollutedCollection_ignoresInvalidTypes() {
+        List<Object> rawList = new ArrayList<>();
+        rawList.add(new IntentFilter(FAKE_CONTROL_ACTION_1));
+        rawList.add(new Intent());
+        @SuppressWarnings("unchecked")
+        Collection<IntentFilter> pollutedCollection =
+                (Collection<IntentFilter>) (Collection<?>) rawList;
+
+        MediaRouteDescriptor routeDescriptor =
+                new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                        .addControlFilters(pollutedCollection)
+                        .build();
+
+        List<IntentFilter> controlFilters = routeDescriptor.getControlFilters();
+        assertEquals(1, controlFilters.size());
+        assertEquals(FAKE_CONTROL_ACTION_1, controlFilters.get(0).getAction(0));
     }
 }

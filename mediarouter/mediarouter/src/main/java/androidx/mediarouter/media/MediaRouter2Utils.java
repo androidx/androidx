@@ -75,6 +75,7 @@ import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BundleCompat;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -248,7 +249,9 @@ class MediaRouter2Utils {
                         : extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
         builder.setPlaybackType(extras.getInt(KEY_PLAYBACK_TYPE, RouteInfo.PLAYBACK_TYPE_REMOTE));
 
-        List<IntentFilter> controlFilters = extras.getParcelableArrayList(KEY_CONTROL_FILTERS);
+        List<IntentFilter> controlFilters =
+                BundleCompat.getParcelableArrayList(
+                        extras, KEY_CONTROL_FILTERS, IntentFilter.class);
         if (controlFilters != null) {
             builder.addControlFilters(controlFilters);
         }
