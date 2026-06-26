@@ -25,9 +25,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarOverride
+import androidx.compose.material3.NavigationBarOverrideScope
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -38,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.material3.XrNavigationBarOverride.NavigationBar
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
@@ -108,6 +112,22 @@ internal object XrNavigationBarTokens {
     val HorizontalPadding = 8.dp
 
     val ContainerHeight = 80.0.dp
+}
+
+/** [NavigationBarOverride] that uses the XR-specific [NavigationBar]. */
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
+internal object XrNavigationBarOverride : NavigationBarOverride {
+    @Composable
+    override fun NavigationBarOverrideScope.NavigationBar() {
+        NavigationBar(
+            modifier = modifier,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            tonalElevation = tonalElevation,
+            content = content,
+        )
+    }
 }
 
 /**

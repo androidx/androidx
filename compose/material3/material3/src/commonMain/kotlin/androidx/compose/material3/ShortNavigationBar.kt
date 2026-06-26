@@ -29,6 +29,8 @@ import androidx.compose.material3.tokens.NavigationBarHorizontalItemTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.material3.tokens.NavigationBarVerticalItemTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -89,6 +91,7 @@ import kotlin.math.roundToInt
  * @param arrangement the [ShortNavigationBarArrangement] of this navigation bar
  * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
  */
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
 @Composable
 fun ShortNavigationBar(
     modifier: Modifier = Modifier,
@@ -98,26 +101,49 @@ fun ShortNavigationBar(
     arrangement: ShortNavigationBarArrangement = ShortNavigationBarDefaults.arrangement,
     content: @Composable () -> Unit,
 ) {
-    Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
-        Layout(
-            modifier =
-                Modifier.windowInsetsPadding(windowInsets)
-                    .defaultMinSize(minHeight = NavigationBarTokens.ContainerHeight)
-                    .selectableGroup(),
-            content = content,
-            measurePolicy =
-                when (arrangement) {
-                    ShortNavigationBarArrangement.EqualWeight -> {
-                        EqualWeightContentMeasurePolicy()
-                    }
-                    ShortNavigationBarArrangement.Centered -> {
-                        CenteredContentMeasurePolicy()
-                    }
-                    else -> {
-                        throw IllegalArgumentException("Invalid ItemsArrangement value.")
-                    }
-                },
-        )
+    with(LocalShortNavigationBarOverride.current) {
+        ShortNavigationBarOverrideScope(
+                modifier = modifier,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                windowInsets = windowInsets,
+                arrangement = arrangement,
+                content = content,
+            )
+            .ShortNavigationBar()
+    }
+}
+
+/**
+ * This override provides the default behavior of the [ShortNavigationBar] component.
+ *
+ * [ShortNavigationBarOverride] used when no override is specified.
+ */
+@ExperimentalMaterial3ComponentOverrideApi
+object DefaultShortNavigationBarOverride : ShortNavigationBarOverride {
+    @Composable
+    override fun ShortNavigationBarOverrideScope.ShortNavigationBar() {
+        Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
+            Layout(
+                modifier =
+                    Modifier.windowInsetsPadding(windowInsets)
+                        .defaultMinSize(minHeight = NavigationBarTokens.ContainerHeight)
+                        .selectableGroup(),
+                content = content,
+                measurePolicy =
+                    when (arrangement) {
+                        ShortNavigationBarArrangement.EqualWeight -> {
+                            EqualWeightContentMeasurePolicy()
+                        }
+                        ShortNavigationBarArrangement.Centered -> {
+                            CenteredContentMeasurePolicy()
+                        }
+                        else -> {
+                            throw IllegalArgumentException("Invalid ItemsArrangement value.")
+                        }
+                    },
+            )
+        }
     }
 }
 
@@ -317,6 +343,47 @@ object ShortNavigationBarItemDefaults {
                     .also { defaultShortNavigationBarItemColorsCached = it }
         }
 }
+
+/**
+ * Interface that allows libraries to override the behavior of the [ShortNavigationBar] component.
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [LocalShortNavigationBarOverride] in the Compose hierarchy.
+ */
+@ExperimentalMaterial3ComponentOverrideApi
+interface ShortNavigationBarOverride {
+    /** Behavior function that is called by the [ShortNavigationBar] component. */
+    @Composable fun ShortNavigationBarOverrideScope.ShortNavigationBar()
+}
+
+/**
+ * Parameters available to [ShortNavigationBar].
+ *
+ * @param modifier the [Modifier] to be applied to this navigation bar
+ * @param containerColor the color used for the background of this navigation bar. Use
+ *   [Color.Transparent] to have no color
+ * @param contentColor the color for content inside this navigation bar.
+ * @param windowInsets a window insets of the navigation bar
+ * @param arrangement the [ShortNavigationBarArrangement] of this navigation bar
+ * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
+ */
+@ExperimentalMaterial3ComponentOverrideApi
+class ShortNavigationBarOverrideScope
+internal constructor(
+    val modifier: Modifier,
+    val containerColor: Color,
+    val contentColor: Color,
+    val windowInsets: WindowInsets,
+    val arrangement: ShortNavigationBarArrangement,
+    val content: @Composable () -> Unit,
+)
+
+/** CompositionLocal containing the currently-selected [ShortNavigationBarOverride]. */
+@ExperimentalMaterial3ComponentOverrideApi
+val LocalShortNavigationBarOverride: ProvidableCompositionLocal<ShortNavigationBarOverride> =
+    compositionLocalOf {
+        DefaultShortNavigationBarOverride
+    }
 
 private class EqualWeightContentMeasurePolicy : MeasurePolicy {
     override fun MeasureScope.measure(

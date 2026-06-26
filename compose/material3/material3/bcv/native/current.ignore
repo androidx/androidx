@@ -170,21 +170,12 @@
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_AnalogTimePickerState$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_AppBarScopeImpl$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_BaseDatePickerStateImpl$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_BasicAlertDialogOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClickableAppBarItem$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockDialModifier$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockDialNode$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockFaceSizeModifier$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_CustomAppBarItem$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DateInputValidator$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultBasicAlertDialogOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultModalWideNavigationRailOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultNavigationBarOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultNavigationRailOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultShortNavigationBarOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultSingleRowTopAppBarOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultTwoRowsTopAppBarOverride$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultWideNavigationRailOverride$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DrawerPredictiveBackState$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ExposedDropdownMenuPositionProvider$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_FabPlacement$stableprop from androidx.compose.material
@@ -192,23 +183,16 @@
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_IndicatorLineNode$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_MinimumInteractiveModifier$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_MinimumInteractiveModifierNode$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ModalWideNavigationRailOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ModalWideNavigationRailState$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_NavigationBarOverrideScope$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_NavigationRailOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_OverflowMeasurePolicy$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_RailPredictiveBackState$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SegmentedButtonContentMeasurePolicy$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SelectedRangeInfo$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ShortNavigationBarOverrideScope$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SingleRowTopAppBarOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TabIndicatorModifier$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TabIndicatorOffsetNode$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ToggleableAppBarItem$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TonalPalette$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TooltipScopeImpl$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TwoRowsTopAppBarOverrideScope$stableprop from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WideNavigationRailOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WideNavigationRailStateImpl$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WindowBoundsCalculator$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration (androidx.compose.material3/TooltipScope).androidx.compose.material3/PlainTooltip(androidx.compose.ui/Modifier?, androidx.compose.ui.unit/DpSize, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Shape?, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Color, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
@@ -388,6 +372,7 @@
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBar(androidx.compose.material3/SearchBarState, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.ui/Modifier?, androidx.compose.ui.graphics/Shape?, androidx.compose.material3/SearchBarColors?, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBar(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, kotlin/Boolean, kotlin/Function1<kotlin/Boolean, kotlin/Unit>, androidx.compose.ui/Modifier?, androidx.compose.ui.graphics/Shape?, androidx.compose.material3/SearchBarColors?, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.foundation.layout/WindowInsets?, kotlin/Function3<androidx.compose.foundation.layout/ColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBar(kotlin/String, kotlin/Function1<kotlin/String, kotlin/Unit>, kotlin/Function1<kotlin/String, kotlin/Unit>, kotlin/Boolean, kotlin/Function1<kotlin/Boolean, kotlin/Unit>, androidx.compose.ui/Modifier?, kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, androidx.compose.ui.graphics/Shape?, androidx.compose.material3/SearchBarColors?, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.foundation.layout/WindowInsets?, androidx.compose.foundation.interaction/MutableInteractionSource?, kotlin/Function3<androidx.compose.foundation.layout/ColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3/TimePickerDialog(kotlin/Function0<kotlin/Unit>, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.ui/Modifier?, androidx.compose.ui.window/DialogProperties?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, androidx.compose.ui.graphics/Shape?, androidx.compose.ui.graphics/Color, kotlin/Function3<androidx.compose.foundation.layout/ColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipBox(androidx.compose.ui.window/PopupPositionProvider, kotlin/Function3<androidx.compose.material3/TooltipScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.material3/TooltipState, androidx.compose.ui/Modifier?, kotlin/Boolean, kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipBox(androidx.compose.ui.window/PopupPositionProvider, kotlin/Function3<androidx.compose.material3/TooltipScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.material3/TooltipState, androidx.compose.ui/Modifier?, kotlin/Function0<kotlin/Unit>?, kotlin/Boolean, kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TopAppBar(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.ui/Modifier?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, kotlin/Function3<androidx.compose.foundation.layout/RowScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, androidx.compose.foundation.layout/WindowInsets?, androidx.compose.material3/TopAppBarColors?, androidx.compose.material3/TopAppBarScrollBehavior?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
@@ -395,21 +380,12 @@
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_AnalogTimePickerState$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_AppBarScopeImpl$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_BaseDatePickerStateImpl$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_BasicAlertDialogOverrideScope$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClickableAppBarItem$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockDialModifier$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockDialNode$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ClockFaceSizeModifier$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_CustomAppBarItem$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DateInputValidator$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultBasicAlertDialogOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultModalWideNavigationRailOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultNavigationBarOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultNavigationRailOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultShortNavigationBarOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultSingleRowTopAppBarOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultTwoRowsTopAppBarOverride$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DefaultWideNavigationRailOverride$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_DrawerPredictiveBackState$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ExposedDropdownMenuPositionProvider$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_FabPlacement$stableprop_getter() from androidx.compose.material
@@ -417,23 +393,16 @@
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_IndicatorLineNode$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_MinimumInteractiveModifier$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_MinimumInteractiveModifierNode$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ModalWideNavigationRailOverrideScope$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ModalWideNavigationRailState$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_NavigationBarOverrideScope$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_NavigationRailOverrideScope$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_OverflowMeasurePolicy$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_RailPredictiveBackState$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SegmentedButtonContentMeasurePolicy$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SelectedRangeInfo$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ShortNavigationBarOverrideScope$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_SingleRowTopAppBarOverrideScope$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TabIndicatorModifier$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TabIndicatorOffsetNode$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_ToggleableAppBarItem$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TonalPalette$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TooltipScopeImpl$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_TwoRowsTopAppBarOverrideScope$stableprop_getter() from androidx.compose.material
-[linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WideNavigationRailOverrideScope$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WideNavigationRailStateImpl$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/androidx_compose_material3_WindowBoundsCalculator$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberBottomAppBarState(kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material

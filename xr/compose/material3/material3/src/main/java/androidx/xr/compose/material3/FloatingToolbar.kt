@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarColors
 import androidx.compose.material3.FloatingToolbarDefaults
@@ -42,7 +43,15 @@ import androidx.compose.material3.FloatingToolbarDefaults.verticalExitTransition
 import androidx.compose.material3.FloatingToolbarHorizontalFabPosition
 import androidx.compose.material3.FloatingToolbarScrollBehavior
 import androidx.compose.material3.FloatingToolbarVerticalFabPosition
+import androidx.compose.material3.HorizontalFloatingToolbarOverride
+import androidx.compose.material3.HorizontalFloatingToolbarOverrideScope
+import androidx.compose.material3.HorizontalFloatingToolbarWithFabOverride
+import androidx.compose.material3.HorizontalFloatingToolbarWithFabOverrideScope
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.VerticalFloatingToolbarOverride
+import androidx.compose.material3.VerticalFloatingToolbarOverrideScope
+import androidx.compose.material3.VerticalFloatingToolbarWithFabOverride
+import androidx.compose.material3.VerticalFloatingToolbarWithFabOverrideScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -450,6 +459,102 @@ private object XrFloatingToolbarTokens {
     val HorizontalToolbarContainerHeight = 64.dp
 
     val ToolbarToFabGap = 8.dp
+}
+
+/** [HorizontalFloatingToolbarOverride] that uses the XR-specific [HorizontalFloatingToolbar]. */
+@OptIn(
+    ExperimentalMaterial3ComponentOverrideApi::class,
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalMaterial3XrApi::class,
+)
+internal object XrHorizontalFloatingToolbarOverride : HorizontalFloatingToolbarOverride {
+    @Composable
+    override fun HorizontalFloatingToolbarOverrideScope.HorizontalFloatingToolbar() {
+        HorizontalFloatingToolbar(
+            expanded = isExpanded,
+            modifier = modifier,
+            colors = colors,
+            contentPadding = contentPadding,
+            scrollBehavior = scrollBehavior,
+            leadingContent = leadingContent,
+            trailingContent = trailingContent,
+            content = content,
+        )
+    }
+}
+
+/**
+ * [HorizontalFloatingToolbarWithFabOverride] that uses the XR-specific [HorizontalFloatingToolbar],
+ * with a floating action button (FAB).
+ */
+@OptIn(
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalMaterial3ComponentOverrideApi::class,
+    ExperimentalMaterial3XrApi::class,
+)
+internal object XrHorizontalFloatingToolbarWithFabOverride :
+    HorizontalFloatingToolbarWithFabOverride {
+    @Composable
+    override fun HorizontalFloatingToolbarWithFabOverrideScope.HorizontalFloatingToolbarWithFab() {
+        HorizontalFloatingToolbar(
+            expanded = isExpanded,
+            floatingActionButton = floatingActionButton,
+            modifier = modifier,
+            colors = colors,
+            contentPadding = contentPadding,
+            scrollBehavior = scrollBehavior,
+            shape = shape,
+            floatingActionButtonPosition = floatingActionButtonPosition,
+            content = content,
+        )
+    }
+}
+
+/** [VerticalFloatingToolbarOverride] that uses the XR-specific [VerticalFloatingToolbar]. */
+@OptIn(
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalMaterial3ComponentOverrideApi::class,
+    ExperimentalMaterial3XrApi::class,
+)
+internal object XrVerticalFloatingToolbarOverride : VerticalFloatingToolbarOverride {
+    @Composable
+    override fun VerticalFloatingToolbarOverrideScope.VerticalFloatingToolbar() {
+        VerticalFloatingToolbar(
+            expanded = isExpanded,
+            modifier = modifier,
+            colors = colors,
+            contentPadding = contentPadding,
+            leadingContent = leadingContent,
+            trailingContent = trailingContent,
+            content = content,
+        )
+    }
+}
+
+/**
+ * [VerticalFloatingToolbarWithFabOverride] that uses the XR-specific [VerticalFloatingToolbar],
+ * with a floating action button (FAB).
+ */
+@OptIn(
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalMaterial3ComponentOverrideApi::class,
+    ExperimentalMaterial3XrApi::class,
+)
+internal object XrVerticalFloatingToolbarWithFabOverride : VerticalFloatingToolbarWithFabOverride {
+    @Composable
+    override fun VerticalFloatingToolbarWithFabOverrideScope.VerticalFloatingToolbarWithFab() {
+        VerticalFloatingToolbar(
+            expanded = isExpanded,
+            floatingActionButton = floatingActionButton,
+            modifier = modifier,
+            colors = colors,
+            contentPadding = contentPadding,
+            scrollBehavior = scrollBehavior,
+            shape = shape,
+            floatingActionButtonPosition = floatingActionButtonPosition,
+            content = content,
+        )
+    }
 }
 
 /**
