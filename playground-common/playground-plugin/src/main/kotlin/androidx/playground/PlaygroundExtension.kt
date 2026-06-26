@@ -253,6 +253,7 @@ open class PlaygroundExtension @Inject constructor(
             ":benchmark:benchmark-common", // requires prebuilts
             ":benchmark:benchmark-traceprocessor", // requires prebuilts
             ":inspection:inspection", // native compilation
+            ":tracing:tracing-perfetto-binary", // requires prebuilts"
         )
     }
 }
