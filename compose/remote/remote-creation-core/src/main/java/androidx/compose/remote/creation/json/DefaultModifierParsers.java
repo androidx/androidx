@@ -209,6 +209,10 @@ class DefaultModifierParsers {
             recordingModifier.then(new TouchActionModifier(
                     TouchActionModifier.CANCEL, parseActions(mod.get(key), parser)));
         });
+        p.registerModifierParser("drawwithcontent",
+                (mod, key, recordingModifier, parser) -> {
+                    recordingModifier.drawWithContent();
+                });
     }
 
     private static List<Action> parseActions(

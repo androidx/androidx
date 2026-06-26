@@ -1186,6 +1186,39 @@ public class RemoteComposeJsonParser {
                 });
                 break;
             }
+            case "particlesComparison": {
+                float systemIdFloat = parseFloat(command.get("systemId"));
+                short flags = (short) command.optInt("flags", 0);
+                float min = parseFloat(command.get("min"));
+                float max = parseFloat(command.get("max"));
+                float[] condition = command.has("condition")
+                        ? parseFloatExpression(command.get("condition")) : null;
+                float[][] then1 = command.has("then1")
+                        ? parseFloatExpressions(command.getJSONArray("then1")) : null;
+                float[][] then2 = command.has("then2")
+                        ? parseFloatExpressions(command.getJSONArray("then2"))
+                        : (command.has("then")
+                                ? parseFloatExpressions(command.getJSONArray("then")) : null);
+                final JSONObject finalCommand = command;
+                Runnable subCmds = command.has("commands") ? () -> {
+                    try {
+                        parseCommands(finalCommand.getJSONArray("commands"));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                } : null;
+                if (then2 != null) {
+                    mWriter.particlesComparison(systemIdFloat, flags, min, max,
+                            condition, then1, then2, subCmds);
+                } else {
+                    mWriter.particlesComparison(systemIdFloat, flags, min, max,
+                            condition, then1, subCmds);
+                }
+                break;
+            }
+            case "wakeIn":
+                mWriter.wakeIn(parseFloat(command.get("seconds")));
+                break;
             case "performHaptic":
                 mWriter.performHaptic(command.getInt("constant"));
                 break;
@@ -1732,6 +1765,17 @@ public class RemoteComposeJsonParser {
         } else {
             throw new JSONException("Invalid float expression: " + expObj);
         }
+    }
+
+    float[][] parseFloatExpressions(JSONArray arr) throws JSONException {
+        if (arr == null) {
+            return null;
+        }
+        float[][] res = new float[arr.length()][];
+        for (int i = 0; i < arr.length(); i++) {
+            res[i] = parseFloatExpression(arr.get(i));
+        }
+        return res;
     }
 
     boolean isMathExpression(String s) {
