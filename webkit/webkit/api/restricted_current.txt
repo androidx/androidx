@@ -516,6 +516,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getBackForwardCacheEnabled(android.webkit.WebSettings);
     method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebSettingsCompat.ExperimentalBackForwardCacheSettings public static androidx.webkit.BackForwardCacheSettings getBackForwardCacheSettings(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOWNLOAD_FAVICONS_ENABLED, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getDownloadFaviconsEnabled(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(android.webkit.WebSettings);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getForceDark(android.webkit.WebSettings);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK_STRATEGY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getForceDarkStrategy(android.webkit.WebSettings);
@@ -534,6 +535,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setBackForwardCacheEnabled(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.COOKIE_INTERCEPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setCookiesIncludedInShouldInterceptRequest(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOWNLOAD_FAVICONS_ENABLED, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDownloadFaviconsEnabled(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(android.webkit.WebSettings, boolean);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setForceDark(android.webkit.WebSettings, int);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK_STRATEGY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setForceDarkStrategy(android.webkit.WebSettings, int);
@@ -711,6 +713,7 @@ package androidx.webkit {
     field public static final String DELETE_BROWSING_DATA = "DELETE_BROWSING_DATA";
     field public static final String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
     field public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
+    field public static final String DOWNLOAD_FAVICONS_ENABLED = "DOWNLOAD_FAVICONS_ENABLED";
     field public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY = "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
     field public static final String FORCE_DARK = "FORCE_DARK";
     field public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";

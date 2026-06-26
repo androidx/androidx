@@ -1049,7 +1049,6 @@ public class WebViewFeatureInternal {
      * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
      * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework DOWNLOAD_FAVICONS_ENABLED =
             new ApiFeature.NoFramework(
                     WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,

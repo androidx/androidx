@@ -1428,7 +1428,6 @@ public class WebSettingsCompat {
      *     {@link WebViewFeature#DOWNLOAD_FAVICONS_ENABLED} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDownloadFaviconsEnabled(@NonNull WebSettings settings, boolean enabled) {
@@ -1447,7 +1446,6 @@ public class WebSettingsCompat {
      *     {@link WebViewFeature#DOWNLOAD_FAVICONS_ENABLED} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getDownloadFaviconsEnabled(@NonNull WebSettings settings) {
