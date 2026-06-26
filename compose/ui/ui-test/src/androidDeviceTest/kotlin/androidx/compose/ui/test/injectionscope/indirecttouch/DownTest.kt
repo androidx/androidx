@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.partialgesturescope
+package androidx.compose.ui.test.injectionscope.indirecttouch
 
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
-import androidx.compose.ui.test.down
+import androidx.compose.ui.test.IndirectPointerInjectionScope
+import androidx.compose.ui.test.injectionscope.indirecttouch.Common.performIndirectPointerInput
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.partialgesturescope.Common.partialGesture
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.util.ClickableTestBox
+import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
 import androidx.compose.ui.test.util.verify
+import androidx.compose.ui.unit.IntSize
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -34,12 +39,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/** Tests if [down] works */
+/** Tests if [IndirectPointerInjectionScope.down] works */
 @MediumTest
-class SendDownTest {
+class DownTest {
     companion object {
         private val position1 = Offset(5f, 5f)
         private val position2 = Offset(7f, 7f)
+        private val inputDeviceSize = IntSize(3082, 616)
     }
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -48,15 +54,19 @@ class SendDownTest {
 
     @Before
     fun setUp() {
-        // Given some content
         rule.setContent { ClickableTestBox(recorder) }
+        rule.onNodeWithTag(defaultTag).requestFocus()
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun onePointer() {
         // When we put a pointer down
-        rule.partialGesture { down(position1) }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(position1)
+        }
 
         rule.runOnIdle {
             recorder.run {
@@ -69,34 +79,40 @@ class SendDownTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun twoPointers() {
         // When we put two pointers down
-        rule.partialGesture { down(1, position1) }
-        // Since this gesture is split across separate input blocks, we must manually advance
-        // the clock between them. By default, advanceTimeBy rounds up durations to the nearest
-        // multiple of the frame duration (16ms), which would cause the 20ms delay to become a
-        // 32ms delay. Adding ignoreFrameDuration = true ensures that the clock advances by exactly
-        // 20ms.
-        rule.mainClock.advanceTimeBy(20, ignoreFrameDuration = true)
-        rule.partialGesture { down(2, position2) }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(1, position1)
+        }
+        rule.mainClock.advanceTimeBy(20) // (with some time in between)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(2, position2)
+        }
 
         rule.runOnIdle {
             recorder.run {
-                // Then we have recorded 2 down events
+                // Then we have recorded 2 down events with different timestamps
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
 
                 assertThat(events[0].pointerCount).isEqualTo(1)
                 events[0].getPointer(0).verify(null, null, true, position1, Touch, Press)
 
-                val t = events[0].getPointer(0).timestamp
+                val t1 = events[0].getPointer(0).timestamp
                 val pointerId1 = events[0].getPointer(0).id
 
                 assertThat(events[1].pointerCount).isEqualTo(2)
-                events[1].getPointer(0).verify(t + 20, pointerId1, true, position1, Touch, Press)
-                events[1].getPointer(1).verify(t + 20, null, true, position2, Touch, Press)
+                val t2 = events[1].getPointer(0).timestamp
+                assertThat(t2).isGreaterThan(t1)
+                events[1].getPointer(0).verify(t2, pointerId1, true, position1, Touch, Press)
+                events[1].getPointer(1).verify(t2, null, true, position2, Touch, Press)
 
                 val pointerId2 = events[1].getPointer(1).id
                 assertThat(pointerId2).isNotEqualTo(pointerId1)
@@ -104,12 +120,23 @@ class SendDownTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun duplicatePointers() {
         // When we inject two down events with the same pointer id
-        rule.partialGesture { down(1, position1) }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(1, position1)
+        }
         // Then the second throws an exception
-        expectError<IllegalArgumentException> { rule.partialGesture { down(1, position1) } }
+        expectError<IllegalArgumentException> {
+            rule.performIndirectPointerInput(
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                inputDeviceSize,
+            ) {
+                down(1, position1)
+            }
+        }
     }
 }

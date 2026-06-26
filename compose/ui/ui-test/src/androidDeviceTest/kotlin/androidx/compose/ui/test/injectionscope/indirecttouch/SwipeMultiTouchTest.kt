@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.injectionscope.touch
+package androidx.compose.ui.test.injectionscope.indirecttouch
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
@@ -28,12 +29,14 @@ import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.multiTouchSwipe
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performIndirectPointerInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
 import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.unit.IntSize
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -45,6 +48,7 @@ class SwipeMultiTouchTest {
         private const val TAG = "widget"
         // Duration is 4 * eventPeriod to get easily predictable results
         private const val DURATION = 64L
+        private val inputDeviceSize = IntSize(3082, 616)
     }
 
     private val recorder = MultiPointerInputRecorder()
@@ -54,6 +58,7 @@ class SwipeMultiTouchTest {
         setContent {
             Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = TAG) }
         }
+        onNodeWithTag(TAG).requestFocus()
 
         // Move three fingers over the box from left to right simultaneously
         // With a duration that is exactly 4 times the eventPeriod, each pointer will be sampled
@@ -63,7 +68,10 @@ class SwipeMultiTouchTest {
         val curve2 = line(fromX = 10f, toX = 90f, y = 50f, DURATION)
         val curve3 = line(fromX = 10f, toX = 90f, y = 80f, DURATION)
 
-        onNodeWithTag(TAG).performTouchInput {
+        onNodeWithTag(TAG).performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
             multiTouchSwipe(curves = listOf(curve1, curve2, curve3), durationMillis = DURATION)
         }
 

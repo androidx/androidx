@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.injectionscope.touch
+package androidx.compose.ui.test.injectionscope.indirecttouch
 
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
-import androidx.compose.ui.test.TouchInjectionScope
-import androidx.compose.ui.test.injectionscope.touch.Common.performTouchInput
+import androidx.compose.ui.test.IndirectPointerInjectionScope
+import androidx.compose.ui.test.injectionscope.indirecttouch.Common.performIndirectPointerInput
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.util.ClickableTestBox
+import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
-import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
+import androidx.compose.ui.test.util.assertNoIndirectPointerGestureInProgress
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
 import androidx.compose.ui.test.util.verify
+import androidx.compose.ui.unit.IntSize
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -36,12 +40,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/** Tests if [TouchInjectionScope.up] works */
+/** Tests if [IndirectPointerInjectionScope.up] works */
 @MediumTest
 class UpTest {
     companion object {
         private val downPosition1 = Offset(10f, 10f)
         private val downPosition2 = Offset(20f, 20f)
+        private val inputDeviceSize = IntSize(3082, 616)
     }
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -52,14 +57,25 @@ class UpTest {
     fun setUp() {
         // Given some content
         rule.setContent { ClickableTestBox(recorder) }
+        rule.onNodeWithTag(defaultTag).requestFocus()
     }
 
     @Test
     fun onePointer() {
         // When we inject a down event followed by an up event
-        rule.performTouchInput { down(downPosition1) }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+        }
         rule.mainClock.advanceTimeBy(20) // (with some time in between)
-        rule.performTouchInput { up() }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            up()
+        }
 
         rule.runOnIdle {
             recorder.run {
@@ -78,16 +94,36 @@ class UpTest {
         }
 
         // And no gesture is in progress
-        rule.onNodeWithTag(ClickableTestBox.defaultTag).assertNoTouchGestureInProgress()
+        rule.onNodeWithTag(defaultTag).assertNoIndirectPointerGestureInProgress()
     }
 
     @Test
     fun twoPointers() {
         // When we inject two down events followed by two up events
-        rule.performTouchInput { down(1, downPosition1) }
-        rule.performTouchInput { down(2, downPosition2) }
-        rule.performTouchInput { up(1) }
-        rule.performTouchInput { up(2) }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(1, downPosition1)
+        }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(2, downPosition2)
+        }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            up(1)
+        }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            up(2)
+        }
 
         rule.runOnIdle {
             recorder.run {
@@ -112,32 +148,84 @@ class UpTest {
             }
         }
 
-        // And no gesture is in progress
-        rule.onNodeWithTag(ClickableTestBox.defaultTag).assertNoTouchGestureInProgress()
+        rule.onNodeWithTag(defaultTag).assertNoIndirectPointerGestureInProgress()
     }
 
     @Test
     fun up_withoutDown() {
-        expectError<IllegalStateException> { rule.performTouchInput { up() } }
+        expectError<IllegalStateException> {
+            rule.performIndirectPointerInput(
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                inputDeviceSize,
+            ) {
+                up()
+            }
+        }
     }
 
     @Test
     fun up_wrongPointerId() {
-        rule.performTouchInput { down(1, downPosition1) }
-        expectError<IllegalArgumentException> { rule.performTouchInput { up(2) } }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(1, downPosition1)
+        }
+        expectError<IllegalArgumentException> {
+            rule.performIndirectPointerInput(
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                inputDeviceSize,
+            ) {
+                up(2)
+            }
+        }
     }
 
     @Test
     fun up_afterUp() {
-        rule.performTouchInput { down(downPosition1) }
-        rule.performTouchInput { up() }
-        expectError<IllegalStateException> { rule.performTouchInput { up() } }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+        }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            up()
+        }
+        expectError<IllegalStateException> {
+            rule.performIndirectPointerInput(
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                inputDeviceSize,
+            ) {
+                up()
+            }
+        }
     }
 
     @Test
     fun up_afterCancel() {
-        rule.performTouchInput { down(downPosition1) }
-        rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> { rule.performTouchInput { up() } }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+        }
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            cancel()
+        }
+        expectError<IllegalStateException> {
+            rule.performIndirectPointerInput(
+                IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+                inputDeviceSize,
+            ) {
+                up()
+            }
+        }
     }
 }

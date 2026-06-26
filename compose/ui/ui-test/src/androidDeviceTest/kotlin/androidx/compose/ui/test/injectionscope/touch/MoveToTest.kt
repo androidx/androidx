@@ -16,12 +16,10 @@
 
 package androidx.compose.ui.test.injectionscope.touch
 
-import android.os.SystemClock.sleep
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
-import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.injectionscope.touch.Common.performTouchInput
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -60,7 +58,7 @@ class MoveToTest() {
     fun onePointer() {
         // When we inject a down event followed by a move event
         rule.performTouchInput { down(downPosition1) }
-        sleep(20) // (with some time in between)
+        rule.mainClock.advanceTimeBy(20) // (with some time in between)
         rule.performTouchInput { moveTo(moveToPosition1) }
 
         rule.runOnIdle {
@@ -69,12 +67,13 @@ class MoveToTest() {
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
 
-                var t = events[0].getPointer(0).timestamp
+                val t0 = events[0].getPointer(0).timestamp
                 val pointerId = events[0].getPointer(0).id
 
-                t += eventPeriodMillis
+                val t1 = events[1].getPointer(0).timestamp
+                assertThat(t1).isGreaterThan(t0)
                 assertThat(events[1].pointerCount).isEqualTo(1)
-                events[1].getPointer(0).verify(t, pointerId, true, moveToPosition1, Touch, Move)
+                events[1].getPointer(0).verify(t1, pointerId, true, moveToPosition1, Touch, Move)
             }
         }
     }
@@ -93,19 +92,21 @@ class MoveToTest() {
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(4)
 
-                var t = events[0].getPointer(0).timestamp
+                val t0 = events[0].getPointer(0).timestamp
                 val pointerId1 = events[0].getPointer(0).id
                 val pointerId2 = events[1].getPointer(1).id
 
-                t += eventPeriodMillis
+                val t2 = events[2].getPointer(0).timestamp
+                assertThat(t2).isGreaterThan(t0)
                 assertThat(events[2].pointerCount).isEqualTo(2)
-                events[2].getPointer(0).verify(t, pointerId1, true, moveToPosition1, Touch, Move)
-                events[2].getPointer(1).verify(t, pointerId2, true, downPosition2, Touch, Move)
+                events[2].getPointer(0).verify(t2, pointerId1, true, moveToPosition1, Touch, Move)
+                events[2].getPointer(1).verify(t2, pointerId2, true, downPosition2, Touch, Move)
 
-                t += eventPeriodMillis
+                val t3 = events[3].getPointer(0).timestamp
+                assertThat(t3).isGreaterThan(t2)
                 assertThat(events[3].pointerCount).isEqualTo(2)
-                events[3].getPointer(0).verify(t, pointerId1, true, moveToPosition1, Touch, Move)
-                events[3].getPointer(1).verify(t, pointerId2, true, moveToPosition2, Touch, Move)
+                events[3].getPointer(0).verify(t3, pointerId1, true, moveToPosition1, Touch, Move)
+                events[3].getPointer(1).verify(t3, pointerId2, true, moveToPosition2, Touch, Move)
             }
         }
     }
@@ -115,7 +116,7 @@ class MoveToTest() {
         // When we inject two down events followed by one move events
         rule.performTouchInput { down(1, downPosition1) }
         rule.performTouchInput { down(2, downPosition2) }
-        sleep(20) // (with some time in between)
+        rule.mainClock.advanceTimeBy(20) // (with some time in between)
         rule.performTouchInput { updatePointerTo(1, moveToPosition1) }
         rule.performTouchInput { updatePointerTo(2, moveToPosition2) }
         rule.performTouchInput { move() }
@@ -126,14 +127,15 @@ class MoveToTest() {
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(3)
 
-                var t = events[0].getPointer(0).timestamp
+                val t0 = events[0].getPointer(0).timestamp
                 val pointerId1 = events[0].getPointer(0).id
                 val pointerId2 = events[1].getPointer(1).id
 
-                t += eventPeriodMillis
+                val t2 = events[2].getPointer(0).timestamp
+                assertThat(t2).isGreaterThan(t0)
                 assertThat(events[2].pointerCount).isEqualTo(2)
-                events[2].getPointer(0).verify(t, pointerId1, true, moveToPosition1, Touch, Move)
-                events[2].getPointer(1).verify(t, pointerId2, true, moveToPosition2, Touch, Move)
+                events[2].getPointer(0).verify(t2, pointerId1, true, moveToPosition1, Touch, Move)
+                events[2].getPointer(1).verify(t2, pointerId2, true, moveToPosition2, Touch, Move)
             }
         }
     }
