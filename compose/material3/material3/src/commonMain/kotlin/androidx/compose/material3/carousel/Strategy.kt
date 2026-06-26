@@ -53,6 +53,26 @@ private constructor(
     val beforeContentPadding: Float,
     val afterContentPadding: Float,
 ) {
+    val minItemSize: Float
+    val maxItemSize: Float
+
+    init {
+        var min = defaultKeylines.minSize
+        var max = defaultKeylines.maxSize
+
+        startKeylineSteps.fastForEach { step ->
+            if (step.minSize < min) min = step.minSize
+            if (step.maxSize > max) max = step.maxSize
+        }
+
+        endKeylineSteps.fastForEach { step ->
+            if (step.minSize < min) min = step.minSize
+            if (step.maxSize > max) max = step.maxSize
+        }
+
+        this.minItemSize = min
+        this.maxItemSize = max
+    }
 
     /**
      * Creates a new [Strategy] for a keyline list and set of carousel container parameters.
@@ -134,6 +154,11 @@ private constructor(
      */
     private var lastStartAndEndKeylineListSteps: List<KeylineList>? = null
 
+    private var cachedScrollOffset = -1f
+    private var cachedMaxScrollOffset = -1f
+    private var cachedRoundToNearestStep = false
+    private var cachedKeylineList: KeylineList? = null
+
     /**
      * Returns the [KeylineList] that should be used for the current [scrollOffset].
      *
@@ -142,6 +167,31 @@ private constructor(
      * @param roundToNearestStep true if the KeylineList returned should be a complete shift step
      */
     internal fun getKeylineListForScrollOffset(
+        scrollOffset: Float,
+        maxScrollOffset: Float,
+        roundToNearestStep: Boolean = false,
+    ): KeylineList {
+        if (
+            scrollOffset == cachedScrollOffset &&
+                maxScrollOffset == cachedMaxScrollOffset &&
+                roundToNearestStep == cachedRoundToNearestStep &&
+                cachedKeylineList != null
+        ) {
+            return cachedKeylineList!!
+        }
+
+        val result =
+            getKeylineListForScrollOffsetInternal(scrollOffset, maxScrollOffset, roundToNearestStep)
+
+        cachedScrollOffset = scrollOffset
+        cachedMaxScrollOffset = maxScrollOffset
+        cachedRoundToNearestStep = roundToNearestStep
+        cachedKeylineList = result
+
+        return result
+    }
+
+    private fun getKeylineListForScrollOffsetInternal(
         scrollOffset: Float,
         maxScrollOffset: Float,
         roundToNearestStep: Boolean = false,
@@ -199,23 +249,32 @@ private constructor(
             }
         }
 
-        val shiftPointRange = getShiftPointRange(steps.size, shiftPoints, interpolation)
+        var fromStepIndex = 0
+        var toStepIndex = 0
+        var steppedInterpolation = 0f
+        var lowerBounds = shiftPoints[0]
+        for (i in 1 until steps.size) {
+            val upperBounds = shiftPoints[i]
+            if (interpolation <= upperBounds) {
+                fromStepIndex = i - 1
+                toStepIndex = i
+                steppedInterpolation = lerp(0f, 1f, lowerBounds, upperBounds, interpolation)
+                break
+            }
+            lowerBounds = upperBounds
+        }
 
         if (roundToNearestStep) {
             val roundedStepIndex =
-                if (shiftPointRange.steppedInterpolation.roundToInt() == 0) {
-                    shiftPointRange.fromStepIndex
+                if (steppedInterpolation.roundToInt() == 0) {
+                    fromStepIndex
                 } else {
-                    shiftPointRange.toStepIndex
+                    toStepIndex
                 }
             return steps[roundedStepIndex]
         }
 
-        return lerp(
-            steps[shiftPointRange.fromStepIndex],
-            steps[shiftPointRange.toStepIndex],
-            shiftPointRange.steppedInterpolation,
-        )
+        return lerp(steps[fromStepIndex], steps[toStepIndex], steppedInterpolation)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -600,32 +659,6 @@ private fun getStepInterpolationPoints(
         points.add(point)
     }
     return points
-}
-
-private data class ShiftPointRange(
-    val fromStepIndex: Int,
-    val toStepIndex: Int,
-    val steppedInterpolation: Float,
-)
-
-private fun getShiftPointRange(
-    stepsCount: Int,
-    shiftPoint: FloatList,
-    interpolation: Float,
-): ShiftPointRange {
-    var lowerBounds = shiftPoint[0]
-    (1 until stepsCount).forEach { i ->
-        val upperBounds = shiftPoint[i]
-        if (interpolation <= upperBounds) {
-            return ShiftPointRange(
-                fromStepIndex = i - 1,
-                toStepIndex = i,
-                steppedInterpolation = lerp(0f, 1f, lowerBounds, upperBounds, interpolation),
-            )
-        }
-        lowerBounds = upperBounds
-    }
-    return ShiftPointRange(fromStepIndex = 0, toStepIndex = 0, steppedInterpolation = 0f)
 }
 
 private fun MutableList<Keyline>.move(srcIndex: Int, dstIndex: Int): MutableList<Keyline> {

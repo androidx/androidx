@@ -735,6 +735,51 @@ class StrategyTest {
         assertThat(actual.cutoff).isWithin(tolerance).of(expected.cutoff)
     }
 
+    @Test
+    fun testStrategy_getKeylineListForScrollOffset_caching() {
+        val itemCount = 10
+        val carouselMainAxisSize = large + medium + small
+        val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
+        val defaultKeylineList = createStartAlignedKeylineList()
+
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylineList,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f,
+            )
+
+        // Use offsets in the end-shift range (near maxScrollOffset) to ensure interpolation occurs
+        val offset1 = maxScrollOffset - 20f
+        val offset2 = maxScrollOffset - 10f
+
+        // Initial call
+        val list1 = strategy.getKeylineListForScrollOffset(offset1, maxScrollOffset)
+        // Same parameters -> should be cached (referential equality)
+        val list2 = strategy.getKeylineListForScrollOffset(offset1, maxScrollOffset)
+        assertThat(list1).isSameInstanceAs(list2)
+
+        // Different scroll offset -> should recalculate (new interpolation)
+        val list3 = strategy.getKeylineListForScrollOffset(offset2, maxScrollOffset)
+        assertThat(list1).isNotSameInstanceAs(list3)
+
+        // Different max scroll offset -> should recalculate
+        val list4 = strategy.getKeylineListForScrollOffset(offset2, maxScrollOffset + 10f)
+        assertThat(list3).isNotSameInstanceAs(list4)
+
+        // Different roundToNearestStep -> should recalculate (returns pre-allocated step vs
+        // interpolated)
+        val list5 =
+            strategy.getKeylineListForScrollOffset(
+                offset2,
+                maxScrollOffset + 10f,
+                roundToNearestStep = true,
+            )
+        assertThat(list4).isNotSameInstanceAs(list5)
+    }
+
     companion object {
         val large = 100f
         val small = 20f
