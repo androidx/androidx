@@ -90,6 +90,21 @@ class PaintTrackerTest {
     }
 
     @Test
+    fun testInitialSync_WhiteColor() {
+        val paint = RemotePaint { color = Color.White.rc }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.colorSet).isTrue()
+        assertThat(changes.mColor).isEqualTo(Color.White.toArgb())
+    }
+
+    @Test
     fun testDeltaOptimization() {
         val paint1 = RemotePaint {
             color = Color.Red.rc
