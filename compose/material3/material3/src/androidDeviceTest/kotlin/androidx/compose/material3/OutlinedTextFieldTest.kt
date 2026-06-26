@@ -2400,6 +2400,22 @@ class OutlinedTextFieldTest {
         }
     }
 
+    @Test
+    fun testOutlinedTextField_prefixAndSuffix_semantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState("google"),
+                prefix = { Text("www.") },
+                suffix = { Text(".com") },
+                modifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        val rootNode = rule.onNodeWithTag("TextField", useUnmergedTree = false).fetchSemanticsNode()
+        val textList = rootNode.config.getOrNull(SemanticsProperties.Text)?.map { it.text }
+        assertThat(textList).containsExactly("www.", "google", ".com").inOrder()
+    }
+
     private fun getLabelPosition(labelHeight: Int): Int {
         val labelHalfHeight = labelHeight / 2
         val paddingTop = with(rule.density) { ExtraTopPaddingForCutoutLabelPosition.toPx() }

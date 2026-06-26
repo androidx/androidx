@@ -77,6 +77,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Constraints
@@ -256,6 +258,7 @@ internal fun CommonDecorationBox(
         CutoutTextFieldLayout(
             modifier = Modifier,
             textField = innerTextField,
+            visualText = visualText,
             placeholder = decoratedPlaceholder,
             label = decoratedLabel,
             leading = decoratedLeading,
@@ -289,6 +292,7 @@ internal fun CommonDecorationBox(
         InsideTextFieldLayout(
             modifier = Modifier,
             textField = innerTextField,
+            visualText = visualText,
             placeholder = decoratedPlaceholder,
             label = decoratedLabel,
             leading = decoratedLeading,
@@ -315,6 +319,7 @@ internal fun CommonDecorationBox(
 internal fun InsideTextFieldLayout(
     modifier: Modifier,
     textField: @Composable () -> Unit,
+    visualText: CharSequence,
     label: @Composable (() -> Unit)?,
     placeholder: @Composable ((Modifier) -> Unit)?,
     leading: @Composable (() -> Unit)?,
@@ -450,7 +455,10 @@ internal fun InsideTextFieldLayout(
                 placeholder(Modifier.layoutId(PlaceholderId).then(textPadding))
             }
             Box(
-                modifier = Modifier.layoutId(TextFieldId).then(textPadding),
+                modifier =
+                    Modifier.layoutId(TextFieldId)
+                        .visualTextSemantics(visualText, prefix != null || suffix != null)
+                        .then(textPadding),
                 propagateMinConstraints = true,
             ) {
                 textField()
@@ -480,6 +488,7 @@ internal fun InsideTextFieldLayout(
 internal fun CutoutTextFieldLayout(
     modifier: Modifier,
     textField: @Composable () -> Unit,
+    visualText: CharSequence,
     placeholder: @Composable ((Modifier) -> Unit)?,
     label: @Composable (() -> Unit)?,
     leading: @Composable (() -> Unit)?,
@@ -592,7 +601,10 @@ internal fun CutoutTextFieldLayout(
             }
 
             Box(
-                modifier = Modifier.layoutId(TextFieldId).then(textPadding),
+                modifier =
+                    Modifier.layoutId(TextFieldId)
+                        .visualTextSemantics(visualText, prefix != null || suffix != null)
+                        .then(textPadding),
                 propagateMinConstraints = true,
             ) {
                 textField()
@@ -2171,6 +2183,23 @@ private fun Modifier.topPaddingForLabelCutout(
         }
     )
 }
+
+/**
+ * When prefix or suffix is present, BasicTextField's inner text is excluded from merged
+ * SemanticsProperties.Text due to isMergingSemanticsOfDescendants = true. We attach visualText
+ * semantics directly to this wrapper Box (which is explicitly placed between prefix and suffix) so
+ * TalkBack announces prefix, visualText, and suffix.
+ */
+private fun Modifier.visualTextSemantics(visualText: CharSequence, hasAffix: Boolean): Modifier =
+    this.then(
+        if (hasAffix && visualText.isNotEmpty()) {
+            Modifier.semantics {
+                this.text = visualText as? AnnotatedString ?: AnnotatedString(visualText.toString())
+            }
+        } else {
+            Modifier
+        }
+    )
 
 internal val TextFieldPadding = 16.dp
 internal val AboveLabelHorizontalPadding = 4.dp
