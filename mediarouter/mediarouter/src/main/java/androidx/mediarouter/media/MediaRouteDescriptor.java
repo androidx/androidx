@@ -705,9 +705,9 @@ public final class MediaRouteDescriptor {
             }
 
             if (!filters.isEmpty()) {
-                for (IntentFilter filter : filters) {
-                    if (filter != null) {
-                        addControlFilter(filter);
+                for (Object filter : (Collection<?>) filters) {
+                    if (filter instanceof IntentFilter) {
+                        addControlFilter((IntentFilter) filter);
                     }
                 }
             }
