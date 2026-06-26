@@ -33,6 +33,7 @@ import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
 import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -51,6 +52,9 @@ class MoveByTest {
         private val downPosition2 = Offset(20f, 20f)
         private val delta1 = Offset(11f, 11f)
         private val delta2 = Offset(21f, 21f)
+
+        // Large but within input device size
+        private val deltaLarge = Offset(601f, 601f)
 
         // Horizontal external indirect pointer input device
         private val inputDeviceSize = IntSize(3082, 616)
@@ -100,6 +104,74 @@ class MoveByTest {
     }
 
     @Test
+    fun onePointerWithLargeMoveSameInputBlock() {
+        // When we inject a down event followed by a move event
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Sleep done within input block
+            sleep(20)
+            moveBy(deltaLarge)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded 1 down event and 1 move event
+                assertTimestampsAreIncreasing()
+
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId, true, downPosition1 + deltaLarge, Touch, Move)
+            }
+        }
+    }
+
+    @Test
+    fun onePointerWithDPMoveSameInputBlock() {
+        var deltaOf40DP: Offset? = null
+
+        // When we inject a down event followed by a move event
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Sleep done within input block
+            sleep(20)
+            val pixelValue = 40.dp.toPx()
+            deltaOf40DP = Offset(pixelValue, pixelValue)
+            moveBy(deltaOf40DP)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded 1 down event and 1 move event
+                assertTimestampsAreIncreasing()
+
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId, true, downPosition1 + deltaOf40DP!!, Touch, Move)
+            }
+        }
+    }
+
+    @Test
     fun onePointerDifferentInputBlocks() {
         // When we inject a down event followed by a move event
         rule.performIndirectPointerInput(
@@ -115,7 +187,6 @@ class MoveByTest {
             IndirectPointerEventPrimaryDirectionalMotionAxis.X,
             inputDeviceSize,
         ) {
-            advanceEventTime(0L)
             moveBy(delta1)
         }
 
@@ -133,6 +204,84 @@ class MoveByTest {
                 events[1]
                     .getPointer(0)
                     .verify(t, pointerId, true, downPosition1 + delta1, Touch, Move)
+            }
+        }
+    }
+
+    @Test
+    fun onePointerWithLargeMoveDifferentInputBlocks() {
+        // When we inject a down event followed by a move event
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+        }
+
+        sleep(20) // (with some time in between)
+
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            moveBy(deltaLarge)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded 1 down event and 1 move event
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId, true, downPosition1 + deltaLarge, Touch, Move)
+            }
+        }
+    }
+
+    @Test
+    fun onePointerWithDPMoveDifferentInputBlocks() {
+        var deltaOf40DP: Offset? = null
+
+        // When we inject a down event followed by a move event
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+        }
+
+        sleep(20) // (with some time in between)
+
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            val pixelValue = 40.dp.toPx()
+            deltaOf40DP = Offset(pixelValue, pixelValue)
+            moveBy(deltaOf40DP)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded 1 down event and 1 move event
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId, true, downPosition1 + deltaOf40DP!!, Touch, Move)
             }
         }
     }
