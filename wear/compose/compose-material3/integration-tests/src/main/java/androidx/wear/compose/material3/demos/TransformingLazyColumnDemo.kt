@@ -55,7 +55,9 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.lazy.TransformationSpec
+import androidx.wear.compose.material3.lazy.firstVisibleItemLayoutItemInfo
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnFirstLayoutItemProvider
 import androidx.wear.compose.material3.lazy.transformedHeight
 
 @Composable
@@ -364,6 +366,20 @@ fun TransformingLazyColumnAnimationSample() {
         elements = elements.subList(0, index) + elements.subList(index + 1, elements.count())
     }
 
+    fun moveCardToStart(index: Int) {
+        elements =
+            elements.subList(index, index + 1) +
+                elements.subList(0, index) +
+                elements.subList(index + 1, elements.count())
+    }
+
+    fun moveCardToEnd(index: Int) {
+        elements =
+            elements.subList(0, index) +
+                elements.subList(index + 1, elements.count()) +
+                elements.subList(index, index + 1)
+    }
+
     AppScaffold {
         ScreenScaffold(
             state,
@@ -371,7 +387,14 @@ fun TransformingLazyColumnAnimationSample() {
                 EdgeButton(onClick = { elements = elements.shuffled() }) { Text("Shuffle") }
             },
         ) { contentPadding ->
-            TransformingLazyColumn(state = state, contentPadding = contentPadding) {
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = contentPadding,
+                firstLayoutItemProvider =
+                    rememberTransformingLazyColumnFirstLayoutItemProvider {
+                        state.firstVisibleItemLayoutItemInfo
+                    },
+            ) {
                 itemsIndexed(elements, key = { _, key -> key }) { index, cardKey ->
                     Card(
                         onClick = {},
@@ -385,6 +408,8 @@ fun TransformingLazyColumnAnimationSample() {
                     ) {
                         Text("Card $cardKey")
                         Row {
+                            CompactButton(onClick = { moveCardToEnd(index) }) { Text("\u2193") }
+                            CompactButton(onClick = { moveCardToStart(index) }) { Text("\u2191") }
                             Spacer(modifier = Modifier.weight(1f))
                             CompactButton(
                                 onClick = { removeCardAt(index) },

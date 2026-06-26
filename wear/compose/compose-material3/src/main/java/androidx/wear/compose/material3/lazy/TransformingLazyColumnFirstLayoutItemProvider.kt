@@ -69,7 +69,7 @@ public val TransformingLazyColumnState.firstVisibleItemLayoutItemInfo:
     get() =
         layoutInfo.visibleItems.firstOrNull()?.let {
             TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
-                key = it.key,
+                key = null,
                 index = it.index,
                 itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
                 offset = it.offset,
