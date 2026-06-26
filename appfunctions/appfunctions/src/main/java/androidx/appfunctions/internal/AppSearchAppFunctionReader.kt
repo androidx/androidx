@@ -154,7 +154,7 @@ internal class AppSearchAppFunctionReader(
             session.registerObserverCallback(
                 SYSTEM_PACKAGE_NAME,
                 buildObserverSpec(searchFunctionSpec.packageNames ?: emptySet()),
-                Dispatchers.Worker.asExecutor(),
+                Dispatchers.Main.asExecutor(),
                 appSearchChannelObserver,
             )
 
