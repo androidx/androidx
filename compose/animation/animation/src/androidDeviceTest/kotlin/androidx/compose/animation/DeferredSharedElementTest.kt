@@ -1289,4 +1289,114 @@ class DeferredSharedElementTest {
             incomingBounds.topLeft.x == 0.0f && incomingBounds.topLeft.y == 0.0f,
         )
     }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testDeferredTransition_cancellationDoesNotJump() {
+        var myState: DeferredTransitionState<String>? = null
+
+        fun getBounds(): IntRect {
+            val pixelMap = rule.onNodeWithTag("scope").captureToImage().toPixelMap()
+            var minX = pixelMap.width
+            var maxX = -1
+            var minY = pixelMap.height
+            var maxY = -1
+            for (y in 0 until pixelMap.height) {
+                for (x in 0 until pixelMap.width) {
+                    val pixelColor = pixelMap[x, y]
+                    if (
+                        pixelColor.red > 0.9f && pixelColor.green < 0.1f && pixelColor.blue < 0.1f
+                    ) {
+                        minX = minOf(minX, x)
+                        maxX = maxOf(maxX, x)
+                        minY = minOf(minY, y)
+                        maxY = maxOf(maxY, y)
+                    }
+                }
+            }
+
+            return if (maxX == -1) IntRect.Zero else IntRect(minX, minY, maxX + 1, maxY + 1)
+        }
+
+        rule.setContent {
+            val px100 = with(LocalDensity.current) { 100.toDp() }
+            val px300 = with(LocalDensity.current) { 300.toDp() }
+
+            SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
+                val state = remember { DeferredTransitionState("Detail") }
+                myState = state
+                val transition = rememberTransition(state)
+                val mutableTransform = remember {
+                    MutableContentTransform {
+                        initialContentTransform {
+                            // Detail screen transform
+                            offset = IntOffset.Zero
+                        }
+                        targetContentTransform {
+                            // Main screen transform (parallax offset to the right by 50px)
+                            offset = IntOffset(50, 0)
+                        }
+                    }
+                }
+                transition.DeferredAnimatedContent(
+                    mutableTransformSpec = { mutableTransform },
+                    transitionSpec = { fadeIn(tween(100)) togetherWith fadeOut(tween(100)) },
+                ) { state ->
+                    if (state == "Detail") {
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                Modifier.sharedBounds(
+                                        rememberSharedContentState("shared"),
+                                        animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    )
+                                    .size(px100)
+                                    .background(Color.Red)
+                            )
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                Modifier.sharedBounds(
+                                        rememberSharedContentState("shared"),
+                                        animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    )
+                                    .size(px100)
+                                    .background(Color.Red)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1. Start the back gesture: transition to "Main" but defer it
+        myState?.defer("Main")
+        rule.waitForIdle()
+
+        // Verify that the shared element is positioned at Detail's position (no horizontal offset)
+        // Detail is at (0, 0), and size is 100.
+        val detailBoundsBeforeCancel = getBounds()
+        assertTrue("Detail bounds width should be 100", detailBoundsBeforeCancel.width == 100)
+        assertTrue("Detail bounds left should be 0", detailBoundsBeforeCancel.left == 0)
+
+        // 2. Cancel the gesture: animate back to "Detail"
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { myState!!.animateTo("Detail") }
+        rule.waitForIdle()
+
+        // Advance just one frame to reach the handoff frame without progressing the animation
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // In the handoff frame, the shared element should NOT jump.
+        // If it jumps to the right (matching Main's parallax offset of 50), left will be 50.
+        // It should stay at 0.
+        val detailBoundsAfterCancel = getBounds()
+        assertTrue(
+            "Detail bounds left after cancellation should be 0, but was ${detailBoundsAfterCancel.left}",
+            detailBoundsAfterCancel.left == 0,
+        )
+    }
 }
