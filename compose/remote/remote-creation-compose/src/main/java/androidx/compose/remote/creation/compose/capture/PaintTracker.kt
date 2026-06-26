@@ -99,7 +99,12 @@ internal class PaintTracker {
             colorIsId = true
         }
 
-        if (force || this.colorValue != colorVal || this.colorIsId != colorIsId) {
+        if (
+            force ||
+                this.remoteColor == null ||
+                this.colorValue != colorVal ||
+                this.colorIsId != colorIsId
+        ) {
             this.colorValue = colorVal
             this.colorIsId = colorIsId
             this.remoteColor = targetRemoteColor
