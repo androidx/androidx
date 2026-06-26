@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"時間"</string>
+    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"時"</string>
     <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"分"</string>
     <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"秒"</string>
     <plurals name="wear_m3c_time_picker_hours_content_description" formatted="false" msgid="7688673698789346225">
