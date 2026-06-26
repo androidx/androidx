@@ -18,11 +18,11 @@ package androidx.work.multiprocess
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.Data
@@ -50,6 +50,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
@@ -61,6 +62,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 28) // Exclude <= API 27 from tests because it causes a SIGSEGV.
 public class RemoteListenableWorkerTest {
     private lateinit var mConfiguration: Configuration
     private lateinit var mTaskExecutor: TaskExecutor
@@ -77,11 +79,6 @@ public class RemoteListenableWorkerTest {
 
     @Before
     public fun setUp() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
-
         mContext = InstrumentationRegistry.getInstrumentation().context
         mExecutor = Executor { it.run() }
         mConfiguration =
@@ -120,11 +117,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testRemoteSuccessWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
-
         val request = buildRequest<RemoteSuccessWorker>()
         val wrapper = buildWrapper(request)
         wrapper.launch().get()
@@ -136,11 +128,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testRemoteFailureWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
-
         val request = buildRequest<RemoteFailureWorker>()
         val wrapper = buildWrapper(request)
         wrapper.launch().get()
@@ -152,11 +139,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testRemoteRetryWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
-
         val request = buildRequest<RemoteRetryWorker>()
         val wrapper = buildWrapper(request)
         wrapper.launch().get()
@@ -167,11 +149,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testRemoteStopWorker() = runBlocking {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return@runBlocking
-        }
-
         val request = buildRequest<RemoteStopWorker>()
         val wrapper = buildWrapper(request)
         wrapper.launch()
@@ -187,10 +164,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testUnbindService_successWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
         val delegatingWorker = buildDelegatingWorker<RemoteSuccessWorker>()
         delegatingWorker.startWork().get()
         assertNull(delegatingWorker.client.connection)
@@ -199,10 +172,6 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testUnbindService_failureWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
         val delegatingWorker = buildDelegatingWorker<RemoteFailureWorker>()
         delegatingWorker.startWork().get()
         assertNull(delegatingWorker.client.connection)
@@ -211,15 +180,37 @@ public class RemoteListenableWorkerTest {
     @Test
     @MediumTest
     public fun testUnbindService_stopWorker() {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return
-        }
         val delegatingWorker = buildDelegatingWorker<RemoteStopWorker>()
         delegatingWorker.startWork()
         delegatingWorker.client.connection!!.mFuture.get()
         delegatingWorker.stop(STOP_REASON_CANCELLED_BY_APP)
         assertNull(delegatingWorker.client.connection)
+    }
+
+    @Test
+    @MediumTest
+    public fun testUnbindService_cancelFuture_doesNotLeakConnection() = runBlocking {
+        val delegatingWorker = buildDelegatingWorker<RemoteStopWorker>()
+        val future = delegatingWorker.startWork()
+        val connection = delegatingWorker.client.connection
+        requireNotNull(connection)
+        connection.mFuture.get()
+
+        // Cancel the future directly, which should trigger coroutine cancellation
+        // and bypass the unbindService call if not protected by finally.
+        future.cancel(true)
+
+        // Wait for cancellation to propagate and cleanup to happen
+        withTimeoutOrNull(1000) {
+            while (delegatingWorker.client.connection != null) {
+                delay(100)
+            }
+        }
+
+        assertNull(
+            "Service connection was leaked after cancelling the future",
+            delegatingWorker.client.connection,
+        )
     }
 
     public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
