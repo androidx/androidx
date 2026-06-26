@@ -32,6 +32,52 @@ public class ComponentMeasure {
 
     private boolean mAllowsAnimation = true;
 
+    private float mMinWidth = -1f;
+    private float mMaxWidth = -1f;
+    private float mMinHeight = -1f;
+    private float mMaxHeight = -1f;
+    private boolean mHasCache = false;
+
+    /** Cache constraints for this component. */
+    public void setCachedConstraints(
+            float minWidth, float maxWidth, float minHeight, float maxHeight) {
+        mMinWidth = minWidth;
+        mMaxWidth = maxWidth;
+        mMinHeight = minHeight;
+        mMaxHeight = maxHeight;
+        mHasCache = true;
+    }
+
+    /** Check if component has cached constraints matching specified parameters. */
+    public boolean hasCachedConstraints(
+            float minWidth, float maxWidth, float minHeight, float maxHeight) {
+        if (!mHasCache) {
+            return false;
+        }
+
+        // 1. Exact match
+        if (mMinWidth == minWidth && mMaxWidth == maxWidth
+                && mMinHeight == minHeight && mMaxHeight == maxHeight) {
+            return true;
+        }
+
+        // 2. Compatible vertical layout positioning pass: width constraints are identical,
+        // and height is now fixed to our previously computed height (mH).
+        if (mMinWidth == minWidth && mMaxWidth == maxWidth
+                && minHeight == mH && maxHeight == mH) {
+            return true;
+        }
+
+        // 3. Compatible horizontal layout positioning pass: height constraints are identical,
+        // and width is now fixed to our previously computed width (mW).
+        if (mMinHeight == minHeight && mMaxHeight == maxHeight
+                && minWidth == mW && maxWidth == mW) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void setX(float value) {
         mX = value;
     }
@@ -106,6 +152,7 @@ public class ComponentMeasure {
         this.mH = h;
         this.mVisibility = visibility;
         this.mAllowsAnimation = true;
+        this.mHasCache = false;
     }
 
     public ComponentMeasure(int id, float x, float y, float w, float h) {
