@@ -40,6 +40,8 @@ dependencies {
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":wear:compose:remote:remote-material3"))
     implementation("androidx.core:core:1.18.0")
+
+    lintChecks(project(":glance:wear:wear-lint"))
 }
 
 android {

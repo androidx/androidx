@@ -42,6 +42,9 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
+
+    lintPublish(project(":glance:wear:wear-lint"))
+    lintChecks(project(":glance:wear:wear-lint"))
 }
 
 wire {
