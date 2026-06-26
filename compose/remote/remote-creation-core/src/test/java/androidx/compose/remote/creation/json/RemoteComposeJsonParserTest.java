@@ -595,6 +595,42 @@ public class RemoteComposeJsonParserTest {
         org.junit.Assert.assertNotNull(result);
     }
 
+    @Test
+    public void testStage3Features() throws JSONException {
+        String json = "{"
+                + "  \"resources\": {"
+                + "    \"variables\": ["
+                + "      { \"name\": \"x\", \"value\": 0.0 }"
+                + "    ]"
+                + "  },"
+                + "  \"root\": {"
+                + "    \"type\": \"custom\","
+                + "    \"config\": \"testConfig\","
+                + "    \"properties\": ["
+                + "      { \"type\": 1, \"dataType\": 0, \"value\": 10 },"
+                + "      { \"type\": 2, \"dataType\": 1, \"value\": 3.14 }"
+                + "    ],"
+                + "    \"modifiers\": ["
+                + "      { \"drawWithContent\": {} }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"canvas\","
+                + "        \"commands\": ["
+                + "          { \"type\": \"wakeIn\", \"seconds\": 2.5 },"
+                + "          { \"type\": \"particlesComparison\", \"systemId\": 1.0,"
+                + " \"flags\": 0, \"min\": 0.0, \"max\": 10.0, \"condition\": \"x\","
+                + " \"then1\": [\"x\"] }"
+                + "        ]"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {

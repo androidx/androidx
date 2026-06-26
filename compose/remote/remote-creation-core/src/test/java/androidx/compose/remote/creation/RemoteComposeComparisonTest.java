@@ -25,6 +25,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.creation.actions.ValueFloatChange;
@@ -37,7 +38,9 @@ import org.json.JSONException;
 import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class RemoteComposeComparisonTest {
 
@@ -441,6 +444,84 @@ public class RemoteComposeComparisonTest {
 
         if (!java.util.Arrays.equals(expected, actual)) {
             printMismatch("Stage2", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testStage3Comparison() throws JSONException {
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = new RemoteComposeWriter.HTag[] {
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 800),
+            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stage3"),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, 513)
+        };
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        float xVal = expectedWriter.addFloatConstant(0.0f);
+
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.drawWithContent();
+            List<Custom.CustomProperty> props = new ArrayList<>();
+            props.add(new Custom.CustomProperty((short) 1, (short) 0, 10));
+            props.add(new Custom.CustomProperty((short) 2, (short) 1, 3.14f));
+            expectedWriter.startCustom(mod, "testConfig", props);
+
+            expectedWriter.startCanvas(new RecordingModifier());
+            expectedWriter.wakeIn(2.5f);
+            expectedWriter.particlesComparison(1.0f, (short) 0, 0.0f, 10.0f,
+                    new float[] { xVal },
+                    new float[][] { new float[] { xVal } }, null);
+
+            expectedWriter.endCanvas();
+            expectedWriter.endCustom();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 513, \"width\": 400,"
+                + " \"height\": 800, \"contentDescription\": \"Stage3\" },"
+                + "  \"resources\": {"
+                + "    \"variables\": ["
+                + "      { \"name\": \"x\", \"value\": 0.0 }"
+                + "    ]"
+                + "  },"
+                + "  \"root\": {"
+                + "    \"type\": \"custom\","
+                + "    \"config\": \"testConfig\","
+                + "    \"properties\": ["
+                + "      { \"type\": 1, \"dataType\": 0, \"value\": 10 },"
+                + "      { \"type\": 2, \"dataType\": 1, \"value\": 3.14 }"
+                + "    ],"
+                + "    \"modifiers\": ["
+                + "      { \"drawWithContent\": {} }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"canvas\","
+                + "        \"commands\": ["
+                + "          { \"type\": \"wakeIn\", \"seconds\": 2.5 },"
+                + "          { \"type\": \"particlesComparison\", \"systemId\": 1.0,"
+                + " \"flags\": 0, \"min\": 0.0, \"max\": 10.0, \"condition\": \"x\","
+                + " \"then1\": [\"x\"] }"
+                + "        ]"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+
+        RemoteComposeWriter.HTag[] actualTags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int actualApiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter actualWriter =
+                new RemoteComposeWriter(platform, actualApiLevel, actualTags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!java.util.Arrays.equals(expected, actual)) {
+            printMismatch("Stage3", expected, actual);
         }
         assertArrayEquals(expected, actual);
     }

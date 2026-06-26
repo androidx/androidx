@@ -112,6 +112,15 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a drawWithContent modifier (no callback, default content drawing).
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawWithContent() {
+        return drawContent();
+    }
+
+    /**
      * Add a drawWithContent modifier
      *
      * @return RecordingModifier

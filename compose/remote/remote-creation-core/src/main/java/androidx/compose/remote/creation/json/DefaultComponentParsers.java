@@ -16,7 +16,14 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class to register default procedural components into the JSON parser.
@@ -103,6 +110,28 @@ class DefaultComponentParsers {
                     parser.getVerticalAlign(component, "center"));
             parser.parseChildren(component.optJSONArray("children"));
             writer.endFitBox();
+        });
+        p.registerComponentParser("custom", (component, modifier, writer, parser) -> {
+            String config = component.optString("config", "");
+            List<Custom.CustomProperty> properties = new ArrayList<>();
+            if (component.has("properties")) {
+                JSONArray propsArr = component.getJSONArray("properties");
+                for (int i = 0; i < propsArr.length(); i++) {
+                    JSONObject pObj = propsArr.getJSONObject(i);
+                    short pType = (short) pObj.getInt("type");
+                    short pDataType = (short) pObj.getInt("dataType");
+                    if ((pDataType & 1) == 0) {
+                        properties.add(new Custom.CustomProperty(pType, pDataType,
+                                pObj.getInt("value")));
+                    } else {
+                        properties.add(new Custom.CustomProperty(pType, pDataType,
+                                (float) pObj.getDouble("value")));
+                    }
+                }
+            }
+            writer.startCustom(modifier, config, properties);
+            parser.parseChildren(component.optJSONArray("children"));
+            writer.endCustom();
         });
         p.registerComponentParser("text", (component, modifier, writer, parser) -> {
             parser.parseText(component, modifier);
