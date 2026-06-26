@@ -44,8 +44,6 @@ import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -203,7 +201,6 @@ internal constructor(
         // value the touch target is closest to, regardless of release/settling.
         get() = anchoredDraggableState.settledValue
 
-    // TODO(b/477969920): Remove forked targetValue logic when foundation dependencies are updated.
     /**
      * The target value of the bottom sheet state.
      *
@@ -211,29 +208,8 @@ internal constructor(
      * finishes. If an animation is running, this is the target value of that animation. Finally, if
      * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SheetValue by derivedStateOf {
-        // AnchoredDraggableState does not expose the dragTarget, but isAnimationRunning returns
-        // whether AnchoredDraggableState.dragTarget is null. If it's not, we can use the
-        // targetValue; otherwise we apply the calculation fix.
-        if (isAnimationRunning) {
-            anchoredDraggableState.targetValue
-        } else {
-            calculateTargetValueWithFix(offset)
-        }
-    }
-
-    private fun calculateTargetValueWithFix(currentOffset: Float): SheetValue {
-        return if (!currentOffset.isNaN()) {
-            // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
-            // already equal to the currentValue's offset, this anchor gets priority.
-            val currentValueOffset = anchoredDraggableState.anchors.positionOf(currentValue)
-            if (currentValueOffset.isNaN() || currentOffset == currentValueOffset) {
-                currentValue
-            } else {
-                anchoredDraggableState.anchors.closestAnchor(currentOffset) ?: currentValue
-            }
-        } else currentValue
-    }
+    val targetValue: SheetValue
+        get() = anchoredDraggableState.targetValue
 
     /** Whether the modal bottom sheet is visible. */
     val isVisible: Boolean
