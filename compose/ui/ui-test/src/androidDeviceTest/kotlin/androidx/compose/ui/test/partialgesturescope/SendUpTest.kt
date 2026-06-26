@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.partialgesturescope
 
-import android.os.SystemClock.sleep
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
@@ -63,7 +62,12 @@ class SendUpTest {
     fun onePointer() {
         // When we inject a down event followed by an up event
         rule.partialGesture { down(downPosition1) }
-        sleep(20) // (with some time in between)
+        // Since this gesture is split across separate input blocks, we must manually advance
+        // the clock between them. By default, advanceTimeBy rounds up durations to the nearest
+        // multiple of the frame duration (16ms), which would cause the 20ms delay to become a
+        // 32ms delay. Adding ignoreFrameDuration = true ensures that the clock advances by exactly
+        // 20ms.
+        rule.mainClock.advanceTimeBy(20, ignoreFrameDuration = true)
         rule.partialGesture { up() }
 
         rule.runOnIdle {
@@ -76,7 +80,9 @@ class SendUpTest {
                 val pointerId = events[0].getPointer(0).id
 
                 assertThat(events[1].pointerCount).isEqualTo(1)
-                events[1].getPointer(0).verify(t, pointerId, false, downPosition1, Touch, Release)
+                events[1]
+                    .getPointer(0)
+                    .verify(t + 20, pointerId, false, downPosition1, Touch, Release)
             }
         }
 

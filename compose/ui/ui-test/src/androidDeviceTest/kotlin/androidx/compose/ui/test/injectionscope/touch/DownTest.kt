@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.injectionscope.touch
 
-import android.os.SystemClock.sleep
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
@@ -73,24 +72,26 @@ class DownTest {
     fun twoPointers() {
         // When we put two pointers down
         rule.performTouchInput { down(1, position1) }
-        sleep(20) // (with some time in between)
+        rule.mainClock.advanceTimeBy(20) // (with some time in between)
         rule.performTouchInput { down(2, position2) }
 
         rule.runOnIdle {
             recorder.run {
-                // Then we have recorded 2 down events with the same timestamp
+                // Then we have recorded 2 down events with different timestamps
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
 
                 assertThat(events[0].pointerCount).isEqualTo(1)
                 events[0].getPointer(0).verify(null, null, true, position1, Touch, Press)
 
-                val t = events[0].getPointer(0).timestamp
+                val t1 = events[0].getPointer(0).timestamp
                 val pointerId1 = events[0].getPointer(0).id
 
                 assertThat(events[1].pointerCount).isEqualTo(2)
-                events[1].getPointer(0).verify(t, pointerId1, true, position1, Touch, Press)
-                events[1].getPointer(1).verify(t, null, true, position2, Touch, Press)
+                val t2 = events[1].getPointer(0).timestamp
+                assertThat(t2).isGreaterThan(t1)
+                events[1].getPointer(0).verify(t2, pointerId1, true, position1, Touch, Press)
+                events[1].getPointer(1).verify(t2, null, true, position2, Touch, Press)
 
                 val pointerId2 = events[1].getPointer(1).id
                 assertThat(pointerId2).isNotEqualTo(pointerId1)
