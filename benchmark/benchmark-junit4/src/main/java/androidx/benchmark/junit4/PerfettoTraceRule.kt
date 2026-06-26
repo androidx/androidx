@@ -16,11 +16,12 @@
 
 package androidx.benchmark.junit4
 
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.traceprocessor.PerfettoTrace
@@ -72,12 +73,11 @@ constructor(
     val config: PerfettoConfig,
 
     /**
-     * Pass true to enable userspace tracing (androidx.tracing.tracing-perfetto APIs)
+     * Pass true to enable userspace tracing.
      *
      * Defaults to false.
      */
     val enableUserspaceTracing: Boolean = false,
-
     /**
      * Configure the label, used both as the filename prefix for the trace, and label shown in
      * Android Studio.
@@ -109,6 +109,9 @@ constructor(
          * Defaults to false.
          */
         enableUserspaceTracing: Boolean = false,
+
+        /** The configuration for capturing in process traces. */
+        inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
 
         /**
          * Provides the label for each test, used both as the filename prefix for the trace, and
@@ -149,13 +152,20 @@ constructor(
                     .record(
                         fileLabel = label,
                         config = config,
-                        perfettoSdkConfig =
+                        tracingLibraryConfig =
                             if (enableUserspaceTracing) {
-                                PerfettoCapture.PerfettoSdkConfig(
-                                    thisPackage,
-                                    InitialProcessState.Alive,
+                                PerfettoCapture.TracingLibraryConfig(
+                                    targetPackage = thisPackage,
+                                    processState = InitialProcessState.Alive,
+                                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                                    enablePerfettoSdk = true,
                                 )
-                            } else null,
+                            } else {
+                                PerfettoCapture.TracingLibraryConfig(
+                                    targetPackage = thisPackage,
+                                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                                )
+                            },
                         traceCallback = { path ->
                             val trace = PerfettoTrace(path)
                             InstrumentationResults.instrumentationReport {

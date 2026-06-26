@@ -47,30 +47,30 @@ class PerfettoCaptureTest {
     @Test
     fun launchWouldBeCold() {
         assertFalse( // process alive, will not be cold launch
-            PerfettoCapture.PerfettoSdkConfig(
+            PerfettoCapture.TracingLibraryConfig(
                     Packages.TEST,
-                    PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
                 )
                 .launchWouldBeCold()
         )
         assertTrue( // process not alive, will be cold launch
-            PerfettoCapture.PerfettoSdkConfig(
+            PerfettoCapture.TracingLibraryConfig(
                     Packages.TEST,
-                    PerfettoCapture.PerfettoSdkConfig.InitialProcessState.NotAlive,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.NotAlive,
                 )
                 .launchWouldBeCold()
         )
         assertFalse( // this process is alive, will not be cold launch
-            PerfettoCapture.PerfettoSdkConfig(
+            PerfettoCapture.TracingLibraryConfig(
                     Packages.TEST,
-                    PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Unknown,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Unknown,
                 )
                 .launchWouldBeCold()
         )
         assertTrue( // this process doesn't exist, will be cold launch
-            PerfettoCapture.PerfettoSdkConfig(
+            PerfettoCapture.TracingLibraryConfig(
                     Packages.MISSING,
-                    PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Unknown,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Unknown,
                 )
                 .launchWouldBeCold()
         )

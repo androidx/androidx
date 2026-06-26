@@ -23,6 +23,7 @@ import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellFile
@@ -83,20 +84,28 @@ public class PerfettoCapture(
      * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable, such
      *   as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
-    public fun stop(destinationPath: String, inMemoryTracingLabel: String?) =
+    public fun stop(
+        destinationPath: String,
+        inMemoryTracingLabel: String?,
+        additionalPaths: List<String>,
+    ) =
         inMemoryTrace("stop perfetto") {
-            helper.stopCollecting(destinationPath, inMemoryTracingLabel)
+            helper.stopCollecting(
+                destination = destinationPath,
+                inMemoryLabel = inMemoryTracingLabel,
+                additionalPaths = additionalPaths,
+            )
         }
 
     /**
-     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     * Enables Perfetto SDK tracing in the [TracingLibraryConfig.targetPackage]
      *
      * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and a
      *   user-friendly message explaining the code
      */
     @RequiresApi(30) // TODO(234351579): Support API < 30
     @CheckResult
-    fun enableAndroidxTracingPerfetto(config: PerfettoSdkConfig): Pair<Int, String> =
+    fun enableAndroidxTracingPerfetto(config: TracingLibraryConfig): Pair<Int, String> =
         enableAndroidxTracingPerfetto(
             targetPackage = config.targetPackage,
             provideBinariesIfMissing = config.provideBinariesIfMissing,
@@ -106,7 +115,7 @@ public class PerfettoCapture(
     @RequiresApi(30) // TODO(234351579): Support API < 30
     @CheckResult
     /**
-     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     * Enables Perfetto SDK tracing in the [TracingLibraryConfig.targetPackage]
      *
      * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and a
      *   user-friendly message explaining the code
@@ -238,9 +247,11 @@ public class PerfettoCapture(
         )
     }
 
-    class PerfettoSdkConfig(
+    class TracingLibraryConfig(
         val targetPackage: String,
-        val processState: InitialProcessState,
+        val processState: InitialProcessState = InitialProcessState.Unknown,
+        val enablePerfettoSdk: Boolean = false,
+        val inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
         val provideBinariesIfMissing: Boolean = true,
     ) {
         /** State of process before tracing begins. */

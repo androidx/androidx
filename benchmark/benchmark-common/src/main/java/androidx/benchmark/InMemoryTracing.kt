@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.os.Process
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InMemoryTracing.commitToTrace
+import androidx.benchmark.InMemoryTracing.counterNameToTrackUuid
 import perfetto.protos.CounterDescriptor
 import perfetto.protos.ThreadDescriptor
 import perfetto.protos.Trace
@@ -59,9 +60,6 @@ object InMemoryTracing {
      */
     private const val UUID = 123_456_543_210L
 
-    /** Clock id for clock used by tracing events - this corresponds to CLOCK_MONOTONIC */
-    private const val CLOCK_ID = 3
-
     /** Tag to enable post-filtering of events in the trace. */
     private val TRACK_EVENT_CATEGORIES = listOf("benchmark")
 
@@ -89,14 +87,13 @@ object InMemoryTracing {
         val capturedCounterDescriptors =
             counterTracks.map { (name, uuid) ->
                 TracePacket(
-                    timestamp_clock_id = CLOCK_ID,
                     track_descriptor =
                         TrackDescriptor(
                             uuid = uuid,
                             parent_uuid = UUID,
                             name = name,
                             counter = CounterDescriptor(),
-                        ),
+                        )
                 )
             }
 
@@ -104,7 +101,6 @@ object InMemoryTracing {
         return Trace(
             listOf(
                 TracePacket(
-                    timestamp_clock_id = CLOCK_ID,
                     track_descriptor =
                         TrackDescriptor(
                             uuid = UUID,
@@ -114,7 +110,7 @@ object InMemoryTracing {
                             // a visible
                             // track name, but not override the thread name
                             disallow_merging_with_system_tracks = true,
-                        ),
+                        )
                 )
             ) + capturedCounterDescriptors + capturedEvents
         )
@@ -130,7 +126,6 @@ object InMemoryTracing {
         events.add(
             TracePacket(
                 timestamp = nanoTime,
-                timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
                 track_event =
                     TrackEvent(
@@ -150,7 +145,6 @@ object InMemoryTracing {
         events.add(
             TracePacket(
                 timestamp = nanoTime,
-                timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
                 track_event = TrackEvent(type = TrackEvent.Type.TYPE_SLICE_END, track_uuid = UUID),
             )
@@ -161,7 +155,6 @@ object InMemoryTracing {
         events.add(
             TracePacket(
                 timestamp = nanoTime,
-                timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
                 track_event =
                     TrackEvent(

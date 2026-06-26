@@ -16,9 +16,8 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.DeviceInfo.isEmulator
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
@@ -28,9 +27,9 @@ import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.tracing.Tracer
 import androidx.tracing.trace
 import kotlin.test.assertContains
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -57,6 +56,7 @@ class PerfettoTraceRuleTest {
 
     companion object {
         const val UNIQUE_SLICE_NAME = "PerfettoRuleTestUnique"
+        const val UNIQUE_IN_PROCESS_SLICE_NAME = "PerfettoRuleTestUniqueInProcess"
     }
 
     var trace: PerfettoTrace? = null
@@ -68,18 +68,20 @@ class PerfettoTraceRuleTest {
                 object : Statement() {
                     override fun evaluate() {
                         base.evaluate()
-                        // Our API 23 emulators seem to be misconfigured b/438214932
-                        if (PerfettoHelper.isAbiSupported() && (!isEmulator || SDK_INT != 23)) {
+                        if (PerfettoHelper.isAbiSupported()) {
                             assertNotNull(trace)
                             val sliceNameInstances =
                                 TraceProcessor.runSingleSessionServer(trace!!.path) {
-                                    querySlices(UNIQUE_SLICE_NAME, packageName = null).map { slice
-                                        ->
-                                        slice.name
-                                    }
+                                    querySlices(
+                                            UNIQUE_SLICE_NAME,
+                                            UNIQUE_IN_PROCESS_SLICE_NAME,
+                                            packageName = null,
+                                        )
+                                        .map { slice -> slice.name }
                                 }
-                            assertEquals(listOf(UNIQUE_SLICE_NAME), sliceNameInstances)
 
+                            assertContains(sliceNameInstances, UNIQUE_SLICE_NAME)
+                            assertContains(sliceNameInstances, UNIQUE_IN_PROCESS_SLICE_NAME)
                             assertContains(
                                 trace!!.path,
                                 "/CUSTOM_LABEL_",
@@ -90,24 +92,32 @@ class PerfettoTraceRuleTest {
                 }
             }
             .around(
-                PerfettoTraceRule(labelProvider = { description -> "CUSTOM_LABEL" }) { trace = it }
+                PerfettoTraceRule(
+                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                    labelProvider = { description -> "CUSTOM_LABEL" },
+                ) {
+                    trace = it
+                }
             )
 
     @Test
     fun simple() {
         trace(UNIQUE_SLICE_NAME) {}
+        Tracer.global.trace(category = "category", name = UNIQUE_IN_PROCESS_SLICE_NAME) {}
     }
 
     @Test
     fun inMemoryTrace() {
         // in memory tracing support is temporary, see b/409397427
         inMemoryTrace(UNIQUE_SLICE_NAME) {}
+        Tracer.global.trace(category = "category", name = UNIQUE_IN_PROCESS_SLICE_NAME) {}
     }
 
     @Test(expected = IllegalStateException::class)
     fun exception() {
         // trace works even if test throws
         trace(UNIQUE_SLICE_NAME) {}
+        Tracer.global.trace(category = "category", name = UNIQUE_IN_PROCESS_SLICE_NAME) {}
         throw IllegalStateException()
     }
 }

@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.benchmark.Arguments.startupInsightsHelpUrlBaseOverride
 import androidx.test.platform.app.InstrumentationRegistry
 
 /** This allows tests to override arguments from code */
@@ -103,9 +104,6 @@ object Arguments {
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
-
-    internal val zipInMemoryTraceData: Boolean
-
     private val targetPackageName: String?
 
     val payload: Map<String, String>
@@ -192,10 +190,6 @@ object Arguments {
                 // fullTracing.enable is the legacy/compat name
                 ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
                 ?: false
-
-        zipInMemoryTraceData = // experimental
-            arguments.getBenchmarkArgument("zipTraceWithInMemoryEvents.enable")?.toBoolean()
-                ?: false // off by default due to issue opening in Studio
 
         _startupInsightsHelpUrlBase =
             arguments.getBenchmarkArgument("startupInsights.helpUrlBase", defaultValue = null)

@@ -109,7 +109,11 @@ class AndroidxTracingTraceTest {
                 }
         }
 
-        perfettoCapture.stop(traceFilePath, null)
+        perfettoCapture.stop(
+            destinationPath = traceFilePath,
+            inMemoryTracingLabel = null,
+            additionalPaths = emptyList(),
+        )
 
         val queryResult =
             TraceProcessor.runSingleSessionServer(traceFilePath) { query(query = QUERY) }

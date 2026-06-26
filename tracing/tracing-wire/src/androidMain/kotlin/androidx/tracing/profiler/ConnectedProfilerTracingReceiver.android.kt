@@ -19,6 +19,8 @@ package androidx.tracing.profiler
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
+import android.system.Os
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.startup.AppInitializer
@@ -26,6 +28,7 @@ import androidx.tracing.Trace.TAG
 import androidx.tracing.profiler.ConnectedProfilerTracing.disableTracing
 import androidx.tracing.profiler.ConnectedProfilerTracing.enableTracing
 import androidx.tracing.wire.getOrCreateTracesDirectory
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +41,7 @@ internal const val ACTION_STOP = "androidx.tracing.profiler.action.STOP"
 
 // Result codes
 internal const val RESULT_CODE_DELAYED_TRACE_DRIVER = -2
+internal const val RESULT_CODE_FAILED = -1
 internal const val RESULT_CODE_SUCCESS = 1
 internal const val RESULT_CODE_FLUSH_COMPLETED = 2
 
@@ -69,8 +73,29 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
 
     internal fun start(context: Context) {
         Log.w(TAG, "Starting an in-process tracing session.")
-        enableTracing(context)
-        resultCode = RESULT_CODE_SUCCESS
+        val result = goAsync()
+        scope.launch {
+            try {
+                clearInProcessTraces(context)
+                enableTracing(context)
+                result.resultCode = RESULT_CODE_SUCCESS
+            } finally {
+                result.finish()
+            }
+        }
+    }
+
+    internal fun clearInProcessTraces(context: Context) {
+        val packageName = context.packageName
+        val tracesDirectory = context.getOrCreateTracesDirectory()
+        val traceFiles = tracesDirectory.listFiles() ?: return
+        val paths = packageRelativeOpenPaths(packageName)
+        traceFiles.forEach { file ->
+            val path = relativePath(file.absolutePath, packageName)
+            if (path !in paths) {
+                file.delete()
+            }
+        }
     }
 
     internal fun stop(context: Context) {
@@ -90,14 +115,86 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
                 val isEager = initializer.isEagerlyInitialized(klass)
                 val driver = initializer.initializeComponent(klass)
                 driver.flush()
-                result.resultCode =
-                    if (isEager) RESULT_CODE_FLUSH_COMPLETED else RESULT_CODE_DELAYED_TRACE_DRIVER
-                // The path to find traces in.
-                result.resultData = context.getOrCreateTracesDirectory().absolutePath
+                // Copy files from the traces directory to a directory accessible by the
+                // app and shell so we can pull and merge traces.
+                val tracesDirectory = copyTraceFiles(context)
+                if (tracesDirectory == null) {
+                    result.resultCode = RESULT_CODE_FAILED
+                } else {
+                    result.resultCode =
+                        if (isEager) RESULT_CODE_FLUSH_COMPLETED
+                        else RESULT_CODE_DELAYED_TRACE_DRIVER
+                    // The path to find traces in.
+                    result.resultData = tracesDirectory.absolutePath
+                }
                 Log.d(TAG, "Flushed traces.")
             } finally {
                 result.finish()
             }
+        }
+    }
+
+    internal fun copyTraceFiles(context: Context): File? {
+        val tracesDirectory = context.getOrCreateTracesDirectory()
+        val parent = context.dirUsableByAppAndShell() ?: return null
+        // The path we copy trace files to.
+        val outputDirectory = File(parent, "perfetto_traces")
+        // Create the directory if it does not already exist.
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdirs()
+        }
+        // Delete existing trace files.
+        outputDirectory.listFiles { file -> file.isFile }?.forEach { file -> file.delete() }
+        val files = tracesDirectory.listFiles { file -> file.isFile }
+        if (files != null && files.isNotEmpty()) {
+            files.forEach { file ->
+                file.copyTo(File(outputDirectory, file.name), overwrite = true)
+            }
+        }
+        return outputDirectory
+    }
+
+    // This is effectively a copy of `Outputs.dirUsableByAppAndShell`.
+    internal fun Context.dirUsableByAppAndShell(): File? {
+        // On Android Q+ we are using the media directory because that is
+        // the directory that the shell has access to. Context: b/181601156
+        // Additionally, Benchmarks append user space traces to the ones produced
+        // by the Macro Benchmark run; and that is a lot simpler to do if we use the
+        // Media directory. (b/216588251)
+        @Suppress("DEPRECATION")
+        return externalMediaDirs.firstOrNull {
+            Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
+        }
+    }
+
+    internal companion object {
+        internal fun packageRelativeOpenPaths(packageName: String): Set<String> {
+            // This mechanism of looking for open files does not work all that well when referring
+            // to files using the SAF. They show up as anonymous file handles.
+            // However, our use case is pretty safe, given the app is writing a file in
+            // its internal data directory.
+            val open = File("/proc/self/fd")
+            val files = open.listFiles() ?: return emptySet()
+            val paths = mutableSetOf<String>()
+            for (file in files) {
+                val originalPath = file.absolutePath
+                val link = runCatching { Os.readlink(originalPath) }
+                val path = link.getOrElse { originalPath }
+                val packageRelativePath = relativePath(path, packageName)
+                paths += packageRelativePath
+            }
+            return paths
+        }
+
+        internal fun relativePath(path: String, packageName: String): String {
+            // If /data/data/../packageName/<path>
+            // We only are about the <path> part, given we are only looking to clear
+            // files that are not open and **owned** by the package.
+
+            // This step is important because you will end up comparing things like:
+            // /data/data/0/<packageName> and /data/data/packageName which effectively refer
+            // to the same package.
+            return path.substringAfter(delimiter = packageName)
         }
     }
 }
