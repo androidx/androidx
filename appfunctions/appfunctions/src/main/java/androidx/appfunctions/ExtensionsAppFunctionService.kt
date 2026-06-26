@@ -29,11 +29,8 @@ import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppF
 import com.android.extensions.appfunctions.AppFunctionService
 import com.android.extensions.appfunctions.ExecuteAppFunctionRequest as ExtensionExecuteAppFunctionRequest
 import com.android.extensions.appfunctions.ExecuteAppFunctionResponse as ExtensionExecuteAppFunctionResponse
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -61,8 +58,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public abstract class ExtensionsAppFunctionService :
     AppFunctionService(), AppFunctionInventoryProvider {
-    private lateinit var workerExecutor: ExecutorService
-    private lateinit var workerCoroutineScope: CoroutineScope
+    private lateinit var mainCoroutineScope: CoroutineScope
 
     /**
      * Implements [AppFunctionService.onExecuteFunction] and delegates the execution to
@@ -88,44 +84,46 @@ public abstract class ExtensionsAppFunctionService :
         val delegateCancellationSignal = CancellationSignal()
         // Just delegate to the suspend version
         val functionExecutionJob =
-            workerCoroutineScope.launch {
-                val appFunctionMetadata =
-                    getAppFunctionMetadata(
-                        this@ExtensionsAppFunctionService,
-                        resolveInventory(),
-                        request.functionIdentifier,
-                    )
-                if (appFunctionMetadata == null) {
-                    callback.onError(
-                        AppFunctionFunctionNotFoundException(
+            mainCoroutineScope.launch {
+                try {
+                    val appFunctionMetadata =
+                        getAppFunctionMetadata(
+                            this@ExtensionsAppFunctionService,
+                            resolveInventory(),
+                            request.functionIdentifier,
+                        )
+                            ?: throw AppFunctionFunctionNotFoundException(
                                 "No function found with identifier: " +
                                     "${request.functionIdentifier} in package: " +
                                     "${this@ExtensionsAppFunctionService.packageName}"
                             )
-                            .toPlatformExtensionsClass()
-                    )
-                    return@launch
-                }
-                this@ExtensionsAppFunctionService.mainExecutor.execute {
-                    onExecuteFunction(
-                        ExecuteAppFunctionRequest.fromPlatformExtensionClass(
-                            request,
-                            appFunctionMetadata,
-                        ),
-                        delegateCancellationSignal,
-                    ) { response ->
-                        when (response) {
-                            is ExecuteAppFunctionResponse.Success -> {
-                                response.grantUriAccess(
-                                    context = this@ExtensionsAppFunctionService,
-                                    callingPackageName = callingPackage,
-                                )
-                                callback.onResult(response.toPlatformExtensionClass())
+                    this@ExtensionsAppFunctionService.mainExecutor.execute {
+                        onExecuteFunction(
+                            ExecuteAppFunctionRequest.fromPlatformExtensionClass(
+                                request,
+                                appFunctionMetadata,
+                            ),
+                            delegateCancellationSignal,
+                        ) { response ->
+                            when (response) {
+                                is ExecuteAppFunctionResponse.Success -> {
+                                    response.grantUriAccess(
+                                        context = this@ExtensionsAppFunctionService,
+                                        callingPackageName = callingPackage,
+                                    )
+                                    callback.onResult(response.toPlatformExtensionClass())
+                                }
+                                is ExecuteAppFunctionResponse.Error ->
+                                    callback.onError(response.error.toPlatformExtensionsClass())
                             }
-                            is ExecuteAppFunctionResponse.Error ->
-                                callback.onError(response.error.toPlatformExtensionsClass())
                         }
                     }
+                } catch (e: AppFunctionException) {
+                    callback.onError(e.toPlatformExtensionsClass())
+                } catch (e: Exception) {
+                    callback.onError(
+                        AppFunctionAppUnknownException(e.message).toPlatformExtensionsClass()
+                    )
                 }
             }
         // Handle cancellation
@@ -168,9 +166,7 @@ public abstract class ExtensionsAppFunctionService :
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        workerExecutor = Executors.newSingleThreadExecutor()
-        workerCoroutineScope =
-            CoroutineScope(SupervisorJob() + workerExecutor.asCoroutineDispatcher())
+        mainCoroutineScope = CoroutineScope(this.mainExecutor.asCoroutineDispatcher())
     }
 
     /**
@@ -179,8 +175,7 @@ public abstract class ExtensionsAppFunctionService :
      */
     @CallSuper
     override fun onDestroy() {
-        workerCoroutineScope.cancel()
-        workerExecutor.shutdown()
+        mainCoroutineScope.cancel()
         super.onDestroy()
     }
 

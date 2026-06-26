@@ -19,7 +19,6 @@ package androidx.appfunctions.internal
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RestrictTo
-import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -30,10 +29,5 @@ public object Dispatchers {
     /** Android UI thread dispatcher. */
     public val Main: CoroutineDispatcher by lazy {
         Handler(Looper.getMainLooper()).asCoroutineDispatcher()
-    }
-
-    /** AppFunction runtime worker thread dispatcher. */
-    public val Worker: CoroutineDispatcher by lazy {
-        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     }
 }
