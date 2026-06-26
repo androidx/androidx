@@ -18,9 +18,9 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.SystemTheme
 import kotlin.js.js
 import kotlinx.browser.window
+import org.jetbrains.skiko.SystemTheme
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Window
@@ -43,22 +43,22 @@ internal class SystemThemeObserverImpl(window : Window) : SystemThemeObserver {
 
     private val _currentSystemTheme = mutableStateOf(
         when {
-            !isMatchMediaSupported() -> SystemTheme.Unknown
-            media.matches -> SystemTheme.Dark
-            else -> SystemTheme.Light
+            !isMatchMediaSupported() -> SystemTheme.UNKNOWN
+            media.matches -> SystemTheme.DARK
+            else -> SystemTheme.LIGHT
         }
     )
 
     private val listener: (Event) -> Unit = { event ->
         _currentSystemTheme.value = if ((event as MediaQueryListEvent).matches)
-            SystemTheme.Dark else SystemTheme.Light
+            SystemTheme.DARK else SystemTheme.LIGHT
     }
 
     override fun dispose() {
-        if (isMatchMediaSupported()){
+        if (isMatchMediaSupported()) {
             try {
                 media.removeEventListener("change", listener)
-            } catch (t : Throwable){
+            } catch (t : Throwable) {
                 media.removeListener(listener)
             }
         }

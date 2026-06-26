@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,12 @@
 package androidx.compose.ui
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import org.jetbrains.skiko.SystemTheme as SkikoSystemTheme
 import org.jetbrains.skiko.currentSystemTheme
 
+@Deprecated("This class was made public by mistake and will be removed in a future release")
 enum class SystemTheme {
     Dark, Light, Unknown
 }
 
 @InternalComposeUiApi
-val LocalSystemTheme = staticCompositionLocalOf {
-    currentSystemTheme.asComposeSystemTheme()
-}
-
-private fun SkikoSystemTheme.asComposeSystemTheme() : SystemTheme {
-    return when (this) {
-        SkikoSystemTheme.DARK -> SystemTheme.Dark
-        SkikoSystemTheme.LIGHT -> SystemTheme.Light
-        SkikoSystemTheme.UNKNOWN -> SystemTheme.Unknown
-    }
-}
-
-
+val LocalSystemTheme = staticCompositionLocalOf { currentSystemTheme }
