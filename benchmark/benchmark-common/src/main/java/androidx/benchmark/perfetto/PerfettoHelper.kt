@@ -23,16 +23,11 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo.deviceSummaryString
-import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.Shell
 import androidx.benchmark.inMemoryTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 /**
  * PerfettoHelper is used to start and stop the perfetto tracing and move the output perfetto trace
@@ -221,20 +216,26 @@ class PerfettoHelper(
     }
 
     /**
-     * Stop the perfetto trace collection under /data/misc/perfetto-traces/trace_output.pb after
-     * waiting for given time in msecs and copy the output to the destination file.
+     * Stop the perfetto trace collection under /data/misc/perfetto-traces/trace_output.pb and copy
+     * the output to the destination file.
      *
-     * @param destinationFile file to copy the perfetto output trace.
-     * @return true if the trace collection is successful otherwise false.
+     * @param destination file to copy the perfetto output trace.
      */
-    public fun stopCollecting(destinationFile: String, inMemoryTracingLabel: String?) {
+    public fun stopCollecting(
+        destination: String,
+        inMemoryLabel: String?,
+        additionalPaths: List<String>,
+    ) {
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
-
         inMemoryTrace("stop perfetto process") { stopPerfetto() }
-
-        Log.i(LOG_TAG, "Writing to $destinationFile.")
-        writeTraceData(destinationFile, inMemoryTracingLabel)
+        Log.i(LOG_TAG, "Writing to $destination.")
+        writeOutput(
+            absoluteTracePaths =
+                listOf(getPerfettoTmpOutputFilePath(), *additionalPaths.toTypedArray()),
+            outputPath = destination,
+            inMemoryLabel = inMemoryLabel,
+        )
     }
 
     /**
@@ -305,92 +306,6 @@ class PerfettoHelper(
         } else {
             PERFETTO_TMP_OUTPUT_FILE
         }
-    }
-
-    /**
-     * Copy the temporary perfetto trace output file from /data/local/tmp/trace_output.pb to given
-     * destinationFile.
-     *
-     * @param destinationFile file to copy the perfetto output trace.
-     * @param inMemoryTracingLabel If non-null, encode in memory tracing events to a track with this
-     *   label by merging with the system trace in a single zip file.
-     * @return true if the trace file copied successfully otherwise false.
-     */
-    private fun writeTraceData(destinationFile: String, inMemoryTracingLabel: String?): Boolean {
-        val filePath = File(destinationFile)
-        filePath.setWritable(true, false)
-        val destDirectory = filePath.parent
-        if (destDirectory != null) {
-            // Check if the directory already exists
-            val directory = File(destDirectory)
-            if (!directory.exists()) {
-                val success = directory.mkdirs()
-                if (!success) {
-                    Log.e(
-                        LOG_TAG,
-                        "Result output directory $destDirectory not created successfully.",
-                    )
-                    return false
-                }
-            }
-        }
-
-        if (inMemoryTracingLabel != null && Arguments.zipInMemoryTraceData) {
-            // For more info about this zip code path, see b/421955180
-
-            // copy the trace first to a temporary location ...
-            val tmpTraceOutput = destinationFile + "_pb"
-            if (!tryCopyTraceOutput(tmpTraceOutput)) {
-                return false
-            }
-            // ... then zip it together with the inMemoryTracing data so the traces are merged.
-            // This is much more robust than appending, though it is more expensive to perform.
-            filePath.outputStream().use { fileOut ->
-                ZipOutputStream(fileOut).use { zipOut ->
-                    inMemoryTrace("zip system trace") {
-                        val systemTraceFile = File(tmpTraceOutput)
-                        zipOut.putNextEntry(
-                            ZipEntry(
-                                // Must start with Capital! See b/421473521
-                                "System_tracing.pb"
-                            )
-                        )
-                        systemTraceFile.inputStream().copyTo(zipOut)
-                        zipOut.closeEntry()
-                        systemTraceFile.delete()
-                    }
-
-                    zipOut.putNextEntry(ZipEntry("in_memory_tracing.pb"))
-                    InMemoryTracing.commitToTrace(inMemoryTracingLabel).encode(zipOut)
-                    zipOut.closeEntry()
-                }
-            }
-            return true
-        } else if (inMemoryTracingLabel != null) {
-            // copy directly to destination, and append in memory tracing data
-            if (tryCopyTraceOutput(destinationFile)) {
-                InMemoryTracing.commitToTrace(inMemoryTracingLabel)
-                    .encode(FileOutputStream(destinationFile, /* append= */ true))
-                return true
-            }
-            return false
-        } else {
-            // copy directly to destination, since we don't need a wrapper zip
-            return tryCopyTraceOutput(destinationFile)
-        }
-    }
-
-    private fun tryCopyTraceOutput(destinationFile: String): Boolean {
-        val sourceFile = getPerfettoTmpOutputFilePath()
-        // Copy the collected trace from /data/misc/perfetto-traces/trace_output.pb to
-        // destinationFile
-        try {
-            Shell.cp(sourceFile, destinationFile)
-        } catch (ioe: IOException) {
-            Log.e(LOG_TAG, "Unable to move the perfetto trace file to destination file.", ioe)
-            return false
-        }
-        return true
     }
 
     // Perfetto executable

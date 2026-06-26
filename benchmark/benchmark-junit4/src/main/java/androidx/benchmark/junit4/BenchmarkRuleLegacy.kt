@@ -210,11 +210,12 @@ private constructor(
                     ),
                 // TODO(290918736): add support for Perfetto SDK Tracing in
                 //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
-                perfettoSdkConfig =
+                tracingLibraryConfig =
                     if (config?.perfettoSdkTracingEnabled == true) {
-                        PerfettoCapture.PerfettoSdkConfig(
-                            getInstrumentation().context.packageName,
-                            PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
+                        PerfettoCapture.TracingLibraryConfig(
+                            targetPackage = getInstrumentation().context.packageName,
+                            processState =
+                                PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
                         )
                     } else {
                         null

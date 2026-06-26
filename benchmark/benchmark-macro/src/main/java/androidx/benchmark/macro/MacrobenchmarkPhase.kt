@@ -70,7 +70,7 @@ internal fun TraceProcessor.runPhase(
     profiler: PhaseProfiler?,
     metrics: List<Metric>,
     experimentalConfig: ExperimentalConfig?,
-    perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
+    tracingLibraryConfig: PerfettoCapture.TracingLibraryConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit,
 ): List<IterationResult> {
@@ -108,7 +108,7 @@ internal fun TraceProcessor.runPhase(
                                 appTagPackages = listOf(packageName, macrobenchmarkPackageName),
                                 useStackSamplingConfig = true,
                             ),
-                    perfettoSdkConfig = perfettoSdkConfig,
+                    tracingLibraryConfig = tracingLibraryConfig,
                     // Macrobench avoids in-memory tracing, as it doesn't want to either the parsing
                     // errors from out of order events, or risk the memory cost of full ordering
                     // during

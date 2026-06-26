@@ -20,7 +20,7 @@ package androidx.benchmark.traceprocessor
 
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.test.platform.app.InstrumentationRegistry
@@ -110,17 +110,6 @@ fun PerfettoTrace.Companion.record(
     /** Trace recording configuration. */
     config: PerfettoConfig,
     /**
-     * Process to emphasize in the tracing UI.
-     *
-     * Used to emphasize the target process, e.g. by pre-populating Studio trace viewer process
-     * selection.
-     *
-     * Defaults to the test's target process. Note that for self-instrumenting tests that measure
-     * another app, you must pass that target app package.
-     */
-    highlightPackage: String =
-        InstrumentationRegistry.getInstrumentation().targetContext.packageName,
-    /**
      * Process to trace with userspace tracing, i.e. `androidx.tracing:tracing-perfetto`, ignored
      * below API 30.
      *
@@ -142,9 +131,12 @@ fun PerfettoTrace.Companion.record(
         .record(
             fileLabel = fileLabel,
             config,
-            perfettoSdkConfig =
+            tracingLibraryConfig =
                 userspaceTracingPackage?.let {
-                    PerfettoCapture.PerfettoSdkConfig(it, InitialProcessState.Unknown)
+                    PerfettoCapture.TracingLibraryConfig(
+                        targetPackage = it,
+                        processState = InitialProcessState.Unknown,
+                    )
                 },
             traceCallback = { path -> traceCallback?.invoke(PerfettoTrace(path)) },
             block = block,

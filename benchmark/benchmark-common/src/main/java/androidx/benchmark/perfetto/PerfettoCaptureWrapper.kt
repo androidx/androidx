@@ -20,12 +20,16 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InMemoryTracing
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.ShellFile
 import androidx.benchmark.UserFile
 import androidx.benchmark.UserInfo
+import androidx.benchmark.VirtualFile
+import androidx.benchmark.inMemoryTrace
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
@@ -33,6 +37,16 @@ import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_C
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+data class PerfettoStartResult(
+    /** `true` iff in-process tracing is enabled during capture start */
+    val inProcessTracingEnabled: Boolean = false,
+    /** `true` iff perfetto sdk is enabled during capture start */
+    val isPerfettoSdkEnabled: Boolean = false,
+    /** `true` iff system tracing is enabled */
+    val started: Boolean = false,
+)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PerfettoCaptureWrapper {
@@ -56,30 +70,53 @@ class PerfettoCaptureWrapper {
 
     private fun start(
         config: PerfettoConfig,
-        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
-    ): Boolean {
+        tracingLibraryConfig: TracingLibraryConfig?,
+    ): PerfettoStartResult {
+        var inProcessTracingEnabled = false
+        var isPerfettoSdkEnabled = false
         capture?.apply {
             Log.d(LOG_TAG, "Recording perfetto trace")
-            if (perfettoSdkConfig != null && Build.VERSION.SDK_INT >= 30) {
-                val (resultCode, message) = enableAndroidxTracingPerfetto(perfettoSdkConfig)
-                Log.d(LOG_TAG, "Enable full tracing result=$message")
-
-                if (resultCode !in arrayOf(RESULT_CODE_SUCCESS, RESULT_CODE_ALREADY_ENABLED)) {
-                    throw RuntimeException(
-                        "Issue while enabling Perfetto SDK tracing in" +
-                            " ${perfettoSdkConfig.targetPackage}: $message"
-                    )
+            if (tracingLibraryConfig != null) {
+                val inProcessTracingMode = tracingLibraryConfig.inProcessTracingMode
+                // In-process tracing
+                if (inProcessTracingMode != InProcessTracingMode.Disable) {
+                    val response = startInProcessTracing(tracingLibraryConfig)
+                    if (
+                        response.isFailure() && inProcessTracingMode == InProcessTracingMode.Require
+                    ) {
+                        throw RuntimeException(response.data)
+                    }
+                    inProcessTracingEnabled = response.isSuccess()
+                }
+                // Perfetto SDK
+                if (Build.VERSION.SDK_INT >= 30) {
+                    val (resultCode, message) = enableAndroidxTracingPerfetto(tracingLibraryConfig)
+                    Log.d(LOG_TAG, "Enable full tracing result=$message")
+                    // We only want to fail when we cannot enable the Perfetto SDK.
+                    if (resultCode !in arrayOf(RESULT_CODE_SUCCESS, RESULT_CODE_ALREADY_ENABLED)) {
+                        throw RuntimeException(
+                            "Issue while enabling Perfetto SDK tracing / In-process tracing in" +
+                                " ${tracingLibraryConfig.targetPackage}: $message"
+                        )
+                    }
+                    isPerfettoSdkEnabled = true
                 }
             }
             start(config)
         }
-
-        return true
+        return PerfettoStartResult(
+            started = true,
+            isPerfettoSdkEnabled = isPerfettoSdkEnabled,
+            inProcessTracingEnabled = inProcessTracingEnabled,
+        )
     }
 
-    private fun stop(traceLabel: String, inMemoryTracingLabel: String?): String {
+    private fun stop(
+        traceLabel: String,
+        inMemoryTracingLabel: String?,
+        additionalPaths: List<String>,
+    ): String {
         return Outputs.writeFile(fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace") {
-
             // The output of this method expects the final to be written in a user writeable folder.
             // If the default user is selected, perfetto can stop and write the file directly there.
             // Otherwise, we first need to write it in a shell storage and the use the VirtualFile
@@ -87,12 +124,48 @@ class PerfettoCaptureWrapper {
 
             if (UserInfo.isAdditionalUser) {
                 ShellFile.inTempDir(it.name).apply {
-                    capture!!.stop(absolutePath, inMemoryTracingLabel)
+                    capture!!.stop(
+                        destinationPath = absolutePath,
+                        inMemoryTracingLabel = inMemoryTracingLabel,
+                        additionalPaths = additionalPaths,
+                    )
                     copyTo(UserFile(it.absolutePath))
                     delete()
                 }
             } else {
-                capture!!.stop(it.absolutePath, inMemoryTracingLabel)
+                capture!!.stop(
+                    destinationPath = it.absolutePath,
+                    inMemoryTracingLabel = inMemoryTracingLabel,
+                    additionalPaths = additionalPaths,
+                )
+            }
+        }
+    }
+
+    /** Starts in-process tracing in the [TracingLibraryConfig.targetPackage] */
+    fun startInProcessTracing(config: TracingLibraryConfig): Response {
+        return inMemoryTrace("start in-process tracing") {
+            val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
+            connectedProfiler.enable()
+        }
+    }
+
+    /** Stops in-process tracing in the [TracingLibraryConfig.targetPackage] */
+    fun stopInProcessTracing(config: TracingLibraryConfig): List<String> {
+        return inMemoryTrace("stop in-process tracing") {
+            val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
+            with(connectedProfiler) {
+                val response = flush()
+                disable()
+                check(response.isSuccess()) {
+                    "Unable to flush profiles for ${config.targetPackage}"
+                }
+                val tracesPath = response.data
+                check(tracesPath != null) {
+                    "Unexpected trace output path for ${config.targetPackage}"
+                }
+                val relativeTracePaths = VirtualFile.fromPath(tracesPath).listFiles()
+                relativeTracePaths.map { "$tracesPath/$it" }
             }
         }
     }
@@ -101,7 +174,7 @@ class PerfettoCaptureWrapper {
     fun record(
         fileLabel: String,
         config: PerfettoConfig,
-        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
+        tracingLibraryConfig: TracingLibraryConfig?,
         traceCallback: ((String) -> Unit)? = null,
         enableTracing: Boolean = true,
         inMemoryTracingLabel: String? = null,
@@ -135,7 +208,7 @@ class PerfettoCaptureWrapper {
         val path: String
         try {
             propOverride?.forceValue()
-            start(config, perfettoSdkConfig)
+            val result = start(config, tracingLibraryConfig)
 
             // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
             // that events won't lie outside the bounds of the trace content.
@@ -143,8 +216,16 @@ class PerfettoCaptureWrapper {
             try {
                 block()
             } finally {
+                val additionalPaths =
+                    if (tracingLibraryConfig != null && result.inProcessTracingEnabled)
+                        stopInProcessTracing(tracingLibraryConfig)
+                    else emptyList()
+                Log.d(
+                    LOG_TAG,
+                    "Additional perfetto outputs: ${additionalPaths.joinToString(separator = ",")}",
+                )
                 // finally here to ensure trace is fully recorded if block throws
-                path = stop(fileLabel, inMemoryTracingLabel)
+                path = stop(fileLabel, inMemoryTracingLabel, additionalPaths)
                 traceCallback?.invoke(path)
             }
         } finally {

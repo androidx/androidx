@@ -43,7 +43,21 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
     /** Enables in-process tracing on the target package. */
     public fun enable(): Response {
         Log.d(BenchmarkState.TAG, "Enabling in-process tracing")
-        return sendBroadcast(ACTION_START)
+        val response = sendBroadcast(ACTION_START)
+        return if (response.isFailure()) {
+            // The only reason why this can fail is that we failed to deliver the broadcast.
+            // The app probably does not have the BroadcastReceiver. So, make that
+            // clearer.
+            response.copy(
+                data =
+                    """
+                    Unable to enable in-process tracing in $targetPackage.
+                    The app is likely missing a dependency on androidx.tracing:tracing-wire.
+                    """
+            )
+        } else {
+            response
+        }
     }
 
     /** Disables in-process tracing on the target package. */

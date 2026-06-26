@@ -40,6 +40,12 @@ package androidx.benchmark {
     property public androidx.benchmark.StartupInsightsConfig? startupInsightsConfig;
   }
 
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public enum InProcessTracingMode {
+    enum_constant public static final androidx.benchmark.InProcessTracingMode Disable;
+    enum_constant public static final androidx.benchmark.InProcessTracingMode Require;
+    enum_constant public static final androidx.benchmark.InProcessTracingMode UseIfAvailable;
+  }
+
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract class MetricCapture {
     ctor public MetricCapture(java.util.List<java.lang.String> names);
     method public abstract void capturePaused();
@@ -148,9 +154,9 @@ package androidx.benchmark.perfetto {
 package @SuppressCompatibility androidx.benchmark.traceprocessor {
 
   @SuppressCompatibility public final class PerfettoTraceKt {
-    method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record(androidx.benchmark.traceprocessor.PerfettoTrace.Companion, String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record(androidx.benchmark.traceprocessor.PerfettoTrace.Companion, String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record(androidx.benchmark.traceprocessor.PerfettoTrace.Companion, String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record$default(androidx.benchmark.traceprocessor.PerfettoTrace.Companion!, String!, androidx.benchmark.perfetto.PerfettoConfig!, String!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record$default(androidx.benchmark.traceprocessor.PerfettoTrace.Companion!, String!, androidx.benchmark.perfetto.PerfettoConfig!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
     method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record$default(androidx.benchmark.traceprocessor.PerfettoTrace.Companion!, String!, java.util.List!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 

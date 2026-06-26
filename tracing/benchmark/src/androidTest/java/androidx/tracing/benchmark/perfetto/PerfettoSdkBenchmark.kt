@@ -22,8 +22,8 @@ import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -60,7 +60,7 @@ class PerfettoSdkBenchmark {
     private fun enablePerfettoSdk() {
         PerfettoCapture()
             .enableAndroidxTracingPerfetto(
-                PerfettoSdkConfig(targetPackage, InitialProcessState.Alive)
+                TracingLibraryConfig(targetPackage, InitialProcessState.Alive)
             )
             .let { (resultCode, _) ->
                 assertTrue(

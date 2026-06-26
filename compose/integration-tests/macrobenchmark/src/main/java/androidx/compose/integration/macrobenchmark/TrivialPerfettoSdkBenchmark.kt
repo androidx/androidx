@@ -18,13 +18,11 @@ package androidx.compose.integration.macrobenchmark
 
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import junit.framework.TestCase.assertTrue
@@ -40,12 +38,12 @@ import org.junit.runners.Parameterized.Parameters
  * End-to-end test for compose-runtime-tracing verifying that names of Composables show up in a
  * Perfetto trace.
  */
-@OptIn(ExperimentalMetricApi::class)
+@OptIn(ExperimentalMetricApi::class, ExperimentalBenchmarkConfigApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
 class TrivialPerfettoSdkBenchmark(private val composableName: String) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
-    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     @Test
     fun test_composable_names_present_in_trace() {
         val metrics =
@@ -62,7 +60,10 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
             setupBlock = {
                 PerfettoCapture()
                     .enableAndroidxTracingPerfetto(
-                        PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
+                        PerfettoCapture.TracingLibraryConfig(
+                            PACKAGE_NAME,
+                            PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
+                        )
                     )
                     .let { (resultCode, _) ->
                         assertTrue(

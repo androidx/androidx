@@ -25,8 +25,8 @@ import androidx.benchmark.macro.Packages
 import androidx.benchmark.macro.perfetto.PerfettoSdkHandshakeTest.SdkDelivery.MISSING
 import androidx.benchmark.macro.perfetto.PerfettoSdkHandshakeTest.SdkDelivery.PROVIDED_BY_BENCHMARK
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -581,11 +581,12 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         isColdStartupTracing: Boolean,
     ): String? =
         this.enableAndroidxTracingPerfetto(
-                PerfettoSdkConfig(
-                    targetPackage,
-                    if (isColdStartupTracing) InitialProcessState.NotAlive
-                    else InitialProcessState.Alive,
-                    provideBinariesIfMissing,
+                TracingLibraryConfig(
+                    targetPackage = targetPackage,
+                    processState =
+                        if (isColdStartupTracing) InitialProcessState.NotAlive
+                        else InitialProcessState.Alive,
+                    provideBinariesIfMissing = provideBinariesIfMissing,
                 )
             )
             .let { (resultCode, message) ->

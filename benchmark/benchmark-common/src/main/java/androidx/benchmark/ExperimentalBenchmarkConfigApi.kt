@@ -50,7 +50,7 @@ public class ExperimentalConfig(
  * [Insights][androidx.benchmark.traceprocessor.Insight]s - problems patterns discovered during your
  * application startup.
  *
- * These will be output both in the Studio output report, as well in the Benchmark JSON output file.
+ * c, as well in the Benchmark JSON output file.
  */
 @ExperimentalBenchmarkConfigApi
 public class StartupInsightsConfig(
@@ -66,4 +66,25 @@ public class StartupInsightsConfig(
      */
     val reasonHelpUrlBase: String? = Arguments.startupInsightsHelpUrlBase
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
+}
+
+/**
+ * Configuration for in-process tracing.
+ *
+ * By passing this object in `MacrobenchmarkRule` you can enable capture of in-process traces.
+ */
+@ExperimentalBenchmarkConfigApi
+public enum class InProcessTracingMode {
+    /**
+     * Enable in-process tracing, which requires the target application to include the
+     * `androidx.tracing:tracing-wire` dependency.
+     *
+     * If `androidx.tracing:tracing-wire` is not present in the target application, an exception is
+     * thrown during the benchmark.
+     */
+    Require,
+    /** Enable in-process tracing if the app depends on `androidx.tracing:tracing-wire`. */
+    UseIfAvailable,
+    /** Do not include in-process traces. */
+    Disable,
 }
