@@ -103,6 +103,19 @@ public class MediaRouterParams {
         return mDialogType;
     }
 
+    /** Gets the media route controller dialog type as a string. */
+    @NonNull
+    /* package */ String getDialogTypeString() {
+        switch (mDialogType) {
+            case DIALOG_TYPE_DEFAULT:
+                return "DEFAULT";
+            case DIALOG_TYPE_DYNAMIC_GROUP:
+                return "DYNAMIC_GROUP";
+            default:
+                return "UNKNOWN(" + mDialogType + ")";
+        }
+    }
+
     /**
      * Gets whether declared {@link MediaTransferReceiver} is enabled.
      *

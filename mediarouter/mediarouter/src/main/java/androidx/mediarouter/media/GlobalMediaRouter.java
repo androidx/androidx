@@ -175,6 +175,13 @@ import java.util.concurrent.Executor;
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && mTransferReceiverDeclared
                         ? new MediaRoute2Provider(mApplicationContext, new Mr2ProviderCallback())
                         : null;
+        String packageName = mApplicationContext.getPackageName();
+        Log.i(
+                TAG,
+                "GlobalMediaRouter init for "
+                        + packageName
+                        + ". MR2Provider enabled: "
+                        + (mMr2Provider != null));
 
         // Add the platform media router 1 route provider for interoperating with the framework
         // android.media.MediaRouter. This one is special and receives synchronization messages
@@ -335,6 +342,29 @@ import java.util.concurrent.Executor;
     // isMediaTransferEnabled() is true only on R+ device.
     @SuppressLint("NewApi")
     /* package */ void setRouterParams(@Nullable MediaRouterParams params) {
+        String packageName = mApplicationContext.getPackageName();
+        if (params != null) {
+            Log.i(
+                    TAG,
+                    "setRouterParams: callingPackage="
+                            + packageName
+                            + ", dialogType="
+                            + params.getDialogTypeString()
+                            + ", mediaTransferReceiverEnabled="
+                            + params.isMediaTransferReceiverEnabled()
+                            + ", mediaTransferReceiverEnabledExplicitlySet="
+                            + params.isMediaTransferReceiverEnabledExplicitlySet()
+                            + ", outputSwitcherEnabled="
+                            + params.isOutputSwitcherEnabled()
+                            + ", transferToLocalEnabled="
+                            + params.isTransferToLocalEnabled()
+                            + ", mediaTransferRestrictedToSelfProviders="
+                            + params.isMediaTransferRestrictedToSelfProviders()
+                            + ", extras="
+                            + params.getExtras());
+        } else {
+            Log.i(TAG, "setRouterParams: callingPackage=" + packageName + ", params=null");
+        }
         MediaRouterParams oldParams = mRouterParams;
         mRouterParams = params;
 
