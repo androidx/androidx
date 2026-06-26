@@ -34,11 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -1295,6 +1298,59 @@ class DeferredAnimatedContentTest {
         assertTrue(
             "A jumped! Expected to remain off-screen (around -96), but was ${positionA.x}",
             positionA.x < -90,
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testVeilMatchParentSize_isPreservedDuringHandoff() {
+        val state = DeferredTransitionState("A")
+        rule.setContent {
+            Box(Modifier.size(200.dp).background(Color.Blue).testTag("container")) {
+                val transition = rememberTransition(state)
+                transition.DeferredAnimatedContent(
+                    modifier = Modifier.matchParentSize(),
+                    transitionSpec = { fadeIn(tween(1000)) togetherWith fadeOut(tween(1000)) },
+                    mutableTransformSpec = {
+                        MutableContentTransform(targetVeilMatchParentSize = true) {
+                            targetContentTransform {
+                                scale = 0.5f
+                                veil = Color.Red
+                            }
+                        }
+                    },
+                ) { target ->
+                    // Transparent content so we can see the veil completely
+                    Box(Modifier.size(200.dp))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Start manual gesture targeting B
+        rule.runOnIdle { state.defer("B") }
+        rule.mainClock.advanceTimeBy(80L)
+        rule.waitForIdle()
+
+        // Handoff to B (gesture released)
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Capture image during the handoff animation
+        val image = rule.onNodeWithTag("container").captureToImage()
+
+        // Assert that the veil covers the entire 200x200 container.
+        // If matchParentSize was false (the bug), the veil would be shrunk by the 0.5f scale
+        // to a 50x50 box in the center, leaving the corner pixel exactly Blue.
+        // Since it's fading out to Unspecified, it might not be exactly Red, but it shouldn't be
+        // exactly Blue.
+        val pixelColor = image.toPixelMap()[0, 0]
+        assertTrue(
+            "Expected corner pixel to be covered by the Red-ish veil, but was exactly Blue",
+            pixelColor != Color.Blue,
         )
     }
 }
