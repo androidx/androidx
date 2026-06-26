@@ -95,7 +95,7 @@ class PerfettoCaptureWrapper {
                     // We only want to fail when we cannot enable the Perfetto SDK.
                     if (resultCode !in arrayOf(RESULT_CODE_SUCCESS, RESULT_CODE_ALREADY_ENABLED)) {
                         throw RuntimeException(
-                            "Issue while enabling Perfetto SDK tracing / In-process tracing in" +
+                            "Issue while enabling Perfetto SDK tracing in" +
                                 " ${tracingLibraryConfig.targetPackage}: $message"
                         )
                     }
