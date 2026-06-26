@@ -34,7 +34,9 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
  * done by calling the [close] method or letting it get garbage collected.
  */
 public interface Material : AutoCloseable {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val material: RtMaterial
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val material: RtMaterial
 
     /**
      * Closes the given [Material].

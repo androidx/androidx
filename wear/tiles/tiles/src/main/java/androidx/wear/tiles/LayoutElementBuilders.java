@@ -2214,9 +2214,11 @@ public final class LayoutElementBuilders {
     public interface Span {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         LayoutElementProto.@NonNull Span toSpanProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -3501,10 +3503,12 @@ public final class LayoutElementBuilders {
      */
     public interface LayoutElement {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         LayoutElementProto.@NonNull LayoutElement toLayoutElementProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -3559,10 +3563,12 @@ public final class LayoutElementBuilders {
      */
     public interface ArcLayoutElement {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         LayoutElementProto.@NonNull ArcLayoutElement toArcLayoutElementProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

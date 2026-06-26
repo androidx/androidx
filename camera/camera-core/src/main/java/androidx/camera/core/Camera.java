@@ -64,6 +64,7 @@ public interface Camera {
     /**
      * Get the currently set extended config of the Camera.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull CameraConfig getExtendedConfig();
 

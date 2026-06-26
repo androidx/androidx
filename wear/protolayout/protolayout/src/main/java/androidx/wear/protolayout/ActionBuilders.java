@@ -482,10 +482,12 @@ public final class ActionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface AndroidExtra {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         ActionProto.@NonNull AndroidExtra toAndroidExtraProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -885,10 +887,12 @@ public final class ActionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface Action {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         ActionProto.@NonNull Action toActionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

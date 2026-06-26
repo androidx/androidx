@@ -244,6 +244,7 @@ public interface CameraInfo {
      * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ImplementationType
     @NonNull String getImplementationType();

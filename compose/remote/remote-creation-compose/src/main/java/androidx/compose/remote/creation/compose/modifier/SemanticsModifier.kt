@@ -59,6 +59,7 @@ internal constructor(
 public interface SemanticsPropertyReceiver {
     public operator fun <T> set(key: SemanticsPropertyKey<T>, value: T?)
 
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun <T> get(key: SemanticsPropertyKey<T>): T?
 }

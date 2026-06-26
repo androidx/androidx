@@ -34,6 +34,7 @@ public interface ExtendableBuilder<T> {
      *
      * @return The underlying {@link MutableConfig}.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull MutableConfig getMutableConfig();
 
