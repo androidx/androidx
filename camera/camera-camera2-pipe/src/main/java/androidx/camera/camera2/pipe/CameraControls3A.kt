@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
@@ -163,4 +164,27 @@ public interface CameraControls3A {
      *   FrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>
+
+    /**
+     * [CaptureRequest] keys related to 3A state machine and controls. These should ideally be not
+     * set directly on CameraGraph, and it is recommended to use the dedicated 3A methods to achieve
+     * the designed 3A.
+     */
+    public companion object {
+        public val REQUEST_3A_KEYS: Set<CaptureRequest.Key<*>> =
+            setOf(
+                CaptureRequest.CONTROL_AE_MODE,
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AWB_MODE,
+                CaptureRequest.CONTROL_MODE,
+                CaptureRequest.FLASH_MODE,
+                CaptureRequest.CONTROL_AE_REGIONS,
+                CaptureRequest.CONTROL_AF_REGIONS,
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AWB_REGIONS,
+                CaptureRequest.CONTROL_AE_LOCK,
+                CaptureRequest.CONTROL_AWB_LOCK,
+                CaptureRequest.CONTROL_MODE,
+            )
+    }
 }
