@@ -222,8 +222,16 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
             float minHeight,
             float maxHeight,
             @NonNull MeasurePass measure) {
+        ComponentMeasure m = measure.get(this);
+        if (!this.mNeedsMeasure
+                && m.hasCachedConstraints(minWidth, maxWidth, minHeight, maxHeight)) {
+            return;
+        }
+
         int version = Math.min(context.getMeasureVersion(), POLICIES.length - 1);
         POLICIES[version].measure(this, context, minWidth, maxWidth, minHeight, maxHeight, measure);
+
+        m.setCachedConstraints(minWidth, maxWidth, minHeight, maxHeight);
     }
 
     /** Returns whether the component has horizontal scrolling enabled. */
