@@ -26,11 +26,9 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assume.assumeFalse;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,7 +125,6 @@ public class FocusSearchNavigationTest {
 
     @Test
     public void focusSearchForward() throws Throwable {
-        assumeFalse("Test fails on cuttlefish b/460512080", Build.MODEL.contains("Cuttlefish"));
         setup(20);
         requestFocus(mBefore);
         assertThat(mBefore, hasFocus());
