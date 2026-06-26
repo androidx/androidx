@@ -970,7 +970,6 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)},
      * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOWNLOAD_FAVICONS_ENABLED = "DOWNLOAD_FAVICONS_ENABLED";
 
     /**
