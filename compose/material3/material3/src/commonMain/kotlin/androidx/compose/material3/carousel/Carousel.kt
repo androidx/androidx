@@ -35,7 +35,6 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -236,7 +235,6 @@ fun HorizontalUncontainedCarousel(
  *   last one. Use [itemSpacing] to add spacing between the items.
  * @param content The carousel's content Composable
  */
-@ExperimentalMaterial3Api
 @Composable
 fun HorizontalCenteredHeroCarousel(
     state: CarouselState,
