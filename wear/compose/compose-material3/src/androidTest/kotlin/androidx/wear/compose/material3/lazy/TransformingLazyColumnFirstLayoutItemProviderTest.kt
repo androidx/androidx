@@ -80,7 +80,7 @@ public class TransformingLazyColumnFirstLayoutItemProviderTest {
             val firstLayoutItem = provider.getFirstLayoutItem()
             assertThat(firstLayoutItem).isNotNull()
             assertThat(firstLayoutItem!!.index).isEqualTo(firstVisibleItem.index)
-            assertThat(firstLayoutItem.key).isEqualTo(firstVisibleItem.key)
+            assertThat(firstLayoutItem.key).isNull()
             assertThat(firstLayoutItem.offset).isEqualTo(firstVisibleItem.offset)
             assertThat(firstLayoutItem.itemEdge)
                 .isEqualTo(TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start)
