@@ -86,7 +86,7 @@
     <string name="combobox_custom_option" msgid="8730230629127076731">"ផ្ទាល់ខ្លួន"</string>
     <string name="form_unknown" msgid="6371515914365431330">"មិនស្គាល់"</string>
     <string name="form_widget_type_push_button" msgid="7978535904272874920">"ប៊ូតុង​ចុច"</string>
-    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"ប្រអប់​គូស​ធីក"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"ប្រអប់​ធីក"</string>
     <string name="form_widget_type_radio_button" msgid="4798553968129281550">"ប៊ូតុង​មូល"</string>
     <string name="form_widget_type_combo_box" msgid="3912742706795495520">"ប្រអប់​បន្សំ"</string>
     <string name="form_widget_type_list_box" msgid="431828611710070971">"ប្រអប់បញ្ជី"</string>
