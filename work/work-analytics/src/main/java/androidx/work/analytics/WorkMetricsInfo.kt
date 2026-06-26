@@ -36,6 +36,7 @@ import java.util.UUID
  * [WorkMetricsInfo] for the same [WorkRequest]. Similarly, a [PeriodicWorkRequest] finishing starts
  * a new [WorkMetricsInfo] for the new period.
  */
+@ExperimentalWorkMetricsApi
 public class WorkMetricsInfo(
     /** The unique identifier for the [WorkRequest]. */
     public val workSpecId: UUID,

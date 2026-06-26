@@ -37,6 +37,7 @@ private val TAG = Logger.tagWithPrefix("WorkMetricsInfoRepository")
 
 /** Repository class that calculates and stores metrics info and analytics about workers. */
 @ExperimentalEventsApi
+@ExperimentalWorkMetricsApi
 public class WorkMetricsInfoRepository
 internal constructor(private val database: WorkMetricsDatabase, private val clock: Clock) :
     ScheduleEventListener, ExecutionEventListener {
