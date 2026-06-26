@@ -144,10 +144,28 @@ package androidx.xr.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static final class XrComponentOverride.Companion {
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getBasicAlertDialog-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getHorizontalFloatingToolbar-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getNavigationBar-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getNavigationRail-sKf2Msg();
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getNavigationSuiteScaffold-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getShortNavigationBar-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getSingleRowTopAppBar-sKf2Msg();
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getThreePaneScaffold-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getTwoRowsTopAppBar-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getVerticalFloatingToolbar-sKf2Msg();
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public String getWideNavigationRail-sKf2Msg();
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride BasicAlertDialog;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride HorizontalFloatingToolbar;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride NavigationBar;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride NavigationRail;
     property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride NavigationSuiteScaffold;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride ShortNavigationBar;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride SingleRowTopAppBar;
     property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride ThreePaneScaffold;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride TwoRowsTopAppBar;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride VerticalFloatingToolbar;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public androidx.xr.compose.material3.XrComponentOverride WideNavigationRail;
   }
 
   @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public interface XrComponentOverrideEnabler {

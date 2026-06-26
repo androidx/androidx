@@ -16,14 +16,39 @@
 
 package androidx.xr.compose.material3
 
+import androidx.compose.material3.DefaultSingleRowTopAppBarOverride
+import androidx.compose.material3.DefaultTwoRowsTopAppBarOverride
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
+import androidx.compose.material3.SingleRowTopAppBarOverride
+import androidx.compose.material3.SingleRowTopAppBarOverrideScope
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TwoRowsTopAppBarOverride
+import androidx.compose.material3.TwoRowsTopAppBarOverrideScope
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.material3.XrSingleRowTopAppBarOverride.SingleRowTopAppBar
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.OrbiterOffsetType
+
+/** [SingleRowTopAppBarOverride] that uses the XR-specific [SingleRowTopAppBar]. */
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class, ExperimentalMaterial3Api::class)
+internal object XrSingleRowTopAppBarOverride : SingleRowTopAppBarOverride {
+    @Composable
+    override fun SingleRowTopAppBarOverrideScope.SingleRowTopAppBar() {
+        HorizontalOrbiter(LocalSingleRowTopAppBarOrbiterProperties.current) {
+            // TODO(kmost): Expose as XR components that do not require the use of overrides.
+            //  Currently, this is not possible, as delegating to the default override impl requires
+            //  a SingleRowTopAppBarOverrideScope instance (which has an internal constructor).
+            with(DefaultSingleRowTopAppBarOverride) { SingleRowTopAppBar() }
+        }
+    }
+}
 
 /**
  * The default [HorizontalOrbiterProperties] used by XR [TopAppBar] if none is specified in
@@ -46,6 +71,21 @@ public val LocalSingleRowTopAppBarOrbiterProperties:
     compositionLocalOf {
         DefaultSingleRowTopAppBarOrbiterProperties
     }
+
+/** [TwoRowsTopAppBarOverride] that uses the XR-specific [TwoRowsTopAppBar]. */
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class, ExperimentalMaterial3Api::class)
+internal object XrTwoRowsTopAppBarOverride : TwoRowsTopAppBarOverride {
+    @Composable
+    override fun TwoRowsTopAppBarOverrideScope.TwoRowsTopAppBar() {
+        HorizontalOrbiter(LocalTwoRowsTopAppBarOrbiterProperties.current) {
+            // TODO(kmost): Expose as XR components that do not require the use of overrides.
+            //  Currently, this is not possible, as delegating to the default override impl requires
+            //  a TwoRowsTopAppBarOverrideScope instance (which has an internal constructor).
+            with(DefaultTwoRowsTopAppBarOverride) { TwoRowsTopAppBar() }
+        }
+    }
+}
 
 /**
  * The default [HorizontalOrbiterProperties] used by XR [TopAppBar] if none is specified in

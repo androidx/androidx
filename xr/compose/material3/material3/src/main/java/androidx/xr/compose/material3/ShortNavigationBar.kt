@@ -22,9 +22,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ShortNavigationBarDefaults
 import androidx.compose.material3.ShortNavigationBarItem
+import androidx.compose.material3.ShortNavigationBarOverride
+import androidx.compose.material3.ShortNavigationBarOverrideScope
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -86,6 +89,21 @@ public fun ShortNavigationBar(
 @ExperimentalMaterial3XrApi
 internal object XrShortNavigationBarTokens {
     val PaddingAroundItems: Dp = 32.dp
+}
+
+/** [ShortNavigationBarOverride] that uses the XR-specific [ShortNavigationBar]. */
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class, ExperimentalMaterial3ExpressiveApi::class)
+internal object XrShortNavigationBarOverride : ShortNavigationBarOverride {
+    @Composable
+    override fun ShortNavigationBarOverrideScope.ShortNavigationBar() {
+        ShortNavigationBar(
+            modifier = modifier,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            content = content,
+        )
+    }
 }
 
 /** The [HorizontalOrbiterProperties] used by [ShortNavigationBar]. */

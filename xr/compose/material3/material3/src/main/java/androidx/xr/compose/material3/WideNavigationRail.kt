@@ -24,12 +24,17 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ModalWideNavigationRailOverride
+import androidx.compose.material3.ModalWideNavigationRailOverrideScope
 import androidx.compose.material3.Surface
 import androidx.compose.material3.WideNavigationRailColors
 import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
+import androidx.compose.material3.WideNavigationRailOverride
+import androidx.compose.material3.WideNavigationRailOverrideScope
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberWideNavigationRailState
@@ -126,6 +131,39 @@ private fun Modifier.getContainerWidth(state: WideNavigationRailState): Modifier
 private object XrWideNavigationRailTokens {
     val ExpandedContainerMinWidth = 220.0.dp
     val ExpandedContainerMaxWidth = 360.0.dp
+}
+
+/** [WideNavigationRailOverride] that uses the XR-specific [WideNavigationRail]. */
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class, ExperimentalMaterial3ExpressiveApi::class)
+internal object XrWideNavigationRailOverride : WideNavigationRailOverride {
+    @Composable
+    override fun WideNavigationRailOverrideScope.WideNavigationRail() {
+        WideNavigationRail(
+            modifier = modifier,
+            state = state,
+            colors = colors,
+            header = header,
+            content = content,
+        )
+    }
+}
+
+/** [ModalWideNavigationRailOverride] that uses the XR-specific [WideNavigationRail]. */
+// TODO(b/407769444): implement modal version of WideNavRail
+@ExperimentalMaterial3XrApi
+@OptIn(ExperimentalMaterial3ComponentOverrideApi::class, ExperimentalMaterial3ExpressiveApi::class)
+internal object XrModalWideNavigationRailOverride : ModalWideNavigationRailOverride {
+    @Composable
+    override fun ModalWideNavigationRailOverrideScope.ModalWideNavigationRail() {
+        WideNavigationRail(
+            modifier = modifier,
+            state = state,
+            colors = colors,
+            header = header,
+            content = content,
+        )
+    }
 }
 
 /**
