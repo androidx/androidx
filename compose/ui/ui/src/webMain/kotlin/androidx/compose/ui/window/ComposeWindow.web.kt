@@ -124,10 +124,11 @@ fun ComposeViewport(
         }
         
        .compose-backing-field {
+            position: absolute;
             height: calc(var(--compose-internal-web-backing-input-height) * 1px);
             width: calc(var(--compose-internal-web-backing-input-width) * 1px);
-            left: calc(min(var(--compose-internal-web-backing-input-left) * 1px, 100vw - var(--compose-internal-web-backing-input-width) * 1px));
-            top: calc(min(var(--compose-internal-web-backing-input-top) * 1px, 100vh - var(--compose-internal-web-backing-input-height) * 1px));
+            left: min(var(--compose-internal-web-backing-input-left) * 1px, 100vw - var(--compose-internal-web-backing-input-width) * 1px);
+            top: min(var(--compose-internal-web-backing-input-top) * 1px, 100vh - var(--compose-internal-web-backing-input-height) * 1px);
        
             align-content: center;
             background: transparent;
@@ -138,7 +139,6 @@ fun ComposeViewport(
             forced-color-adjust: none;
             outline: none;
             padding: 0;
-            position: absolute;
             resize: none;
             text-shadow: none;
             user-select: none;
