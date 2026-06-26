@@ -16,4 +16,10 @@
 
 package androidx.tracing
 
-@Suppress("NOTHING_TO_INLINE") public actual inline fun nanoTime(): Long = System.nanoTime()
+import android.os.SystemClock
+
+@Suppress("NOTHING_TO_INLINE")
+public actual inline fun nanoTime(): Long {
+    // For long-running traces, we need to include the time spent in deep sleep.
+    return SystemClock.elapsedRealtimeNanos()
+}
