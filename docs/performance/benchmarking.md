@@ -11,7 +11,6 @@ There are two types of benchmarks, summarized below:
 
 |             | Macrobenchmark               | Microbenchmark                |
 | ----------- | ---------------------------- | ----------------------------- |
-| API version | 23 and later                 | 14 and later                  |
 | Function    | Measure high-level entry     | Measure individual functions. |
 :             : points or interactions, such :                               :
 :             : as activity launch or        :                               :
