@@ -52,6 +52,53 @@ public class RootLayoutComponent extends Component {
     protected float mLastReportedOriginY = Float.NaN;
     private final MeasurePass mMeasurePass = new MeasurePass();
 
+    private final java.util.ArrayList<Component> mDirtyBoundaries = new java.util.ArrayList<>();
+
+    /** Register a dirty boundary component for incremental measurement. */
+    public void registerDirtyBoundary(@NonNull Component boundary) {
+        if (!mDirtyBoundaries.contains(boundary)) {
+            mDirtyBoundaries.add(boundary);
+        }
+    }
+
+    /** Clear all registered dirty boundary components. */
+    public void clearDirtyBoundaries() {
+        mDirtyBoundaries.clear();
+    }
+
+    private void resetSubTreeMeasureState(
+            @NonNull Component component, @NonNull MeasurePass measure) {
+        ComponentMeasure m = measure.get(component);
+        m.setVisibility(component.mVisibility);
+        m.clearCache();
+
+        for (Operation op : component.getList()) {
+            if (op instanceof Component) {
+                resetSubTreeMeasureState((Component) op, measure);
+            }
+        }
+    }
+
+    /** Perform a partial layout pass on registered dirty boundaries. */
+    public void performPartialLayoutPass(@NonNull RemoteContext context) {
+        if (mDirtyBoundaries.isEmpty()) {
+            return;
+        }
+        mMeasurePass.setContext(context);
+        for (Component boundary : mDirtyBoundaries) {
+            if (boundary.mNeedsMeasure) {
+                resetSubTreeMeasureState(boundary, mMeasurePass);
+
+                float w = boundary.getWidth();
+                float h = boundary.getHeight();
+                boundary.measure(context.getPaintContext(), w, w, h, h, mMeasurePass);
+                boundary.layout(context, mMeasurePass);
+            }
+        }
+        mDirtyBoundaries.clear();
+        mMeasurePass.setContext(null);
+    }
+
     public RootLayoutComponent(
             int componentId,
             float x,
@@ -147,9 +194,17 @@ public class RootLayoutComponent extends Component {
         }
     }
 
+    @Override
+    public boolean needsMeasure() {
+        return mNeedsMeasure || !mDirtyBoundaries.isEmpty();
+    }
+
     /** This will measure then layout the tree of components */
     public void layout(@NonNull RemoteContext context) {
         if (!mNeedsMeasure) {
+            if (!mDirtyBoundaries.isEmpty()) {
+                performPartialLayoutPass(context);
+            }
             return;
         }
         if (context.isLayoutDebug()) {
