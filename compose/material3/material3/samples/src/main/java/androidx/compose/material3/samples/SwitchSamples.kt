@@ -26,7 +26,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Sampled
 @Composable
 fun SwitchSample() {
-    var checked by remember { mutableStateOf(true) }
+    var checked by rememberSaveable { mutableStateOf(true) }
     Switch(
         modifier = Modifier.semantics { contentDescription = "Demo" },
         checked = checked,
@@ -49,7 +49,7 @@ fun SwitchSample() {
 @Sampled
 @Composable
 fun SwitchWithThumbIconSample() {
-    var checked by remember { mutableStateOf(true) }
+    var checked by rememberSaveable { mutableStateOf(true) }
 
     Switch(
         modifier = Modifier.semantics { contentDescription = "Demo with icon" },
