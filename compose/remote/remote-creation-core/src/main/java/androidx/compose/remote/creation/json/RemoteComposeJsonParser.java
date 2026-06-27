@@ -17,6 +17,7 @@ package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.ConditionalOperations;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.Utils;
@@ -1029,6 +1030,275 @@ public class RemoteComposeJsonParser {
                 );
                 break;
             }
+            case "drawBitmap": {
+                int imageId = resolveTextId(command.get("image"));
+                String contentDescription = command.optString("contentDescription", null);
+                if (command.has("srcLeft")) {
+                    int imageWidth = command.optInt("imageWidth", 0);
+                    int imageHeight = command.optInt("imageHeight", 0);
+                    int srcLeft = command.getInt("srcLeft");
+                    int srcTop = command.getInt("srcTop");
+                    int srcRight = command.getInt("srcRight");
+                    int srcBottom = command.getInt("srcBottom");
+                    int dstLeft = command.getInt("dstLeft");
+                    int dstTop = command.getInt("dstTop");
+                    int dstRight = command.getInt("dstRight");
+                    int dstBottom = command.getInt("dstBottom");
+                    int contentDescriptionId = 0;
+                    if (contentDescription != null) {
+                        contentDescriptionId = mWriter.textCreateId(contentDescription);
+                    }
+                    mWriter.getBuffer().drawBitmap(imageId, imageWidth, imageHeight,
+                            srcLeft, srcTop, srcRight, srcBottom,
+                            dstLeft, dstTop, dstRight, dstBottom, contentDescriptionId);
+                } else {
+                    float left = parseFloat(command.get("left"));
+                    float top = parseFloat(command.get("top"));
+                    if (command.has("right") && command.has("bottom")) {
+                        float right = parseFloat(command.get("right"));
+                        float bottom = parseFloat(command.get("bottom"));
+                        mWriter.drawBitmap(imageId, left, top, right, bottom, contentDescription);
+                    } else {
+                        mWriter.drawBitmap(imageId, left, top, contentDescription);
+                    }
+                }
+                break;
+            }
+            case "drawBitmapInt": {
+                int imageId = resolveTextId(command.get("image"));
+                int imageWidth = command.optInt("imageWidth", 0);
+                int imageHeight = command.optInt("imageHeight", 0);
+                int srcLeft = command.getInt("srcLeft");
+                int srcTop = command.getInt("srcTop");
+                int srcRight = command.getInt("srcRight");
+                int srcBottom = command.getInt("srcBottom");
+                int dstLeft = command.getInt("dstLeft");
+                int dstTop = command.getInt("dstTop");
+                int dstRight = command.getInt("dstRight");
+                int dstBottom = command.getInt("dstBottom");
+                String contentDescription = command.optString("contentDescription", null);
+                int contentDescriptionId = 0;
+                if (contentDescription != null) {
+                    contentDescriptionId = mWriter.textCreateId(contentDescription);
+                }
+                mWriter.getBuffer().drawBitmap(imageId, imageWidth, imageHeight,
+                        srcLeft, srcTop, srcRight, srcBottom,
+                        dstLeft, dstTop, dstRight, dstBottom, contentDescriptionId);
+                break;
+            }
+            case "drawScaledBitmap": {
+                int imageId = resolveTextId(command.get("image"));
+                float srcLeft = parseFloat(command.get("srcLeft"));
+                float srcTop = parseFloat(command.get("srcTop"));
+                float srcRight = parseFloat(command.get("srcRight"));
+                float srcBottom = parseFloat(command.get("srcBottom"));
+                float dstLeft = parseFloat(command.get("dstLeft"));
+                float dstTop = parseFloat(command.get("dstTop"));
+                float dstRight = parseFloat(command.get("dstRight"));
+                float dstBottom = parseFloat(command.get("dstBottom"));
+                int scaleType = command.optInt("scaleType", 0);
+                float scaleFactor = command.has("scaleFactor")
+                        ? parseFloat(command.get("scaleFactor")) : 1.0f;
+                String contentDescription = command.optString("contentDescription", null);
+                mWriter.drawScaledBitmap(
+                        imageId, srcLeft, srcTop, srcRight, srcBottom,
+                        dstLeft, dstTop, dstRight, dstBottom, scaleType,
+                        scaleFactor, contentDescription);
+                break;
+            }
+            case "drawBitmapFontTextRun": {
+                int textId = resolveTextId(command.get("text"));
+                int bitmapFontId = resolveTextId(command.get("bitmapFont"));
+                int start = command.optInt("start", 0);
+                int end = command.optInt("end", -1);
+                float x = parseFloat(command.get("x"));
+                float y = parseFloat(command.get("y"));
+                float glyphSpacing = command.has("glyphSpacing")
+                        ? parseFloat(command.get("glyphSpacing")) : 0f;
+                mWriter.drawBitmapFontTextRun(
+                        textId, bitmapFontId, start, end, x, y, glyphSpacing);
+                break;
+            }
+            case "drawBitmapFontTextRunOnPath": {
+                int textId = resolveTextId(command.get("text"));
+                int bitmapFontId = resolveTextId(command.get("bitmapFont"));
+                int pathId = resolvePathId(command.get("path"));
+                int start = command.optInt("start", 0);
+                int end = command.optInt("end", -1);
+                float yAdj = command.has("yAdj") ? parseFloat(command.get("yAdj")) : 0f;
+                float glyphSpacing = command.has("glyphSpacing")
+                        ? parseFloat(command.get("glyphSpacing")) : 0f;
+                mWriter.getBuffer().addDrawBitmapFontTextRunOnPath(
+                        textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
+                break;
+            }
+            case "drawBitmapTextAnchored": {
+                int textId = resolveTextId(command.get("text"));
+                int bitmapFontId = resolveTextId(command.get("bitmapFont"));
+                float start = command.has("start") ? parseFloat(command.get("start")) : 0f;
+                float end = command.has("end") ? parseFloat(command.get("end")) : -1f;
+                float x = parseFloat(command.get("x"));
+                float y = parseFloat(command.get("y"));
+                float panX = command.has("panX") ? parseFloat(command.get("panX")) : 0f;
+                float panY = command.has("panY") ? parseFloat(command.get("panY")) : 0f;
+                float glyphSpacing = command.has("glyphSpacing")
+                        ? parseFloat(command.get("glyphSpacing")) : 0f;
+                mWriter.drawBitmapTextAnchored(
+                        textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
+                break;
+            }
+            case "drawTextRun": {
+                int textId = resolveTextId(command.get("text"));
+                int start = command.optInt("start", 0);
+                int end = command.optInt("end", -1);
+                int contextStart = command.optInt("contextStart", start);
+                int contextEnd = command.optInt("contextEnd", end);
+                float x = parseFloat(command.get("x"));
+                float y = parseFloat(command.get("y"));
+                boolean rtl = command.optBoolean("rtl", false);
+                mWriter.drawTextRun(textId, start, end, contextStart, contextEnd, x, y, rtl);
+                break;
+            }
+            case "drawTextOnPath": {
+                int textId = resolveTextId(command.get("text"));
+                int pathId = resolvePathId(command.get("path"));
+                float hOffset = command.has("hOffset") ? parseFloat(command.get("hOffset")) : 0f;
+                float vOffset = command.has("vOffset") ? parseFloat(command.get("vOffset")) : 0f;
+                mWriter.drawTextOnPath(textId, pathId, hOffset, vOffset);
+                break;
+            }
+            case "drawTextOnCircle": {
+                int textId = resolveTextId(command.get("text"));
+                float cx = parseFloat(command.get("cx"));
+                float cy = parseFloat(command.get("cy"));
+                float radius = parseFloat(command.get("radius"));
+                float startAngle = command.has("startAngle")
+                        ? parseFloat(command.get("startAngle")) : 0f;
+                float warpRadiusOffset = command.has("warpRadiusOffset")
+                        ? parseFloat(command.get("warpRadiusOffset")) : 0f;
+                String alignStr = command.optString("alignment", "center");
+                DrawTextOnCircle.Alignment align = DrawTextOnCircle.Alignment.CENTER;
+                if ("left".equalsIgnoreCase(alignStr)
+                        || "start".equalsIgnoreCase(alignStr)) {
+                    align = DrawTextOnCircle.Alignment.START;
+                } else if ("right".equalsIgnoreCase(alignStr)
+                        || "end".equalsIgnoreCase(alignStr)) {
+                    align = DrawTextOnCircle.Alignment.END;
+                }
+                String placeStr = command.optString("placement", "outside");
+                DrawTextOnCircle.Placement placement = DrawTextOnCircle.Placement.OUTSIDE;
+                if ("inside".equalsIgnoreCase(placeStr)) {
+                    placement = DrawTextOnCircle.Placement.INSIDE;
+                }
+                mWriter.drawTextOnCircle(
+                        textId, cx, cy, radius, startAngle, warpRadiusOffset, align, placement);
+                break;
+            }
+            case "drawSector": {
+                float left = parseFloat(command.get("left"));
+                float top = parseFloat(command.get("top"));
+                float right = parseFloat(command.get("right"));
+                float bottom = parseFloat(command.get("bottom"));
+                float startAngle = parseFloat(command.get("startAngle"));
+                float sweepAngle = parseFloat(command.get("sweepAngle"));
+                mWriter.drawSector(left, top, right, bottom, startAngle, sweepAngle);
+                break;
+            }
+            case "drawTweenPath": {
+                int path1Id = resolvePathId(command.get("path1"));
+                int path2Id = resolvePathId(command.get("path2"));
+                float tween = parseFloat(command.get("tween"));
+                float start = command.has("start") ? parseFloat(command.get("start")) : 0f;
+                float stop = command.has("stop") ? parseFloat(command.get("stop")) : 1f;
+                mWriter.drawTweenPath(path1Id, path2Id, tween, start, stop);
+                break;
+            }
+            case "drawOnBitmap": {
+                int bitmapId = resolveTextId(command.get("bitmap"));
+                int mode = command.optInt("mode", 0);
+                int color = command.optInt("color", 0);
+                mWriter.drawOnBitmap(bitmapId, mode, color);
+                break;
+            }
+            case "drawComponentContent": {
+                mWriter.drawComponentContent();
+                break;
+            }
+            case "clipPath": {
+                int pathId = resolvePathId(command.get("path"));
+                mWriter.addClipPath(pathId);
+                break;
+            }
+            case "pathCombine": {
+                int path1Id = resolvePathId(command.get("path1"));
+                int path2Id = resolvePathId(command.get("path2"));
+                int op = command.optInt("op", 0);
+                int pathId = mWriter.pathCombine(path1Id, path2Id, (byte) op);
+                String idStr = command.optString("id", null);
+                if (idStr != null) {
+                    mPaths.put(idStr, pathId);
+                }
+                break;
+            }
+            case "pathTween": {
+                int path1Id = resolvePathId(command.get("path1"));
+                int path2Id = resolvePathId(command.get("path2"));
+                float tween = parseFloat(command.get("tween"));
+                int pathId = mWriter.pathTween(path1Id, path2Id, tween);
+                String idStr = command.optString("id", null);
+                if (idStr != null) {
+                    mPaths.put(idStr, pathId);
+                }
+                break;
+            }
+            case "skew": {
+                float skewX = parseFloat(command.get("skewX"));
+                float skewY = parseFloat(command.get("skewY"));
+                mWriter.skew(skewX, skewY);
+                break;
+            }
+            case "matrixFromPath": {
+                int pathId = resolvePathId(command.get("path"));
+                float fraction = parseFloat(command.get("fraction"));
+                float vOffset = command.has("vOffset") ? parseFloat(command.get("vOffset")) : 0f;
+                int flags = command.optInt("flags", 0);
+                mWriter.matrixFromPath(pathId, fraction, vOffset, flags);
+                break;
+            }
+            case "matrixConstant": {
+                JSONArray valArr = command.getJSONArray("values");
+                float[] values = new float[valArr.length()];
+                for (int i = 0; i < valArr.length(); i++) {
+                    values[i] = parseFloat(valArr.get(i));
+                }
+                String name = command.optString("name", null);
+                int matrixId;
+                if (name != null) {
+                    matrixId = (int) mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
+                    mVariables.put(name, (float) matrixId);
+                } else {
+                    matrixId = command.optInt("id", mWriter.nextId());
+                }
+                mWriter.getBuffer().addMatrixConst(matrixId, values);
+                break;
+            }
+            case "matrixVectorMath": {
+                float matrixId = parseFloat(command.get("matrix"));
+                short mathType = (short) command.optInt("type", 0);
+                JSONArray fromArr = command.getJSONArray("from");
+                float[] from = new float[fromArr.length()];
+                for (int i = 0; i < fromArr.length(); i++) from[i] = parseFloat(fromArr.get(i));
+                JSONArray outArr = command.getJSONArray("out");
+                int[] outIds = new int[outArr.length()];
+                for (int i = 0; i < outArr.length(); i++) {
+                    String name = outArr.getString(i);
+                    float id = mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
+                    outIds[i] = Utils.idFromNan(id);
+                    mVariables.put(name, id);
+                }
+                mWriter.getBuffer().addMatrixVectorMath(matrixId, mathType, from, outIds);
+                break;
+            }
             case "rotate": {
                 if (command.has("pivotX") || command.has("centerX")) {
                     float pivotX = command.has("pivotX") ? parseFloat(command.get("pivotX"))
@@ -1708,6 +1978,13 @@ public class RemoteComposeJsonParser {
             return id;
         }
         return mWriter.addPathString(pathStr);
+    }
+
+    int resolvePathId(@NonNull Object pathObj) throws JSONException {
+        if (pathObj instanceof Number) {
+            return ((Number) pathObj).intValue();
+        }
+        return parsePath(pathObj.toString());
     }
 
 
