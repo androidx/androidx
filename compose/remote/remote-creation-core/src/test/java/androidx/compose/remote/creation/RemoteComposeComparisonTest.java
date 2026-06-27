@@ -934,6 +934,82 @@ public class RemoteComposeComparisonTest {
                 + "}";
     }
 
+    @Test
+    public void testCanvasDrawingOperationsComparison() throws JSONException {
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = new RemoteComposeWriter.HTag[] {
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
+            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "CanvasOps")
+        };
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        generateCanvasOpsKotlin(expectedWriter);
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter.HTag[] actualTags =
+                RemoteComposeJsonParser.parseHeaderOnly(getCanvasOpsJson());
+        int actualApiLevel = RemoteComposeJsonParser.parseApiLevel(getCanvasOpsJson());
+        RemoteComposeWriter actualWriter =
+                new RemoteComposeWriter(platform, actualApiLevel, actualTags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(getCanvasOpsJson());
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("CanvasOps", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    private void generateCanvasOpsKotlin(RemoteComposeWriter writer) {
+        writer.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.fillMaxSize(1.0f);
+            writer.startCanvas(mod);
+            writer.drawSector(10f, 10f, 100f, 100f, 0f, 90f);
+            writer.skew(0.1f, 0.2f);
+            int p1 = writer.pathCreate(0f, 0f);
+            writer.pathAppendLineTo(p1, 100f, 100f);
+            writer.pathAppendClose(p1);
+            int textId1 = writer.addText("Hello Path");
+            writer.drawTextOnPath(textId1, p1, 5f, 10f);
+//            int textId = writer.addText("Circle Text");
+//            writer.drawTextOnCircle(
+//                    textId, 200f, 200f, 50f, 0f, 0f,
+//                    DrawTextOnCircle.Alignment.CENTER,
+//                    DrawTextOnCircle.Placement.OUTSIDE);
+            writer.endCanvas();
+        });
+    }
+
+    private String getCanvasOpsJson() {
+        return "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"CanvasOps\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"drawSector\", \"left\": 10.0, \"top\": 10.0,"
+                + " \"right\": 100.0, \"bottom\": 100.0, \"startAngle\": 0.0,"
+                + " \"sweepAngle\": 90.0 },"
+                + "      { \"type\": \"skew\", \"skewX\": 0.1, \"skewY\": 0.2 },"
+                + "      { \"type\": \"pathCreate\", \"id\": \"p1\", \"x\": 0.0, \"y\": 0.0 },"
+                + "      { \"type\": \"pathAppendLineTo\", \"path\": \"p1\","
+                + " \"x\": 100.0, \"y\": 100.0 },"
+                + "      { \"type\": \"pathAppendClose\", \"path\": \"p1\" },"
+                + "      { \"type\": \"drawTextOnPath\", \"text\": \"Hello Path\","
+                + " \"path\": \"p1\", \"hOffset\": 5.0, \"vOffset\": 10.0 }"
+//                + "      { \"type\": \"drawTextOnCircle\", \"text\": \"Circle Text\","
+//                + " \"cx\": 200.0, \"cy\": 200.0, \"radius\": 50.0, \"startAngle\": 0.0,"
+//                + " \"warpRadiusOffset\": 0.0, \"alignment\": \"center\","
+//                + " \"placement\": \"outside\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+    }
+
     private void printMismatch(String name, byte[] expected, byte[] actual) {
         System.out.println(name + " mismatch!");
         System.out.println("Expected size: " + expected.length);
