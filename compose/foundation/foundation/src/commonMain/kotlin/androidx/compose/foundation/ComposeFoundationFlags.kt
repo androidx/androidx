@@ -206,13 +206,6 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = true
 
     /**
-     * If enabled, interactions (like clicks) will automatically trigger interaction sound effects
-     * on Android.
-     */
-    // TODO: Remove this flag once it has soaked (b/495885589)
-    @field:Suppress("MutableBareField") @JvmField var isInteractionSoundEffectOnClickEnabled = true
-
-    /**
      * This flag controls whether the fix for velocity tracker usage in Draggable and related
      * classes is enabled to a) properly track velocity per pointer and b) make sure to also take
      * the pointer events into account that don't move at the beginning of the gesture in order to
