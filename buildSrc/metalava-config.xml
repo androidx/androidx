@@ -1,0 +1,5 @@
+<!-- Placeholder configuration file -->
+<config xmlns="http://www.google.com/tools/metalava/config"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.google.com/tools/metalava/config ../../../tools/metalava/metalava/src/main/resources/schemas/config.xsd">
+</config>

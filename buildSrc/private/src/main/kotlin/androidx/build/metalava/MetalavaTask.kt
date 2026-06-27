@@ -59,8 +59,22 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
 
     @get:Input abstract val targetsJavaConsumers: Property<Boolean>
 
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    val configFile: RegularFileProperty =
+        project.objects
+            .fileProperty()
+            .convention(
+                project.isolated.rootProject.projectDirectory.file("buildSrc/metalava-config.xml")
+            )
+
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(metalavaClasspath, args, kotlinSourceLevel.get(), workerExecutor)
+        val allArgs = buildList {
+            addAll(args)
+            add("--config-file")
+            add(configFile.get().asFile.absolutePath)
+        }
+        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel.get(), workerExecutor)
     }
 }
 
