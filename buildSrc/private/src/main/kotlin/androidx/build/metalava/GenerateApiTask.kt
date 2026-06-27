@@ -110,6 +110,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             manifestPath.orNull?.asFile?.absolutePath,
             multiplatform.get(),
             hasJvmOrAndroidTarget.get(),
+            configFile = configFile.get().asFile,
         )
     }
 }
