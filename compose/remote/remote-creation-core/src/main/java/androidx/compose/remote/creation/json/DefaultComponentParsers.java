@@ -133,6 +133,15 @@ class DefaultComponentParsers {
             parser.parseChildren(component.optJSONArray("children"));
             writer.endCustom();
         });
+        p.registerComponentParser("stateLayout", (component, modifier, writer, parser) -> {
+            Object idxObj = component.has("indexId") ? component.get("indexId")
+                    : (component.has("stateId") ? component.get("stateId")
+                    : component.get("index"));
+            int indexId = parser.resolveTextId(idxObj);
+            writer.startStateLayout(modifier, indexId);
+            parser.parseChildren(component.optJSONArray("children"));
+            writer.endStateLayout();
+        });
         p.registerComponentParser("text", (component, modifier, writer, parser) -> {
             parser.parseText(component, modifier);
         });

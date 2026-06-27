@@ -213,6 +213,28 @@ class DefaultModifierParsers {
                 (mod, key, recordingModifier, parser) -> {
                     recordingModifier.drawWithContent();
                 });
+        p.registerModifierParser("spacedby", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.spacedBy(parser.parseFloat(mod.get(key)));
+        });
+        p.registerModifierParser("animationspec", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.animationSpec(mod.getInt(key));
+        });
+        p.registerModifierParser("alignbybaseline",
+                (mod, key, recordingModifier, parser) -> {
+                    recordingModifier.alignByBaseline();
+                });
+        p.registerModifierParser("fillparentmaxwidth",
+                (mod, key, recordingModifier, parser) -> {
+                    recordingModifier.fillParentMaxWidth(parser.parseFloat(mod.get(key)));
+                });
+        p.registerModifierParser("fillparentmaxheight",
+                (mod, key, recordingModifier, parser) -> {
+                    recordingModifier.fillParentMaxHeight(parser.parseFloat(mod.get(key)));
+                });
+        p.registerModifierParser("fillparentmaxsize",
+                (mod, key, recordingModifier, parser) -> {
+                    recordingModifier.fillParentMaxSize(parser.parseFloat(mod.get(key)));
+                });
     }
 
     private static List<Action> parseActions(

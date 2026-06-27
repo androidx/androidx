@@ -1095,6 +1095,21 @@ public class RemoteComposeJsonParser {
                 mPaths.put(pathIdStr, pathId);
                 break;
             }
+            case "polarPathExpression": {
+                String pathIdStr = command.getString("id");
+                float[] expR = parseFloatExpression(command.get("expressionR"));
+                float start = parseFloat(command.get("start"));
+                float end = parseFloat(command.get("end"));
+                float count = parseFloat(command.get("count"));
+                float cx = parseFloat(command.has("centerX") ? command.get("centerX")
+                        : (command.has("cx") ? command.get("cx") : 0f));
+                float cy = parseFloat(command.has("centerY") ? command.get("centerY")
+                        : (command.has("cy") ? command.get("cy") : 0f));
+                int flags = command.optInt("flags", 0);
+                int pathId = mWriter.addPolarPathExpression(expR, start, end, count, cx, cy, flags);
+                mPaths.put(pathIdStr, pathId);
+                break;
+            }
             case "loop": {
                 float from = parseFloat(command.get("from"));
                 float step = command.has("step") ? parseFloat(command.get("step")) : 1.0f;
@@ -1225,6 +1240,23 @@ public class RemoteComposeJsonParser {
             case "playSound":
                 mWriter.playSound(resolveTextId(command.get("id")));
                 break;
+            case "setArrayValue": {
+                int arrayId = resolveTextId(command.get("id"));
+                float index = parseFloat(command.get("index"));
+                float value = parseFloat(command.get("value"));
+                mWriter.setArrayValue(arrayId, index, value);
+                break;
+            }
+            case "callFloatFunction": {
+                int fnId = resolveTextId(command.get("id"));
+                JSONArray argsArr = command.getJSONArray("args");
+                float[] args = new float[argsArr.length()];
+                for (int i = 0; i < argsArr.length(); i++) {
+                    args[i] = parseFloat(argsArr.get(i));
+                }
+                mWriter.callFloatFunction(fnId, args);
+                break;
+            }
             case "textSubtext": {
                 int txtId = resolveTextId(command.get("text"));
                 float start = parseFloat(command.get("start"));
