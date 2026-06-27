@@ -38,6 +38,7 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -435,6 +436,19 @@ public class Component extends PaintOperation
         return false;
     }
 
+    /** Returns true if any child component contains computed layout modifiers */
+    public boolean hasChildWithComputedLayout() {
+        for (Operation op : mList) {
+            if (op instanceof Component) {
+                Component child = (Component) op;
+                if (child.hasComputedLayout() || child.hasChildWithComputedLayout()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** Apply computed modifiers */
     public boolean applyComputedLayout(
             int type,
@@ -553,6 +567,9 @@ public class Component extends PaintOperation
         if (visibility != mVisibility || visibility != mScheduledVisibility) {
             mScheduledVisibility = visibility;
             invalidateMeasure();
+            if (mParent != null) {
+                mParent.invalidateMeasure();
+            }
         }
     }
 
@@ -592,16 +609,46 @@ public class Component extends PaintOperation
         m.setH(mHeight);
     }
 
+    /** Returns true if the component has dynamic position computed modifiers. */
+    public boolean hasDynamicPosition() {
+        for (Operation op : mList) {
+            if (op instanceof LayoutComputeOperation) {
+                if (((LayoutComputeOperation) op).getType()
+                        == LayoutComputeOperation.TYPE_POSITION) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Returns true if the component has dynamic size computed modifiers. */
+    public boolean hasDynamicSize() {
+        for (Operation op : mList) {
+            if (op instanceof LayoutComputeOperation) {
+                if (((LayoutComputeOperation) op).getType()
+                        == LayoutComputeOperation.TYPE_MEASURE) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Apply the measurement to the component.
      *
      * @param m the ComponentMeasure to apply
      */
     public void applyMeasure(@NonNull ComponentMeasure m) {
-        mWidth = m.getW();
-        mHeight = m.getH();
-        mX = m.getX();
-        mY = m.getY();
+        if (!hasDynamicPosition()) {
+            mX = m.getX();
+            mY = m.getY();
+        }
+        if (!hasDynamicSize()) {
+            mWidth = m.getW();
+            mHeight = m.getH();
+        }
         mVisibility = m.getVisibility();
     }
 
@@ -1294,12 +1341,65 @@ public class Component extends PaintOperation
     }
 
     /**
+     * Returns true if this component contains dynamic computed operations or variable expressions.
+     */
+    public boolean hasDynamicComputes() {
+        for (Operation op : mList) {
+            if (op instanceof androidx.compose.remote.core.VariableSupport) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this node acts as a relayout boundary, meaning changes inside this node
+     * do not affect the size or position of its parent.
+     */
+    public boolean isRelayoutBoundary() {
+        if (hasComputedLayout()) {
+            return false;
+        }
+        if (this instanceof LayoutComponent) {
+            LayoutComponent lc = (LayoutComponent) this;
+            if (lc.getWidthModifier() != null && lc.getHeightModifier() != null) {
+                if (lc.getWidthModifier().isExact() && lc.getHeightModifier().isExact()) {
+                    return true;
+                }
+                if (lc.getWidthModifier().isFill() && lc.getHeightModifier().isFill()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Mark itself as needing to be remeasured, and walk back up the tree to mark each parents as
      * well.
      */
     public void invalidateMeasure() {
         needsRepaint();
         mNeedsMeasure = true;
+
+        try {
+            RootLayoutComponent root = getRoot();
+            if (root != null) {
+                Component p = mParent;
+                while (p != null) {
+                    p.mNeedsMeasure = true;
+                    if (p.isRelayoutBoundary()) {
+                        root.registerDirtyBoundary(p);
+                        break;
+                    }
+                    p = p.mParent;
+                }
+                return;
+            }
+        } catch (Exception e) {
+            // Fallback during inflation/setup
+        }
+
         Component p = mParent;
         while (p != null) {
             p.mNeedsMeasure = true;
