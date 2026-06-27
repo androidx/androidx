@@ -16,6 +16,7 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.semantics.CoreSemantics;
 import androidx.compose.remote.creation.actions.Action;
 import androidx.compose.remote.creation.actions.ValueFloatChange;
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange;
@@ -25,8 +26,12 @@ import androidx.compose.remote.creation.actions.ValueStringChange;
 import androidx.compose.remote.creation.dsl.RcFloat;
 import androidx.compose.remote.creation.dsl.VerticalScrollRcFloatModifier;
 import androidx.compose.remote.creation.modifiers.ClickActionModifier;
+import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier;
 import androidx.compose.remote.creation.modifiers.IncludeReferencedOperationsModifier;
 import androidx.compose.remote.creation.modifiers.MacroCallModifier;
+import androidx.compose.remote.creation.modifiers.MarqueeModifier;
+import androidx.compose.remote.creation.modifiers.RippleModifier;
+import androidx.compose.remote.creation.modifiers.SemanticsModifier;
 import androidx.compose.remote.creation.modifiers.TouchActionModifier;
 
 import org.json.JSONArray;
@@ -34,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -235,6 +241,61 @@ class DefaultModifierParsers {
                 (mod, key, recordingModifier, parser) -> {
                     recordingModifier.fillParentMaxSize(parser.parseFloat(mod.get(key)));
                 });
+        p.registerModifierParser("graphicslayer",
+                (mod, key, recordingModifier, parser) -> {
+                    JSONObject gObj = mod.getJSONObject(key);
+                    GraphicsLayerModifier gMod = new GraphicsLayerModifier();
+                    Iterator<String> keys = gObj.keys();
+                    while (keys.hasNext()) {
+                        String k = keys.next();
+                        int attrId = -1;
+                        switch (k) {
+                            case "scaleX": attrId = 0; break;
+                            case "scaleY": attrId = 1; break;
+                            case "rotationZ": attrId = 4; break;
+                            case "translationX": attrId = 7; break;
+                            case "translationY": attrId = 8; break;
+                            case "alpha": attrId = 11; break;
+                        }
+                        if (attrId != -1) {
+                            gMod.setFloatAttribute(attrId,
+                                    parser.parseFloat(gObj.get(k)));
+                        }
+                    }
+                    recordingModifier.then(gMod);
+                });
+        p.registerModifierParser("marquee", (mod, key, recordingModifier, parser) -> {
+            JSONObject mObj = mod.getJSONObject(key);
+            int iterations = mObj.optInt("iterations", Integer.MAX_VALUE);
+            int animationMode = mObj.optInt("animationMode", 0);
+            float repeatDelay = (float) mObj.optDouble("repeatDelayMillis", 1200);
+            float initialDelay = (float) mObj.optDouble("initialDelayMillis", 1200);
+            float spacing = (float) mObj.optDouble("spacing", 0);
+            float velocity = (float) mObj.optDouble("velocity", 0);
+            recordingModifier.then(new MarqueeModifier(iterations, animationMode,
+                    repeatDelay, initialDelay, spacing, velocity));
+        });
+        p.registerModifierParser("ripple", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new RippleModifier());
+        });
+        p.registerModifierParser("semantics", (mod, key, recordingModifier, parser) -> {
+            JSONObject sObj = mod.getJSONObject(key);
+            CoreSemantics semantics = new CoreSemantics();
+            if (sObj.has("contentDescription")) {
+                semantics.mContentDescriptionId =
+                        parser.resolveTextId(sObj.get("contentDescription"));
+            }
+            if (sObj.has("text")) {
+                semantics.mTextId = parser.resolveTextId(sObj.get("text"));
+            }
+            if (sObj.has("stateDescription")) {
+                semantics.mStateDescriptionId =
+                        parser.resolveTextId(sObj.get("stateDescription"));
+            }
+            semantics.mEnabled = sObj.optBoolean("enabled", true);
+            semantics.mClickable = sObj.optBoolean("clickable", false);
+            recordingModifier.then(new SemanticsModifier(semantics));
+        });
     }
 
     private static List<Action> parseActions(
