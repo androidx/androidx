@@ -526,6 +526,82 @@ public class RemoteComposeComparisonTest {
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    public void testStage4Comparison() throws JSONException {
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = new RemoteComposeWriter.HTag[] {
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 800),
+            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stage4"),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, 513)
+        };
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.spacedBy(8.0f);
+            mod.animationSpec(1);
+            mod.alignByBaseline();
+            mod.fillParentMaxWidth(1.0f);
+            mod.fillParentMaxHeight(1.0f);
+            mod.fillParentMaxSize(1.0f);
+            expectedWriter.startStateLayout(mod, 0);
+
+            expectedWriter.startCanvas(new RecordingModifier());
+            expectedWriter.addPolarPathExpression(new float[] { 10f }, 0.0f, 6.28f, 100.0f,
+                    0.0f, 0.0f, 0);
+            expectedWriter.setArrayValue(1, 0.0f, 5.0f);
+            expectedWriter.callFloatFunction(2, 1.0f, 2.0f);
+
+            expectedWriter.endCanvas();
+            expectedWriter.endStateLayout();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 513, \"width\": 400,"
+                + " \"height\": 800, \"contentDescription\": \"Stage4\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"stateLayout\","
+                + "    \"indexId\": 0,"
+                + "    \"modifiers\": ["
+                + "      { \"spacedBy\": 8.0 },"
+                + "      { \"animationSpec\": 1 },"
+                + "      { \"alignByBaseline\": {} },"
+                + "      { \"fillParentMaxWidth\": 1.0 },"
+                + "      { \"fillParentMaxHeight\": 1.0 },"
+                + "      { \"fillParentMaxSize\": 1.0 }"
+                + "    ],"
+                + "    \"children\": ["
+                + "      {"
+                + "        \"type\": \"canvas\","
+                + "        \"commands\": ["
+                + "          { \"type\": \"polarPathExpression\", \"id\": \"polar1\","
+                + " \"expressionR\": \"10\", \"start\": 0.0, \"end\": 6.28, \"count\": 100.0 },"
+                + "          { \"type\": \"setArrayValue\", \"id\": 1, \"index\": 0.0,"
+                + " \"value\": 5.0 },"
+                + "          { \"type\": \"callFloatFunction\", \"id\": 2, \"args\": [1.0, 2.0] }"
+                + "        ]"
+                + "      }"
+                + "    ]"
+                + "  }"
+                + "}";
+
+        RemoteComposeWriter.HTag[] actualTags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int actualApiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter actualWriter =
+                new RemoteComposeWriter(platform, actualApiLevel, actualTags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!java.util.Arrays.equals(expected, actual)) {
+            printMismatch("Stage4", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
     private void generateTickerKotlin(RemoteComposeWriter writer) {
         writer.beginGlobal();
         int bgId = writer.addThemedColor(null, 0xFFEEEEEE, null, 0xFF111111);
