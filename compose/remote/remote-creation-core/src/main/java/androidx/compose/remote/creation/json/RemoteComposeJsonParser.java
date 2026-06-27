@@ -1257,6 +1257,17 @@ public class RemoteComposeJsonParser {
                 mWriter.callFloatFunction(fnId, args);
                 break;
             }
+            case "clickArea": {
+                int id = resolveTextId(command.get("id"));
+                String contentDescription = command.optString("contentDescription", null);
+                float left = parseFloat(command.get("left"));
+                float top = parseFloat(command.get("top"));
+                float right = parseFloat(command.get("right"));
+                float bottom = parseFloat(command.get("bottom"));
+                String metadata = command.optString("metadata", null);
+                mWriter.addClickArea(id, contentDescription, left, top, right, bottom, metadata);
+                break;
+            }
             case "textSubtext": {
                 int txtId = resolveTextId(command.get("text"));
                 float start = parseFloat(command.get("start"));
