@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.media
 import android.hardware.camera2.MultiResolutionImageReader
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.hardware.camera2.params.OutputConfiguration
+import android.media.Image
 import android.media.ImageReader
 import android.os.Build
 import android.os.Handler
@@ -59,18 +60,23 @@ internal constructor(
         atomic(null)
 
     override fun onImageAvailable(reader: ImageReader?) {
-        val image = reader?.acquireNextImage()
-        if (image != null) {
-            val imageListener = onImageListener
-            if (imageListener == null) {
-                image.close()
-                return
-            }
+        if (reader == null) return
 
-            onExpectedOutputsListener?.onExpectedOutputs(image.timestamp, outputIdSet)
-
-            imageListener.onImage(streamId, outputId, AndroidImage(image))
+        val imageListener = onImageListener
+        if (imageListener == null) {
+            reader.closeNext()
+            return
         }
+
+        val expectedOutputsListener = onExpectedOutputsListener
+
+        val wrappedImage = reader.acquireNext() ?: return
+        val timestamp = wrappedImage.timestamp
+
+        if (expectedOutputsListener != null) {
+            expectedOutputsListener.onExpectedOutputs(timestamp, outputIdSet)
+        }
+        imageListener.onImage(streamId, outputId, wrappedImage)
     }
 
     override fun close(): Unit = imageReader.close()
@@ -230,37 +236,30 @@ public class AndroidMultiResolutionImageReader(
         atomic(null)
 
     override fun onImageAvailable(reader: ImageReader?) {
-        if (reader != null) imageReaderSet.add(reader)
-        val image = reader?.acquireNextImage()
-        if (image != null) {
-            val imageListener = onImageListener
-            if (imageListener == null) {
-                image.close()
-                return
-            }
+        if (reader == null) return
+        imageReaderSet.add(reader)
 
-            // MultiResolutionImageReaders produce images from multiple sub-ImageReaders, in order
-            // to figure out which output the image is from, we have to first look up the
-            // StreamInfo from the MultiResolutionImageReader instance, and then use it to look it
-            // up in the outputMap that was used to create the MultiResolutionImageReader.
-            val streamInfo = multiResolutionImageReader.getStreamInfoForImageReader(reader)
-            val outputId =
-                checkNotNull(streamInfoToOutputIdMap[streamInfo]) {
-                    "$this: Failed to find OutputId for $reader based on streamInfo $streamInfo!"
-                }
-
-            if (!concurrentOutputsEnabled) {
-                // For non-concurrent streams, we cannot rely on onActiveOutputSurfaces. Hence, we
-                // fire the expected outputs listener here.
-                onExpectedOutputsListener?.onExpectedOutputs(image.timestamp, setOf(outputId))
-            }
-
-            // Note: During camera switches, MultiResolutionImageReaders does not guarantee that
-            // images will always be in monotonically increasing order. The primary reason for this
-            // is when a camera switches from one lens to another, which can cause the camera
-            // to produce overlapping images from each sensor and can be delivered out of order.
-            imageListener.onImage(streamId, outputId, AndroidImage(image))
+        val imageListener = onImageListener
+        if (imageListener == null) {
+            reader.closeNext()
+            return
         }
+
+        val expectedOutputsListener = onExpectedOutputsListener
+
+        val wrappedImage = reader.acquireNext() ?: return
+        val timestamp = wrappedImage.timestamp
+
+        val streamInfo = multiResolutionImageReader.getStreamInfoForImageReader(reader)
+        val outputId =
+            checkNotNull(streamInfoToOutputIdMap[streamInfo]) {
+                "$this: Failed to find OutputId for $reader based on streamInfo $streamInfo!"
+            }
+
+        if (expectedOutputsListener != null && !concurrentOutputsEnabled) {
+            expectedOutputsListener.onExpectedOutputs(timestamp, setOf(outputId))
+        }
+        imageListener.onImage(streamId, outputId, wrappedImage)
     }
 
     override fun onActiveOutputSurfaces(
@@ -450,5 +449,36 @@ public class AndroidMultiResolutionImageReader(
                 platformApiCompat,
             )
         }
+    }
+}
+
+private fun ImageReader.acquireNext(): AndroidImage? {
+    var image: Image? = null
+    return try {
+        image = this.acquireNextImage()
+        if (image == null) return null
+        val wrapped = AndroidImage(image)
+        // b/520091791: Eagerly touch the timestamp to cache it while we are still inside the safety
+        // of the try-catch block.
+        wrapped.timestamp
+        wrapped
+    } catch (e: IllegalStateException) {
+        // b/520091791: Suppress failures that can occur when an Image or ImageReader is
+        // concurrently closed while the callback is being invoked.
+        try {
+            image?.close()
+        } catch (_: Exception) {
+            // Ignore
+        }
+        null
+    }
+}
+
+private fun ImageReader.closeNext() {
+    try {
+        this.acquireNextImage()?.close()
+    } catch (e: IllegalStateException) {
+        // b/520091791: Suppress failures that can occur when an Image or ImageReader is
+        // concurrently closed while the callback is being invoked.
     }
 }
