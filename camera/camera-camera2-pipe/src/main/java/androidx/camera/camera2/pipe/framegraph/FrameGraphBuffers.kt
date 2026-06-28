@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.filterToCaptureRequestParameters
 import androidx.camera.camera2.pipe.filterToMetadataParameters
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
 import androidx.camera.common.Metadata
 import java.util.Objects.deepEquals
 import javax.inject.Inject
@@ -39,6 +40,7 @@ internal class FrameGraphBuffers
 internal constructor(
     private val cameraGraph: CameraGraph,
     @FrameGraphCoroutineScope private val frameGraphCoroutineScope: CoroutineScope,
+    private val frameGraphResourceTrimmer: FrameGraphResourceTrimmer,
 ) : FrameDistributor.FrameStartedListener {
     private val lock = Any()
     @GuardedBy("lock") private val buffers = mutableListOf<FrameBufferImpl>()
@@ -59,6 +61,8 @@ internal constructor(
         if (modified) {
             invalidate()
         }
+        frameGraphResourceTrimmer.onFrameBufferAttached(frameBuffer)
+
         return frameBuffer
     }
 
@@ -71,6 +75,7 @@ internal constructor(
         if (modified) {
             invalidate()
         }
+        frameGraphResourceTrimmer.onFrameBufferDetached(frameBuffer)
     }
 
     @GuardedBy("lock")
@@ -105,15 +110,17 @@ internal constructor(
         synchronized(lock) {
             if (buffers.isEmpty()) {
                 session.stopRepeating()
+                frameGraphResourceTrimmer.onRepeatingRequestUpdated(null)
                 return
             }
-            session.startRepeating(
+            val request =
                 Request(
                     streams = streams.toList(),
                     parameters = parameters.filterToCaptureRequestParameters(),
                     extras = parameters.filterToMetadataParameters(),
                 )
-            )
+            session.startRepeating(request)
+            frameGraphResourceTrimmer.onRepeatingRequestUpdated(request)
         }
     }
 

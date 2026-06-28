@@ -247,6 +247,8 @@ internal class FrameBufferImpl(
             }
         }
 
+    fun trimFirst(): Boolean = releaseFirst { true }
+
     fun trimAll() {
         val framesToClose =
             synchronized(lock) {

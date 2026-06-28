@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.config.FrameGraphCoroutineScope
 import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
 import androidx.camera.camera2.pipe.internal.GraphSessionLock
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ constructor(
     private val graphProcessor: GraphProcessor,
     private val sessionLock: GraphSessionLock,
     @FrameGraphCoroutineScope private val frameGraphCoroutineScope: CoroutineScope,
+    private val frameGraphResourceTrimmer: FrameGraphResourceTrimmer,
 ) : AutoCloseable {
     private val lock = Any()
 
@@ -151,13 +153,20 @@ constructor(
         val requestList = pendingFrameCaptures.map { it.request }
         val frameCaptures = frameCaptureQueue.enqueue(requestList)
 
+        var submitted = false
         for (i in requestList.indices) {
             if (graphProcessor.submit(requestList[i])) {
+                submitted = true
                 pendingFrameCaptures[i].setFrameCapture(frameCaptures[i])
             } else {
                 frameCaptures[i].close()
                 pendingFrameCaptures[i].abort()
             }
+        }
+        // Signal the resource trimmer about change in the frame capture queue, to kick off any
+        // trimming to make room for upcoming images.
+        if (submitted) {
+            frameGraphResourceTrimmer.invalidate()
         }
     }
 
