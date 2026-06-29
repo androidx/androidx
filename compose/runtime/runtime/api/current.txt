@@ -1436,6 +1436,18 @@ package androidx.compose.runtime.tooling {
     property public int sortedIndex;
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public final class RecompositionTracer {
+    ctor public RecompositionTracer(androidx.compose.runtime.tooling.RecompositionTracer.TraceCollector traceCollector);
+    method public suspend Object? runTracing(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public static interface RecompositionTracer.TraceCollector {
+    method public void beginSection(String sectionName, java.util.List<java.lang.Long> flowIds);
+    method public void endSection();
+    method public void instantEvent(String sectionName, java.util.List<java.lang.StackTraceElement> stackTrace, int id, java.util.List<java.lang.Long> flowIds);
+    method public boolean isEnabled();
+  }
+
   @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class SourceInformation {
     ctor public SourceInformation(boolean isCall, boolean isInline, String? functionName, String? sourceFile, java.util.List<androidx.compose.runtime.tooling.ParameterSourceInformation> parameters, String? packageHash, java.util.List<androidx.compose.runtime.tooling.LocationSourceInformation> locations, String rawData);
     method @InaccessibleFromKotlin public String? getFunctionName();
