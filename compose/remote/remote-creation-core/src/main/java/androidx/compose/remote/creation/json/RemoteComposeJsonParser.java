@@ -16,6 +16,8 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.core.RemotePathBase;
 import androidx.compose.remote.core.operations.ConditionalOperations;
 import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.Header;
@@ -24,6 +26,7 @@ import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.creation.RcPaint;
+import androidx.compose.remote.creation.RemoteComposeShader;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.modifiers.CircleShape;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
@@ -37,6 +40,7 @@ import org.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -211,6 +215,7 @@ public class RemoteComposeJsonParser {
             Object value = header.get(key);
             tags.add(RemoteComposeWriter.hTag(tag, value));
         }
+        tags.sort(java.util.Comparator.comparingInt(RemoteComposeWriter.HTag::getTag));
         return tags.toArray(new RemoteComposeWriter.HTag[0]);
     }
 
@@ -227,6 +232,91 @@ public class RemoteComposeJsonParser {
             return root.getJSONObject("header").optInt("apiLevel", 7);
         }
         return 7;
+    }
+
+    public static final @NonNull RcPlatformServices DEFAULT_PLATFORM = new RcPlatformServices() {
+        @Override
+        public float @NonNull [] pathToFloatArray(@NonNull Object path) {
+            if (path instanceof RemotePathBase) {
+                return ((RemotePathBase) path).getPath();
+            }
+            return new float[0];
+        }
+
+        @Override
+        public @NonNull Object parsePath(@NonNull String pathData) {
+            return new RemotePathBase(pathData);
+        }
+
+        @Override
+        public byte @Nullable [] imageToByteArray(@NonNull Object image) {
+            return new byte[0];
+        }
+
+        @Override
+        public int getImageWidth(@NonNull Object image) {
+            return 0;
+        }
+
+        @Override
+        public int getImageHeight(@NonNull Object image) {
+            return 0;
+        }
+
+        @Override
+        public boolean isAlpha8Image(@NonNull Object image) {
+            return false;
+        }
+
+        @Override
+        public void log(@NonNull LogCategory category, @NonNull String message) {}
+    };
+
+    /**
+     * Parse a JSON RemoteCompose document directly into a ByteBuffer binary representation.
+     *
+     * @param json the JSON description of the RemoteCompose document
+     * @return a ByteBuffer containing the binary encoded RemoteCompose document
+     * @throws JSONException if JSON parsing fails
+     */
+    public static @NonNull ByteBuffer parseToByteBuffer(@NonNull String json) throws JSONException {
+        return parse(json, DEFAULT_PLATFORM);
+    }
+
+    /**
+     * Parse a JSON RemoteCompose document directly into a ByteBuffer binary representation.
+     *
+     * @param json the JSON description of the RemoteCompose document
+     * @return a ByteBuffer containing the binary encoded RemoteCompose document
+     * @throws JSONException if JSON parsing fails
+     */
+    public static @NonNull ByteBuffer parseToBuffer(@NonNull String json) throws JSONException {
+        return parseToByteBuffer(json);
+    }
+
+    /**
+     * Parse a JSON RemoteCompose document directly into a ByteBuffer binary representation.
+     *
+     * @param json the JSON description of the RemoteCompose document
+     * @param platform platform services or null to use DEFAULT_PLATFORM
+     * @return a ByteBuffer containing the binary encoded RemoteCompose document
+     * @throws JSONException if JSON parsing fails
+     */
+    public static @NonNull ByteBuffer parse(
+            @NonNull String json,
+            @Nullable RcPlatformServices platform)
+            throws JSONException {
+        if (platform == null) {
+            platform = DEFAULT_PLATFORM;
+        }
+        int apiLevel = parseApiLevel(json);
+        RemoteComposeWriter.HTag[] tags = parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.getTag(), b.getTag()));
+        RemoteComposeWriter writer = new RemoteComposeWriter(platform, apiLevel, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(writer);
+        parser.parse(json);
+        byte[] bytes = writer.encodeToByteArray();
+        return ByteBuffer.wrap(bytes);
     }
 
     /**
@@ -320,6 +410,7 @@ public class RemoteComposeJsonParser {
                     }
                     mInFirstPass = false;
 
+                    beginGlobal();
                     mWriter.root(() -> {
                         try {
                             if (!typeLower.equals("resources") && !typeLower.equals("variable")
@@ -327,13 +418,11 @@ public class RemoteComposeJsonParser {
                                     && !typeLower.equals("referencedoperations")) {
                                 parseComponent(component);
                             }
-                            while (mGlobalNesting > 0) {
-                                endGlobal();
-                            }
                         } catch (org.json.JSONException e) {
                             throw new RuntimeException(e);
                         }
                     });
+                    endGlobal();
                 }
             }
         } catch (JSONException e) {
@@ -370,6 +459,7 @@ public class RemoteComposeJsonParser {
             case "ltResize": return Header.FEATURE_LT_RESIZE;
             case "densityBehavior": return Header.DOC_DENSITY_BEHAVIOR;
             case "featurePaintMeasure": return Header.FEATURE_PAINT_MEASURE;
+            case "debug": return Header.DEBUG;
             default:
                 throw new JSONException("Unknown header tag: " + name);
         }
@@ -378,11 +468,15 @@ public class RemoteComposeJsonParser {
 
 
     int getHorizontalAlign(@NonNull JSONObject component, @NonNull String defaultValue) {
-        return parseHorizontalAlignment(component.optString("horizontalAlignment", defaultValue));
+        String align = component.optString("horizontalAlignment",
+                component.optString("horizontalArrangement", defaultValue));
+        return parseHorizontalAlignment(align);
     }
 
     int getVerticalAlign(@NonNull JSONObject component, @NonNull String defaultValue) {
-        return parseVerticalAlignment(component.optString("verticalAlignment", defaultValue));
+        String align = component.optString("verticalAlignment",
+                component.optString("verticalArrangement", defaultValue));
+        return parseVerticalAlignment(align);
     }
 
     /**
@@ -492,7 +586,7 @@ public class RemoteComposeJsonParser {
 
     void parseText(@NonNull JSONObject component,
             RecordingModifier modifier) throws JSONException {
-        Object value = component.opt("value");
+        Object value = component.has("value") ? component.opt("value") : component.opt("text");
         float textFromFloat = Float.NaN;
         int textFromFloatWhole = 0;
         int textFromFloatDecimal = 0;
@@ -538,7 +632,9 @@ public class RemoteComposeJsonParser {
 
         float fontSize = component.has("fontSize")
                 ? parseFloat(component.get("fontSize"))
-                : TextStyle.DEFAULT_FONT_SIZE;
+                : (component.has("textSize")
+                        ? parseFloat(component.get("textSize"))
+                        : TextStyle.DEFAULT_FONT_SIZE);
 
         float fontWeight = component.has("fontWeight")
                 ? parseFloat(component.get("fontWeight"))
@@ -691,7 +787,8 @@ public class RemoteComposeJsonParser {
                             String key = keys.next();
                             switch (key.toLowerCase(java.util.Locale.ROOT)) {
                                 case "shader":
-                                    paint.setShader(op.getInt(key));
+                                case "runtimeshader":
+                                    paint.setShader(parseShader(op.get(key)));
                                     break;
                                 case "style":
                                     String style = op.getString(key);
@@ -704,7 +801,9 @@ public class RemoteComposeJsonParser {
                                     }
                                     break;
                                 case "lineargradient": {
-                                    JSONObject g = op.getJSONObject("linearGradient");
+                                    JSONObject g = op.has("linearGradient")
+                                            ? op.getJSONObject("linearGradient")
+                                            : op.getJSONObject(key);
                                     JSONArray colorsArr = g.getJSONArray("colors");
                                     int[] colors = new int[colorsArr.length()];
                                     int mask = 0;
@@ -763,8 +862,20 @@ public class RemoteComposeJsonParser {
                                     paint.setAlpha(parseFloat(op.get(key)));
                                     break;
                                 case "width":
+                                case "strokewidth":
                                     paint.setStrokeWidth(parseFloat(op.get(key)));
                                     break;
+                                case "strokejoin": {
+                                    String join = op.getString(key);
+                                    if (join.equalsIgnoreCase("round")) {
+                                        paint.setStrokeJoin(1);
+                                    } else if (join.equalsIgnoreCase("bevel")) {
+                                        paint.setStrokeJoin(2);
+                                    } else {
+                                        paint.setStrokeJoin(0);
+                                    }
+                                    break;
+                                }
                                 case "strokecap": {
                                     String cap = op.getString(key);
                                     if (cap.equalsIgnoreCase("round")) {
@@ -779,6 +890,39 @@ public class RemoteComposeJsonParser {
                                 case "textsize":
                                     paint.setTextSize(parseFloat(op.get(key)));
                                     break;
+                                case "radialgradient": {
+                                    JSONObject g = op.getJSONObject("radialGradient");
+                                    JSONArray colorsArr = g.getJSONArray("colors");
+                                    int[] colors = new int[colorsArr.length()];
+                                    int mask = 0;
+                                    for (int j = 0; j < colorsArr.length(); j++) {
+                                        Object c = colorsArr.get(j);
+                                        if (c instanceof String
+                                                && (((String) c).startsWith("$colors.")
+                                                || ((String) c).startsWith("@colors."))) {
+                                            mask |= (1 << j);
+                                        }
+                                        colors[j] = parseColor(c);
+                                    }
+                                    JSONArray stopsArr = g.optJSONArray("stops");
+                                    float[] stops = null;
+                                    if (stopsArr != null) {
+                                        stops = new float[stopsArr.length()];
+                                        for (int j = 0; j < stopsArr.length(); j++) {
+                                            stops[j] = (float) stopsArr.getDouble(j);
+                                        }
+                                    }
+                                    paint.setRadialGradient(
+                                            parseFloat(g.get("centerX")),
+                                            parseFloat(g.get("centerY")),
+                                            parseFloat(g.get("radius")),
+                                            colors,
+                                            mask,
+                                            stops,
+                                            g.optInt("tileMode", 0)
+                                    );
+                                    break;
+                                }
                                 case "sweepgradient": {
                                     JSONObject g = op.getJSONObject("sweepGradient");
                                     JSONArray colorsArr = g.getJSONArray("colors");
@@ -814,8 +958,10 @@ public class RemoteComposeJsonParser {
                         }
                     }
                 } else {
-                    if (command.has("shader")) {
-                        paint.setShader(command.getInt("shader"));
+                    if (command.has("runtimeShader")) {
+                        paint.setShader(parseShader(command.get("runtimeShader")));
+                    } else if (command.has("shader")) {
+                        paint.setShader(parseShader(command.get("shader")));
                     }
                     if (command.has("color")) {
                         String color = command.getString("color");
@@ -823,6 +969,26 @@ public class RemoteComposeJsonParser {
                             paint.setColorId(parseColor(color));
                         } else {
                             paint.setColor(parseColor(color));
+                        }
+                    }
+                    if (command.has("strokeJoin")) {
+                        String join = command.getString("strokeJoin");
+                        if (join.equalsIgnoreCase("round")) {
+                            paint.setStrokeJoin(1);
+                        } else if (join.equalsIgnoreCase("bevel")) {
+                            paint.setStrokeJoin(2);
+                        } else {
+                            paint.setStrokeJoin(0);
+                        }
+                    }
+                    if (command.has("strokeCap")) {
+                        String cap = command.getString("strokeCap");
+                        if (cap.equalsIgnoreCase("round")) {
+                            paint.setStrokeCap(1);
+                        } else if (cap.equalsIgnoreCase("square")) {
+                            paint.setStrokeCap(2);
+                        } else {
+                            paint.setStrokeCap(0);
                         }
                     }
                     if (command.has("style")) {
@@ -835,65 +1001,10 @@ public class RemoteComposeJsonParser {
                             paint.setStyle(2);
                         }
                     }
-                    if (command.has("linearGradient")) {
-                        JSONObject g = command.getJSONObject("linearGradient");
-                        JSONArray colorsArr = g.getJSONArray("colors");
-                        int[] colors = new int[colorsArr.length()];
-                        int mask = 0;
-                        for (int i = 0; i < colorsArr.length(); i++) {
-                            Object c = colorsArr.get(i);
-                            if (c instanceof String && (((String) c).startsWith("$colors.")
-                                    || ((String) c).startsWith("@colors."))) {
-                                mask |= (1 << i);
-                            }
-                            colors[i] = parseColor(c);
-                        }
-                        JSONArray stopsArr = g.optJSONArray("stops");
-                        float[] stops = null;
-                        if (stopsArr != null) {
-                            stops = new float[stopsArr.length()];
-                            for (int i = 0; i < stopsArr.length(); i++) {
-                                stops[i] = (float) stopsArr.getDouble(i);
-                            }
-                        }
-                        paint.setLinearGradient(
-                                g.has("x1") ? parseFloat(g.get("x1")) : 0f,
-                                g.has("y1") ? parseFloat(g.get("y1")) : 0f,
-                                g.has("x2") ? parseFloat(g.get("x2")) : 0f,
-                                g.has("y2") ? parseFloat(g.get("y2")) : 0f,
-                                colors,
-                                mask,
-                                stops,
-                                g.optInt("tileMode", 0)
-                        );
-                    }
-                    if (command.has("pathEffect")) {
-                        JSONArray pe = command.optJSONArray("pathEffect");
-                        if (pe == null) {
-                            paint.setPathEffect(null);
-                        } else {
-                            float[] pathEffect = new float[pe.length()];
-                            for (int i = 0; i < pe.length(); i++) {
-                                pathEffect[i] = (float) pe.getDouble(i);
-                            }
-                            paint.setPathEffect(pathEffect);
-                        }
-                    }
-                    if (command.has("alpha")) {
-                        paint.setAlpha(parseFloat(command.get("alpha")));
-                    }
-                    if (command.has("width")) {
-                        paint.setStrokeWidth(parseFloat(command.get("width")));
-                    }
-                    if (command.has("strokeCap")) {
-                        String cap = command.getString("strokeCap");
-                        if (cap.equalsIgnoreCase("round")) {
-                            paint.setStrokeCap(1);
-                        } else if (cap.equalsIgnoreCase("square")) {
-                            paint.setStrokeCap(2);
-                        } else {
-                            paint.setStrokeCap(0);
-                        }
+                    if (command.has("width") || command.has("strokeWidth")) {
+                        Object w = command.has("strokeWidth")
+                                ? command.get("strokeWidth") : command.get("width");
+                        paint.setStrokeWidth(parseFloat(w));
                     }
                     if (command.has("textSize")) {
                         paint.setTextSize(parseFloat(command.get("textSize")));
@@ -1271,32 +1382,59 @@ public class RemoteComposeJsonParser {
                 JSONArray valArr = command.getJSONArray("values");
                 float[] values = new float[valArr.length()];
                 for (int i = 0; i < valArr.length(); i++) {
-                    values[i] = parseFloat(valArr.get(i));
+                    Object item = valArr.get(i);
+                    if (item instanceof String) {
+                        String str = (String) item;
+                        if (str.startsWith("matrix:")) {
+                            values[i] = parseMatrixOperator(str.substring(7));
+                            continue;
+                        }
+                    }
+                    values[i] = parseFloat(item);
                 }
                 String name = command.optString("name", null);
+                boolean named = command.optBoolean("named", false);
                 int matrixId;
-                if (name != null) {
+                if (named && name != null) {
                     matrixId = (int) mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
-                    mVariables.put(name, (float) matrixId);
                 } else {
                     matrixId = command.optInt("id", mWriter.nextId());
                 }
-                mWriter.getBuffer().addMatrixConst(matrixId, values);
+                if (name != null) {
+                    mVariables.put(name, Utils.asNan(matrixId));
+                    mMatrices.put(name, Utils.asNan(matrixId));
+                }
+                mWriter.getBuffer().addMatrixExpression(matrixId, values);
                 break;
             }
             case "matrixvectormath": {
                 float matrixId = parseFloat(command.get("matrix"));
-                short mathType = (short) command.optInt("type", 0);
+                short mathType = (short) command.optInt("type", command.optInt("mType", 0));
                 JSONArray fromArr = command.getJSONArray("from");
                 float[] from = new float[fromArr.length()];
                 for (int i = 0; i < fromArr.length(); i++) from[i] = parseFloat(fromArr.get(i));
                 JSONArray outArr = command.getJSONArray("out");
                 int[] outIds = new int[outArr.length()];
+                boolean named = command.optBoolean("named", false);
                 for (int i = 0; i < outArr.length(); i++) {
-                    String name = outArr.getString(i);
-                    float id = mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
-                    outIds[i] = Utils.idFromNan(id);
-                    mVariables.put(name, id);
+                    Object item = outArr.get(i);
+                    int id;
+                    if (item instanceof String) {
+                        String name = (String) item;
+                        if (named) {
+                            float varId = mWriter.createNamedVariable(
+                                    name, NamedVariable.FLOAT_TYPE);
+                            id = Utils.idFromNan(varId);
+                            mVariables.put(name, varId);
+                        } else {
+                            id = mWriter.nextId();
+                            float varId = Utils.asNan(id);
+                            mVariables.put(name, varId);
+                        }
+                    } else {
+                        id = ((Number) item).intValue();
+                    }
+                    outIds[i] = id;
                 }
                 mWriter.getBuffer().addMatrixVectorMath(matrixId, mathType, from, outIds);
                 break;
@@ -1451,13 +1589,38 @@ public class RemoteComposeJsonParser {
                 for (int i = 0; i < fromArr.length(); i++) from[i] = parseFloat(fromArr.get(i));
                 JSONArray outArr = command.getJSONArray("out");
                 float[] out = new float[outArr.length()];
+                boolean named = command.optBoolean("named", false);
                 for (int i = 0; i < outArr.length(); i++) {
                     String name = outArr.getString(i);
-                    float id = mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
+                    float id;
+                    if (named) {
+                        id = mWriter.createNamedVariable(name, NamedVariable.FLOAT_TYPE);
+                    } else {
+                        int intId = mWriter.nextId();
+                        id = Utils.asNan(intId);
+                    }
                     out[i] = id;
                     mVariables.put(name, id);
                 }
                 mWriter.addMatrixMultiply(matrixId, mType, from, out);
+                break;
+            }
+            case "pathdata":
+            case "path": {
+                String id = command.optString("id", null);
+                Object data = command.get("data");
+                int pathId;
+                if (data instanceof JSONArray) {
+                    JSONArray arr = (JSONArray) data;
+                    float[] pathData = new float[arr.length()];
+                    for (int i = 0; i < arr.length(); i++) {
+                        pathData[i] = parseFloat(arr.get(i));
+                    }
+                    pathId = mWriter.addPathData(pathData);
+                } else {
+                    pathId = mWriter.addPathData(data.toString());
+                }
+                if (id != null) mPaths.put(id, pathId);
                 break;
             }
             case "pathcreate": {
@@ -1921,6 +2084,20 @@ public class RemoteComposeJsonParser {
                             } else {
                                 varVal = mWriter.addNamedFloat(varName, varVal);
                             }
+                        } else if (val instanceof String
+                                && (((String) val).equalsIgnoreCase("componentWidth()")
+                                || ((String) val).equalsIgnoreCase("componentWidth"))) {
+                            varVal = mWriter.addComponentWidthValue();
+                            if (named) {
+                                mWriter.setFloatName(Utils.idFromNan(varVal), varName);
+                            }
+                        } else if (val instanceof String
+                                && (((String) val).equalsIgnoreCase("componentHeight()")
+                                || ((String) val).equalsIgnoreCase("componentHeight"))) {
+                            varVal = mWriter.addComponentHeightValue();
+                            if (named) {
+                                mWriter.setFloatName(Utils.idFromNan(varVal), varName);
+                            }
                         } else {
                             if (val instanceof Number) {
                                 varVal = mWriter.addFloatConstant(((Number) val).floatValue());
@@ -2031,34 +2208,62 @@ public class RemoteComposeJsonParser {
         }
     }
 
-    @NonNull Shape parseShape(@NonNull JSONObject obj) throws JSONException {
-        String type = obj.getString("type").toLowerCase();
-        switch (type) {
-            case "circle":
-                return new CircleShape();
-            case "rect":
-                return new RectShape(
-                        (float) obj.optDouble("left", 0),
-                        (float) obj.optDouble("top", 0),
-                        (float) obj.optDouble("right", 100),
-                        (float) obj.optDouble("bottom", 100)
-                );
-            case "roundrect":
-            case "roundedrect":
-                if (obj.has("radius")) {
-                    float r = (float) obj.optDouble("radius", 0);
-                    return new RoundedRectShape(r, r, r, r);
-                } else {
-                    return new RoundedRectShape(
-                            (float) obj.optDouble("topStart", 0),
-                            (float) obj.optDouble("topEnd", 0),
-                            (float) obj.optDouble("bottomStart", 0),
-                            (float) obj.optDouble("bottomEnd", 0)
-                    );
-                }
-            default:
-                throw new JSONException("Unknown shape type: " + type);
+    @NonNull Shape parseShape(@NonNull Object shapeVal) throws JSONException {
+        if (shapeVal instanceof Number) {
+            float r = ((Number) shapeVal).floatValue();
+            return new RoundedRectShape(r, r, r, r);
         }
+        if (shapeVal instanceof JSONObject) {
+            JSONObject obj = (JSONObject) shapeVal;
+            if (!obj.has("type") && obj.length() == 1) {
+                String key = obj.keys().next();
+                Object val = obj.get(key);
+                if (val instanceof Number) {
+                    float r = ((Number) val).floatValue();
+                    return new RoundedRectShape(r, r, r, r);
+                }
+                if (val instanceof JSONObject) {
+                    JSONObject inner = (JSONObject) val;
+                    if (!inner.has("type")) {
+                        inner.put("type", key);
+                    }
+                    return parseShape(inner);
+                }
+            }
+            String type = obj.optString("type", "roundedrect").toLowerCase();
+            switch (type) {
+                case "circle":
+                    return new CircleShape();
+                case "rect":
+                    return new RectShape(
+                            (float) obj.optDouble("left", 0),
+                            (float) obj.optDouble("top", 0),
+                            (float) obj.optDouble("right", 100),
+                            (float) obj.optDouble("bottom", 100)
+                    );
+                case "roundrect":
+                case "roundedrect":
+                    if (obj.has("radius")) {
+                        float r = (float) obj.optDouble("radius", 0);
+                        return new RoundedRectShape(r, r, r, r);
+                    } else {
+                        double r = obj.optDouble("roundedrect", obj.optDouble("roundrect", 0));
+                        if (r > 0) {
+                            float rf = (float) r;
+                            return new RoundedRectShape(rf, rf, rf, rf);
+                        }
+                        return new RoundedRectShape(
+                                (float) obj.optDouble("topStart", 0),
+                                (float) obj.optDouble("topEnd", 0),
+                                (float) obj.optDouble("bottomStart", 0),
+                                (float) obj.optDouble("bottomEnd", 0)
+                        );
+                    }
+                default:
+                    throw new JSONException("Unknown shape type: " + type);
+            }
+        }
+        throw new JSONException("Invalid shape format: " + shapeVal);
     }
 
     @NonNull RecordingModifier parseModifiers(
@@ -2158,6 +2363,44 @@ public class RemoteComposeJsonParser {
             if (s.equals("Infinity")) return Float.POSITIVE_INFINITY;
             if (s.equals("-Infinity")) return Float.NEGATIVE_INFINITY;
             if (s.equals("max")) return Float.MAX_VALUE;
+            if (s.startsWith("path:") || s.startsWith("path.")) {
+                String pTag = s.substring(5).toUpperCase();
+                switch (pTag) {
+                    case "MOVE":
+                        return androidx.compose.remote.core.operations.PathData.MOVE_NAN;
+                    case "LINE":
+                        return androidx.compose.remote.core.operations.PathData.LINE_NAN;
+                    case "QUADRATIC":
+                    case "QUAD":
+                        return androidx.compose.remote.core.operations.PathData.QUADRATIC_NAN;
+                    case "CONIC":
+                        return androidx.compose.remote.core.operations.PathData.CONIC_NAN;
+                    case "CUBIC":
+                        return androidx.compose.remote.core.operations.PathData.CUBIC_NAN;
+                    case "CLOSE":
+                        return androidx.compose.remote.core.operations.PathData.CLOSE_NAN;
+                    case "DONE":
+                        return androidx.compose.remote.core.operations.PathData.DONE_NAN;
+                }
+            }
+            if (s.equalsIgnoreCase("componentWidth()") || s.equalsIgnoreCase("componentWidth")) {
+                return mWriter.addComponentWidthValue();
+            }
+            if (s.equalsIgnoreCase("componentHeight()") || s.equalsIgnoreCase("componentHeight")) {
+                return mWriter.addComponentHeightValue();
+            }
+            if (s.equalsIgnoreCase("timeInHr()") || s.equalsIgnoreCase("timeInHr")) {
+                return androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR;
+            }
+            if (s.equalsIgnoreCase("timeInMin()") || s.equalsIgnoreCase("timeInMin")) {
+                return androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN;
+            }
+            if (s.equalsIgnoreCase("timeInSec()") || s.equalsIgnoreCase("timeInSec")) {
+                return androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC;
+            }
+            if (s.equalsIgnoreCase("continuousSec()") || s.equalsIgnoreCase("continuousSec")) {
+                return androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC;
+            }
             if (isVariableRef(s) && s.indexOf(' ') == -1) {
                 String name = getVariableNameFromRef(s);
                 Float id = mVariables.get(name);
@@ -2171,6 +2414,8 @@ public class RemoteComposeJsonParser {
                 String name = s.substring(10);
                 Float id = mMatrices.get(name);
                 if (id != null) return id;
+                id = mVariables.get(name);
+                if (id != null) return id;
             }
             if (mExpressionParser.isVariable(s)) {
                 return mExpressionParser.getVariableNan(s);
@@ -2180,6 +2425,51 @@ public class RemoteComposeJsonParser {
             return mExpressionParser.parseExpression(value);
         }
         return 0.0f;
+    }
+
+    int parseShader(@Nullable Object shaderVal) throws JSONException {
+        if (shaderVal == null) return 0;
+        if (shaderVal instanceof Number) return ((Number) shaderVal).intValue();
+        String agslSource = "";
+        JSONObject uniformsObj = null;
+        if (shaderVal instanceof String) {
+            agslSource = (String) shaderVal;
+        } else if (shaderVal instanceof JSONObject) {
+            JSONObject obj = (JSONObject) shaderVal;
+            if (obj.has("agsl")) {
+                agslSource = obj.getString("agsl");
+            } else if (obj.has("shader")) {
+                agslSource = obj.getString("shader");
+            } else if (obj.has("source")) {
+                agslSource = obj.getString("source");
+            }
+            if (obj.has("uniforms")) {
+                uniformsObj = obj.optJSONObject("uniforms");
+            }
+        }
+        if (agslSource.isEmpty()) {
+            return 0;
+        }
+        RemoteComposeShader rcShader = mWriter.createShader(agslSource);
+        if (uniformsObj != null) {
+            Iterator<String> keys = uniformsObj.keys();
+            while (keys.hasNext()) {
+                String uName = keys.next();
+                Object uVal = uniformsObj.get(uName);
+                if (uVal instanceof JSONArray) {
+                    JSONArray arr = (JSONArray) uVal;
+                    float[] floats = new float[arr.length()];
+                    for (int i = 0; i < arr.length(); i++) {
+                        floats[i] = parseFloat(arr.get(i));
+                    }
+                    rcShader.setFloatUniform(uName, floats);
+                } else {
+                    float f = parseFloat(uVal);
+                    rcShader.setFloatUniform(uName, f);
+                }
+            }
+        }
+        return rcShader.commit();
     }
 
     int parseColor(@Nullable Object value) throws JSONException {
@@ -2288,12 +2578,9 @@ public class RemoteComposeJsonParser {
                         return androidx.compose.remote.core.operations.Utils.idFromNan(val);
                     }
                     return (int) val.floatValue();
-                } else {
-                    throw new JSONException("Variable not found: " + name);
                 }
-            } else {
-                return mWriter.textCreateId(str);
             }
+            return mWriter.textCreateId(str);
         } else if (textObj instanceof JSONObject) {
             JSONObject vo = (JSONObject) textObj;
             if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textMerge")) {

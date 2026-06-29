@@ -72,24 +72,47 @@ class DefaultModifierParsers {
                 );
             } else if (paddingVal instanceof JSONArray) {
                 JSONArray pa = (JSONArray) paddingVal;
-                recordingModifier.padding(
-                        (float) pa.getDouble(0),
-                        (float) pa.getDouble(1),
-                        (float) pa.getDouble(2),
-                        (float) pa.getDouble(3)
-                );
+                if (pa.length() == 2) {
+                    float h = (float) pa.getDouble(0);
+                    float v = (float) pa.getDouble(1);
+                    recordingModifier.padding(h, v, h, v);
+                } else if (pa.length() >= 4) {
+                    recordingModifier.padding(
+                            (float) pa.getDouble(0),
+                            (float) pa.getDouble(1),
+                            (float) pa.getDouble(2),
+                            (float) pa.getDouble(3)
+                    );
+                } else if (pa.length() == 1) {
+                    recordingModifier.padding((float) pa.getDouble(0));
+                }
             } else {
                 recordingModifier.padding(parser.parseFloat(paddingVal));
             }
         });
         p.registerModifierParser("fillmaxwidth", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.fillMaxWidth(parser.parseFloat(mod.get(key)));
+            Object val = mod.get(key);
+            if (val == null || val == org.json.JSONObject.NULL) {
+                recordingModifier.fillMaxWidth();
+            } else {
+                recordingModifier.fillMaxWidth(parser.parseFloat(val));
+            }
         });
         p.registerModifierParser("fillmaxheight", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.fillMaxHeight(parser.parseFloat(mod.get(key)));
+            Object val = mod.get(key);
+            if (val == null || val == org.json.JSONObject.NULL) {
+                recordingModifier.fillMaxHeight();
+            } else {
+                recordingModifier.fillMaxHeight(parser.parseFloat(val));
+            }
         });
         p.registerModifierParser("fillmaxsize", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.fillMaxSize(parser.parseFloat(mod.get(key)));
+            Object val = mod.get(key);
+            if (val == null || val == org.json.JSONObject.NULL) {
+                recordingModifier.fillMaxSize();
+            } else {
+                recordingModifier.fillMaxSize(parser.parseFloat(val));
+            }
         });
         p.registerModifierParser("width", (mod, key, recordingModifier, parser) -> {
             recordingModifier.width(parser.parseFloat(mod.get(key)));
@@ -98,9 +121,16 @@ class DefaultModifierParsers {
             recordingModifier.height(parser.parseFloat(mod.get(key)));
         });
         p.registerModifierParser("size", (mod, key, recordingModifier, parser) -> {
-            float sizeVal = parser.parseFloat(mod.get(key));
-            recordingModifier.width(sizeVal);
-            recordingModifier.height(sizeVal);
+            Object val = mod.get(key);
+            if (val instanceof JSONArray) {
+                JSONArray sa = (JSONArray) val;
+                recordingModifier.width((float) sa.getDouble(0));
+                recordingModifier.height((float) sa.getDouble(1));
+            } else {
+                float sizeVal = parser.parseFloat(val);
+                recordingModifier.width(sizeVal);
+                recordingModifier.height(sizeVal);
+            }
         });
         p.registerModifierParser("background", (mod, key, recordingModifier, parser) -> {
             String bg = mod.getString(key);
@@ -208,7 +238,7 @@ class DefaultModifierParsers {
                             type, min, max));
         });
         p.registerModifierParser("clip", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.clip(parser.parseShape(mod.getJSONObject(key)));
+            recordingModifier.clip(parser.parseShape(mod.get(key)));
         });
         p.registerModifierParser("id", (mod, key, recordingModifier, parser) -> {
             recordingModifier.componentId(mod.getInt(key));

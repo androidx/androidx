@@ -48,6 +48,7 @@ A RemoteCompose JSON document can start with an optional `"header"` object. The 
 | `"contentDescription"` | String | Description of the document for accessibility. |
 | `"fps"` / `"desiredFPS"` | Number | The desired frame-rate for rendering. |
 | `"apiLevel"` | Integer | Target API level (defaults to `7` if omitted). |
+| `"profiles"` | Integer | Capability profile bitmask (`512` = ANDROIDX, `513` = EXPERIMENTAL). |
 | `"orderedResources"` | Boolean | If `true`, forces resources to be processed in the exact order they are defined. |
 | `"theme"` | Integer | Active color theme of the document. |
 | `"ltResize"` | Boolean | Enables Left-Top resizing behavior. |
@@ -140,21 +141,30 @@ Example:
 
 - `"padding"`: Adds spacing. Can be a single number (uniform padding), an array of four numbers `[start, top, end, bottom]`, or an object:
   `{ "padding": { "start": 10, "top": 5, "end": 10, "bottom": 5 } }`
-- `"fillMaxWidth"`, `"fillMaxHeight"`, `"fillMaxSize"`: Sizing modifiers taking a float scale (e.g. `1.0`).
+- `"fillMaxWidth"`, `"fillMaxHeight"`, `"fillMaxSize"`: Sizing modifiers taking a float scale (e.g. `1.0` or `null` for full fill).
 - `"width"`, `"height"`: Fixed dimension bounds taking a float value or expression.
-- `"size"`: Sizing shortcut setting both width and height to a single float value.
-- `"widthIn"`, `"heightIn"`: Min/Max bounding constraint arrays containing two floats: `[min, max]`.
-- `"weight"` / `"horizontalWeight"`: Horizontal weight allocation inside rows or flows (Double).
-- `"verticalWeight"`: Vertical weight allocation inside columns (Double).
-- `"background"`: Sets the component background color using a hex color string or a color resource ID (`"$colors.name"`).
-- `"verticalScroll"`, `"horizontalScroll"`: Configures layout scroll position bounds via a float value or expression.
-- `"clip"`: Clips the component to a custom shape:
-  `{ "clip": { "type": "roundRect", "radius": 8 } }`
-  Supported shape types: `"circle"`, `"rect"`, and `"roundRect"` (supports `"radius"`, or individual `"left"`, `"top"`, `"right"`, `"bottom"` bounds).
+- `"size"`: Sizing shortcut setting both width and height to a single float value or `[width, height]` array.
+- `"widthIn"`, `"heightIn"`, `"requiredWidthIn"`, `"requiredHeightIn"`: Min/Max bounding constraint arrays containing two floats: `[min, max]`.
+- `"weight"` / `"horizontalWeight"`: Horizontal weight allocation inside rows or flows.
+- `"verticalWeight"`: Vertical weight allocation inside columns.
+- `"background"`: Sets component background color using a hex color string, color ref (`"$colors.name"` / `"@colors.name"`), or variable.
+- `"border"`: Border layout modifier: `{ "width": 2.0, "cornerRadius": 8.0, "color": "#FF0000", "shape": 0 }`.
+- `"verticalScroll"`, `"horizontalScroll"`: Configures layout scroll position bounds via float value/expression or `{ "position": "@pos", "notches": 0 }`.
+- `"collapsiblePriority"`: Priority for collapsible layouts. Accepts number, `[orientation, priority]`, or `{ "orientation": "horizontal"|"vertical", "priority": 1.0 }`.
+- `"clip"`: Clips component to a shape (`"circle"`, `"rect"`, `"roundRect"`).
+- `"graphicsLayer"`: Layer transforms: `scaleX`, `scaleY`, `rotationZ`, `translationX`, `translationY`, `alpha`.
+- `"marquee"`: Animated text marquee: `{ "iterations": 10, "repeatDelayMillis": 1200, "spacing": 20.0, "velocity": 30.0 }`.
+- `"ripple"`: Material touch ripple.
+- `"semantics"`: Accessibility descriptors (`contentDescription`, `text`, `stateDescription`, `enabled`, `clickable`).
+- `"visibility"`: Dynamic visibility state ID/expression.
+- `"zIndex"`: Stacking order float or expression.
+- `"offset"`: Translation offset array `[x, y]` or object `{ "x": "@dx", "y": "@dy" }`.
 - `"id"`: Binds a unique integer component ID.
-
-> [!NOTE]
-> Advanced modifiers like `collapsiblePriority` and interactive click handlers like `onTouchDown` are not supported in the default modifier parser and will be ignored unless custom modifiers are registered.
+- `"onClick"`, `"multiClick"`, `"onTouchDown"`, `"onTouchUp"`, `"onTouchCancel"`: Touch & click action handlers:
+  - `"hostAction"` / `"hostNamedAction"`: Host callback action: `{ "type": "hostAction", "name": "actionName", "value": "@var" }`.
+  - `"valueFloatChange"` / `"valueFloatExpressionChange"`: Updates float variable on click/touch.
+  - `"valueIntegerChange"` / `"valueIntegerExpressionChange"`: Updates integer variable on click/touch.
+  - `"valueStringChange"`: Updates string variable on click/touch.
 
 ---
 
@@ -170,33 +180,51 @@ The `"canvas"` component renders custom shapes via its `"commands"` array.
 - `"drawOval"`: `left`, `top`, `right`, `bottom`.
 - `"drawRoundRect"`: `left`, `top`, `right`, `bottom`, `rx`, `ry`.
 - `"drawArc"`: `left`, `top`, `right`, `bottom`, `startAngle`, `sweepAngle`.
-- `"drawPath"`: Draws a predefined path specified by `"path"` ID or path name reference (`"$paths.name"`).
+- `"drawSector"`: `left`, `top`, `right`, `bottom`, `startAngle`, `sweepAngle`.
+- `"drawPath"`: Draws a predefined path specified by `"path"` ID, SVG path string, or path name reference (`"$paths.name"` / `"@paths.name"`).
+- `"drawTextRun"`: Renders text run with `start`, `end`, `x`, `y`.
+- `"drawTextAnchored"`: Renders anchored text with `x`, `y`, `flags`.
+- `"drawTextOnPath"`: Renders text along a vector path: `text`, `path`, `hOffset`, `vOffset`.
+- `"drawBitmap"`: Renders bitmap image resource by name/ID: `image`, `left`, `top`, `right`, `bottom`.
+- `"drawScaledBitmap"`: Renders cropped/scaled bitmap: `image`, `srcLeft`, `srcTop`, `srcRight`, `srcBottom`, `dstLeft`, `dstTop`, `dstRight`, `dstBottom`.
 
 #### Paint Operations & Configurations
 
-Paint attributes can be specified via individual commands or a unified `"paint"` command:
+Paint attributes can be specified via individual commands (`setColor`, `setStyle`, `setStrokeWidth`) or a unified `"paint"` command with an `"ops"` array:
 
-- `"setColor"`: Sets the primary paint color (`"color"`).
-- `"setStyle"`: Sets drawing mode to `"fill"`, `"stroke"`, or `"fillAndStroke"`.
-- `"setStrokeWidth"`: Sets the stroke line thickness.
-- `"paint"`: Applies multiple paint properties simultaneously via attributes or a nested `"ops"` array:
-  - `"color"`: Hex color or color reference (`"$colors.primary"`).
-  - `"alpha"`: Opacity float value or expression.
-  - `"width"`: Stroke width float value.
-  - `"style"`: `"fill"`, `"stroke"`, or `"fillAndStroke"`.
-  - `"strokeCap"`: `"butt"`, `"round"`, or `"square"`.
-  - `"shader"`: Integer shader ID.
-  - `"pathEffect"`: An array of floats configuring line dash effects.
-  - `"linearGradient"`: Configures a linear gradient:
-    ```json
-    "linearGradient": {
-      "x1": 0, "y1": 0,
-      "x2": "width", "y2": "height",
-      "colors": [ "$colors.brand", "#FF0000" ],
-      "stops": [ 0.0, 1.0 ],
-      "tileMode": 0
+- `"color"`: Hex color, color reference (`"$colors.primary"` / `"@colors.primary"`), or variable.
+- `"alpha"`: Opacity float value or expression.
+- `"width"` / `"strokeWidth"`: Stroke width float value.
+- `"style"`: `"fill"`, `"stroke"`, or `"fillAndStroke"`.
+- `"strokeCap"`: `"butt"`, `"round"`, or `"square"`.
+- `"strokeJoin"`: `"miter"`, `"round"`, or `"bevel"`.
+- `"shader"`: Shader ID.
+- `"pathEffect"`: Array of floats configuring line dash effects.
+- `"linearGradient"`: Configures a linear gradient (`x1`, `y1`, `x2`, `y2`, `colors`, `stops`, `tileMode`).
+- `"radialGradient"`: Configures a radial gradient (`centerX`, `centerY`, `radius`, `colors`, `stops`, `tileMode`).
+- `"sweepGradient"`: Configures a sweep gradient (`centerX`, `centerY`, `colors`, `stops`).
+
+#### Advanced Shaders & Particle Systems
+
+- `"runtimeShader"`: AGSL (Android Graphics Shading Language) runtime shader effect:
+  ```json
+  {
+    "runtimeShader": {
+      "name": "myEffect",
+      "agsl": "uniform float time; half4 main(float2 p) { return half4(sin(time), 0.5, 1.0, 1.0); }",
+      "uniforms": { "time": "time * 2.0" }
     }
-    ```
+  }
+  ```
+- `"createParticles"` / `"particlesLoop"` / `"impulseProcess"`: Defines high-performance GPU particle emitter creation, evolution equations, and particle loop rendering:
+  ```json
+  {
+    "createParticles": {
+      "count": 500,
+      "equations": [ "rand() * 6.28", "time * 100" ]
+    }
+  }
+  ```
 
 #### Control Flow & Logic
 
@@ -301,7 +329,12 @@ The expression subsystem parses infix math string equations and compiles them in
 
 Equations can reference real-time system environment variables:
 
-- `time`: Continuous floating-point seconds elapsed since layout load.
+- `time` / `continuousSec` / `continuousSec()`: Continuous floating-point seconds elapsed since layout load.
+- `seconds` / `timeInSec` / `timeInSec()`: Current second of the minute (`0.0` - `59.0`).
+- `timeInMin` / `timeInMin()`: Current minute of the hour (`0.0` - `59.0`).
+- `timeInHr` / `timeInHr()`: Current hour of the day (`0.0` - `23.0`).
+- `windowWidth` / `windowWidth()`: Screen window width.
+- `windowHeight` / `windowHeight()`: Screen window height.
 - `width` / `componentWidth` / `componentWidth()`: Current component width.
 - `height` / `componentHeight` / `componentHeight()`: Current component height.
 - `touchX` / `touchY`: The canvas coordinates of the last touch event.
@@ -485,3 +518,20 @@ At any component call site, include the style reference using the `include` modi
 - **Dependencies**: `org.json`
 - **Compatibility**: Pure Java implementation, no Android dependencies in the core parser logic.
 - **Validation**: Verified via `RemoteComposeJsonParserTest.java` for schema compliance and error propagation.
+
+---
+
+## Automated JSON Document Validation & Schema
+
+For automated IDE IntelliSense, linting, and server-side document validation, a formal JSON Schema (Draft 2020-12) is available.
+
+- **Schema File**: [`remote_compose_schema.json`](remote_compose_schema.json)
+- **Validation Example (Python / Node / Java)**:
+  ```json
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "RemoteCompose JSON Document",
+    "required": ["root"]
+  }
+  ```
+- **Validation Tooling**: Can be integrated into CI/CD pipelines, design export tools (Figma plugins), and REST / gRPC API servers before compiling JSON payloads into binary `.rcd` wirebuffers.

@@ -1,0 +1,144 @@
+{
+  "header": {
+    "width": 360,
+    "height": 360,
+    "profiles": 512,
+    "contentDescription": "Pressure Gauge with AGSL Energy Plasma Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#09090B"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 24
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.x, iResolution.y);\n    float r = length(uv);\n    float angle = atan(uv.y, uv.x);\n    float t = iTime * 2.0;\n    float arc = smoothstep(0.42, 0.35, r) * smoothstep(0.28, 0.33, r);\n    float energy = sin(angle * 8.0 - t) * 0.5 + 0.5;\n    float3 col = mix(float3(0.2, 0.8, 1.0), float3(1.0, 0.2, 0.4), energy);\n    return half4(col * arc, arc * 0.8);\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 20
+          }
+        ],
+        "horizontalAlignment": "center",
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "TURBO BOOST",
+                "fontSize": 14,
+                "fontWeight": 700,
+                "color": "#38BDF8"
+              },
+              {
+                "type": "text",
+                "value": "AGSL Plasma Gauge",
+                "fontSize": 12,
+                "color": "#A1A1AA"
+              }
+            ]
+          },
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "24.5",
+                "fontSize": 52,
+                "fontWeight": 700,
+                "color": "#FFFFFF"
+              },
+              {
+                "type": "text",
+                "value": "PSI PRESSURE",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#38BDF8"
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "children": [
+              {
+                "type": "text",
+                "value": "0 PSI",
+                "fontSize": 12,
+                "color": "#71717A"
+              },
+              {
+                "type": "text",
+                "value": "NORMAL",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#22C55E"
+              },
+              {
+                "type": "text",
+                "value": "30 PSI",
+                "fontSize": 12,
+                "color": "#71717A"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

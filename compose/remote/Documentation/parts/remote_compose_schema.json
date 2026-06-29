@@ -1,0 +1,1602 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RemoteCompose JSON Document",
+  "description": "Comprehensive JSON Schema for RemoteCompose declarative & procedural documents.",
+  "type": "object",
+  "properties": {
+    "header": {
+      "$ref": "#/$defs/Header"
+    },
+    "resources": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ResourcesObject"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResourceItem"
+          }
+        }
+      ]
+    },
+    "root": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Component"
+        },
+        {
+          "$ref": "#/$defs/DrawCommand"
+        },
+        {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Component"
+              },
+              {
+                "$ref": "#/$defs/DrawCommand"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "root"
+  ],
+  "$defs": {
+    "Header": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Document canvas width in px/dp"
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Document canvas height in px/dp"
+        },
+        "contentDescription": {
+          "type": "string",
+          "description": "Accessibility description for root document"
+        },
+        "apiLevel": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum required RemoteCompose API level"
+        },
+        "profiles": {
+          "type": "integer",
+          "description": "Capability profile bitmask (e.g. 512=ANDROIDX, 513=EXPERIMENTAL)"
+        },
+        "desiredFPS": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240,
+          "description": "Requested target rendering frame rate"
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240,
+          "description": "Alias for desiredFPS"
+        },
+        "theme": {
+          "type": "integer",
+          "description": "Default theme ID (0=system, 1=light, 2=dark)"
+        },
+        "densityBehavior": {
+          "type": "integer",
+          "description": "Density scaling behavior mode"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ResourceItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Resource identifier name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "color",
+            "variable",
+            "path",
+            "matrix",
+            "font",
+            "bitmap",
+            "dataList"
+          ]
+        },
+        "value": {},
+        "light": {
+          "type": "string",
+          "description": "Light mode color (e.g. #FF112233)"
+        },
+        "dark": {
+          "type": "string",
+          "description": "Dark mode color (e.g. #FF8899AA)"
+        },
+        "export": {
+          "type": "boolean",
+          "description": "Whether variable or color is exported to host"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "ResourcesObject": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Custom resource compilation order"
+        },
+        "beginGlobal": {
+          "type": "boolean"
+        },
+        "endGlobal": {
+          "type": "boolean"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Hex color string (e.g. #FF0000)"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ]
+                  },
+                  "light": {
+                    "type": "string"
+                  },
+                  "dark": {
+                    "type": "string"
+                  },
+                  "export": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            ]
+          }
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "string",
+                  "object"
+                ]
+              },
+              "commit": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/PathOp"
+                    }
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "matrices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "array"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "fonts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "fontData": {
+                "type": "string",
+                "description": "Base64 encoded font file data"
+              },
+              "fontWeight": {
+                "type": "integer"
+              },
+              "fontStyle": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "bitmaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "data": {
+                "type": "string",
+                "description": "Base64 encoded PNG/JPEG image data"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "FloatOrExpr": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "description": "Float constant, variable ref (@var), or RPN math expression (e.g. '@w / 2.0')"
+        }
+      ]
+    },
+    "ColorOrRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "description": "ARGB integer color value"
+        },
+        {
+          "type": "string",
+          "description": "Hex string (#AARRGGBB), or color ref ($colors.name, @colors.name)"
+        }
+      ]
+    },
+    "Component": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "column",
+            "row",
+            "box",
+            "flow",
+            "collapsibleColumn",
+            "collapsibleRow",
+            "fitBox",
+            "stateLayout",
+            "text",
+            "spacer",
+            "canvas",
+            "bitmap",
+            "custom",
+            "global",
+            "definepattern",
+            "patternargument",
+            "patternforeach",
+            "patternblock",
+            "patterninflation",
+            "referencedoperations",
+            "include",
+            "resources",
+            "variable"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Component"
+              },
+              {
+                "$ref": "#/$defs/DrawCommand"
+              }
+            ]
+          }
+        },
+        "modifiers": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Map of modifier names to parameter values"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "text": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "config": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "array"
+        },
+        "indexId": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "stateId": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "index": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "maxColumns": {
+          "type": "integer"
+        },
+        "maxLines": {
+          "type": "integer"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parameterIndex": {
+          "type": "integer"
+        },
+        "localItem": {
+          "type": "string"
+        },
+        "collection": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "Modifier": {
+      "type": "object",
+      "properties": {
+        "padding": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "number"
+                },
+                "top": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "bottom": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        },
+        "fillMaxWidth": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "fillMaxHeight": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "fillMaxSize": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "width": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "height": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "size": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "background": {
+          "$ref": "#/$defs/ColorOrRef"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "horizontalWeight": {
+          "type": "number"
+        },
+        "verticalWeight": {
+          "type": "number"
+        },
+        "border": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "cornerRadius": {
+              "type": "number"
+            },
+            "color": {
+              "$ref": "#/$defs/ColorOrRef"
+            },
+            "shape": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "width",
+            "cornerRadius",
+            "color"
+          ]
+        },
+        "verticalScroll": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "$ref": "#/$defs/FloatOrExpr"
+                },
+                "notches": {
+                  "type": "integer"
+                }
+              }
+            }
+          ]
+        },
+        "horizontalScroll": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "$ref": "#/$defs/FloatOrExpr"
+                },
+                "notches": {
+                  "type": "integer"
+                }
+              }
+            }
+          ]
+        },
+        "collapsiblePriority": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "orientation": {
+                  "type": "string",
+                  "enum": [
+                    "horizontal",
+                    "vertical"
+                  ]
+                },
+                "priority": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        },
+        "clip": {
+          "type": "string"
+        },
+        "onClick": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Action"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Action"
+              }
+            }
+          ]
+        },
+        "onTouchDown": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Action"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Action"
+              }
+            }
+          ]
+        },
+        "onTouchUp": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Action"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Action"
+              }
+            }
+          ]
+        },
+        "graphicsLayer": {
+          "type": "object",
+          "properties": {
+            "scaleX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "scaleY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "rotationZ": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "translationX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "translationY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "alpha": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          }
+        },
+        "marquee": {
+          "type": "object",
+          "properties": {
+            "iterations": {
+              "type": "integer"
+            },
+            "animationMode": {
+              "type": "integer"
+            },
+            "repeatDelayMillis": {
+              "type": "number"
+            },
+            "initialDelayMillis": {
+              "type": "number"
+            },
+            "spacing": {
+              "type": "number"
+            },
+            "velocity": {
+              "type": "number"
+            }
+          }
+        },
+        "ripple": {
+          "type": "object"
+        },
+        "semantics": {
+          "type": "object",
+          "properties": {
+            "contentDescription": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "text": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "stateDescription": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "clickable": {
+              "type": "boolean"
+            }
+          }
+        },
+        "visibility": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "zIndex": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "offset": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "$ref": "#/$defs/FloatOrExpr"
+                },
+                "y": {
+                  "$ref": "#/$defs/FloatOrExpr"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Action": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "hostAction",
+            "hostNamedAction",
+            "hostMetadataAction",
+            "valueFloatChange",
+            "valueFloatExpressionChange",
+            "valueIntegerChange",
+            "valueIntegerExpressionChange",
+            "valueStringChange"
+          ]
+        },
+        "targetId": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "name": {
+          "type": "string"
+        },
+        "actionId": {
+          "type": "integer"
+        },
+        "actionType": {
+          "type": "integer"
+        },
+        "metadataId": {
+          "type": "integer"
+        },
+        "value": {}
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "DrawCommand": {
+      "type": "object",
+      "properties": {
+        "variable": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "type": [
+                "number",
+                "string",
+                "object"
+              ]
+            },
+            "commit": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "paint": {
+          "type": "object",
+          "properties": {
+            "ops": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PaintOp"
+              }
+            },
+            "color": {
+              "$ref": "#/$defs/ColorOrRef"
+            },
+            "alpha": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "style": {
+              "type": "string",
+              "enum": [
+                "fill",
+                "stroke",
+                "fillAndStroke"
+              ]
+            },
+            "strokeWidth": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "strokeCap": {
+              "type": "string",
+              "enum": [
+                "butt",
+                "round",
+                "square"
+              ]
+            },
+            "strokeJoin": {
+              "type": "string",
+              "enum": [
+                "miter",
+                "round",
+                "bevel"
+              ]
+            },
+            "textSize": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "shader": {
+              "type": "integer"
+            }
+          }
+        },
+        "drawRect": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom"
+          ]
+        },
+        "drawRoundRect": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "rx": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "ry": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom"
+          ]
+        },
+        "drawCircle": {
+          "type": "object",
+          "properties": {
+            "cx": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "cy": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "radius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "cx",
+            "cy",
+            "radius"
+          ]
+        },
+        "drawOval": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom"
+          ]
+        },
+        "drawLine": {
+          "type": "object",
+          "properties": {
+            "x1": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y1": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "x2": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y2": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "x1",
+            "y1",
+            "x2",
+            "y2"
+          ]
+        },
+        "drawArc": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startAngle": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "sweepAngle": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom",
+            "startAngle",
+            "sweepAngle"
+          ]
+        },
+        "drawSector": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startAngle": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "sweepAngle": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom",
+            "startAngle",
+            "sweepAngle"
+          ]
+        },
+        "drawPath": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PathOp"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "path"
+          ]
+        },
+        "drawTextRun": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "start": {
+              "type": "integer"
+            },
+            "end": {
+              "type": "integer"
+            },
+            "x": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "isRtl": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "drawTextAnchored": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "x": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "flags": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "text",
+            "x",
+            "y"
+          ]
+        },
+        "drawTextOnPath": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "hOffset": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "vOffset": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "text",
+            "path"
+          ]
+        },
+        "drawBitmap": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "string"
+            },
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "image"
+          ]
+        },
+        "drawScaledBitmap": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "string"
+            },
+            "srcLeft": {
+              "type": "integer"
+            },
+            "srcTop": {
+              "type": "integer"
+            },
+            "srcRight": {
+              "type": "integer"
+            },
+            "srcBottom": {
+              "type": "integer"
+            },
+            "dstLeft": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dstTop": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dstRight": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dstBottom": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "image"
+          ]
+        },
+        "save": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        },
+        "restore": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        },
+        "translate": {
+          "type": "object",
+          "properties": {
+            "dx": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dy": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "dx",
+            "dy"
+          ]
+        },
+        "rotate": {
+          "type": "object",
+          "properties": {
+            "angle": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "pivotX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "pivotY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "angle"
+          ]
+        },
+        "scale": {
+          "type": "object",
+          "properties": {
+            "sx": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "sy": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "pivotX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "pivotY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "sx",
+            "sy"
+          ]
+        },
+        "skew": {
+          "type": "object",
+          "properties": {
+            "sx": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "sy": {
+              "$ref": "#/$defs/FloatOrExpr"
+            }
+          },
+          "required": [
+            "sx",
+            "sy"
+          ]
+        },
+        "matrixMultiply": {
+          "type": "object",
+          "properties": {
+            "out": {
+              "type": "string"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "runtimeShader": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "agsl": {
+              "type": "string",
+              "description": "AGSL runtime shader source code"
+            },
+            "uniforms": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "agsl"
+          ]
+        },
+        "createParticles": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "equations": {
+              "type": "array"
+            }
+          }
+        },
+        "impulseProcess": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        },
+        "particlesLoop": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          }
+        },
+        "conditionalOperations": {
+          "type": "object",
+          "properties": {
+            "condition": {
+              "type": [
+                "string",
+                "object"
+              ]
+            },
+            "then": {
+              "type": "array"
+            },
+            "else": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "condition",
+            "then"
+          ]
+        },
+        "loop": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "commands": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "count",
+            "commands"
+          ]
+        }
+      }
+    },
+    "PaintOp": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/ColorOrRef"
+        },
+        "alpha": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "fill",
+            "stroke",
+            "fillAndStroke"
+          ]
+        },
+        "width": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "strokeCap": {
+          "type": "string",
+          "enum": [
+            "butt",
+            "round",
+            "square"
+          ]
+        },
+        "strokeJoin": {
+          "type": "string",
+          "enum": [
+            "miter",
+            "round",
+            "bevel"
+          ]
+        },
+        "textSize": {
+          "$ref": "#/$defs/FloatOrExpr"
+        },
+        "linearGradient": {
+          "type": "object",
+          "properties": {
+            "x1": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y1": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "x2": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "y2": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "colors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ColorOrRef"
+              }
+            },
+            "stops": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "tileMode": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "colors"
+          ]
+        },
+        "radialGradient": {
+          "type": "object",
+          "properties": {
+            "centerX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "centerY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "radius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "colors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ColorOrRef"
+              }
+            },
+            "stops": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "tileMode": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "centerX",
+            "centerY",
+            "radius",
+            "colors"
+          ]
+        },
+        "sweepGradient": {
+          "type": "object",
+          "properties": {
+            "centerX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "centerY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "colors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ColorOrRef"
+              }
+            },
+            "stops": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "centerX",
+            "centerY",
+            "colors"
+          ]
+        },
+        "pathEffect": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "shader": {
+          "type": "integer"
+        }
+      }
+    },
+    "PathOp": {
+      "type": "object",
+      "properties": {
+        "moveTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FloatOrExpr"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "lineTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FloatOrExpr"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "quadTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FloatOrExpr"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "cubicTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FloatOrExpr"
+          },
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "close": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        }
+      }
+    }
+  }
+}

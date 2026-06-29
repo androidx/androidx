@@ -1,0 +1,281 @@
+{
+  "header": {
+    "width": 400,
+    "height": 260,
+    "profiles": 512,
+    "contentDescription": "Synthwave Music Player with AGSL Waveform Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#0B0416"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 20
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.x, iResolution.y);\n    float t = iTime * 2.5;\n    float wave1 = sin(uv.x * 12.0 + t) * 0.15;\n    float wave2 = cos(uv.x * 18.0 - t * 1.4) * 0.10;\n    float wave3 = sin(uv.x * 24.0 + t * 0.9) * 0.06;\n    float lineDist = abs(uv.y - (wave1 + wave2 + wave3));\n    float glow = 0.015 / (lineDist + 0.006);\n    float3 col = float3(0.7 + 0.3 * sin(t), 0.2 + 0.8 * cos(uv.x * 4.0), 0.95);\n    return half4(col * glow, clamp(glow * 0.7, 0.0, 0.9));\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 12
+          }
+        ],
+        "horizontalAlignment": "center",
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "verticalAlignment": "center",
+            "children": [
+              {
+                "type": "box",
+                "modifiers": [
+                  {
+                    "size": [
+                      52,
+                      52
+                    ]
+                  },
+                  {
+                    "background": "#9333EA"
+                  },
+                  {
+                    "clipRect": 14
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "\ud83c\udfb5",
+                    "fontSize": 26,
+                    "modifiers": [
+                      {
+                        "padding": [
+                          12,
+                          10,
+                          0,
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "column",
+                "modifiers": [
+                  {
+                    "padding": [
+                      0,
+                      0,
+                      0,
+                      14
+                    ]
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cyberpunk Pulse",
+                    "fontSize": 18,
+                    "fontWeight": 700,
+                    "color": "#FFFFFF"
+                  },
+                  {
+                    "type": "text",
+                    "value": "Neon Synthesizer - AGSL Wave",
+                    "fontSize": 12,
+                    "color": "#A855F7"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "column",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "children": [
+              {
+                "type": "row",
+                "modifiers": [
+                  {
+                    "fillMaxWidth": 1.0
+                  },
+                  {
+                    "padding": [
+                      0,
+                      0,
+                      6,
+                      0
+                    ]
+                  }
+                ],
+                "horizontalAlignment": "space_between",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "02:45",
+                    "fontSize": 11,
+                    "color": "#D8B4FE"
+                  },
+                  {
+                    "type": "text",
+                    "value": "04:12",
+                    "fontSize": 11,
+                    "color": "#D8B4FE"
+                  }
+                ]
+              },
+              {
+                "type": "box",
+                "modifiers": [
+                  {
+                    "fillMaxWidth": 1.0
+                  },
+                  {
+                    "height": 6
+                  },
+                  {
+                    "background": "#3B0764"
+                  },
+                  {
+                    "clipRect": 3
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "box",
+                    "modifiers": [
+                      {
+                        "fillMaxWidth": 0.65
+                      },
+                      {
+                        "fillMaxHeight": 1.0
+                      },
+                      {
+                        "background": "#C084FC"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_evenly",
+            "verticalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "\u23ee",
+                "fontSize": 22,
+                "color": "#E9D5FF"
+              },
+              {
+                "type": "box",
+                "modifiers": [
+                  {
+                    "size": [
+                      48,
+                      48
+                    ]
+                  },
+                  {
+                    "background": "#A855F7"
+                  },
+                  {
+                    "clipRect": 24
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "\u23f8",
+                    "fontSize": 20,
+                    "color": "#FFFFFF",
+                    "modifiers": [
+                      {
+                        "padding": [
+                          14,
+                          13,
+                          0,
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": "\u23ed",
+                "fontSize": 22,
+                "color": "#E9D5FF"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
