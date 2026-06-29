@@ -348,9 +348,17 @@ private class CompositionCallStack<T, R>(
         return box
     }
 
+    // Check the cache first to reuse pre-parsed SourceInformationContext if available.
+    // If not cached, fall back to lightweight string inspection rather than calling
+    // contextOf(info).
+    // Calling contextOf(info) triggers full parsing (locations, parameters), which wastes
+    // CPU/memory
+    // if accessed before early-exit checks (e.g., unwanted nodes in CompositionBuilder.parse).
     override val name: String?
         get() {
             val info = current.sourceInfo ?: return null
+            val cached = contexts[info] as? SourceInformationContext
+            if (cached != null) return cached.name
             val startIndex =
                 when {
                     info.startsWith("CC(") -> 3
@@ -362,7 +370,11 @@ private class CompositionCallStack<T, R>(
         }
 
     override val isInline: Boolean
-        get() = current.sourceInfo?.startsWith("CC") == true
+        get() {
+            val info = current.sourceInfo ?: return false
+            val cached = contexts[info] as? SourceInformationContext
+            return if (cached != null) cached.isInline else info.startsWith("CC")
+        }
 
     override var bounds: IntRect = emptyBox
         private set
