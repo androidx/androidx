@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.internal
+package androidx.a2ui.engine.internal
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers

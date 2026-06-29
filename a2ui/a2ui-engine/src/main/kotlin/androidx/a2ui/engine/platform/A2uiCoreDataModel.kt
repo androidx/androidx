@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.platform
+package androidx.a2ui.engine.platform
 
-import androidx.a2ui.core.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiDataPath
 
 /** A storage interface for the JSON data tree. */
 public interface A2uiCoreDataModel {

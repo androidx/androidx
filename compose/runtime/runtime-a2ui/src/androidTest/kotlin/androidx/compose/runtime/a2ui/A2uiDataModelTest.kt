@@ -16,8 +16,8 @@
 
 package androidx.compose.runtime.a2ui
 
-import androidx.a2ui.core.protocol.A2uiDataPath
-import androidx.a2ui.core.protocol.A2uiException.A2uiRuntimeException
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.test.ExperimentalTestApi

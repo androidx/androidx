@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.protocol
+package androidx.a2ui.model.protocol
 
 /** The unified interface for all messages sent from the A2A server to the A2UI client. */
 public sealed interface A2uiServerToClientMessage {

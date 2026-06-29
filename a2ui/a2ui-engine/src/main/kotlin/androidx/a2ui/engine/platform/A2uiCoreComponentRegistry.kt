@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.platform
+package androidx.a2ui.engine.platform
 
-import androidx.a2ui.core.protocol.A2uiComponentPayload
-import androidx.a2ui.core.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiException
 
 /**
  * A registry for storing UI components. Host frameworks back this with native reactive states
  * (e.g., SnapshotStateMap in Compose).
  */
-public interface A2uiComponentRegistry {
+public interface A2uiCoreComponentRegistry {
     /**
      * Inserts or replaces UI components in the registry.
      *

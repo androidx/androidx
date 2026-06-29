@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.protocol
+package androidx.a2ui.model.protocol
 
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -1,1 +1,52 @@
 // Signature format: 4.0
+package androidx.a2ui.engine.catalog {
+
+  public interface A2uiCoreCatalog {
+  }
+
+}
+
+package androidx.a2ui.engine.model {
+
+  public final class A2uiCoreSurfaceGroupModel {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.engine.model.A2uiCoreSurfaceModel>> getActiveSurfaces();
+    property public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.engine.model.A2uiCoreSurfaceModel>> activeSurfaces;
+  }
+
+  public final class A2uiCoreSurfaceModel {
+    ctor @BytecodeOnly public A2uiCoreSurfaceModel(String!, androidx.a2ui.engine.catalog.A2uiCoreCatalog!, androidx.a2ui.engine.platform.A2uiCoreDataModel!, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, java.util.Map!, boolean, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiCoreSurfaceModel(String id, androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog, androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiUserAction,kotlin.Unit> onDispatchAction, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiClientError,kotlin.Unit> onDispatchError, optional java.util.Map<java.lang.String,? extends java.lang.Object?> theme, optional boolean shouldSendDataModel, optional kotlin.jvm.functions.Function0<java.lang.Long> timeProvider);
+    method public void dispatchAction(String componentId, java.util.Map<java.lang.String,? extends java.lang.Object?> actionDefinition);
+    method public void dispatchError(String componentId, androidx.a2ui.model.protocol.A2uiException exception);
+    method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreCatalog getCatalog();
+    method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry getComponentRegistry();
+    method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreDataModel getDataModel();
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getTheme();
+    method @InaccessibleFromKotlin public boolean shouldSendDataModel();
+    property public androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog;
+    property public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry;
+    property public androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel;
+    property public String id;
+    property public boolean shouldSendDataModel;
+    property public java.util.Map<java.lang.String,java.lang.Object?> theme;
+  }
+
+}
+
+package androidx.a2ui.engine.platform {
+
+  public interface A2uiCoreComponentRegistry {
+    method public void dispose();
+    method public void reportError(String id, androidx.a2ui.model.protocol.A2uiException exception);
+    method public void update(java.util.List<androidx.a2ui.model.protocol.A2uiComponentPayload> components);
+  }
+
+  public interface A2uiCoreDataModel {
+    method public void dispose();
+    method public operator Object? get(androidx.a2ui.model.protocol.A2uiDataPath path);
+    method public void update(androidx.a2ui.model.protocol.A2uiDataPath path, Object? value);
+  }
+
+}
+

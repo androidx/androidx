@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.model
+package androidx.a2ui.engine.model
 
-import androidx.a2ui.core.catalog.A2uiCoreCatalog
-import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiCoreDataModel
-import androidx.a2ui.core.protocol.A2uiComponentPayload
-import androidx.a2ui.core.protocol.A2uiDataPath
-import androidx.a2ui.core.protocol.A2uiException
+import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
+import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiException
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class A2uiSurfaceGroupModelTest {
+class A2uiCoreSurfaceGroupModelTest {
 
     private companion object {
         const val SURFACE_ID_1 = "surf-1"
@@ -41,13 +41,13 @@ class A2uiSurfaceGroupModelTest {
         const val SURFACE_PREFIX = "surf"
         const val NON_EXISTENT_ID = "non-existent"
 
-        val emptyActionHandler: (androidx.a2ui.core.protocol.A2uiUserAction) -> Unit = {}
-        val emptyErrorHandler: (androidx.a2ui.core.protocol.A2uiClientError) -> Unit = {}
+        val emptyActionHandler: (androidx.a2ui.model.protocol.A2uiUserAction) -> Unit = {}
+        val emptyErrorHandler: (androidx.a2ui.model.protocol.A2uiClientError) -> Unit = {}
     }
 
     @Test
     fun activeSurfaces_initially_isEmpty() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
 
         val activeSurfaces = group.activeSurfaces.value
 
@@ -56,7 +56,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun add_newSurface_addsSurfaceAndUpdatesFlow() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
 
         val added = group.add(surface)
@@ -67,7 +67,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun add_existingId_replacesAndDisposesOldSurface() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val dataModel1 = TestDataModel()
         val registry1 = TestComponentRegistry()
         val surface1 = createTestSurface(SURFACE_ID_1, dataModel1, registry1)
@@ -85,7 +85,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun addAndDelete_concurrentDifferentIds_completesWithoutCorruption() = runBlocking {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val numCoroutines = 50
         val numOperationsPerCoroutine = 100
 
@@ -109,7 +109,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun add_afterDispose_returnsFalse() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
         group.dispose()
 
@@ -121,7 +121,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun delete_existingId_removesAndDisposesSurface() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val dataModel = TestDataModel()
         val registry = TestComponentRegistry()
         val surface = createTestSurface(SURFACE_ID_1, dataModel, registry)
@@ -137,7 +137,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun delete_nonExistentId_doesNothing() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
 
         group.delete(NON_EXISTENT_ID)
 
@@ -146,7 +146,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun delete_afterDispose_doesNothing() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val dataModel = TestDataModel()
         val registry = TestComponentRegistry()
         val surface = createTestSurface(SURFACE_ID_1, dataModel, registry)
@@ -160,7 +160,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun getSurface_existingId_returnsSurface() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
         group.add(surface)
 
@@ -171,7 +171,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun getSurface_nonExistentId_returnsNull() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
 
         val result = group.getSurface(NON_EXISTENT_ID)
 
@@ -180,7 +180,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun dispose_activeSurfaces_clearsAndDisposesAllSurfaces() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val dataModel1 = TestDataModel()
         val registry1 = TestComponentRegistry()
         val surface1 = createTestSurface(SURFACE_ID_1, dataModel1, registry1)
@@ -201,7 +201,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun dispose_calledMultipleTimes_isIdempotent() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val dataModel = TestDataModel()
         val registry = TestComponentRegistry()
         val surface = createTestSurface(SURFACE_ID_1, dataModel, registry)
@@ -217,9 +217,9 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun equalsAndHashCode_differentInstances_behavesCorrectly() {
-        val group1 = A2uiSurfaceGroupModel()
-        val group2 = A2uiSurfaceGroupModel()
-        val group3 = A2uiSurfaceGroupModel()
+        val group1 = A2uiCoreSurfaceGroupModel()
+        val group2 = A2uiCoreSurfaceGroupModel()
+        val group3 = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
         group1.add(surface)
         group2.add(surface)
@@ -231,7 +231,7 @@ class A2uiSurfaceGroupModelTest {
 
     @Test
     fun toString_withActiveSurfaces_containsSurfaceIds() {
-        val group = A2uiSurfaceGroupModel()
+        val group = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
         group.add(surface)
 
@@ -243,9 +243,9 @@ class A2uiSurfaceGroupModelTest {
     private fun createTestSurface(
         id: String,
         dataModel: A2uiCoreDataModel = TestDataModel(),
-        componentRegistry: A2uiComponentRegistry = TestComponentRegistry(),
-    ): A2uiSurfaceModel {
-        return A2uiSurfaceModel(
+        componentRegistry: A2uiCoreComponentRegistry = TestComponentRegistry(),
+    ): A2uiCoreSurfaceModel {
+        return A2uiCoreSurfaceModel(
             id = id,
             catalog = TestCatalog(),
             theme = emptyMap(),
@@ -277,7 +277,7 @@ class A2uiSurfaceGroupModelTest {
         }
     }
 
-    private class TestComponentRegistry : A2uiComponentRegistry {
+    private class TestComponentRegistry : A2uiCoreComponentRegistry {
         var isDisposed = false
 
         override fun update(components: List<A2uiComponentPayload>) {}

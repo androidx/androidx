@@ -27,7 +27,10 @@ plugins {
 }
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationJson)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.guavaTestlib)
 }
 android {
     namespace = "androidx.a2ui.model"
