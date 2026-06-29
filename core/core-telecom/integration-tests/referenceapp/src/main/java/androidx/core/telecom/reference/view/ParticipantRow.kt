@@ -35,6 +35,7 @@ import androidx.core.telecom.reference.model.ParticipantState
 
 @Composable
 fun ParticipantRow(participant: ParticipantState) {
+    @Suppress("DEPRECATION") // This overload is deprecated in future versions of Material 3.
     ListItem(
         headlineContent = { Text(participant.name + if (participant.isSelf) " (You)" else "") },
         leadingContent = {
