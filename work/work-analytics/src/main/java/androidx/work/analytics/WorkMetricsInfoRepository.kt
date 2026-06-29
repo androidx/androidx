@@ -18,6 +18,7 @@ package androidx.work.analytics
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.annotation.RequiresApi
 import androidx.room.Room
 import androidx.work.Clock
 import androidx.work.ExecutionEventListener
@@ -28,24 +29,57 @@ import androidx.work.ScheduleEventListener
 import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
 import androidx.work.analytics.impl.model.WorkMetricsSpec
+import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.jvm.JvmOverloads
+import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 private const val WORK_METRICS_DB_NAME = "androidx.work.analytics.workmetricsdb"
 private val TAG = Logger.tagWithPrefix("WorkMetricsInfoRepository")
+private val CLEANUP_INTERVAL_MILLIS = 1.days.inWholeMilliseconds
 
 /** Repository class that calculates and stores metrics info and analytics about workers. */
 @ExperimentalEventsApi
 @ExperimentalWorkMetricsApi
 public class WorkMetricsInfoRepository
-internal constructor(private val database: WorkMetricsDatabase, private val clock: Clock) :
-    ScheduleEventListener, ExecutionEventListener {
+internal constructor(
+    private val database: WorkMetricsDatabase,
+    private val clock: Clock,
+    retentionTimeMillis: Long = DEFAULT_RETENTION_TIME_MILLIS,
+) : ScheduleEventListener, ExecutionEventListener {
+
+    private val retentionTimeMillis: Long
+    private val dao = database.workMetricsSpecDao()
+    private val lastCleanupTime = AtomicLong(0)
+
+    init {
+        val clamped =
+            if (retentionTimeMillis > MAX_RETENTION_TIME_MILLIS) {
+                Logger.get()
+                    .warning(
+                        TAG,
+                        "Retention time $retentionTimeMillis ms exceeds maximum allowed " +
+                            "$MAX_RETENTION_TIME_MILLIS ms. Clamping to maximum.",
+                    )
+                MAX_RETENTION_TIME_MILLIS
+            } else if (retentionTimeMillis <= 0) {
+                throw IllegalArgumentException(
+                    "Retention time must be positive: $retentionTimeMillis"
+                )
+            } else {
+                retentionTimeMillis
+            }
+        this.retentionTimeMillis = clamped
+    }
 
     /**
-     * Creates an instance of [WorkMetricsInfoRepository].
+     * Creates an instance of [WorkMetricsInfoRepository] with a default retention of
+     * [DEFAULT_RETENTION_TIME_MILLIS].
      *
      * It is recommended that the [Executor] passed here is the same as the one passed into
      * [androidx.work.Configuration.Builder.setTaskExecutor]. If no executor is provided, Room's
@@ -62,11 +96,52 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
     public constructor(
         context: Context,
         dbExecutor: Executor? = null,
-    ) : this(createDatabase(context, dbExecutor), Clock { System.currentTimeMillis() })
+    ) : this(
+        createDatabase(context, dbExecutor),
+        Clock { System.currentTimeMillis() },
+        DEFAULT_RETENTION_TIME_MILLIS,
+    )
 
     private val finishedMetricsInfos = MutableSharedFlow<WorkMetricsInfo>(extraBufferCapacity = 64)
 
-    private val dao = database.workMetricsSpecDao()
+    /**
+     * Creates an instance of [WorkMetricsInfoRepository] with a custom retention time.
+     *
+     * @param context The application [Context].
+     * @param retentionTime The retention time. Clamped to a maximum of [MAX_RETENTION_TIME_MILLIS].
+     *   Must be positive.
+     * @param retentionTimeUnit The [TimeUnit] for [retentionTime].
+     * @param dbExecutor The [Executor] passed to Room on which database queries and transactions
+     *   will be run.
+     */
+    @JvmOverloads
+    public constructor(
+        context: Context,
+        retentionTime: Long,
+        retentionTimeUnit: TimeUnit,
+        dbExecutor: Executor? = null,
+    ) : this(
+        createDatabase(context, dbExecutor),
+        Clock { System.currentTimeMillis() },
+        retentionTimeUnit.toMillis(retentionTime),
+    )
+
+    /**
+     * Creates an instance of [WorkMetricsInfoRepository] with a custom retention duration.
+     *
+     * @param context The application [Context].
+     * @param retentionDuration The retention duration. Clamped to a maximum of
+     *   [MAX_RETENTION_TIME_MILLIS]. Must be positive.
+     * @param dbExecutor The [Executor] passed to Room on which database queries and transactions
+     *   will be run.
+     */
+    @RequiresApi(26)
+    @JvmOverloads
+    public constructor(
+        context: Context,
+        retentionDuration: Duration,
+        dbExecutor: Executor? = null,
+    ) : this(context, retentionDuration.toMillis(), TimeUnit.MILLISECONDS, dbExecutor)
 
     /**
      * A hot [Flow] that emits a [WorkMetricsInfo] whenever one finishes.
@@ -395,6 +470,19 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
     private fun insertWorkMetricsSpec(spec: WorkMetricsSpec) {
         spec.enqueueTimeMillis = clock.currentTimeMillis()
         dao.insertWorkMetricsSpec(spec)
+        pruneOldMetricsIfNecessary()
+    }
+
+    private fun pruneOldMetricsIfNecessary() {
+        val currentTime = clock.currentTimeMillis()
+        val lastCleanup = lastCleanupTime.get()
+        if (currentTime - lastCleanup < CLEANUP_INTERVAL_MILLIS) {
+            return
+        }
+        if (lastCleanupTime.compareAndSet(lastCleanup, currentTime)) {
+            val threshold = currentTime - retentionTimeMillis
+            dao.deleteFinishedSpecsOlderThan(threshold)
+        }
     }
 
     private fun checkCurrentMetricsSpec(
@@ -452,6 +540,12 @@ internal constructor(private val database: WorkMetricsDatabase, private val cloc
     }
 
     public companion object {
+        /** The default retention time for finished work metrics (7 days). */
+        @JvmField public val DEFAULT_RETENTION_TIME_MILLIS: Long = 7.days.inWholeMilliseconds
+
+        /** The maximum allowed retention time for finished work metrics (30 days). */
+        @JvmField public val MAX_RETENTION_TIME_MILLIS: Long = 30.days.inWholeMilliseconds
+
         private fun createDatabase(context: Context, dbExecutor: Executor?): WorkMetricsDatabase {
             val builder =
                 Room.databaseBuilder(
