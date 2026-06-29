@@ -928,6 +928,14 @@ public class WebViewFeature {
     public static final String PRECONNECT = "PRECONNECT";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link Profile#enqueuePreconnect(String)}
+     */
+    @Profile.ExperimentalPreconnect
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ENQUEUE_PRECONNECT = "ENQUEUE_PRECONNECT";
+
+    /**
      * Feature for {@link Profile#addQuicHints(Set)}.
      */
     @Profile.ExperimentalAddQuicHints

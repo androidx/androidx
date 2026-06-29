@@ -586,7 +586,7 @@ public interface Profile {
     }
 
     /**
-     * Preconnects to the given origin, this can speed up future loads.
+     * Preconnect to the given origin to speed up future network requests.
      * <p>
      * Opens a connection to the provided origin, performing DNS lookup and TCP/TLS handshakes. This
      * can speed up future loads to the origin which could use the open connection. The connection
@@ -621,6 +621,35 @@ public interface Profile {
         // method. However, throw a runtime exception if this method is actually called, as
         // that's better than silently no-oping.
         throw new UnsupportedOperationException("Profile#preconnect is not implemented.");
+    }
+
+    /**
+     * Enqueue a network preconnect to occur once WebView has started up.
+     * <p>
+     * This method acts like {@link #preconnect(String)} but doesn't trigger WebView start up.
+     * Instead it enqueues that action for when WebView start up occurs.
+     * If the WebView has already started, this method acts exactly like {@link #preconnect(String)}
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#ENQUEUE_PRECONNECT}.
+     *
+     * @param url A url containing the origin to open a connection to.
+     * @throws UnsupportedOperationException if the
+     * {@link WebViewFeature#ENQUEUE_PRECONNECT} feature is not supported.
+     * @see Profile#preconnect(String)
+     */
+    @RequiresFeature(name = WebViewFeature.ENQUEUE_PRECONNECT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalPreconnect
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void enqueuePreconnect(@NonNull String url) {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#enqueuePreconnect is not implemented.");
     }
 
     /**

@@ -353,6 +353,18 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    @ExperimentalPreconnect
+    public void enqueuePreconnect(@NonNull String url) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ENQUEUE_PRECONNECT;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.enqueuePreconnect(url);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+
+    @Override
     @ExperimentalAddQuicHints
     public void addQuicHints(@NonNull Set<String> urls) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.ADD_QUIC_HINTS_V1;
