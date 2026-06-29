@@ -322,6 +322,28 @@ public class MultiProviderTest {
         }
     }
 
+    @Test
+    @MediumTest
+    public void registeredProviderRoutes_haveNullRoutingControllerId() throws Exception {
+        String descriptorId = StubMediaRouteProviderService.ROUTE_ID1;
+        waitForRoutesAdded(descriptorId);
+        assertNotNull(mRoutes);
+
+        waitForRouteSelected(descriptorId, descriptorId, /* routeSelected= */ true);
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            RouteInfo selectedRoute = mRouter.getSelectedRoute();
+                            assertEquals(descriptorId, selectedRoute.getDescriptorId());
+                            MediaRouteDescriptor selectedDescriptor =
+                                    selectedRoute.getMediaRouteDescriptor();
+                            assertNotNull(selectedDescriptor);
+                            assertNull(selectedDescriptor.getRoutingControllerId());
+                        });
+        waitForRouteUnselected(descriptorId);
+    }
+
     private void addCallback(MediaRouter.Callback callback) {
         getInstrumentation()
                 .runOnMainSync(
