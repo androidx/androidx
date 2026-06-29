@@ -19,8 +19,10 @@ package androidx.compose.ui.text.input
 import androidx.compose.runtime.Stable
 
 /**
- * Options to request software keyboard to capitalize the text. Applies to languages which has
- * upper-case and lower-case letters.
+ * The capitalization style to be used in `KeyboardOptions`.
+ *
+ * Only applicable to text-based [KeyboardType]s such as [KeyboardType.Text] or
+ * [KeyboardType.Ascii]. IMEs may ignore this option.
  */
 @kotlin.jvm.JvmInline
 value class KeyboardCapitalization private constructor(private val value: Int) {
@@ -37,19 +39,35 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
     }
 
     companion object {
-        /** Capitalization behavior is not specified. */
+        /** The capitalization behavior is not specified. */
         @Stable val Unspecified = KeyboardCapitalization(-1)
 
-        /** Do not auto-capitalize text. */
+        /**
+         * Disables auto-capitalization.
+         *
+         * **When to use it**: Ideal for passwords, email addresses, URLs, or search filters.
+         */
         @Stable val None = KeyboardCapitalization(0)
 
-        /** Capitalize all characters. */
+        /**
+         * Capitalizes all characters.
+         *
+         * **When to use it**: Ideal for coupon codes, state abbreviations, or license plates.
+         */
         @Stable val Characters = KeyboardCapitalization(1)
 
-        /** Capitalize the first character of every word. */
+        /**
+         * Capitalizes the first character of every word.
+         *
+         * **When to use it**: Ideal for mailing addresses or contact names.
+         */
         @Stable val Words = KeyboardCapitalization(2)
 
-        /** Capitalize the first character of each sentence. */
+        /**
+         * Capitalizes the first character of every sentence.
+         *
+         * **When to use it**: Ideal for chat messages, email bodies, or other free-form text.
+         */
         @Stable val Sentences = KeyboardCapitalization(3)
     }
 }

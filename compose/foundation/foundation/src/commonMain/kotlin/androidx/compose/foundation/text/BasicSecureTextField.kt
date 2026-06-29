@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * appropriate for entering secure content. Additionally, some context menu actions like cut, copy,
  * and drag are disabled for added security.
  *
+ * @sample androidx.compose.foundation.samples.PinCodeEntryRowSample
  * @param state [TextFieldState] object that holds the internal state of a [BasicSecureTextField].
  * @param modifier optional [Modifier] for this text field.
  * @param enabled controls the enabled state of the [BasicSecureTextField]. When `false`, the text
