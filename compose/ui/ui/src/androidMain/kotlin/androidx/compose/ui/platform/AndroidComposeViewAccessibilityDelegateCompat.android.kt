@@ -782,6 +782,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
+        val hintText = semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.HintText)
+        if (hintText != null) {
+            info.hintText = hintText
+        }
+
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Heading)?.let {
             info.isHeading = true
         }
@@ -3638,7 +3643,8 @@ private fun createStateDescriptionForTextField(node: SemanticsNode, resources: R
     val mergedNodeIsUnspeakable =
         mergedConfig.getOrNull(SemanticsProperties.ContentDescription).isNullOrEmpty() &&
             mergedConfig.getOrNull(SemanticsProperties.Text).isNullOrEmpty() &&
-            mergedConfig.getOrNull(SemanticsProperties.EditableText).isNullOrEmpty()
+            mergedConfig.getOrNull(SemanticsProperties.EditableText).isNullOrEmpty() &&
+            mergedConfig.getOrNull(SemanticsProperties.HintText).isNullOrEmpty()
     return if (mergedNodeIsUnspeakable) resources.getString(R.string.state_empty) else null
 }
 

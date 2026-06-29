@@ -80,6 +80,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.RoleFakeNodeIdOffset
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.accessibilityClassName
@@ -97,6 +98,7 @@ import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.hintText
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.inputTextSuggestionState
 import androidx.compose.ui.semantics.isEditable
@@ -120,6 +122,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textCompositionRange
 import androidx.compose.ui.semantics.textSelectionRange
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -2943,6 +2946,93 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
             assertThat(fakeNodeInfo).isNotNull()
             assertThat(fakeNodeInfo.isVisibleToUser).isFalse()
+        }
+    }
+
+    @Test
+    fun hintText_isReadFromSemanticsConfig() {
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.semantics {
+                        hintText = "text"
+                        setText { true }
+                    }
+            )
+        }
+
+        rule
+            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.HintText, "text"))
+            .assertExists()
+    }
+
+    @Test
+    fun hintText_mapsToAccessibilityNodeInfo_showingHint() {
+        val hint = "hintText"
+        rule.setContentWithAccessibilityEnabled {
+            BasicTextField(
+                rememberTextFieldState(""),
+                modifier =
+                    Modifier.testTag(tag).semantics {
+                        hintText = hint
+                        isEditable = true
+                    },
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.hintText).isEqualTo(hint) }
+    }
+
+    @Test
+    fun hintText_mapsToAccessibilityNodeInfo_notShowingHint() {
+        val hint = "hintText"
+        rule.setContentWithAccessibilityEnabled {
+            BasicTextField(
+                rememberTextFieldState("text"),
+                modifier =
+                    Modifier.testTag(tag).semantics {
+                        hintText = hint
+                        isEditable = true
+                    },
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.hintText).isEqualTo(hint) }
+    }
+
+    @Test
+    fun hintText_emptyTextField_hasNoStateDescription_andIsScreenReaderFocusable() {
+        val hint = "hintText"
+        rule.setContentWithAccessibilityEnabled {
+            BasicTextField(
+                rememberTextFieldState(""),
+                modifier =
+                    Modifier.testTag(tag).semantics {
+                        hintText = hint
+                        isEditable = true
+                    },
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.stateDescription).isNull()
+
+            assertThat(info.isScreenReaderFocusable).isTrue()
         }
     }
 
