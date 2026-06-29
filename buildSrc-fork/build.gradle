@@ -1,0 +1,32 @@
+buildscript {
+    project.ext.supportRootFolder = project.projectDir.getParentFile()
+    apply from: "repos.gradle"
+    repos.addMavenRepositories(repositories)
+
+    dependencies {
+        classpath(libs.kotlinGradlePlugin)
+    }
+
+    configurations.classpath.resolutionStrategy {
+        eachDependency { details ->
+            if (details.requested.group == "org.jetbrains.kotlin") {
+                details.useVersion libs.versions.kotlin.get()
+            }
+        }
+    }
+}
+
+ext.supportRootFolder = project.projectDir.getParentFile()
+apply from: "repos.gradle"
+apply plugin: "kotlin"
+
+repos.addMavenRepositories(repositories)
+
+project.tasks.withType(Jar).configureEach { task ->
+    task.reproducibleFileOrder = true
+    task.preserveFileTimestamps = false
+}
+
+dependencies {
+    api(project("plugins"))
+}

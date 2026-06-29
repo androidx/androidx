@@ -1,0 +1,20 @@
+apply from: "../shared.gradle"
+
+dependencies {
+    implementation(project(":public"))
+    api(project(":imports:baseline-profile-gradle-plugin"))
+    api(project(":imports:benchmark-darwin-plugin"))
+    api(project(":imports:benchmark-gradle-plugin"))
+    api(project(":imports:binary-compatibility-validator"))
+    api(project(":imports:glance-layout-generator"))
+    api(project(":imports:inspection-gradle-plugin"))
+    api(project(":imports:room-gradle-plugin"))
+    api(project(":imports:stableaidl-gradle-plugin"))
+}
+
+
+// The artifacts built by this project require at runtime the artifacts from `:buildSrc:private`.
+// However, we don't want `:buildSrc:private` artifacts to be on their runtime classpath, because
+// that means that any changes to those artifacts can invalidate task up-to-datedness
+// (see ../README.md)
+tasks["jar"].dependsOn(":private:build")

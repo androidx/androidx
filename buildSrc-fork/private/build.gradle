@@ -1,0 +1,12 @@
+apply from: "../shared.gradle"
+apply plugin: "java-gradle-plugin"
+
+dependencies {
+    implementation(project(":public"))
+    implementation(project(":imports:benchmark-gradle-plugin"))
+    implementation(project(":imports:inspection-gradle-plugin"))
+    implementation(project(":imports:stableaidl-gradle-plugin"))
+    implementation(project(":imports:binary-compatibility-validator"))
+}
+
+

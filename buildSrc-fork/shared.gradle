@@ -1,0 +1,54 @@
+// This file applies configuration common to projects in buildSrc
+
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+apply plugin: "kotlin"
+
+buildscript {
+    project.ext.supportRootFolder = buildscript.sourceFile.parentFile.parentFile
+    apply from: "${buildscript.sourceFile.parent}/repos.gradle"
+    repos.addMavenRepositories(repositories)
+    dependencies {
+        classpath(libs.kotlinGradlePlugin)
+    }
+}
+
+dependencies {
+    implementation(project(":jetpad-integration"))
+}
+
+apply from: "${buildscript.sourceFile.parent}/shared-dependencies.gradle"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+project.tasks.withType(Jar).configureEach { task ->
+    task.reproducibleFileOrder = true
+    task.preserveFileTimestamps = false
+}
+
+tasks.withType(ValidatePlugins).configureEach {
+    it.enableStricterValidation = true
+}
+
+project.repos.addMavenRepositories(project.repositories)
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        freeCompilerArgs.addAll(
+                "-Werror",
+                "-Xskip-metadata-version-check",
+                "-Xjdk-release=17",
+        )
+        // TODO(b/410631668): Remove when we migrate away from using internal API in binary compatibility validator
+        if (task.path == ":imports:binary-compatibility-validator:compileKotlin") {
+            friendPaths.from(configurations.friends.incoming.files)
+        }
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        apiVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
