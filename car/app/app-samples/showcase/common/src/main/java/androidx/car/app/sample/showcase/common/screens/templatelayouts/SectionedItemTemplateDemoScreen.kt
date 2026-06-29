@@ -29,6 +29,7 @@ import androidx.car.app.model.SectionedItemTemplate
 import androidx.car.app.model.Template
 import androidx.car.app.sample.showcase.common.R
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.AlphaJumpDemoScreen
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.BannerDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ChipDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.CondensedItemDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.EndImageAndActionsDemo
@@ -96,6 +97,12 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                                 buildRowForTemplate(
                                     SpotlightSectionDemoScreen(carContext),
                                     R.string.spotlight_section_demo_title,
+                                )
+                            )
+                            addItem(
+                                buildRowForTemplate(
+                                    BannerDemoScreen(carContext),
+                                    R.string.banner_demo_title,
                                 )
                             )
                         }
