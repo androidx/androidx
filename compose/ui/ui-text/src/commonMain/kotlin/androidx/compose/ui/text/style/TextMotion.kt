@@ -19,7 +19,7 @@ package androidx.compose.ui.text.style
 import androidx.compose.runtime.Immutable
 
 /**
- * Defines ways to render and place glyphs to provide readability and smooth animations for text.
+ * Configures glyph rendering and placement for readability or smooth animations.
  *
  * @sample androidx.compose.ui.text.samples.TextMotionSample
  */
@@ -27,16 +27,17 @@ import androidx.compose.runtime.Immutable
 expect class TextMotion {
     companion object {
         /**
-         * Optimizes glyph shaping, placement, and overall rendering for maximum readability.
-         * Intended for text that is not animated. This is the default [TextMotion].
+         * Optimizes rendering for readability.
+         *
+         * Use for static (non-animated) text. This is the default.
          */
         val Static: TextMotion
 
         /**
-         * Text is rendered for maximum linearity which provides smooth animations for text.
-         * Trade-off is the readability of the text on some low DPI devices, which still should not
-         * be a major concern. Use this [TextMotion] if you are planning to scale, translate, or
-         * rotate text.
+         * Renders text with maximum linearity to provide smooth scaling, translating, or rotating
+         * animations.
+         *
+         * May slightly reduce readability on low-DPI devices.
          */
         val Animated: TextMotion
     }

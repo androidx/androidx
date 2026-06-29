@@ -20,9 +20,9 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.internal.requirePrecondition
 
 /**
- * Defines the algorithm to be used while determining the text direction.
+ * Defines the algorithm used to determine text direction.
  *
- * @property value The integer representation of TextDirection.
+ * @property value internal integer representation of the text direction.
  * @see ResolvedTextDirection
  */
 @kotlin.jvm.JvmInline
@@ -41,51 +41,50 @@ value class TextDirection internal constructor(val value: Int) {
     }
 
     companion object {
-        /** Always sets the text direction to be Left to Right. */
+        /** Sets the text direction to Left-to-Right. */
         val Ltr = TextDirection(1)
 
-        /** Always sets the text direction to be Right to Left. */
+        /** Sets the text direction to Right-to-Left. */
         val Rtl = TextDirection(2)
 
         /**
-         * This value indicates that the text direction depends on the first strong directional
-         * character in the text according to the Unicode Bidirectional Algorithm. If no strong
-         * directional character is present, then [androidx.compose.ui.unit.LayoutDirection] is used
-         * to resolve the final TextDirection.
-         * * if used while creating a Paragraph object, [androidx.compose.ui.text.intl.LocaleList]
-         *   will be used to resolve the direction as a fallback instead of
-         *   [androidx.compose.ui.unit.LayoutDirection].
+         * Resolves direction using the first strong directional character according to the Unicode
+         * Bidirectional Algorithm.
+         *
+         * If no strong directional characters are present, falls back to
+         * [androidx.compose.ui.unit.LayoutDirection], or to
+         * [androidx.compose.ui.text.intl.LocaleList] when creating a
+         * [androidx.compose.ui.text.Paragraph] (ignoring
+         * [androidx.compose.ui.unit.LayoutDirection]).
          */
         val Content = TextDirection(3)
 
         /**
-         * This value indicates that the text direction depends on the first strong directional
-         * character in the text according to the Unicode Bidirectional Algorithm. If no strong
-         * directional character is present, then Left to Right will be used as the default
-         * direction.
+         * Resolves direction based on the first strong directional character according to the
+         * Unicode Bidirectional Algorithm.
+         *
+         * Falls back to Left-to-Right if no strong directional characters are found.
          */
         val ContentOrLtr = TextDirection(4)
 
         /**
-         * This value indicates that the text direction depends on the first strong directional
-         * character in the text according to the Unicode Bidirectional Algorithm. If no strong
-         * directional character is present, then Right to Left will be used as the default
-         * direction.
+         * Resolves direction based on the first strong directional character according to the
+         * Unicode Bidirectional Algorithm.
+         *
+         * Falls back to Right-to-Left if no strong directional characters are found.
          */
         val ContentOrRtl = TextDirection(5)
 
-        /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value is
-         * desired.
-         */
+        /** Represents an unset [TextDirection] value. */
         val Unspecified = TextDirection(0)
 
         /**
-         * Creates a TextDirection from the given integer value. This can be useful if you need to
-         * serialize/deserialize TextDirection values.
+         * Creates [TextDirection] from [value].
          *
-         * @param value The integer representation of the TextDirection.
-         * @throws IllegalArgumentException if the given [value] is not recognized.
+         * Useful for serialization/deserialization.
+         *
+         * @param value internal integer representation.
+         * @throws IllegalArgumentException if [value] is invalid.
          * @see androidx.compose.ui.text.style.TextDirection.value
          */
         fun valueOf(value: Int): TextDirection {

@@ -21,13 +21,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.lerp
 
 /**
- * Define a geometric transformation on text.
+ * Defines geometric transformations for text (such as scaling and skewing).
  *
- * @param scaleX The scale of the text on the horizontal direction. The default value is 1.0f, i.e
- *   no scaling.
- * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is the
- *   distance above baseline, will be transformed to (x + y * skewX, y). The default value is 0.0f
- *   i.e. no skewing.
+ * @param scaleX horizontal scale factor (1.0f for no scaling).
+ * @param skewX horizontal shear/skew factor. A pixel at (x, y) transforms to (x + y * skewX, y).
+ *   Default is 0.0f (no skewing).
  */
 @Immutable
 class TextGeometricTransform(val scaleX: Float = 1.0f, val skewX: Float = 0f) {

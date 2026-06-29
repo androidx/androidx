@@ -21,24 +21,15 @@ import androidx.compose.ui.text.internal.checkPrecondition
 import kotlin.jvm.JvmInline
 
 /**
- * The configuration for line height such as alignment of the line in the provided line height,
- * whether to apply additional space as a result of line height to top of first line top and bottom
- * of last line.
+ * Configures line height behavior, including alignment and trimming of extra space.
  *
- * The configuration is applied only when a line height is defined on the text.
+ * Applies only when a line height is defined on the text.
  *
- * [trim] feature is available only when [PlatformParagraphStyle.includeFontPadding] is false.
- *
- * Please check [Trim] and [Alignment] for more description.
- *
- * @param alignment defines how to align the line in the space provided by the line height.
- * @param trim defines whether the space that would be added to the top of first line, and bottom of
- *   the last line should be trimmed or not. This feature is available only when
- *   [PlatformParagraphStyle.includeFontPadding] is false.
- * @param mode defines the behavior when the specified line height is smaller than system preferred
- *   line height. By specifying [Mode.Fixed], the line height is always set to the specified value.
- *   This is the default value. By specifying [Mode.Minimum], the specified line height is smaller
- *   than the system preferred value, the system preferred one is used instead.
+ * @param alignment alignment of the line within the allocated line height.
+ * @param trim trimming behavior for the top of the first line and bottom of the last line. Requires
+ *   [PlatformParagraphStyle.includeFontPadding] to be false.
+ * @param mode behavior when the specified line height is smaller than the system default (see
+ *   [Mode]).
  */
 class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) {
 
@@ -85,26 +76,19 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
     }
 
     /**
-     * Defines whether to trim the extra space from the top of the first line and the bottom of the
-     * last line of text.
+     * Controls trimming of extra space from the first line top and last line bottom.
      *
-     * This setting only takes effect when [PlatformParagraphStyle.includeFontPadding] is set to
-     * `false`.
+     * Requires [PlatformParagraphStyle.includeFontPadding] to be false to take effect.
      *
-     * The behavior of [Trim] depends on the selected [Mode].
+     * Trimming behavior depends on the selected [Mode]:
+     * - [Mode.Fixed] / [Mode.Minimum]: Trims extra space only when the configured line height is
+     *   taller than the font default (prevents clipping).
+     * - [Mode.Tight]: Trims space even when the configured line height is shorter than the font
+     *   default.
      *
-     * ### [Mode.Fixed] (Default), or [Mode.Minimum]
-     * Trims extra vertical space only when the configured line height is *taller* than the font's
-     * default. This prevents clipping of glyphs by ensuring trimming only removes extra space.
-     *
-     * ### [Mode.Tight]
-     * Trimming is applied even when the configured line height is *shorter* than the font's
-     * default. This offers more aggressive trimming but carries a risk of clipping tall glyphs that
-     * extend beyond the shortened line height.
-     *
-     * **Warning:** Use [Mode.Tight] with caution, as it can lead to parts of characters being cut
-     * off. Ensure you have tested your text with various glyphs before using this mode in
-     * production.
+     * **Warning:** Use [Mode.Tight] with caution to avoid cutting off tall characters or accents.
+     * Test your text layout with tall scripts (e.g., Arabic "العَرَبِيَّةُ", Tibetan "དབུ་ཅན་", or
+     * Burmese "မြန်မာဘာသာ") before using in production.
      */
     @kotlin.jvm.JvmInline
     value class Trim internal constructor(internal val value: Int) {
@@ -216,10 +200,10 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
     }
 
     /**
-     * Defines how to align the line in the space provided by the line height.
+     * Aligns the line within the space provided by the line height.
      *
-     * @param topRatio the ratio of ascent to ascent+descent in percentage. Valid values are between
-     *   0f (inclusive) and 1f (inclusive).
+     * @param topRatio the alignment ratio of the text. 0f aligns to top, 0.5f to center, 1f to
+     *   bottom, and -1f aligns proportionally based on font metrics (ascent/descent ratio).
      */
     @kotlin.jvm.JvmInline
     value class Alignment constructor(internal val topRatio: Float) {
@@ -318,13 +302,11 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
     }
 
     /**
-     * Defines if the specified line height value should be enforced.
+     * Controls whether to enforce the specified line height.
      *
-     * The line height is determined by the font file used in the text. So, sometimes the specified
-     * text height can be too tight to show the given text. By using `Adjustment.Minimum` the line
-     * height can be adjusted to the system provided value if the specified line height is too
-     * tight. This is useful for supporting languages that use tall glyphs, e.g. Arabic, Myanmar,
-     * etc.
+     * Font metrics determine the default line height. When the specified line height is too tight
+     * for the font, use [Mode.Minimum] to fall back to system-provided heights. This prevents
+     * clipping in languages with tall glyphs (e.g., Arabic, Burmese).
      */
     @JvmInline
     value class Mode internal constructor(internal val value: Int) {

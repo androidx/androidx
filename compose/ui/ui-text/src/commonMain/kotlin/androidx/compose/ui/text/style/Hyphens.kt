@@ -21,26 +21,18 @@ import androidx.compose.ui.text.internal.requirePrecondition
 import kotlin.jvm.JvmInline
 
 /**
- * Automatic hyphenation configuration.
+ * Automatically hyphenates words when wrapping text.
  *
- * Hyphenation is a dash-like punctuation mark used to join two-words into one or separate
- * syl-lab-les of a word.
+ * Inserts hyphens at syllable boundaries based on language rules.
  *
- * Automatic hyphenation is added between syllables at appropriate hyphenation points, following
- * language rules.
+ * Suggest manual line break opportunities using:
+ * - **Soft hyphen (`\u00AD`)**: Marks a wrapping opportunity. The hyphen is only visible if the
+ *   word wraps at this point.
+ * - **Hard hyphen (`\u2010`)**: Inserts a permanently visible hyphen that also allows wrapping.
  *
- * However, user can override automatic break point selection, suggesting line break opportunities
- * (see Suggesting line break opportunities below).
+ * Default is [Hyphens.None] (no automatic hyphenation).
  *
- * Suggesting line break opportunities:
- * - <code>\u2010</code> ("hard" hyphen) Indicates a visible line break opportunity. Even if the
- *   line is not actually broken at that point, the hyphen is still rendered.
- * - <code>\u00AD</code> ("soft" hyphen) This character is not rendered visibly; instead, it marks a
- *   place where the word can be broken if hyphenation is necessary.
- *
- * The default configuration for [Hyphens] = [Hyphens.None]
- *
- * @property value The integer representation of the Hyphens.
+ * @property value internal integer representation of the hyphenation mode.
  */
 @JvmInline
 value class Hyphens internal constructor(val value: Int) {
@@ -61,10 +53,9 @@ value class Hyphens internal constructor(val value: Int) {
         val None = Hyphens(1)
 
         /**
-         * The words will be automatically broken at appropriate hyphenation points.
+         * Breaks words automatically at syllable boundaries.
          *
-         * However, suggested line break opportunities (see Suggesting line break opportunities
-         * above) will override automatic break point selection when present.
+         * Manual suggestions (like soft hyphens) override automatic breaks.
          * <pre>
          * +---------+
          * | Experi- |
@@ -74,18 +65,16 @@ value class Hyphens internal constructor(val value: Int) {
          */
         val Auto = Hyphens(2)
 
-        /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value is
-         * desired.
-         */
+        /** Represents an unset [Hyphens] value. */
         val Unspecified = Hyphens(0)
 
         /**
-         * Creates a Hyphens from the given integer value. This can be useful if you need to
-         * serialize/deserialize Hyphens values.
+         * Creates [Hyphens] from [value].
          *
-         * @param value The integer representation of the Hyphens.
-         * @throws IllegalArgumentException if the given [value] is not recognized.
+         * Useful for serialization/deserialization.
+         *
+         * @param value internal integer representation.
+         * @throws IllegalArgumentException if [value] is invalid.
          * @see androidx.compose.ui.text.style.Hyphens.value
          */
         fun valueOf(value: Int): Hyphens {

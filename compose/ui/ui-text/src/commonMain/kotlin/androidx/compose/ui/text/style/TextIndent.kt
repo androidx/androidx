@@ -23,15 +23,15 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
 /**
- * Specify the indentation of a paragraph.
+ * Indents paragraph lines.
  *
- * @param firstLine the amount of indentation applied to the first line.
- * @param restLine the amount of indentation applied to every line except the first line.
+ * @param firstLine indentation amount for the first line
+ * @param restLine indentation amount for all lines except the first
  */
 @Immutable
 class TextIndent(val firstLine: TextUnit = 0.sp, val restLine: TextUnit = 0.sp) {
     companion object {
-        /** Constant fot no text indent. */
+        /** Default configuration representing no text indent. */
         @Stable val None = TextIndent()
     }
 
