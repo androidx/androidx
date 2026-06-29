@@ -1,6 +1,13 @@
 import groovy.transform.Field
 
 pluginManagement {
+    def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
+    if (!isRunFromGradlewStudio) {
+        apply from: "settings-plugin-management-fork.gradle"
+        this.ext.configureForkPluginManagement.call(delegate)
+        return
+    }
+
     repositories {
         /*
         maven {
@@ -22,6 +29,13 @@ pluginManagement {
 }
 
 buildscript {
+    def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
+    if (!isRunFromGradlewStudio) {
+        apply from: "settings-buildscript-fork.gradle"
+        this.ext.configureForkBuildscript.call(delegate)
+        return
+    }
+
     ext.supportRootFolder = buildscript.sourceFile.getParentFile()
     apply(from: "buildSrc/repos.gradle")
     apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")

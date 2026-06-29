@@ -1,0 +1,12 @@
+ext.configureForkPluginManagement = { PluginManagementSpec pluginManagement ->
+    pluginManagement.with {
+        repositories {
+            mavenCentral()
+            google()
+            maven {
+                url = "https://plugins.gradle.org/m2/"
+            }
+        }
+        includeBuild("androidx-settings-plugins")
+    }
+}
