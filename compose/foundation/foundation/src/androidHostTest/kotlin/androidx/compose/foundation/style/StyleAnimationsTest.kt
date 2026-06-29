@@ -445,6 +445,53 @@ class StyleAnimationsTest {
             assertTrue(values.size > 2)
         }
     }
+
+    @Test
+    fun can_animate_multiple_times() = runTest {
+        // This tests that a property can be set conditionally using an animation and will
+        // animate from the default value to the set value and back from the set value to
+        // the default value, even when a separate animation is still running.
+        var include by mutableStateOf(false)
+        val state = MutableStyleState(null)
+        animate(
+            style = {
+                if (include) {
+                    animate(tween(100)) { borderWidth(6.dp) }
+                }
+                disabled { animate(tween(100_000)) { contentPaddingStart(10.dp) } }
+            },
+            state = state,
+            frame = { time ->
+                val ms = time / 1_000_000L
+                if (ms == 0L) state.isEnabled = false
+                if (ms % 200L == 0L) {
+                    include = !include
+                }
+            },
+            collect = { if (hasId(BorderWidthId)) borderWidth else Float.NaN },
+            duration = 1_000,
+            interval = 1,
+        ) { values ->
+            assertEquals(0f, values.first())
+            for (index in values.indices) {
+                if (values[index].isNaN()) {
+                    // Animations to and from a property being set the unset value should be treated
+                    // as having the default value (0f for `boarderWidth`).
+                    //
+                    // This is validated by checking when an animation starts and ends. When an
+                    // animation moves from NaN to a value the first frame prior to the animation
+                    // starting should be the default value. When an animation to NaN finishes
+                    // the last value prior to NaN should also be the default value.
+                    assertTrue(index == 0 || values[index - 1].isNaN() || values[index - 1] == 0f)
+                    assertTrue(
+                        index >= (values.size) - 1 ||
+                            values[index + 1].isNaN() ||
+                            values[index + 1] == 0f
+                    )
+                }
+            }
+        }
+    }
 }
 
 @ExperimentalFoundationStyleApi
