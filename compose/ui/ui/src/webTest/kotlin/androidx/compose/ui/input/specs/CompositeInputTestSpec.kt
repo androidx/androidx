@@ -209,6 +209,48 @@ internal interface SafariCompositeInput : СompositeInputTestSpec {
             keyEvent(compositionInput, type = "keyup")
         )
     }
+
+    @Test
+    fun compositeWithSuggestionAndKeyboard() = runApplicationTest {
+        val textFieldValue = createApplicationWithHolder()
+
+        // Phase 1: input "我" via single-step composition
+        eventsSequence(
+            compositionStart(),
+            beforeInput("insertCompositionText", "我", isComposing = true),
+            beforeInput("deleteCompositionText", null, isComposing = true),
+            beforeInput("insertFromComposition", "我", isComposing = true),
+            compositionEnd("我"),
+        ).sendToHtmlInput()
+
+        textFieldValue.awaitAndAssertTextEquals("我")
+
+        // Phase 2: input "在" via single-step composition
+        eventsSequence(
+            compositionStart(),
+            beforeInput("insertCompositionText", "在", isComposing = true),
+            beforeInput("deleteCompositionText", null, isComposing = true),
+            beforeInput("insertFromComposition", "在", isComposing = true),
+            compositionEnd("在"),
+        ).sendToHtmlInput()
+
+        textFieldValue.awaitAndAssertTextEquals("我在")
+
+        // Phase 3: input "法国" via multi-step composition ("f" -> "f g" -> "法国")
+        eventsSequence(
+            compositionStart(),
+            keyEvent("f", keyCode = 229),
+            beforeInput("insertCompositionText", "f", isComposing = true),
+            keyEvent("g", keyCode = 229, isComposing = true),
+            beforeInput("insertCompositionText", "f g", isComposing = true),
+            beforeInput("insertCompositionText", "法国", isComposing = true),
+            beforeInput("deleteCompositionText", null, isComposing = true),
+            beforeInput("insertFromComposition", "法国", isComposing = true),
+            compositionEnd("法国"),
+        ).sendToHtmlInput()
+
+        textFieldValue.awaitAndAssertTextEquals("我在法国")
+    }
 }
 
 internal interface IosCompositeInput : СompositeInputTestSpec {
