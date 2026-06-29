@@ -1605,7 +1605,17 @@ internal constructor(
         get() = null
 
     internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
-        get() = { creationState -> floatArrayOf(idProvider(creationState)) }
+        get() = { creationState ->
+            // idProvider returns the allocated ID encoded as a NaN Float. We decode it
+            // to a raw Int using idFromNan because getOrPutVariableId tracks integer IDs.
+            // Caching this ID ensures that the same ID is shared when the variable is
+            // used in expressions (via arrayProvider) and actions (via getIdForCreationState).
+            val id =
+                creationState.getOrPutVariableId(cacheKey) {
+                    Utils.idFromNan(idProvider(creationState))
+                }
+            floatArrayOf(asNan(id))
+        }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =

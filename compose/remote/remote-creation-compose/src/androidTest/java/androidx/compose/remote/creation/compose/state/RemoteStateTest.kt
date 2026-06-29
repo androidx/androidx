@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
@@ -38,6 +39,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
@@ -184,6 +186,31 @@ class RemoteStateTest {
             val operationIds = listOf(s2Index, rootIndex, boxIndex, s1Index)
             assertThat(operationIds).doesNotContain(-1)
             assertThat(operationIds).isInOrder()
+        }
+    }
+
+    @Test
+    fun mutableRemoteFloat_sharesIdBetweenActionAndExpression() = runTest {
+        withContext(Dispatchers.Main) {
+            captureSingleRemoteDocument(
+                InstrumentationRegistry.getInstrumentation().targetContext
+            ) {
+                val mutableFloat = rememberMutableRemoteFloat(0f)
+                val creationState = LocalRemoteComposeCreationState.current
+
+                // 1. Get the ID allocated for actions (e.g., valueChange)
+                val actionId = mutableFloat.getIdForCreationState(creationState)
+
+                // 2. Get the ID allocated for expressions (e.g., arithmetic operations)
+                val expressionArray = mutableFloat.arrayForCreationState(creationState)
+                assertThat(1).isEqualTo(expressionArray.size)
+
+                val expressionNanId = expressionArray[0]
+                val expressionId = Utils.idFromNan(expressionNanId)
+
+                // 3. Assert they are the same ID
+                assertThat(actionId).isEqualTo(expressionId)
+            }
         }
     }
 

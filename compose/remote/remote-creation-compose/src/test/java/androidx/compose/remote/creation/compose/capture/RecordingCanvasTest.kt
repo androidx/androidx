@@ -456,7 +456,7 @@ class RecordingCanvasTest {
             .containsExactly(
                 "addLoopStart(42, 0.0, 1.0, 10.0)",
                 "addPaint",
-                "addDrawRect(ID(43), 63.0, 64.0, 65.0)",
+                "addDrawRect(ID(42), 63.0, 64.0, 65.0)",
                 "addLoopEnd",
             )
     }
