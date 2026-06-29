@@ -929,15 +929,13 @@ private class TooltipPositionProviderImpl(
         if (x < 0) {
             // Flip the tooltip to be on the right if
             // it collides with the left side of the screen
-            val xCorrection =
-                (anchorBounds.right + tooltipAnchorSpacing + popupContentSize.width -
-                        windowSize.width)
-                    .coerceAtLeast(0)
-            x = anchorBounds.right + tooltipAnchorSpacing - xCorrection
+            x = anchorBounds.right + tooltipAnchorSpacing
         }
+        x = x.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
 
         // We vertically center the tooltip with the anchor
         var y = (anchorBounds.top + anchorBounds.bottom - popupContentSize.height) / 2
+        y = y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height))
         return IntOffset(x, y)
     }
 
@@ -955,14 +953,13 @@ private class TooltipPositionProviderImpl(
         if (x + popupContentSize.width > windowSize.width) {
             // Flip the tooltip to be on the left if
             // it collides with the right side of the screen
-            x =
-                (anchorBounds.left - (popupContentSize.width + tooltipAnchorSpacing)).coerceAtLeast(
-                    0
-                )
+            x = anchorBounds.left - (popupContentSize.width + tooltipAnchorSpacing)
         }
+        x = x.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
 
         // We vertically center the tooltip with the anchor
         var y = (anchorBounds.top + anchorBounds.bottom - popupContentSize.height) / 2
+        y = y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height))
         return IntOffset(x, y)
     }
 
@@ -977,23 +974,14 @@ private class TooltipPositionProviderImpl(
         // Tooltip prefers to be center aligned horizontally.
         var x = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
 
-        if (x < 0) {
-            // Make tooltip start aligned if colliding with the
-            // left side of the screen
-            val xCorrection =
-                (anchorBounds.left + popupContentSize.width - windowSize.width).coerceAtLeast(0)
-            x = anchorBounds.left - xCorrection
-        } else if (x + popupContentSize.width > windowSize.width) {
-            // Make tooltip end aligned if colliding with the
-            // right side of the screen
-            x = (anchorBounds.right - popupContentSize.width).coerceAtLeast(0)
-        }
+        x = x.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
 
         // Tooltip prefers to be above the anchor,
         // but if this causes the tooltip to overlap with the anchor
         // then we place it below the anchor
         var y = anchorBounds.top - popupContentSize.height - tooltipAnchorSpacing
         if (y < 0) y = anchorBounds.bottom + tooltipAnchorSpacing
+        y = y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height))
         return IntOffset(x, y)
     }
 
@@ -1008,17 +996,7 @@ private class TooltipPositionProviderImpl(
         // Tooltip prefers to be center aligned horizontally.
         var x = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
 
-        if (x < 0) {
-            // Make tooltip start aligned if colliding with the
-            // left side of the screen
-            val xCorrection =
-                (anchorBounds.left + popupContentSize.width - windowSize.width).coerceAtLeast(0)
-            x = anchorBounds.left - xCorrection
-        } else if (x + popupContentSize.width > windowSize.width) {
-            // Make tooltip end aligned if colliding with the
-            // right side of the screen
-            x = (anchorBounds.right - popupContentSize.width).coerceAtLeast(0)
-        }
+        x = x.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
 
         // Tooltip prefers to be below the anchor,
         // but if this causes the tooltip to overlap with the anchor
@@ -1027,6 +1005,7 @@ private class TooltipPositionProviderImpl(
         if (y + popupContentSize.height > windowSize.height) {
             y = anchorBounds.top - popupContentSize.height - tooltipAnchorSpacing
         }
+        y = y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height))
         return IntOffset(x, y)
     }
 
