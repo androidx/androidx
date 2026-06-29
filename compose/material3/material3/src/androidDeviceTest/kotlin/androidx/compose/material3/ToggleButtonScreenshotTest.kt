@@ -242,62 +242,62 @@ class ToggleButtonScreenshotTest {
     }
 
     @Test
-    fun tonalToggleButton_lightTheme() {
+    fun filledTonalToggleButton_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
             }
         }
         assertAgainstGolden("tonalToggleButton_lightTheme")
     }
 
     @Test
-    fun tonalToggleButton_lightTheme_disabled() {
+    fun filledTonalToggleButton_lightTheme_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = false, onCheckedChange = {}, enabled = false) {
+                FilledTonalToggleButton(checked = false, onCheckedChange = {}, enabled = false) {
                     Text("Button")
                 }
             }
         }
-        assertAgainstGolden("tonalToggleButton_lightTheme_disabled")
+        assertAgainstGolden("filledTonalToggleButton_lightTheme_disabled")
     }
 
     @Test
-    fun tonalToggleButton_darkTheme() {
+    fun filledTonalToggleButton_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
             }
         }
-        assertAgainstGolden("tonalToggleButton_darkTheme")
+        assertAgainstGolden("filledTonalToggleButton_darkTheme")
     }
 
     @Test
-    fun tonalToggleButton_checked_lightTheme() {
+    fun filledTonalToggleButton_checked_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
             }
         }
-        assertAgainstGolden("tonalToggleButton_checked_lightTheme")
+        assertAgainstGolden("filledTonalToggleButton_checked_lightTheme")
     }
 
     @Test
-    fun tonalToggleButton_checked_darkTheme() {
+    fun filledTonalToggleButton_checked_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
             }
         }
-        assertAgainstGolden("tonalToggleButton_checked_darkTheme")
+        assertAgainstGolden("filledTonalToggleButton_checked_darkTheme")
     }
 
     @Test
-    fun tonalToggleButton_lightTheme_defaultToPressed() {
+    fun filledTonalToggleButton_lightTheme_defaultToPressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = false, onCheckedChange = {}) { Text("Button") }
             }
         }
 
@@ -312,14 +312,14 @@ class ToggleButtonScreenshotTest {
         // synchronization. Instead just wait until after the ripples are finished animating.
         Thread.sleep(300)
 
-        assertAgainstGolden("tonalToggleButton_lightTheme_defaultToPressed")
+        assertAgainstGolden("filledTonalToggleButton_lightTheme_defaultToPressed")
     }
 
     @Test
-    fun tonalToggleButton_lightTheme_checkedToPressed() {
+    fun filledTonalToggleButton_lightTheme_checkedToPressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(wrapperTestTag)) {
-                TonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
+                FilledTonalToggleButton(checked = true, onCheckedChange = {}) { Text("Button") }
             }
         }
 
@@ -334,7 +334,7 @@ class ToggleButtonScreenshotTest {
         // synchronization. Instead just wait until after the ripples are finished animating.
         Thread.sleep(300)
 
-        assertAgainstGolden("tonalToggleButton_lightTheme_checkedToPressed")
+        assertAgainstGolden("filledTonalToggleButton_lightTheme_checkedToPressed")
     }
 
     @Test

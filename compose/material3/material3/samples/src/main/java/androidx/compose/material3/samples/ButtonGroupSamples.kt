@@ -47,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.ToggleButtonShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -269,8 +270,9 @@ fun VerticalButtonGroupSample() {
                 checked = selectedIndex == index,
                 onCheckedChange = { selectedIndex = index },
                 shapes =
-                    ToggleButtonDefaults.shapes(
+                    ToggleButtonShapes(
                         shape = shape,
+                        pressedShape = ToggleButtonDefaults.pressedShape,
                         checkedShape = ButtonGroupDefaults.connectedButtonCheckedShape,
                     ),
                 modifier = Modifier.semantics { role = Role.RadioButton },
