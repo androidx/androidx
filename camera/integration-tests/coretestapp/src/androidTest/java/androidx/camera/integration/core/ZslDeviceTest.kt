@@ -167,6 +167,55 @@ class ZslDeviceTest(
     }
 
     @Test
+    fun previewImageCaptureZsl_withZoom() {
+        // Arrange.
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCaptureZsl))
+        bindUseCases(preview, imageCaptureZsl)
+
+        val maxZoomRatio = cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+        val zoomRatio = if (maxZoomRatio > 2f) 2f else maxZoomRatio
+
+        instrumentation.runOnMainSync { camera.cameraControl.setZoomRatio(zoomRatio) }
+
+        // Capture images with ZSL and verify each capture.
+        for (i in 0 until 10) {
+            previewMonitor.waitForStream()
+            imageCaptureZsl.waitForCapturing()
+            Log.d(TAG, "Test ZSL capture with zoom round: $i")
+            // Assert. Verifies the preview is still outputting after capture
+            previewMonitor.waitForStream()
+        }
+    }
+
+    @Test
+    fun previewImageCaptureZsl_withZoomChange() {
+        // Arrange.
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCaptureZsl))
+        bindUseCases(preview, imageCaptureZsl)
+
+        val maxZoomRatio = cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+        val minZoomRatio = cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+        val zoomRatioIn = if (maxZoomRatio > 2f) 2f else maxZoomRatio
+        val zoomRatioOut = minZoomRatio
+
+        // Capture images with ZSL and verify each capture, while changing zoom.
+        // We zoom in and out across different ratios to test the ZSL behavior when the underlying
+        // logical camera switches physical lenses (e.g., from Wide to Telephoto or Ultrawide).
+        // This validates that the ZSL resolutions configured during bindToLifecycle are
+        // properly supported across all physical cameras within the logical camera array.
+        for (i in 0 until 10) {
+            val targetZoom = if (i % 2 == 0) zoomRatioIn else zoomRatioOut
+            instrumentation.runOnMainSync { camera.cameraControl.setZoomRatio(targetZoom) }
+
+            previewMonitor.waitForStream()
+            imageCaptureZsl.waitForCapturing()
+            Log.d(TAG, "Test ZSL capture with zoom change round: $i, zoom: $targetZoom")
+            // Assert. Verifies the preview is still outputting after capture
+            previewMonitor.waitForStream()
+        }
+    }
+
+    @Test
     fun imageCaptureZsl() = runBlocking {
         // Arrange.
         bindUseCases(imageCaptureZsl)
@@ -447,7 +496,7 @@ class ZslDeviceTest(
     class PreviewMonitor {
         private var countDown: CountDownLatch? = null
         private val surfaceProvider = createAutoDrainingSurfaceTextureProvider {
-            countDown?.countDown()
+            synchronized(this) { countDown?.countDown() }
         }
 
         fun getSurfaceProvider(): Preview.SurfaceProvider = surfaceProvider

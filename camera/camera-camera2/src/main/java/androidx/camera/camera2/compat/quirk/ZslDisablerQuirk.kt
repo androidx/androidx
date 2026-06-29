@@ -36,7 +36,7 @@ public class ZslDisablerQuirk : Quirk {
 
     public companion object {
         private val AFFECTED_SAMSUNG_MODEL =
-            listOf("SM-F936", "SM-S901U", "SM-S908U", "SM-S908U1", "SM-F721U1", "SM-S928U1")
+            listOf("SM-F936", "SM-S901U", "SM-S908U", "SM-S908U1", "SM-F721", "SM-S928U1")
 
         private val AFFECTED_XIAOMI_MODEL = listOf("MI 8")
 
