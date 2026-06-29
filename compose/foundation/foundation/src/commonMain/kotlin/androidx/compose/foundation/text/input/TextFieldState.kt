@@ -41,18 +41,14 @@ import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.style.TextDecoration
 
 /**
- * The editable text state of a text field, including both the [text] itself and position of the
- * cursor or selection.
+ * Manages editable text, selection, and cursor state for a text field.
  *
- * To change the text field contents programmatically, call [edit], [setTextAndSelectAll],
- * [setTextAndPlaceCursorAtEnd], or [clearText]. Individual parts of the state like [text],
- * [selection], or [composition] can be read from any snapshot restart scope like Composable
- * functions. To observe these members from outside a restart scope, use `snapshotFlow {
- * textFieldState.text }` or `snapshotFlow { textFieldState.selection }`.
+ * Modify state programmatically using [edit], [setTextAndSelectAll], [setTextAndPlaceCursorAtEnd],
+ * or [clearText]. Read state ([text], [selection], [composition]) directly inside Composable
+ * functions, or use [snapshotFlow] to observe changes from outside composition.
  *
- * When instantiating this class from a composable, use [rememberTextFieldState] to automatically
- * save and restore the field state. For more advanced use cases, pass [TextFieldState.Saver] to
- * [rememberSaveable].
+ * Use [rememberTextFieldState] in composables to automatically save and restore state. For more
+ * control over state restoration, use [Saver].
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldStateCompleteSample
  */
@@ -193,13 +189,10 @@ internal constructor(
         get() = value.textFieldTextStyles ?: EmptyTextFieldTextStyles
 
     /**
-     * Runs [block] with a mutable version of the current state. The block can make changes to the
-     * text and cursor/selection. See the documentation on [TextFieldBuffer] for a more detailed
-     * description of the available operations.
+     * Runs [block] to edit text, selection, and cursor state.
      *
-     * Make sure that you do not make concurrent calls to this function or call it again inside
-     * [block]'s scope. Doing either of these actions will result in triggering an
-     * [IllegalStateException].
+     * Use [TextFieldBuffer] operations inside the block to modify content. Avoid calling [edit]
+     * concurrently or recursively to prevent [IllegalStateException].
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldStateEditSample
      * @see setTextAndPlaceCursorAtEnd
@@ -219,7 +212,7 @@ internal constructor(
         Snapshot.withoutReadObservation { "TextFieldState(selection=$selection, text=\"$text\")" }
 
     /**
-     * Undo history controller for this TextFieldState.
+     * Manages undo and redo history for this state.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldUndoSample
      */
