@@ -27,7 +27,9 @@ plugins {
 }
 dependencies {
     api(libs.kotlinStdlib)
+
     implementation(libs.kotlinSerializationJson)
+
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.guavaTestlib)
