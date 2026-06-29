@@ -1266,6 +1266,8 @@ includeProject(":xr:glimmer:glimmer-google-fonts:glimmer-google-fonts-samples", 
 includeProject(":xr:glimmer:benchmark", [BuildType.XR, BuildType.COMPOSE])
 includeProject(":xr:glimmer:glimmer:glimmer-samples", "xr/glimmer/glimmer/samples", [BuildType.XR, BuildType.COMPOSE])
 includeProject(":xr:glimmer:integration-tests:demos", [BuildType.XR, BuildType.COMPOSE])
+includeProject(":xr:glimmer:integration-tests:macrobenchmark", [BuildType.XR, BuildType.COMPOSE])
+includeProject(":xr:glimmer:integration-tests:macrobenchmark-target", [BuildType.XR, BuildType.COMPOSE])
 includeProject(":xr:glimmer:test-utils", [BuildType.XR, BuildType.COMPOSE])
 includeProject(":xr:projected:projected", [BuildType.XR])
 includeProject(":xr:projected:integration-tests:testapp", [BuildType.XR])
