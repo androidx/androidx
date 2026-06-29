@@ -17,13 +17,12 @@
 package androidx.navigation.compose
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
@@ -51,7 +50,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -67,6 +65,8 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.testing.TestNavigationEventDispatcherOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1034,8 +1034,7 @@ class NavHostTest {
 
         composeTestRule.setContent {
             // Add the flags to make NavController think this is a deep link
-            val activity = LocalContext.current as? Activity
-            activity?.intent?.run {
+            LocalActivity.current?.intent?.run {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
             navController = rememberNavController()
@@ -1210,25 +1209,21 @@ class NavHostTest {
 
     @Test
     fun testNestedNavHostOnBackPressed() {
-        var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
-        val onBackPressedDispatcher = OnBackPressedDispatcher()
-        val dispatcherOwner =
-            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
-                override val onBackPressedDispatcher = onBackPressedDispatcher
-            }
-        lateinit var navController: NavHostController
-        lateinit var innerNavController: NavHostController
+        var childLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val dispatcherOwner = TestNavigationEventDispatcherOwner()
+        lateinit var parentNavController: NavHostController
+        lateinit var childNavController: NavHostController
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
-                navController = rememberNavController()
-                NavHost(navController, first) {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides dispatcherOwner) {
+                parentNavController = rememberNavController()
+                NavHost(parentNavController, first) {
                     composable(first) {
-                        CompositionLocalProvider(LocalLifecycleOwner provides innerLifecycleOwner) {
+                        CompositionLocalProvider(LocalLifecycleOwner provides childLifecycleOwner) {
                             // Note: you should not ever do this. Use the state of the single
                             // NavHost to control the visibility of global UI
-                            innerNavController = rememberNavController()
-                            NavHost(innerNavController, "innerFirst") {
+                            childNavController = rememberNavController()
+                            NavHost(childNavController, "innerFirst") {
                                 composable("innerFirst") {}
                                 composable("innerSecond") {}
                             }
@@ -1240,35 +1235,37 @@ class NavHostTest {
         }
 
         composeTestRule.runOnIdle {
-            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
-            innerNavController.navigate("innerSecond")
-            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+            assertThat(dispatcherOwner.navigationEventInput.hasEnabledHandlers).isFalse()
+        }
+        composeTestRule.runOnIdle { childNavController.navigate("innerSecond") }
+        composeTestRule.runOnIdle {
+            assertThat(dispatcherOwner.navigationEventInput.hasEnabledHandlers).isTrue()
         }
 
         // Now navigate to a second destination in the outer NavHost
-        composeTestRule.runOnIdle { navController.navigate(second) }
-
-        composeTestRule.runOnIdle { innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED }
+        composeTestRule.runOnIdle { parentNavController.navigate(second) }
+        composeTestRule.runOnIdle { childLifecycleOwner.currentState = Lifecycle.State.DESTROYED }
 
         // Now trigger the back button
         composeTestRule.runOnIdle {
-            onBackPressedDispatcher.onBackPressed()
-            innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+            dispatcherOwner.navigationEventInput.backCompleted()
+            childLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         }
 
-        composeTestRule.waitForIdle()
-        assertThat(navController.currentDestination?.route).isEqualTo(first)
-        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerSecond")
+        composeTestRule.runOnIdle {
+            assertThat(parentNavController.currentDestination?.route).isEqualTo(first)
+            assertThat(childNavController.currentDestination?.route).isEqualTo("innerSecond")
+        }
 
         // Now trigger the back button
-        composeTestRule.runOnIdle { onBackPressedDispatcher.onBackPressed() }
+        composeTestRule.runOnIdle { dispatcherOwner.navigationEventInput.backCompleted() }
 
         composeTestRule.waitForIdle()
-        assertThat(navController.currentDestination?.route).isEqualTo(first)
-        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerFirst")
+        assertThat(parentNavController.currentDestination?.route).isEqualTo(first)
+        assertThat(childNavController.currentDestination?.route).isEqualTo("innerFirst")
         // Assert that there's no enabled callbacks left when all of the NavControllers
         // are on their start destination
-        assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+        assertThat(dispatcherOwner.navigationEventInput.hasEnabledHandlers).isFalse()
     }
 
     @Test

@@ -16,14 +16,14 @@
 
 package androidx.navigation.compose
 
-import android.window.BackEvent
-import androidx.activity.BackEventCompat
-import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.testing.TestNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -40,14 +40,15 @@ class NavHostPredictiveBackTest {
     @Test
     fun testNavHostAnimations() {
         lateinit var navController: NavHostController
-        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        val owner = TestNavigationEventDispatcherOwner()
+
         composeTestRule.setContent {
             navController = rememberNavController()
-            backPressedDispatcher =
-                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            NavHost(navController, startDestination = first) {
-                composable(first) { BasicText(first) }
-                composable(second) { BasicText(second) }
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
+                NavHost(navController, startDestination = first) {
+                    composable(first) { BasicText(first) }
+                    composable(second) { BasicText(second) }
+                }
             }
         }
 
@@ -72,9 +73,7 @@ class NavHostPredictiveBackTest {
         val secondEntry = navController.currentBackStackEntry
 
         composeTestRule.runOnIdle {
-            backPressedDispatcher.dispatchOnBackStarted(
-                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
-            )
+            owner.navigationEventInput.backStarted(NavigationEvent(progress = 0.1F))
         }
 
         composeTestRule.waitForIdle()
@@ -85,16 +84,14 @@ class NavHostPredictiveBackTest {
             .isEqualTo(Lifecycle.State.STARTED)
 
         composeTestRule.runOnIdle {
-            backPressedDispatcher.dispatchOnBackProgressed(
-                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
-            )
+            owner.navigationEventInput.backProgressed(NavigationEvent(progress = 0.5F))
         }
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
         assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.STARTED)
 
-        composeTestRule.runOnIdle { backPressedDispatcher.dispatchOnBackCancelled() }
+        composeTestRule.runOnIdle { owner.navigationEventInput.backCancelled() }
 
         composeTestRule.runOnIdle {
             assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -105,14 +102,15 @@ class NavHostPredictiveBackTest {
     @Test
     fun testDisabledInSameFramePredictiveBack() {
         lateinit var navController: NavHostController
-        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        val owner = TestNavigationEventDispatcherOwner()
+
         composeTestRule.setContent {
             navController = rememberNavController()
-            backPressedDispatcher =
-                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            NavHost(navController, startDestination = first) {
-                composable(first) { BasicText(first) }
-                composable(second) { BasicText(second) }
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
+                NavHost(navController, startDestination = first) {
+                    composable(first) { BasicText(first) }
+                    composable(second) { BasicText(second) }
+                }
             }
         }
 
@@ -140,10 +138,8 @@ class NavHostPredictiveBackTest {
 
         composeTestRule.runOnIdle {
             navController.popBackStack()
-            backPressedDispatcher.dispatchOnBackStarted(
-                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
-            )
-            backPressedDispatcher.onBackPressed()
+            owner.navigationEventInput.backStarted(NavigationEvent(progress = 0.1F))
+            owner.navigationEventInput.backCompleted()
         }
 
         composeTestRule.mainClock.autoAdvance = true
