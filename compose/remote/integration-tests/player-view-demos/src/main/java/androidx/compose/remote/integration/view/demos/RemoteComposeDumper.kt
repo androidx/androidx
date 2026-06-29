@@ -50,11 +50,12 @@ fun RemoteComposeDumper(
     sample: DumperSample,
     width: Int,
     height: Int,
+    densityDpi: Int = LocalConfiguration.current.densityDpi,
+    fontScale: Float = LocalConfiguration.current.fontScale,
     onFinished: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val config = LocalConfiguration.current
 
     val stream = remember { ReusableByteArrayStream(1024 * 1024) }
     var isCaptureFinished by remember { mutableStateOf(false) }
@@ -62,8 +63,8 @@ fun RemoteComposeDumper(
     var currentDataLength by remember { mutableIntStateOf(0) }
 
     val creationDisplayInfo =
-        remember(sample, width, height) {
-            RemoteCreationDisplayInfo(width, height, config.densityDpi, config.fontScale)
+        remember(sample, width, height, densityDpi, fontScale) {
+            RemoteCreationDisplayInfo(width, height, densityDpi, fontScale)
         }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 
@@ -106,6 +107,9 @@ fun RemoteComposeDumper(
                 isCaptureFinished = true
                 onFinished(file.absolutePath)
             }
+        }
+        is DumperSample.FileSample -> {
+            LaunchedEffect(sample) { onFinished(sample.file.absolutePath) }
         }
     }
 }

@@ -149,7 +149,7 @@ fun AiAgent(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
                 contentAlignment = RemoteAlignment.CenterEnd,
             ) {
                 FitBox(modifier = RemoteModifier.fillMaxWidth(0.95f)) {
-                    arrayOf(16.rsp, 14.rsp, 12.rsp).forEach { size ->
+                    arrayOf(16.rsp, 14.rsp, 12.rsp, 10.rsp, 8.rsp).forEach { size ->
                         RemoteText(
                             text = "edsger-saga-6-7, v0.42.0-nightly.git.487fb21",
                             fontSize = size,
