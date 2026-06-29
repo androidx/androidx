@@ -224,4 +224,20 @@ internal interface WorkMetricsSpecDao {
         periodCount: Int,
         stopReasonCounts: Map<Int, Int>,
     ): Int
+
+    /**
+     * Deletes completed [WorkMetricsSpec] records that finished before the specified threshold
+     * time.
+     *
+     * @param thresholdTimeMillis The threshold time in milliseconds. Completed records with a
+     *   finish time less than this value will be deleted.
+     * @return The number of deleted rows.
+     */
+    @Query(
+        """
+        DELETE FROM WorkMetricsSpec
+        WHERE state IN $COMPLETED_STATES AND finish_time_ms < :thresholdTimeMillis
+    """
+    )
+    fun deleteFinishedSpecsOlderThan(thresholdTimeMillis: Long): Int
 }

@@ -28,6 +28,9 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
 import java.util.UUID
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -746,5 +749,231 @@ class WorkMetricsInfoRepositoryTest {
             workerClassName = workerClass,
             periodicityInfo = periodicityInfo,
         )
+    }
+
+    @Test
+    fun testRetentionPolicy_deletesOldFinishedMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 1.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // 1. Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // Verify it is there
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 2. Enqueue work 2 at t = 1000 + 1 day + 1 sec (t = 86402000)
+        // This should trigger cleanup and delete work 1
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is deleted, work 2 is present
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_doesNotDeleteYoungMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 2.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // Enqueue work 2 at t = 1000 + 25 hours (t = 90001000)
+        // This triggers cleanup, but threshold is 90001000 - 2 days = -82799000.
+        // Work 1 finished at 1000, which is > -82799000, so it should NOT be deleted.
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime = baseTime + 25.hours.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify both are present
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_doesNotDeleteActiveMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 1.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // Enqueue work 1 at t=1000, leave it active (ENQUEUED_PENDING)
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+
+        // Enqueue work 2 at t = 86402000 ( > 1 day) to trigger cleanup
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is STILL there because it is active
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_throttlesCleanup() = runTest {
+        // Use 1 ms retention for testing throttling.
+        // This means almost any finished work is older than threshold.
+        val retentionRepository =
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = 1L)
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // 1. Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2. Enqueue work 2 at t=2000.
+        // Cleanup should NOT run because t=2000 is < 24h from initial 0.
+        // Work 1 should still be there.
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        testClock.currentTime = baseTime + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 3. Advance to t=86402000 (> 24h).
+        // Enqueue work 3. Cleanup SHOULD run. lastCleanup becomes 86402000.
+        // Work 1 (finished at 1000) should be deleted.
+        val workId3 = UUID.randomUUID()
+        val workInfo3 = createTestWorkInfo(id = workId3)
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo3)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 4. Finish work 2 (enqueued at 2000) at t=86403000.
+        retentionRepository.onUnblocked(workInfo2)
+        retentionRepository.onStarted(workInfo2.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo2.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+
+        // 5. Enqueue work 4 at t=86404000 (only 2000ms after last cleanup).
+        // Cleanup should NOT run.
+        // Work 2 (finished at 86403000) should STILL be there, even though retention is 0 and it is
+        // finished.
+        val workId4 = UUID.randomUUID()
+        val workInfo4 = createTestWorkInfo(id = workId4)
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 3.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo4)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+
+        // 6. Advance to t=172804000 (> 24h since 86402000).
+        // Enqueue work 5. Cleanup SHOULD run.
+        // Work 2 should now be deleted.
+        val workId5 = UUID.randomUUID()
+        val workInfo5 = createTestWorkInfo(id = workId5)
+        testClock.currentTime =
+            baseTime + 2.days.inWholeMilliseconds + 3.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo5)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_clampsToMaxRetention() = runTest {
+        // Pass 40 days, should be clamped to 30 days (MAX_RETENTION_TIME_MILLIS)
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 40.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        // 1. Enqueue and finish work 1 at t=1000
+        val baseTime = 1000L
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2. Enqueue work 2 at t = 1000 + 31 days (exceeds 30 days max, but less than 40 days)
+        // If it was NOT clamped, work 1 would NOT be deleted (since 31 days < 40 days).
+        // Since it IS clamped to 30 days, work 1 SHOULD be deleted (since 31 days > 30 days).
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 31.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is deleted (proving clamping to 30 days occurred)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_invalidTime_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = -1L)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = 0L)
+        }
     }
 }
