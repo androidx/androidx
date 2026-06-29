@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+
 import androidx.build.AndroidXConfig
-import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import androidx.build.ProjectLayoutType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /**
@@ -74,43 +74,18 @@ wire {
         include 'protos/perfetto/*/*.proto'
     }
 
-    prune 'perfetto.protos.AndroidBatteryMetric'
-    prune 'perfetto.protos.AndroidBinderMetric'
-    prune 'perfetto.protos.AndroidCameraMetric'
-    prune 'perfetto.protos.AndroidCameraUnaggregatedMetric'
-    prune 'perfetto.protos.AndroidCpuMetric'
-    prune 'perfetto.protos.AndroidDisplayMetrics'
-    prune 'perfetto.protos.AndroidDmaHeapMetric'
-    prune 'perfetto.protos.AndroidDvfsMetric'
-    prune 'perfetto.protos.AndroidFastrpcMetric'
-    prune 'perfetto.protos.AndroidFrameTimelineMetric'
-    prune 'perfetto.protos.AndroidGpuMetric'
-    prune 'perfetto.protos.AndroidHwcomposerMetrics'
-    prune 'perfetto.protos.AndroidHwuiMetric'
-    prune 'perfetto.protos.AndroidIonMetric'
-    prune 'perfetto.protos.AndroidIrqRuntimeMetric'
-    prune 'perfetto.protos.AndroidJankCujMetric'
-    prune 'perfetto.protos.AndroidLmkMetric'
-    prune 'perfetto.protos.AndroidLmkReasonMetric'
-    prune 'perfetto.protos.AndroidMemoryMetric'
-    prune 'perfetto.protos.AndroidMemoryUnaggregatedMetric'
-    prune 'perfetto.protos.AndroidMultiuserMetric'
-    prune 'perfetto.protos.AndroidNetworkMetric'
-    prune 'perfetto.protos.AndroidPackageList'
-    prune 'perfetto.protos.AndroidPowerRails'
-    prune 'perfetto.protos.AndroidRtRuntimeMetric'
-    prune 'perfetto.protos.AndroidSimpleperfMetric'
-    prune 'perfetto.protos.AndroidSurfaceflingerMetric'
-    prune 'perfetto.protos.AndroidTaskNames'
-    prune 'perfetto.protos.AndroidTraceQualityMetric'
-    prune 'perfetto.protos.G2dMetrics'
-    prune 'perfetto.protos.JavaHeapHistogram'
-    prune 'perfetto.protos.JavaHeapStats'
-    prune 'perfetto.protos.ProcessRenderInfo'
-    prune 'perfetto.protos.ProfilerSmaps'
-    prune 'perfetto.protos.TraceAnalysisStats'
-    prune 'perfetto.protos.TraceMetadata'
-    prune 'perfetto.protos.UnsymbolizedFrames'
+    // Only compile the protos used directly by traceprocessor (which are a subset of those defined
+    // by the necessary files). As new messages from within the above protos are needed, this list
+    // must be expanded. Note that there's no dynamic usage of protos outside the library, since we
+    // can't expose these protos as API.
+    root 'perfetto.protos.AndroidStartupMetric'
+    root 'perfetto.protos.AppendTraceDataResult'
+    root 'perfetto.protos.ComputeMetricArgs'
+    root 'perfetto.protos.ComputeMetricResult'
+    root 'perfetto.protos.QueryArgs'
+    root 'perfetto.protos.QueryResult'
+    root 'perfetto.protos.StatusResult'
+    root 'perfetto.protos.TraceMetrics'
 }
 
 androidx {
