@@ -1,9 +1,9 @@
 ext.configureForkBuildscript = { ScriptHandler buildscriptHandler ->
     buildscriptHandler.with {
         ext.supportRootFolder = buildscript.sourceFile.getParentFile()
-        apply(from: "buildSrc/repos.gradle")
-        apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
-        apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
+        apply(from: "buildSrc-fork/repos.gradle")
+        apply(from: "buildSrc-fork/settingsScripts/project-dependency-graph.groovy")
+        apply(from: "buildSrc-fork/settingsScripts/skiko-setup.groovy")
 
         repos.addMavenRepositories(repositories)
 

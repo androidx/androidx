@@ -37,9 +37,9 @@ buildscript {
     }
 
     ext.supportRootFolder = buildscript.sourceFile.getParentFile()
-    apply(from: "buildSrc/repos.gradle")
-    apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
-    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
+    apply(from: "buildSrc-fork/repos.gradle")
+    apply(from: "buildSrc-fork/settingsScripts/project-dependency-graph.groovy")
+    apply(from: "buildSrc-fork/settingsScripts/skiko-setup.groovy")
 
     repos.addMavenRepositories(repositories)
 
@@ -59,6 +59,12 @@ buildscript {
         // set guava version to be compatible with Depdendency analysis gradle plugin
         classpath("com.google.guava:guava:33.3.1-jre")
     }
+}
+
+def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
+if (!isRunFromGradlewStudio) {
+    apply from: "settings-fork.gradle"
+    return
 }
 
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
@@ -83,7 +89,7 @@ def prebuiltsRoot = new File(
 ).absolutePath
 def rootProjectRepositories
 
-apply from: "buildSrc/settingsScripts/out-setup.groovy"
+apply from: "buildSrc-fork/settingsScripts/out-setup.groovy"
 
 getGradle().beforeProject { project ->
     // Migrate to dependencyResolutionManagement.repositories when
@@ -117,7 +123,7 @@ apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
 apply(plugin: "com.android.settings")
 
-apply(from: "buildSrc/ndk.gradle")
+apply(from: "buildSrc-fork/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 develocity {

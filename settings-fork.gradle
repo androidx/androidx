@@ -1,51 +1,6 @@
 import groovy.transform.Field
 
-pluginManagement {
-    repositories {
-        /*
-        maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
-        }
-        maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/internal").getCanonicalFile()
-        }
-         */
-        if (true /* In JetBrains Fork */) {
-            mavenCentral()
-            google()
-            maven {
-                url = "https://plugins.gradle.org/m2/"
-            }
-        }
-    }
-    includeBuild("androidx-settings-plugins")
-}
-
-buildscript {
-    ext.supportRootFolder = buildscript.sourceFile.getParentFile()
-    apply(from: "buildSrc/repos.gradle")
-    apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
-    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
-
-    repos.addMavenRepositories(repositories)
-
-    dependencies {
-        // upgrade protobuf to be compatible with AGP
-        classpath("com.google.protobuf:protobuf-java:3.25.5")
-        classpath("com.gradle:develocity-gradle-plugin:4.3")
-        classpath("com.gradle:common-custom-user-data-gradle-plugin:2.4.0")
-        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0")
-        classpath("com.google.cloud:google-cloud-secretmanager:2.67.0")
-        def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
-        if (agpOverride != null) {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
-        } else {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:8.12.0")
-        }
-        // set guava version to be compatible with Depdendency analysis gradle plugin
-        classpath("com.google.guava:guava:33.3.1-jre")
-    }
-}
+rootProject.buildFileName = "build-fork.gradle"
 
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
 
@@ -597,7 +552,12 @@ void includeRequestedProjectsAndDependencies() {
             .getAllProjectsWithDependencies(filteredProjects)
     projectsToInclude.forEach { path, dir ->
         settings.include(path)
-        project(path).projectDir = dir
+        def project = project(path)
+        project.projectDir = dir
+        project.buildFileName = ["build-fork.gradle.kts", "build-fork.gradle", "build.gradle.kts", "build.gradle"]
+                .find {
+                    new File(project.projectDir, it).isFile()
+                }
     }
 }
 includeRequestedProjectsAndDependencies()
