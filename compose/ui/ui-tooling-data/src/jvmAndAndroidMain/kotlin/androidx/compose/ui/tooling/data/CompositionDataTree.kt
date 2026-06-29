@@ -94,9 +94,30 @@ private class CompositionDataTree<T, R>(
         }
 
         val childrenToAdd = mutableMapOf<CompositionGroup, MutableList<R>>()
-        children
-            .filter { it in processedNodes }
-            .groupByTo(childrenToAdd, { it.findContextGroup()!! }, { processedNodes[it]!! })
+        val unanchoredChildren = mutableListOf<R>()
+
+        // Stitch children to their corresponding anchor groups in the parent.
+        // During dynamic updates or animations, a subcomposition might temporarily be in a
+        // transitive state where it has a parent but is not yet anchored in the parent's slot table
+        // (i.e., findContextGroup() returns null). To prevent crashes and avoid losing
+        // these nodes from the tooling tree, we collect them and fallback to stitching
+        // them to the parent's first root group.
+        children.forEach { child ->
+            processedNodes[child]?.let { value ->
+                val group = child.findContextGroup()
+                if (group != null) {
+                    childrenToAdd.getOrPut(group) { mutableListOf() }.add(value)
+                } else {
+                    unanchoredChildren.add(value)
+                }
+            }
+        }
+
+        if (unanchoredChildren.isNotEmpty()) {
+            compositionData.compositionGroups.firstOrNull()?.let { fallbackGroup ->
+                childrenToAdd.getOrPut(fallbackGroup) { mutableListOf() }.addAll(unanchoredChildren)
+            }
+        }
 
         // Now, map the current tree, stitching the children's results.
         // The `mapTreeWithStitching` function is an assumed extension that handles the actual
