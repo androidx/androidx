@@ -274,17 +274,13 @@ package androidx.appsearch.builtintypes {
   @androidx.appsearch.annotation.Document.BuilderProducer public static final class Person.Builder extends androidx.appsearch.builtintypes.Person.BuilderBase<androidx.appsearch.builtintypes.Person.Builder!> {
     ctor public Person.Builder(androidx.appsearch.builtintypes.Person);
     ctor public Person.Builder(String, String, String);
-    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setAdditionalNameTypes(java.util.List<java.lang.Long!>);
-    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.builtintypes.Person.Builder setAdditionalNamesList(java.util.List<java.lang.String!>);
   }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class Person.BuilderBase<T extends androidx.appsearch.builtintypes.Person.BuilderBase<T>> extends androidx.appsearch.builtintypes.Thing.BuilderBase<T> {
     ctor public Person.BuilderBase(androidx.appsearch.builtintypes.Person);
     ctor public Person.BuilderBase(String, String, String);
     method public androidx.appsearch.builtintypes.Person build();
-    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public T setAdditionalNameTypes(java.util.List<java.lang.Long!>);
     method public T setAdditionalNames(java.util.List<androidx.appsearch.builtintypes.Person.AdditionalName!>);
-    method @SuppressCompatibility @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY, androidx.annotation.RestrictTo.Scope.SUBCLASSES}) @androidx.appsearch.app.ExperimentalAppSearchApi public T setAdditionalNamesList(java.util.List<java.lang.String!>);
     method public T setAffiliations(java.util.List<java.lang.String!>);
     method public T setBot(boolean);
     method public T setContactPoints(java.util.List<androidx.appsearch.builtintypes.ContactPoint!>);
