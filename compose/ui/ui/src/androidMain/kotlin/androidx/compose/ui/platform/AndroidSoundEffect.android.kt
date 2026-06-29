@@ -23,6 +23,12 @@ import android.view.View
 internal class AndroidSoundEffect(private val view: View) : SoundEffect {
 
     override fun playClickSound() {
-        view.playSoundEffect(SoundEffectConstants.CLICK)
+        try {
+            // playSoundEffect can throw DeadSystemException (subclass of DeadObjectException)
+            // if the audio service is crashed or unavailable.
+            view.playSoundEffect(SoundEffectConstants.CLICK)
+        } catch (e: android.os.DeadObjectException) {
+            // Ignore failure
+        }
     }
 }

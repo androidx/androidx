@@ -69,6 +69,7 @@ import android.view.translation.ViewTranslationRequest
 import android.view.translation.ViewTranslationResponse
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectList
@@ -990,11 +991,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             focusOwner.moveFocus(focusDirection = it, wrapAroundForOneDimensionalFocus = false)
         }
 
-    private class AndroidComposeViewNavigationSoundEffect(private val view: View) :
+    internal class AndroidComposeViewNavigationSoundEffect(private val view: View) :
         (FocusDirection, Boolean) -> Unit {
 
+        @OptIn(ExperimentalComposeUiApi::class)
         override fun invoke(direction: FocusDirection, isFastScrolling: Boolean) {
-            @OptIn(ExperimentalComposeUiApi::class)
             if (!AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) return
 
             val androidDirection = direction.toAndroidFocusDirection() ?: return
@@ -1007,7 +1008,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     SoundEffectConstants.getContantForFocusDirection(androidDirection)
                 }
 
-            view.playSoundEffect(soundToPlay)
+            try {
+                // playSoundEffect can throw DeadSystemException (subclass of DeadObjectException)
+                // if the audio service is crashed or unavailable.
+                view.playSoundEffect(soundToPlay)
+            } catch (e: android.os.DeadObjectException) {
+                // Ignore failure
+            }
         }
     }
 
@@ -4162,4 +4169,19 @@ internal class IndirectPointerNavigationGestureDetector(
         gestureDetector.onTouchEvent(cancelEvent)
         cancelEvent.recycle()
     }
+}
+
+/** Enables or disables navigation sound effects for testing or benchmarking. */
+@VisibleForTesting
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun ViewRootForTest.setNavigationSoundEffectEnabled(enabled: Boolean) {
+    require(this is AndroidComposeView) {
+        "setNavigationSoundEffectEnabled can only be called on an AndroidComposeView"
+    }
+    playNavigationSoundEffect =
+        if (enabled) {
+            AndroidComposeView.AndroidComposeViewNavigationSoundEffect(this)
+        } else {
+            { _, _ -> }
+        }
 }

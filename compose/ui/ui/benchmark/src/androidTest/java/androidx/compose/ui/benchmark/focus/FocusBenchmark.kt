@@ -32,6 +32,8 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.platform.setNavigationSoundEffectEnabled
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -72,7 +74,12 @@ class FocusBenchmark {
                 }
             }
         }) {
-            composeBenchmarkRule.runOnUiThread { doFramesUntilNoChangesPending() }
+            composeBenchmarkRule.runOnUiThread {
+                doFramesUntilNoChangesPending()
+
+                // Disable sound effects for benchmark
+                (getHostView() as ViewRootForTest).setNavigationSoundEffectEnabled(false)
+            }
 
             composeBenchmarkRule.measureRepeatedOnUiThread {
                 getHostView().dispatchKeyEvent(KeyEvent(ACTION_DOWN, KEYCODE_TAB))
