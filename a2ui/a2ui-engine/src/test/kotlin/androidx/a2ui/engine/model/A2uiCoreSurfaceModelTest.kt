@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.model
+package androidx.a2ui.engine.model
 
-import androidx.a2ui.core.catalog.A2uiCoreCatalog
-import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiCoreDataModel
-import androidx.a2ui.core.protocol.A2uiClientError
-import androidx.a2ui.core.protocol.A2uiComponentPayload
-import androidx.a2ui.core.protocol.A2uiDataPath
-import androidx.a2ui.core.protocol.A2uiException
-import androidx.a2ui.core.protocol.A2uiUserAction
+import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
+import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiUserAction
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4
 
 @Suppress("MoveLambdaArgumentOutOfParentheses")
 @RunWith(JUnit4::class)
-class A2uiSurfaceModelTest {
+class A2uiCoreSurfaceModelTest {
 
     private companion object {
         const val SURFACE_ID_1 = "surf-1"
@@ -51,7 +51,7 @@ class A2uiSurfaceModelTest {
         val registry = TestComponentRegistry()
 
         val surface =
-            A2uiSurfaceModel(
+            A2uiCoreSurfaceModel(
                 id = SURFACE_ID_1,
                 catalog = catalog,
                 theme = theme,
@@ -76,7 +76,7 @@ class A2uiSurfaceModelTest {
         val registry = TestComponentRegistry()
 
         val surface =
-            A2uiSurfaceModel(
+            A2uiCoreSurfaceModel(
                 id = SURFACE_ID_1,
                 catalog = TestCatalog(),
                 dataModel = dataModel,
@@ -283,12 +283,12 @@ class A2uiSurfaceModelTest {
         theme: Map<String, Any?> = emptyMap(),
         shouldSendDataModel: Boolean = false,
         dataModel: A2uiCoreDataModel = TestDataModel(),
-        componentRegistry: A2uiComponentRegistry = TestComponentRegistry(),
+        componentRegistry: A2uiCoreComponentRegistry = TestComponentRegistry(),
         onDispatchAction: (A2uiUserAction) -> Unit = emptyActionHandler,
         onDispatchError: (A2uiClientError) -> Unit = emptyErrorHandler,
         timeProvider: () -> Long = { 0L },
-    ): A2uiSurfaceModel {
-        return A2uiSurfaceModel(
+    ): A2uiCoreSurfaceModel {
+        return A2uiCoreSurfaceModel(
             id = id,
             catalog = catalog,
             theme = theme,
@@ -326,7 +326,7 @@ class A2uiSurfaceModelTest {
         }
     }
 
-    private class TestComponentRegistry : A2uiComponentRegistry {
+    private class TestComponentRegistry : A2uiCoreComponentRegistry {
         val components = mutableMapOf<String, A2uiComponentPayload>()
         val reportedErrors = mutableMapOf<String, A2uiException>()
         var isDisposed = false

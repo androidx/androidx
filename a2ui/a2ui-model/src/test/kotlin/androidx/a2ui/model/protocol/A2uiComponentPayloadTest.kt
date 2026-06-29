@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.protocol
+package androidx.a2ui.model.protocol
 
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat

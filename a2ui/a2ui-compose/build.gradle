@@ -30,7 +30,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":a2ui:a2ui-core"))
+    api(project(":a2ui:a2ui-model"))
+    implementation(project(":a2ui:a2ui-engine"))
 
     api("androidx.compose.runtime:runtime:1.10.0")
 

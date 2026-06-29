@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.model
+package androidx.a2ui.engine.model
 
-import androidx.a2ui.core.catalog.A2uiCoreCatalog
-import androidx.a2ui.core.platform.A2uiComponentRegistry
-import androidx.a2ui.core.platform.A2uiCoreDataModel
-import androidx.a2ui.core.protocol.A2uiClientError
-import androidx.a2ui.core.protocol.A2uiComponentPayload
-import androidx.a2ui.core.protocol.A2uiDataPath
-import androidx.a2ui.core.protocol.A2uiException
-import androidx.a2ui.core.protocol.A2uiUserAction
+import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
+import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiUserAction
 
 /**
  * The root domain model for a single active surface.
  *
- * It acts as the owner of that surface's [A2uiCoreDataModel] and [A2uiComponentRegistry], managing
- * updates to these registries and propagating user actions and validation/runtime errors.
+ * It acts as the owner of that surface's [A2uiCoreDataModel] and [A2uiCoreComponentRegistry],
+ * managing updates to these registries and propagating user actions and validation/runtime errors.
  *
  * @param id The unique identifier of this surface.
  * @param catalog The catalog used in this surface.
@@ -42,11 +42,11 @@ import androidx.a2ui.core.protocol.A2uiUserAction
  *   as metadata to outgoing messages to the server.
  * @param timeProvider Provider that returns the current epoch time in milliseconds.
  */
-public class A2uiSurfaceModel(
+public class A2uiCoreSurfaceModel(
     public val id: String,
     public val catalog: A2uiCoreCatalog,
     public val dataModel: A2uiCoreDataModel,
-    public val componentRegistry: A2uiComponentRegistry,
+    public val componentRegistry: A2uiCoreComponentRegistry,
     private val onDispatchAction: (A2uiUserAction) -> Unit,
     private val onDispatchError: (A2uiClientError) -> Unit,
     public val theme: Map<String, Any?> = emptyMap(),
@@ -124,7 +124,7 @@ public class A2uiSurfaceModel(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is A2uiSurfaceModel) return false
+        if (other !is A2uiCoreSurfaceModel) return false
         return (id == other.id) &&
             (catalog == other.catalog) &&
             (dataModel == other.dataModel) &&

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.protocol
+package androidx.a2ui.model.protocol
 
 /**
  * Parses JSON pointer strings (RFC 6901) into segments.

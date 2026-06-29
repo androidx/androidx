@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.core.internal
+package androidx.a2ui.engine.catalog
 
-/** A [SynchronizedObject] provides a mechanism for thread coordination. */
-internal class SynchronizedObject
-
-/** Executes the given function [action] while holding the monitor of the given [lock]. */
-internal inline fun <T> synchronized(lock: SynchronizedObject, action: () -> T): T {
-    return kotlin.synchronized(lock, action)
-}
+/** TODO(nimrodp): Replace this placeholder with an actual interface defining the catalog. */
+public interface A2uiCoreCatalog

@@ -31,8 +31,9 @@ plugins {
 
 dependencies {
     api(project(":compose:runtime:runtime"))
+    api(project(":a2ui:a2ui-model"))
 
-    implementation(project(":a2ui:a2ui-core"))
+    implementation(project(":a2ui:a2ui-engine"))
     implementation(project(":annotation:annotation"))
 
     androidTestImplementation(project(":compose:foundation:foundation"))
@@ -42,6 +43,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.guavaTestlib)
 }
 
 android {

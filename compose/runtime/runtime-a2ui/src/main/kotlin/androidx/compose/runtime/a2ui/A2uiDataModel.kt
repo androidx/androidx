@@ -16,9 +16,9 @@
 
 package androidx.compose.runtime.a2ui
 
-import androidx.a2ui.core.platform.A2uiCoreDataModel
-import androidx.a2ui.core.protocol.A2uiDataPath
-import androidx.a2ui.core.protocol.A2uiException.A2uiRuntimeException
+import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

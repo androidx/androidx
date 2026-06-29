@@ -20,7 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":a2ui:a2ui-core"))
+    implementation(project(":a2ui:a2ui-model"))
+    implementation(project(":a2ui:a2ui-engine"))
 }
 
 android {
