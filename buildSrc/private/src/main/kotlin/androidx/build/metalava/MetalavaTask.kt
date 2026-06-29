@@ -20,6 +20,7 @@ import androidx.build.Version
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.SourceSetInputs
+import androidx.build.getSupportRootFolder
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -62,11 +63,9 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     val configFile: RegularFileProperty =
-        project.objects
-            .fileProperty()
-            .convention(
-                project.isolated.rootProject.projectDirectory.file("buildSrc/metalava-config.xml")
-            )
+        project.objects.fileProperty().convention {
+            File(project.getSupportRootFolder(), "buildSrc/metalava-config.xml")
+        }
 
     fun runWithArgs(args: List<String>) {
         val allArgs = buildList {
