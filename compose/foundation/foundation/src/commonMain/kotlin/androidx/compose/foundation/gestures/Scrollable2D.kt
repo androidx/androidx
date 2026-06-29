@@ -55,14 +55,14 @@ import kotlinx.coroutines.launch
  * draggable, consider using [draggable2D]. If you're only interested in a single direction scroll,
  * consider using [scrollable].
  *
- * This overload provides the access to [OverscrollEffect] that defines the behaviour of the over
- * scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an instance
- * of the current provided overscroll implementation.
+ * This overload provides the access to [OverscrollEffect] that defines the behavior of the
+ * over-scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an
+ * instance of the current provided overscroll implementation.
  *
  * @sample androidx.compose.foundation.samples.Scrollable2DSample
  * @param state [Scrollable2DState] state of the scrollable. Defines how scroll events will be
- *   interpreted by the user land logic and contains useful information about on-going events.
- * @param enabled whether or not scrolling is enabled
+ *   interpreted by the user land logic and contains useful information about ongoing events.
+ * @param enabled whether scrolling is enabled
  * @param overscrollEffect effect to which the deltas will be fed when the scrollable have some
  *   scrolling delta left. Pass `null` for no overscroll. If you pass an effect you should also
  *   apply [androidx.compose.foundation.overscroll] modifier.
