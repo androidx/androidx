@@ -20,7 +20,10 @@ import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.navigation3.ui.samples.AnimatedBottomSheetSample
 import androidx.navigation3.ui.samples.ConcatenatedBackStackSample
+import androidx.navigation3.ui.samples.CustomArgTypeFlattenedArgsSample
+import androidx.navigation3.ui.samples.CustomArgTypeKSerializerSample
 import androidx.navigation3.ui.samples.DialogSample
+import androidx.navigation3.ui.samples.ListCustomArgTypeKSerializerSample
 import androidx.navigation3.ui.samples.MultipleBackStackSample
 import androidx.navigation3.ui.samples.SceneDefaultTransitionsSample
 import androidx.navigation3.ui.samples.SceneNav
@@ -42,5 +45,20 @@ val Navigation3Demos =
             },
             ComposableDemo("Bottom Sheet Exit Animation") { AnimatedBottomSheetSample() },
             ComposableDemo("Dialog Demo") { DialogSample() },
+            DemoCategory(
+                title = "Deep Link Demos",
+                demos =
+                    listOf(
+                        ComposableDemo("Custom Arg Type Flattened Arg Values") {
+                            CustomArgTypeFlattenedArgsSample()
+                        },
+                        ComposableDemo("Custom Arg Type with KSerializer") {
+                            CustomArgTypeKSerializerSample()
+                        },
+                        ComposableDemo("List of Custom Arg Type with KSerializer") {
+                            ListCustomArgTypeKSerializerSample()
+                        },
+                    ),
+            ),
         ),
     )
