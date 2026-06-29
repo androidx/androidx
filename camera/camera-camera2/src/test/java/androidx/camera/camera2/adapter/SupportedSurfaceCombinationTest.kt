@@ -71,6 +71,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.camera2.testing.TestShadowWindowManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.core.CameraX
@@ -167,7 +168,7 @@ import org.robolectric.util.ReflectionHelpers
 @Suppress("DEPRECATION")
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [Config.ALL_SDKS])
+@Config(sdk = [Config.ALL_SDKS], shadows = [TestShadowWindowManager::class])
 class SupportedSurfaceCombinationTest {
     private val streamUseCaseOption: androidx.camera.core.impl.Config.Option<Long> =
         androidx.camera.core.impl.Config.Option.create(

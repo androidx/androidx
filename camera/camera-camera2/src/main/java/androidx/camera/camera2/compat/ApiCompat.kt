@@ -16,10 +16,14 @@
 
 package androidx.camera.camera2.compat
 
+import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.util.Size
+import android.view.Display
 import android.view.Surface
+import android.view.WindowManager
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -33,6 +37,20 @@ internal object Api24Compat {
         frameNumber: Long,
     ) {
         callback.onCaptureBufferLost(session, request, surface, frameNumber)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal object Api30Compat {
+    @JvmStatic
+    fun getDisplaySize(context: Context, display: Display): Size {
+        val displayContext = context.createDisplayContext(display)
+        val windowManager = displayContext.getSystemService(WindowManager::class.java)
+        val bounds =
+            checkNotNull(windowManager) { "WindowManager is not available." }
+                .maximumWindowMetrics
+                .bounds
+        return Size(bounds.width(), bounds.height())
     }
 }
 

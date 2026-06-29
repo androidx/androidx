@@ -25,6 +25,7 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.camera2.testing.TestShadowWindowManager
 import androidx.camera.core.impl.StreamSpec
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +42,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [Config.ALL_SDKS])
+@Config(sdk = [Config.ALL_SDKS], shadows = [TestShadowWindowManager::class])
 class MeteringRepeatingTest {
     companion object {
         val dummyZeroSizeStreamSpec = StreamSpec.builder(Size(0, 0)).build()

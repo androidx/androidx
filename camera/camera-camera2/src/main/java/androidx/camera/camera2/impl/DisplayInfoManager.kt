@@ -17,7 +17,6 @@
 package androidx.camera.camera2.impl
 
 import android.content.Context
-import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 import android.os.Handler
@@ -25,6 +24,7 @@ import android.os.Looper
 import android.util.Size
 import android.view.Display
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.compat.DisplayCompat.getDisplaySize
 import androidx.camera.camera2.compat.workaround.DisplaySizeCorrector
 import androidx.camera.camera2.compat.workaround.MaxPreviewSize
 import androidx.camera.core.impl.utils.ContextUtil
@@ -40,8 +40,7 @@ import androidx.camera.core.internal.utils.SizeUtil
  * the display configuration changes. The next call to [getDisplays] or [getPreviewSize] will then
  * fetch the fresh data.
  */
-@Suppress("DEPRECATION") // getRealSize
-public class DisplayInfoManager private constructor(context: Context) {
+public class DisplayInfoManager private constructor(private val context: Context) {
     private val maxPreviewSize = MaxPreviewSize()
     private val displaySizeCorrector = DisplaySizeCorrector()
 
@@ -179,18 +178,16 @@ public class DisplayInfoManager private constructor(context: Context) {
         var maxDisplaySize = -1
 
         for (display: Display in displays) {
-            val displaySize = Point()
-            // TODO(b/230400472): Use WindowManager#getCurrentWindowMetrics(). Display#getRealSize()
-            //  is deprecated since API level 31.
-            display.getRealSize(displaySize)
+            val displaySize = getDisplaySize(context, display)
+            val area = displaySize.width * displaySize.height
 
-            if (displaySize.x * displaySize.y > maxDisplaySize) {
-                maxDisplaySize = displaySize.x * displaySize.y
+            if (area > maxDisplaySize) {
+                maxDisplaySize = area
                 maxDisplay = display
             }
             if (display.state != Display.STATE_OFF) {
-                if (displaySize.x * displaySize.y > maxDisplaySizeWhenStateNotOff) {
-                    maxDisplaySizeWhenStateNotOff = displaySize.x * displaySize.y
+                if (area > maxDisplaySizeWhenStateNotOff) {
+                    maxDisplaySizeWhenStateNotOff = area
                     maxDisplayWhenStateNotOff = display
                 }
             }
@@ -216,9 +213,7 @@ public class DisplayInfoManager private constructor(context: Context) {
     }
 
     private fun getCorrectedDisplaySize(): Size {
-        val displaySize = Point()
-        getMaxSizeDisplay(false).getRealSize(displaySize)
-        var displayViewSize = Size(displaySize.x, displaySize.y)
+        var displayViewSize = getDisplaySize(context, getMaxSizeDisplay(false))
 
         // Checks whether the display size is abnormally small.
         if (SizeUtil.isSmallerByArea(displayViewSize, ABNORMAL_DISPLAY_SIZE_THRESHOLD)) {
