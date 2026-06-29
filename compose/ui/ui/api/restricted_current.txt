@@ -4891,6 +4891,7 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getFocused();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHeading();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHideFromAccessibility();
+    method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getHintText();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ScrollAxisRange> getHorizontalScrollAxisRange();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.input.ImeAction> getImeAction();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Integer>> getIndexForKey();
@@ -4936,6 +4937,7 @@ package androidx.compose.ui.semantics {
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Focused;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Heading;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> HideFromAccessibility;
+    property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> HintText;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ScrollAxisRange> HorizontalScrollAxisRange;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.input.ImeAction> ImeAction;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Integer>> IndexForKey;
@@ -5007,6 +5009,7 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public static androidx.compose.ui.text.AnnotatedString getEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.autofill.FillableData getFillableData(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static boolean getFocused(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method @InaccessibleFromKotlin public static String getHintText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.semantics.ScrollAxisRange getHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @BytecodeOnly @Deprecated public static int getImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.text.AnnotatedString getInputText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -5086,6 +5089,7 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public static void setEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);
     method @InaccessibleFromKotlin public static void setFillableData(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.autofill.FillableData);
     method @InaccessibleFromKotlin public static void setFocused(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
+    method @InaccessibleFromKotlin public static void setHintText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method @InaccessibleFromKotlin public static void setHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ScrollAxisRange);
     method @BytecodeOnly @Deprecated public static void setImeAction-4L7nppU(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method @InaccessibleFromKotlin public static void setInputText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);
@@ -5129,6 +5133,7 @@ package androidx.compose.ui.semantics {
     property public static androidx.compose.ui.text.AnnotatedString androidx.compose.ui.semantics.SemanticsPropertyReceiver.editableText;
     property public static androidx.compose.ui.autofill.FillableData androidx.compose.ui.semantics.SemanticsPropertyReceiver.fillableData;
     property public static boolean androidx.compose.ui.semantics.SemanticsPropertyReceiver.focused;
+    property public static String androidx.compose.ui.semantics.SemanticsPropertyReceiver.hintText;
     property public static androidx.compose.ui.semantics.ScrollAxisRange androidx.compose.ui.semantics.SemanticsPropertyReceiver.horizontalScrollAxisRange;
     property @Deprecated public static androidx.compose.ui.text.input.ImeAction androidx.compose.ui.semantics.SemanticsPropertyReceiver.imeAction;
     property public static androidx.compose.ui.text.AnnotatedString androidx.compose.ui.semantics.SemanticsPropertyReceiver.inputText;

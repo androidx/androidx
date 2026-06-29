@@ -158,6 +158,9 @@ object SemanticsProperties {
             },
         )
 
+    /** @see SemanticsPropertyReceiver.hintText */
+    val HintText = AccessibilityKey<String>(name = "HintText")
+
     /** @see SemanticsPropertyReceiver.horizontalScrollAxisRange */
     val HorizontalScrollAxisRange = AccessibilityKey<ScrollAxisRange>("HorizontalScrollAxisRange")
 
@@ -919,6 +922,14 @@ var SemanticsPropertyReceiver.contentDescription: String
     set(value) {
         set(SemanticsProperties.ContentDescription, listOf(value))
     }
+
+/**
+ * The hint text for an editable text field. This is typically used to provide guidance to the user
+ * about what to enter in the text field.
+ *
+ * @sample androidx.compose.ui.samples.HintTextSample
+ */
+var SemanticsPropertyReceiver.hintText by SemanticsProperties.HintText
 
 /**
  * Developer-set state description of the semantics node.

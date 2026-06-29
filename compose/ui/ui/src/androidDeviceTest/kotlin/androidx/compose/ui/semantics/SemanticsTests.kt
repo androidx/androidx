@@ -1883,6 +1883,23 @@ class SemanticsTests {
         }
     }
 
+    @Test
+    fun hintText_mergePolicy_prefersParentValue() {
+        val merged =
+            SemanticsProperties.HintText.merge(
+                parentValue = "Parent hint",
+                childValue = "Child hint",
+            )
+        assertThat(merged).isEqualTo("Parent hint")
+    }
+
+    @Test
+    fun hintText_mergePolicy_fallsBackToChildWhenNoParent() {
+        val merged =
+            SemanticsProperties.HintText.merge(parentValue = null, childValue = "Child hint")
+        assertThat(merged).isEqualTo("Child hint")
+    }
+
     private fun SemanticsNode.isTestTag(testTag: String) =
         this.unmergedConfig.getOrNull(SemanticsProperties.TestTag) == testTag
 }
