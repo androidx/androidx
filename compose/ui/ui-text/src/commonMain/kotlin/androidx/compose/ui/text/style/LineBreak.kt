@@ -24,20 +24,25 @@ import androidx.compose.ui.text.style.LineBreak.Companion.Simple
 import kotlin.jvm.JvmInline
 
 /**
- * When soft wrap is enabled and the width of the text exceeds the width of its container, line
- * breaks are inserted in the text to split it over multiple lines.
+ * Configures line breaking behavior when text wraps automatically to fit its container.
  *
- * There are a number of parameters that affect how the line breaks are inserted. For example, the
- * breaking algorithm can be changed to one with improved readability at the cost of speed. Another
- * example is the strictness, which in some languages determines which symbols can appear at the
- * start of a line.
+ * Offers presets for common use cases:
  *
- * `LineBreak` represents a configuration for line breaking, offering several presets for different
- * use cases: [Simple], [Heading], [Paragraph].
+ * | Preset      | Use Case                    |
+ * |-------------|-----------------------------|
+ * | [Simple]    | Text fields and inputs      |
+ * | [Heading]   | Titles and short text       |
+ * | [Paragraph] | Body text and long passages |
  *
  * @sample androidx.compose.ui.text.samples.LineBreakSample
  *
- * For further customization, each platform has its own parameters. An example on Android:
+ * Customize Android behavior using:
+ * - `Strategy`: Balances layout speed against formatting quality (e.g., greedy vs.
+ *   paragraph-optimized breaking).
+ * - `Strictness`: Adjusts line-breaking rules for East Asian languages (Chinese, Japanese, and
+ *   Korean), determining which characters can start or end a line.
+ * - `WordBreak`: Specifies word boundary rules, such as default spacing-based breaking or
+ *   phrase-based breaking (ideal for titles).
  *
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
@@ -65,10 +70,7 @@ private constructor(internal val mask: Int) {
          */
         @Stable val Paragraph: LineBreak
 
-        /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value is
-         * desired.
-         */
+        /** Represents an unset [LineBreak] value. */
         @Stable val Unspecified: LineBreak
     }
 }

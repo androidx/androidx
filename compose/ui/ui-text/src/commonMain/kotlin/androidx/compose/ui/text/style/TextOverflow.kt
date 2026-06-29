@@ -18,7 +18,7 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Stable
 
-/** How overflowing text should be handled. */
+/** Specifies how to handle overflowing text. */
 @kotlin.jvm.JvmInline
 value class TextOverflow internal constructor(internal val value: Int) {
 
@@ -35,63 +35,52 @@ value class TextOverflow internal constructor(internal val value: Int) {
 
     companion object {
         /**
-         * Clip the overflowing text to fix its container.
+         * Clips overflowing text to fit its container.
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowClipSample
          */
         @Stable val Clip = TextOverflow(1)
 
         /**
-         * Use an ellipsis at the end of the string to indicate that the text has overflowed.
+         * Displays an ellipsis at the end of the line to indicate overflow.
          *
-         * For example, [This is a ...].
+         * For example, "This is a ...".
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowEllipsisSample
          */
         @Stable val Ellipsis = TextOverflow(2)
 
         /**
-         * Display all text, even if there is not enough space in the specified bounds. When
-         * overflow is visible, text may be rendered outside the bounds of the composable displaying
-         * the text. This ensures that all text is displayed to the user, and is typically the right
-         * choice for most text display. It does mean that the text may visually occupy a region
-         * larger than the bounds of it's composable. This can lead to situations where text
-         * displays outside the bounds of the background and clickable on a Text composable with a
-         * fixed height and width.
+         * Displays all text, even if it exceeds the specified bounds.
+         *
+         * Text may render outside the composable bounds. To allow the container to expand with the
+         * text, use modifiers like `Modifier.heightIn` or `Modifier.widthIn`.
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowVisibleFixedSizeSample
-         *
-         * To make the background and click region expand to match the size of the text, allow it to
-         * expand vertically/horizontally using `Modifier.heightIn`/`Modifier.widthIn` or similar.
-         *
          * @sample androidx.compose.ui.text.samples.TextOverflowVisibleMinHeightSample
          *
-         * Note: text that expands past its bounds using `Visible` may be clipped by other modifiers
-         * such as `Modifier.clipToBounds`.
+         * Note: Text expanding past its bounds may still be clipped by modifiers like
+         * `Modifier.clipToBounds`.
          */
         @Stable val Visible = TextOverflow(3)
 
         /**
-         * Use an ellipsis at the start of the string to indicate that the text has overflowed.
+         * Displays an ellipsis at the start of the line.
          *
-         * For example, [... is a text].
+         * For example, "... is a text".
          *
-         * Note that not all platforms support the ellipsis at the start. For example, on Android
-         * the start ellipsis is only available for a single line text (i.e. when either a soft wrap
-         * is disabled or a maximum number of lines maxLines set to 1). In case of multiline text it
-         * will fallback to [Clip].
+         * Note: On Android, this falls back to [Clip] for multiline text (only supported for single
+         * line or maxLines=1).
          */
         @Stable val StartEllipsis = TextOverflow(4)
 
         /**
-         * Use an ellipsis in the middle of the string to indicate that the text has overflowed.
+         * Displays an ellipsis in the middle of the line.
          *
-         * For example, [This ... text].
+         * For example, "This ... text".
          *
-         * Note that not all platforms support the ellipsis in the middle. For example, on Android
-         * the middle ellipsis is only available for a single line text (i.e. when either a soft
-         * wrap is disabled or a maximum number of lines maxLines set to 1). In case of multiline
-         * text it will fallback to [Clip].
+         * Note: On Android, this falls back to [Clip] for multiline text (only supported for single
+         * line or maxLines=1).
          */
         @Stable val MiddleEllipsis = TextOverflow(5)
     }

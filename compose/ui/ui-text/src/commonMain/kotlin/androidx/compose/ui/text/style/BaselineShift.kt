@@ -22,10 +22,9 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.util.lerp
 
 /**
- * The amount by which the text is shifted up or down from current the baseline.
+ * Shifts the text baseline vertically (up or down).
  *
- * @param multiplier shift the baseline by multiplier * (baseline - ascent)
- * @constructor
+ * @param multiplier multiplier to shift the baseline (distance = multiplier * (baseline - ascent)).
  * @sample androidx.compose.ui.text.samples.BaselineShiftSample
  * @sample androidx.compose.ui.text.samples.BaselineShiftAnnotatedStringSample
  */
@@ -42,7 +41,7 @@ value class BaselineShift(val multiplier: Float) {
         /** Constant for no baseline shift. */
         @Stable val None = BaselineShift(0.0f)
 
-        /** Constant for an unset baseline shift. */
+        /** Represents an unset [BaselineShift] value. */
         @Stable val Unspecified = BaselineShift(Float.NaN)
     }
 }

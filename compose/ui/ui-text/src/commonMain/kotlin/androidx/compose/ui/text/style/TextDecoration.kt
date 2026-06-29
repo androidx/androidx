@@ -22,9 +22,9 @@ import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastJoinToString
 
 /**
- * Defines a horizontal line to be drawn on the text.
+ * Defines text decorations such as underline or line-through.
  *
- * @property mask The integer representation of the TextDecoration.
+ * @property mask bitmask representing the combined decorations.
  */
 @Immutable
 class TextDecoration internal constructor(val mask: Int) {
@@ -47,10 +47,10 @@ class TextDecoration internal constructor(val mask: Int) {
         @Stable val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**
-         * Creates a decoration that includes all the given decorations.
+         * Combines multiple [TextDecoration]s into a single decoration.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
-         * @param decorations The decorations to be added
+         * @param decorations decorations to combine.
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
             val mask = decorations.fastFold(0) { acc, decoration -> acc or decoration.mask }
@@ -58,12 +58,12 @@ class TextDecoration internal constructor(val mask: Int) {
         }
 
         /**
-         * Construct a TextDecoration instance from the underlying [TextDecoration.mask]. This
-         * method will attempt to avoid allocations in cases of well known decorations, but is not
-         * guaranteed to not allocate.
+         * Creates a [TextDecoration] from a [mask].
          *
-         * @param mask The integer representation of the TextDecoration.
-         * @throws IllegalArgumentException if the [mask] is not recognized.
+         * Attempts to avoid allocations for well-known decorations.
+         *
+         * @param mask bitmask of the decoration.
+         * @throws IllegalArgumentException if [mask] is invalid.
          * @see androidx.compose.ui.text.style.TextDecoration.mask
          */
         fun valueOf(mask: Int): TextDecoration {
@@ -81,7 +81,7 @@ class TextDecoration internal constructor(val mask: Int) {
     }
 
     /**
-     * Creates a decoration that includes both of the TextDecorations.
+     * Combines this decoration with [decoration].
      *
      * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
      */
@@ -90,9 +90,9 @@ class TextDecoration internal constructor(val mask: Int) {
     }
 
     /**
-     * Check whether this [TextDecoration] contains the given decoration.
+     * Checks if this decoration contains [other].
      *
-     * @param other The [TextDecoration] to be checked.
+     * @param other decoration to check.
      */
     operator fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask
