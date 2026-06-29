@@ -319,15 +319,17 @@ class MediaRoute2Provider extends MediaRouteProvider
         } else {
             groupDescriptorBuilder = new MediaRouteDescriptor.Builder(groupDescriptor);
         }
-        groupDescriptor = groupDescriptorBuilder
-                .setVolume(routingController.getVolume())
-                .setVolumeMax(routingController.getVolumeMax())
-                .setVolumeHandling(routingController.getVolumeHandling())
-                .clearControlFilters()
-                .addControlFilters(initialRouteDescriptor.getControlFilters())
-                .clearGroupMemberIds()
-                .addGroupMemberIds(selectedRouteIds)
-                .build();
+        groupDescriptor =
+                groupDescriptorBuilder
+                        .setRoutingControllerId(routingController.getId())
+                        .setVolume(routingController.getVolume())
+                        .setVolumeMax(routingController.getVolumeMax())
+                        .setVolumeHandling(routingController.getVolumeHandling())
+                        .clearControlFilters()
+                        .addControlFilters(initialRouteDescriptor.getControlFilters())
+                        .clearGroupMemberIds()
+                        .addGroupMemberIds(selectedRouteIds)
+                        .build();
 
         // Create dynamic route descriptors
         List<String> selectableRouteIds =

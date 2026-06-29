@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.media.MediaRoute2ProviderService;
+import android.media.MediaRouter2;
 import android.media.RoutingSessionInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -409,6 +410,51 @@ public class MediaRouter2Test {
         Bundle actualExtras = routerParams[0].getExtras();
         assertNotNull(actualExtras);
         assertEquals("test-value", actualExtras.getString("test-key"));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void selectedRouteFromMediaRoute2Provider_hasRoutingControllerId() throws Exception {
+        String descriptorId = StubMediaRoute2ProviderService.MR2_ROUTE_ID1;
+        String mr2DescriptorId = getMediaRoute2DescriptorId(descriptorId);
+        waitForRoutesAdded(mr2DescriptorId);
+        assertNotNull(mRoutes);
+
+        waitForRouteSelected(
+                mr2DescriptorId,
+                StubMediaRoute2ProviderService.ROUTE_ID_GROUP,
+                /* routeSelected= */ true);
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            RouteInfo selectedRoute = mRouter.getSelectedRoute();
+                            assertEquals(
+                                    StubMediaRoute2ProviderService.ROUTE_ID_GROUP,
+                                    selectedRoute.getDescriptorId());
+                            MediaRouteDescriptor selectedRouteDescriptor =
+                                    selectedRoute.getMediaRouteDescriptor();
+                            assertNotNull(selectedRouteDescriptor);
+                            MediaRouteProviderService.MediaRouteProviderServiceImplApi30 impl =
+                                    (MediaRouteProviderService.MediaRouteProviderServiceImplApi30)
+                                            mMr2ProviderService.mImpl;
+                            List<RoutingSessionInfo> sessions =
+                                    impl.mMR2ProviderServiceAdapter.getAllSessionInfo();
+                            assertEquals(1, sessions.size());
+                            // Our newly created remote session is at position 1, and its controller
+                            // id should match the routing controller id advertised by the selected
+                            // route.
+                            String expectedSessionId =
+                                    MediaRouter2.getInstance(mContext)
+                                            .getControllers()
+                                            .get(1)
+                                            .getId();
+                            assertEquals(
+                                    expectedSessionId,
+                                    selectedRouteDescriptor.getRoutingControllerId());
+                        });
+        waitForRouteUnselected(StubMediaRoute2ProviderService.ROUTE_ID_GROUP);
     }
 
     private void addCallback(MediaRouter.Callback callback) {
