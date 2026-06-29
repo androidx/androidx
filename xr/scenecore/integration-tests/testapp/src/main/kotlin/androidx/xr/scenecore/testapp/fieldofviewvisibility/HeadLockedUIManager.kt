@@ -55,7 +55,7 @@ class HeadLockedUIManager(
             _mEnableHeadlockFlow.value = value
         }
 
-    private val _mUserForwardFlow = MutableStateFlow(Pose(Vector3(0f, 0.00f, -1.3f)))
+    private val _mUserForwardFlow = MutableStateFlow(Pose(Vector3(0f, 0.00f, -1.4f)))
     private var mUserForward: Pose
         get() = _mUserForwardFlow.value
         set(value) {
@@ -69,7 +69,7 @@ class HeadLockedUIManager(
             _sliderPositionAlphaFlow.value = value
         }
 
-    private val _modelIsEnabledFlow = MutableStateFlow(true)
+    private val _modelIsEnabledFlow = MutableStateFlow(false)
     private var modelIsEnabled: Boolean
         get() = _modelIsEnabledFlow.value
         set(value) {
@@ -126,6 +126,7 @@ class HeadLockedUIManager(
                 parent = mSession.scene.activitySpace,
             )
         this.mHeadLockedPanel.parent = mSession.scene.activitySpace
+        this.mHeadLockedPanel.setEnabled(false)
     }
 
     private fun updateUIState() {
