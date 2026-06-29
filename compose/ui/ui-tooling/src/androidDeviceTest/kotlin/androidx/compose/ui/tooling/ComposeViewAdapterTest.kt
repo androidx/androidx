@@ -67,8 +67,17 @@ class ComposeViewAdapterTest {
         className: String,
         methodName: String,
         previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
+        lookaheadAnimationVisualDebuggingEnabled: Boolean = false,
+        lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false,
     ): List<ViewInfo> {
-        initAndWaitForDraw(className, methodName, previewWrapperProvider = previewWrapperProvider)
+        initAndWaitForDraw(
+            className,
+            methodName,
+            previewWrapperProvider = previewWrapperProvider,
+            lookaheadAnimationVisualDebuggingEnabled = lookaheadAnimationVisualDebuggingEnabled,
+            lookaheadAnimationVisualDebuggingKeyLabelEnabled =
+                lookaheadAnimationVisualDebuggingKeyLabelEnabled,
+        )
         activityTestRule.runOnUiThread { assertTrue(composeViewAdapter.viewInfos.isNotEmpty()) }
 
         return composeViewAdapter.viewInfos
@@ -82,6 +91,8 @@ class ComposeViewAdapterTest {
         methodName: String,
         designInfoProvidersArgument: String? = null,
         previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
+        lookaheadAnimationVisualDebuggingEnabled: Boolean = false,
+        lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false,
     ) {
         val committedAndDrawn = CountDownLatch(1)
         val committed = AtomicBoolean(false)
@@ -99,6 +110,9 @@ class ComposeViewAdapterTest {
                         committedAndDrawn.countDown()
                     }
                 },
+                lookaheadAnimationVisualDebuggingEnabled = lookaheadAnimationVisualDebuggingEnabled,
+                lookaheadAnimationVisualDebuggingKeyLabelEnabled =
+                    lookaheadAnimationVisualDebuggingKeyLabelEnabled,
             )
         }
 
@@ -108,6 +122,49 @@ class ComposeViewAdapterTest {
 
         // Wait for the first draw after the Composable has been committed.
         committedAndDrawn.await()
+    }
+
+    @Test
+    fun sharedTransitionWithDebuggingRendersCorrectly() {
+        val className = "androidx.compose.ui.tooling.SharedTransitionPreviewKt"
+        assertRendersCorrectly(className, "PreviewWithSharedElement")
+
+        assertRendersCorrectly(className, "PreviewWithDebuggingEnabled")
+
+        assertRendersCorrectly(
+            className,
+            "PreviewWithSharedElement",
+            lookaheadAnimationVisualDebuggingEnabled = true,
+        )
+
+        assertRendersCorrectly(
+            className,
+            "PreviewWithDebuggingEnabled",
+            lookaheadAnimationVisualDebuggingEnabled = true,
+        )
+
+        assertRendersCorrectly(
+            className,
+            "PreviewWithSharedElement",
+            lookaheadAnimationVisualDebuggingEnabled = true,
+            lookaheadAnimationVisualDebuggingKeyLabelEnabled = true,
+        )
+
+        assertRendersCorrectly(
+            className,
+            "PreviewWithDebuggingEnabled",
+            lookaheadAnimationVisualDebuggingEnabled = true,
+            lookaheadAnimationVisualDebuggingKeyLabelEnabled = true,
+        )
+    }
+
+    @Test
+    fun sharedTransitionRendersCorrectlyWithDebugging() {
+        assertRendersCorrectly(
+            "androidx.compose.ui.tooling.SharedTransitionPreviewKt",
+            "PreviewWithSharedElement",
+            lookaheadAnimationVisualDebuggingEnabled = true,
+        )
     }
 
     @Test
