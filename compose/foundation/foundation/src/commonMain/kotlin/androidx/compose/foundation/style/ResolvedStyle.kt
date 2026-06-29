@@ -741,6 +741,9 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             val widenedPrimitivesStarted = widenPrimitivesSet(startedPrimitives, startedObjects)
             val widenedObjectsStarted = widenObjectsSet(startedPrimitives, startedObjects)
 
+            // Clear the properties that have are should no longer be in fromProperties
+            fromProperties.clearProperties(widenedPrimitivesStarted, widenedObjectsStarted)
+
             // Copy the previous values for animations that have been started
             previous.copyInto(fromProperties, widenedPrimitivesStarted, widenedObjectsStarted)
 

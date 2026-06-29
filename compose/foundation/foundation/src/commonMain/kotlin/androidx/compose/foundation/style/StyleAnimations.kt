@@ -108,7 +108,11 @@ internal class StyleAnimations {
             var inFlight = 0L
 
             entries.forEach { id, entry ->
-                if (entry.state == EntryState.Interrupted || entry.animation.isRunning) {
+                if (
+                    entry.state == EntryState.Interrupted ||
+                        entry.state == EntryState.Inserted ||
+                        entry.animation.isRunning
+                ) {
                     inFlight = inFlight or (1L shl id)
                 }
             }

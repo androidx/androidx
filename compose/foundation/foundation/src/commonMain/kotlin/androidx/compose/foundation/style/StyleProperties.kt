@@ -452,6 +452,90 @@ internal class StyleProperties {
         copyInto(target, primitiveFlagsOf(flags), objectsSetForFlags(flags))
     }
 
+    internal fun clearProperties(primitivesFilter: Long, objectsFilter: Int) {
+        val primitivesSet = primitivesSet and primitivesFilter
+        if (primitivesSet != 0L) {
+            this.primitivesSet = this.primitivesSet and primitivesSet.inv()
+            if (primitivesSet.hasId(LeftId)) left = EmptyStyleProperties.left
+            if (primitivesSet.hasId(TopId)) top = EmptyStyleProperties.top
+            if (primitivesSet.hasId(RightId)) right = EmptyStyleProperties.right
+            if (primitivesSet.hasId(BottomId)) bottom = EmptyStyleProperties.bottom
+            if (primitivesSet.hasId(MinHeightId)) minHeight = EmptyStyleProperties.minHeight
+            if (primitivesSet.hasId(MaxHeightId)) maxHeight = EmptyStyleProperties.maxHeight
+            if (primitivesSet.hasId(MinWidthId)) minWidth = EmptyStyleProperties.minWidth
+            if (primitivesSet.hasId(MaxWidthId)) maxWidth = EmptyStyleProperties.maxWidth
+            if (primitivesSet.hasId(ContentPaddingStartId))
+                contentPaddingStart = EmptyStyleProperties.contentPaddingStart
+            if (primitivesSet.hasId(ContentPaddingEndId))
+                contentPaddingEnd = EmptyStyleProperties.contentPaddingEnd
+            if (primitivesSet.hasId(ContentPaddingTopId))
+                contentPaddingTop = EmptyStyleProperties.contentPaddingTop
+            if (primitivesSet.hasId(ContentPaddingBottomId))
+                contentPaddingBottom = EmptyStyleProperties.contentPaddingBottom
+            if (primitivesSet.hasId(ExternalPaddingStartId))
+                externalPaddingStart = EmptyStyleProperties.externalPaddingStart
+            if (primitivesSet.hasId(ExternalPaddingEndId))
+                externalPaddingEnd = EmptyStyleProperties.externalPaddingEnd
+            if (primitivesSet.hasId(ExternalPaddingTopId))
+                externalPaddingTop = EmptyStyleProperties.externalPaddingTop
+            if (primitivesSet.hasId(ExternalPaddingBottomId))
+                externalPaddingBottom = EmptyStyleProperties.externalPaddingBottom
+            if (primitivesSet.hasId(BorderWidthId)) borderWidth = EmptyStyleProperties.borderWidth
+            if (primitivesSet.hasId(AlphaId)) alpha = EmptyStyleProperties.alpha
+            if (primitivesSet.hasId(ScaleXId)) scaleX = EmptyStyleProperties.scaleX
+            if (primitivesSet.hasId(ScaleYId)) scaleY = EmptyStyleProperties.scaleY
+            if (primitivesSet.hasId(TranslationXId))
+                translationX = EmptyStyleProperties.translationX
+            if (primitivesSet.hasId(TranslationYId))
+                translationY = EmptyStyleProperties.translationY
+            if (primitivesSet.hasId(RotationXId)) rotationX = EmptyStyleProperties.rotationX
+            if (primitivesSet.hasId(RotationYId)) rotationY = EmptyStyleProperties.rotationY
+            if (primitivesSet.hasId(RotationZId)) rotationZ = EmptyStyleProperties.rotationZ
+            if (primitivesSet.hasId(TransformOriginXId))
+                transformOriginX = EmptyStyleProperties.transformOriginX
+            if (primitivesSet.hasId(TransformOriginYId))
+                transformOriginY = EmptyStyleProperties.transformOriginY
+            if (primitivesSet.hasId(ZIndexId)) zIndex = EmptyStyleProperties.zIndex
+            if (primitivesSet.hasId(CameraDistanceId))
+                cameraDistance = EmptyStyleProperties.cameraDistance
+            if (primitivesSet.hasId(BorderColorId)) borderColor = EmptyStyleProperties.borderColor
+            if (primitivesSet.hasId(BackgroundColorId))
+                backgroundColor = EmptyStyleProperties.backgroundColor
+            if (primitivesSet.hasId(ForegroundColorId))
+                foregroundColor = EmptyStyleProperties.foregroundColor
+            if (primitivesSet.hasId(ClipId)) clip = EmptyStyleProperties.clip
+            if (primitivesSet.hasId(WidthId)) width = EmptyStyleProperties.width
+            if (primitivesSet.hasId(HeightId)) height = EmptyStyleProperties.height
+            if (primitivesSet.hasId(WidthFractionId))
+                widthFraction = EmptyStyleProperties.widthFraction
+            if (primitivesSet.hasId(HeightFractionId))
+                heightFraction = EmptyStyleProperties.heightFraction
+            if (primitivesSet.hasId(ContentColorId))
+                contentColor = EmptyStyleProperties.contentColor
+            if (primitivesSet.hasId(LineHeightId)) lineHeight = EmptyStyleProperties.lineHeight
+            if (primitivesSet.hasId(LetterSpacingId))
+                letterSpacing = EmptyStyleProperties.letterSpacing
+            if (primitivesSet.hasId(BaselineShiftId))
+                baselineShift = EmptyStyleProperties.baselineShift
+            if (primitivesSet.hasId(LineBreakId)) lineBreak = EmptyStyleProperties.lineBreak
+        }
+        val objectsSet = objectsFilter and objectsSet
+        if (objectsSet != 0) {
+            this.objectsSet = this.objectsSet and objectsSet.inv()
+            if (objectsSet.hasId(ShapeId)) shape = EmptyStyleProperties.shape
+            if (objectsSet.hasId(ColorFilterId)) colorFilter = null
+            if (objectsSet.hasId(BorderBrushId)) borderBrush = null
+            if (objectsSet.hasId(BackgroundBrushId)) backgroundBrush = null
+            if (objectsSet.hasId(ForegroundBrushId)) foregroundBrush = null
+            if (objectsSet.hasId(DropShadowId)) dropShadow = null
+            if (objectsSet.hasId(InnerShadowId)) innerShadow = null
+            if (objectsSet.hasId(ContentBrushId)) contentBrush = null
+            if (objectsSet.hasId(FontFamilyId)) fontFamily = null
+            if (objectsSet.hasId(TextMotionId)) textMotion = EmptyStyleProperties.textMotion
+            if (objectsSet.hasId(TextIndentId)) textIndent = null
+        }
+    }
+
     internal fun copyInto(target: StyleProperties, primitivesFilter: Long, objectsFilter: Int) {
         val primitivesSet = primitivesSet and primitivesFilter
         if (primitivesSet != 0L) {
