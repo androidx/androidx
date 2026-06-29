@@ -1,0 +1,108 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.ui.util"
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation("androidx.collection:collection:1.5.0")
+            implementation(project(":compose:runtime:runtime"))
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.truth)
+        }
+
+        nonJvmMain {
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+            }
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        iosMain {
+            dependencies {
+                implementation(project(":compose:ui:ui-uikit"))
+            }
+        }
+
+        desktopTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Compose Util"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2020"
+    description = "Internal Compose utilities used by other modules"
+    legacyDisableKotlinStrictApiMode = true
+}

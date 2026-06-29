@@ -1,0 +1,191 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+androidXMultiplatform {
+    redirect("androidx.navigation") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.navigation.compose"
+
+            androidResources.enable = true
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":navigation:navigation-runtime"))
+            api(project(":navigation:navigation-common"))
+            api("org.jetbrains.compose.animation:animation:1.10.0")
+            api("org.jetbrains.compose.runtime:runtime:1.10.0")
+            api("org.jetbrains.compose.runtime:runtime-saveable:1.10.0")
+            api("org.jetbrains.compose.ui:ui:1.10.0")
+            api("org.jetbrains.compose.animation:animation:1.10.0")
+            implementation("org.jetbrains.compose.animation:animation-core:1.10.0")
+            implementation("org.jetbrains.compose.foundation:foundation-layout:1.10.0")
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.11.0-beta01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.11.0-beta01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-beta01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.11.0-beta01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-beta01")
+            implementation("androidx.savedstate:savedstate:1.4.0")
+            implementation("androidx.savedstate:savedstate-compose:1.4.0")
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinSerializationCore)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":compose:ui:ui-test"))
+        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        nonAndroidMain.dependencies {
+            // TODO: Remove the dependency - https://youtrack.jetbrains.com/issue/CMP-9922
+            implementation(project(":compose:ui:ui-backhandler"))
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":compose:material:material"))
+                implementation(project(":navigation:navigation-testing"))
+                implementation(project(":internal-testutils-navigation"))
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
+        androidMain.dependencies {
+            api("androidx.activity:activity-compose:1.8.0")
+            api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
+            implementation("androidx.activity:activity:1.8.0")
+        }
+        androidDeviceTest.dependencies {
+            implementation("androidx.activity:activity:1.9.2")
+            implementation("androidx.core:core-ktx:1.13.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-common:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.2")
+            implementation("androidx.savedstate:savedstate:1.2.1")
+            implementation(project(":navigation:navigation-testing"))
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":internal-testutils-navigation"))
+
+            // Compose test dependencies
+            implementation(project(":compose:animation:animation"))
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:runtime:runtime-saveable"))
+            implementation(project(":compose:ui:ui"))
+            implementation(project(":compose:ui:ui-graphics"))
+            implementation(project(":compose:ui:ui-test"))
+            implementation(project(":compose:ui:ui-text"))
+            implementation(project(":compose:ui:ui-tooling-preview"))
+            implementation(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:material:material"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:ui:ui-tooling"))
+            implementation(project(":internal-testutils-navigation"))
+        }
+
+        desktopMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(nonAndroidTest)
+            dependencies {
+                implementation(libs.skikoCurrentOs)
+                implementation(libs.kotlinCoroutinesSwing)
+            }
+        }
+
+        nonJvmMain {
+            dependsOn(nonAndroidMain)
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
+                implementation("org.jetbrains.androidx.savedstate:savedstate-compose:1.4.0")
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":navigation:navigation-compose-lint"))
+}
+
+androidx {
+    name = "Compose Navigation"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2020"
+    description = "Compose integration with Navigation"
+    samples(project(":navigation:navigation-compose:navigation-compose-samples"))
+    addGoldenImageAssets()
+}

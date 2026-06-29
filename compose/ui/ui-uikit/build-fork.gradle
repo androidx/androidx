@@ -1,0 +1,166 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KotlinTarget
+import org.jetbrains.androidx.build.XcodeBuildLock
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin-multiplatform")
+    id("JetBrainsAndroidXPlugin")
+}
+
+kotlin {
+    applyDefaultHierarchyTemplate()
+
+    iosArm64("iosArm64") {
+        configure(it, true, "arm64", null /*"iosArm64Test"*/)
+    }
+    iosSimulatorArm64("iosSimulatorArm64") {
+        configure(it, false, "arm64", "iosSimulatorArm64Test")
+    }
+
+    sourceSets {
+        configureEach {
+            languageSettings.languageVersion = KotlinTarget.DEFAULT.apiVersion.version
+        }
+    }
+}
+
+private def configure(target, isDevice, architecture, testTarget) {
+    def frameworkName = "CMPUIKitUtils"
+    def buildSchemeName = frameworkName
+    def testSchemeName = "${frameworkName}Tests"
+    def objcDir = new File(project.projectDir, "src/iosMain/objc")
+    def frameworkSourcesDir = new File(objcDir, frameworkName)
+    def sdkName
+    def destination
+    if (isDevice) {
+        sdkName = "iphoneos"
+        destination = "generic/platform=iOS"
+    } else {
+        sdkName = "iphonesimulator"
+        destination = "generic/platform=iOS Simulator"
+    }
+    def buildDir = new File(project.buildDir, "objc/${sdkName}.xcarchive")
+    def frameworkPath = new File(buildDir, "/Products/usr/local/lib/lib${frameworkName}.a")
+    def headersPath = new File(frameworkSourcesDir, frameworkName)
+
+    def systemFrameworks = ["UIKit", frameworkName]
+    def linkerFlags = ["-ObjC"] + systemFrameworks.collectMany {
+        ["-framework", it]
+    }
+    def compilerArgs = [
+            "-include-binary", frameworkPath.toString(),
+    ] + linkerFlags.collectMany {
+        ["-linker-option", it]
+    }
+
+    if (!isDevice && testTarget != null) {
+        def getTargetDeviceTaskName = "${target.name}GetTargetDevice"
+        def testFrameworkTaskName = "${target.name}FrameworkTest"
+
+        def getTargetDeviceTask = project.tasks.register(getTargetDeviceTaskName, Exec) {
+            ext.device = ""
+            commandLine "xcrun", "simctl", "list", "devices"
+            standardOutput = new ByteArrayOutputStream()
+            doLast {
+                def output = standardOutput.toString()
+                def match = output.find("iPhone 1[567][ \\w\\d]* \\(")
+                def targetDevice = match.dropRight(2)
+                device = targetDevice
+            }
+        }
+
+        def testFrameworkTask = project.tasks.register(testFrameworkTaskName) {
+            dependsOn getTargetDeviceTask
+            doLast {
+                usesService(XcodeBuildLock.instance(project))
+                project.exec {
+                    workingDir frameworkSourcesDir
+                    commandLine "xcodebuild",
+                            "test",
+                            "-scheme", testSchemeName,
+                            "-destination", "platform=iOS Simulator,name=${tasks[getTargetDeviceTaskName].device}",
+                            "-sdk", sdkName,
+                            "VALID_ARCHS=${architecture}"
+                }
+            }
+        }
+
+        tasks.findByName(testTarget)?.dependsOn(testFrameworkTask)
+    }
+
+    target.compilations.main {
+        def libTaskName = "${compileTaskProvider.name}ObjCLib"
+        project.tasks.register(libTaskName, Exec) {
+            usesService(XcodeBuildLock.instance(project))
+            inputs.dir(frameworkSourcesDir)
+                    .withPropertyName("${frameworkName}-${sdkName}")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+
+            outputs.cacheIf { true }
+            outputs.dir(buildDir)
+                    .withPropertyName("${frameworkName}-${sdkName}-archive")
+
+            workingDir(frameworkSourcesDir)
+            commandLine("xcodebuild")
+            args(
+                    "archive",
+                    "-scheme", buildSchemeName,
+                    "-archivePath", buildDir,
+                    "-sdk", sdkName,
+                    "-destination", destination,
+                    "SKIP_INSTALL=NO",
+                    "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                    "VALID_ARCHS=${architecture}",
+                    "MACH_O_TYPE=staticlib"
+            )
+        }
+
+        tasks[compileTaskProvider.name].dependsOn(libTaskName)
+
+        cinterops {
+            utils {
+                def cinteropTask = tasks[interopProcessingTaskName]
+
+                headersPath.eachFileRecurse {
+                    if (it.name.endsWith('.h')) {
+                        extraOpts("-header", it.name)
+                        cinteropTask.inputs.file(it)
+                    }
+                }
+                compilerOpts("-I${headersPath}")
+            }
+        }
+    }
+
+    target.binaries.all {
+        freeCompilerArgs += compilerArgs
+    }
+    target.compilations.all {
+        kotlinOptions {
+            freeCompilerArgs += compilerArgs
+        }
+    }
+}
+
+androidx {
+    name = "Compose UIKit"
+    inceptionYear = "2023"
+    description = "Internal iOS UIKit utilities including Objective-C library."
+    legacyDisableKotlinStrictApiMode = true
+}

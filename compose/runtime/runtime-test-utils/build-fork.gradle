@@ -1,0 +1,66 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.runtime.testutils"
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":compose:runtime:runtime"))
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+        }
+
+        create("unixMain").dependsOn(nativeMain)
+        appleMain.dependsOn(unixMain)
+        linuxMain.dependsOn(unixMain)
+    }
+}
+
+androidx {
+    // This library is consumed by Kotlin CI to run Compose runtime test with the latest compiler.
+    name = "Compose Internal Test Utils"
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    inceptionYear = "2024"
+    description = "Compose runtime test utils shared between runtime and compiler tests."
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
+}
+

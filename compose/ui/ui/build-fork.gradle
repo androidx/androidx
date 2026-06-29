@@ -1,0 +1,476 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import androidx.build.ProjectLayoutType
+import org.jetbrains.androidx.build.GenerateNotoFontFallbackDataTask
+import org.jetbrains.androidx.build.UpdateTranslationsTask
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.target.Family
+
+import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.atomicFu)
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            withJava()
+            compileSdk = 35
+            androidResources.enable = true
+            namespace = "org.jetbrains.androidx.compose.ui"
+            // namespace has to be unique, but default androidx.compose.ui.test package is taken by
+            // the androidx.compose.ui:ui-test library
+            testNamespace = "androidx.compose.ui.tests"
+
+            packaging {
+                it.resources {
+                    it.pickFirsts.add("mockito-extensions/org.mockito.plugins.MockMaker")
+                    it.pickFirsts.add("mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider")
+                }
+            }
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    iosInstrumentedTest()
+    configureDarwinFlags()
+
+    sourceSets {
+        def composeVersion = project.redirectVersions.get('androidx.compose')
+        commonMain.dependencies {
+            implementation(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.collection:collection:1.5.0")
+            // when updating the runtime version please also update the runtime-saveable version
+            implementation(project(":compose:runtime:runtime"))
+            api("androidx.compose.runtime:runtime-retain:$composeVersion")
+            api(project(":compose:runtime:runtime-saveable"))
+
+            api(project(":compose:ui:ui-geometry"))
+            api(project(":compose:ui:ui-graphics"))
+            api(project(":compose:ui:ui-text"))
+            api(project(":compose:ui:ui-unit"))
+            api(project(":compose:ui:ui-util"))
+
+            api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+            api("androidx.savedstate:savedstate-compose:1.4.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+            implementation(project(":compose:ui:ui-util"))
+            implementation(project(":compose:ui:ui-test"))
+        }
+
+        jvmAndAndroidMain.dependencies {
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            // This has stub APIs for access to legacy Android APIs, so we don't want
+            // any dependency on this module.
+            compileOnly(project(":compose:ui:ui-android-stubs"))
+            implementation("androidx.autofill:autofill:1.0.0")
+            implementation(libs.kotlinCoroutinesAndroid)
+            api(libs.jspecify)
+
+            implementation("androidx.activity:activity-ktx:1.7.0")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.collection:collection:1.4.2")
+            implementation("androidx.customview:customview-poolingcontainer:1.0.0")
+            implementation("androidx.savedstate:savedstate-ktx:1.3.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+            implementation("androidx.emoji2:emoji2:1.2.0")
+            implementation("androidx.window:window:1.5.0")
+
+            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
+
+            // `compose-ui` has a transitive dependency on `lifecycle-livedata-core`, and
+            // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+            // the `livedata` dependency directly works around the issue.
+            // See https://github.com/gradle/gradle/issues/14220 for details.
+            compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.8.7")
+
+            // `compose-ui` has a transitive dependency on `lifecycle-viewmodel-savedstate`, and
+            // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+            // the `lifecycle-viewmodel-savedstate` dependency directly works around the issue.
+            // See https://github.com/gradle/gradle/issues/14220 for details.
+            compileOnly("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation("androidx.fragment:fragment:1.3.0")
+            implementation(project(":appcompat:appcompat"))
+            implementation("androidx.activity:activity:1.9.1")
+            implementation("androidx.transition:transition:1.7.0")
+            implementation("androidx.core:core:1.16.0-beta01")
+            implementation(libs.testUiautomator)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testExtJunitKtx)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(libs.espressoCore)
+            implementation(libs.bundles.espressoContrib)
+            implementation(libs.junit)
+
+            // Includes both dexmakers allows support for all API levels plus final mocking
+            // support on API 28+. The implementation is swapped based on the finality of the
+            // mock type. This delegation is handled manually inside
+            // androidx.compose.ui.util.mockito.CustomMockMaker.
+            implementation(libs.dexmakerMockito)
+            implementation(libs.dexmakerMockitoInline)
+
+            implementation(libs.mockitoCore)
+            implementation(libs.truth)
+            implementation(libs.mockitoKotlin)
+            implementation(libs.material)
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:foundation:foundation-layout"))
+            implementation(project(":compose:material:material"))
+            implementation("androidx.compose.material:material-icons-core:1.6.7")
+            implementation(project(":compose:test-utils"))
+            implementation(project(":internal-testutils-fonts"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-runtime"))
+            implementation(project(":test:screenshot:screenshot"))
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.7")
+            implementation("androidx.recyclerview:recyclerview:1.3.0")
+            implementation("androidx.core:core-ktx:1.2.0")
+            implementation("androidx.activity:activity-compose:1.7.0")
+            implementation("androidx.fragment:fragment-testing:1.4.1")
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinTest)
+            implementation(libs.mockitoCore4)
+            implementation(libs.mockitoKotlin4)
+            implementation(libs.byteBuddy)
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-fonts"))
+            implementation(project(":compose:test-utils"))
+        }
+
+        def lifecycleVersion = project.redirectVersions.get('androidx.lifecycle')
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
+                api(libs.skiko)
+                implementation(libs.atomicFu)
+
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
+            }
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                // TODO: Move to commonTest?
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test"))
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+            dependencies {
+                // TODO: Move to jvmTest?
+                implementation(libs.truth)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin)
+                implementation(libs.mockitoKotlin4)
+                implementation(libs.skikoCurrentOs)
+                implementation(libs.kotlinCoroutinesSwing)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+            }
+        }
+
+        nonJvmMain {
+            dependsOn(skikoMain)
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.annotation-internal:annotation:1.10.0")
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+                implementation(project(":compose:ui:ui-backhandler"))
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        iosMain {
+            dependencies {
+                implementation(project(":compose:ui:ui-uikit"))
+            }
+        }
+
+        iosInstrumentedTest {
+            dependencies {
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-xctest"))
+            }
+        }
+
+        webMain.dependencies {
+            api(libs.kotlinXw3c)
+        }
+
+        wasmJsMain.dependencies {
+            implementation(libs.skikoWasmJs)
+            implementation(libs.skikoJsWasmRuntime)
+        }
+
+        // TODO: Align it with AOSP or make explicit
+        configureEach {
+            languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+            languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:ui:ui-lint"))
+}
+
+androidx {
+    name = "Compose UI"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2019"
+    description = "Compose UI primitives. This library contains the primitives that form the Compose UI Toolkit, such as drawing, measurement and layout."
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui:ui-samples"))
+    addGoldenImageAssets()
+    enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
+}
+
+if (!ProjectLayoutType.isPlayground(project)) {
+    androidComponents {
+        onVariants(selector().all(), { variant ->
+            packageInspector(variant, project, project(":compose:ui:ui-inspection"))
+        })
+    }
+}
+
+// This task updates the translations of the localizable strings for the desktopMain target.
+// It obtains them from Android's base repository.
+tasks.register("updateTranslations", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://android.googlesource.com/platform/frameworks/base"
+    repoResDirectories = ["core/res/res"]
+    targetDirectory = project.file("src/desktopMain/kotlin/androidx/compose/ui/platform/l10n")
+    targetPackageName = "androidx.compose.ui.platform.l10n"
+    kotlinStringsPackageName = "androidx.compose.ui.platform"
+    stringByResourceName = [
+            "copy": "Copy",
+            "paste": "Paste",
+            "cut": "Cut",
+            "selectAll": "SelectAll"
+    ]
+    // This is all the locales translated by Compose on Android in the ui module:
+    // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res
+    // with the exception of
+    // - b+sr+Latn which doesn't appear to be supported by Java
+    // - en_XC which has weird invisible LRM characters, and the visible text is the same as for
+    //   en anyway.
+    locales = [
+            "en", "af", "am", "ar", "as", "az", "be", "bg", "bn", "bs", "ca", "cs", "da", "de",
+            "el", "en_AU", "en_CA", "en_GB", "en_IN", "es", "es_US", "et", "eu", "fa",
+            "fi", "fr", "fr_CA", "gl", "gu", "hi", "hr", "hu", "hy", "in", "is", "it", "iw",
+            "ja", "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr",
+            "ms", "my", "nb", "ne", "nl", "or", "pa", "pl", "pt", "pt_BR", "pt_PT", "ro", "ru",
+            "si", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur",
+            "uz", "vi", "zh_CN", "zh_HK", "zh_TW", "zu"
+    ]
+}
+
+// This task updates the translations of the localizable strings for the iosMain target.
+// It obtains them from compose multiplatform repository.
+// See also `scripts/convertCrowdinToStringsXml.sh`.
+tasks.register("updateTranslationsIos", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://github.com/JetBrains/compose-multiplatform-core"
+    repoResDirectories = ["compose/ui/ui/src/iosMain/res"]
+    targetDirectory = project.file("src/iosMain/kotlin/androidx/compose/ui/platform/l10n")
+    targetPackageName = "androidx.compose.ui.platform.l10n"
+    kotlinStringsPackageName = "androidx.compose.ui.platform"
+    stringByResourceName = [
+            "first_page": "FirstPage",
+            "last_page": "LastPage",
+            "next_page": "NextPage",
+            "previous_page": "PreviousPage"
+    ]
+
+    // Currently, strings are used in accessibility features, which limits the language list to the
+    // languages supported in accessibility on iOS: https://support.apple.com/en-us/111748.
+    locales = [
+            "ar", // Arabic
+            "eu", // Basque
+            "bn", // Bengali (India)
+            "bho", // Bhojpuri (India)
+            "bg", // Bulgarian
+            "zh_HK", // Cantonese (Hong Kong)
+            "ca", // Catalan
+            "hr", // Croatian
+            "cs", // Czech
+            "da", // Danish
+            "nl_BE", // Dutch (Belgium)
+            "nl", // Dutch (Netherlands)
+            "en_AU", // English (Australia)
+            "en_IN", // English (India)
+            "en_IE", // English (Ireland)
+            "en_GB", // English (Scotland)
+            "en_ZA", // English (South Africa)
+            "en_GB", // English (UK)
+            "en", // English (US)
+            "fa", // Farsi
+            "fi", // Finnish
+            "fr_BE", // French (Belgium)
+            "fr_CA", // French (Canada)
+            "fr", // French (France)
+            "gl", // Galician
+            "de", // German
+            "el", // Greek
+            "iw", // Hebrew
+            "hi", // Hindi
+            "hu", // Hungarian
+            "in", // Indonesian
+            "it", // Italian
+            "ja", // Japanese
+            "kn", // Kannada
+            "ko", // Korean
+            "ms", // Malay
+            "zh_CN", // Chinese (China mainland)
+            // "zh_CN", // Chinese (Liaoning, China mainland)
+            // "zh_CN", // Chinese (Shaanxi, China mainland)
+            // "zh_CN", // Chinese (Sichuan, China mainland)
+            "zh_TW", // Chinese (Taiwan)
+            "mr", // Marathi
+            "nb", // Norwegian
+            "pl", // Polish
+            "pt_BR", // Portuguese (Brazil)
+            "pt", // Portuguese (Portugal)
+            "ro", // Romanian
+            "ru", // Russian
+            // "zh_CN", // Shanghainese (China mainland)
+            "sk", // Slovak
+            "sl", // Slovenian
+            "es_AR", // Spanish (Argentina)
+            "es_CL", // Spanish (Chile)
+            "es_CO", // Spanish (Colombia)
+            "es_MX", // Spanish (Mexico)
+            "es", // Spanish (Spain)
+            "sv", // Swedish
+            "th", // Thai
+            "tr", // Turkish
+            "ta", // Tamil
+            "te", // Telugu
+            "uk", // Ukrainian
+            "ca_ES", // Valencian
+            "vi", // Vietnamese
+    ]
+}
+
+tasks.findByName("desktopTest").configure {
+    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
+}
+
+tasks.register("desktopHeadlessTest", Test) {
+    group = "verification"
+    description = "Headless desktop tests"
+    testClassesDirs = sourceSets.desktopTest.output.classesDirs
+    classpath = sourceSets.desktopTest.runtimeClasspath
+
+    useJUnit {
+        includeCategories("androidx.compose.ui.HeadlessTest")
+    }
+    systemProperty("java.awt.headless", "true")
+}
+
+tasks.desktopTest {
+    useJUnit {
+        excludeCategories("androidx.compose.ui.HeadlessTest")
+    }
+    jvmArgs("--add-opens=java.desktop/javax.swing=ALL-UNNAMED")
+}
+
+// Regenerates NotoFontFallbackData.web.kt from the latest Google Fonts data.
+tasks.register("generateNotoFontFallbackData", GenerateNotoFontFallbackDataTask.class) {
+    group = "generation"
+    description = "Generates NotoFontFallbackData.web.kt from Google Fonts metadata."
+    outputFile = project.file(
+        "src/webMain/kotlin/androidx/compose/ui/platform/NotoFontFallbackData.web.kt"
+    )
+}

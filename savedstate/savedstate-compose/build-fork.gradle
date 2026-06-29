@@ -1,0 +1,50 @@
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+androidXMultiplatform {
+    redirect("androidx.savedstate") {
+        androidLibrary {
+            namespace = "org.jetbrains.savedstate.compose"
+        }
+        desktop()
+        mingwX64()
+        linux()
+        mac()
+        ios()
+        tvos()
+        watchos()
+        js()
+        wasmJs()
+    }
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                api(project(":savedstate:savedstate"))
+                api("org.jetbrains.compose.runtime:runtime:1.9.3")
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Saved State Compose"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2024"
+    description = "Compose integration with Saved State"
+}

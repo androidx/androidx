@@ -1,0 +1,226 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.atomicFu)
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.ui.text"
+            androidResources.enable = true
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinCoroutinesCore)
+
+            api(project(":compose:ui:ui-graphics"))
+            api(project(":compose:ui:ui-unit"))
+
+            // when updating the runtime version please also update the runtime-saveable version
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:runtime:runtime-saveable"))
+
+            implementation(project(":compose:ui:ui-util"))
+
+            // TODO: Pin androidx.collection when SieveCache is available
+            // implementation("androidx.collection:collection:1.4.2")
+            implementation("androidx.collection:collection:1.5.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.core:core:1.7.0")
+            implementation("androidx.emoji2:emoji2:1.4.0")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation("androidx.emoji2:emoji2-bundled:1.4.0")
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-fonts"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:test-utils"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoCore)
+            implementation(libs.truth)
+            implementation(libs.mockitoKotlin)
+            implementation(libs.kotlinReflect)
+        }
+
+        androidHostTest.dependencies {
+            implementation(project(":internal-testutils-fonts"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinReflect)
+            implementation(libs.kotlinTest)
+            implementation(libs.mockitoCore4)
+            implementation(libs.mockitoKotlin4)
+            implementation(libs.byteBuddy)
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.skiko)
+                implementation(libs.atomicFu)
+            }
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-fonts"))
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
+                implementation(libs.kotlinReflect)
+            }
+        }
+
+        nonJvmMain {
+            dependsOn(skikoMain)
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinTest {
+            dependsOn(nativeTest)
+        }
+
+        macosMain {
+            dependsOn(darwinMain)
+        }
+
+        macosTest {
+            dependsOn(darwinTest)
+        }
+
+        iosMain {
+            dependsOn(darwinMain)
+        }
+
+        iosTest {
+            dependsOn(darwinTest)
+        }
+
+        wasmJsMain {
+            dependencies {
+                implementation(libs.skikoWasmJs)
+                implementation(libs.skikoJsWasmRuntime)
+            }
+        }
+
+        // TODO: Align it with AOSP or make explicit
+        configureEach {
+            languageSettings.optIn("androidx.compose.ui.text.ExperimentalTextApi")
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:ui:ui-text-lint"))
+}
+
+androidx {
+    name = "Compose UI Text"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2019"
+    description = "Compose Text primitives and utilities"
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-text:ui-text-samples"))
+}
+
+afterEvaluate {
+    // needed to support running tests that use AwtFontUtils
+    // (https://github.com/JetBrains/compose-multiplatform-core/pull/918)
+    tasks.withType(Test) { t ->
+        t.jvmArgs += ["--add-opens=java.desktop/sun.font=ALL-UNNAMED"]
+    }
+}

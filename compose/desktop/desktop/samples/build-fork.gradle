@@ -1,0 +1,169 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.AndroidXConfig
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("kotlin-multiplatform")
+    id("JetBrainsAndroidXPlugin")
+}
+
+kotlin {
+    jvm()
+
+    sourceSets {
+        jvmMain {
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project), "noto-fonts/other/")
+            resources.srcDirs += "src/jvmMain/res"
+
+            dependencies {
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:desktop:desktop"))
+
+                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3") {
+                    // exclude dependencies, because they override local projects when we build 0.0.0-* version
+                    // (see https://repo1.maven.org/maven2/org/jetbrains/compose/material/material-icons-core-desktop/1.6.11/material-icons-core-desktop-1.6.11.module)
+                    exclude group: "org.jetbrains.compose.ui"
+                }
+            }
+        }
+    }
+}
+
+tasks.register('run1', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
+    systemProperty("skiko.fps.enabled", "true")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run1rtl', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
+    systemProperty("skiko.fps.enabled", "true")
+    systemProperty("user.language", "ar") // arabic language for rtl
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run2', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.example2.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run3', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.popupexample.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runSwing', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runSwingOffscreenRendering', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+    jvmArgs("-Dcompose.swing.render.on.graphics=true")
+}
+
+tasks.register('runMouseClicks', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.mouseclicks.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runVsync', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.vsynctest.Main_jvmKt"
+    jvmArgs("-verbose:gc")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runWindowApi', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.windowapi.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    systemProperty("skiko.rendering.laf.global", "true")
+    systemProperty("skiko.rendering.useScreenMenuBar", "true")
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runLayout', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.layout.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    systemProperty("skiko.rendering.laf.global", "true")
+    systemProperty("skiko.rendering.useScreenMenuBar", "true")
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runFocusTest', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.focustest.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runFont', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jvmJar")
+    mainClass = "androidx.compose.desktop.examples.fonts.Fonts_jvmKt"
+    jvmArgs("--add-opens", "java.desktop/sun.font=ALL-UNNAMED")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run') {
+    dependsOn("run1")
+}
