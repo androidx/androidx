@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -88,6 +89,38 @@ class SoundEffectOnInteractionTest {
         } finally {
             AndroidComposeUiFlags.isInteractionSoundEffectsEnabled = originalFlag
         }
+    }
+
+    @Test
+    fun soundEffects_playSoundEffectThrowsDeadObjectException_doesNotCrash() {
+        val context =
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().context
+        val view =
+            object : android.view.View(context) {
+                override fun playSoundEffect(soundConstant: Int) {
+                    throw android.os.DeadObjectException()
+                }
+            }
+        val soundEffect = AndroidSoundEffect(view)
+
+        // This call should not crash.
+        soundEffect.playClickSound()
+    }
+
+    @Test
+    fun navigationSoundEffects_playSoundEffectThrowsDeadObjectException_doesNotCrash() {
+        val context =
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().context
+        val view =
+            object : android.view.View(context) {
+                override fun playSoundEffect(soundConstant: Int) {
+                    throw android.os.DeadObjectException()
+                }
+            }
+        val navigationSoundEffect = AndroidComposeView.AndroidComposeViewNavigationSoundEffect(view)
+
+        // This call should not crash.
+        navigationSoundEffect.invoke(FocusDirection.Right, isFastScrolling = false)
     }
 
     private class FakeSoundEffect : SoundEffect {
