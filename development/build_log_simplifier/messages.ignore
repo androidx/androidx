@@ -1052,5 +1052,3 @@ warning "webpack\-dev\-server > webpack\-dev\-middleware > memfs@[^"]+" has unme
 # b/500398048: Warning from in_progress_stroke_native_helper.cc
 WARNING: Logging before InitGoogle\(\) is written to STDERR
 .*in_progress_stroke_native_helper\.cc:[0-9]+\] Triangle index data exceeds 16\-bit limit, attempting to partition into [0-9]+ partitions\.
-# > Task :core:core-telecom:integration-tests:referenceapp:compileReleaseKotlin
-w: file://\$SUPPORT/core/core\-telecom/integration\-tests/referenceapp/src/main/java/androidx/core/telecom/reference/view/ParticipantRow\.kt:[0-9]+:[0-9]+ 'fun ListItem\(headlineContent: ComposableFunction[0-9]+<Unit>, modifier: Modifier = \.\.\., overlineContent: ComposableFunction[0-9]+<Unit>\? = \.\.\., supportingContent: ComposableFunction[0-9]+<Unit>\? = \.\.\., leadingContent: ComposableFunction[0-9]+<Unit>\? = \.\.\., trailingContent: ComposableFunction[0-9]+<Unit>\? = \.\.\., colors: ListItemColors = \.\.\., tonalElevation: Dp = \.\.\., shadowElevation: Dp = \.\.\.\): Unit' is deprecated\. Use the overload where `headlineContent` is now a trailing `content` lambda\.
