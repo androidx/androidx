@@ -16,218 +16,177 @@
 
 package androidx.compose.remote.integration.view.demos
 
-import android.content.Context
-import android.content.res.Resources
-import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.remote.integration.view.demos.examples.RideShare
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import java.io.File
+import kotlinx.coroutines.delay
 
+@Suppress(
+    "RestrictedApiAndroidX",
+    "COMPOSE_APPLIER_CALL_MISMATCH",
+    "COMPOSE_APPLIER_PARAMETER_MISMATCH",
+)
 class DumperActivity : ComponentActivity() {
-    @Suppress("RestrictedApiAndroidX")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initRideShare(getResources())
-        val initialMode = RenderMode.fromString(intent.getStringExtra("mode"))
+        RideShareHolder.init(resources)
+
+        val demoName = intent.getStringExtra("demo")
+        val mode = intent.getStringExtra("mode") ?: "remote"
+        val width = intent.getIntExtra("width", 480)
+        val height = intent.getIntExtra("height", 480)
+        val density = intent.getIntExtra("density", 160)
+        val fontScale = intent.getFloatExtra("fontScale", 2.0f)
+        val fps = intent.getIntExtra("fps", 30)
+        val durationSeconds = intent.getLongExtra("duration", 30L)
+        val durationMillis = durationSeconds * 1000L
+        val bitrate = intent.getIntExtra("bitrate", 200000)
+
+        val isVideo =
+            mode.equals("video", ignoreCase = true) ||
+                mode.equals("remote_video", ignoreCase = true)
+
+        val name = demoName ?: "Clock"
+        val sample = AllSamples.find { it.name.equals(name, ignoreCase = true) }
+        if (sample == null) {
+            Log.e("DumperActivity", "Unknown demo: $name. Available: ${AllSamples.map { it.name }}")
+            finish()
+            return
+        }
+
+        Log.i(
+            "DumperActivity",
+            "Starting: demo=$name, mode=$mode, ${width}x${height}, durationSeconds=$durationSeconds",
+        )
 
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
-                    color = Color.DarkGray,
-                ) {
-                    DumperScreen(this, initialMode)
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isVideo) {
+                    val result =
+                        mediaH264Preview(
+                            context = this@DumperActivity,
+                            sample = sample,
+                            width = width,
+                            height = height,
+                            durationMillis = durationMillis,
+                            fps = fps,
+                            bitrate = bitrate,
+                            densityDpi = density,
+                            fontScale = fontScale,
+                        )
+                    LaunchedEffect(result) {
+                        result?.let {
+                            Log.i("DumperActivity", "Video dump finished: ${it.filePath}")
+                            finish()
+                        }
+                    }
+                } else {
+                    RemoteComposePlayAndDump(
+                        sample = sample,
+                        width = width,
+                        height = height,
+                        durationMillis = durationMillis,
+                        densityDpi = density,
+                        fontScale = fontScale,
+                        onFinished = { outputPath ->
+                            Log.i(
+                                "DumperActivity",
+                                "Remote compose play and dump finished: $outputPath",
+                            )
+                            finish()
+                        },
+                    )
                 }
             }
         }
     }
+}
 
-    companion object {
-        private var rideShare: RideShare? = null
+@Suppress("RestrictedApiAndroidX")
+@Composable
+fun RemoteComposePlayAndDump(
+    sample: DumperSample,
+    width: Int,
+    height: Int,
+    durationMillis: Long,
+    densityDpi: Int = LocalConfiguration.current.densityDpi,
+    fontScale: Float = LocalConfiguration.current.fontScale,
+    onFinished: (String) -> Unit = {},
+) {
+    val context = LocalContext.current
+    var bytes by remember { mutableStateOf<ByteArray?>(null) }
+    var outputPath by remember { mutableStateOf<String?>(null) }
 
-        private fun initRideShare(resources: Resources) {
-            if (rideShare != null) {
-                return
+    val creationDisplayInfo =
+        remember(sample, width, height, densityDpi, fontScale) {
+            RemoteCreationDisplayInfo(width, height, densityDpi, fontScale)
+        }
+
+    LaunchedEffect(sample) {
+        val generatedBytes =
+            when (sample) {
+                is DumperSample.ComposableSample -> {
+                    val doc =
+                        captureSingleRemoteDocument(
+                            creationDisplayInfo = creationDisplayInfo,
+                            context = context,
+                        ) {
+                            sample.content()
+                        }
+                    doc.bytes
+                }
+                is DumperSample.Context -> {
+                    val rcContext = sample.getContext()
+                    val wireBuffer = rcContext.buffer.buffer
+                    wireBuffer.getBuffer().copyOf(wireBuffer.size())
+                }
+                is DumperSample.FileSample -> {
+                    sample.file.readBytes()
+                }
             }
 
-            val carLogo = BitmapFactory.decodeResource(resources, R.drawable.car_logo)
-            val carDriver = BitmapFactory.decodeResource(resources, R.drawable.car_driver)
-            val carIcon = BitmapFactory.decodeResource(resources, R.drawable.car_icon)
+        val file = File(context.cacheDir, "${sample.name}_${width}x${height}.rc")
+        file.writeBytes(generatedBytes)
+        Log.i("DumperActivity", "Remote compose dump finished: ${file.absolutePath}")
 
-            rideShare = RideShare()
-            rideShare?.setBitmaps(carLogo, carDriver, carIcon)
-        }
-
-        public fun getRideShare(): RideShare? {
-            return rideShare
-        }
+        bytes = generatedBytes
+        outputPath = file.absolutePath
     }
-}
 
-@Composable
-fun DumperScreen(context: Context, initialMode: RenderMode) {
-    var renderMode by remember { mutableStateOf(initialMode) }
-    var resolution by remember { mutableStateOf(Resolution.RES_480X480) }
-    var duration by remember { mutableStateOf(Duration.SEC_30) }
-    var fps by remember { mutableStateOf(Fps.FPS_30) }
-    var bitrate by remember { mutableStateOf(Bitrate.BITRATE_200K) }
-    var selectedSample by remember { mutableStateOf(AllSamples.first()) }
-    var isRunning by remember { mutableStateOf(false) }
-    var outputInfo by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-    ) {
-        Text("Remote Compose Dumper Tool", color = Color.White)
-        Spacer(modifier = Modifier.height(8.dp))
-        if (outputInfo.isNotEmpty()) {
-            Text(
-                text = "Output: $outputInfo",
-                modifier = Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp),
-                color = Color.Black,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (!isRunning) {
-            DumperControlPanel(
-                renderMode = renderMode,
-                onModeChange = { renderMode = it },
-                resolution = resolution,
-                onResolutionChange = { resolution = it },
-                duration = duration,
-                onDurationChange = { duration = it },
-                fps = fps,
-                onFpsChange = { fps = it },
-                bitrate = bitrate,
-                onBitrateChange = { bitrate = it },
-                samples = AllSamples,
-                selectedSample = selectedSample,
-                onSampleChange = { selectedSample = it },
-                onStartClick = {
-                    isRunning = true
-                    outputInfo = ""
+    Box(modifier = Modifier.fillMaxSize()) {
+        bytes?.let { activeBytes ->
+            AndroidView(
+                factory = { ctx ->
+                    RemoteComposePlayer(ctx).apply {
+                        setShaderControl { true }
+                        setDocument(activeBytes)
+                    }
                 },
+                modifier = Modifier.fillMaxSize(),
             )
-        } else {
-            DumperPreviewSection(
-                context = context,
-                renderMode = renderMode,
-                selectedSample = selectedSample,
-                resolution = resolution,
-                duration = duration,
-                fps = fps,
-                bitrate = bitrate,
-                onOutputReady = {
-                    outputInfo = it
-                    isRunning = false
-                },
-            )
-        }
-    }
-}
 
-@Composable
-fun DumperControlPanel(
-    renderMode: RenderMode,
-    onModeChange: (RenderMode) -> Unit,
-    resolution: Resolution,
-    onResolutionChange: (Resolution) -> Unit,
-    duration: Duration,
-    onDurationChange: (Duration) -> Unit,
-    fps: Fps,
-    onFpsChange: (Fps) -> Unit,
-    bitrate: Bitrate,
-    onBitrateChange: (Bitrate) -> Unit,
-    samples: List<DumperSample>,
-    selectedSample: DumperSample,
-    onSampleChange: (DumperSample) -> Unit,
-    onStartClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        RenderModeSelector(renderMode, onModeChange)
-        ResolutionSelector(resolution, onResolutionChange)
-        DurationSelector(duration, onDurationChange)
-        FpsSelector(fps, onFpsChange)
-        BitrateSelector(bitrate, onBitrateChange)
-        SampleSelector(samples, selectedSample.name, onSampleChange)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = onStartClick, modifier = Modifier.fillMaxWidth()) { Text("Start") }
-    }
-}
-
-@Composable
-@Suppress("COMPOSE_APPLIER_PARAMETER_MISMATCH", "COMPOSE_APPLIER_CALL_MISMATCH")
-fun DumperPreviewSection(
-    context: Context,
-    renderMode: RenderMode,
-    selectedSample: DumperSample,
-    resolution: Resolution,
-    duration: Duration,
-    fps: Fps,
-    bitrate: Bitrate,
-    onOutputReady: (String) -> Unit,
-) {
-    Box(modifier = Modifier.background(Color.Black).padding(4.dp)) {
-        when (renderMode) {
-            RenderMode.REMOTE -> {
-                RemoteComposeDumper(
-                    sample = selectedSample,
-                    width = resolution.width,
-                    height = resolution.height,
-                    onFinished = onOutputReady,
-                )
-            }
-            RenderMode.REMOTE_VIDEO_ENCODE -> {
-                val result =
-                    mediaH264Preview(
-                        context = context,
-                        sample = selectedSample,
-                        width = resolution.width,
-                        height = resolution.height,
-                        durationMillis = duration.millis,
-                        fps = fps.value,
-                        bitrate = bitrate.bps,
-                    )
-                LaunchedEffect(result) { result?.let { onOutputReady(it.filePath) } }
+            LaunchedEffect(durationMillis) {
+                delay(durationMillis)
+                Log.i("DumperActivity", "Remote compose play finished after $durationMillis ms")
+                onFinished(outputPath ?: "")
             }
         }
     }

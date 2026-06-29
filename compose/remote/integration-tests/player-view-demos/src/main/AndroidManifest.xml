@@ -262,14 +262,7 @@
             android:configChanges="uiMode|assetsPaths"
             android:exported="true"
             android:label="RC Dumper"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
 
     </application>
 </manifest>

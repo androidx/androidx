@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ColorSpace
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
@@ -31,6 +32,7 @@ import android.media.MediaMuxer
 import android.os.Bundle
 import android.view.SurfaceView
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -135,9 +137,20 @@ private class RecordingPresentation(
     private val lifecycleOwner: LifecycleOwner,
     private val viewModelStoreOwner: ViewModelStoreOwner,
     private val savedStateRegistryOwner: SavedStateRegistryOwner,
-) : Presentation(context, virtualDisplay.display) {
+) : Presentation(context, virtualDisplay.display, android.R.style.Theme_NoTitleBar_Fullscreen) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window?.apply {
+            setLayout(width, height)
+            setBackgroundDrawable(ColorDrawable(android.graphics.Color.BLACK))
+            clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            setWindowAnimations(0)
+        }
+
+        val density = context.resources.displayMetrics.density
+        val widthDp = (width / density).toInt()
+        val heightDp = (height / density).toInt()
         val cv =
             ComposeView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(width, height)
@@ -150,8 +163,8 @@ private class RecordingPresentation(
                         MaterialSurface {
                             RemoteDocumentPlayer(
                                 document = document,
-                                documentWidth = width,
-                                documentHeight = height,
+                                documentWidth = widthDp,
+                                documentHeight = heightDp,
                                 modifier = Modifier.fillMaxSize(),
                                 init = { player -> player.setShaderControl { true } },
                             )
@@ -234,9 +247,10 @@ private class VideoEncodeThread(
             // Setup Presentation on the Main Thread
             android.os.Handler(android.os.Looper.getMainLooper()).post {
                 virtualDisplay.surface = imageReader!!.surface
+                val displayContext = context.createDisplayContext(virtualDisplay.display)
                 presentation =
                     RecordingPresentation(
-                        context,
+                        displayContext,
                         virtualDisplay,
                         videoDocument.document,
                         width,
@@ -404,18 +418,20 @@ fun mediaH264Preview(
     durationMillis: Long,
     fps: Int,
     bitrate: Int,
+    densityDpi: Int = LocalConfiguration.current.densityDpi,
+    fontScale: Float = LocalConfiguration.current.fontScale,
 ): DumperOutputData? {
     var status by remember { mutableStateOf("Initializing...") }
     var outputData by remember { mutableStateOf<DumperOutputData?>(null) }
 
-    val config = LocalConfiguration.current
     val creationDisplayInfo =
-        remember(sample, width, height) {
-            RemoteCreationDisplayInfo(width, height, config.densityDpi, config.fontScale)
+        remember(sample, width, height, densityDpi, fontScale) {
+            RemoteCreationDisplayInfo(width, height, densityDpi, fontScale)
         }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 
-    var videoDocument by remember(sample) { mutableStateOf<RemoteDocument?>(null) }
+    var videoDocumentForRecord by remember(sample) { mutableStateOf<RemoteDocument?>(null) }
+    var videoDocumentForPreview by remember(sample) { mutableStateOf<RemoteDocument?>(null) }
 
     // Capture owners once for the background Presentation
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -424,7 +440,10 @@ fun mediaH264Preview(
     val compositionContext = rememberCompositionContext()
 
     // Use a cleaner capture mechanism that disposes itself properly
-    if (sample is DumperSample.ComposableSample && videoDocument == null) {
+    if (
+        sample is DumperSample.ComposableSample &&
+            (videoDocumentForRecord == null || videoDocumentForPreview == null)
+    ) {
         LaunchedEffect(sample) {
             val doc =
                 captureSingleRemoteDocument(
@@ -433,23 +452,57 @@ fun mediaH264Preview(
                 ) {
                     sample.content()
                 }
-            videoDocument = RemoteDocument(ByteArrayInputStream(doc.bytes), ManualRemoteClock())
+            videoDocumentForRecord =
+                RemoteDocument(ByteArrayInputStream(doc.bytes), ManualRemoteClock())
+            videoDocumentForPreview =
+                RemoteDocument(ByteArrayInputStream(doc.bytes), RemoteClock.SYSTEM)
         }
-    } else if (sample is DumperSample.Context && videoDocument == null) {
+    } else if (
+        sample is DumperSample.Context &&
+            (videoDocumentForRecord == null || videoDocumentForPreview == null)
+    ) {
         LaunchedEffect(sample) {
             val rcContext = sample.getContext()
             val wireBuffer = rcContext.buffer.buffer
             val bytes = wireBuffer.getBuffer().copyOf(wireBuffer.size())
-            val vDoc = CoreDocument(ManualRemoteClock())
-            vDoc.initFromBuffer(RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes)))
-            videoDocument = RemoteDocument(vDoc)
+
+            val vDocRecord = CoreDocument(ManualRemoteClock())
+            vDocRecord.initFromBuffer(
+                RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
+            )
+            videoDocumentForRecord = RemoteDocument(vDocRecord)
+
+            val vDocPreview = CoreDocument(RemoteClock.SYSTEM)
+            vDocPreview.initFromBuffer(
+                RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
+            )
+            videoDocumentForPreview = RemoteDocument(vDocPreview)
+        }
+    } else if (
+        sample is DumperSample.FileSample &&
+            (videoDocumentForRecord == null || videoDocumentForPreview == null)
+    ) {
+        LaunchedEffect(sample) {
+            val bytes = sample.file.readBytes()
+
+            val vDocRecord = CoreDocument(ManualRemoteClock())
+            vDocRecord.initFromBuffer(
+                RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
+            )
+            videoDocumentForRecord = RemoteDocument(vDocRecord)
+
+            val vDocPreview = CoreDocument(RemoteClock.SYSTEM)
+            vDocPreview.initFromBuffer(
+                RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
+            )
+            videoDocumentForPreview = RemoteDocument(vDocPreview)
         }
     }
 
-    val isReady = videoDocument != null
+    val isReady = videoDocumentForRecord != null && videoDocumentForPreview != null
 
-    DisposableEffect(videoDocument, isReady) {
-        if (!isReady || videoDocument == null) return@DisposableEffect onDispose {}
+    DisposableEffect(isReady) {
+        if (!isReady || videoDocumentForRecord == null) return@DisposableEffect onDispose {}
 
         val recorder =
             VideoEncodeThread(
@@ -460,7 +513,7 @@ fun mediaH264Preview(
                 fps,
                 bitrate,
                 durationMillis,
-                videoDocument!!,
+                videoDocumentForRecord!!,
                 virtualDisplay,
                 compositionContext,
                 lifecycleOwner,
@@ -478,15 +531,17 @@ fun mediaH264Preview(
         Text(text = status, color = Color.Gray)
         Spacer(modifier = Modifier.height(8.dp))
         val density = LocalDensity.current
+        val widthDp = (width / density.density).toInt()
+        val heightDp = (height / density.density).toInt()
         Column(
             modifier =
                 Modifier.size(with(density) { width.toDp() }, with(density) { height.toDp() })
         ) {
-            videoDocument?.let {
+            videoDocumentForPreview?.let {
                 RemoteDocumentPlayer(
                     document = it.document,
-                    documentWidth = width,
-                    documentHeight = height,
+                    documentWidth = widthDp,
+                    documentHeight = heightDp,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -516,7 +571,8 @@ object DisplayPool {
             creationDisplayInfo.size.height.toInt(),
             (creationDisplayInfo.density.density * 160f).toInt(),
             SurfaceView(context).holder.surface,
-            0,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY,
         )
     }
 
