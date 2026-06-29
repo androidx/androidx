@@ -1,0 +1,604 @@
+import groovy.transform.Field
+
+pluginManagement {
+    repositories {
+        /*
+        maven {
+            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
+        }
+        maven {
+            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/internal").getCanonicalFile()
+        }
+         */
+        if (true /* In JetBrains Fork */) {
+            mavenCentral()
+            google()
+            maven {
+                url = "https://plugins.gradle.org/m2/"
+            }
+        }
+    }
+    includeBuild("androidx-settings-plugins")
+}
+
+buildscript {
+    ext.supportRootFolder = buildscript.sourceFile.getParentFile()
+    apply(from: "buildSrc/repos.gradle")
+    apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
+    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
+
+    repos.addMavenRepositories(repositories)
+
+    dependencies {
+        // upgrade protobuf to be compatible with AGP
+        classpath("com.google.protobuf:protobuf-java:3.25.5")
+        classpath("com.gradle:develocity-gradle-plugin:4.3")
+        classpath("com.gradle:common-custom-user-data-gradle-plugin:2.4.0")
+        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0")
+        classpath("com.google.cloud:google-cloud-secretmanager:2.67.0")
+        def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
+        if (agpOverride != null) {
+            classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
+        } else {
+            classpath("com.android.settings:com.android.settings.gradle.plugin:8.12.0")
+        }
+        // set guava version to be compatible with Depdendency analysis gradle plugin
+        classpath("com.google.guava:guava:33.3.1-jre")
+    }
+}
+
+enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
+
+def supportRootFolder = buildscript.sourceFile.getParentFile()
+skikoSetup.defineSkikoInVersionCatalog(settings)
+
+/* In JetBrains Fork we don't force Android Studio usage.
+// Abort immediately if we're running in Studio, but not a managed instance of Studio.
+if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
+    if (expectedAgpVersion == null) {
+        throw new Exception("Android Studio must be run from studiow or gradlew studio.")
+    }
+}
+*/
+
+// Makes strong assumptions about the project structure.
+def prebuiltsRoot = new File(
+        supportRootFolder.parentFile.parentFile,
+        "prebuilts"
+).absolutePath
+def rootProjectRepositories
+
+apply from: "buildSrc/settingsScripts/out-setup.groovy"
+
+getGradle().beforeProject { project ->
+    // Migrate to dependencyResolutionManagement.repositories when
+    // https://github.com/gradle/gradle/issues/17295 is fixed
+    if (project.path == ":") {
+        repos.addMavenRepositories(project.repositories)
+        rootProjectRepositories = project.repositories
+    } else {
+        // Performance optimization because it is more efficient to reuse
+        // repositories from the root project than recreate identical ones
+        // on each project
+        project.repositories.addAll(rootProjectRepositories)
+    }
+    project.ext.supportRootFolder = supportRootFolder
+    project.ext.prebuiltsRoot = prebuiltsRoot
+    def checkoutRoot = new File("${buildscript.sourceFile.parent}")
+    init.chooseBuildDirectory(checkoutRoot, rootProject.name, project)
+
+    /*
+    Could not set unknown property 'kotlin.project.persistent.dir' for project ':buildSrc' of type org.gradle.api.Project.
+
+    // https://youtrack.jetbrains.com/issue/KT-58223
+    def kotlinDir = new File(System.env.OUT_DIR ?: checkoutRoot, ".kotlin")
+    project.setProperty("kotlin.project.persistent.dir", kotlinDir.absolutePath)
+    project.setProperty("kotlin.user.home", kotlinDir.absolutePath)
+    */
+}
+
+apply(plugin: "com.gradle.develocity")
+apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
+apply(plugin: "androidx.build.gradle.gcpbuildcache")
+apply(plugin: "com.android.settings")
+
+apply(from: "buildSrc/ndk.gradle")
+
+def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
+develocity {
+    server = "https://ge.androidx.dev"
+
+    buildScan {
+        capture {
+            fileFingerprints.set(true)
+            buildLogging.set(false)
+            testLogging.set(false)
+        }
+        obfuscation {
+            hostname { host -> "unset" }
+            ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
+        }
+        value("androidx.projects", getRequestedProjectSubsetName() ?: "unset")
+        value("androidx.projectPrefix", providers.environmentVariable("PROJECT_PREFIX").orElse("unset").get() )
+        value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
+
+        // Do not publish scan for androidx-platform-dev
+        publishing.onlyIf { it.authenticated }
+    }
+
+    // TODO(https://github.com/gradle/gradle/issues/34584): Avoid setting buildFinished via Gradle magic:
+    //  buildScan {  buildFinished {  buildScan.value("X", "Y") } }
+    //  as it fails on uploading scans if the config cache is resued and only the BUILD_NUMBER changes
+    //  Use alternative below:
+    def buildScanConfig = buildScan
+    buildScanConfig.buildFinished {
+        buildScanConfig.value("BUILD_NUMBER", buildNumberProvider.get())
+        buildScanConfig.link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=${buildNumberProvider.get()}&tail=${buildNumberProvider.get()}")
+    }
+}
+
+def cacheSetting = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE")
+def pushSetting = providers.environmentVariable("IS_POSTSUBMIT")
+switch (cacheSetting) {
+    case ["true", "gcp"]:
+        settings.buildCache {
+            def europe = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE_EUROPE")
+            remote(androidx.build.gradle.gcpbuildcache.GcpBuildCache) {
+                projectId = "androidx-ge"
+                if (europe == "true") {
+                    bucketName = "androidx-gradle-remote-cache-europe"
+                } else {
+                    bucketName = "androidx-gradle-remote-cache"
+                }
+                messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
+                        "Please regenerate credentials following the steps below and try again:\n" +
+                        "gcloud auth application-default login --project androidx-ge"
+                //TODO(https://github.com/gradle/gradle/issues/34578): Move to lazy API when supported
+                push = pushSetting.map { it.toBoolean() }.getOrElse(false)
+            }
+        }
+        break
+    case "false":
+        break
+    default:
+        def uplinkLinux = new File("/usr/bin/uplink-helper")
+        def uplinkMac = new File("/usr/local/bin/uplink-helper")
+        if (uplinkLinux.exists() || uplinkMac.exists()) {
+            logger.warn("\u001B[31m\nIt looks like you are a Googler running without remote build "
+                    + "cache. Enable it for faster builds, see " +
+                    "http://go/androidx-dev#remote-build-cache\u001B[0m\n")
+        }
+}
+
+rootProject.name = "compose-multiplatform-core"
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            def metalavaOverride = System.getenv("METALAVA_VERSION")
+            if (metalavaOverride != null) {
+                logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
+                version('metalava', metalavaOverride)
+            }
+            def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
+            if (agpOverride != null) {
+                logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
+                version('androidGradlePlugin', agpOverride)
+            }
+            def lintOverride = System.getenv("LINT_VERSION")
+            if (lintOverride != null) {
+                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
+                version('androidLint', lintOverride)
+            }
+        }
+    }
+}
+
+/////////////////////////////
+//
+// Buildscript utils
+//
+/////////////////////////////
+
+// If you add a new BuildType, you probably also want to
+// update ProjectSubsetsTest.kt to verify that dependencies in that subset resolve successfully
+enum BuildType {
+    MAIN,
+    COMPOSE,
+    FLAN,
+    MEDIA,
+    WEAR,
+    GLANCE,
+    TOOLS,
+    KMP, // All projects built as Kotlin Multi Platform (compose, datastore, collections, etc).
+    INFRAROGUE, // Projects built by playground team, mostly non-compose kmp.
+    CAMERA,
+    NATIVE,
+    WINDOW,
+    XR,
+}
+
+private String getRequestedProjectSubsetName() {
+    return "COMPOSE"
+    /* In JetBrains Fork only COMPOSE subset is supported.
+    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
+    if (envProp.isPresent()) {
+        return envProp.get().toUpperCase()
+    }
+    return null
+    */
+}
+
+/**
+ * Utility class to handle PROJECT_PREFIX environment variable.
+ */
+class ProjectPrefixFilter {
+    // list of projects parsed from the PROJECT_PREFIX env environmentVariable
+    private final List<String> projectPrefixes
+    // set to true if the environment variable is present
+    final boolean isConfigured
+    ProjectPrefixFilter(providers) {
+        def envProp = providers.environmentVariable("PROJECT_PREFIX")
+        if (envProp.isPresent()) {
+            isConfigured = true
+            def value = envProp.get()
+            projectPrefixes = value?.split(',')?.collect { it.trim() } ?: []
+        } else {
+            isConfigured = false
+            projectPrefixes = []
+        }
+    }
+
+
+    boolean matches(String name) {
+        return projectPrefixes.any { prefix ->
+            name.startsWith(prefix)
+        }
+    }
+}
+ext.projectPrefixFilter = new ProjectPrefixFilter(providers)
+
+
+boolean isAllProjects() {
+    return requestedProjectSubsetName == null || requestedProjectSubsetName == "ALL"
+}
+
+private Set<BuildType> createRequestedFilter() {
+    Set<BuildType> filter = new HashSet<>()
+    String projectSubsetName = getRequestedProjectSubsetName()
+    if (projectSubsetName == null) return null
+    String[] requestedFilter = projectSubsetName.split(",")
+    for (String requestedType : requestedFilter) {
+        switch (requestedType) {
+            case "MAIN":
+                filter.add(BuildType.MAIN)
+                break
+            case "COMPOSE":
+                filter.add(BuildType.COMPOSE)
+                break
+            case "FLAN":
+                filter.add(BuildType.FLAN)
+                break
+            case "MEDIA":
+                filter.add(BuildType.MEDIA)
+                break
+            case "WEAR":
+                filter.add(BuildType.WEAR)
+                break
+            case "GLANCE":
+                // Glance currently depends on a large part of Compose, add it here rather than
+                // requiring every project to be tagged
+                filter.add(BuildType.COMPOSE)
+                filter.add(BuildType.GLANCE)
+                break
+            case "TOOLS":
+                filter.add(BuildType.TOOLS)
+                break
+            case "KMP":
+                filter.add(BuildType.KMP)
+                break
+            case "INFRAROGUE":
+                filter.add(BuildType.INFRAROGUE)
+                break
+            case "CAMERA":
+                filter.add(BuildType.CAMERA)
+                break
+            case "NATIVE":
+                filter.add(BuildType.NATIVE)
+                break
+            case "WINDOW":
+                filter.add(BuildType.WINDOW)
+                break
+            case "XR":
+                filter.add(BuildType.XR)
+                break
+            case "ALL":
+                // Return null so that no filtering is done
+                return null
+                break
+            default:
+                throw new Exception("Unsupported project type $requestedType\n" +
+                        "We only support the following:\n" +
+                        "ALL     - all androidx projects\n" +
+                        "COMPOSE - compose projects\n" +
+                        "CAMERA  - camera projects\n" +
+                        "MAIN    - androidx projects that are not compose\n" +
+                        "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
+                        "MEDIA   - media and mediarouter projects\n" +
+                        "WEAR    - Wear OS projects\n" +
+                        "NATIVE  - native projects\n" +
+                        "WINDOW  - window projects\n" +
+                        "GLANCE  - glance projects\n" +
+                        "XR      - XR projects")
+        }
+    }
+    return filter
+}
+
+/**
+ * Requested project filter based on STUDIO_PROJECT_FILTER env variable.
+ *
+ * Note that null value means all the projects should be included
+ */
+@Field
+Set<BuildType> requestedFilter
+requestedFilter = createRequestedFilter()
+
+boolean shouldIncludeForFilter(List<BuildType> includeList) {
+    if (includeList.empty) return true
+    if (requestedFilter == null) return true
+    for (BuildType type : includeList) {
+        if (requestedFilter.contains(type)) return true
+    }
+    return false
+}
+
+def includeProject(name, List<BuildType> filter = []) {
+    includeProject(name, null, filter)
+}
+// createProjectDependencyGraph is provided by project-dependency-graph.groovy
+ext.projectDependencyGraph = createProjectDependencyGraph(
+        settings,
+        providers.gradleProperty("androidx.constraints").getOrElse("true").toBoolean()
+)
+// A set of projects that the user asked to filter to.
+@Field Set<String> filteredProjects = new HashSet<String>()
+filteredProjects.add(":lint-checks")
+
+// Calling includeProject(name, filePath) is shorthand for:
+//
+//   include(name)
+//   project(name).projectDir = new File(filePath)
+//
+// Note that <name> directly controls the Gradle project name, and also indirectly sets:
+//   the project name in the IDE
+//   the Maven artifactId
+//
+def includeProject(String name, filePath, List<BuildType> filter = []) {
+    if (projectPrefixFilter.isConfigured) {
+        if (projectPrefixFilter.matches(name)) {
+            filteredProjects.add(name)
+        }
+    } else if (shouldIncludeForFilter(filter)) {
+        filteredProjects.add(name)
+    }
+    def file
+    if (filePath != null) {
+        if (filePath instanceof String) {
+            if ((":" + filePath.replace("/",":")).equals(name)) {
+                throw new IllegalArgumentException("Redundant filepath for $name, please remove it")
+            }
+            file = new File(rootDir, filePath)
+        } else {
+            file = filePath
+        }
+    } else {
+        file = new File(rootDir, name.substring(1).replace(":", "/"))
+    }
+    projectDependencyGraph.addToAllProjects(name, file)
+}
+
+// TODO(https://youtrack.jetbrains.com/issue/CMP-9524/Support-the-same-setup-for-integration-and-jb-main-branches)
+//  ideally this list should be same as in AOSP, but there should be another mode or a root project that loads projects
+//  needed only for the fork
+
+includeProject(":annotation:annotation-sampled")
+includeProject(":compose:animation")
+includeProject(":compose:animation:animation")
+includeProject(":compose:animation:animation-lint")
+includeProject(":compose:animation:animation-core")
+includeProject(":compose:animation:animation-core-lint")
+includeProject(":compose:animation:animation-core:animation-core-samples", "compose/animation/animation-core/samples")
+includeProject(":compose:animation:animation-tooling-internal")
+includeProject(":compose:animation:animation:integration-tests:animation-demos")
+includeProject(":compose:animation:animation:animation-samples", "compose/animation/animation/samples")
+includeProject(":compose:animation:animation-graphics")
+includeProject(":compose:animation:animation-graphics:animation-graphics-samples", "compose/animation/animation-graphics/samples")
+
+includeProject(":compose:desktop")
+includeProject(":compose:desktop:desktop")
+includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples")
+includeProject(":compose:desktop:desktop:desktop-samples-material3", "compose/desktop/desktop/samples-material3")
+includeProject(":compose:mpp")
+includeProject(":compose:mpp:demo")
+includeProject(":compose:mpp:demo-swiftui")
+
+includeProject(":compose:foundation")
+includeProject(":compose:foundation:foundation")
+includeProject(":compose:foundation:foundation-layout")
+includeProject(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos", "compose/foundation/foundation-layout/integration-tests/layout-demos")
+includeProject(":compose:foundation:foundation-layout:foundation-layout-samples", "compose/foundation/foundation-layout/samples")
+includeProject(":compose:foundation:foundation-lint")
+includeProject(":compose:foundation:foundation:integration-tests:foundation-demos")
+includeProject(":compose:foundation:foundation:foundation-samples", "compose/foundation/foundation/samples")
+includeProject(":compose:integration-tests")
+//includeProject(":compose:integration-tests:demos")
+includeProject(":compose:integration-tests:demos:common")
+includeProject(":compose:integration-tests:docs-snippets")
+includeProject(":compose:integration-tests:material-catalog")
+includeProject(":compose:lint")
+includeProject(":compose:lint:internal-lint-checks")
+includeProject(":compose:lint:common")
+includeProject(":compose:lint:common-test")
+includeProject(":compose:material")
+includeProject(":compose:material3:material3")
+includeProject(":compose:material3:adaptive:adaptive")
+includeProject(":compose:material3:adaptive:adaptive-layout")
+includeProject(":compose:material3:adaptive:adaptive-navigation")
+includeProject(":compose:material3:adaptive:adaptive-navigation3")
+includeProject(":compose:material3:material3-lint")
+includeProject(":compose:material3:material3-window-size-class")
+includeProject(":compose:material3:material3-adaptive-navigation-suite")
+includeProject(":compose:material3:material3-window-size-class:material3-window-size-class-samples", "compose/material3/material3-window-size-class/samples")
+includeProject(":compose:material:material")
+includeProject(":compose:material:material-lint")
+includeProject(":compose:material:material-navigation")
+includeProject(":compose:material:material-ripple")
+// on an empty project it causes an error during sync in IDEA
+//  Corrupt serialized resolution result. Cannot find selected module (287) for releaseVariantReleaseRuntimePublication -> androidx.lifecycle:lifecycle-common-java8:2.5.1
+//includeProject(":compose:material:material:integration-tests:material-demos")
+//includeProject(":compose:material:material:integration-tests:material-catalog")
+//includeProject(":compose:material3:material3:integration-tests:material3-demos")
+//includeProject(":compose:material3:material3:integration-tests:material3-catalog")
+includeProject(":compose:material:material:material-samples", "compose/material/material/samples")
+includeProject(":compose:material3:material3:material3-samples", "compose/material3/material3/samples")
+includeProject(":compose:runtime")
+includeProject(":compose:runtime:runtime")
+includeProject(":compose:runtime:runtime-lint")
+includeProject(":compose:runtime:runtime-livedata")
+includeProject(":compose:runtime:runtime-livedata:runtime-livedata-samples", "compose/runtime/runtime-livedata/samples")
+includeProject(":compose:runtime:runtime-tracing")
+includeProject(":compose:runtime:runtime-rxjava2")
+includeProject(":compose:runtime:runtime-rxjava2:runtime-rxjava2-samples", "compose/runtime/runtime-rxjava2/samples")
+includeProject(":compose:runtime:runtime-rxjava3")
+includeProject(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples", "compose/runtime/runtime-rxjava3/samples")
+includeProject(":compose:runtime:runtime-saveable")
+includeProject(":compose:runtime:runtime-test-utils")
+includeProject(":compose:runtime:runtime:integration-tests")
+includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples")
+includeProject(":compose:test-utils")
+includeProject(":compose:ui")
+includeProject(":compose:ui:ui")
+includeProject(":compose:ui:ui-android-stubs")
+includeProject(":compose:ui:ui-geometry")
+includeProject(":compose:ui:ui-graphics")
+includeProject(":compose:ui:ui-graphics-lint")
+includeProject(":compose:ui:ui-graphics:ui-graphics-samples", "compose/ui/ui-graphics/samples")
+includeProject(":compose:ui:ui-lint")
+includeProject(":compose:ui:ui-test")
+includeProject(":compose:ui:ui-test:ui-test-samples", "compose/ui/ui-test/samples")
+includeProject(":compose:ui:ui-test-junit4")
+includeProject(":compose:ui:ui-test-manifest")
+includeProject(":compose:ui:ui-test-manifest-lint")
+includeProject(":compose:ui:ui-text")
+includeProject(":compose:ui:ui-text-google-fonts")
+includeProject(":compose:ui:ui-text-google-fonts:ui-text-google-fonts-samples", "compose/ui/ui-text-google-fonts/samples")
+includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples")
+includeProject(":compose:ui:ui-tooling")
+includeProject(":compose:ui:ui-tooling-data")
+includeProject(":compose:ui:ui-tooling-preview")
+includeProject(":compose:ui:ui-tooling-preview:ui-tooling-preview-samples", "compose/ui/ui-tooling-preview/samples")
+includeProject(":compose:ui:ui-unit")
+includeProject(":compose:ui:ui-unit:ui-unit-samples", "compose/ui/ui-unit/samples")
+includeProject(":compose:ui:ui-util")
+includeProject(":compose:ui:ui-viewbinding")
+includeProject(":compose:ui:ui-viewbinding:ui-viewbinding-samples", "compose/ui/ui-viewbinding/samples")
+includeProject(":compose:ui:ui:integration-tests:ui-demos")
+includeProject(":compose:ui:ui:ui-samples", "compose/ui/ui/samples")
+includeProject(":compose:ui:ui-uikit")
+includeProject(":compose:ui:ui-backhandler")
+
+includeProject(":kruth:kruth")
+
+includeProject(":lint-checks")
+includeProject(":lint-checks:integration-tests")
+
+includeProject(":lifecycle:lifecycle-common")
+includeProject(":lifecycle:lifecycle-runtime")
+includeProject(":lifecycle:lifecycle-runtime-compose")
+includeProject(":lifecycle:lifecycle-runtime-lint")
+includeProject(":lifecycle:lifecycle-runtime-testing")
+includeProject(":lifecycle:lifecycle-runtime-testing-lint")
+includeProject(":lifecycle:lifecycle-viewmodel")
+includeProject(":lifecycle:lifecycle-viewmodel-compose")
+includeProject(":lifecycle:lifecycle-viewmodel-navigation3")
+includeProject(":lifecycle:lifecycle-viewmodel-savedstate")
+includeProject(":lifecycle:lifecycle-viewmodel-testing")
+includeProject(":navigation:navigation-common")
+includeProject(":navigation:navigation-compose")
+includeProject(":navigation:navigation-runtime")
+includeProject(":navigation:navigation-testing")
+includeProject(":navigation3:navigation3-ui")
+includeProject(":navigationevent:navigationevent-compose")
+includeProject(":savedstate:savedstate")
+includeProject(":savedstate:savedstate-compose")
+
+includeProject(":internal-testutils-common", "testutils/testutils-common",)
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime")
+includeProject(":internal-testutils-espresso", "testutils/testutils-espresso")
+includeProject(":internal-testutils-fonts", "testutils/testutils-fonts")
+includeProject(":internal-testutils-truth", "testutils/testutils-truth")
+includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
+includeProject(":internal-testutils-lifecycle", "testutils/testutils-lifecycle")
+includeProject(":internal-testutils-navigation", "testutils/testutils-navigation")
+//includeProject(":internal-testutils-paging", "testutils/testutils-paging")
+includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin")
+includeProject(":internal-testutils-mockito", "testutils/testutils-mockito")
+includeProject(":internal-testutils-xctest", "testutils/testutils-xctest")
+
+// Workaround for b/203825166
+includeBuild("placeholder")
+
+includeProject(":mpp")
+
+// stubs needed for android source sets (Android currently doesn't work in the fork)
+includeProject(":activity:activity", "mpp/stub-project")
+includeProject(":activity:activity-compose", "mpp/stub-project")
+includeProject(":appcompat:appcompat", "mpp/stub-project")
+includeProject(":compose:integration-tests:demos", "mpp/stub-project")
+includeProject(":compose:material3:adaptive:adaptive-samples", "mpp/stub-project")
+includeProject(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples", "mpp/stub-project")
+includeProject(":compose:material3:material3:integration-tests:material3-catalog", "mpp/stub-project")
+includeProject(":compose:material3:material3:integration-tests:material3-demos", "mpp/stub-project")
+includeProject(":compose:material:material-navigation-samples", "mpp/stub-project")
+includeProject(":compose:material:material:integration-tests:material-catalog", "mpp/stub-project")
+includeProject(":compose:material:material:integration-tests:material-demos", "mpp/stub-project")
+includeProject(":compose:ui:ui-test-manifest:integration-tests:testapp", "mpp/stub-project")
+includeProject(":compose:ui:ui-text-lint", "mpp/stub-project")
+includeProject(":constraintlayout:constraintlayout-compose", "mpp/stub-project")
+includeProject(":lifecycle:lifecycle-common-java8", "mpp/stub-project")
+includeProject(":lifecycle:lifecycle-livedata-core", "mpp/stub-project")
+includeProject(":lifecycle:lifecycle-viewmodel-compose-lint", "mpp/stub-project")
+includeProject(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples", "mpp/stub-project")
+includeProject(":lint-checks:integration-tests", "mpp/stub-project")
+includeProject(":navigation3:navigation3-ui:integration-tests:navigation3-demos", "mpp/stub-project")
+includeProject(":navigation3:navigation3-ui:navigation3-ui-samples", "mpp/stub-project")
+includeProject(":navigation:navigation-common-lint", "mpp/stub-project")
+includeProject(":navigation:navigation-compose-lint", "mpp/stub-project")
+includeProject(":navigation:navigation-compose:integration-tests:navigation-demos", "mpp/stub-project")
+includeProject(":navigation:navigation-compose:navigation-compose-samples", "mpp/stub-project")
+includeProject(":navigation:navigation-runtime-lint", "mpp/stub-project")
+includeProject(":navigationevent:navigationevent-samples", "mpp/stub-project")
+includeProject(":paging:paging-compose", "mpp/stub-project")
+includeProject(":paging:paging-compose:integration-tests", "mpp/stub-project")
+includeProject(":paging:paging-compose:integration-tests:paging-demos", "mpp/stub-project")
+includeProject(":savedstate:savedstate-ktx", "mpp/stub-project")
+includeProject(":test:screenshot:screenshot", "mpp/stub-project")
+includeProject(":window:window-core", "mpp/stub-project")
+includeProject(":window:window-testing", "mpp/stub-project")
+
+// ---------------------------------------------------------------------
+// --- there should be no includeProject additions after this line -----
+// ---------------------------------------------------------------------
+
+void includeRequestedProjectsAndDependencies() {
+    Set<String> projectsToInclude = projectDependencyGraph
+            .getAllProjectsWithDependencies(filteredProjects)
+    projectsToInclude.forEach { path, dir ->
+        settings.include(path)
+        project(path).projectDir = dir
+    }
+}
+includeRequestedProjectsAndDependencies()
+gradle.ext.allProjectConsumers = allProjectsConsumers(projectDependencyGraph)
