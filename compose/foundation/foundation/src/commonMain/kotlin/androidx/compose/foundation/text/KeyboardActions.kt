@@ -20,8 +20,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.ImeAction
 
 /**
- * The [KeyboardActions] class allows developers to specify actions that will be triggered in
- * response to users triggering IME action on the software keyboard.
+ * Configures custom actions to run when the action button on the software keyboard (such as the
+ * "Done", "Search", or "Next" button in the bottom corner of the keyboard) is clicked.
+ *
+ * Setting these actions overrides default behavior, allowing you to implement custom focus routing
+ * (e.g., moving focus to a specific field on Next) or trigger custom logic (e.g., hiding the
+ * keyboard or submitting data on Done).
+ *
+ * Use [KeyboardActionScope.defaultKeyboardAction] to run the default action for the triggered
+ * [ImeAction].
+ *
+ * @sample androidx.compose.foundation.samples.RegistrationFormSample
+ * @sample androidx.compose.foundation.samples.BasicLoginFormSample
  */
 @Stable
 class KeyboardActions(

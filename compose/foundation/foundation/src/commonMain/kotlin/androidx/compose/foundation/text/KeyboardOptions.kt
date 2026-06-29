@@ -26,32 +26,45 @@ import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.text.intl.LocaleList
 
 /**
- * The keyboard configuration options for TextFields. It is not guaranteed if software keyboard will
- * comply with the options provided here.
+ * Defines keyboard configuration options for TextFields.
  *
- * @param capitalization informs the keyboard whether to automatically capitalize characters, words
- *   or sentences. Only applicable to only text based [KeyboardType]s such as [KeyboardType.Text],
- *   [KeyboardType.Ascii]. It will not be applied to [KeyboardType]s such as [KeyboardType.Number].
- * @param autoCorrectEnabled informs the keyboard whether to enable auto correct. Only applicable to
- *   text based [KeyboardType]s such as [KeyboardType.Email], [KeyboardType.Uri]. It will not be
- *   applied to [KeyboardType]s such as [KeyboardType.Number]. Most of keyboard implementations
- *   ignore this value for [KeyboardType]s such as [KeyboardType.Text]. A null value (the default
- *   parameter value) means autocorrect will be enabled.
- * @param keyboardType The keyboard type to be used in this text field. Note that this input type is
- *   honored by keyboard and shows corresponding keyboard but this is not guaranteed. For example,
- *   some keyboards may send non-ASCII character even if you set [KeyboardType.Ascii].
- * @param imeAction The IME action. This IME action is honored by keyboard and may show specific
- *   icons on the keyboard. For example, search icon may be shown if [ImeAction.Search] is
- *   specified. When [ImeOptions.singleLine] is false, the keyboard might show return key rather
- *   than the action requested here.
- * @param platformImeOptions defines the platform specific IME options.
- * @param showKeyboardOnFocus when true, software keyboard will show on focus gain. When false, the
- *   user must interact (e.g. tap) before the keyboard is shown. A null value (the default parameter
- *   value) means the keyboard will be shown on focus.
- * @param hintLocales List of the languages that the user is supposed to switch to no matter what
- *   input method subtype is currently used. This special "hint" can be used mainly for, but not
- *   limited to, multilingual users who want IMEs to switch language based on editor's context. Pass
- *   null to express the intention that a specific hint should not be set.
+ * Represents specific layout, capitalization, and system action hints sent to the Input Method
+ * Editor (IME/software keyboard) on focus gain.
+ *
+ * Soft keyboards make best-effort attempts to comply with the options provided here. Key layouts
+ * and flag behaviors are ultimately determined by the active IME implementation.
+ *
+ * @sample androidx.compose.foundation.samples.RegistrationFormSample
+ * @sample androidx.compose.foundation.samples.CheckoutRegisterFormSample
+ * @sample androidx.compose.foundation.samples.DateTimeSchedulerFormSample
+ * @sample androidx.compose.foundation.samples.SpecialtyInputsFormSample
+ * @sample androidx.compose.foundation.samples.PinCodeEntryRowSample
+ * @sample androidx.compose.foundation.samples.DecimalInputSample
+ * @sample androidx.compose.foundation.samples.ItemCountSettingsSample
+ * @param capitalization informs the keyboard whether to automatically capitalize characters, words,
+ *   or sentences. Only applicable to text-based [KeyboardType]s such as [KeyboardType.Text],
+ *   [KeyboardType.Ascii], or [KeyboardType.PostalAddress]. It is ignored by soft keyboards when
+ *   paired with numeric layouts (like [KeyboardType.Number] or [KeyboardType.Decimal]).
+ * @param autoCorrectEnabled informs the keyboard whether to enable auto-correct suggestions. Only
+ *   applicable to text-based [KeyboardType]s such as [KeyboardType.Text], [KeyboardType.Email], or
+ *   [KeyboardType.Uri]. Keyboards ignore this value for numeric keypads. A null value (the default
+ *   parameter value) expresses that soft keyboard default configurations should apply.
+ * @param keyboardType keyboard keypad layout to be displayed in the focused text field. Honored by
+ *   keyboards to display tailored key selections (e.g., phone dialer characters for
+ *   [KeyboardType.Phone], decimal separator buttons for [KeyboardType.Decimal], or masked numeric
+ *   pads for [KeyboardType.NumberPassword]).
+ * @param imeAction action button displayed on the soft keyboard (e.g., search, send, next, done,
+ *   etc.). This action is honored by the software keyboard and may display custom icons (like a
+ *   magnifying glass for [ImeAction.Search]). When the text field allows multi-line inputs, the
+ *   keyboard typically displays a return key instead of the action icon requested here.
+ * @param platformImeOptions platform-specific IME options (like private IME commands).
+ * @param showKeyboardOnFocus when true, the soft keyboard shows immediately on text field focus
+ *   gain. When false, the soft keyboard is hidden until the user taps the text field. A null value
+ *   (the default parameter value) enables showing the keyboard automatically on focus gain. Note:
+ *   This option is only supported by TextFieldState-based TextFields (like BasicTextField) and is
+ *   ignored by legacy TextFields.
+ * @param hintLocales list of languages for IMEs. Provides a localized hint to help multilingual
+ *   keyboards automatically shift their keyboard language based on the active field's context.
  */
 @Immutable
 class KeyboardOptions(
@@ -65,7 +78,7 @@ class KeyboardOptions(
 ) {
 
     companion object {
-        /** Default [KeyboardOptions]. Please see parameter descriptions for default values. */
+        /** Provides default [KeyboardOptions]. See parameter descriptions for default values. */
         @Stable val Default = KeyboardOptions()
 
         /** Default [KeyboardOptions] for [BasicSecureTextField]. */
