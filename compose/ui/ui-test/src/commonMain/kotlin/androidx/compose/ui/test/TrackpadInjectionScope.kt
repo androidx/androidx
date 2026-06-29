@@ -40,7 +40,7 @@ import kotlin.math.roundToLong
  * A trackpad move event can be sent with [moveTo] and [moveBy]. The trackpad position can be
  * updated with [updatePointerTo] and [updatePointerBy], which will not send an event and only
  * update the position internally. This can be useful if you want to send an event that is not a
- * move event with a location other then the current location, but without sending a preceding move
+ * move event with a location other than the current location, but without sending a preceding move
  * event. Use [press] and [release] to send button pressed and button released events. This will
  * also send all other necessary events that keep the stream of trackpad events consistent with
  * actual trackpad input, such as a hover exit event. A [cancel] event can be sent at any time when
@@ -133,7 +133,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * will be sent at the current event time. Trackpads behave similarly to mice, with platform
      * interpreted gestures that send button events.
      *
-     * @param button The button that is pressed. By default the primary button.
+     * @param button The button that is pressed. By default, the primary button.
      * @throws [IllegalStateException] if the [button] is already pressed.
      */
     fun press(button: TrackpadButton = TrackpadButton.Primary)
@@ -145,7 +145,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * at the current event time. Trackpads behave similarly to mice, with platform interpreted
      * gestures that send button events.
      *
-     * @param button The button that is released. By default the primary button.
+     * @param button The button that is released. By default, the primary button.
      * @throws [IllegalStateException] if the [button] is not pressed.
      */
     fun release(button: TrackpadButton = TrackpadButton.Primary)
@@ -390,7 +390,7 @@ fun TrackpadInjectionScope.click(
 /**
  * Secondary-click on [position], or on the current cursor position if [position] is
  * [unspecified][Offset.Unspecified]. While the secondary button is not necessarily a physical right
- * button (e.g. a multi-finger tap), this method is still called `rightClick` for it's widespread
+ * button (e.g. a multi-finger tap), this method is still called `rightClick` for its widespread
  * use. The [position] is in the node's local coordinate system, where (0, 0) is the top left corner
  * of the node.
  *
@@ -481,7 +481,7 @@ fun TrackpadInjectionScope.longClick(
  *
  * @sample androidx.compose.ui.test.samples.trackpadInputAnimateMoveTo
  * @param position The position where to move the trackpad to, in the node's local coordinate system
- * @param durationMillis The duration of the gesture. By default 300 milliseconds.
+ * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
 fun TrackpadInjectionScope.animateMoveTo(
     position: Offset,
@@ -503,7 +503,7 @@ fun TrackpadInjectionScope.animateMoveTo(
  * @param delta The position where to move the trackpad to, relative to the current position of the
  *   trackpad. For example, `delta = Offset(100.px, -100.px) will move the trackpad 100 pixels to
  *   the right and 100 pixels upwards.
- * @param durationMillis The duration of the gesture. By default 300 milliseconds.
+ * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
 fun TrackpadInjectionScope.animateMoveBy(
     delta: Offset,
@@ -525,7 +525,7 @@ fun TrackpadInjectionScope.animateMoveBy(
  *   in the node's local coordinate system. The argument passed to the function is the time in
  *   milliseconds since the start of the animated move, and the return value is the location of the
  *   trackpad at that point in time
- * @param durationMillis The duration of the gesture. By default 300 milliseconds.
+ * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
 fun TrackpadInjectionScope.animateMoveAlong(
     curve: (timeMillis: Long) -> Offset,
@@ -540,7 +540,7 @@ fun TrackpadInjectionScope.animateMoveAlong(
 
     var step = 0
     // How many steps will we take in durationMillis?
-    // At least 1, and a number that will bring as as close to eventPeriod as possible
+    // At least 1, and a number that will bring as close to eventPeriod as possible
     val steps = max(1, (durationMillis / eventPeriodMillis.toFloat()).roundToInt())
 
     var tPrev = 0L
@@ -563,7 +563,7 @@ fun TrackpadInjectionScope.animateMoveAlong(
  * @param end The position where to release the primary button and end the drag, in the node's local
  *   coordinate system.
  * @param button The button to drag with. Uses the [primary][TrackpadButton.Primary] by default.
- * @param durationMillis The duration of the gesture. By default 300 milliseconds.
+ * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
 fun TrackpadInjectionScope.dragAndDrop(
     start: Offset,
@@ -627,7 +627,7 @@ fun TrackpadInjectionScope.pan(
 
     panStart()
 
-    var accmulatedDelta: Offset = Offset.Zero
+    var accumulatedDelta: Offset = Offset.Zero
 
     // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
     var currTime = startTime
@@ -649,8 +649,8 @@ fun TrackpadInjectionScope.pan(
             val t = lerp(currTime, tNext, progress)
             val value = curve(t)
 
-            val delta = value - accmulatedDelta
-            accmulatedDelta = value
+            val delta = value - accumulatedDelta
+            accumulatedDelta = value
             panMoveBy(delta = delta, delayMillis = t - tPrev)
             tPrev = t
         }

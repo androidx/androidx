@@ -125,7 +125,7 @@ fun PointerEvent.calculateRotation(): Float {
     // We want to weigh each pointer differently so that motions farther from the
     // centroid have more weight than pointers close to the centroid. Essentially,
     // a small distance change near the centroid could equate to a large angle
-    // change and we don't want it to affect the rotation as much as pointers farther
+    // change, and we don't want it to affect the rotation as much as pointers farther
     // from the centroid, which should be more stable.
 
     changes.fastForEach { change ->
@@ -135,8 +135,8 @@ fun PointerEvent.calculateRotation(): Float {
             val previousOffset = previousPosition - previousCentroid
             val currentOffset = currentPosition - currentCentroid
 
-            val previousAngle = previousOffset.angle()
-            val currentAngle = currentOffset.angle()
+            val previousAngle = previousOffset.angleDeg()
+            val currentAngle = currentOffset.angleDeg()
             val angleDiff = currentAngle - previousAngle
             val weight = (currentOffset + previousOffset).getDistance() / 2f
 
@@ -158,7 +158,7 @@ fun PointerEvent.calculateRotation(): Float {
 }
 
 /** Returns the angle of the [Offset] between -180 and 180, or 0 if [Offset.Zero]. */
-private fun Offset.angle(): Float =
+private fun Offset.angleDeg(): Float =
     if (x == 0f && y == 0f) 0f else -atan2(x, y) * 180f / PI.toFloat()
 
 /**

@@ -70,12 +70,12 @@ import kotlinx.coroutines.launch
  * `consumeScrollDelta` callback or by implementing [ScrollableState] interface manually and reflect
  * their own state in UI when using this component.
  *
- * `scrollable` is a low level modifier that handles low level scrolling input gestures, without
+ * `scrollable` is a low-level modifier that handles low-level scrolling input gestures, without
  * other behaviors commonly used for scrollable containers. For building scrollable containers, see
  * [androidx.compose.foundation.scrollableArea]. `scrollableArea` clips its content to its bounds,
  * renders overscroll, and adjusts the direction of scroll gestures to ensure that the content moves
  * with the user's gestures. See also [androidx.compose.foundation.verticalScroll] and
- * [androidx.compose.foundation.horizontalScroll] for high level scrollable containers that handle
+ * [androidx.compose.foundation.horizontalScroll] for high-level scrollable containers that handle
  * layout and move the content as the user scrolls.
  *
  * If you don't need to have fling or nested scroll support, but want to make component simply
@@ -83,10 +83,10 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
- *   interpreted by the user land logic and contains useful information about on-going events.
+ *   interpreted by the user land logic and contains useful information about ongoing events.
  * @param orientation orientation of the scrolling
- * @param enabled whether or not scrolling in enabled
- * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will behave
+ * @param enabled whether scrolling is enabled
+ * @param reverseDirection reverse the direction of the scroll, so top-to-bottom scroll will behave
  *   like bottom to top and left to right will behave like right to left.
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
  *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
@@ -119,33 +119,33 @@ fun Modifier.scrollable(
  * `consumeScrollDelta` callback or by implementing [ScrollableState] interface manually and reflect
  * their own state in UI when using this component.
  *
- * `scrollable` is a low level modifier that handles low level scrolling input gestures, without
+ * `scrollable` is a low-level modifier that handles low-level scrolling input gestures, without
  * other behaviors commonly used for scrollable containers. For building scrollable containers, see
  * [androidx.compose.foundation.scrollableArea]. `scrollableArea` clips its content to its bounds,
  * renders overscroll, and adjusts the direction of scroll gestures to ensure that the content moves
  * with the user's gestures. See also [androidx.compose.foundation.verticalScroll] and
- * [androidx.compose.foundation.horizontalScroll] for high level scrollable containers that handle
+ * [androidx.compose.foundation.horizontalScroll] for high-level scrollable containers that handle
  * layout and move the content as the user scrolls.
  *
  * If you don't need to have fling or nested scroll support, but want to make component simply
  * draggable, consider using [draggable].
  *
- * This overload provides the access to [OverscrollEffect] that defines the behaviour of the over
- * scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an instance
- * of the current provided overscroll implementation. Note: compared to other APIs that accept
- * [overscrollEffect] such as [scrollableArea] and [verticalScroll], `scrollable` does not render
- * the overscroll, it only provides events. Manually add [androidx.compose.foundation.overscroll] to
- * render the overscroll or use other APIs.
+ * This overload provides the access to [OverscrollEffect] that defines the behavior of the
+ * over-scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an
+ * instance of the current provided overscroll implementation. Note: compared to other APIs that
+ * accept [overscrollEffect] such as [scrollableArea] and [verticalScroll], `scrollable` does not
+ * render the overscroll, it only provides events. Manually add
+ * [androidx.compose.foundation.overscroll] to render the overscroll or use other APIs.
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
- *   interpreted by the user land logic and contains useful information about on-going events.
+ *   interpreted by the user land logic and contains useful information about ongoing events.
  * @param orientation orientation of the scrolling
  * @param overscrollEffect effect to which the deltas will be fed when the scrollable have some
  *   scrolling delta left. Pass `null` for no overscroll. If you pass an effect you should also
  *   apply [androidx.compose.foundation.overscroll] modifier.
- * @param enabled whether or not scrolling in enabled
- * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will behave
+ * @param enabled whether scrolling is enabled
+ * @param reverseDirection reverse the direction of the scroll, so top-to-bottom scroll will behave
  *   like bottom to top and left to right will behave like right to left.
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
  *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
@@ -153,7 +153,7 @@ fun Modifier.scrollable(
  *   this scrollable is being dragged.
  * @param bringIntoViewSpec The configuration that this scrollable should use to perform scrolling
  *   when scroll requests are received from the focus system. If null is provided the system will
- *   use the behavior provided by [LocalBringIntoViewSpec] which by default has a platform dependent
+ *   use the behavior provided by [LocalBringIntoViewSpec] which by default has a platform-dependent
  *   implementation.
  */
 @Stable
@@ -462,7 +462,7 @@ internal class ScrollableNode(
             // A coroutine is launched for every individual scroll event in the
             // larger scroll gesture. If we see degradation in the future (that is,
             // a fast scroll gesture on a slow device causes UI jank [not seen up to
-            // this point), we can switch to a more efficient solution where we
+            // this point]), we can switch to a more efficient solution where we
             // lazily launch one coroutine (with the first event) and use a Channel
             // to communicate the scroll amount to the UI thread.
             coroutineScope.launch {
@@ -486,7 +486,7 @@ internal class ScrollableNode(
 /** Contains the default values used by [scrollable] */
 object ScrollableDefaults {
 
-    /** Create and remember default [FlingBehavior] that will represent natural fling curve. */
+    /** Create and remember default [FlingBehavior] that will represent a natural fling curve. */
     @Composable fun flingBehavior(): FlingBehavior = rememberPlatformDefaultFlingBehavior()
 
     /**
@@ -544,7 +544,7 @@ object ScrollableDefaults {
      *    flipped an additional time to maintain the natural feel, as the content is laid out from
      *    right to left.
      *
-     * @param layoutDirection current layout direction (e.g. from [LocalLayoutDirection])
+     * @param layoutDirection current layout direction (e.g., from [LocalLayoutDirection])
      * @param orientation orientation of scroll
      * @param reverseScrolling whether scrolling direction should be reversed
      * @return `true` if scroll direction should be reversed, `false` otherwise.
@@ -580,7 +580,7 @@ internal interface ScrollConfig {
 internal expect fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig
 
 /**
- * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
+ * Holds all scrolling-related logic: controls nested scrolling, flinging, overscroll, and delta
  * dispatching.
  */
 internal class ScrollingLogic(
@@ -733,13 +733,9 @@ internal class ScrollingLogic(
                         override fun scrollBy(pixels: Float): Float {
                             // Fling has hit the bounds or node left composition,
                             // cancel it to allow continuation. This will conclude this node's
-                            // fling,
-                            // allowing the onPostFling signal to be called
-                            // with the leftover velocity from the fling animation. Any nested
-                            // scroll
-                            // node above will be able to pick up the left over velocity and
-                            // continue
-                            // the fling.
+                            // fling, allowing the onPostFling signal to be called with the leftover
+                            // velocity from the fling animation. Any nested scroll node above will
+                            // be able to pick up the leftover velocity and continue the fling.
                             if (
                                 pixels.absoluteValue != 0.0f && !isScrollableNodeAttached.invoke()
                             ) {
