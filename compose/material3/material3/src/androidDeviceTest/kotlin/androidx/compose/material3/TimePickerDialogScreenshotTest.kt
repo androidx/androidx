@@ -132,6 +132,19 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun rich_time_picker_scroll_dialog() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            RichScrollDialog(TimePickerDisplayMode.Scroll)
+        }
+
+        rule
+            .onNode(isDialog())
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "rich_time_picker_scroll_dialog_${scheme.name}")
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_input_dialog() {
         rule.setMaterialContent(scheme.colorScheme) { RichDialog(TimePickerDisplayMode.Input) }
 
@@ -179,6 +192,27 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     )
                 TimePickerDisplayMode.Input ->
                     TimeInput(
+                        state = rememberTimePickerState(),
+                        shapes = TimePickerDefaults.shapes(),
+                    )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+    @Composable
+    private fun RichScrollDialog(
+        displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Scroll
+    ) {
+        RichTimePickerDialog(
+            modifier = Modifier,
+            onDismissRequest = {},
+            confirmButton = { TextButton(onClick = {}) { Text("Ok") } },
+            dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
+        ) {
+            when (displayMode) {
+                TimePickerDisplayMode.Scroll ->
+                    TimeScroll(
                         state = rememberTimePickerState(),
                         shapes = TimePickerDefaults.shapes(),
                     )

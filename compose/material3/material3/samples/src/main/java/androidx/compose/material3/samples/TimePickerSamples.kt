@@ -33,6 +33,7 @@ import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.TimePickerDialogDefaults
 import androidx.compose.material3.TimePickerDialogDefaults.MinHeightForTimePicker
 import androidx.compose.material3.TimePickerDisplayMode
+import androidx.compose.material3.TimeScroll
 import androidx.compose.material3.isHourInputValid
 import androidx.compose.material3.isInputValid
 import androidx.compose.material3.rememberTimePickerState
@@ -365,6 +366,69 @@ fun RichTimePickerSwitchableSample() {
                 TimePicker(state = state, shapes = TimePickerDefaults.shapes())
             } else {
                 TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Sampled
+@Composable
+@Preview
+fun RichTimePickerScrollSample() {
+    var showTimePicker by remember { mutableStateOf(false) }
+    val state = rememberTimePickerState()
+    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+    val snackState = remember { SnackbarHostState() }
+    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
+    val snackScope = rememberCoroutineScope()
+
+    Box(propagateMinConstraints = false) {
+        Button(modifier = Modifier.align(Alignment.Center), onClick = { showTimePicker = true }) {
+            Text("Set Time (Switchable, Scroll)")
+        }
+        SnackbarHost(hostState = snackState)
+    }
+
+    if (showTimePicker) {
+        RichTimePickerDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(
+                    enabled = state.isInputValid,
+                    onClick = {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, state.hour)
+                        cal.set(Calendar.MINUTE, state.minute)
+                        cal.isLenient = false
+                        snackScope.launch {
+                            snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+                        }
+                        showTimePicker = false
+                    },
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
+            modeToggleButton = {
+                TimePickerDialogDefaults.ScrollDisplayModeToggle(
+                    onDisplayModeChange = {
+                        displayMode =
+                            if (displayMode == TimePickerDisplayMode.Scroll) {
+                                TimePickerDisplayMode.Input
+                            } else {
+                                TimePickerDisplayMode.Scroll
+                            }
+                    },
+                    displayMode = displayMode,
+                )
+            },
+        ) {
+            if (displayMode == TimePickerDisplayMode.Input) {
+                TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+            } else {
+                TimeScroll(state = state, shapes = TimePickerDefaults.shapes())
             }
         }
     }

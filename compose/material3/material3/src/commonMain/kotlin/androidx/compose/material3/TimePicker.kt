@@ -332,6 +332,31 @@ fun TimeInput(
     TimeInputImpl(modifier, colors, state, shapes)
 }
 
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows a rich time scroll picker that allows the user to enter the time via two [ScrollField's],
+ * one for minutes and one for hours Subscribe to updates through [TimePickerState]
+ *
+ * @sample androidx.compose.material3.samples.RichTimePickerScrollSample
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
+ *   input in different states.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ *   time input in different states. See [TimePickerDefaults.richColors].
+ */
+@Composable
+fun TimeScroll(
+    state: TimePickerState,
+    shapes: TimePickerShapes,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.richColors(),
+) {
+    TimeScrollImpl(modifier, colors, state, shapes)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimePickerImpl(
@@ -1531,6 +1556,128 @@ private fun TimeInputImpl(
             Box(
                 Modifier.padding(start = shapes.orRich(startPadding, RichPeriodToggleLargePadding))
             ) {
+                VerticalPeriodToggle(
+                    modifier =
+                        Modifier.size(
+                            shapes.orRich(PeriodSelectorContainerWidth, RichPeriodToggleWidth),
+                            shapes.orRich(PeriodSelectorContainerHeight, RichPeriodToggleHeight),
+                        ),
+                    state = state,
+                    colors = colors,
+                    shapes = shapes,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun TimeScrollImpl(
+    modifier: Modifier,
+    colors: TimePickerColors,
+    state: TimePickerState,
+    shapes: TimePickerShapes? = null,
+) {
+    val hourState =
+        rememberScrollFieldState(
+            itemCount = if (state.is24hour) 24 else 12,
+            index =
+                if (state.is24hour) state.hour
+                else (state.hour % 12).let { if (it == 0) 11 else it - 1 },
+        )
+    val minuteState = rememberScrollFieldState(itemCount = 60, index = state.minute)
+
+    LaunchedEffect(hourState.selectedOption) {
+        val selectedOption = hourState.selectedOption
+        val newHour =
+            if (state.is24hour) {
+                selectedOption
+            } else {
+                val base = (selectedOption + 1) % 12
+                val amPmOffset = if (state.isPm) 12 else 0
+
+                base + amPmOffset
+            }
+        state.hour = newHour
+    }
+
+    LaunchedEffect(minuteState.selectedOption) { state.minute = minuteState.selectedOption }
+
+    LaunchedEffect(state.hour) {
+        val targetIndex =
+            if (state.is24hour) state.hour
+            else (state.hour % 12).let { if (it == 0) 11 else it - 1 }
+        hourState.scrollToOption(targetIndex)
+    }
+
+    LaunchedEffect(state.minute) {
+        if (minuteState.selectedOption != state.minute && !minuteState.isScrollInProgress) {
+            minuteState.scrollToOption(state.minute)
+        }
+    }
+
+    Row(
+        modifier =
+            modifier
+                .semantics { isTraversalGroup = true }
+                .then(shapes.orRich(Modifier, Modifier.padding(RichTimePickerPaddingHorizontal))),
+        verticalAlignment = Alignment.Top,
+    ) {
+        val textStyle =
+            shapes
+                .orRich(
+                    TimeInputTokens.TimeFieldLabelTextFont.value,
+                    TypographyKeyTokens.DisplayLarge.value,
+                )
+                .copy(textAlign = TextAlign.Center, color = colors.timeSelectorContentColor(true))
+
+        val a11yServicesEnabled by rememberAccessibilityServiceState()
+        val errorHandler = rememberTimeInputErrorHandler(a11yServicesEnabled)
+        val hourSelectionDescription = getString(Strings.TimePickerHourSelection)
+        val minuteSelectionDescription = getString(Strings.TimePickerMinuteSelection)
+
+        CompositionLocalProvider(
+            LocalTextStyle provides textStyle,
+            // Always display the time input text field from left to right.
+            LocalLayoutDirection provides LayoutDirection.Ltr,
+        ) {
+            ScrollField(
+                state = hourState,
+                modifier =
+                    Modifier.size(width = 100.dp, height = 120.dp).semantics {
+                        contentDescription = hourSelectionDescription
+                    },
+                field = { index, selected ->
+                    ScrollFieldDefaults.Item(
+                        index = if (state.is24hour) index else index + 1,
+                        selected = selected,
+                    )
+                },
+            )
+
+            DisplaySeparator(
+                Modifier.size(
+                    shapes.orRich(DisplaySeparatorWidth, RichSeparatorWidth),
+                    shapes.orRich(PeriodSelectorContainerHeight, RichTimeFieldHeight),
+                )
+            )
+
+            ScrollField(
+                state = minuteState,
+                modifier =
+                    Modifier.size(width = 100.dp, height = 120.dp).semantics {
+                        contentDescription = minuteSelectionDescription
+                    },
+            )
+        }
+
+        val startPadding =
+            if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
+            else PeriodTogglePaddingOld
+
+        if (!state.is24hour) {
+            Box(Modifier.padding(start = shapes.orRich(startPadding, PeriodTogglePaddingLarge))) {
                 VerticalPeriodToggle(
                     modifier =
                         Modifier.size(

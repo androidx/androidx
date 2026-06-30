@@ -232,6 +232,7 @@ import androidx.compose.material3.samples.RangeSliderSample
 import androidx.compose.material3.samples.RangeSliderWithCustomComponents
 import androidx.compose.material3.samples.RichTimeInputSample
 import androidx.compose.material3.samples.RichTimePickerSample
+import androidx.compose.material3.samples.RichTimePickerScrollSample
 import androidx.compose.material3.samples.RichTimePickerSwitchableSample
 import androidx.compose.material3.samples.RichTooltipSample
 import androidx.compose.material3.samples.RichTooltipWithCaretSample
@@ -2697,6 +2698,14 @@ val TimePickerExamples =
             isExpressive = true,
         ) {
             RichTimePickerSwitchableSample()
+        },
+        Example(
+            name = "RichTimePickerScrollSample",
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl,
+            isExpressive = true,
+        ) {
+            RichTimePickerScrollSample()
         },
     )
 

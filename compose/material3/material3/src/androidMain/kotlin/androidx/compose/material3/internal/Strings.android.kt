@@ -240,11 +240,17 @@ internal actual value class Strings constructor(val value: Int) {
         actual inline val TimePickerDialogTitle
             get() = Strings(MaterialR.string.m3c_time_picker_dialog_title)
 
+        actual inline val TimeScrollDialogTitle
+            get() = Strings(MaterialR.string.m3c_time_scroll_dialog_title)
+
         actual inline val TimeInputDialogTitle
             get() = Strings(MaterialR.string.m3c_time_input_dialog_title)
 
         actual inline val TimePickerToggleKeyboard
             get() = Strings(MaterialR.string.m3c_time_picker_toggle_keyboard)
+
+        actual inline val TimePickerToggleScroll
+            get() = Strings(MaterialR.string.m3c_time_picker_toggle_scroll)
 
         actual inline val TimePickerToggleTouch
             get() = Strings(MaterialR.string.m3c_time_picker_toggle_touch)

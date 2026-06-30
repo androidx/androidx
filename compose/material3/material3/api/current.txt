@@ -3233,7 +3233,9 @@ package androidx.compose.material3 {
     method public suspend Object? animateScrollToOption(int option, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public int getItemCount();
     method @InaccessibleFromKotlin public int getSelectedOption();
+    method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scrollToOption(int option, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean isScrollInProgress;
     property public int itemCount;
     property public int selectedOption;
   }
@@ -4578,6 +4580,8 @@ package androidx.compose.material3 {
   public final class TimePickerDialogDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public void DisplayModeToggle(kotlin.jvm.functions.Function0<kotlin.Unit> onDisplayModeChange, androidx.compose.material3.TimePickerDisplayMode displayMode, optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void DisplayModeToggle-S7Bxtbk(kotlin.jvm.functions.Function0<kotlin.Unit!>, int, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void ScrollDisplayModeToggle(kotlin.jvm.functions.Function0<kotlin.Unit> onDisplayModeChange, androidx.compose.material3.TimePickerDisplayMode displayMode, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void ScrollDisplayModeToggle-S7Bxtbk(kotlin.jvm.functions.Function0<kotlin.Unit!>, int, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public void Title(androidx.compose.material3.TimePickerDisplayMode displayMode, optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Title-pK_nZyw(int, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getContainerColor(androidx.compose.runtime.Composer?, int);
@@ -4609,8 +4613,10 @@ package androidx.compose.material3 {
   public static final class TimePickerDisplayMode.Companion {
     method @BytecodeOnly public int getInput--ONbchU();
     method @BytecodeOnly public int getPicker--ONbchU();
+    method @BytecodeOnly public int getScroll--ONbchU();
     property public androidx.compose.material3.TimePickerDisplayMode Input;
     property public androidx.compose.material3.TimePickerDisplayMode Picker;
+    property public androidx.compose.material3.TimePickerDisplayMode Scroll;
   }
 
   public final class TimePickerKt {
@@ -4623,6 +4629,8 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimePicker-hudfTfo(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimePicker-mT9BvqQ(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
     method public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeScroll(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeScroll(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin public static boolean isHourInputValid(androidx.compose.material3.TimePickerState);
     method @InaccessibleFromKotlin public static boolean isInputValid(androidx.compose.material3.TimePickerState);
     method @InaccessibleFromKotlin public static boolean isMinuteInputValid(androidx.compose.material3.TimePickerState);
