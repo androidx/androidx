@@ -38,7 +38,15 @@ import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import java.util.concurrent.Executor
+import kotlin.coroutines.ContinuationInterceptor
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Provides access to interact with App Functions. This is a backward-compatible wrapper for the
@@ -307,6 +315,83 @@ public constructor(
         return appFunctionManagerApi.registerAppFunction(functionId, executor, appFunction)
     }
 
+    /**
+     * Registers a runtime implementation of an app function bound to the calling coroutine's
+     * lifecycle.
+     *
+     * This method suspends and keeps the function registered until the calling coroutine scope is
+     * cancelled. Under the hood, it delegates the registration to [registerAppFunction] and ensures
+     * it is unregistered when the coroutine is cancelled.
+     *
+     * For a callback-based API that does not require a coroutine scope, see [registerAppFunction].
+     *
+     * @param functionIdentifier The unique identifier of the app function.
+     * @param appFunction The implementation of the app function to handle execution requests.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun handleAppFunction(
+        functionIdentifier: String,
+        appFunction: SuspendingAppFunction,
+    ): Nothing = handleAppFunction(HandleAppFunctionRequest(functionIdentifier, appFunction))
+
+    /**
+     * Registers a runtime implementation of an app function bound to the calling coroutine's
+     * lifecycle.
+     *
+     * This method suspends and keeps the function registered until the calling coroutine scope is
+     * cancelled. Under the hood, it delegates the registration to [registerAppFunction] and ensures
+     * it is unregistered when the coroutine is cancelled.
+     *
+     * For a callback-based API that does not require a coroutine scope, see [registerAppFunction].
+     *
+     * @param request The request containing the function identifier and implementation.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun handleAppFunction(request: HandleAppFunctionRequest): Nothing =
+        coroutineScope {
+            val dispatcher =
+                currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher
+            val executor = dispatcher?.asExecutor() ?: Executor { it.run() }
+
+            suspendCancellableCoroutine<Nothing> { cont ->
+                val callbackAppFunction =
+                    CallbackAppFunction { executeRequest, cancellationSignal, callback ->
+                        val job = launch {
+                            try {
+                                val response =
+                                    request.appFunction.executeAppFunction(executeRequest)
+                                callback.accept(response)
+                            } catch (t: CancellationSignalTriggeredException) {
+                                callback.accept(
+                                    ExecuteAppFunctionResponse.Error(
+                                        AppFunctionCancelledException(t.message)
+                                    )
+                                )
+                            } catch (t: AppFunctionException) {
+                                callback.accept(ExecuteAppFunctionResponse.Error(t))
+                            } catch (t: Throwable) {
+                                callback.accept(
+                                    ExecuteAppFunctionResponse.Error(
+                                        AppFunctionAppUnknownException(t.message)
+                                    )
+                                )
+                                throw t
+                            }
+                        }
+                        cancellationSignal.setOnCancelListener {
+                            job.cancel(CancellationSignalTriggeredException())
+                        }
+                    }
+
+                val registration =
+                    registerAppFunction(request.functionIdentifier, executor, callbackAppFunction)
+
+                cont.invokeOnCancellation { registration.unregister() }
+            }
+        }
+
     @IntDef(
         value =
             [APP_FUNCTION_STATE_DEFAULT, APP_FUNCTION_STATE_ENABLED, APP_FUNCTION_STATE_DISABLED]
@@ -413,5 +498,13 @@ public constructor(
                 }
             }
         }
+
+        /**
+         * Internal exception used to differentiate cancellation triggered explicitly by a platform
+         * [android.os.CancellationSignal] from other forms of coroutine cancellation (such as
+         * parent scope cancellation).
+         */
+        private class CancellationSignalTriggeredException(message: String? = null) :
+            CancellationException(message)
     }
 }

@@ -29,12 +29,15 @@ import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.HandleAppFunctionRequest
+import androidx.appfunctions.SuspendingAppFunction
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.cancel
@@ -51,6 +54,7 @@ class DynamicRegistrationService : Service() {
 
     private lateinit var appFunctionManager: AppFunctionManager
     private var registration: AppFunctionRegistration? = null
+    private var suspendRegistrationJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     override fun onCreate() {
@@ -123,9 +127,24 @@ class DynamicRegistrationService : Service() {
                         appFunction,
                     )
             }
+            ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE -> {
+                val appFunction = SuspendingAppFunction { request ->
+                    val a = request.functionParameters.getInt("a")
+                    val b = request.functionParameters.getString("b")
+                    buildSuccessResponse("suspend_result_${a}_${b}")
+                }
+                suspendRegistrationJob =
+                    scope.launch {
+                        appFunctionManager.handleAppFunction(
+                            HandleAppFunctionRequest(FORMAT_MESSAGE_FUNCTION_ID, appFunction)
+                        )
+                    }
+            }
             ACTION_UNREGISTER -> {
                 registration?.unregister()
                 registration = null
+                suspendRegistrationJob?.cancel()
+                suspendRegistrationJob = null
             }
         }
         return START_NOT_STICKY
@@ -186,5 +205,8 @@ class DynamicRegistrationService : Service() {
          */
         const val ACTION_REGISTER_LONG_RUNNING =
             "androidx.appfunctions.integration.action.REGISTER_LONG_RUNNING"
+
+        const val ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE =
+            "androidx.appfunctions.integration.action.REGISTER_SUSPEND"
     }
 }
