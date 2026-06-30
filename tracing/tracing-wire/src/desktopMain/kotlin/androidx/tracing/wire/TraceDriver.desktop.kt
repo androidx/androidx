@@ -28,6 +28,7 @@ import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
 import androidx.tracing.currentTaskId
+import androidx.tracing.wire.TraceDriver.Companion.getStubTraceDriver
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -68,6 +69,10 @@ internal constructor(
      *   If `false` then trace events corresponding to the [category] are dropped to reduce tracing
      *   overhead. This is particularly useful when you want to lower the overhead of trace events
      *   from uninteresting or noisy categories.
+     *
+     *   Note: Disabling all categories still writes process and thread metadata packets. To fully
+     *   disable tracing, use [getStubTraceDriver] instead.
+     *
      * @param attributes Collection of key value pairs to be attached to a trace to provide
      *   additional context about any facet of the trace. This can include what data it contains,
      *   and properties of the host / machine the trace was collected on, and other interesting

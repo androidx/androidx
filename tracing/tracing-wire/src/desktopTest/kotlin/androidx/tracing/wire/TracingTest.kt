@@ -496,9 +496,47 @@ class TracingTest {
     }
 
     @Test
-    internal fun testDisabledTracerWritesNoBytes() = runTest {
+    internal fun testGloballyDisabledTracerWritesNoBytes() = runTest {
         val testSink = TestSink()
         TraceDriver(sink = testSink, isGloballyEnabled = false).use { driver ->
+            val disabledTracer = driver.tracer
+
+            disabledTracer.traceCoroutine("cat", "event") {
+                // Do some work
+                delay(50L.milliseconds)
+            }
+
+            driver.flush()
+
+            assertTrue(testSink.packets.isEmpty(), "Sink should be empty when tracer is disabled")
+        }
+    }
+
+    @Test
+    internal fun testAllCategoriesDisabledTracerWritesOnePacket() = runTest {
+        val testSink = TestSink()
+        TraceDriver(sink = testSink, { false }).use { driver ->
+            val disabledTracer = driver.tracer
+
+            disabledTracer.traceCoroutine("cat", "event") {
+                // Do some work
+                delay(50L.milliseconds)
+            }
+
+            driver.flush()
+
+            assertEquals(
+                testSink.packets.size,
+                1,
+                "Sink should only contain one packet when all categories are disabled",
+            )
+        }
+    }
+
+    @Test
+    internal fun testStubDriverTracerWritesNoBytes() = runTest {
+        val testSink = TestSink()
+        TraceDriver.getStubTraceDriver().use { driver ->
             val disabledTracer = driver.tracer
 
             disabledTracer.traceCoroutine("cat", "event") {
