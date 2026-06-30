@@ -2,32 +2,23 @@
 [linuxX64]: Removed declaration androidx.compose.material3/SheetValue from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/BottomAppBarScrollBehavior from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/BottomAppBarState from androidx.compose.material
-<<<<<<< HEAD
-=======
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBarScrollBehavior from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipState from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipScope from androidx.compose.material
->>>>>>> 82a18736d0e (Revert "[Tooltip] Promote following experimental APIs:")
 [linuxX64]: Removed declaration androidx.compose.material3/BottomSheetScaffoldState from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/DefaultTooltipCaretShape from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/ModalBottomSheetProperties from androidx.compose.material
-<<<<<<< HEAD
-=======
 [linuxX64]: Removed declaration androidx.compose.material3/RichTooltipColors from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBarColors from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBarState from androidx.compose.material
->>>>>>> 82a18736d0e (Revert "[Tooltip] Promote following experimental APIs:")
 [linuxX64]: Removed declaration androidx.compose.material3/SheetState from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipAnchorPosition from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/ExposedDropdownMenuBoxScope from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/BottomSheetDefaults from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/ExposedDropdownMenuDefaults from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/ModalBottomSheetDefaults from androidx.compose.material
-<<<<<<< HEAD
-=======
 [linuxX64]: Removed declaration androidx.compose.material3/SearchBarDefaults from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/TooltipDefaults from androidx.compose.material
->>>>>>> 82a18736d0e (Revert "[Tooltip] Promote following experimental APIs:")
 [linuxX64]: Removed declaration androidx.compose.material3.carousel/androidx_compose_material3_carousel_Arrangement$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.carousel/androidx_compose_material3_carousel_CarouselItemDrawInfoImpl$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.carousel/androidx_compose_material3_carousel_CarouselItemScopeImpl$stableprop from androidx.compose.material
@@ -424,12 +415,9 @@
 [linuxX64]: Removed declaration androidx.compose.material3/rememberBottomSheetScaffoldState(androidx.compose.material3/SheetState?, androidx.compose.material3/SnackbarHostState?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberModalBottomSheetState(kotlin/Boolean, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberStandardBottomSheetState(androidx.compose.material3/SheetValue?, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
-<<<<<<< HEAD
 [linuxX64]: Added declaration contentOffset to androidx.compose.material3/SearchBarScrollBehavior
 [linuxX64]: Removed declaration collapsedCoords from androidx.compose.material3/SearchBarState
-=======
 [linuxX64]: Removed declaration androidx.compose.material3/rememberTooltipState(kotlin/Boolean, kotlin/Boolean, androidx.compose.foundation/MutatorMutex?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
->>>>>>> 82a18736d0e (Revert "[Tooltip] Promote following experimental APIs:")
 [linuxX64]: Removed declaration exitAlwaysScrollBehavior(androidx.compose.material3/BottomAppBarState?, kotlin/Function0<kotlin/Boolean>?, androidx.compose.animation.core/AnimationSpec<kotlin/Float>?, androidx.compose.animation.core/DecayAnimationSpec<kotlin/Float>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material3/BottomAppBarDefaults
 [linuxX64]: Removed declaration ContainerBox(kotlin/Boolean, kotlin/Boolean, androidx.compose.foundation.interaction/InteractionSource, androidx.compose.material3/TextFieldColors?, androidx.compose.ui.graphics/Shape?, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material3/OutlinedTextFieldDefaults
 [linuxX64]: Removed declaration CircularIndicatorTrackGapSize from androidx.compose.material3/ProgressIndicatorDefaults
