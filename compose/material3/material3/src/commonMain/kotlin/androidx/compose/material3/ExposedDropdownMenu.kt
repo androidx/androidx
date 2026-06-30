@@ -188,6 +188,7 @@ fun ExposedDropdownMenuBox(
                                     collapsedDescription = collapsedDescription,
                                     toggleDescription = toggleDescription,
                                     keyboardController = keyboardController,
+                                    focusRequester = focusRequester,
                                 )
                         )
 
@@ -1418,6 +1419,7 @@ private fun Modifier.expandable(
     collapsedDescription: String,
     toggleDescription: String,
     keyboardController: SoftwareKeyboardController?,
+    focusRequester: FocusRequester,
 ) =
     pointerInput(onExpandedChange) {
             awaitEachGesture {
@@ -1476,6 +1478,9 @@ private fun Modifier.expandable(
                 role = Role.DropdownList
             }
             onClick {
+                if (anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable) {
+                    focusRequester.requestFocus()
+                }
                 onExpandedChange()
                 if (anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable) {
                     keyboardController?.show()

@@ -340,6 +340,26 @@ class ExposedDropdownMenuTest {
     }
 
     @Test
+    fun edm_editable_focusesTextField_whenClickedViaSemantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = {
+                    // Simulate autocomplete where empty text prevents expansion.
+                },
+                editable = true,
+            )
+        }
+
+        // Click on the TextField
+        rule.onNodeWithTag(TFTag).performClick()
+
+        // TextField is focused
+        rule.onNodeWithTag(TFTag).assertIsFocused()
+    }
+
+    @Test
     fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
         rule.setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
