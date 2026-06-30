@@ -1,5 +1,65 @@
-<!-- Placeholder configuration file -->
 <config xmlns="http://www.google.com/tools/metalava/config"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.google.com/tools/metalava/config ../../../tools/metalava/metalava/src/main/resources/schemas/config.xsd">
+  <api-surfaces>
+    <!--
+     ! The "public" API surface.
+     !
+     ! It represents the public, user-facing API surface of AndroidX libraries.
+     ! By default, all unannotated public APIs are shown.
+     !-->
+    <api-surface name="public">
+      <selection-criteria unannotated="show">
+        <!--
+         ! Hide APIs explicitly annotated with `@RestrictTo` from the public API surface.
+         !-->
+        <annotation-rule pattern="androidx.annotation.RestrictTo" effect="hide"/>
+      </selection-criteria>
+    </api-surface>
+
+    <!--
+     ! The "restricted-non-atomic-group" API surface.
+     !
+     ! It extends the "public" surface. Setting `contents="standalone"` ensures that the generated
+     ! API signature file is complete and contains the entire API surface (both the inherited public
+     ! APIs and the newly exposed ones), rather than just the delta (differences) compared to "public".
+     !
+     ! It excludes `@RestrictTo(Scope.LIBRARY)` and `@RestrictTo(Scope.LIBRARY_GROUP)` annotated items because
+     ! they are hidden by the parent "public" surface's general hide rule for `@RestrictTo`, and this surface
+     ! does not explicitly override or show them.
+     !-->
+    <api-surface name="restricted-non-atomic-group" extends="public" contents="standalone">
+      <selection-criteria>
+        <!--
+         ! Include inter-library APIs that are restricted to different groups of libraries (LIBRARY_GROUP_PREFIX).
+         !-->
+        <annotation-rule pattern="androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)" effect="show"/>
+        <!--
+         ! Include APIs restricted to subclasses because they're visible to library clients and must be tracked for binary compatibility.
+         !-->
+        <annotation-rule pattern="androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES)" effect="show"/>
+        <!--
+         ! Include Kotlin `@PublishedApi`s because they're required for binary stability of inline functions.
+         !-->
+        <annotation-rule pattern="kotlin.PublishedApi" effect="show"/>
+      </selection-criteria>
+    </api-surface>
+
+    <!--
+     ! The "restricted-atomic-group" API surface.
+     !
+     ! It extends the "restricted-non-atomic-group" surface. Setting `contents="standalone"` ensures that the generated
+     ! API signature file is complete and contains the entire API surface (both the inherited APIs from
+     ! "restricted-non-atomic-group" and the newly exposed ones), rather than just the delta (differences) compared to
+     ! "restricted-non-atomic-group".
+     !-->
+    <api-surface name="restricted-atomic-group" extends="restricted-non-atomic-group" contents="standalone">
+      <selection-criteria>
+        <!--
+         ! Include inter-library APIs that are restricted to libraries within the same group (LIBRARY_GROUP).
+         !-->
+        <annotation-rule pattern="androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)" effect="show"/>
+      </selection-criteria>
+    </api-surface>
+  </api-surfaces>
 </config>

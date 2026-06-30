@@ -421,51 +421,16 @@ fun getGenerateApiArgs(
         }
     }
 
-    when (generateApiMode) {
-        is GenerateApiMode.PublicApi -> {
-            args += listOf("--hide-annotation", "androidx.annotation.RestrictTo")
-            args += listOf("--show-unannotated")
+    val apiSurfaceName =
+        when (generateApiMode) {
+            is GenerateApiMode.PublicApi -> "public"
+            is GenerateApiMode.RestrictToLibraryGroupPrefixApis -> "restricted-non-atomic-group"
+            is GenerateApiMode.AllRestrictedApis -> "restricted-atomic-group"
+        }
+    args += listOf("--api-surface", apiSurfaceName)
 
-            // Run multiplatform lint for the public API invocation of metalava.
-            if (multiplatform) {
-                args += "--multiplatform-enabled"
-            }
-        }
-        is GenerateApiMode.AllRestrictedApis,
-        GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
-            // Despite being hidden we still track the following:
-            // * @RestrictTo(Scope.LIBRARY_GROUP_PREFIX): inter-library APIs
-            // * @PublishedApi: needs binary stability for inline methods
-            // * @RestrictTo(Scope.LIBRARY_GROUP): APIs between libraries in non-atomic groups
-            args +=
-                listOf(
-                    // hide RestrictTo(LIBRARY), use --show-annotation for RestrictTo with
-                    // specific arguments
-                    "--hide-annotation",
-                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)",
-                    "--show-annotation",
-                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                        "LIBRARY_GROUP_PREFIX)",
-                    "--show-annotation",
-                    "kotlin.PublishedApi",
-                    "--show-unannotated",
-                )
-            if (generateApiMode is GenerateApiMode.AllRestrictedApis) {
-                args +=
-                    listOf(
-                        "--show-annotation",
-                        "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                            "LIBRARY_GROUP)",
-                    )
-            } else {
-                args +=
-                    listOf(
-                        "--hide-annotation",
-                        "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                            "LIBRARY_GROUP)",
-                    )
-            }
-        }
+    if (generateApiMode is GenerateApiMode.PublicApi && multiplatform) {
+        args += "--multiplatform-enabled"
     }
 
     when (apiLintMode) {
