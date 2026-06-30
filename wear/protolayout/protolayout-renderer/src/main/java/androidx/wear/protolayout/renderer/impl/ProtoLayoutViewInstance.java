@@ -1289,7 +1289,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     /**
      * Detach this layout from a parent container. Note that it is safe to call this method while
-     * the layout is inflating; see the notes on {@link ProtoLayoutViewInstance#renderAndAttach} for
+     * the layout is inflating; see the notes on {@link
+     * ProtoLayoutViewInstance#renderAndAttach(Layout, ResourceProto.Resources, ViewGroup)} for
      * more information.
      */
     @UiThread

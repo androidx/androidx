@@ -52,7 +52,8 @@ public interface DynamicTypeAnimator {
      *
      * @param values The float values to animate between.
      * @throws IllegalArgumentException if this {@link DynamicTypeAnimator} is not configured with a
-     *     suitable {@link TypeEvaluator} for float values (e.g., {@link FloatEvaluator}).
+     *     suitable {@link TypeEvaluator} for float values (e.g., {@link
+     *     android.animation.FloatEvaluator}).
      */
     void setFloatValues(float @NonNull ... values);
 
@@ -61,8 +62,8 @@ public interface DynamicTypeAnimator {
      *
      * @param values The integer values to animate between.
      * @throws IllegalArgumentException if this {@link DynamicTypeAnimator} is not configured with a
-     *     suitable {@link TypeEvaluator} for integer values (e.g., {@link IntEvaluator} or {@link
-     *     ArgbEvaluator}).
+     *     suitable {@link TypeEvaluator} for integer values (e.g., {@link
+     *     android.animation.IntEvaluator} or {@link android.animation.ArgbEvaluator}).
      */
     void setIntValues(int @NonNull ... values);
 
