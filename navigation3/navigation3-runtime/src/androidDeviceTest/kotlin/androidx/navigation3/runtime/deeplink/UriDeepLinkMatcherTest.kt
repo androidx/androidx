@@ -74,6 +74,20 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_defaultSchemeHttpHttpsMatch_noAuthority() {
+        // no scheme and not starting with "//" is treated as no authority
+        val pattern1 = DeepLinkUri("www.example.com/path")
+        val matcher1 = UriDeepLinkMatcher(pattern1, serializer<TestDefaultArgKey>())
+        val request1 = DeepLinkRequest.fromUriString("https://www.example.com/path")
+        assertThat(matcher1.match(request1)).isNotNull()
+
+        val pattern2 = DeepLinkUri("example.com/path")
+        val matcher2 = UriDeepLinkMatcher(pattern2, serializer<TestDefaultArgKey>())
+        val request2 = DeepLinkRequest.fromUriString("http://example.com/path")
+        assertThat(matcher2.match(request2)).isNotNull()
+    }
+
+    @Test
     fun matchRequest_schemeMatchCaseInsensitive() {
         val pattern = DeepLinkUri("http://example.com/path")
         val matcher = UriDeepLinkMatcher(pattern, serializer<TestDefaultArgKey>())
