@@ -1143,15 +1143,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
-    override fun drawBitmap(image: RcImage, left: RcFloat, top: RcFloat) {
-        writer.drawBitmap(
-            image.id,
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            null,
-        )
-    }
-
     override fun drawScaledBitmap(
         image: RcImage,
         srcLeft: Float,
@@ -1697,6 +1688,14 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
             centerX.withWriter(writer).toFloat(),
             centerY.withWriter(writer).toFloat(),
         )
+    }
+
+    override fun translate(x: Float, y: Float) {
+        writer.translate(x, y)
+    }
+
+    override fun translate(x: RcFloat, y: RcFloat) {
+        writer.translate(x.withWriter(writer).toFloat(), y.withWriter(writer).toFloat())
     }
 
     override fun loop(

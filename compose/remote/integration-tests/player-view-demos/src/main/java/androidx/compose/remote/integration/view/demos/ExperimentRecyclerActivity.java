@@ -747,7 +747,7 @@ public class ExperimentRecyclerActivity extends Activity {
             super(context);
             setOrientation(VERTICAL);
             mPlayer = new RemoteComposePlayer(context);
-            mPlayer.setCustomSupport(new AndroidCustomSupport());
+            mPlayer.setCustomSupport(new AndroidCustomSupport(mPlayer));
             mTitle = new TextView(context);
             mStats = new TextView(context);
             mPlayer.setShaderControl(new ShaderControl() {

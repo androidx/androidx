@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComponentDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComposeDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslCustomViewsDemo2Kt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizActivityRingsKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizBatteryRadialGaugeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizCalendarHeatmapKt;
@@ -207,18 +208,20 @@ public abstract class DemosCreation {
         boolean customViews = (types & 2) != 0;
         boolean dsl1 = (types & 4) != 0;
         boolean dsl2 = (types & 8) != 0;
-
         if (dsl) {
             demos.addAll(Arrays.asList(
-                    get("0/000/ModernShowcaseDemo",
+                    get("-0/001/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
-                    get("0/000/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
-                    get("0/000/dslMetronome", DslMetronomeKt::dslMetronomeDemo)));
+                    get("-0/004/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("-0/005/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
+                    get("-0/003/Demo3", RcDslDemoKt::dslDemo)));
+
+
         }
 
 
         if (graph2d) {
-            return new ArrayList<>(Arrays.asList(
+            demos.addAll(Arrays.asList(
                     // Annotation Demos
                     get("1/000/annotations/basic", Graph2dAnnotationDemosKt::graph2dAnnotations),
                     get("1/001/annotations/dualAxis", Graph2dAnnotationDemosKt::graph2dDualAxis),
@@ -319,8 +322,10 @@ public abstract class DemosCreation {
 
         if (customViews) {
             demos.addAll(Arrays.asList(
-                    get("0/000a/DslCustomComponentDemo",
-                            DslCustomComponentDemoKt::dslCustomComponentDemo)
+                    get("-0/000a/DslCustomViewstDemo",
+                            DslCustomComponentDemoKt::dslCustomComponentDemo),
+                    get("-0/000b/DslCustomViewsDemo",
+                            DslCustomViewsDemo2Kt::dslCustomViewsDemo)
             ));
         }
 

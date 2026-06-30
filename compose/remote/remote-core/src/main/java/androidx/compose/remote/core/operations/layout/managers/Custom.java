@@ -274,6 +274,9 @@ public class Custom extends LayoutManager implements VariableSupport {
         }
         CustomContext customCtx = (CustomContext) paintCtx;
         float[] bounds = new float[]{m.getX(), m.getY(), m.getW(), m.getH()};
+        getLocationInWindow(context, bounds);
+        bounds[0] -= m.getX();
+        bounds[1] -= m.getY();
         customCtx.layoutCustom(mComponentId, bounds);
 
     }
@@ -318,7 +321,6 @@ public class Custom extends LayoutManager implements VariableSupport {
      * @param componentId The id of the component
      * @param animationId The id for animation
      * @param configId    the id of the config
-
      * @param properties  the properties
      */
     public static void apply(
@@ -414,7 +416,8 @@ public class Custom extends LayoutManager implements VariableSupport {
 
     /**
      * Read the Custom Component from the buffer.
-     * @param buffer WireBuffer
+     *
+     * @param buffer     WireBuffer
      * @param operations List of operations to add to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
