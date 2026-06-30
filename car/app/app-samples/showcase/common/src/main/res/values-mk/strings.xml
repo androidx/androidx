@@ -384,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демоа за карта со содржини"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демоа за шаблон на карта со порака"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демоа за шаблон на карта со мрежа"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

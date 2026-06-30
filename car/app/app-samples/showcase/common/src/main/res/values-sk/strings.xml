@@ -384,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demá máp s obsahom"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mapy so šablónou správy"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mapy so šablónou mriežky"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

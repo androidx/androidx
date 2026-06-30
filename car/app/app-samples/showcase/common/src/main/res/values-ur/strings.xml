@@ -388,4 +388,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"مواد کے ڈیموز والا نقشہ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"پیغام کی تمثیل کے ڈیمو والا نقشہ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"گرڈ کی تمثیل کے ڈیمو والا نقشہ"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

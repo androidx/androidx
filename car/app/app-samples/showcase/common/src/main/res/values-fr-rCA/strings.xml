@@ -384,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Démos de cartes avec du contenu"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Démo d\'une carte avec message"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Démo du modèle de carte avec grille"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>
