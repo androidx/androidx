@@ -50,6 +50,14 @@ public class FieldOfView(
         return result
     }
 
+    /**
+     * Returns a string representation of [FieldOfView] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "FieldOfView(angleLeft=$angleLeft, angleRight=$angleRight, angleUp=$angleUp, angleDown=$angleDown)"
+
     @JvmOverloads
     public fun copy(
         angleLeft: Float = this.angleLeft,

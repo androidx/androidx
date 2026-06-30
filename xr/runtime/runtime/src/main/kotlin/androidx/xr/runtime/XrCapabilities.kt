@@ -37,6 +37,19 @@ public class DisplayBlendMode private constructor(private val value: Int) {
         /** Alpha-blends pixel values to blend virtual content with the real world. */
         @JvmField public val ALPHA_BLEND: DisplayBlendMode = DisplayBlendMode(2)
     }
+
+    /**
+     * Returns a string representation of [DisplayBlendMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "NO_DISPLAY"
+            1 -> "ADDITIVE"
+            2 -> "ALPHA_BLEND"
+            else -> "UNKNOWN($value)"
+        }
 }
 
 /** Contextual label describing the type of detected object. */
@@ -51,6 +64,20 @@ public class AugmentedObjectCategory private constructor(private val value: Int)
         /** Category value indicating the tracked object is believed to be a laptop. */
         @JvmField public val LAPTOP: AugmentedObjectCategory = AugmentedObjectCategory(3)
     }
+
+    /**
+     * Returns a string representation of [AugmentedObjectCategory] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "UNKNOWN"
+            1 -> "KEYBOARD"
+            2 -> "MOUSE"
+            3 -> "LAPTOP"
+            else -> "UNKNOWN($value)"
+        }
 }
 
 /** Feature that allows tracking of and provides information about scene planes. */
@@ -75,6 +102,18 @@ public class PlaneTrackingMode private constructor(public val mode: Int) {
          */
         @JvmField public val HORIZONTAL_AND_VERTICAL: PlaneTrackingMode = PlaneTrackingMode(1)
     }
+
+    /**
+     * Returns a string representation of [PlaneTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "HORIZONTAL_AND_VERTICAL"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows tracking of the user's hands and hand joints. */
@@ -94,6 +133,18 @@ public class HandTrackingMode private constructor(public val mode: Int) {
          */
         @JvmField public val BOTH: HandTrackingMode = HandTrackingMode(1)
     }
+
+    /**
+     * Returns a string representation of [HandTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "BOTH"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows tracking of the AR device. */
@@ -159,6 +210,19 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
         @JvmField
         public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = INERTIAL
     }
+
+    /**
+     * Returns a string representation of [DeviceTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "SPATIAL"
+            2 -> "INERTIAL"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows more accurate information about scene depth and meshes. */
@@ -207,6 +271,20 @@ public class DepthEstimationMode private constructor(public val mode: Int) {
          */
         @JvmField public val SMOOTH_AND_RAW: DepthEstimationMode = DepthEstimationMode(3)
     }
+
+    /**
+     * Returns a string representation of [DepthEstimationMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "RAW_ONLY"
+            2 -> "SMOOTH_ONLY"
+            3 -> "SMOOTH_AND_RAW"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows anchors to be persisted through sessions. */
@@ -224,6 +302,18 @@ public class AnchorPersistenceMode private constructor(public val mode: Int) {
          */
         @JvmField public val LOCAL: AnchorPersistenceMode = AnchorPersistenceMode(1)
     }
+
+    /**
+     * Returns a string representation of [AnchorPersistenceMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "LOCAL"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /**
@@ -261,6 +351,19 @@ public class FaceTrackingMode private constructor(public val mode: Int) {
         @JvmField
         public val MESHES: FaceTrackingMode = FaceTrackingMode(2)
     }
+
+    /**
+     * Returns a string representation of [FaceTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "BLEND_SHAPES"
+            2 -> "MESHES"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /**
@@ -356,6 +459,19 @@ public class GeospatialMode private constructor(public val mode: Int) {
          */
         @JvmField public val INERTIAL: GeospatialMode = GeospatialMode(2)
     }
+
+    /**
+     * Returns a string representation of [GeospatialMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "SPATIAL"
+            2 -> "INERTIAL"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows tracking of the user's eyes. */
@@ -384,6 +500,19 @@ public class EyeTrackingMode private constructor(public val mode: Int) {
          */
         @JvmField public val FINE_TRACKING: EyeTrackingMode = EyeTrackingMode(2)
     }
+
+    /**
+     * Returns a string representation of [EyeTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "COARSE_TRACKING"
+            2 -> "FINE_TRACKING"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Declare whether the Session should use the world-facing or user-facing camera. */
@@ -412,6 +541,18 @@ public class CameraFacingDirection private constructor(public val mode: Int) {
          */
         @JvmField public val USER: CameraFacingDirection = CameraFacingDirection(1)
     }
+
+    /**
+     * Returns a string representation of [CameraFacingDirection] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "WORLD"
+            1 -> "USER"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** Feature that allows tracking of and provides information about QR codes. */
@@ -445,6 +586,19 @@ public class QrCodeTrackingMode private constructor(public val mode: Int) {
          */
         @JvmField public val STATIC: QrCodeTrackingMode = QrCodeTrackingMode(2)
     }
+
+    /**
+     * Returns a string representation of [QrCodeTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "DYNAMIC"
+            2 -> "STATIC"
+            else -> "UNKNOWN($mode)"
+        }
 }
 
 /** A device capability that determines what type of rendering is capable on an [XrDevice]. */
@@ -456,6 +610,18 @@ public class RenderingMode private constructor(private val value: Int) {
         /** The device supports binocular (stereoscopic) rendering. */
         @JvmField public val STEREO: RenderingMode = RenderingMode(1)
     }
+
+    /**
+     * Returns a string representation of [RenderingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "MONO"
+            1 -> "STEREO"
+            else -> "UNKNOWN($value)"
+        }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
