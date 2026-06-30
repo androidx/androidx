@@ -679,9 +679,6 @@ public interface RcScope {
         bottom: RcFloat,
     )
 
-    /** Draws a bitmap at the specified position using remote floats. */
-    public fun drawBitmap(image: RcImage, left: RcFloat, top: RcFloat)
-
     /** Draws a scaled bitmap within source and destination rectangles. */
     public fun drawScaledBitmap(
         image: RcImage,
@@ -1346,10 +1343,6 @@ public interface RcScope {
     public fun drawBitmap(image: RcImage, dst: RcRect): Unit =
         drawBitmap(image, dst.left, dst.top, dst.right, dst.bottom)
 
-    /** drawBitmap taking a typed top-left RcPoint. */
-    public fun drawBitmap(image: RcImage, topLeft: RcPoint): Unit =
-        drawBitmap(image, topLeft.x, topLeft.y)
-
     // =================================================================================
     // Begin/end-pair safety (item 7).
     // =================================================================================
@@ -1458,6 +1451,12 @@ public interface RcCanvasScope : RcScope {
 
     /** Preconcat the current matrix with the specified rotation in degrees. */
     public fun rotate(angle: RcFloat, centerX: RcFloat, centerY: RcFloat)
+
+    /** Preconcat the current matrix with the specified translation. */
+    public fun translate(x: Float, y: Float)
+
+    /** Preconcat the current matrix with the specified translation. */
+    public fun translate(x: RcFloat, y: RcFloat)
 
     /** Loops from start to end with a specified step. */
     public fun loop(

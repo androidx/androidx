@@ -19,14 +19,17 @@ package androidx.compose.remote.integration.view.demos.customviews;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.compose.remote.core.CustomContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.utilities.IntMap;
 import androidx.compose.remote.player.core.platform.AndroidComponentSupport;
 import androidx.compose.remote.player.core.platform.AndroidCustomContext;
+import androidx.compose.remote.player.view.RemoteComposePlayer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -65,10 +68,15 @@ public class AndroidCustomSupport implements AndroidCustomContext {
     @Nullable
     private RemoteContext mRemoteContext;
 
-    public AndroidCustomSupport() {
+    @NonNull
+    private RemoteComposePlayer mPlayer;
+
+    public AndroidCustomSupport(@NonNull RemoteComposePlayer player) {
         // Register extensible view component support delegates
+        mPlayer = player;
         mDelegates.put("TextView", new SupportTextView());
         mDelegates.put("ProgressBar", new SupportProgressBar(this));
+        mDelegates.put("EditText", new SupportEditText(this));
     }
 
     @Override
@@ -114,7 +122,11 @@ public class AndroidCustomSupport implements AndroidCustomContext {
         }
 
         if (delegate != null) {
+            if (delegate instanceof SupportEditText) {
+                ((SupportEditText) delegate).anchorView(mPlayer);
+            }
             View view = delegate.createView(mContext);
+
             mCustomViews.put(id, view);
             mCustomDelegates.put(id, delegate);
         }
@@ -199,12 +211,25 @@ public class AndroidCustomSupport implements AndroidCustomContext {
     @Override
     public void layoutCustom(int id, float @NonNull [] bounds) {
         View view = mCustomViews.get(id);
-        System.out.println("layout >>>>> " + Arrays.toString(bounds));
 
         if (view != null) {
             float width = bounds[2];
             float height = bounds[3];
             view.layout(0, 0, (int) width, (int) height);
+            AndroidComponentSupport delegate = mCustomDelegates.get(id);
+
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+            if (delegate instanceof SupportEditText) {
+                params.gravity = Gravity.TOP | Gravity.START;
+                params.leftMargin = (int) bounds[0];
+                params.topMargin = (int) bounds[1];
+                params.width = (int) bounds[2];
+                params.height = (int) bounds[3];
+                view.setLayoutParams(params);
+                //view.setAlpha(0.3f);
+                view.setBackgroundColor(0xFF000000);
+            }
+
         }
     }
 
@@ -213,6 +238,10 @@ public class AndroidCustomSupport implements AndroidCustomContext {
         View view = mCustomViews.get(id);
         if (view == null) {
             return false;
+        }
+        AndroidComponentSupport delegate = mCustomDelegates.get(id);
+        if (delegate instanceof SupportEditText) {
+            ((SupportEditText) delegate).keyboardFocus(view, true);
         }
         switch (type) {
             case CustomContext.TOUCH_DOWN:
@@ -239,8 +268,19 @@ public class AndroidCustomSupport implements AndroidCustomContext {
             return;
         }
         View view = mCustomViews.get(id);
-        if (view != null) {
-            view.draw(mCanvas);
+        if (view == null) {
+            return;
         }
+        AndroidComponentSupport delegate = mCustomDelegates.get(id);
+        if (delegate instanceof SupportEditText) {
+            int[] location = new int[2];
+            view.getLocationInSurface(location);
+            // Rect rec = new Rect();
+            // view.draw(mCanvas);
+            return;
+        }
+
+        view.draw(mCanvas);
+
     }
 }
