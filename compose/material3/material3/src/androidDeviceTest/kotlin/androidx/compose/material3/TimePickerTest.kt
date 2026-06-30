@@ -1122,6 +1122,28 @@ class TimePickerTest {
 
         rule.runOnIdle { assertThat(state.isPm).isTrue() }
     }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun timeScroll_userOverride_updates() {
+        val state = TimePickerState(initialHour = 11, initialMinute = 30, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeScroll(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        rule.onAllNodesWithText("11").filter(isSelected()).assertCountEquals(1)
+
+        rule.runOnIdle {
+            state.hour = 6
+            state.minute = 21
+        }
+
+        rule.waitForIdle()
+
+        rule.onAllNodesWithText("06").filter(isSelected()).assertCountEquals(1)
+        rule.onAllNodesWithText("21").filter(isSelected()).assertCountEquals(1)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

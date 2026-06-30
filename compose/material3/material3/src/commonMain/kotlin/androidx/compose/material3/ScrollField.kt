@@ -96,6 +96,12 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
         val diff = option - currentOption
         return currentContextPage + diff
     }
+
+    /**
+     * Whether this [ScrollField] is currently scrolling, either by user gesture or by animation.
+     */
+    val isScrollInProgress: Boolean
+        get() = pagerState.isScrollInProgress
 }
 
 /**
