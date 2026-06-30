@@ -71,8 +71,28 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
-        val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
-        return dp * density.density
+        val constValue = value.constantValueOrNull
+        val constDensity = density.density.constantValueOrNull
+        val constFontScale = density.fontScale.constantValueOrNull
+
+        if (constValue != null && constDensity != null && constFontScale != null) {
+            val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+            return dp * density.density
+        }
+
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey =
+                RemoteOperationCacheKey.create(
+                    OperationKey.ToPx,
+                    value,
+                    density.density,
+                    density.fontScale,
+                ),
+        ) { creationState ->
+            val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+            (dp * density.density).arrayForCreationState(creationState)
+        }
     }
 
     /** Converts this [RemoteTextUnit] to pixels using the screen's density. */
