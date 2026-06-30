@@ -54,10 +54,10 @@ import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
-/** DSL for building a vector with [RemotePathBuilder]. */
+/** DSL for building a vector with [RemotePathScope]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemotePathData(block: RemotePathBuilder.() -> Unit): List<RemotePathNode> =
-    with(RemotePathBuilder()) {
+public fun RemotePathData(block: RemotePathScope.() -> Unit): List<RemotePathNode> =
+    with(RemotePathScope()) {
         block()
         nodes
     }

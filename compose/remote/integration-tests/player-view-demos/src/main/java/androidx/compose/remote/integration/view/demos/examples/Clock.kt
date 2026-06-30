@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
@@ -239,12 +240,12 @@ fun RcSimpleClock1(
                         // drawRect(rect1, 130f, rect2, 180f)
                     } else if (i == 11) {
                         rotate(30f.rf * i.rf + 30.rf, RemoteOffset(centerX, centerY)) {
-                            val path = RemotePath()
-
-                            path.moveTo(40f, 0f)
-                            path.lineTo(-40f, 0f)
-                            path.lineTo(0f, 40f)
-                            path.close()
+                            val path = remotePath {
+                                moveTo(x = 40f.rf, y = 0f.rf)
+                                lineTo(x = -40f.rf, y = 0f.rf)
+                                lineTo(x = 0f.rf, y = 40f.rf)
+                                close()
+                            }
 
                             translate((centerX), (faceTop + bezel_thick / 2f - 20f)) {
                                 drawPath(path = path, minHandColor.paint())
@@ -318,18 +319,19 @@ fun RcSimpleClock1(
             val edge = 12f
             val gmtColor = Color(0xFFFF0000)
 
-            val gmtPath = RemotePath()
-            gmtPath.moveTo(1f, 1f)
-            gmtPath.moveTo((centerX - 20f).floatId, (top + (bezel_thick + 60f)).floatId)
-            gmtPath.lineTo((centerX + 20f).floatId, (top + (bezel_thick + 60f)).floatId)
-            gmtPath.lineTo(centerX.floatId, (top + (bezel_thick + 30f)).floatId)
-            gmtPath.close()
+            val gmtPath = remotePath {
+                moveTo(x = 1f.rf, y = 1f.rf)
+                moveTo(x = centerX - 20f, y = top + bezel_thick + 60f)
+                lineTo(x = centerX + 20f, y = top + bezel_thick + 60f)
+                lineTo(x = centerX, y = top + bezel_thick + 30f)
+                close()
+            }
 
             rotate(gmtAngle, RemoteOffset(centerX, centerY)) {
                 drawLine(
                     gmtColor.paint(strokeWidth = 3f),
                     RemoteOffset(centerX, centerY),
-                    RemoteOffset(centerX, top + (bezel_thick + 60f)),
+                    RemoteOffset(centerX, top + bezel_thick + 60f),
                 )
                 drawPath(
                     gmtPath,
