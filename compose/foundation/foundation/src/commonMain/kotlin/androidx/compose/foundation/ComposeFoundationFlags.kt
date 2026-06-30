@@ -162,15 +162,6 @@ object ComposeFoundationFlags {
     var isReverseLayoutNestedScrollConnectionInPagerFixEnabled = true
 
     /**
-     * This flag controls the fix where text selection is constrained to the text length to prevent
-     * crashes during concurrent text updates.
-     */
-    // TODO: Remove this flag once it has soaked (b/495840275)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isConcurrentTextFieldSelectionFixEnabled = true
-
-    /**
      * This flag controls whether [androidx.compose.foundation.text.BasicTextField]'s formatted text
      * features are enabled.
      */
