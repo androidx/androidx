@@ -125,37 +125,38 @@ To verify a flaky test, you can run it multiple times on Firebase Test Lab using
 
 ## 6. Screenshot / Visual Tests
 
-Screenshot tests (e.g., using `AndroidXScreenshotTestRule`) compare the rendered UI against approved "golden" reference images to detect visual regressions.
+Screenshot tests (e.g., using `AndroidXScreenshotTestRule`, which extends the core [ScreenshotTestRule.kt](test/screenshot/screenshot/src/main/java/androidx/test/screenshot/ScreenshotTestRule.kt)) compare the rendered UI against approved "golden" reference images to detect visual regressions.
 
-*   **Emulator Requirement**: Screenshot tests must be executed on a specific emulator configuration to ensure consistent rendering. Locally, you **must** use a **Medium Phone API 35** emulator.
-*   **Managing the Emulator**: Use the [android-cli](https://developer.android.com/tools/agents/android-cli) skill to manage and run the emulator.
-    *   To list available virtual devices:
-        ```bash
-        android emulator list
-        ```
-    *   To launch the required emulator:
+*   **Emulator Requirement**: Screenshot tests must be executed on a specific emulator configuration to ensure consistent rendering.
+    *   **Verify the required configuration**: If the required emulator configuration is not found in the test class or local documentation, fall back to verifying it by reading `ScreenshotTestRule.kt`. Check the `ScreenshotTestStatement` class for the required API level (typically API 35) and device model.
+    *   Locally, a **Medium Phone API 35** emulator is typically required.
+*   **Managing the Emulator**:
+    *   Recommend the use of the `android-cli` tool to manage emulators.
+    *   **Check the environment**: Check if the user has `android-cli` installed and if they have a compatible emulator (e.g., **Medium Phone API 35**).
+        *   To list available virtual devices:
+            ```bash
+            android emulator list
+            ```
+    *   If the user does **not** have `android-cli` installed, ask them if they want to install it.
+    *   If they have a compatible emulator configured (e.g., Medium Phone API 35), it is safe to use.
+    *   If they do **not** have a compatible emulator, or if they prefer not to use a local emulator, **ask the user** if they would prefer to run the tests via **Firebase Test Lab (FTL)** (see Section 5) or if they want to set up a local emulator.
+    *   To launch the emulator using `android-cli`:
         ```bash
         android emulator start <device_name>
         ```
-*   **Running the Tests**: Once the emulator is running and connected, execute the screenshot tests as standard instrumentation tests using Gradle (see Section 4).
+*   **Running the Tests**: Once the emulator is running (or if using FTL), execute the screenshot tests. If running locally, they are executed as standard instrumentation tests using Gradle (see Section 4).
+*   **Troubleshooting Missing Screenshots**:
+    *   If the tests run but screenshots do not show up or cannot be pulled, **follow the code** in the test and `ScreenshotTestRule.kt` to understand how they are configured and where they are being saved on the device.
 *   **Updating Screenshot Goldens**:
     If a screenshot test fails due to intentional UI changes, you must update the golden reference images in the `support-goldens` repository (which is checked out as a sibling `golden` directory to `frameworks/support`).
 
-    1.  **Run Tests (Trigger Failure)**: Execute the screenshot tests locally on the **Medium Phone API 35** emulator. If you are introducing a new screenshot or expecting a change, the test must fail to write output files. If the test passes but you want to recreate the golden, delete the local golden image first to trigger a `MISSING_REFERENCE` failure.
-    2.  **Pull Test Outputs**: When a test fails, `ScreenshotTestRule` writes the actual screenshot, expected screenshot, and a mapping `.textproto` file to the device. The output directory is defined in `ScreenshotTestRule.kt` as:
-        ```kotlin
-        val deviceOutputDirectory
-            get() =
-                File(
-                    InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir,
-                    "androidx_screenshots",
-                )
-        ```
-        To pull these output files to your workstation, run:
-        ```bash
-        adb pull /sdcard/Android/data/<test_package_name>/cache/androidx_screenshots/
-        ```
-        *(Note: `<test_package_name>` is the identifier of the test APK, e.g., `androidx.compose.material.test`)*
+    1.  **Run Tests (Trigger Failure)**: Execute the screenshot tests locally on the required emulator (or FTL). If you are introducing a new screenshot or expecting a change, the test must fail to write output files. If the test passes but you want to recreate the golden, delete the local golden image first to trigger a `MISSING_REFERENCE` failure.
+    2.  **Pull Test Outputs**: When a test fails, `ScreenshotTestRule` writes the actual screenshot, expected screenshot, and a mapping `.textproto` file to the device.
+        *   To pull these output files to your workstation, run:
+            ```bash
+            adb pull /sdcard/Android/data/<test_package_name>/cache/androidx_screenshots/
+            ```
+            *(Note: `<test_package_name>` is the identifier of the test APK, e.g., `androidx.compose.material.test`)*
     3.  **Map and Copy to Goldens Repo**: Locate the generated `*_diffResult_goldResult.textproto` file for the failed test. It explicitly maps the actual screenshot filename on the device to its repo destination. For example:
         - `image_location_test`: `"androidx.compose.material.CheckboxScreenshotTest_checkBoxTest_checked_emulator_b294d33ecd4f4764_actual.png"`
         - `image_location_golden`: `"compose/material/material/checkbox_checked_emulator.png"`
