@@ -127,6 +127,14 @@ internal constructor(
                 extents == other.extents &&
                 owner == other.owner
         }
+
+        /**
+         * Returns a string representation of [AugmentedObject.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(trackingState=$trackingState, category=$category, centerPose=$centerPose, extents=$extents)"
     }
 
     private val _state =
@@ -157,4 +165,11 @@ internal constructor(
             )
         )
     }
+
+    /**
+     * Returns a string representation of [AugmentedObject] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "AugmentedObject(state=${state.value})"
 }

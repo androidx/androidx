@@ -112,6 +112,14 @@ internal constructor(internal val runtimeAugmentedImage: RuntimeAugmentedImage) 
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [AugmentedImage.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(index=$index, trackingState=$trackingState, centerPose=$centerPose, extents=$extents)"
     }
 
     private val _state =
@@ -138,4 +146,11 @@ internal constructor(internal val runtimeAugmentedImage: RuntimeAugmentedImage) 
             )
         )
     }
+
+    /**
+     * Returns a string representation of [AugmentedImage] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "AugmentedImage(state=${state.value})"
 }

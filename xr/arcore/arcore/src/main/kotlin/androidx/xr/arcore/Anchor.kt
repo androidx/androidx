@@ -201,6 +201,13 @@ internal constructor(
             result = 31 * result + trackingState.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [Anchor.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String = "State(trackingState=$trackingState, pose=$pose)"
     }
 
     private val _state: MutableStateFlow<State> =
@@ -243,6 +250,13 @@ internal constructor(
     }
 
     override fun hashCode(): Int = runtimeAnchor.hashCode()
+
+    /**
+     * Returns a string representation of [Anchor] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "Anchor(state=${state.value})"
 
     override suspend fun update() {
         _state.emit(State(runtimeAnchor.trackingState.toTrackingState(), runtimeAnchor.pose))

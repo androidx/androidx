@@ -34,4 +34,16 @@ public class GeospatialSurface private constructor(private val value: Int) {
         if (other !is GeospatialSurface) return false
         return value == other.value
     }
+
+    /**
+     * Returns a string representation of [GeospatialSurface] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "TERRAIN"
+            1 -> "ROOFTOP"
+            else -> "UNKNOWN"
+        }
 }

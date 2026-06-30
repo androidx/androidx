@@ -112,6 +112,14 @@ public class QrCode internal constructor(internal val runtimeQrCode: RuntimeQrCo
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(trackingState=$trackingState, centerPose=$centerPose, extents=$extents, data=$data)"
     }
 
     private val _state =
@@ -138,4 +146,11 @@ public class QrCode internal constructor(internal val runtimeQrCode: RuntimeQrCo
             )
         )
     }
+
+    /**
+     * Returns a string representation of [QrCode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "QrCode(state=${state.value})"
 }

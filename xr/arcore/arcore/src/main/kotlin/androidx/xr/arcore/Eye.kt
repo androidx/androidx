@@ -119,6 +119,14 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
                 trackingState == other.trackingState &&
                 owner == other.owner
         }
+
+        /**
+         * Returns a string representation of [Eye.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(isOpen=$isOpen, pose=$pose, trackingState=$trackingState)"
     }
 
     private var _state =
@@ -148,4 +156,11 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
             )
         )
     }
+
+    /**
+     * Returns a string representation of [Eye] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "Eye(state=${state.value})"
 }
