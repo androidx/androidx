@@ -1,4 +1,14 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.material3.SearchBarScrollBehavior#getContentOffset():
+    Binary breaking change: Added method androidx.compose.material3.SearchBarScrollBehavior.getContentOffset()
+AddedAbstractMethod: androidx.compose.material3.SearchBarScrollBehavior#setContentOffset(float):
+    Binary breaking change: Added method androidx.compose.material3.SearchBarScrollBehavior.setContentOffset(float)
+
+
+AddedAbstractProperty: androidx.compose.material3.SearchBarScrollBehavior#contentOffset:
+    Source breaking change: Added property androidx.compose.material3.SearchBarScrollBehavior#contentOffset
+
+
 BecameUnchecked: androidx.compose.material3.AlertDialogKt:
     Removed class androidx.compose.material3.AlertDialogKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.BottomSheetScaffoldKt:
