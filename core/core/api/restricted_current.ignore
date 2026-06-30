@@ -1,19 +1,31 @@
 // Baseline format: 1.0
-RemovedFromKotlin: androidx.core.app.MultiWindowModeChangedInfo#getNewConfig():
-    Source breaking change: method androidx.core.app.MultiWindowModeChangedInfo.getNewConfig() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.app.MultiWindowModeChangedInfo#isInMultiWindowMode():
-    Source breaking change: method androidx.core.app.MultiWindowModeChangedInfo.isInMultiWindowMode() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.app.PictureInPictureModeChangedInfo#getNewConfig():
-    Source breaking change: method androidx.core.app.PictureInPictureModeChangedInfo.getNewConfig() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.app.PictureInPictureModeChangedInfo#isInPictureInPictureMode():
-    Source breaking change: method androidx.core.app.PictureInPictureModeChangedInfo.isInPictureInPictureMode() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.os.ProfilingRequest#getCancellationSignal():
-    Source breaking change: method androidx.core.os.ProfilingRequest.getCancellationSignal() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.os.ProfilingRequest#getParams():
-    Source breaking change: method androidx.core.os.ProfilingRequest.getParams() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.os.ProfilingRequest#getProfilingType():
-    Source breaking change: method androidx.core.os.ProfilingRequest.getProfilingType() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.os.ProfilingRequest#getTag():
-    Source breaking change: method androidx.core.os.ProfilingRequest.getTag() can no longer be resolved from Kotlin source
-ChangedValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_PARCELABLE:
-    Binary breaking change: Field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_PARCELABLE has changed value from "androidx.core.view.accessibility.action.ARGUMENT_SELECTION_PARCELABLE" to "android.view.accessibility.action.ARGUMENT_SELECTION_PARCELABLE"
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getThis()

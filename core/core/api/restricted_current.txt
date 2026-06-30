@@ -2936,9 +2936,6 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public final class HeapProfileRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.HeapProfileRequestBuilder> {
     ctor public HeapProfileRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.HeapProfileRequestBuilder getThis();
     method public androidx.core.os.HeapProfileRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.HeapProfileRequestBuilder setDurationMs(int durationMs);
     method public androidx.core.os.HeapProfileRequestBuilder setSamplingIntervalBytes(long samplingIntervalBytes);
@@ -2947,9 +2944,6 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public final class JavaHeapDumpRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.JavaHeapDumpRequestBuilder> {
     ctor public JavaHeapDumpRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.JavaHeapDumpRequestBuilder getThis();
     method public androidx.core.os.JavaHeapDumpRequestBuilder setBufferSizeKb(int bufferSizeKb);
   }
 
@@ -3050,18 +3044,12 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public abstract class ProfilingRequestBuilder<T extends androidx.core.os.ProfilingRequestBuilder<T>> {
     method public final androidx.core.os.ProfilingRequest build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract T getThis();
     method public final T setCancellationSignal(android.os.CancellationSignal cancellationSignal);
     method public final T setTag(String tag);
   }
 
   @RequiresApi(api=35) public final class StackSamplingRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.StackSamplingRequestBuilder> {
     ctor public StackSamplingRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.StackSamplingRequestBuilder getThis();
     method public androidx.core.os.StackSamplingRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.StackSamplingRequestBuilder setDurationMs(int durationMs);
     method public androidx.core.os.StackSamplingRequestBuilder setSamplingFrequencyHz(int samplingFrequencyHz);
@@ -3069,9 +3057,6 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public final class SystemTraceRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.SystemTraceRequestBuilder> {
     ctor public SystemTraceRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.SystemTraceRequestBuilder getThis();
     method public androidx.core.os.SystemTraceRequestBuilder setBufferFillPolicy(androidx.core.os.BufferFillPolicy bufferFillPolicy);
     method public androidx.core.os.SystemTraceRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.SystemTraceRequestBuilder setDurationMs(int durationMs);
