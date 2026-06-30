@@ -152,31 +152,43 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /** Load macros from the internal storage */
     public void loadMacros() {
-        File folder = new File(getContext().getFilesDir(), "macros");
-        if (!folder.exists()) {
+        if (isInEditMode()) {
             return;
         }
-        File[] files = folder.listFiles();
-        if (files == null) {
-            return;
-        }
+        // Temporarily disabled.
         if (true) {
             return;
         }
-        for (File file : files) {
-            if (file.getName().endsWith(".mrc")) {
-                String name = file.getName().substring(0, file.getName().length() - 4);
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    RemoteComposeBuffer buffer = RemoteComposeBuffer.fromInputStream(fis);
-                    mLoadedMacros.put(name, buffer);
-                    if (mInner.getDocument() != null) {
-                        CoreDocument doc = mInner.getDocument().getDocument();
-                        doc.mLoomManager.addMacroFromBuffer(name, buffer);
+        try {
+            File filesDir = getContext().getFilesDir();
+            if (filesDir == null) {
+                return;
+            }
+            File folder = new File(filesDir, "macros");
+            if (!folder.exists()) {
+                return;
+            }
+            File[] files = folder.listFiles();
+            if (files == null) {
+                return;
+            }
+            for (File file : files) {
+                if (file.getName().endsWith(".mrc")) {
+                    String name = file.getName().substring(0, file.getName().length() - 4);
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        RemoteComposeBuffer buffer = RemoteComposeBuffer.fromInputStream(fis);
+                        mLoadedMacros.put(name, buffer);
+                        if (mInner.getDocument() != null) {
+                            CoreDocument doc = mInner.getDocument().getDocument();
+                            doc.mLoomManager.addMacroFromBuffer(name, buffer);
+                        }
+                    } catch (IOException e) {
+                        Log.e("RemoteComposePlayer", "Error loading macro " + file.getName(), e);
                     }
-                } catch (IOException e) {
-                    Log.e("RemoteComposePlayer", "Error loading macro " + file.getName(), e);
                 }
             }
+        } catch (Exception e) {
+            Log.e("RemoteComposePlayer", "Error loading macros", e);
         }
         if (mInner.getDocument() != null) {
             mInner.getDocument().reinflate();
