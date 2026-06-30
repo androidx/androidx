@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -67,6 +69,20 @@ class SingleLineHeightComparisonTest(
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
+
+    private var originalLineHeightOptimizationEnabled = true
+
+    @Before
+    fun setup() {
+        originalLineHeightOptimizationEnabled =
+            AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
+    }
+
+    @After
+    fun cleanup() {
+        AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled =
+            originalLineHeightOptimizationEnabled
+    }
 
     private val trim: Trim
         get() = Trim(trimInt)
