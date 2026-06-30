@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
@@ -43,6 +45,8 @@ import androidx.compose.ui.unit.TextUnit
  * @param textAlign the alignment of the text within the lines of the paragraph.
  * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
  * @param textDecoration The configuration of hyphenation.
+ * @param lineBreak The configuration of line break.
+ * @param hyphens The configuration of hyphenation.
  */
 public class RemoteTextStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -57,6 +61,8 @@ constructor(
     public val textAlign: TextAlign? = null,
     public val lineHeight: RemoteTextUnit? = null,
     public val textDecoration: TextDecoration? = null,
+    public val lineBreak: LineBreak = LineBreak.Unspecified,
+    public val hyphens: Hyphens = Hyphens.Unspecified,
 ) {
 
     /**
@@ -82,6 +88,9 @@ constructor(
             textAlign = other.textAlign ?: this.textAlign,
             lineHeight = other.lineHeight ?: this.lineHeight,
             textDecoration = other.textDecoration ?: this.textDecoration,
+            lineBreak =
+                if (other.lineBreak != LineBreak.Unspecified) other.lineBreak else this.lineBreak,
+            hyphens = if (other.hyphens != Hyphens.Unspecified) other.hyphens else this.hyphens,
         )
     }
 
@@ -97,6 +106,8 @@ constructor(
         textAlign: TextAlign? = null,
         lineHeight: RemoteTextUnit? = null,
         textDecoration: TextDecoration? = null,
+        lineBreak: LineBreak = LineBreak.Unspecified,
+        hyphens: Hyphens = Hyphens.Unspecified,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color ?: this.color,
@@ -109,6 +120,8 @@ constructor(
             textAlign = textAlign ?: this.textAlign,
             lineHeight = lineHeight ?: this.lineHeight,
             textDecoration = textDecoration ?: this.textDecoration,
+            lineBreak = if (lineBreak != LineBreak.Unspecified) lineBreak else this.lineBreak,
+            hyphens = if (hyphens != Hyphens.Unspecified) hyphens else this.hyphens,
         )
     }
 
@@ -126,6 +139,8 @@ constructor(
         textAlign: TextAlign? = this.textAlign,
         lineHeight: RemoteTextUnit? = this.lineHeight,
         textDecoration: TextDecoration? = this.textDecoration,
+        lineBreak: LineBreak = this.lineBreak,
+        hyphens: Hyphens = this.hyphens,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color,
@@ -138,6 +153,8 @@ constructor(
             textAlign = textAlign,
             lineHeight = lineHeight,
             textDecoration = textDecoration,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
         )
     }
 
@@ -168,6 +185,8 @@ constructor(
                 textAlign = style.textAlign,
                 lineHeight = lineHeight,
                 textDecoration = style.textDecoration,
+                lineBreak = style.lineBreak,
+                hyphens = style.hyphens,
             )
         }
 

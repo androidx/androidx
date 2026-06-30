@@ -23,6 +23,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnitType
@@ -51,6 +53,8 @@ class RemoteTextStyleTest {
         assertThat(defaultRemoteStyle.fontFamily).isNull()
         assertThat(defaultRemoteStyle.textAlign).isEqualTo(TextAlign.Unspecified)
         assertThat(defaultRemoteStyle.textDecoration).isNull()
+        assertThat(defaultRemoteStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
+        assertThat(defaultRemoteStyle.hyphens).isEqualTo(Hyphens.Unspecified)
 
         // Explicit values
         val remoteStyle =
@@ -66,6 +70,8 @@ class RemoteTextStyleTest {
                     fontFamily = FontFamily.Serif,
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
+                    lineBreak = LineBreak.Heading,
+                    hyphens = Hyphens.Auto,
                 )
             )
 
@@ -80,6 +86,8 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontFamily).isEqualTo(RemoteFontFamily.Serif)
         assertThat(remoteStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(remoteStyle.textDecoration).isEqualTo(TextDecoration.Underline)
+        assertThat(remoteStyle.lineBreak).isEqualTo(LineBreak.Heading)
+        assertThat(remoteStyle.hyphens).isEqualTo(Hyphens.Auto)
     }
 
     @Test
@@ -91,6 +99,8 @@ class RemoteTextStyleTest {
                 fontWeight = FontWeight.Bold,
                 lineHeight = 10.rsp,
                 textDecoration = TextDecoration.Underline,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.None,
             )
 
         val newStyle =
@@ -99,6 +109,8 @@ class RemoteTextStyleTest {
                 fontSize = 24.rsp,
                 lineHeight = 20.rsp,
                 textDecoration = TextDecoration.LineThrough,
+                lineBreak = LineBreak.Paragraph,
+                hyphens = Hyphens.Auto,
             )
 
         assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
@@ -106,27 +118,51 @@ class RemoteTextStyleTest {
         assertThat(newStyle.fontWeight).isEqualTo(FontWeight.Bold)
         assertThat(newStyle.lineHeight?.constantValueOrNull).isEqualTo(20.rsp.constantValueOrNull)
         assertThat(newStyle.textDecoration).isEqualTo(TextDecoration.LineThrough)
+        assertThat(newStyle.lineBreak).isEqualTo(LineBreak.Paragraph)
+        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Auto)
     }
 
     @Test
     fun noarg_copy_does_not_overrides_properties() {
-        val style = RemoteTextStyle(color = Color.Red.rc, fontSize = 12.rsp)
+        val style =
+            RemoteTextStyle(
+                color = Color.Red.rc,
+                fontSize = 12.rsp,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.Auto,
+            )
 
         val newStyle = style.copy()
 
         assertThat(newStyle.color).isEqualTo(style.color)
         assertThat(newStyle.fontSize).isEqualTo(style.fontSize)
+        assertThat(newStyle.lineBreak).isEqualTo(style.lineBreak)
+        assertThat(newStyle.hyphens).isEqualTo(style.hyphens)
     }
 
     @Test
     fun merge_overrides_properties() {
         val style =
-            RemoteTextStyle(color = Color.Red.rc, fontSize = 12.rsp, fontWeight = FontWeight.Normal)
+            RemoteTextStyle(
+                color = Color.Red.rc,
+                fontSize = 12.rsp,
+                fontWeight = FontWeight.Normal,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.None,
+            )
 
-        val newStyle = style.merge(color = Color.Blue.rc, fontWeight = FontWeight.Bold)
+        val newStyle =
+            style.merge(
+                color = Color.Blue.rc,
+                fontWeight = FontWeight.Bold,
+                lineBreak = LineBreak.Paragraph,
+                hyphens = Hyphens.Auto,
+            )
 
         assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
         assertThat(newStyle.fontSize?.constantValueOrNull).isEqualTo(12.rsp.constantValueOrNull)
         assertThat(newStyle.fontWeight).isEqualTo(FontWeight.Bold)
+        assertThat(newStyle.lineBreak).isEqualTo(LineBreak.Paragraph)
+        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Auto)
     }
 }

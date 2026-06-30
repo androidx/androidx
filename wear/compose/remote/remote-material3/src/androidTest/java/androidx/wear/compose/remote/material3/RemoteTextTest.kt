@@ -17,13 +17,21 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
@@ -33,6 +41,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
@@ -45,6 +54,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
 import androidx.compose.ui.text.font.FontVariation.Settings
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -461,6 +472,145 @@ class RemoteTextTest {
         }
     }
 
+    @Test
+    fun text_withLineBreakAndHyphens() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            val text = SAMPLE_LONG_TEXT.rs
+            val dividerColor = Color.Gray.rc
+            val textColor = Color.White.rc
+
+            RemoteColumn(modifier = RemoteModifier.fillMaxWidth(0.7f.rf).fillMaxHeight()) {
+                // Row 1: Header Row
+                RemoteRow(
+                    modifier =
+                        RemoteModifier.fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(bottom = 2.rdp)
+                ) {
+                    RemoteText(
+                        "".rs,
+                        color = textColor,
+                        fontSize = 8.rsp,
+                        modifier = RemoteModifier.weight(0.7f),
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+                    )
+                    RemoteText(
+                        "LineBreak.Simple".rs,
+                        color = textColor,
+                        fontSize = 8.rsp,
+                        textAlign = TextAlign.Center,
+                        modifier = RemoteModifier.weight(1f),
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+                    )
+                    RemoteText(
+                        "LineBreak.Heading".rs,
+                        color = textColor,
+                        fontSize = 8.rsp,
+                        textAlign = TextAlign.Center,
+                        modifier = RemoteModifier.weight(1f),
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+                    )
+                    RemoteText(
+                        "LineBreak.Paragraph".rs,
+                        color = textColor,
+                        fontSize = 8.rsp,
+                        textAlign = TextAlign.Center,
+                        modifier = RemoteModifier.weight(1f),
+                    )
+                }
+
+                // Horizontal Divider 1
+                RemoteBox(
+                    modifier = RemoteModifier.fillMaxWidth().height(1.rdp).background(dividerColor)
+                )
+
+                // Row 2: Hyphens.None
+                LineBreakRow(
+                    label = "Hyphens.None",
+                    hyphens = Hyphens.None,
+                    text = text,
+                    textColor = textColor,
+                    dividerColor = dividerColor,
+                )
+
+                // Horizontal Divider 2
+                RemoteBox(
+                    modifier = RemoteModifier.fillMaxWidth().height(1.rdp).background(dividerColor)
+                )
+
+                // Row 3: Hyphens.Auto
+                LineBreakRow(
+                    label = "Hyphens.Auto",
+                    hyphens = Hyphens.Auto,
+                    text = text,
+                    textColor = textColor,
+                    dividerColor = dividerColor,
+                    modifier = RemoteModifier.padding(top = 2.rdp),
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun LineBreakRow(
+        label: String,
+        hyphens: Hyphens,
+        text: RemoteString,
+        textColor: RemoteColor,
+        dividerColor: RemoteColor,
+        modifier: RemoteModifier = RemoteModifier,
+    ) {
+        RemoteRow(
+            modifier = RemoteModifier.fillMaxWidth().height(IntrinsicSize.Min).then(modifier)
+        ) {
+            RemoteColumn(modifier = RemoteModifier.weight(0.7f).padding(top = 6.rdp)) {
+                RemoteText(label.rs, color = textColor, fontSize = 8.rsp)
+            }
+            RemoteBox(
+                modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+            )
+            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+                RemoteText(
+                    text = text,
+                    color = textColor,
+                    fontSize = 8.rsp,
+                    style = RemoteTextStyle(lineBreak = LineBreak.Simple, hyphens = hyphens),
+                )
+            }
+            RemoteBox(
+                modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+            )
+            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+                RemoteText(
+                    text = text,
+                    color = textColor,
+                    fontSize = 8.rsp,
+                    style = RemoteTextStyle(lineBreak = LineBreak.Heading, hyphens = hyphens),
+                )
+            }
+            RemoteBox(
+                modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
+            )
+            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+                RemoteText(
+                    text = text,
+                    color = textColor,
+                    fontSize = 8.rsp,
+                    style = RemoteTextStyle(lineBreak = LineBreak.Paragraph, hyphens = hyphens),
+                )
+            }
+        }
+    }
+
     private fun RemoteScreenshotTestRule.runScreenshotTestCustomProfile(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
@@ -471,5 +621,10 @@ class RemoteTextTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
             composable = composable,
         )
+    }
+
+    private companion object {
+        const val SAMPLE_LONG_TEXT =
+            "Remote Compose is a technology that enables apps to define their UI and business logic in a format that can be rendered and executed remotely by a host application, called a player. This player handles the display and processing of the application content."
     }
 }
