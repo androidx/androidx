@@ -254,7 +254,6 @@ import kotlinx.coroutines.launch
  * @param shadowElevation the elevation for the shadow below this search bar.
  */
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
-@ExperimentalMaterial3Api
 @Composable
 fun SearchBar(
     state: SearchBarState,
@@ -397,7 +396,6 @@ fun TopSearchBar(
  *   will not automatically react to scrolling.
  */
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
-@ExperimentalMaterial3Api
 @Composable
 fun AppBarWithSearch(
     state: SearchBarState,
@@ -607,7 +605,6 @@ fun ExpandedFullScreenContainedSearchBar(
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ExpandedFullScreenSearchBar(
     state: SearchBarState,
@@ -784,7 +781,6 @@ fun ExpandedDockedSearchBarWithGap(
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ExpandedDockedSearchBar(
     state: SearchBarState,
@@ -922,6 +918,11 @@ private fun ExpandedDockedSearchBarImpl(
  * @param windowInsets the window insets that this search bar will respect
  * @param content the content of this search bar to display search results below the [inputField].
  */
+@Deprecated(
+    message =
+        "Use SearchBar with SearchBarState, and ExpandedFullScreenSearchBar or " +
+            "ExpandedDockedSearchBar to display results."
+)
 @ExperimentalMaterial3Api
 @Composable
 fun SearchBar(
@@ -1036,6 +1037,9 @@ fun SearchBar(
  * @param shadowElevation the elevation for the shadow below the search bar.
  * @param content the content of this search bar to display search results below the [inputField].
  */
+@Deprecated(
+    message = "Use SearchBar with SearchBarState, and ExpandedDockedSearchBar to display results."
+)
 @ExperimentalMaterial3Api
 @Composable
 fun DockedSearchBar(
@@ -1081,7 +1085,6 @@ fun DockedSearchBar(
 }
 
 /** Possible values of [SearchBarState]. */
-@ExperimentalMaterial3Api
 enum class SearchBarValue {
     /** The state of the search bar when it is collapsed. */
     Collapsed,
@@ -1091,7 +1094,6 @@ enum class SearchBarValue {
 }
 
 /** The state of a search bar. */
-@ExperimentalMaterial3Api
 @Stable
 class SearchBarState
 private constructor(
@@ -1158,7 +1160,7 @@ private constructor(
      * The layout coordinates, if available, of the search bar when it is collapsed. Used to
      * coordinate the expansion animation.
      */
-    var collapsedCoords: LayoutCoordinates? by mutableStateOf(null)
+    internal var collapsedCoords: LayoutCoordinates? by mutableStateOf(null)
 
     /**
      * The animation progress of the search bar, where 0 represents [SearchBarValue.Collapsed] and 1
@@ -1293,7 +1295,6 @@ private constructor(
  * @param animationSpecForExpand the animation spec used when the search bar expands.
  * @param animationSpecForCollapse the animation spec used when the search bar collapses.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberSearchBarState(
     initialValue: SearchBarValue = SearchBarValue.Collapsed,
@@ -1330,7 +1331,6 @@ fun rememberSearchBarState(
  * @param animationSpecForContentFadeOut the animation spec used for the content when the search bar
  *   collapses.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberContainedSearchBarState(
     initialValue: SearchBarValue = SearchBarValue.Collapsed,
@@ -1375,7 +1375,6 @@ fun rememberContainedSearchBarState(
  * @param animationSpecForContentFadeOut the animation spec used for the content when the search bar
  *   collapses.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberSearchBarWithGapState(
     initialValue: SearchBarValue = SearchBarValue.Collapsed,
@@ -1414,7 +1413,6 @@ fun rememberSearchBarWithGapState(
  *
  * @see [SearchBarDefaults.enterAlwaysSearchBarScrollBehavior]
  */
-@ExperimentalMaterial3Api
 @Stable
 interface SearchBarScrollBehavior {
 
@@ -1647,7 +1645,6 @@ private class EnterAlwaysSearchBarScrollBehavior(
 }
 
 /** Defaults used in [SearchBar] and [DockedSearchBar]. */
-@ExperimentalMaterial3Api
 object SearchBarDefaults {
     /** Default tonal elevation for a search bar. */
     val TonalElevation: Dp = ElevationTokens.Level0
@@ -1740,7 +1737,6 @@ object SearchBarDefaults {
      * @param reverseLayout indicates that this behavior is applied to a scrollable content that has
      *   a reversed direction of scrolling and layout.
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysSearchBarScrollBehavior(
         initialOffset: Float = 0f,
@@ -2080,7 +2076,6 @@ object SearchBarDefaults {
      *   horizontally, and ignore newlines; or [TextFieldLineLimits.MultiLine] and grow and scroll
      *   vertically.
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun InputField(
         textFieldState: TextFieldState,
@@ -2322,6 +2317,7 @@ object SearchBarDefaults {
      *   appearance or preview the search bar in different states. Note that if `null` is provided,
      *   interactions will still happen internally.
      */
+    @Deprecated(message = "Use SearchBarDefaults.InputField with SearchBarState.")
     @ExperimentalMaterial3Api
     @Composable
     fun InputField(
@@ -2479,6 +2475,9 @@ object SearchBarDefaults {
      *   appearance or preview the search bar in different states. Note that if `null` is provided,
      *   interactions will still happen internally.
      */
+    @Deprecated(
+        message = "Use SearchBarDefaults.InputField with TextFieldState and SearchBarState."
+    )
     @ExperimentalMaterial3Api
     @Composable
     fun InputField(
@@ -2717,7 +2716,6 @@ object SearchBarDefaults {
  * See [SearchBarDefaults.colors] for the default implementation that follows Material
  * specifications.
  */
-@ExperimentalMaterial3Api
 @Immutable
 class SearchBarColors(
     val containerColor: Color,
@@ -2779,7 +2777,6 @@ class SearchBarColors(
  * @param appBarNavigationIconColor the color used for the app bar navigation icon
  * @param appBarActionIconColor the color used for the app bar action icons
  */
-@ExperimentalMaterial3Api
 @Immutable
 class AppBarWithSearchColors(
     val searchBarColors: SearchBarColors,
