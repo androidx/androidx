@@ -23,6 +23,8 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
@@ -38,6 +40,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.selectIfGt
 import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -67,7 +70,7 @@ class RecordingCanvasTest {
     fun setUp() {
         fakeBuffer = TestRemoteComposeBuffer()
 
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
+        val platform = AndroidxRcPlatformServices()
         val profile =
             Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
                 creationDisplayInfo,
@@ -1446,5 +1449,538 @@ class RecordingCanvasTest {
         assertThat(CanvasOperationBuffer.findCommonAncestor(grandChild1, child2)).isEqualTo(root)
         assertThat(CanvasOperationBuffer.findCommonAncestor(grandChild1, child1)).isEqualTo(child1)
         assertThat(CanvasOperationBuffer.findCommonAncestor(child1, child1)).isEqualTo(child1)
+    }
+
+    private fun runWithOptimizingCanvas(
+        action: (RecordingCanvas, OptimizingTestRemoteComposeBuffer) -> Unit
+    ) {
+        val platform = AndroidxRcPlatformServices()
+        val optimizingBuffer = OptimizingTestRemoteComposeBuffer()
+        val profile =
+            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
+                creationDisplayInfo,
+                profile,
+                callbacks ->
+                OptimizingRemoteComposeWriter(
+                    creationDisplayInfo,
+                    callbacks,
+                    profile,
+                    optimizingBuffer,
+                )
+            }
+        val localCreationState =
+            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
+        val localCanvas = RecordingCanvas(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
+        localCanvas.setRemoteComposeCreationState(localCreationState)
+
+        action(localCanvas, optimizingBuffer)
+    }
+
+    @Test
+    fun testRedundantSaveRestoreElimination() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).isEmpty()
+        }
+    }
+
+    @Test
+    fun testTransformFusing() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            canvas.translate(30f, 40f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(40.0, 60.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testMixedTransformCommutingAndFusing() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            canvas.scale(2f, 3f)
+            canvas.translate(5f, 10f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(20.0, 50.0)",
+                    "addMatrixScale(2.0, 3.0, NaN, NaN)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testCommuteRotateAndTranslate() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.rotate(90f)
+            canvas.translate(10f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(-20.0, 10.0)",
+                    "addMatrixRotate(90.0, NaN, NaN)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testSaveRestorePointlessElided() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testSaveRestoreUsefulPreserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixSave",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "addMatrixRestore",
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testNestedSaveRestoreElision() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 20f)
+
+            canvas.save()
+            canvas.translate(30f, 40f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+
+            canvas.restore()
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixSave",
+                    "addMatrixTranslate(40.0, 60.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "addMatrixRestore",
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testRotateFusing() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.rotate(45f)
+            canvas.rotate(90f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixRotate(135.0, NaN, NaN)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testClipElision() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.clipRect(0f, 0f, 10f, 10f)
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).isEmpty()
+        }
+    }
+
+    @Test
+    fun testClipBarrier() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            canvas.clipRect(0f, 0f, 50f, 50f)
+            canvas.translate(30f, 40f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addClipRect(0.0, 0.0, 50.0, 50.0)",
+                    "addMatrixTranslate(30.0, 40.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testTranslateWithVariables() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val varA = RemoteFloat.createNamedRemoteFloat("varA", 0f)
+            val varB = RemoteFloat.createNamedRemoteFloat("varB", 0f)
+
+            canvas.translate(10f, 20f)
+            canvas.translate(varA, varB)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addAnimatedFloat(ID(44), [ID(42), 10.0, +])",
+                    "addAnimatedFloat(ID(45), [ID(43), 20.0, +])",
+                    "addMatrixTranslate(ID(44), ID(45))",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testRotateWithVariables() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val varAngle = RemoteFloat.createNamedRemoteFloat("varAngle", 0f)
+
+            canvas.rotate(10f)
+            canvas.rotate(varAngle)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // They should be fused into a single rotate.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addAnimatedFloat(ID(43), [ID(42), 10.0, +])",
+                    "addMatrixRotate(ID(43), NaN, NaN)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testScaleWithVariables() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val varSx = RemoteFloat.createNamedRemoteFloat("varSx", 1f)
+            val varSy = RemoteFloat.createNamedRemoteFloat("varSy", 1f)
+
+            canvas.scale(2f, 3f)
+            canvas.scale(varSx, varSy)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // They should be fused into a single scale.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addAnimatedFloat(ID(44), [ID(42), 2.0, *])",
+                    "addAnimatedFloat(ID(45), [ID(43), 3.0, *])",
+                    "addMatrixScale(ID(44), ID(45), NaN, NaN)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testScaleWithNonZeroPivot() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.scale(2f.rf, 3f.rf, 5f.rf, 5f.rf)
+            canvas.translate(10f.rf, 20f.rf)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Scale(2, 3, 5, 5) -> Translate(10, 20) => Translate(20, 60) -> Scale(2, 3, 5, 5)
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixTranslate(20.0, 60.0)",
+                    "addMatrixScale(2.0, 3.0, 5.0, 5.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testRotateWithDifferentPivots() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.rotate(90f.rf, 10f.rf, 10f.rf)
+            canvas.rotate(90f.rf, 20f.rf, 20f.rf)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Currently we do not fuse rotations with different pivots.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixRotate(90.0, 10.0, 10.0)",
+                    "addMatrixRotate(90.0, 20.0, 20.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testProfileWithOptimizingWriter_upgradesRegularWriterWithOptimizingBuffer() {
+        val platform = AndroidxRcPlatformServices()
+        val badProfile =
+            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
+                creationDisplayInfo,
+                profile,
+                _ ->
+                val buffer = OptimizingRemoteComposeBuffer(profile.apiLevel)
+                object :
+                    RemoteComposeWriterAndroid(
+                        profile,
+                        buffer,
+                        RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                    ) {}
+            }
+
+        val optimizingProfile = badProfile.withOptimizingWriter()
+        val displayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1f)
+        val writer = optimizingProfile.create(displayInfo.toCreationDisplayInfo(), null)
+
+        assertThat(writer).isInstanceOf(OptimizingRemoteComposeWriter::class.java)
+    }
+
+    @Test
+    fun testScaleWithVariablePivot() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val varPx = RemoteFloat.createNamedRemoteFloat("varPx", 5f)
+            val varPy = RemoteFloat.createNamedRemoteFloat("varPy", 5f)
+
+            canvas.scale(2f.rf, 3f.rf, varPx, varPy)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            val pxIdVal = Utils.idFromNan(varPx.getFloatIdForCreationState(canvas.creationState))
+            val pyIdVal = Utils.idFromNan(varPy.getFloatIdForCreationState(canvas.creationState))
+
+            // It should NOT discard the pivot.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixScale(2.0, 3.0, ID($pxIdVal), ID($pyIdVal))",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testDoubleEncodeDoesNotDuplicate() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+            canvas.flush()
+
+            // First encode
+            val bytes1 = canvas.document.encodeToByteArray()
+            val calls1 = ArrayList(buffer.calls)
+
+            // Second encode (without recording anything new)
+            val bytes2 = canvas.document.encodeToByteArray()
+            val calls2 = ArrayList(buffer.calls)
+
+            // The calls recorded in the buffer should be identical (no new calls appended)
+            assertThat(calls2).isEqualTo(calls1)
+            // And the bytes should be identical
+            assertThat(bytes2).isEqualTo(bytes1)
+        }
+    }
+
+    @Test
+    fun testSaveRestoreWithOnlyThemeIsPreserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            buffer.setTheme(42)
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // The save/restore should be inlined, but setTheme(42) must be preserved.
+            assertThat(buffer.calls).containsExactly("setTheme(42)")
+        }
+    }
+}
+
+private fun formatFloat(f: Float): String {
+    return if (f.isNaN()) {
+        val mathName = AnimatedFloatExpression.toMathName(f)
+        if (mathName != null) {
+            mathName
+        } else {
+            val id = Utils.idFromNan(f)
+            if (id == 0) {
+                "NaN"
+            } else {
+                "ID($id)"
+            }
+        }
+    } else {
+        f.toString()
+    }
+}
+
+private fun FloatArray.formatToString(): String {
+    return this.joinToString(prefix = "[", postfix = "]") { formatFloat(it) }
+}
+
+private class TestRemoteComposeBuffer(val calls: ArrayList<String>) :
+    RemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
+
+    override fun addMatrixSave() {
+        calls.add("addMatrixSave")
+        super.addMatrixSave()
+    }
+
+    override fun addMatrixRestore() {
+        calls.add("addMatrixRestore")
+        super.addMatrixRestore()
+    }
+
+    override fun addMatrixTranslate(dx: Float, dy: Float) {
+        calls.add("addMatrixTranslate(${formatFloat(dx)}, ${formatFloat(dy)})")
+        super.addMatrixTranslate(dx, dy)
+    }
+
+    override fun addMatrixScale(scaleX: Float, scaleY: Float) {
+        calls.add("addMatrixScale(${formatFloat(scaleX)}, ${formatFloat(scaleY)})")
+        super.addMatrixScale(scaleX, scaleY)
+    }
+
+    override fun addMatrixScale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {
+        calls.add(
+            "addMatrixScale(${formatFloat(scaleX)}, ${formatFloat(scaleY)}, ${formatFloat(centerX)}, ${formatFloat(centerY)})"
+        )
+        super.addMatrixScale(scaleX, scaleY, centerX, centerY)
+    }
+
+    override fun addMatrixRotate(angle: Float, centerX: Float, centerY: Float) {
+        calls.add(
+            "addMatrixRotate(${formatFloat(angle)}, ${formatFloat(centerX)}, ${formatFloat(centerY)})"
+        )
+        super.addMatrixRotate(angle, centerX, centerY)
+    }
+
+    override fun addClipRect(left: Float, top: Float, right: Float, bottom: Float) {
+        calls.add(
+            "addClipRect(${formatFloat(left)}, ${formatFloat(top)}, ${formatFloat(right)}, ${formatFloat(bottom)})"
+        )
+        super.addClipRect(left, top, right, bottom)
+    }
+
+    override fun addDrawRect(left: Float, top: Float, right: Float, bottom: Float) {
+        calls.add(
+            "addDrawRect(${formatFloat(left)}, ${formatFloat(top)}, ${formatFloat(right)}, ${formatFloat(bottom)})"
+        )
+        super.addDrawRect(left, top, right, bottom)
+    }
+
+    override fun addPaint(paint: PaintBundle) {
+        calls.add("addPaint")
+        super.addPaint(paint)
+    }
+
+    override fun setTheme(theme: Int) {
+        calls.add("setTheme($theme)")
+        super.setTheme(theme)
+    }
+}
+
+private class OptimizingTestRemoteComposeBuffer :
+    OptimizingRemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
+    val calls = ArrayList<String>()
+
+    override fun createDelegate(apiLevel: Int): RemoteComposeBuffer {
+        return TestRemoteComposeBuffer(calls)
+    }
+
+    override fun addAnimatedFloat(id: Int, value: FloatArray) {
+        calls.add("addAnimatedFloat(ID($id), ${value.formatToString()})")
+        super.addAnimatedFloat(id, *value)
+    }
+
+    override fun addAnimatedFloat(id: Int, value: FloatArray, animation: FloatArray?) {
+        val animStr = animation?.formatToString()
+        calls.add("addAnimatedFloat(ID($id), ${value.formatToString()}, $animStr)")
+        super.addAnimatedFloat(id, value, animation)
     }
 }
