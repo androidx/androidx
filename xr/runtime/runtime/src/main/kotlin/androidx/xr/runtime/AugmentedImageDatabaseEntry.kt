@@ -52,6 +52,14 @@ constructor(
         return result
     }
 
+    /**
+     * Returns a string representation of [AugmentedImageDatabaseEntry] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "AugmentedImageDatabaseEntry(bitmap=(width=${bitmap.width}, height=${bitmap.height}, byteCount=${bitmap.byteCount}), mode=$mode, widthInMeters=$widthInMeters)"
+
     @JvmOverloads
     public fun copy(
         bitmap: Bitmap = this.bitmap,
@@ -84,4 +92,16 @@ public class AugmentedImageDatabaseEntryMode private constructor(public val mode
         @JvmField
         public val STATIC: AugmentedImageDatabaseEntryMode = AugmentedImageDatabaseEntryMode(1)
     }
+
+    /**
+     * Returns a string representation of [AugmentedImageDatabaseEntryMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DYNAMIC"
+            1 -> "STATIC"
+            else -> "UNKNOWN($mode)"
+        }
 }

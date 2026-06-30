@@ -79,4 +79,11 @@ public class AugmentedImageDatabase {
         _entries.add(imageDatabaseEntry)
         return _entries.indexOf(imageDatabaseEntry)
     }
+
+    /**
+     * Returns a string representation of [AugmentedImageDatabase] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "AugmentedImageDatabase(entries=$entries)"
 }

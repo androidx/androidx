@@ -141,6 +141,18 @@ private constructor(
         return result
     }
 
+    /**
+     * Returns a string representation of [Config] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "Config(planeTracking=$planeTracking, handTracking=$handTracking, deviceTracking=$deviceTracking, " +
+            "depthEstimation=$depthEstimation, anchorPersistence=$anchorPersistence, faceTracking=$faceTracking, " +
+            "geospatial=$geospatial, augmentedObjectCategories=$augmentedObjectCategories, eyeTracking=$eyeTracking, " +
+            "cameraFacingDirection=$cameraFacingDirection, augmentedImageDatabase=$augmentedImageDatabase, " +
+            "qrCodeTracking=$qrCodeTracking, qrCodeSizeMeters=$qrCodeSizeMeters)"
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getSceneSignalTypes(): Set<SceneSignalType> = sceneSignalTypes
 

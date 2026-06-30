@@ -30,4 +30,15 @@ public class SceneSignalType private constructor(public val id: Int) {
          */
         @JvmField public val CONVERSATION: SceneSignalType = SceneSignalType(0)
     }
+
+    /**
+     * Returns a string representation of [SceneSignalType] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (id) {
+            0 -> "CONVERSATION"
+            else -> "UNKNOWN($id)"
+        }
 }

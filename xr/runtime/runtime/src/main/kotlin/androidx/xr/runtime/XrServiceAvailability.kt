@@ -39,6 +39,20 @@ public object XrServiceAvailability {
             @JvmField
             public val OUTDATED: XrServiceAvailabilityStatus = XrServiceAvailabilityStatus(3)
         }
+
+        /**
+         * Returns a string representation of [XrServiceAvailabilityStatus] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            when (code) {
+                0 -> "UNKNOWN"
+                1 -> "AVAILABLE"
+                2 -> "UNSUPPORTED"
+                3 -> "OUTDATED"
+                else -> "UNKNOWN"
+            }
     }
 
     /**
