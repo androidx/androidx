@@ -42,9 +42,12 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
+import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiStatement
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClassInitializer
@@ -84,13 +87,15 @@ import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.util.isConstructorCall
 
 /**
- * Enforced flag checking in the Android platform; see go/android-flagged-apis.
+ * Enforced flag checking in the Android platform; see go/android-flagged-apis. Also checks if a
+ * -dontwarn rule is present for the flagged API class.
  *
  * **NOTE:** This file is a fork of the original sources in the Android lint code base, see
  * `lint-checks/src/main/java/com/android/tools/lint/checks/optional/FlaggedApiDetector.kt`
  */
 class FlaggedApiDetector : Detector(), SourceCodeScanner {
     private var apiDatabase: ApiLookup? = null
+    private val proguardFileCache = ConcurrentHashMap<File, List<String>>()
 
     override fun beforeCheckRootProject(context: Context) {
         if (apiDatabase == null) {
@@ -123,7 +128,8 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
                     explanation =
                         """
           This lint check looks for accesses of APIs marked with `@FlaggedApi(X)` without \
-          a guarding `if (Flags.X)` check or equivalent gating check. See go/android-flagged-apis.
+          a guarding `if (Flags.X)` check or equivalent gating check. See go/android-flagged-apis
+          and go/androidx-api-guidelines#compat-flags.
           """,
                     briefDescription = "FlaggedApi access without check",
                     category = Category.CORRECTNESS,
@@ -133,6 +139,27 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
                     implementation = IMPLEMENTATION,
                 )
                 .setOptions(listOf(ALLOWLIST_OPTION))
+
+        @JvmField
+        val MISSING_DONTWARN_ISSUE =
+            Issue.create(
+                id = "AndroidXMissingDontWarnRule",
+                briefDescription = "Missing -dontwarn ProGuard rule for Flagged API class.",
+                explanation =
+                    """
+                Classes annotated with @FlaggedApi (or their inner classes) might not exist
+                in the app's classpath if the app compiles against an SDK where the flag is off.
+                To prevent R8 errors for consumers of this library, the library must provide a consumer
+                ProGuard rule like '-dontwarn <class.name>'. This check ensures such a rule
+                exists in this module's 'consumer-rules.pro' file. See
+                go/androidx-api-guidelines#preventing-r8-warnings
+            """,
+                category = Category.CORRECTNESS,
+                priority = 7,
+                severity = Severity.ERROR,
+                androidSpecific = true,
+                implementation = IMPLEMENTATION,
+            )
 
         // Message embedded in the autofix reminding the developer to implement a fallback.
         private const val TODO_FALLBACK_MESSAGE = "Implement fallback behavior"
@@ -156,7 +183,10 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
             AnnotationUsageType.CLASS_REFERENCE,
             AnnotationUsageType.ANNOTATION_REFERENCE,
             AnnotationUsageType.EXTENDS,
-            AnnotationUsageType.DEFINITION -> true
+            AnnotationUsageType.DEFINITION,
+            // for dontwarn rules only
+            AnnotationUsageType.VARIABLE_REFERENCE,
+            AnnotationUsageType.METHOD_CALL_PARAMETER -> true
             else -> false
         }
     }
@@ -203,12 +233,12 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
         // Avoid checking any usages of `@ChecksFlag`.
         if (annotationInfo.qualifiedName == CHECKS_FLAG_ANNOTATION) return
 
-        // Avoid checking usage of the `@FlaggedApi` or `@RequiresFlag` annotations
-        // themselves.
+        val isFlaggedApiAnnotation = annotationInfo.qualifiedName == FLAGGED_API_ANNOTATION
+
+        // Avoid checking usage of the `@FlaggedApi` or `@RequiresFlag` annotations themselves.
         if (annotationInfo.origin == AnnotationOrigin.SELF) {
             if (
-                annotationInfo.qualifiedName == FLAGGED_API_ANNOTATION ||
-                    annotationInfo.qualifiedName == REQUIRES_FLAG_ANNOTATION
+                isFlaggedApiAnnotation || annotationInfo.qualifiedName == REQUIRES_FLAG_ANNOTATION
             ) {
                 return
             }
@@ -226,6 +256,14 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
         // Avoid checking flagged deprecations. We don't allow adding APIs as deprecated, so we can
         // safely assume that the flag applies to the deprecated state rather than the API itself.
         if (isFlaggedDeprecation(usageInfo)) return
+        if (isFlaggedApiAnnotation) {
+            val referencedPsiClass = usageInfo.getReferencedPsiClass()
+            if (referencedPsiClass != null) {
+                checkMissingDontWarnRule(context, element, referencedPsiClass)
+            }
+        }
+
+        if (isPureTypeReference(usageInfo.type)) return
 
         // Only allowlisted libraries are allowed to call flagged APIs.
         if (!isUsageInAllowlistedLibrary(context, usageInfo.usage)) {
@@ -276,6 +314,85 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
             "$description is a flagged API and must be inside a flag check for \"$flagString\""
         val quickfixData = autoFixWithFlagCheck(context, element, flagString)
         context.report(ISSUE, element, context.getLocation(element), message, quickfixData)
+    }
+
+    private fun isPureTypeReference(type: AnnotationUsageType): Boolean {
+        return when (type) {
+            AnnotationUsageType.VARIABLE_REFERENCE,
+            AnnotationUsageType.METHOD_CALL_PARAMETER -> true
+            else -> false
+        }
+    }
+
+    private fun AnnotationUsageInfo.getReferencedPsiClass(): PsiClass? {
+        return when (val ref = this.referenced) {
+            is PsiClass -> ref
+            is PsiField -> ref.containingClass
+            is PsiMethod -> ref.containingClass
+            else -> (usage as? UCallExpression)?.getReferencedPsiClass()
+        }
+    }
+
+    private fun UCallExpression.getReferencedPsiClass(): PsiClass? =
+        takeIf { it.isConstructorCall() }?.classReference?.tryResolve() as? PsiClass
+
+    private fun checkMissingDontWarnRule(context: JavaContext, node: UElement, psiClass: PsiClass) {
+        if (isClassOrOuterClassFlagged(psiClass)) {
+            val proguardName = getProguardName(psiClass) ?: return
+            if (getConsumerProguardFile(context).contains(proguardName)) {
+                return
+            }
+            val location = context.getLocation(node)
+            context.report(
+                MISSING_DONTWARN_ISSUE,
+                node,
+                location,
+                "Usage of Flagged API class '$proguardName' requires a matching '-dontwarn $proguardName' rule in this module's consumer ProGuard file.",
+            )
+        }
+    }
+
+    private fun getConsumerProguardFile(context: Context): List<String> =
+        proguardFileCache.getOrPut(context.project.dir) {
+            parseConsumerProguardFiles(context.project.dir)
+        }
+
+    private fun parseConsumerProguardFiles(projectDir: File): List<String> {
+        val standardPath = File(projectDir, "consumer-rules.pro")
+        val srcMainPath = File(projectDir, "src/main/consumer-rules.pro")
+
+        return listOf(standardPath, srcMainPath)
+            .filter { it.isFile }
+            .flatMap { file ->
+                file
+                    .readLines() // lines
+                    .map { it.trim() } // trimmed
+                    .filter { line -> // prefixed with -dontwarn
+                        line.trim().startsWith("-dontwarn ")
+                    }
+                    .map { // just the class names
+                        it.substringAfter("-dontwarn ").trim()
+                    }
+                    .filter { className -> // class names we care about
+                        className.isNotEmpty() &&
+                            !className.contains("*") && // ignore wildcards
+                            !className.startsWith("@") // and annotations
+                    }
+            }
+    }
+
+    private fun isClassOrOuterClassFlagged(psiClass: PsiClass?): Boolean {
+        if (psiClass == null) return false
+        return psiClass.hasAnnotation(FLAGGED_API_ANNOTATION) ||
+            isClassOrOuterClassFlagged(psiClass.containingClass)
+    }
+
+    private fun getProguardName(psiClass: PsiClass): String? {
+        val packageName = (psiClass.containingFile as? PsiJavaFile)?.packageName ?: ""
+        val className =
+            psiClass.qualifiedName?.removePrefix("${packageName}.")?.replace(".", "$")
+                ?: return null
+        return if (packageName.isNotEmpty()) "$packageName.$className" else className
     }
 
     private val AnnotationUsageInfo.referencedElement: UElement?
