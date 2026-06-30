@@ -17,6 +17,7 @@
 package androidx.xr.compose.testapp.accessibility
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -325,13 +326,21 @@ class AccessibilityActivity : ComponentActivity() {
             }
             Button({
                 if (surfaceEntity == null) {
-                    surfaceEntity =
+                    val newSurfaceEntity =
                         SurfaceEntity.create(
                             session,
                             pose = Pose(Vector3(-1f, 0f, -0.5f)),
                             shape = shape,
+                            parent = session.scene.activitySpace,
                         )
-                    surfaceEntity?.contentDescription = "${shape.javaClass.simpleName} Surface"
+                    newSurfaceEntity.contentDescription = "${shape.javaClass.simpleName} Surface"
+
+                    // Surface will be transparent if we don't add a solid color.
+                    val canvas = newSurfaceEntity.getSurface().lockHardwareCanvas()
+                    canvas.drawColor(Color.BLACK)
+                    newSurfaceEntity.getSurface().unlockCanvasAndPost(canvas)
+
+                    surfaceEntity = newSurfaceEntity
                 }
             }) {
                 Text("Create Surface", fontSize = 20.sp)
