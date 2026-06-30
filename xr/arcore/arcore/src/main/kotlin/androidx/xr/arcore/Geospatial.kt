@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Provides localization ability in Earth-relative coordinates.
+ * Localization ability in Earth-relative coordinates.
  *
  * To use the Geospatial object, configure the session with
  * [androidx.xr.runtime.GeospatialMode.SPATIAL].
@@ -110,8 +110,8 @@ internal constructor(
     }
 
     /**
-     * Converts the input geospatial location and orientation relative to the Earth to a [Pose] in
-     * the same position.
+     * Converts a geospatial location and orientation relative to the Earth to a [Pose] in the same
+     * position.
      *
      * This method may return a [CreatePoseFromGeospatialPoseNotTracking] result if Geospatial is
      * not currently tracking.
@@ -212,8 +212,7 @@ internal constructor(
     }
 
     /**
-     * Asynchronously creates a new [Anchor] at a specified horizontal position and altitude
-     * relative to the horizontal position's surface (Terrain or Rooftop).
+     * Creates a new [Anchor] at a specified geospatial location.
      *
      * The specified [altitudeAboveSurface] is interpreted to be relative to the given surface at
      * the specified latitude/longitude geospatial coordinates, rather than relative to the WGS84
@@ -255,7 +254,7 @@ internal constructor(
      * @param eastUpSouthQuaternion the rotation quaternion of the anchor
      * @param surface the [GeospatialSurface] on which to create the anchor
      * @return an [AnchorResult] with the result of the anchor creation
-     * @throws IllegalArgumentException if the latitude is outside the allowable range
+     * @throws [IllegalArgumentException] if the latitude is outside the allowable range
      * @throws [AnchorUnsupportedLocationException] if there is no information at the provided
      *   location
      */
@@ -401,10 +400,10 @@ internal constructor(
     }
 
     /**
-     * Represents the state of Geospatial at a specific point in time.
+     * State of Geospatial at a specific point in time.
      *
      * @property geospatialTrackingState the current [GeospatialTrackingState] of [Geospatial]
-     * @property owner self-reference to the object that owns this state.
+     * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(

@@ -21,17 +21,16 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of a [androidx.xr.arcore.runtime.AugmentedImage] instance's mutable
- * fields.
+ * State of a [OpenXrAugmentedImage] instance's mutable fields.
  *
- * @property trackingState The [androidx.xr.arcore.runtime.TrackingState] value describing if the
- *   image is being updated.
- * @property centerPose The pose of the center of the detected image. The pose's transformed +Y axis
+ * @property trackingState the [androidx.xr.arcore.runtime.TrackingState] value describing if the
+ *   image is being updated
+ * @property centerPose the pose of the center of the detected image. The pose's transformed +Y axis
  *   will be point normal out of the image, with the +X and +Z axes orienting the extents of the
- *   bounding rectangle.
- * @property extents The dimensions of the detected image.
- * @property index The zero-based positional index of the detected image from its originating image
- *   database.
+ *   bounding rectangle
+ * @property extents the dimensions of the detected image
+ * @property index the zero-based positional index of the detected image from its originating image
+ *   database
  */
 internal data class AugmentedImageState(
     val trackingState: TrackingState = TrackingState.PAUSED,

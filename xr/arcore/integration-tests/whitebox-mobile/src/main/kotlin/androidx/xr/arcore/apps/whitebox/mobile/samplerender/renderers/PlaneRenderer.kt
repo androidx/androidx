@@ -186,9 +186,9 @@ class PlaneRenderer(render: SampleRender) {
     /**
      * Draws the collection of tracked planes, with closer planes hiding more distant ones.
      *
-     * @param allPlanes The collection of planes to draw.
-     * @param cameraPose The pose of the camera.
-     * @param cameraProjection The projection matrix.
+     * @param allPlanes the collection of planes to draw
+     * @param cameraPose the pose of the camera
+     * @param cameraProjection the projection matrix
      */
     fun drawPlanes(
         render: SampleRender,

@@ -46,7 +46,7 @@ import java.util.UUID
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PerceptionManager {
     /**
-     * Defines a tracked location in the physical world.
+     * Tracked location in the physical world.
      *
      * @param pose the [Pose] of the anchor
      * @return the created [Anchor]
@@ -54,7 +54,7 @@ public interface PerceptionManager {
     public fun createAnchor(pose: Pose): Anchor
 
     /**
-     * Performs a ray cast in the direction of the given [ray] in the latest camera view.
+     * Performs a ray cast in direction of [ray].
      *
      * @param ray the [Ray] to cast
      * @return a list of [HitResult] objects
@@ -90,7 +90,7 @@ public interface PerceptionManager {
      *   positive values representing clockwise rotations
      * @param width the new display width after rotation
      * @param height the new display width after rotation
-     * @throws UnsupportedOperationException if the current runtime does not support display
+     * @throws [UnsupportedOperationException] if the current runtime does not support display
      *   rotation
      */
     public fun setDisplayRotation(rotation: Int, width: Int, height: Int): Unit =

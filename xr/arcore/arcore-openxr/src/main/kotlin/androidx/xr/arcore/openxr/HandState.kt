@@ -20,7 +20,7 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of an [OpenXrHand] instance.
+ * State of an [OpenXrHand] instance.
  *
  * @property trackingState the [TrackingState] of the hand
  * @property handJoints the list of [Pose]s for each hand joint, ordered according to

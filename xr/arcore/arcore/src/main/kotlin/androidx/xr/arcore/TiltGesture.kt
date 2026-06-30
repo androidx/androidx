@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.runningFold
 @Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalGesturesApi
 
-/** Represents the vertical tilt state of the device. */
+/** Vertical tilt state of the device. */
 @ExperimentalGesturesApi
 public class Tilt private constructor(private val value: Int) {
     public companion object {
@@ -108,7 +108,7 @@ public object TiltGesture {
      *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL]
      * @return a [Flow] that emits the current [State], starting with an initial state of
      *   [State.tilt] as [Tilt.UP] and [State.progress] as 0f
-     * @throws IllegalStateException if [session] is configured with
+     * @throws [IllegalStateException] if [session] is configured with
      *   [androidx.xr.runtime.DeviceTrackingMode.DISABLED]
      */
     public fun detect(session: Session): Flow<State> {
@@ -118,7 +118,7 @@ public object TiltGesture {
     }
 
     /**
-     * Represents the tilt state of the device, transition progress.
+     * Tilt state and transition progress of the device.
      *
      * @property tilt the current tilt state ([Tilt.UP] or [Tilt.DOWN])
      * @property progress a value from 0.0 to 1.0 indicating the progress of the current transition
@@ -157,8 +157,7 @@ public object TiltGesture {
     }
 
     /**
-     * Determines the new tilt state based on the device's rotation and the previous tilt state,
-     * incorporating a hysteresis mechanism to prevent rapid state flipping.
+     * Determines new tilt state based on rotation and hysteresis.
      *
      * Hysteresis is achieved by using separate thresholds for tilting up and down: - To transition
      * from [Tilt.UP] to [Tilt.DOWN], the angle must fall below the

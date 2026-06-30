@@ -245,14 +245,14 @@ class PersistentAnchorsActivity : ComponentActivity() {
      * Checks if a rectangular panel is fully visible within the camera's field of view. Assumes the
      * camera looks down -Z axis.
      *
-     * @param cameraPoseInPerceptionSpace The position and orientation of the camera in perception
-     *   space.
-     * @param cameraFov The camera's field of view, defined by four angles.
-     * @param panelPoseInPerceptionSpace The position and orientation of the panel in perception
-     *   space.
-     * @param panelSizeInMeters The width and height of the panel.
-     * @return Returns true if all four corners of the panel are within the camera's field of view,
-     *   and false otherwise.
+     * @param cameraPoseInPerceptionSpace the position and orientation of the camera in perception
+     *   space
+     * @param cameraFov the camera's field of view, defined by four angles
+     * @param panelPoseInPerceptionSpace the position and orientation of the panel in perception
+     *   space
+     * @param panelSizeInMeters the width and height of the panel
+     * @return returns true if all four corners of the panel are within the camera's field of view,
+     *   and false otherwise
      */
     private fun isPanelInView(
         cameraPoseInPerceptionSpace: Pose,

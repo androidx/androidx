@@ -21,8 +21,7 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.internal.JxrRuntime
 
 /**
- * Describes a type of [JxrRuntime] that performs perception operations based on the real world
- * using device cameras and sensors.
+ * Type of [JxrRuntime] for real-world perception.
  *
  * @property perceptionManager the [PerceptionManager] for this runtime
  * @property config the [Config] for this runtime

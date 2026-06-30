@@ -28,8 +28,7 @@ import java.nio.ByteOrder
 import kotlin.collections.iterator
 
 /**
- * An object which allows for testing a simulation of one of the user's hands in an ARCore unit test
- * environment.
+ * Tests simulated hand in unit tests.
  *
  * @property isVisible whether the hand is currently in view of the runtime
  * @property handJointMap a [Map] of [HandJointType] to that joint's [Pose]

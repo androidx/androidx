@@ -190,7 +190,7 @@ public class BackgroundRenderer(render: SampleRender) {
      * Updates the display geometry. This must be called every frame before calling either of
      * BackgroundRenderer's draw methods.
      *
-     * @param transformFunc How to process the display's [FloatBuffer]
+     * @param transformFunc how to process the display's [FloatBuffer]
      */
     public fun updateDisplayGeometry(transformFunc: (FloatBuffer) -> FloatBuffer) {
         // If display rotation changed (also includes view size change), we need to re-query the UV

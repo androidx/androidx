@@ -293,8 +293,8 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     /**
      * Validates that Geospatial is tracking and available.
      *
-     * @throws [IllegalStateException] if Geospatial is not available.
-     * @throws [GeospatialPoseNotTrackingException] if Geospatial is not tracking.
+     * @throws [IllegalStateException] if Geospatial is not available
+     * @throws [GeospatialPoseNotTrackingException] if Geospatial is not tracking
      */
     private fun validateGeospatialTracking() {
         // TODO: b/408482647 - Without locking this doesn't guarantee that the state won't change
@@ -335,10 +335,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
         }
     }
 
-    /**
-     * Converts the ARCore1xAnchor to a RuntimeAnchor, or resumes the continuation with an exception
-     * if the anchor could not be created.
-     */
+    /** Converts ARCore1xAnchor to RuntimeAnchor, resuming the continuation. */
     private fun resumeWithTerrainAnchorOrException(
         anchor: ARCore1xAnchor,
         terrainAnchorState: ARCore1xTerrainAnchorState,
@@ -378,10 +375,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
         }
     }
 
-    /**
-     * Converts the ARCore1xAnchor to a RuntimeAnchor, or resumes the continuation with an exception
-     * if the anchor could not be created.
-     */
+    /** Converts ARCore1xAnchor to RuntimeAnchor, resuming the continuation. */
     private fun resumeWithRooftopAnchorOrException(
         anchor: ARCore1xAnchor,
         rooftopAnchorState: ARCore1xRooftopAnchorState,

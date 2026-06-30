@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore
 
-/** Represents the type of hand joint. */
+/** Type of hand joint. */
 public enum class HandJointType {
     /** The center of the palm. Often used as a reference point for hand tracking. */
     PALM,

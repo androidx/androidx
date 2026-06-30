@@ -32,7 +32,7 @@ import com.google.ar.core.Frame
 import com.google.ar.core.TrackingState
 
 /**
- * Provides access to the current [Frame]'s camera pose.
+ * Access to the current [Frame]'s camera pose.
  *
  * @property devicePose the [Pose] of the device
  * @property trackingState the tracking state of the device

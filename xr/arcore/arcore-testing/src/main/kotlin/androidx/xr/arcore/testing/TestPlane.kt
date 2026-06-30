@@ -27,7 +27,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
 /**
- * Represents a flat surface in the test environment, which can be described by a [PlaneType].
+ * Flat surface in the test environment.
  *
  * @property type the [PlaneType] of the surface
  * @property label the [PlaneLabel] that describes the surface

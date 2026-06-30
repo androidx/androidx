@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Represents a single viewpoint used for rendering, such as a left eye, right eye, or a mono view.
+ * Viewpoint used for rendering.
  *
  * This class provides access to the [State] of a specific render viewpoint, including its
  * [pose][State.pose], [localPose][State.localPose], and [fieldOfView][State.fieldOfView].
@@ -46,7 +46,7 @@ internal constructor(
          * Returns the RenderViewpoint associated with the left display.
          *
          * @param session the currently active [Session]
-         * @throws IllegalStateException if the device does not support
+         * @throws [IllegalStateException] if the device does not support
          *   [androidx.xr.runtime.RenderingMode.STEREO]
          */
         @JvmStatic
@@ -62,7 +62,7 @@ internal constructor(
          * Returns the RenderViewpoint associated with the right display.
          *
          * @param session the currently active [Session]
-         * @throws IllegalStateException if the device does not support
+         * @throws [IllegalStateException] if the device does not support
          *   [androidx.xr.runtime.RenderingMode.STEREO]
          */
         @JvmStatic
@@ -113,11 +113,11 @@ internal constructor(
      *   reflecting physical movement.
      * - **DISABLED:** The device pose is not updated. It remains at the origin (an identity pose)
      *   unless this mode is switched from SPATIAL to DISABLED mid-session, which freezes the pose
-     *   at its last known state.
+     *   at its last known state
      *
      * @property localPose a local offset from the device's central tracking point
      * @property fieldOfView the camera's [FieldOfView] in radians
-     * @property owner self-reference to the object that owns this state.
+     * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(

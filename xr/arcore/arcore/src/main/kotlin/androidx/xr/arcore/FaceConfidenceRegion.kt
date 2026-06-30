@@ -16,16 +16,16 @@
 
 package androidx.xr.arcore
 
-/** Represents the regions of face tracking confidence. */
+/** Regions of face tracking confidence. */
 public class FaceConfidenceRegion private constructor(private val value: Int) {
     public companion object {
-        /** Represents the lower region of the face. */
+        /** Lower region of the face. */
         @JvmField public val LOWER: FaceConfidenceRegion = FaceConfidenceRegion(0)
 
-        /** Represents the left upper region of the face. */
+        /** Left upper region of the face. */
         @JvmField public val LEFT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(1)
 
-        /** Represents the right upper region of the face. */
+        /** Right upper region of the face. */
         @JvmField public val RIGHT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(2)
     }
 }

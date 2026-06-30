@@ -24,7 +24,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents a QR code in the test environment.
+ * QR code in the test environment.
  *
  * @property data the data of the QR code
  * @property centerPose [Pose] at the center of the augmented image

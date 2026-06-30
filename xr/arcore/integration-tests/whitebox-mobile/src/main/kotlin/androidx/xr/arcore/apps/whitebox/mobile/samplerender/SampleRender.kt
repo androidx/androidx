@@ -26,9 +26,9 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * A SampleRender context.
  *
- * @param glSurfaceView Android GLSurfaceView
- * @param renderer Renderer implementation to receive callbacks
- * @param assetManager AssetManager for loading Android resources
+ * @param glSurfaceView [GLSurfaceView] instance to render into
+ * @param renderer renderer implementation to receive callbacks
+ * @param assetManager [AssetManager] for loading resources
  */
 public class SampleRender(
     glSurfaceView: GLSurfaceView,

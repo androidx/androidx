@@ -33,8 +33,6 @@ internal constructor(internal val _arCoreAugmentedImage: ARCoreAugmentedImage) :
      *
      * This property gets the pose from the underlying [ARCoreAugmentedImage] instance, and converts
      * it to a [Pose].
-     *
-     * @return The pose of the augmented image's center.
      */
     override val centerPose: Pose
         get() = _arCoreAugmentedImage.centerPose.toRuntimePose()
@@ -44,8 +42,6 @@ internal constructor(internal val _arCoreAugmentedImage: ARCoreAugmentedImage) :
      *
      * This property gets the extents from the underlying [ARCoreAugmentedImage] instance, and
      * converts it to a [FloatSize2d].
-     *
-     * @return The extents of the augmented image.
      */
     override val extents: FloatSize2d
         get() = FloatSize2d(_arCoreAugmentedImage.extentX, _arCoreAugmentedImage.extentZ)
@@ -55,8 +51,6 @@ internal constructor(internal val _arCoreAugmentedImage: ARCoreAugmentedImage) :
      *
      * This property gets the tracking state from the underlying [ARCoreAugmentedImage] instance,
      * and converts it to a [TrackingState].
-     *
-     * @return The tracking state of the augmented image.
      */
     override val trackingState: TrackingState
         get() = TrackingState.fromArCoreTrackingState(_arCoreAugmentedImage.trackingState)
@@ -66,8 +60,6 @@ internal constructor(internal val _arCoreAugmentedImage: ARCoreAugmentedImage) :
      *
      * This property gets the zero-based position index of the image from its originating image
      * database. This index serves as the unique identifier for the image in the database.
-     *
-     * @return The index of the augmented image in the originating image database.
      */
     override val index: Int
         get() = _arCoreAugmentedImage.index

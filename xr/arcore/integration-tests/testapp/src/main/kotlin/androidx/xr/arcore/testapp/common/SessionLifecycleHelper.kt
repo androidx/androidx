@@ -54,10 +54,7 @@ import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE
 import kotlinx.coroutines.launch
 
-/**
- * Observer class to manage the lifecycle of the JXR Runtime Session based on the lifecycle owner
- * (activity).
- */
+/** Manages JXR Runtime Session lifecycle based on an Activity. */
 class SessionLifecycleHelper(
     val activity: ComponentActivity,
     val config: Config = Config.Builder().build(),

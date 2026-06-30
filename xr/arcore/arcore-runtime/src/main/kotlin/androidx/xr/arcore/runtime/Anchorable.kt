@@ -22,9 +22,6 @@ import androidx.xr.runtime.math.Pose
 /** An anchorable is a [Trackable] that an [Anchor] can be attached to. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Anchorable : Trackable {
-    /**
-     * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
-     * world coordinate space.
-     */
+    /** Creates an [Anchor] attached to this trackable. */
     public fun createAnchor(pose: Pose): Anchor
 }

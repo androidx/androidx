@@ -34,11 +34,11 @@ import java.util.regex.Matcher
 import kotlin.collections.Map
 
 /**
- * Represents a GPU shader, the state of its associated uniforms, and some additional draw state.
+ * GPU shader, its uniforms, and additional draw state.
  *
- * @param vertexShaderCode The vertex shader code
- * @param fragmentShaderCode The fragment shader code
- * @param defines A map of shader precompiler symbols to be defined with the given names and values
+ * @param vertexShaderCode the vertex shader code
+ * @param fragmentShaderCode the fragment shader code
+ * @param defines a map of shader precompiler symbols to be defined with the given names and values
  */
 public class Shader(
     vertexShaderCode: String,
@@ -469,10 +469,10 @@ public class Shader(
          *
          * The file contents are interpreted as UTF-8 text.
          *
-         * @param render The [SampleRender] context
-         * @param vertexShaderFileName The name of the vertex shader file
-         * @param fragmentShaderFileName The name of the fragment shader file
-         * @param defines A map of shader precompiler symbols to be defined with the given names and
+         * @param render the [SampleRender] context
+         * @param vertexShaderFileName the name of the vertex shader file
+         * @param fragmentShaderFileName the name of the fragment shader file
+         * @param defines a map of shader precompiler symbols to be defined with the given names and
          *   values
          */
         fun createFromAssets(

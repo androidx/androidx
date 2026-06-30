@@ -20,7 +20,7 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of an [OpenXrAnchor] instance's mutable fields.
+ * State of an [OpenXrAnchor] instance's mutable fields.
  *
  * @property trackingState the [TrackingState] value describing if the anchor is being updated
  * @property pose the [Pose] of the center of the detected anchor

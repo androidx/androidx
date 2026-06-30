@@ -20,7 +20,7 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of an [OpenXrDevice] instance's mutable fields.
+ * State of an [OpenXrDevice] instance's mutable fields.
  *
  * @property trackingState the [TrackingState] value describing if the device is being updated
  * @property pose the [Pose] of the center of the device

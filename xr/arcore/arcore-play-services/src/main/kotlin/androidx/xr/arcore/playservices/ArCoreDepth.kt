@@ -30,7 +30,7 @@ import java.util.LinkedList
 import java.util.Queue
 
 /**
- * Provides depth data from ARCore through the [Depth] interface.
+ * Depth data from ARCore through the [Depth] interface.
  *
  * @property width the width of the depth maps
  * @property height the height of the depth maps
@@ -230,10 +230,10 @@ public class ArCoreDepth internal constructor() : Depth {
     }
 
     private companion object {
-        /** Represents the value needed to convert millimeters to meters. */
+        /** Value needed to convert millimeters to meters. */
         private const val MILLIMETERS_PER_METER: Float = 1000.0F
         /**
-         * Represents the maximum number of images to keep in the depth map image queue.
+         * Maximum size of the depth map image queue.
          *
          * @see depthConfidenceImageBuffer
          */

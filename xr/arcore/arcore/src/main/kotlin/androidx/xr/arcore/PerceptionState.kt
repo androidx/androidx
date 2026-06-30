@@ -20,7 +20,7 @@ import androidx.xr.runtime.CoreState
 import kotlin.time.ComparableTimeMark
 
 /**
- * Represents the state of ARCore for Jetpack XR at an specific point in time.
+ * State of ARCore for Jetpack XR at a specific point in time.
  *
  * Can be obtained from [CoreState.perceptionState].
  *

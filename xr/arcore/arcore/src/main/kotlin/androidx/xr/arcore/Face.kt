@@ -47,7 +47,7 @@ internal constructor(
          * Returns the Face object that corresponds to the user.
          *
          * @param session the currently active [Session]
-         * @throws IllegalStateException if [androidx.xr.runtime.Config.faceTracking] is set to
+         * @throws [IllegalStateException] if [androidx.xr.runtime.Config.faceTracking] is set to
          *   [FaceTrackingMode.DISABLED]
          */
         @JvmStatic
@@ -183,7 +183,7 @@ internal constructor(
      * The representation of the current state of [Face].
      *
      * @property trackingState the current [androidx.xr.arcore.TrackingState] of the face
-     * @property owner self-reference to the object that owns this state.
+     * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(
@@ -202,7 +202,7 @@ internal constructor(
             blendShapeMapKeys.zip(blendShapeValues?.toList() ?: emptyList()).toMap()
 
         /**
-         * Retrieves the main [Pose] of a Face [Mesh], defined to have the origin located behind the
+         * Pose of a Face [Mesh] in perception space, defined to have the origin located behind the
          * nose and between the two cheek bones.
          *
          * Z+ is forward out of the nose, Y+ is upwards, and X+ is towards the left. The units are
@@ -228,8 +228,8 @@ internal constructor(
          * @param region the [FaceConfidenceRegion] to get the confidence value for
          * @return the confidence value in the range `[0.0, 1.0]` of the face tracker for the given
          *   region
-         * @throws IllegalArgumentException if the region does not exist
-         * @throws IllegalStateException if the Face does not provide confidence values
+         * @throws [IllegalArgumentException] if the region does not exist
+         * @throws [IllegalStateException] if the Face does not provide confidence values
          */
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
         public fun getConfidence(region: FaceConfidenceRegion): Float {

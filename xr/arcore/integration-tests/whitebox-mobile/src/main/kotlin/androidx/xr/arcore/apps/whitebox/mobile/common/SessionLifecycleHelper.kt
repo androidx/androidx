@@ -40,10 +40,7 @@ import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
 import kotlinx.coroutines.launch
 
-/**
- * Observer class to manage the lifecycle of the JXR Runtime Session based on the lifecycle owner
- * (activity).
- */
+/** Manages JXR Runtime Session lifecycle based on an Activity. */
 class SessionLifecycleHelper(
     val activity: ComponentActivity,
     val config: Config = Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build(),

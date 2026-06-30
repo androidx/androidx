@@ -28,7 +28,7 @@ import java.nio.FloatBuffer
 import kotlin.time.ComparableTimeMark
 
 /**
- * Represents the state of the device camera at a specific point in time.
+ * State of the device camera at a specific point in time.
  *
  * Can be obtained from [CoreState.cameraState] provided by the [androidx.xr.runtime.Session].
  *
