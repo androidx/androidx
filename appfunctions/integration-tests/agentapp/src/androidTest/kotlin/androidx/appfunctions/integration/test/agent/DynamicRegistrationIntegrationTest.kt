@@ -163,6 +163,36 @@ class DynamicRegistrationIntegrationTest {
     }
 
     @Test
+    fun executeAppFunction_dynamicSuspendRegistration_success() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE,
+            targetFunctionId = GLOBAL_SIGNATURE_FORMAT_MESSAGE,
+        ) {
+            val metadata = findAppFunctionMetadata(GLOBAL_SIGNATURE_FORMAT_MESSAGE)
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            GLOBAL_SIGNATURE_FORMAT_MESSAGE,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setInt("a", 42)
+                                .setString("b", "hello")
+                                .build(),
+                        )
+                )
+
+            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(
+                    successResponse.returnValue.getString(
+                        ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                    )
+                )
+                .isEqualTo("suspend_result_42_hello")
+        }
+    }
+
+    @Test
     fun executeAppFunction_dynamicCallbackRegistration_unregisterDuringExecution() = doBlocking {
         // 1. Start service to trigger dynamic registration inside testapp
         uiAutomation.startService(
@@ -293,5 +323,7 @@ class DynamicRegistrationIntegrationTest {
 
         const val ACTION_REGISTER_LONG_RUNNING =
             "androidx.appfunctions.integration.action.REGISTER_LONG_RUNNING"
+        const val ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE =
+            "androidx.appfunctions.integration.action.REGISTER_SUSPEND"
     }
 }

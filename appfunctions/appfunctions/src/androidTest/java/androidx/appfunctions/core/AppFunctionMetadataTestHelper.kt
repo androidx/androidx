@@ -19,6 +19,7 @@ package androidx.appfunctions.core
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.internal.consumeAll
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionAppMetadata
@@ -45,6 +46,21 @@ import kotlinx.coroutines.delay
 internal class AppFunctionMetadataTestHelper(private val context: Context) {
     suspend fun awaitAppFunctionIndexed(functionIds: Set<String>) {
         awaitRuntimeMetadataAvailable(functionIds)
+    }
+
+    suspend fun awaitAppFunctionEnabled(
+        appFunctionManager: AppFunctionManager,
+        functionId: String,
+    ) {
+        var retry = 0
+        while (retry < RETRY_LIMIT) {
+            if (appFunctionManager.isAppFunctionEnabled(functionId)) {
+                return
+            }
+            delay(RETRY_DELAY_MS)
+            retry += 1
+        }
+        throw IllegalStateException("Timed out waiting for AppFunction $functionId to be enabled")
     }
 
     private suspend fun awaitRuntimeMetadataAvailable(functionIds: Set<String>) {
