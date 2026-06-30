@@ -19,6 +19,8 @@ BecameUnchecked: androidx.compose.material3.LabelKt:
     Removed class androidx.compose.material3.LabelKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.ModalBottomSheetKt:
     Removed class androidx.compose.material3.ModalBottomSheetKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TooltipKt:
+    Removed class androidx.compose.material3.TooltipKt from compatibility checked API surface
 
 
 ChangedType: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
