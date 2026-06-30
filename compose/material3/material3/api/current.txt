@@ -1095,6 +1095,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class DefaultTooltipCaretShape implements androidx.compose.ui.graphics.Shape {
+    ctor @BytecodeOnly public DefaultTooltipCaretShape();
     ctor @KotlinOnly public DefaultTooltipCaretShape(optional androidx.compose.ui.unit.DpSize caretSize);
     ctor @BytecodeOnly public DefaultTooltipCaretShape(long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public DefaultTooltipCaretShape(long, kotlin.jvm.internal.DefaultConstructorMarker!);

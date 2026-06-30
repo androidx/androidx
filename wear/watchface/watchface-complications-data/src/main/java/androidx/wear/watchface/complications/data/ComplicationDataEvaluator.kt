@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
+@file:Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE", "MISSING_DEPENDENCY_CLASS")
 
 package androidx.wear.watchface.complications.data
 

@@ -170,6 +170,7 @@ package androidx.compose.ui.test {
   }
 
   @androidx.compose.runtime.Immutable public final class ComposeUiTestConfig {
+    ctor @BytecodeOnly public ComposeUiTestConfig();
     ctor @KotlinOnly public ComposeUiTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode, optional androidx.compose.ui.test.TestFailurePolicy failurePolicy, optional androidx.compose.ui.unit.Dp boundsAssertionTolerance);
     ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, float, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -935,6 +936,7 @@ package androidx.compose.ui.test {
   }
 
   @androidx.compose.runtime.Immutable public final class TestFailurePolicy {
+    ctor @BytecodeOnly public TestFailurePolicy();
     ctor @KotlinOnly public TestFailurePolicy(optional androidx.compose.ui.test.TestFailurePolicy.CaptureMode screenshotCaptureMode, optional androidx.compose.ui.test.TestFailurePolicy.CaptureMode uiHierarchyCaptureMode, optional java.util.List<androidx.compose.ui.test.TestFailureHandler> failureHandlers);
     ctor @BytecodeOnly public TestFailurePolicy(int, int, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public TestFailurePolicy(int, int, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);

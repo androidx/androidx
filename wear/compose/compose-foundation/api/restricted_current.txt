@@ -264,6 +264,7 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedTextStyle {
+    ctor @BytecodeOnly public CurvedTextStyle();
     ctor @KotlinOnly public CurvedTextStyle(optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.unit.TextUnit letterSpacing, optional androidx.compose.ui.unit.TextUnit letterSpacingCounterClockwise, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.wear.compose.foundation.CurvedTextStyle.WarpOffset warpOffset);
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
     ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

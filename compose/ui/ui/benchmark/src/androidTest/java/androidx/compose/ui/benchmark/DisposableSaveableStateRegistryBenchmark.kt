@@ -97,7 +97,7 @@ class DisposableSaveableStateRegistryBenchmark {
                 measureRepeated {
                     val serializedState =
                         bundle.getParcelable<Parcelable>("values") as? ParcelableMapHolder
-                    serializedState
+                    @Suppress("UNUSED_EXPRESSION") serializedState
                 }
             }
         }

@@ -223,6 +223,7 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
 
     // Don't check KGP internal configuration used for tooling
     if (name == "kotlinInternalAbiValidation") return false
+    if (name == "kotlinAbiValidationCompatClasspath") return false
 
     // don't verify these configurations of KMP projects since we don't publish them anyway
     if (name.endsWith("CompileKlibraries")) return false

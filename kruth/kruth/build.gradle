@@ -64,6 +64,13 @@ androidXMultiplatform {
             api(libs.kotlinCoroutinesTest)
         }
 
+        jsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-js:${libs.versions.kotlin.get()}")
+        }
+        wasmJsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-wasm-js:${libs.versions.kotlin.get()}")
+        }
+
         webTest.dependencies {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")

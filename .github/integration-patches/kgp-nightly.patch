@@ -106,25 +106,6 @@ index 317d1bf1d18..ca0abff38ac 100644
          multiplatformExtension.watchosArm64()
          multiplatformExtension.watchosDeviceArm64()
          multiplatformExtension.watchosSimulatorArm64()
-diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
-index 6fece502bef..78d3e498cbc 100644
---- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
-+++ b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
-@@ -38,11 +38,10 @@ interface AndroidXConfiguration {
- }
- 
- enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
--    KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
--    KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
-     KOTLIN_2_3(KotlinVersion.KOTLIN_2_3, "kotlin23"),
--    DEFAULT(KOTLIN_2_1),
--    LATEST(KOTLIN_2_3);
-+    KOTLIN_2_4(KotlinVersion.KOTLIN_2_3, "kotlin24"),
-+    DEFAULT(KOTLIN_2_3),
-+    LATEST(KOTLIN_2_4);
- 
-     constructor(
-         kotlinTarget: KotlinTarget
 diff --git a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt b/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
 index e11c8cc95af..998cea54c06 100644
 --- a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
@@ -148,20 +129,6 @@ index e11c8cc95af..998cea54c06 100644
      WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
      WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
      TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
-diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
-index e516bf8575b..4c7d3d0b84d 100644
---- a/buildSrc/shared.gradle
-+++ b/buildSrc/shared.gradle
-@@ -44,7 +44,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
-                 "-Xskip-metadata-version-check",
-                 "-Xjdk-release=17",
-         )
--        languageVersion.set(KotlinVersion.KOTLIN_2_1)
--        apiVersion.set(KotlinVersion.KOTLIN_2_1)
-+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
-+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
-     }
- }
 diff --git a/collection/collection/bcv/native/current.ignore b/collection/collection/bcv/native/current.ignore
 new file mode 100644
 index 00000000000..3244f11b584

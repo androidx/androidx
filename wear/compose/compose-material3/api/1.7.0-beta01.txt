@@ -463,6 +463,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
+    ctor @BytecodeOnly public ColorScheme();
     ctor @KotlinOnly public ColorScheme(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color primaryDim, optional androidx.compose.ui.graphics.Color primaryContainer, optional androidx.compose.ui.graphics.Color onPrimary, optional androidx.compose.ui.graphics.Color onPrimaryContainer, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color secondaryDim, optional androidx.compose.ui.graphics.Color secondaryContainer, optional androidx.compose.ui.graphics.Color onSecondary, optional androidx.compose.ui.graphics.Color onSecondaryContainer, optional androidx.compose.ui.graphics.Color tertiary, optional androidx.compose.ui.graphics.Color tertiaryDim, optional androidx.compose.ui.graphics.Color tertiaryContainer, optional androidx.compose.ui.graphics.Color onTertiary, optional androidx.compose.ui.graphics.Color onTertiaryContainer, optional androidx.compose.ui.graphics.Color surfaceContainerLow, optional androidx.compose.ui.graphics.Color surfaceContainer, optional androidx.compose.ui.graphics.Color surfaceContainerHigh, optional androidx.compose.ui.graphics.Color onSurface, optional androidx.compose.ui.graphics.Color onSurfaceVariant, optional androidx.compose.ui.graphics.Color outline, optional androidx.compose.ui.graphics.Color outlineVariant, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color onBackground, optional androidx.compose.ui.graphics.Color error, optional androidx.compose.ui.graphics.Color errorDim, optional androidx.compose.ui.graphics.Color errorContainer, optional androidx.compose.ui.graphics.Color onError, optional androidx.compose.ui.graphics.Color onErrorContainer);
     ctor @BytecodeOnly public ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1401,6 +1402,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
+    ctor @BytecodeOnly public RippleConfiguration();
     ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
