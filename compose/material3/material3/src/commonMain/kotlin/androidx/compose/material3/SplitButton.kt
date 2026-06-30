@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -36,6 +37,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.rememberAnimatedShape
+import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.material3.tokens.ButtonSmallTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.SplitButtonLargeTokens
@@ -66,8 +68,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
-import androidx.compose.ui.util.fastMaxOfOrNull
-import androidx.compose.ui.util.fastSumBy
 
 /**
  * A [SplitButtonLayout] lets users define a button group consisting of 2 buttons. The leading
@@ -141,40 +141,56 @@ fun SplitButtonLayout(
         },
         modifier.minimumInteractiveComponentSize(),
         measurePolicy = { measurables, constraints ->
-            val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+            val leadingMeasurable = measurables.fastFirst { it.layoutId == LeadingButtonLayoutId }
+            val trailingMeasurable = measurables.fastFirst { it.layoutId == TrailingButtonLayoutId }
+            val spacingPx = spacing.roundToPx()
 
-            val leadingButtonPlaceable =
-                measurables
-                    .fastFirst { it.layoutId == LeadingButtonLayoutId }
-                    .measure(looseConstraints)
+            // 1. Find out how wide the trailing button wants to be to estimate available space.
+            val trailingIntrinsicWidth = trailingMeasurable.maxIntrinsicWidth(constraints.maxHeight)
+            val availableLeadingWidth =
+                constraints.maxWidth.subtractConstraintSafely(trailingIntrinsicWidth + spacingPx)
 
+            // 2. Determine the height both buttons want at their expected widths.
+            val leadingHeight = leadingMeasurable.maxIntrinsicHeight(availableLeadingWidth)
+            val trailingHeight = trailingMeasurable.maxIntrinsicHeight(trailingIntrinsicWidth)
+            val maxHeight = constraints.constrainHeight(maxOf(leadingHeight, trailingHeight))
+
+            // 3. Measure the trailing button first to give it priority for width.
             val trailingButtonPlaceable =
-                measurables
-                    .fastFirst { it.layoutId == TrailingButtonLayoutId }
-                    .measure(
-                        looseConstraints
-                            .offset(
-                                horizontal = -(leadingButtonPlaceable.width + spacing.roundToPx())
-                            )
-                            .copy(
-                                minHeight = leadingButtonPlaceable.height,
-                                maxHeight = leadingButtonPlaceable.height,
-                            )
+                trailingMeasurable.measure(
+                    constraints.copy(
+                        minWidth = 0,
+                        // Force minHeight = maxHeight to ensure both buttons have the same visual
+                        // height.
+                        minHeight = maxHeight,
+                        maxHeight = maxHeight,
                     )
+                )
 
-            val placeables = listOf(leadingButtonPlaceable, trailingButtonPlaceable)
+            // 4. Measure the leading button with the remaining width.
+            val leadingButtonPlaceable =
+                leadingMeasurable.measure(
+                    constraints
+                        .offset(horizontal = -(trailingButtonPlaceable.width + spacingPx))
+                        .copy(minWidth = 0, minHeight = maxHeight, maxHeight = maxHeight)
+                )
 
-            val contentWidth = placeables.fastSumBy { it.width } + spacing.roundToPx()
-            val contentHeight = placeables.fastMaxOfOrNull { it.height } ?: 0
+            val contentWidth =
+                leadingButtonPlaceable.width + trailingButtonPlaceable.width + spacingPx
+            val contentHeight = maxOf(leadingButtonPlaceable.height, trailingButtonPlaceable.height)
 
             val width = constraints.constrainWidth(contentWidth)
             val height = constraints.constrainHeight(contentHeight)
 
             layout(width, height) {
-                leadingButtonPlaceable.placeRelative(0, 0)
+                // Center both buttons vertically within the layout height.
+                leadingButtonPlaceable.placeRelative(
+                    x = 0,
+                    y = (height - leadingButtonPlaceable.height) / 2,
+                )
                 trailingButtonPlaceable.placeRelative(
-                    x = leadingButtonPlaceable.width + spacing.roundToPx(),
-                    y = 0,
+                    x = leadingButtonPlaceable.width + spacingPx,
+                    y = (height - trailingButtonPlaceable.height) / 2,
                 )
             }
         },
@@ -691,6 +707,7 @@ object SplitButtonDefaults {
                             minWidth = LeadingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
+                        .fillMaxHeight()
                         .padding(contentPadding),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -773,6 +790,7 @@ object SplitButtonDefaults {
                             minWidth = TrailingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
+                        .fillMaxHeight()
                         .then(
                             when (shape) {
                                 is ShapeWithHorizontalCenterOptically -> {
@@ -899,6 +917,7 @@ object SplitButtonDefaults {
                             minWidth = TrailingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
+                        .fillMaxHeight()
                         .then(
                             when (shape) {
                                 is ShapeWithHorizontalCenterOptically -> {

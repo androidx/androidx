@@ -15,9 +15,13 @@
  */
 package androidx.compose.material3
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -691,6 +695,36 @@ class SplitButtonTest {
             64.dp,
             "end padding for leading button",
         )
+    }
+
+    @Test
+    fun splitButton_leadingFillMaxWidth_horizontalScroll_noCrash() {
+        // Make sure that when weight or fillMaxWidth is applied in an infinity width container,
+        // it handles the width correctly
+        rule.setMaterialContent(lightColorScheme()) {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                SplitButtonLayout(
+                    leadingButton = {
+                        SplitButtonDefaults.LeadingButton(
+                            onClick = { /* Do Nothing */ },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Label")
+                        }
+                    },
+                    trailingButton = {
+                        SplitButtonDefaults.TrailingButton(onClick = { /* Do Nothing */ }) {
+                            Icon(
+                                Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Trailing Icon",
+                            )
+                        }
+                    },
+                )
+            }
+        }
+
+        rule.onNodeWithText("Label").assertIsDisplayed()
     }
 }
 
