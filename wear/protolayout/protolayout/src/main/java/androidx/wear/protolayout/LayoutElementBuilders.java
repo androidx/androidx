@@ -1057,7 +1057,7 @@ public final class LayoutElementBuilders {
              * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} and
              * {@link FontSetting#width} setting will always be available.
              *
-             * <p>Consider providing a fallback values with {@link #setWeight} for devices that
+             * <p>Consider providing a fallback values with {@link #setWeight(int)} for devices that
              * don't support variable fonts. For example, using {@link #FONT_WEIGHT_MEDIUM} for
              * weight axis with value greater or equal to {@code 500}.
              *
@@ -1126,7 +1126,7 @@ public final class LayoutElementBuilders {
          * href="https://fonts.google.com/knowledge/glossary/weight_axis">here</a>.
          *
          * <p>Note that using this {@link FontSetting} will override {@link
-         * FontStyle.Builder#setWeight}.
+         * FontStyle.Builder#setWeight(int)}.
          *
          * @param value weight, usually in 1..1000, but actual range can be smaller, depending on
          *     the font used
@@ -2315,12 +2315,13 @@ public final class LayoutElementBuilders {
              * Creates an instance of {@link Builder}.
              *
              * <p>Note that, when using this constructor, it should be paired with {@link
-             * #setResourceId}, and resource used for it needs to be manually registered in {@code
-             * TileService#onTileResourcesRequest} for Tiles. This constructor can't be mixed with
-             * {@link #setImageResource}, otherwise an exception will be thrown.
+             * #setResourceId(String)}, and resource used for it needs to be manually registered in
+             * {@code TileService#onTileResourcesRequest} for Tiles. This constructor can't be mixed
+             * with {@link #setImageResource(ImageResource)}, otherwise an exception will be thrown.
              *
              * @deprecated Use {@link #Builder(ProtoLayoutScope)} constructor which supports
-             *     automatic resource registration, paired with {@link #setImageResource}.
+             *     automatic resource registration, paired with {@link
+             *     #setImageResource(ImageResource)}.
              */
             @Deprecated
             public Builder() {}
@@ -2329,10 +2330,10 @@ public final class LayoutElementBuilders {
              * Creates an instance of {@link Builder} with automatic resource registration used.
              *
              * <p>Note that, when using this constructor, it should be paired with {@link
-             * #setImageResource}. Additionally, {@code Resources} object shouldn't be provided in
-             * {@code TileService#onTileResourcesRequest} method for your Tile as resources would be
-             * automatically registered. This constructor can't be mixed with {@link
-             * #setResourceId}, otherwise an exception will be thrown.
+             * #setImageResource(ImageResource)}. Additionally, {@code Resources} object shouldn't
+             * be provided in {@code TileService#onTileResourcesRequest} method for your Tile as
+             * resources would be automatically registered. This constructor can't be mixed with
+             * {@link #setResourceId(String)}, otherwise an exception will be thrown.
              *
              * <p>When using this constructor and automatic resource registration, there's no need
              * to provide resources version in {@code Tile.Builder.setResourcesVersion}, as {@link
@@ -2351,7 +2352,8 @@ public final class LayoutElementBuilders {
              * @param resource An Image resource, used in the layout in the place of this {@link
              *     Image} element.
              * @throws IllegalStateException if this method is called without {@link
-             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId} was already called.
+             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId(String)} was already
+             *     called.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -2367,7 +2369,8 @@ public final class LayoutElementBuilders {
              *     Image} element.
              * @param resourceId The ID of the resource
              * @throws IllegalStateException if this method is called without {@link
-             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId} was already called.
+             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId(String)} was already
+             *     called.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -2396,7 +2399,7 @@ public final class LayoutElementBuilders {
              * @throws IllegalStateException if this method is called with {@link
              *     #Builder(ProtoLayoutScope)} or after {@link #setImageResource(ImageResource)} was
              *     already called.
-             * @deprecated Use {@link #setImageResource} paired with {@link
+             * @deprecated Use {@link #setImageResource(ImageResource)} paired with {@link
              *     #Builder(ProtoLayoutScope)} for automatic resource registration.
              */
             @Deprecated
@@ -2414,7 +2417,7 @@ public final class LayoutElementBuilders {
              * @throws IllegalStateException if this method is called with {@link
              *     #Builder(ProtoLayoutScope)} or after {@link #setImageResource(ImageResource)} was
              *     already called.
-             * @deprecated Use {@link #setImageResource} paired with {@link
+             * @deprecated Use {@link #setImageResource(ImageResource)} paired with {@link
              *     #Builder(ProtoLayoutScope)} for automatic resource registration.
              */
             @Deprecated

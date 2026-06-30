@@ -153,9 +153,9 @@ public final class StateBuilders {
 
             /**
              * Sets the mapping for any shared state between the provider and renderer. This method
-             * replaces the current state map with the entries from {@code map}.Any previous entries
-             * added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will be
-             * overwritten.
+             * replaces the current state map with the entries from {@code map}. Any previous
+             * entries added using this {@link #setStateMap(DynamicDataMap)} or {@link
+             * #addKeyToValueMapping} will be overwritten.
              *
              * @throws IllegalArgumentException if the size of {@code map} is larger than the
              *     allowed limit ({@link #getMaxStateEntryCount()}).
@@ -186,8 +186,8 @@ public final class StateBuilders {
             /**
              * Sets the mapping for any shared state between the provider and renderer. This method
              * replaces the current state map with the entries from {@code map}. Any previous
-             * entries added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will
-             * be overwritten.
+             * entries added using this {@link #setStateMap(DynamicDataPair[])} or {@link
+             * #addKeyToValueMapping} will be overwritten.
              *
              * @throws IllegalArgumentException if the size of {@code map} is larger than the
              *     allowed limit ({@link #getMaxStateEntryCount()}).
