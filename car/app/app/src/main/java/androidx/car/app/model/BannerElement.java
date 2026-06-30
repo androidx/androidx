@@ -48,35 +48,64 @@ public final class BannerElement {
     /**
      * Type indicating the element is a {@link CarIcon} meant to be displayed as an icon (a
      * tintable, padded image).
+     * @deprecated Use TYPE_IMAGE instead.
      */
+    @Deprecated
     public static final int TYPE_ICON = 2;
 
-    /**
-     * Type indicating the element is a {@link CarIcon} meant to be displayed as an image (a
-     * full-sized image).
-     */
+    /** Type indicating the element is an image/icon. */
     public static final int TYPE_IMAGE = 3;
 
     private final @ElementType int mType;
+    private final @Banner.BannerImageType int mImageType;
     private final @Nullable Action mAction;
-    private final @Nullable CarIcon mIcon;
+    private final @Nullable CarIcon mImage;
 
-    BannerElement(@ElementType int type, @Nullable Action action, @Nullable CarIcon icon) {
+    /** Creates a {@link BannerElement} for an {@link Action}. */
+    @RestrictTo(LIBRARY)
+    public static @NonNull BannerElement createForAction(@NonNull Action action) {
+        return new BannerElement(TYPE_ACTION, Objects.requireNonNull(action), null);
+    }
+
+    /** Creates a {@link BannerElement} for a {@link CarIcon} with a specific image type. */
+    @RestrictTo(LIBRARY)
+    public static @NonNull BannerElement createForImageType(@NonNull CarIcon image,
+            @Banner.BannerImageType int imageType) {
+        return new BannerElement(TYPE_IMAGE, imageType, null, Objects.requireNonNull(image));
+    }
+
+    private BannerElement(@ElementType int type, @Banner.BannerImageType int imageType,
+            @Nullable Action action, @Nullable CarIcon image) {
         mType = type;
+        mImageType = imageType;
         mAction = action;
-        mIcon = icon;
+        mImage = image;
+    }
+
+    BannerElement(@ElementType int type, @Nullable Action action, @Nullable CarIcon image) {
+        mType = type;
+        mImageType = Banner.IMAGE_TYPE_SMALL;
+        mAction = action;
+        mImage = image;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private BannerElement() {
         mType = TYPE_ACTION;
+        mImageType = Banner.IMAGE_TYPE_SMALL;
         mAction = null;
-        mIcon = null;
+        mImage = null;
     }
 
     /** Returns the type of the element. */
     public @ElementType int getType() {
         return mType;
+    }
+
+    /** Returns the image type of the element. */
+    @Banner.BannerImageType
+    public int getImageType() {
+        return mImageType;
     }
 
     /**
@@ -91,16 +120,29 @@ public final class BannerElement {
     /**
      * Returns the {@link CarIcon} in this element, or {@code null} if not set.
      *
-     * <p>The host should check {@link #getType()} to determine whether this should be rendered as
-     * an icon or an image.
+     * <p>The host should check {@link #getType()} and {@link #getImageType()} to determine
+     * whether this should be rendered as an icon or an image.
      */
+    public @Nullable CarIcon getImage() {
+        return mImage;
+    }
+
+    /**
+     * Returns the {@link CarIcon} in this element, or {@code null} if not set.
+     *
+     * <p>The host should check {@link #getType()} and {@link #getImageType()} to determine
+     * whether this should be rendered as an icon or an image.
+     *
+     * @deprecated Use {@link #getImage()} instead.
+     */
+    @Deprecated
     public @Nullable CarIcon getIcon() {
-        return mIcon;
+        return getImage();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mType, mAction, mIcon);
+        return Objects.hash(mType, mImageType, mAction, mImage);
     }
 
     @Override
@@ -113,13 +155,17 @@ public final class BannerElement {
         }
         BannerElement otherElement = (BannerElement) other;
         return mType == otherElement.mType
+                && mImageType == otherElement.mImageType
                 && Objects.equals(mAction, otherElement.mAction)
-                && Objects.equals(mIcon, otherElement.mIcon);
+                && Objects.equals(mImage, otherElement.mImage);
     }
 
     @Override
     public @NonNull String toString() {
-        return "[type: " + mType + ", action: " + mAction + ", icon: " + mIcon + "]";
+        return "BannerElement { type: " + mType
+                + ", imageType: " + mImageType
+                + ", action: " + mAction
+                + ", image: " + mImage + " }";
     }
 
     @RestrictTo(LIBRARY)
