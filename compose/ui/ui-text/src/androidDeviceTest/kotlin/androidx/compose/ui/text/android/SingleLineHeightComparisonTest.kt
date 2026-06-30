@@ -19,10 +19,14 @@ package androidx.compose.ui.text.android
 import android.util.Log
 import androidx.compose.ui.text.AndroidComposeUiTextFlags
 import androidx.compose.ui.text.AndroidParagraph
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.FontTestData
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
@@ -216,6 +220,19 @@ class SingleLineHeightComparisonTest(
                 letterSpacing = letterSpacing,
             )
 
+        val placeholders =
+            listOf(
+                AnnotatedString.Range(
+                    Placeholder(
+                        width = fontSize * 2,
+                        height = fontSize * 2,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
+                    ),
+                    start = 0,
+                    end = 1,
+                )
+            )
+
         // Test with the new behavior (spans removed, layout heights adjusted when softWrap is
         // false)
         AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled = true
@@ -227,7 +244,7 @@ class SingleLineHeightComparisonTest(
                 density = defaultDensity,
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = false,
-                placeholders = emptyList(),
+                placeholders = placeholders,
             )
         val newParagraph =
             Paragraph(
@@ -242,6 +259,13 @@ class SingleLineHeightComparisonTest(
         val newFirstBaseline = newParagraph.firstBaseline
         val newLineTop = newParagraph.getLineTop(0)
         val newLineBottom = newParagraph.getLineBottom(0)
+        val newCursorRect = newParagraph.getCursorRect(0)
+        val newCursorRectAtEnd = newParagraph.getCursorRect(text.length)
+        val newSelectionPathBounds = newParagraph.getPathForRange(0, text.length).getBounds()
+        val newBoundingBoxes = FloatArray(text.length * 4)
+        newParagraph.fillBoundingBoxes(TextRange(0, text.length), newBoundingBoxes, 0)
+        val newPlaceholderRects = newParagraph.placeholderRects
+        val newBoundingBoxesList = List(text.length) { i -> newParagraph.getBoundingBox(i) }
 
         // Test with the old behavior (spans kept, internal font metrics mutated when softWrap is
         // true)
@@ -254,7 +278,7 @@ class SingleLineHeightComparisonTest(
                 density = defaultDensity,
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = false,
-                placeholders = emptyList(),
+                placeholders = placeholders,
             )
         val oldParagraph =
             Paragraph(
@@ -269,6 +293,13 @@ class SingleLineHeightComparisonTest(
         val oldFirstBaseline = oldParagraph.firstBaseline
         val oldLineTop = oldParagraph.getLineTop(0)
         val oldLineBottom = oldParagraph.getLineBottom(0)
+        val oldCursorRect = oldParagraph.getCursorRect(0)
+        val oldCursorRectAtEnd = oldParagraph.getCursorRect(text.length)
+        val oldSelectionPathBounds = oldParagraph.getPathForRange(0, text.length).getBounds()
+        val oldBoundingBoxes = FloatArray(text.length * 4)
+        oldParagraph.fillBoundingBoxes(TextRange(0, text.length), oldBoundingBoxes, 0)
+        val oldPlaceholderRects = oldParagraph.placeholderRects
+        val oldBoundingBoxesList = List(text.length) { i -> oldParagraph.getBoundingBox(i) }
 
         val heightMatches = abs(newHeight - oldHeight) <= 1f
         val baselineMatches = abs(newFirstBaseline - oldFirstBaseline) <= 1f
@@ -307,5 +338,112 @@ class SingleLineHeightComparisonTest(
             .that(newFirstBaseline)
             .isWithin(1f)
             .of(oldFirstBaseline)
+
+        assertWithMessage(
+                "CursorRect(0) top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newCursorRect.top)
+            .isWithin(1f)
+            .of(oldCursorRect.top)
+
+        assertWithMessage(
+                "CursorRect(0) bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newCursorRect.bottom)
+            .isWithin(1f)
+            .of(oldCursorRect.bottom)
+
+        assertWithMessage(
+                "CursorRect(end) top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newCursorRectAtEnd.top)
+            .isWithin(1f)
+            .of(oldCursorRectAtEnd.top)
+
+        assertWithMessage(
+                "CursorRect(end) bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newCursorRectAtEnd.bottom)
+            .isWithin(1f)
+            .of(oldCursorRectAtEnd.bottom)
+
+        assertWithMessage(
+                "SelectionPath top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newSelectionPathBounds.top)
+            .isWithin(1f)
+            .of(oldSelectionPathBounds.top)
+
+        assertWithMessage(
+                "SelectionPath bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newSelectionPathBounds.bottom)
+            .isWithin(1f)
+            .of(oldSelectionPathBounds.bottom)
+
+        assertWithMessage(
+                "placeholderRects size mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+            )
+            .that(newPlaceholderRects.size)
+            .isEqualTo(oldPlaceholderRects.size)
+
+        for (i in newPlaceholderRects.indices) {
+            val newRect = newPlaceholderRects[i]
+            val oldRect = oldPlaceholderRects[i]
+            if (newRect != null && oldRect != null) {
+                assertWithMessage(
+                        "placeholderRects[$i] top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                    )
+                    .that(newRect.top)
+                    .isWithin(1f)
+                    .of(oldRect.top)
+
+                assertWithMessage(
+                        "placeholderRects[$i] bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                    )
+                    .that(newRect.bottom)
+                    .isWithin(1f)
+                    .of(oldRect.bottom)
+            } else {
+                assertWithMessage(
+                        "placeholderRects[$i] null mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                    )
+                    .that(newRect)
+                    .isEqualTo(oldRect)
+            }
+        }
+
+        for (i in text.indices) {
+            val newBox = newBoundingBoxesList[i]
+            val oldBox = oldBoundingBoxesList[i]
+            assertWithMessage(
+                    "getBoundingBox($i) top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                )
+                .that(newBox.top)
+                .isWithin(1f)
+                .of(oldBox.top)
+
+            assertWithMessage(
+                    "getBoundingBox($i) bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                )
+                .that(newBox.bottom)
+                .isWithin(1f)
+                .of(oldBox.bottom)
+
+            val arrayIndex = i * 4
+            assertWithMessage(
+                    "fillBoundingBoxes($i) top mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                )
+                .that(newBoundingBoxes[arrayIndex + 1])
+                .isWithin(1f)
+                .of(oldBoundingBoxes[arrayIndex + 1])
+
+            assertWithMessage(
+                    "fillBoundingBoxes($i) bottom mismatch for $scriptName style=$styleName trim=$trim align=$alignment mode=$mode"
+                )
+                .that(newBoundingBoxes[arrayIndex + 3])
+                .isWithin(1f)
+                .of(oldBoundingBoxes[arrayIndex + 3])
+        }
     }
 }
