@@ -178,6 +178,7 @@ internal fun EditorInfo.update(
         EditorInfoCompat.setContentMimeTypes(this, contentMimeTypes)
     }
 
+    // TODO(b/521833073): Remove this after Extracted Mode support.
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 
     if (shouldEnableStylusHandwriting(imeOptions)) {

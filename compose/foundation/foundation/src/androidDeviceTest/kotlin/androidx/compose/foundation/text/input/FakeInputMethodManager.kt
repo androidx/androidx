@@ -30,6 +30,10 @@ internal open class FakeInputMethodManager : ComposeInputMethodManager {
         assertThat(calls.removeFirstKt()).isEqualTo(description)
     }
 
+    fun expectNoCall(description: String) {
+        assertThat(calls).doesNotContain(description)
+    }
+
     fun expectNoMoreCalls() {
         assertThat(calls).isEmpty()
     }

@@ -402,12 +402,14 @@ internal class StatelessInputConnection(
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         logDebug("getExtractedText($request, $flags)")
-        //        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR)
-        // != 0
-        //        if (extractedTextMonitorMode) {
-        //            currentExtractedTextRequestToken = request?.token ?: 0
-        //        }
-        // TODO(halilibo): Implement extracted text monitor
+        val monitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
+        if (monitorMode) {
+            // This may look weird that we are ignoring subsequent requests that may want to turn
+            // off the extracted text monitor updates but this is how EditableInputConnection was
+            // implemented. Many IMEs also rely on this behavior. Therefore once the extracted text
+            // monitor is enabled, it remains enabled until the InputConnection gets restarted.
+            session.requestExtractedTextUpdates(request?.token ?: 0)
+        }
         // TODO(b/135556699) should return styled text
         return text.toExtractedText()
     }
@@ -592,7 +594,7 @@ private object Api37TextAttributeImpl {
     }
 }
 
-private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
+internal fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     val res = ExtractedText()
     res.text = this
     res.startOffset = 0
