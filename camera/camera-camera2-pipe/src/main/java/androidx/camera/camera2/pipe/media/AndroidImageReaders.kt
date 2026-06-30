@@ -250,6 +250,10 @@ public class AndroidMultiResolutionImageReader(
         val wrappedImage = reader.acquireNext() ?: return
         val timestamp = wrappedImage.timestamp
 
+        // MultiResolutionImageReaders produce images from multiple sub-ImageReaders, in order
+        // to figure out which output the image is from, we have to first look up the
+        // StreamInfo from the MultiResolutionImageReader instance, and then use it to look it
+        // up in the outputMap that was used to create the MultiResolutionImageReader.
         val streamInfo = multiResolutionImageReader.getStreamInfoForImageReader(reader)
         val outputId =
             checkNotNull(streamInfoToOutputIdMap[streamInfo]) {
@@ -257,8 +261,15 @@ public class AndroidMultiResolutionImageReader(
             }
 
         if (expectedOutputsListener != null && !concurrentOutputsEnabled) {
+            // For non-concurrent streams, we cannot rely on onActiveOutputSurfaces. Hence, we
+            // fire the expected outputs listener here.
             expectedOutputsListener.onExpectedOutputs(timestamp, setOf(outputId))
         }
+
+        // Note: During camera switches, MultiResolutionImageReaders does not guarantee that
+        // images will always be in monotonically increasing order. The primary reason for this
+        // is when a camera switches from one lens to another, which can cause the camera
+        // to produce overlapping images from each sensor and can be delivered out of order.
         imageListener.onImage(streamId, outputId, wrappedImage)
     }
 
