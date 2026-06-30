@@ -944,24 +944,28 @@ fun Project.hasCInteropDependency(): Provider<Boolean> {
     val nativeTargets =
         multiplatformExtension?.nativeTargets()
             ?: return objects.property(Boolean::class.javaObjectType).value(false)
-    val cinteropFiles = objects.fileCollection()
-    nativeTargets.forEach { target ->
-        val compilation =
-            target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                ?: return@forEach
-        configurations
-            .matching { it.name == compilation.compileDependencyConfigurationName }
-            .configureEach { configuration ->
-                cinteropFiles.from(
-                    configuration.incoming
-                        .artifactView { view ->
-                            view.lenient(true)
-                            view.componentFilter { id -> id is ProjectComponentIdentifier }
-                            view.attributes { it.attribute(HAS_CINTEROP_ATTRIBUTE, true) }
+
+    val hasCInteropProviders =
+        nativeTargets.mapNotNull { target ->
+            val compilation =
+                target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                    ?: return@mapNotNull null
+            val compileConfigurationProvider =
+                configurations.named(compilation.compileDependencyConfigurationName)
+            compileConfigurationProvider.map { compileConfiguration ->
+                compileConfiguration.incoming.resolutionResult.allComponents.any { component ->
+                    val isProjectDependency = component.id is ProjectComponentIdentifier
+                    val hasCInteropVariant =
+                        component.variants.any { variant ->
+                            variant.attributes.getAttribute(HAS_CINTEROP_ATTRIBUTE) == true
                         }
-                        .files
-                )
+                    isProjectDependency && hasCInteropVariant
+                }
             }
-    }
-    return cinteropFiles.elements.map { it.isNotEmpty() }
+        }
+
+    val hasCInteropList = objects.listProperty(Boolean::class.javaObjectType)
+    hasCInteropProviders.forEach { hasCInteropList.add(it) }
+
+    return hasCInteropList.map { list -> list.any { it } }
 }
