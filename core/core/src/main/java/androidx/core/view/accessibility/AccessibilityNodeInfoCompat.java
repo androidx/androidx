@@ -5063,9 +5063,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Gets the
-     * {@link android.view.accessibility.AccessibilityNodeInfo#Selection selection}
-     * of this node.
+     * Gets the {@link Selection selection} of this node.
      *
      * @return The selection, or {@code null} if the node has no selection.
      *
@@ -5911,9 +5909,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Sets the
-     * {@link android.view.accessibility.AccessibilityNodeInfo#Selection selection}
-     * of this node.
+     * Sets the {@link Selection selection} of this node.
      *
      * <p>
      * <strong>Note:</strong> Cannot be called from an

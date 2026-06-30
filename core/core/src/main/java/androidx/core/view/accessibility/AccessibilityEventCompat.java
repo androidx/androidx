@@ -486,7 +486,7 @@ public final class AccessibilityEventCompat {
      * @param changeTypes The bit mask of change types.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see #getContentChangeTypes(AccessibilityEvent)
-     * @deprecated Call {@link AccessibilityEvent#setContentChangeTypes()} directly.
+     * @deprecated Call {@link AccessibilityEvent#setContentChangeTypes(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "event.setContentChangeTypes(changeTypes)")
@@ -530,7 +530,7 @@ public final class AccessibilityEventCompat {
      * @param granularity The granularity.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Call {@link AccessibilityEvent#setMovementGranularity()} directly.
+     * @deprecated Call {@link AccessibilityEvent#setMovementGranularity(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "event.setMovementGranularity(granularity)")
@@ -567,7 +567,7 @@ public final class AccessibilityEventCompat {
      * @param action The action.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see AccessibilityNodeInfoCompat#performAction(int)
-     * @deprecated Call {@link AccessibilityEvent#setAction()} directly.
+     * @deprecated Call {@link AccessibilityEvent#setAction(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "event.setAction(action)")

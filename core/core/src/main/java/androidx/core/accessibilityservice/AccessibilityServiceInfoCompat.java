@@ -190,7 +190,7 @@ public final class AccessibilityServiceInfoCompat {
      * @param info The service info of interest
      * @param packageManager The current package manager
      * @return The localized description.
-     * @deprecated Call {@link AccessibilityServiceInfo#loadDescription()} directly.
+     * @deprecated Call {@link AccessibilityServiceInfo#loadDescription(PackageManager)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "info.loadDescription(packageManager)")

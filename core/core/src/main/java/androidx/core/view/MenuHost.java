@@ -45,7 +45,7 @@ public interface MenuHost {
      * Adds the given {@link MenuProvider} to this {@link MenuHost}.
      *
      * This {@link MenuProvider} will be removed once the given {@link LifecycleOwner}
-     * receives an {@link Lifecycle.Event.ON_DESTROY} event.
+     * receives an {@link Lifecycle.Event#ON_DESTROY} event.
      *
      * @param provider the MenuProvider to be added
      * @param owner    the Lifecycle owner whose state will determine the removal of the provider

@@ -152,7 +152,7 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#ELAPSED_REALTIME_WAKEUP
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
-     * @deprecated Call {@link AlarmManager#setExact()} directly.
+     * @deprecated Call {@link AlarmManager#setExact(int, long, PendingIntent)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "alarmManager.setExact(type, triggerAtMillis, operation)")

@@ -469,7 +469,8 @@ public final class ViewParentCompat {
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *            </ul>
-     * @deprecated Call {@link ViewParent#notifySubtreeAccessibilityStateChanged()} directly.
+     * @deprecated Call {@link ViewParent#notifySubtreeAccessibilityStateChanged(View, View, int)}
+     * directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "parent.notifySubtreeAccessibilityStateChanged(child, source, changeType)")
