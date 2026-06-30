@@ -31,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(35) }
+        compileSdk { version = release(37) }
         namespace = "androidx.compose.material3.xr.adaptive"
     }
     jvmStubs()
@@ -43,11 +43,11 @@ androidXMultiplatform {
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
             implementation(project(":compose:material3:xr:xr"))
-            implementation("androidx.compose.material3:material3:1.5.0-alpha17")
+            implementation("androidx.compose.material3:material3:1.5.0-alpha22")
         }
 
         androidMain.dependencies {
-            implementation("androidx.xr.compose:compose:1.0.0-alpha12")
+            implementation("androidx.xr.compose:compose:1.0.0-alpha15")
         }
     }
 }

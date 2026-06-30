@@ -35,7 +35,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
-    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha17")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha22")
     implementation(project(":xr:compose:compose"))
     implementation("androidx.activity:activity:1.9.3")
 
@@ -52,7 +52,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(24) }
     }
