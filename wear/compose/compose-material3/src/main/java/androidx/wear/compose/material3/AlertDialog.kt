@@ -92,6 +92,11 @@ import androidx.wear.compose.material3.lazy.transformedHeight
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithConfirmAndDismissSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
  *   right (typically also called by the [dismissButton]). Implementation of this lambda must remove
@@ -176,6 +181,11 @@ public fun AlertDialog(
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissTransformingContentSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithConfirmAndDismissTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
  *   right (typically also called by the [dismissButton]). Implementation of this lambda must remove
@@ -423,9 +433,18 @@ public fun AlertDialog(
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithEdgeButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithContentGroupsSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action. Implementation of this lambda must remove the dialog from
@@ -507,9 +526,18 @@ public fun AlertDialog(
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonTransformingContentSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithEdgeButtonTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsTransformingContentSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithContentGroupsTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action. Implementation of this lambda must remove the dialog from

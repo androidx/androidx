@@ -63,9 +63,18 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.ButtonGroupSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonGroupSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of 3 buttons, the middle one bigger [ButtonGroup]:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonGroupThreeButtonsSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param modifier Modifier to be applied to the button group
  * @param spacing the amount of spacing between buttons
  * @param expansionWidth how much buttons grow when pressed
@@ -211,9 +220,18 @@ public fun ButtonGroup(
  *
  * @sample androidx.wear.compose.material3.samples.ButtonGroupSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonGroupSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of 3 buttons, the middle one bigger [ButtonGroup]:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonGroupThreeButtonsSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param modifier Modifier to be applied to the button group
  * @param spacing the amount of spacing between buttons
  * @param expansionWidth how much buttons grow when pressed
