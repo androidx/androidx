@@ -11,7 +11,7 @@ Enforces AndroidX conventions for formatting, updating APIs, drafting commit mes
 
 - [ ] Step 0: Workspace Preparation & Branching
 - [ ] Step 1: Analyze Changes (Initial Status)
-- [ ] Step 2: Format Code and Update APIs
+- [ ] Step 2: Format Code, Run Lint, and Update APIs
 - [ ] Step 3: Review Final Diff
 - [ ] Step 4: Draft Commit Message & Handle Tags
 - [ ] Step 5: Commit, Best Practices & Upload
@@ -37,9 +37,9 @@ Identify modified or added files to know what needs formatting and API updates.
   ```
 - Note modified `.kt`, `.ktx`, `.java` files, and potential public API changes.
 
-### 2. Format Code and Update APIs
+### 2. Format Code, Run Lint, and Update APIs
 
-Format modified files and update public APIs using the list from Step 1.
+Format modified files, run lint, and update public APIs using the list from Step 1.
 
 - **Kotlin Formatting**:
   - Run `ktfmt` on modified `.kt`/`.ktx` files to auto-correct style violations:
@@ -74,6 +74,20 @@ Format modified files and update public APIs using the list from Step 1.
     ```
     Or globally (takes longer): `./gradlew updateApi`
 
+- **Lint**:
+  - Run the Lint task on the affected module (e.g., `:appcompat:appcompat-resources`) to catch
+    correctness issues before they fail presubmit:
+    ```bash
+    ./gradlew :appcompat:appcompat-resources:lint
+    ```
+  - Prefer **fixing** the issue. If you must ignore one, suppress the *exact* failure at the
+    call site with `@Suppress("IssueId") // b/BUG_ID` (Kotlin) or `@SuppressLint("IssueId") // b/BUG_ID` (Java)
+    rather than silencing it broadly
+  - Only when a call-site suppression isn't possible, update the module's `lint-baseline.xml`:
+    ```bash
+    ./gradlew :appcompat:appcompat-resources:updateLintBaseline
+    ```
+
 ### 3. Review Final Diff
 
 Review the final clean state of the changes (including formatting and API updates) before drafting the commit message.
@@ -93,6 +107,7 @@ Write a clear commit message adhering to conventions based on the final diff, an
 - **Body**: Explain *why* changes were made (rationale/background), not just *what* changed. Separate from subject with a blank line.
 
 - **`Test:` tag (REQUIRED)**:
+  - AndroidX is a test-first repository. Almost all meaningful code changes should include new or updated tests.
   - Every commit MUST have a `Test:` stanza detailing how it was verified. This should describe the test that validates the behavior changed.
   - Provide exact test command:
     `Test: ./gradlew :compose:ui:ui:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=androidx.compose.ui.window.PopupTest`
@@ -105,7 +120,7 @@ Write a clear commit message adhering to conventions based on the final diff, an
     - Use `Fixes: <bug_id>` for full resolution.
     - Use `Bug: <bug_id>` for partial/tracking.
     - Use the integer ID only (e.g., `484057256`). Do not include the `b/` prefix.
-  - Omit if there is no bug.
+  - Ask the user for bug ID if not provided, or ask user to make one, keep no bugs to a minimum
 
 - **`Relnote:` tag**:
   - Required for changes in release artifacts (source files under `src/main/`, `src/commonMain/`, or `src/androidMain/`, excluding `buildSrc/`).
@@ -146,7 +161,7 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
   - **One Logical Change Per Commit**: Each Gerrit change should represent a single, complete logical change. Avoid creating multiple local commits for a single feature or bug fix.
   - **Addressing Review Feedback**: If you need to address review feedback, fix presubmit failures, or make minor adjustments, **do not create a new commit**.
   - **Use `git commit --amend`**: Always apply fixes directly to the existing commit using `git commit --amend`. This keeps the Gerrit patchset history clean and keeps all iterations grouped under a single Gerrit Change.
-  - **Preserve `Change-Id`**: When amending, ensure the `Change-Id` line at the very end of the commit message is never altered or removed. This is crucial for Gerrit to group your updates as a new patchset under the same CL.
+  - **Preserve `Change-Id`**: When amending, ensure the `Change-Id` line at the very end of the commit message is never altered or removed. This is crucial for Gerrit to group your updates as a new patchset under the same CL. If accidentally removed, duplicate CLs will be created and this should be avoided.
   - **Keep Commit Messages Updated**: If your changes alter the scope of the CL, update the body/subject of the commit message during the amend process while preserving the `Change-Id`.
 
 - **Commit Commands**:
@@ -159,7 +174,7 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
     repo upload --cbr -t .
     ```
     *Note*: `--cbr` uploads the current branch, `-t` sets the Gerrit topic to the branch name, and `.` specifies the project in the current directory.
-  - **Fallback**: If the above command fails or requires interactive prompts, **do not attempt to proceed interactively**. Report the issue to the user immediately. Agents cannot handle interactive prompts from `repo upload`.
+  - If the above command fails or requires interactive prompts, prompt the issue to the user immediately, and ask the user for their answer.
 
 Once uploaded successfully, present the Gerrit URL to the user and explain that Treehugger presubmit checks will run automatically on the Gerrit change page.
 
