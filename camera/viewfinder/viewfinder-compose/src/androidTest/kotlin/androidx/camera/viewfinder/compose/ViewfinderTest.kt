@@ -173,6 +173,10 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
     @Test
     fun verifySurfacesAreReleased_surfaceRequestReleased_thenComposableDestroyed(): Unit =
         runBlocking {
+            assumeFalse(
+                "Skipping test due to SurfaceTexture crash on Emulator API 36",
+                AndroidUtil.isEmulator(36),
+            )
             testHideableWithSession {
                 val surface = awaitSurfaceSession().surface
                 assertThat(surface.isValid).isTrue()
@@ -190,6 +194,10 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
     @Test
     fun verifySurfacesAreReleased_composableDestroyed_thenSurfaceRequestReleased(): Unit =
         runBlocking {
+            assumeFalse(
+                "Skipping test due to SurfaceTexture crash on Emulator API 36",
+                AndroidUtil.isEmulator(36),
+            )
             assume()
                 .withMessage(
                     "EXTERNAL implamentation on API < 29 is not yet able to delay surface destruction by the Viewfinder."
