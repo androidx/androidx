@@ -495,11 +495,14 @@ internal class EmbeddedPhotoPickerStateImpl(
  * activity or process recreation but the underlying EmbeddedPhotoPickerSession will be recreated
  * along with the activity. (When [EmbeddedPhotoPickerState#runSession] is next called.)
  *
- * If a clean state object is needed, be sure to provide some input keys that are unique.
+ * To reset the state and discard any saved values when certain inputs change, wrap this call in a
+ * [androidx.compose.runtime.key] block. For example:
+ * ```kotlin
+ * key(userId) {
+ *     rememberEmbeddedPhotoPickerState()
+ * }
+ * ```
  *
- * @param inputs A set of inputs such that, when any of them have changed, will cause the state to
- *   reset and `init` to be rerun. Note that state restoration DOES NOT validate against inputs
- *   provided before value was saved.
  * @param initialExpandedValue the initial expanded state of the photopicker. This property only
  *   affects the initial value, and has no further effect.
  * @param initialMediaSelection the initial set of media that should be selected inside of the
@@ -520,7 +523,6 @@ internal class EmbeddedPhotoPickerStateImpl(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 public fun rememberEmbeddedPhotoPickerState(
-    vararg inputs: Any?,
     initialExpandedValue: Boolean = false,
     initialMediaSelection: Set<Uri> = emptySet<Uri>(),
     onSessionError: (Throwable) -> Unit = {},
@@ -533,7 +535,7 @@ public fun rememberEmbeddedPhotoPickerState(
     val displayId = remember(context) { context.display.displayId }
 
     val state =
-        rememberSaveable(context, *inputs, saver = EmbeddedPhotoPickerStateImpl.saver) {
+        rememberSaveable(context, saver = EmbeddedPhotoPickerStateImpl.saver) {
                 EmbeddedPhotoPickerStateImpl(initialExpandedValue, initialMediaSelection)
             }
             .apply {
