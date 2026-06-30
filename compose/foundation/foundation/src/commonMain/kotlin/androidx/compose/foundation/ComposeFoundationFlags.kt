@@ -239,7 +239,7 @@ object ComposeFoundationFlags {
     // TODO: b/522377028
     @field:Suppress("MutableBareField")
     @JvmField
-    var isLinkMinimumTouchTargetSizeZeroEnabled: Boolean = true
+    var isLinkMinimumTouchTargetSizeZeroEnabled: Boolean = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
