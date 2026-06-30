@@ -28,4 +28,17 @@ public class FaceConfidenceRegion private constructor(private val value: Int) {
         /** Right upper region of the face. */
         @JvmField public val RIGHT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(2)
     }
+
+    /**
+     * Returns a string representation of [FaceConfidenceRegion] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "LOWER"
+            1 -> "LEFT_UPPER"
+            2 -> "RIGHT_UPPER"
+            else -> "UNKNOWN"
+        }
 }

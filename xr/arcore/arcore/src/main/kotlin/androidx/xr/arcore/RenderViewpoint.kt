@@ -142,6 +142,14 @@ internal constructor(
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [RenderViewpoint.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(pose=$pose, localPose=$localPose, fieldOfView=$fieldOfView)"
     }
 
     private val _state =
@@ -170,4 +178,11 @@ internal constructor(
     }
 
     override fun hashCode(): Int = runtimeRenderViewpoint.hashCode()
+
+    /**
+     * Returns a string representation of [RenderViewpoint] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "RenderViewpoint(state=${state.value})"
 }

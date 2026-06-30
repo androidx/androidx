@@ -34,4 +34,19 @@ public class PlaneLabel private constructor(internal val value: Int) {
         /** The plane represents a table. */
         @JvmField public val TABLE: PlaneLabel = PlaneLabel(4)
     }
+
+    /**
+     * Returns a string representation of [PlaneLabel] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "UNKNOWN"
+            1 -> "WALL"
+            2 -> "FLOOR"
+            3 -> "CEILING"
+            4 -> "TABLE"
+            else -> "UNKNOWN"
+        }
 }

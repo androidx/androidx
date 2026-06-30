@@ -60,4 +60,12 @@ internal constructor(
         result = 31 * result + trackable.hashCode()
         return result
     }
+
+    /**
+     * Returns a string representation of [HitResult] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "HitResult(distance=$distance, hitPose=$hitPose, trackable=$trackable)"
 }

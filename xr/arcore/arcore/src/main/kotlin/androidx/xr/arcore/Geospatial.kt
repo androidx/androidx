@@ -339,6 +339,13 @@ internal constructor(
 
     public override fun hashCode(): Int = runtimeGeospatial.hashCode()
 
+    /**
+     * Returns a string representation of [Geospatial] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "Geospatial(state=${state.value})"
+
     /** Describes the state of Geospatial. */
     public class GeospatialTrackingState private constructor(internal val value: Int) {
         public companion object {
@@ -397,6 +404,22 @@ internal constructor(
              */
             @JvmField public val PAUSED: GeospatialTrackingState = GeospatialTrackingState(2)
         }
+
+        /**
+         * Returns a string representation of [GeospatialTrackingState] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            when (value) {
+                1 -> "RUNNING"
+                0 -> "NOT_RUNNING"
+                -1 -> "ERROR_INTERNAL"
+                -2 -> "ERROR_NOT_AUTHORIZED"
+                -3 -> "ERROR_RESOURCE_EXHAUSTED"
+                2 -> "PAUSED"
+                else -> "UNKNOWN($value)"
+            }
     }
 
     /**
@@ -434,5 +457,12 @@ internal constructor(
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String = "State(geospatialTrackingState=$geospatialTrackingState)"
     }
 }

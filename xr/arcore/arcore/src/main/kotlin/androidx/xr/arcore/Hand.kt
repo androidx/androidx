@@ -219,6 +219,17 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
             return result
         }
 
+        /**
+         * Returns a string representation of [Hand.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String {
+            val bufferInfo =
+                "Buffer(capacity=${handJointsBuffer.capacity()}, limit=${handJointsBuffer.limit()})"
+            return "State(trackingState=$trackingState, handJointsBuffer=$bufferInfo)"
+        }
+
         private companion object {
             private const val FLOATS_PER_POSE = 7
         }
@@ -249,4 +260,11 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
     }
 
     override fun hashCode(): Int = runtimeHand.hashCode()
+
+    /**
+     * Returns a string representation of [Hand] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "Hand(state=${state.value})"
 }

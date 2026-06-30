@@ -88,6 +88,14 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [ArDevice.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(devicePose=$devicePose, trackingState=$trackingState)"
     }
 
     private val _state = MutableStateFlow<State>(State(Pose(), TrackingState.STOPPED, owner = this))
@@ -113,4 +121,11 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
     }
 
     override fun hashCode(): Int = runtimeArDevice.hashCode()
+
+    /**
+     * Returns a string representation of [ArDevice] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "ArDevice(state=${state.value})"
 }

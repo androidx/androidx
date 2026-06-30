@@ -28,4 +28,17 @@ public class PlaneType private constructor(internal val value: Int) {
         /** A vertical plane (e.g. a wall). */
         @JvmField public val VERTICAL: PlaneType = PlaneType(2)
     }
+
+    /**
+     * Returns a string representation of [PlaneType] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "HORIZONTAL_UPWARD_FACING"
+            1 -> "HORIZONTAL_DOWNWARD_FACING"
+            2 -> "VERTICAL"
+            else -> "UNKNOWN"
+        }
 }

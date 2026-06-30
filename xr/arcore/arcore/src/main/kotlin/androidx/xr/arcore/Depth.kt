@@ -165,6 +165,39 @@ public class Depth internal constructor(internal val runtimeDepth: RuntimeDepth)
             result = 31 * result + owner.hashCode()
             return result
         }
+
+        /**
+         * Returns a string representation of [State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String {
+            val rawBufferInfo =
+                if (rawDepthMap != null) {
+                    "Buffer(capacity=${rawDepthMap.capacity()}, limit=${rawDepthMap.limit()})"
+                } else {
+                    "null"
+                }
+            val rawConfidenceMapInfo =
+                if (rawConfidenceMap != null) {
+                    "Buffer(capacity=${rawConfidenceMap.capacity()}, limit=${rawConfidenceMap.limit()})"
+                } else {
+                    "null"
+                }
+            val smoothBufferInfo =
+                if (smoothDepthMap != null) {
+                    "Buffer(capacity=${smoothDepthMap.capacity()}, limit=${smoothDepthMap.limit()})"
+                } else {
+                    "null"
+                }
+            val smoothConfidenceMapInfo =
+                if (smoothConfidenceMap != null) {
+                    "Buffer(capacity=${smoothConfidenceMap.capacity()}, limit=${smoothConfidenceMap.limit()})"
+                } else {
+                    "null"
+                }
+            return "State(width=$width, height=$height, rawDepthMap=$rawBufferInfo, rawConfidenceMap=$rawConfidenceMapInfo, smoothDepthMap=$smoothBufferInfo, smoothConfidenceMap=$smoothConfidenceMapInfo)"
+        }
     }
 
     private val _state =
@@ -195,4 +228,11 @@ public class Depth internal constructor(internal val runtimeDepth: RuntimeDepth)
             )
         )
     }
+
+    /**
+     * Returns a string representation of [Depth] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "Depth(state=${state.value})"
 }
