@@ -97,7 +97,7 @@ dependencies.constraints {
     // Prevents symbols duplication with old versions of JetBrains' fork.
     // Starting with Compose Multiplatform 1.11.0, this module is published as empty
     // artifact with dependency to this androidx module.
-    commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3:2.11.0-beta01") {
+    commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3:2.11.0") {
         because "prevents symbols duplication"
     }
 }
