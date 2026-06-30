@@ -77,7 +77,6 @@ import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.AnchorPolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
@@ -87,6 +86,8 @@ import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.draw.alpha
+import androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy
+import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.PlaneOrientation
 import androidx.xr.compose.subspace.layout.ResizePolicy
 import androidx.xr.compose.subspace.layout.SpatialAlignment
@@ -358,6 +359,7 @@ class SpatialCompose : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMoveAnchorPolicy::class)
     @SubspaceComposable
     @Composable
     fun AnchorPanel(modifier: SubspaceModifier = SubspaceModifier, text: String = "") {
@@ -370,8 +372,11 @@ class SpatialCompose : ComponentActivity() {
         // TODO(b/424834805): It's possible to have multiple movable overloads in place which are
         // not compatible with each other.
         SpatialPanel(
-            modifier = modifier,
-            dragPolicy = AnchorPolicy(anchorPlaneOrientations = setOf(PlaneOrientation.Any)),
+            modifier =
+                modifier.movable(
+                    movePolicy =
+                        MovePolicy.anchor(anchorPlaneOrientations = setOf(PlaneOrientation.Any))
+                )
         ) {
             Column(
                 modifier = Modifier.background(Color.LightGray).padding(24.dp).fillMaxSize(),

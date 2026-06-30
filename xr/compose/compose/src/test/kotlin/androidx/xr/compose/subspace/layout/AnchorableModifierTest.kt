@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:OptIn(ExperimentalMoveAnchorPolicy::class)
 
 package androidx.xr.compose.subspace.layout
 
