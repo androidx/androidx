@@ -1269,6 +1269,48 @@ class NavHostTest {
     }
 
     @Test
+    fun testNavBackStackEntryInfoHistory() {
+        val dispatcherOwner = TestNavigationEventDispatcherOwner()
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides dispatcherOwner) {
+                navController = rememberNavController()
+                NavHost(navController, "first") {
+                    composable("first") {}
+                    composable("second") {}
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            val history = dispatcherOwner.navigationEventDispatcher.history.value
+            assertThat(history).isNotNull()
+            // Initially, the back stack has only 1 entry. Since back navigation is not
+            // possible within this NavHost, the back handler is disabled (isBackEnabled = false)
+            // to allow the back gesture to propagate to the parent dispatcher or system
+            // (e.g. to exit the app). A disabled handler is ignored by the
+            // NavigationEventProcessor, resulting in an empty history (currentIndex = -1).
+            assertThat(history.currentIndex).isEqualTo(-1)
+            assertThat(history.mergedHistory).isEmpty()
+        }
+
+        composeTestRule.runOnIdle { navController.navigate("second") }
+
+        composeTestRule.runOnIdle {
+            val history = dispatcherOwner.navigationEventDispatcher.history.value
+            assertThat(history).isNotNull()
+            // Navigating to a second destination enables the back handler since back navigation
+            // is now possible. The resolved handler now exposes the full back stack history.
+            assertThat(history.currentIndex).isEqualTo(1)
+            assertThat(history.mergedHistory).hasSize(2)
+            val firstInfo = history.mergedHistory[0] as NavBackStackEntryInfo
+            val secondInfo = history.mergedHistory[1] as NavBackStackEntryInfo
+            assertThat(firstInfo.visibleEntry?.destination?.route).isEqualTo("first")
+            assertThat(secondInfo.visibleEntry?.destination?.route).isEqualTo("second")
+        }
+    }
+
+    @Test
     fun navBackStackEntryLifecycleTest() {
         var stopCount = 0
         lateinit var navController: NavHostController

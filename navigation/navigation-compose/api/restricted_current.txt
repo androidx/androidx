@@ -80,6 +80,14 @@ package androidx.navigation.compose {
     method protected androidx.navigation.compose.DialogNavigator.Destination instantiateDestination();
   }
 
+  @androidx.compose.runtime.Immutable public final class NavBackStackEntryInfo extends androidx.navigationevent.NavigationEventInfo {
+    ctor public NavBackStackEntryInfo();
+    ctor public NavBackStackEntryInfo(optional androidx.navigation.NavBackStackEntry? visibleEntry);
+    ctor @BytecodeOnly public NavBackStackEntryInfo(androidx.navigation.NavBackStackEntry!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.navigation.NavBackStackEntry? getVisibleEntry();
+    property public androidx.navigation.NavBackStackEntry? visibleEntry;
+  }
+
   public final class NavBackStackEntryProviderKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void LocalOwnersProvider(androidx.navigation.NavBackStackEntry, androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LocalOwnersProvider(androidx.navigation.NavBackStackEntry, androidx.compose.runtime.saveable.SaveableStateHolder, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
