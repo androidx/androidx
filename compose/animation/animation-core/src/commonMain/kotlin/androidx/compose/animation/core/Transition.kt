@@ -1318,12 +1318,11 @@ protected constructor(
     internal fun updateTarget(targetState: S) {
         // This is needed because child animations rely on this target state and the state pair to
         // update their animation specs
-        if (this.targetState != targetState) {
+        val currentTargetState = this.targetState
+        if (currentTargetState != targetState) {
             // Starting state should be the "next" state when waypoints are impl'ed
-            segment = SegmentImpl(this.targetState, targetState)
-            if (currentState != this.targetState) {
-                transitionState.currentState = this.targetState
-            }
+            segment = SegmentImpl(currentTargetState, targetState)
+            transitionState.currentState = currentTargetState
             this.targetState = targetState
             if (!isRunning) {
                 updateChildrenNeeded = true
@@ -1332,7 +1331,10 @@ protected constructor(
             // If target state is changed, reset all the animations to be re-created in the
             // next frame w/ their new target value. Child animations target values are updated in
             // the side effect that may not have happened when this function in invoked.
-            _animations.fastForEach { it.resetAnimation() }
+            // Copying to a list to avoid ConcurrentModificationException since resetAnimation()
+            // can modify the animations list. This operation is trivial with SnapshotStateList.
+            @Suppress("ListIterator") val animations = animations.toList()
+            animations.fastForEach { it.resetAnimation() }
         }
     }
 
