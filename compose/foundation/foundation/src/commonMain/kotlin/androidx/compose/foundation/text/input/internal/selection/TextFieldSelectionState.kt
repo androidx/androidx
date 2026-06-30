@@ -1021,22 +1021,13 @@ internal class TextFieldSelectionState(
                         selectionAdjustmentMode
                     }
             } else {
+                val textLength = textLayoutState.layoutResult?.layoutInput?.text?.length ?: 0
                 startOffset =
-                    if (ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled) {
-                        val textLength =
-                            textLayoutState.layoutResult?.layoutInput?.text?.length ?: 0
-                        dragBeginOffsetInText.takeIf { it in 0..textLength }
-                            ?: textLayoutState.getOffsetForPosition(
-                                position = dragBeginPosition,
-                                coerceInVisibleBounds = false,
-                            )
-                    } else {
-                        dragBeginOffsetInText.takeIf { it >= 0 }
-                            ?: textLayoutState.getOffsetForPosition(
-                                position = dragBeginPosition,
-                                coerceInVisibleBounds = false,
-                            )
-                    }
+                    dragBeginOffsetInText.takeIf { it in 0..textLength }
+                        ?: textLayoutState.getOffsetForPosition(
+                            position = dragBeginPosition,
+                            coerceInVisibleBounds = false,
+                        )
                 endOffset =
                     textLayoutState.getOffsetForPosition(
                         position = currentDragPosition,

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
@@ -68,7 +67,6 @@ internal class TextFieldConcurrencyTest {
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun whenSelectionChangesDuringGesture_noCrash() {
-        ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled = true
         val textFieldState = makeTextFieldState()
         rule.setContent { BasicTextField(textFieldState, Modifier.testTag(testTag)) }
 
@@ -86,33 +84,5 @@ internal class TextFieldConcurrencyTest {
 
         // Emulate continuing gesture
         touchDragTo(characterPosition(0))
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test(expected = IllegalArgumentException::class)
-    fun whenSelectionChangesDuringGesture_crash_flagDisabled() {
-        val original = ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled
-        ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled = false
-        try {
-            val textFieldState = makeTextFieldState()
-            rule.setContent { BasicTextField(textFieldState, Modifier.testTag(testTag)) }
-
-            performTouchGesture { click(characterPosition(13)) }
-            performTouchGesture { down(characterPosition(13)) }
-
-            rule.runOnIdle {
-                textFieldState.editAsUser(
-                    inputTransformation = null,
-                    restartImeIfContentChanges = false,
-                ) {
-                    delete(5, 13)
-                }
-            }
-
-            // Emulate continuing gesture
-            touchDragTo(characterPosition(0))
-        } finally {
-            ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled = original
-        }
     }
 }
