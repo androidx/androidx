@@ -50,6 +50,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -888,16 +889,18 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
 private const val MaxHourValue = 23
 private const val MaxMinuteValue = 59
 private val RichTimeFieldWidth = 100.dp
+private val RichTimeFieldWidthPortrait = 132.dp
 private val RichTimeFieldHeight = 120.dp
 private val RichSeparatorWidth = 16.dp
 private val RichPeriodToggleWidth = 56.dp
 private val RichPeriodToggleHeight = 120.dp
 private val RichPeriodToggleHorizontalHeight = 48.dp
 private val RichPeriodTogglePadding = 8.dp
-private val RichPeriodToggleHorizontalPadding = 16.dp
+private val RichPeriodToggleLargePadding = 16.dp
 private val RichHorizontalTimePickerGap = 52.dp
 private val RichVerticalTimePickerGap = 36.dp
-private val RichTimePickerPadding = 24.dp
+private val RichTimePickerPaddingVertical = 12.dp
+private val RichTimePickerPaddingHorizontal = 24.dp
 
 /**
  * A state object that can be hoisted to observe the time picker state. It holds the current values
@@ -1324,7 +1327,10 @@ internal fun VerticalTimePicker(
     shapes: TimePickerShapes? = null,
 ) {
     Column(
-        modifier = modifier.semantics { isTraversalGroup = true },
+        modifier =
+            modifier
+                .semantics { isTraversalGroup = true }
+                .padding(shapes.orRich(0.dp, RichTimePickerPaddingVertical)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         VerticalClockDisplay(state = state, colors = colors, shapes = shapes)
@@ -1351,7 +1357,10 @@ internal fun HorizontalTimePicker(
     shapes: TimePickerShapes? = null,
 ) {
     Row(
-        modifier = modifier.semantics { isTraversalGroup = true },
+        modifier =
+            modifier
+                .semantics { isTraversalGroup = true }
+                .padding(shapes.orRich(0.dp, RichTimePickerPaddingHorizontal)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         HorizontalClockDisplay(state, colors, shapes)
@@ -1413,10 +1422,7 @@ private fun TimeInputImpl(
     }
 
     Row(
-        modifier =
-            modifier
-                .semantics { isTraversalGroup = true }
-                .then(shapes.orRich(Modifier, Modifier.padding(RichTimePickerPadding))),
+        modifier = modifier.semantics { isTraversalGroup = true },
         verticalAlignment = Alignment.Top,
     ) {
         val textStyle =
@@ -1523,9 +1529,7 @@ private fun TimeInputImpl(
 
         if (!state.is24hour) {
             Box(
-                Modifier.padding(
-                    start = shapes.orRich(startPadding, RichPeriodToggleHorizontalPadding)
-                )
+                Modifier.padding(start = shapes.orRich(startPadding, RichPeriodToggleLargePadding))
             ) {
                 VerticalPeriodToggle(
                     modifier =
@@ -1551,7 +1555,7 @@ private fun HorizontalClockDisplay(
     Column(verticalArrangement = Arrangement.Center) {
         ClockDisplayNumbers(state, colors, shapes)
         if (!state.is24hour) {
-            Box(modifier = Modifier.padding(top = RichPeriodToggleHorizontalPadding)) {
+            Box(modifier = Modifier.padding(top = RichPeriodToggleLargePadding)) {
                 HorizontalPeriodToggle(
                     modifier =
                         Modifier.size(
@@ -1586,7 +1590,9 @@ private fun VerticalClockDisplay(
         if (!state.is24hour) {
             Box(
                 modifier =
-                    Modifier.padding(start = shapes.orRich(startPadding, RichPeriodTogglePadding))
+                    Modifier.padding(
+                        start = shapes.orRich(startPadding, RichPeriodToggleLargePadding)
+                    )
             ) {
                 VerticalPeriodToggle(
                     modifier =
@@ -1616,6 +1622,14 @@ private fun ClockDisplayNumbers(
     shapes: TimePickerShapes? = null,
 ) {
     val scope = rememberCoroutineScope()
+    val isPortrait = defaultTimePickerLayoutType() == TimePickerLayoutType.Vertical
+
+    val richSelectorWidth =
+        if (isPortrait) {
+            RichTimeFieldWidthPortrait
+        } else {
+            RichTimeFieldWidth
+        }
 
     val onActivate: () -> Unit = {
         if (state is AnalogTimePickerState) {
@@ -1632,7 +1646,7 @@ private fun ClockDisplayNumbers(
             TimeSelector(
                 modifier =
                     Modifier.size(
-                            shapes.orRich(TimeSelectorContainerWidth, RichTimeFieldWidth),
+                            shapes.orRich(TimeSelectorContainerWidth, richSelectorWidth),
                             shapes.orRich(TimeSelectorContainerHeight, RichTimeFieldHeight),
                         )
                         .onFocusChanged { focusState ->
@@ -1662,7 +1676,7 @@ private fun ClockDisplayNumbers(
             TimeSelector(
                 modifier =
                     Modifier.size(
-                            shapes.orRich(TimeSelectorContainerWidth, RichTimeFieldWidth),
+                            shapes.orRich(TimeSelectorContainerWidth, richSelectorWidth),
                             shapes.orRich(TimeSelectorContainerHeight, RichTimeFieldHeight),
                         )
                         .onFocusChanged { focusState ->
@@ -2033,7 +2047,12 @@ private fun DisplaySeparator(modifier: Modifier) {
         )
 
     Box(modifier = modifier.clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
-        Text(text = ":", color = TimeFieldSeparatorColor.value, style = style)
+        Text(
+            text = ":",
+            color = TimeFieldSeparatorColor.value,
+            style = style,
+            modifier = Modifier.offset(y = (-4).dp),
+        )
     }
 }
 
