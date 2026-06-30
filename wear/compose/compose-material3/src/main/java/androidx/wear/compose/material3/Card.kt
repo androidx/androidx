@@ -85,6 +85,9 @@ import androidx.wear.compose.materialcore.Text
  *
  * @sample androidx.wear.compose.material3.samples.CardFillContentSample
  *
+ * ![CardFillContentSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_CardFillContentSample_CompositeImage.png)
+ *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material
  * design guide.
