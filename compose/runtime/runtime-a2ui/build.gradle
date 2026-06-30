@@ -43,7 +43,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.guavaTestlib)
 }
 
 android {
