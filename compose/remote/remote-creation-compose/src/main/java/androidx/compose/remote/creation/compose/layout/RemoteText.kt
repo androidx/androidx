@@ -177,62 +177,21 @@ public fun RemoteText(
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
-
     val localConfiguration = LocalConfiguration.current
-
     val fontWeightAdjustment =
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (
                 localConfiguration.fontWeightAdjustment !=
                     Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED
-        ) {
-            localConfiguration.fontWeightAdjustment
+            ) {
+                localConfiguration.fontWeightAdjustment
+            } else {
+                0
+            }
         } else {
             0
         }
-    RemoteText(
-        text = text,
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontWeightAdjustment = fontWeightAdjustment,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        textAlign = textAlign,
-        overflow = overflow,
-        maxLines = maxLines,
-        textDecoration = textDecoration,
-        letterSpacing = letterSpacing,
-        lineHeightMultiply = lineHeightMultiply,
-        fontVariationSettings = fontVariationSettings,
-    )
-}
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@SuppressLint("RemoteCompositionLocalUsage")
-internal fun RemoteText(
-    text: RemoteString,
-    color: RemoteColor,
-    fontWeightAdjustment: Int,
-    fontSize: RemoteTextUnit,
-    minFontSize: Float? = null,
-    maxFontSize: Float? = null,
-    modifier: RemoteModifier = RemoteModifier,
-    fontStyle: FontStyle = FontStyle.Normal,
-    fontWeight: RemoteFloat = 400.rf,
-    textAlign: TextAlign = TextAlign.Start,
-    fontFamily: String? = null,
-    overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    letterSpacing: RemoteFloat = 0f.rf,
-    lineHeightAdd: Float? = null,
-    lineHeightMultiply: RemoteFloat = 1f.rf,
-    textDecoration: TextDecoration? = null,
-    fontVariationSettings: FontVariation.Settings? = null,
-) {
     RemoteComposeNode(
         factory = ::RemoteTextNode,
         update = {
