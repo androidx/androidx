@@ -453,8 +453,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     override fun <T> runWithoutImplicitWait(block: () -> T): T {
-        // TODO https://youtrack.jetbrains.com/issue/CMP-10244/ui-test.-Implement-runWithoutImplicitWait
-        throw NotImplementedError("runWithoutImplicitWait is not implemented.")
+        return testOwner.withImplicitWaitSuppression(isSuppressed = true, block = block)
     }
 
     override fun waitUntil(
@@ -532,6 +531,21 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
         return captureToImage(fetchSemanticsNode())
+    }
+
+    /** Executes the given [block] while temporarily setting the implicit wait suppression state. */
+    private inline fun <T> TestOwner.withImplicitWaitSuppression(
+        isSuppressed: Boolean,
+        block: () -> T,
+    ): T {
+        val previousState = this.isImplicitWaitSuppressed
+        this.isImplicitWaitSuppressed = isSuppressed
+        return try {
+            block()
+        } finally {
+            // Always restore the original synchronization state
+            this.isImplicitWaitSuppressed = previousState
+        }
     }
 
     @OptIn(InternalComposeUiApi::class)
