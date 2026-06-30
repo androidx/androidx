@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import android.os.IBinder
 import android.os.UserHandle
 import android.util.Log
@@ -122,7 +121,7 @@ public class WearWidgetProviderClient(
     private suspend fun <T> withBoundService(block: suspend (IWearWidgetProvider) -> T): T {
         val connection = Connection()
         val isBound =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && userHandle != null) {
+            if (userHandle != null) {
                 context.bindServiceAsUser(
                     serviceIntent,
                     connection,

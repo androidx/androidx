@@ -43,7 +43,7 @@ android {
     namespace = "androidx.glance.wear.tooling.preview"
     compileSdk { version = release(37) }
     defaultConfig {
-        minSdk { version = release(29) }
+        minSdk { version = release(33) }
     }
 }
 

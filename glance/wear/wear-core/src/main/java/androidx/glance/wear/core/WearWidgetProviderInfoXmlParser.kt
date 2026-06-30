@@ -21,7 +21,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
-import android.os.Build
 import android.text.TextUtils
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -201,15 +200,12 @@ internal object WearWidgetProviderInfoXmlParser {
         attrName: String,
     ): CharSequence? {
         val label = loadTextAttr(resources, attrName) ?: return null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return TextUtils.makeSafeForPresentation(
-                label.toString(),
-                MAX_SAFE_LABEL_LENGTH,
-                DEFAULT_MAX_LABEL_SIZE_PX,
-                TextUtils.SAFE_STRING_FLAG_TRIM or TextUtils.SAFE_STRING_FLAG_FIRST_LINE,
-            )
-        }
-        return label
+        return TextUtils.makeSafeForPresentation(
+            label.toString(),
+            MAX_SAFE_LABEL_LENGTH,
+            DEFAULT_MAX_LABEL_SIZE_PX,
+            TextUtils.SAFE_STRING_FLAG_TRIM or TextUtils.SAFE_STRING_FLAG_FIRST_LINE,
+        )
     }
 
     private fun XmlResourceParser.loadTextAttr(
