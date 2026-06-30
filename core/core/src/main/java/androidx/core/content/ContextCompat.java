@@ -186,7 +186,7 @@ public class ContextCompat {
      *                {@link ActivityOptionsCompat} for how to build the Bundle
      *                supplied here; there are no supported definitions for
      *                building it manually.
-     * @deprecated Call {@link Context#startActivity()} directly.
+     * @deprecated Call {@link Context#startActivity(Intent, Bundle)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "context.startActivity(intent, options)")
@@ -312,7 +312,7 @@ public class ContextCompat {
      *
      * @see Context#getExternalFilesDir(String)
      * @see EnvironmentCompat#getStorageState(File)
-     * @deprecated Call {@link Context#getExternalFilesDirs()} directly.
+     * @deprecated Call {@link Context#getExternalFilesDir(String)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "context.getExternalFilesDirs(type)")

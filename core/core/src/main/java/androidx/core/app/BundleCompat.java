@@ -38,7 +38,7 @@ public final class BundleCompat {
      * @param bundle The bundle to get the {@link IBinder}.
      * @param key    The key to use while getting the {@link IBinder}.
      * @return       The {@link IBinder} that was obtained.
-     * @deprecated Call {@link Bundle#getBinder()} directly.
+     * @deprecated Call {@link Bundle#getBinder(String)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "bundle.getBinder(key)")
@@ -52,7 +52,7 @@ public final class BundleCompat {
      * @param bundle The bundle to insert the {@link IBinder}.
      * @param key    The key to use while putting the {@link IBinder}.
      * @param binder The {@link IBinder} to put.
-     * @deprecated Call {@link Bundle#putBinder()} directly.
+     * @deprecated Call {@link Bundle#putBinder(String, IBinder)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "bundle.putBinder(key, binder)")

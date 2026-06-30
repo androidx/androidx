@@ -465,7 +465,7 @@ public class ActivityCompat extends ContextCompat {
      * removed from {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult}.
      * For devices that don't support {@link Manifest.permission#POST_NOTIFICATIONS}, apps can
      * send users to its notification settings to enable notifications. See
-     * {@link android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS} for more information
+     * {@link android.provider.Settings#ACTION_APP_NOTIFICATION_SETTINGS} for more information
      * on launching notification settings.
      * </p>
      *

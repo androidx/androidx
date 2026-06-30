@@ -136,7 +136,7 @@ public class AccessibilityRecordCompat {
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param root The root of the virtual subtree.
      * @param virtualDescendantId The id of the virtual descendant.
-     * @deprecated Call {@link AccessibilityRecord#setSource()} directly.
+     * @deprecated Call {@link AccessibilityRecord#setSource(View, int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "record.setSource(root, virtualDescendantId)")
@@ -507,7 +507,7 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollX The max scroll.
-     * @deprecated Call {@link AccessibilityRecord#setMaxScrollX()} directly.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollX(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollX(maxScrollX)")
@@ -557,7 +557,7 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollY The max scroll.
-     * @deprecated Call {@link AccessibilityRecord#setMaxScrollY()} directly.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollY(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollY(maxScrollY)")

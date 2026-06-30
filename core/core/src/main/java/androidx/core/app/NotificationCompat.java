@@ -739,7 +739,7 @@ public class NotificationCompat {
     public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
 
     /**
-     * {@link #extras} key: an arraylist of {@link android.app.Notification.ProgressStyle.Segment}
+     * {@link Notification#extras} key: an arraylist of {@link android.app.Notification.ProgressStyle.Segment}
      * bundles provided by a
      * {@link android.app.Notification.ProgressStyle} notification as supplied to
      * {@link ProgressStyle#setProgressSegments}
@@ -750,7 +750,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_SEGMENTS = "android.progressSegments";
 
     /**
-     * {@link #extras} key: an arraylist of {@link ProgressStyle.Point}
+     * {@link Notification#extras} key: an arraylist of {@link ProgressStyle.Point}
      * bundles provided by a
      * {@link android.app.Notification.ProgressStyle} notification as supplied to
      * {@link ProgressStyle#setProgressPoints}
@@ -761,7 +761,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_POINTS = "android.progressPoints";
 
     /**
-     * {@link #extras} key: whether the progress bar should be styled by its progress as
+     * {@link Notification#extras} key: whether the progress bar should be styled by its progress as
      * supplied to {@link ProgressStyle#setStyledByProgress}.
      * This extra is a boolean.
      */
@@ -769,7 +769,7 @@ public class NotificationCompat {
     public static final String EXTRA_STYLED_BY_PROGRESS = "android.styledByProgress";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown as progress bar progress tracker icon in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressTrackerIcon(IconCompat)}.
      */
@@ -777,7 +777,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_TRACKER_ICON = "android.progressTrackerIcon";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown at the beginning of the progress bar in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressStartIcon(IconCompat)}.
      */
@@ -785,7 +785,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_START_ICON = "android.progressStartIcon";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown at the end of the progress bar in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressEndIcon(IconCompat)}.
      */
@@ -793,8 +793,8 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_END_ICON = "android.progressEndIcon";
 
     /**
-     * {@link #extras} key: requests that the notification card show the
-     * {@link #getSmallIcon() small icon} instead of the launcher app icon.
+     * {@link Notification#extras} key: requests that the notification card show the
+     * {@link Notification#getSmallIcon() small icon} instead of the launcher app icon.
      */
     @SuppressLint("ActionValue")
     public static final String EXTRA_PREFER_SMALL_ICON = "android.app.preferSmallIcon";

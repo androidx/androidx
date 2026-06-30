@@ -115,7 +115,9 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
-     * @deprecated Call {@link TextView#setCompoundDrawablesRelative()} directly.
+     * @deprecated Call
+     * {@link TextView#setCompoundDrawablesRelative(Drawable, Drawable, Drawable, Drawable)}
+     * directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelative(start, top, end, bottom)")
@@ -143,7 +145,9 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
-     * @deprecated Call {@link TextView#setCompoundDrawablesRelativeWithIntrinsicBounds()} directly.
+     * @deprecated Call {@link
+     * TextView#setCompoundDrawablesRelativeWithIntrinsicBounds(Drawable, Drawable, Drawable, Drawable)
+     * } directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
@@ -170,7 +174,9 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
-     * @deprecated Call {@link TextView#setCompoundDrawablesRelativeWithIntrinsicBounds()} directly.
+     * @deprecated Call {@link
+     * TextView#setCompoundDrawablesRelativeWithIntrinsicBounds(Drawable, Drawable, Drawable, Drawable)
+     * } directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")

@@ -760,8 +760,8 @@ public class WindowInsetsCompat {
      *
      * <p>
      * The {@link Rect}s returned are always cropped to the bounds of the window frame and their
-     * coordinate values are relative to the {@link #getFrame()}, regardless of the window's
-     * position on screen.
+     * coordinate values are relative to the {@link WindowInsets#getFrame()}, regardless of the
+     * window's position on screen.
      * </p>
      *
      * <p>
@@ -802,8 +802,8 @@ public class WindowInsetsCompat {
      *
      * <p>
      * The {@link Rect}s returned are always cropped to the bounds of the window frame and their
-     * coordinate values are relative to the {@link #getFrame()}, regardless of the window's
-     * position on screen.
+     * coordinate values are relative to the {@link WindowInsets#getFrame()}, regardless of the
+     * window's position on screen.
      * </p>
      *
      * <p>

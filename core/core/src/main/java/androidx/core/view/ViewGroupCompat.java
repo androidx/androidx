@@ -134,7 +134,7 @@ public final class ViewGroupCompat {
      * @param mode the layout mode to use during layout operations
      *
      * @see #getLayoutMode(ViewGroup)
-     * @deprecated Call {@link ViewGroup#setLayoutMode()} directly.
+     * @deprecated Call {@link ViewGroup#setLayoutMode(int)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "group.setLayoutMode(mode)")

@@ -62,7 +62,7 @@ public final class DrawableCompat {
      * @param drawable The Drawable against which to invoke the method.
      * @param mirrored Set to true if the Drawable should be mirrored, false if
      *            not.
-     * @deprecated Call {@link Drawable#setAutoMirrored()} directly.
+     * @deprecated Call {@link Drawable#setAutoMirrored(boolean)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "drawable.setAutoMirrored(mirrored)")

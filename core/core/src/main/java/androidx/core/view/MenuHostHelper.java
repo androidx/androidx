@@ -138,7 +138,7 @@ public class MenuHostHelper {
      * Adds the given {@link MenuProvider} to the helper.
      *
      * This {@link MenuProvider} will be removed once the given {@link LifecycleOwner}
-     * receives an {@link Lifecycle.Event.ON_DESTROY} event.
+     * receives an {@link Lifecycle.Event#ON_DESTROY} event.
      *
      * @param provider the MenuProvider to be added
      * @param owner    the Lifecycle owner whose state will determine the removal of the provider
@@ -164,7 +164,7 @@ public class MenuHostHelper {
      *
      * This {@link MenuProvider} will be removed once the given {@link LifecycleOwner}
      * goes down from the given {@link Lifecycle.State} or receives an
-     * {@link Lifecycle.Event.ON_DESTROY} event.
+     * {@link Lifecycle.Event#ON_DESTROY} event.
      *
      * @param provider the MenuProvider to be added
      * @param state    the Lifecycle.State to check for automated addition/removal

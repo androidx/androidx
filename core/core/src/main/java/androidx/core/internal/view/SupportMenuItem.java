@@ -176,7 +176,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * Expand the action view associated with this menu item. The menu item must have an action view
      * set, as well as the showAsAction flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}. If a
      * listener has been set using
-     * {@link #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
+     * {@code #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
      * it will have its {@link MenuItem.OnActionExpandListener#onMenuItemActionExpand(MenuItem)}
      * method invoked. The listener may return false from this method to prevent expanding the
      * action view.
@@ -190,7 +190,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * Collapse the action view associated with this menu item. The menu item must have an action
      * view set, as well as the showAsAction flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}. If a
      * listener has been set using
-     * {@link #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
+     * {@code #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
      * it will have its {@link MenuItem.OnActionExpandListener#onMenuItemActionCollapse(MenuItem)}
      * method invoked. The listener may return false from this method to prevent collapsing the
      * action view.
@@ -253,20 +253,24 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * modifier key. Also note that case is not significant and that alphabetic
      * shortcut characters will be handled in lower case.
      * <p>
-     * See {@link Menu} for the menu types that support shortcuts.
+     * See {@link android.view.Menu} for the menu types that support shortcuts.
      *
      * @param numericChar The numeric shortcut key. This is the shortcut when
      *        using a numeric (e.g., 12-key) keyboard.
      * @param numericModifiers The numeric modifier associated with the shortcut. It should
-     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
-     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
-     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     *        be a combination of {@link android.view.KeyEvent#META_META_ON},
+     *        {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     *        {@link android.view.KeyEvent#META_SHIFT_ON},
+     *        {@link android.view.KeyEvent#META_SYM_ON},
+     *        {@link android.view.KeyEvent#META_FUNCTION_ON}.
      * @param alphaChar The alphabetic shortcut key. This is the shortcut when
      *        using a keyboard with alphabetic keys.
      * @param alphaModifiers The alphabetic modifier associated with the shortcut. It should
-     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
-     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
-     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     *        be a combination of {@link android.view.KeyEvent#META_META_ON},
+     *        {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     *        {@link android.view.KeyEvent#META_SHIFT_ON},
+     *        {@link android.view.KeyEvent#META_SYM_ON},
+     *        {@link android.view.KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
     @Override
@@ -276,14 +280,16 @@ public interface SupportMenuItem extends android.view.MenuItem {
     /**
      * Change the numeric shortcut and modifiers associated with this item.
      * <p>
-     * See {@link Menu} for the menu types that support shortcuts.
+     * See {@link android.view.Menu} for the menu types that support shortcuts.
      *
      * @param numericChar The numeric shortcut key.  This is the shortcut when
      *                 using a 12-key (numeric) keyboard.
      * @param numericModifiers The modifier associated with the shortcut. It should
-     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
-     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
-     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     *        be a combination of {@link android.view.KeyEvent#META_META_ON},
+     *        {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     *        {@link android.view.KeyEvent#META_SHIFT_ON},
+     *        {@link android.view.KeyEvent#META_SYM_ON},
+     *        {@link android.view.KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
     @Override
@@ -291,11 +297,12 @@ public interface SupportMenuItem extends android.view.MenuItem {
 
     /**
      * Return the modifiers for this menu item's numeric (12-key) shortcut.
-     * The modifier is a combination of {@link KeyEvent#META_META_ON},
-     * {@link KeyEvent#META_CTRL_ON}, {@link KeyEvent#META_ALT_ON},
-     * {@link KeyEvent#META_SHIFT_ON}, {@link KeyEvent#META_SYM_ON},
-     * {@link KeyEvent#META_FUNCTION_ON}.
-     * For example, {@link KeyEvent#META_FUNCTION_ON}|{@link KeyEvent#META_CTRL_ON}
+     * The modifier is a combination of {@link android.view.KeyEvent#META_META_ON},
+     * {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     * {@link android.view.KeyEvent#META_SHIFT_ON}, {@link android.view.KeyEvent#META_SYM_ON},
+     * {@link android.view.KeyEvent#META_FUNCTION_ON}.
+     * For example,
+     * {@link android.view.KeyEvent#META_FUNCTION_ON}|{@link android.view.KeyEvent#META_CTRL_ON}
      *
      * @return Modifier associated with the numeric shortcut.
      */
@@ -310,14 +317,16 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * the characters '\b' or '\n' as shortcuts will get triggered by the
      * Delete key or Carriage Return key, respectively.
      * <p>
-     * See {@link Menu} for the menu types that support shortcuts.
+     * See {@link android.view.Menu} for the menu types that support shortcuts.
      *
      * @param alphaChar The alphabetic shortcut key. This is the shortcut when
      *        using a keyboard with alphabetic keys.
      * @param alphaModifiers The modifier associated with the shortcut. It should
-     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
-     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
-     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     *        be a combination of {@link android.view.KeyEvent#META_META_ON},
+     *        {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     *        {@link android.view.KeyEvent#META_SHIFT_ON},
+     *        {@link android.view.KeyEvent#META_SYM_ON},
+     *        {@link android.view.KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
     @Override
@@ -325,11 +334,12 @@ public interface SupportMenuItem extends android.view.MenuItem {
 
     /**
      * Return the modifier for this menu item's alphabetic shortcut.
-     * The modifier is a combination of {@link KeyEvent#META_META_ON},
-     * {@link KeyEvent#META_CTRL_ON}, {@link KeyEvent#META_ALT_ON},
-     * {@link KeyEvent#META_SHIFT_ON}, {@link KeyEvent#META_SYM_ON},
-     * {@link KeyEvent#META_FUNCTION_ON}.
-     * For example, {@link KeyEvent#META_FUNCTION_ON}|{@link KeyEvent#META_CTRL_ON}
+     * The modifier is a combination of {@link android.view.KeyEvent#META_META_ON},
+     * {@link android.view.KeyEvent#META_CTRL_ON}, {@link android.view.KeyEvent#META_ALT_ON},
+     * {@link android.view.KeyEvent#META_SHIFT_ON}, {@link android.view.KeyEvent#META_SYM_ON},
+     * {@link android.view.KeyEvent#META_FUNCTION_ON}.
+     * For example,
+     * {@link android.view.KeyEvent#META_FUNCTION_ON}|{@link android.view.KeyEvent#META_CTRL_ON}
      *
      * @return Modifier associated with the keyboard shortcut.
      */
