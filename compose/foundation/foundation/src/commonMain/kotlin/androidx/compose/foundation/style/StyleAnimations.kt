@@ -63,7 +63,7 @@ internal class StyleAnimations {
                     }
                     try {
                         val velocity = animation.velocity
-                        animation = Animatable(0f)
+                        animation.snapTo(0f)
                         animation.animateTo(1f, animationSpec = spec, initialVelocity = velocity)
                     } finally {
                         cleanupAnimations()

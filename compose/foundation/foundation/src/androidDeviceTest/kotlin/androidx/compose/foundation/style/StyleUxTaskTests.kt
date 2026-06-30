@@ -57,6 +57,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
@@ -832,6 +833,30 @@ class StyleUxTaskTests {
                         SampleLoadingState.Error -> "Try again"
                     }
                 BasicText(text)
+            }
+        }
+    }
+
+    @Test
+    fun clip_path_animation() {
+        interactiveTask {
+            StyledButton(
+                onClick = {},
+                style = {
+                    width(100.dp)
+                    height(50.dp)
+                    shape(RoundedCornerShape(20.dp))
+                    clip(true)
+                    scale(1.0f)
+                    pressed {
+                        animate(tween(1000)) {
+                            shape(RectangleShape)
+                            scale(1.5f)
+                        }
+                    }
+                },
+            ) {
+                Text("Press me!")
             }
         }
     }
