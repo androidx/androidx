@@ -39,7 +39,9 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
@@ -144,6 +146,15 @@ private fun Project.configureComponentPublishing(
         repositories {
             it.maven { repo -> repo.setUrl(getRepositoryDirectory()) }
             it.maven { repo -> repo.setUrl(getPerProjectRepositoryDirectory()) }
+        }
+        // We delete the repository every time we publish to ensure that when versions are changed
+        // we only have the latest current version
+        val deleteRepo =
+            tasks.register("deletePerProjectRepo", Delete::class.java) {
+                it.delete(getPerProjectRepositoryDirectory())
+            }
+        tasks.withType(PublishToMavenRepository::class.java).configureEach {
+            it.dependsOn(deleteRepo)
         }
         publications {
             if (appliesJavaGradlePluginPlugin()) {
