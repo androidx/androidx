@@ -212,7 +212,6 @@ class MemoryLeakTest {
             recomposer.join()
         }
 
-    @Ignore("b/527249553")
     @Test
     fun scrollLazyStaggeredGrid() {
         runBlocking(AndroidUiDispatcher.Main) {
@@ -258,7 +257,7 @@ class MemoryLeakTest {
             }
             doFrame()
 
-            loopAndVerifyMemory(iterations = 400, gcFrequency = 40) {
+            loopAndVerifyMemory(iterations = 400, gcFrequency = 40, ignoreFirstRun = true) {
                 state.scrollToItem(10)
                 doFrame()
 
