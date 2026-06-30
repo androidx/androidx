@@ -33,6 +33,7 @@ import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
@@ -80,6 +81,9 @@ class StatelessInputConnectionTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private lateinit var ic: StatelessInputConnection
+    private var lastExtractedTextRequestToken = -1
+    private var lastExtractedTextMonitorMode = false
+
     private val activeSession: TextInputSession =
         object : TextInputSession {
             override val text: TextFieldCharSequence
@@ -134,6 +138,11 @@ class StatelessInputConnectionTest {
 
             override fun requestCursorUpdates(cursorUpdateMode: Int) {}
 
+            override fun requestExtractedTextUpdates(token: Int) {
+                lastExtractedTextRequestToken = token
+                lastExtractedTextMonitorMode = true
+            }
+
             override fun onCommitContent(transferableContent: TransferableContent): Boolean {
                 return this@StatelessInputConnectionTest.onCommitContent?.invoke(
                     transferableContent
@@ -177,6 +186,25 @@ class StatelessInputConnectionTest {
     @Before
     fun setup() {
         ic = StatelessInputConnection(activeSession, EditorInfo())
+    }
+
+    @Test
+    fun getExtractedText_updatesMonitorMode() {
+        value = TextFieldCharSequence("Hello", TextRange(1))
+
+        ic.getExtractedText(
+            ExtractedTextRequest().apply { token = 42 },
+            InputConnection.GET_EXTRACTED_TEXT_MONITOR,
+        )
+
+        assertThat(lastExtractedTextRequestToken).isEqualTo(42)
+        assertThat(lastExtractedTextMonitorMode).isTrue()
+
+        // Subsequent requests with 0 flags should not disable monitor mode or update token
+        ic.getExtractedText(ExtractedTextRequest().apply { token = 43 }, 0)
+
+        assertThat(lastExtractedTextRequestToken).isEqualTo(42)
+        assertThat(lastExtractedTextMonitorMode).isTrue()
     }
 
     @Test
