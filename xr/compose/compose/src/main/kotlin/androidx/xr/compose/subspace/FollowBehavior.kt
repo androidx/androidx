@@ -151,7 +151,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                 // It will also be made visible, enabled, at this time.
                 val pose = target.poseUpdates.first()
                 var currentTargetPoseMeter: Pose =
-                    applyTrackedDimensions(
+                    getPoseByTrackedDimensions(
                         pose = pose,
                         dimensions = dimensions,
                         fallbackPose = initialPose,
@@ -164,7 +164,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                     // Determine the target pose using the source pose but ignoring the
                     // dimensions we are not tracking.
                     currentTargetPoseMeter =
-                        applyTrackedDimensions(
+                        getPoseByTrackedDimensions(
                             pose = pose,
                             dimensions = dimensions,
                             fallbackPose = initialPose,
@@ -209,69 +209,6 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
         val rotationDelta = Quaternion.angle(pose1.rotation, pose2.rotation)
 
         return translationDelta > TRANSLATION_THRESHOLD || rotationDelta > ROTATION_THRESHOLD
-    }
-
-    private fun applyTrackedDimensions(
-        pose: Pose,
-        dimensions: TrackedDimensions,
-        fallbackPose: Pose,
-    ): Pose {
-        return Pose(
-            translation =
-                Vector3(
-                    x =
-                        getTrackedValue(
-                            dimensions.isTranslationXTracked,
-                            pose.translation.x,
-                            fallbackPose.translation.x,
-                        ),
-                    y =
-                        getTrackedValue(
-                            dimensions.isTranslationYTracked,
-                            pose.translation.y,
-                            fallbackPose.translation.y,
-                        ),
-                    z =
-                        getTrackedValue(
-                            dimensions.isTranslationZTracked,
-                            pose.translation.z,
-                            fallbackPose.translation.z,
-                        ),
-                ),
-            rotation =
-                Quaternion(
-                    x =
-                        getTrackedValue(
-                            dimensions.isRotationXTracked,
-                            pose.rotation.x,
-                            fallbackPose.rotation.x,
-                        ),
-                    y =
-                        getTrackedValue(
-                            dimensions.isRotationYTracked,
-                            pose.rotation.y,
-                            fallbackPose.rotation.y,
-                        ),
-                    z =
-                        getTrackedValue(
-                            dimensions.isRotationZTracked,
-                            pose.rotation.z,
-                            fallbackPose.rotation.z,
-                        ),
-                    w = pose.rotation.w,
-                ),
-        )
-    }
-
-    /*
-     * Helper to return the tracked value if enabled, otherwise the fallback (initial) value.
-     */
-    private fun getTrackedValue(
-        isTracked: Boolean,
-        currentValue: Float,
-        fallbackValue: Float,
-    ): Float {
-        return if (isTracked) currentValue else fallbackValue
     }
 
     override fun equals(other: Any?): Boolean {
@@ -331,7 +268,7 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
         withContext(dispatcherOverride) {
             val pose: Pose = target.poseUpdates.first()
             currentTargetPoseMeter =
-                applyTrackedDimensions(
+                getPoseByTrackedDimensions(
                     pose = pose,
                     dimensions = dimensions,
                     fallbackPose = initialPoseMeter,
@@ -341,7 +278,7 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
 
             followTargetFlow.poseUpdates.collect { pose ->
                 currentTargetPoseMeter =
-                    applyTrackedDimensions(
+                    getPoseByTrackedDimensions(
                         pose = pose,
                         dimensions = dimensions,
                         fallbackPose = initialPoseMeter,
@@ -459,67 +396,6 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
         return translationDelta > translationThreshold || rotationDelta > rotationThreshold
     }
 
-    @OptIn(ExperimentalFollowingSubspaceApi::class)
-    private fun applyTrackedDimensions(
-        pose: Pose,
-        dimensions: TrackedDimensions,
-        fallbackPose: Pose,
-    ): Pose {
-        return Pose(
-            translation =
-                Vector3(
-                    x =
-                        getTrackedValue(
-                            isTracked = dimensions.isTranslationXTracked,
-                            currentValue = pose.translation.x,
-                            fallbackValue = fallbackPose.translation.x,
-                        ),
-                    y =
-                        getTrackedValue(
-                            isTracked = dimensions.isTranslationYTracked,
-                            currentValue = pose.translation.y,
-                            fallbackValue = fallbackPose.translation.y,
-                        ),
-                    z =
-                        getTrackedValue(
-                            isTracked = dimensions.isTranslationZTracked,
-                            currentValue = pose.translation.z,
-                            fallbackValue = fallbackPose.translation.z,
-                        ),
-                ),
-            rotation =
-                Quaternion(
-                    x =
-                        getTrackedValue(
-                            isTracked = dimensions.isRotationXTracked,
-                            currentValue = pose.rotation.x,
-                            fallbackValue = fallbackPose.rotation.x,
-                        ),
-                    y =
-                        getTrackedValue(
-                            isTracked = dimensions.isRotationYTracked,
-                            currentValue = pose.rotation.y,
-                            fallbackValue = fallbackPose.rotation.y,
-                        ),
-                    z =
-                        getTrackedValue(
-                            isTracked = dimensions.isRotationZTracked,
-                            currentValue = pose.rotation.z,
-                            fallbackValue = fallbackPose.rotation.z,
-                        ),
-                    w = pose.rotation.w,
-                ),
-        )
-    }
-
-    private fun getTrackedValue(
-        isTracked: Boolean,
-        currentValue: Float,
-        fallbackValue: Float,
-    ): Float {
-        return if (isTracked) currentValue else fallbackValue
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ExponentialDecayFollowBehavior) return false
@@ -538,6 +414,67 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
         private const val TRANSLATION_THRESHOLD: Float = 0.1f
         private const val ROTATION_THRESHOLD: Float = 3f
     }
+}
+
+/** Helper to return the tracked value if enabled, otherwise the fallback (initial) value. */
+private fun getTrackedValue(isTracked: Boolean, currentValue: Float, fallbackValue: Float): Float {
+    return if (isTracked) currentValue else fallbackValue
+}
+
+@OptIn(ExperimentalFollowingSubspaceApi::class)
+private fun getPoseByTrackedDimensions(
+    pose: Pose,
+    dimensions: TrackedDimensions,
+    fallbackPose: Pose,
+): Pose {
+    // TODO(b/531806536): Check for Gimbal lock issues
+    val currentEuler = pose.rotation.eulerAngles
+    val fallbackEuler = fallbackPose.rotation.eulerAngles
+
+    return Pose(
+        translation =
+            Vector3(
+                x =
+                    getTrackedValue(
+                        isTracked = dimensions.isTranslationXTracked,
+                        currentValue = pose.translation.x,
+                        fallbackValue = fallbackPose.translation.x,
+                    ),
+                y =
+                    getTrackedValue(
+                        isTracked = dimensions.isTranslationYTracked,
+                        currentValue = pose.translation.y,
+                        fallbackValue = fallbackPose.translation.y,
+                    ),
+                z =
+                    getTrackedValue(
+                        isTracked = dimensions.isTranslationZTracked,
+                        currentValue = pose.translation.z,
+                        fallbackValue = fallbackPose.translation.z,
+                    ),
+            ),
+        rotation =
+            Quaternion.fromEulerAngles(
+                pitch =
+                    getTrackedValue(
+                        isTracked = dimensions.isRotationXTracked,
+                        currentValue = currentEuler.x,
+                        fallbackValue = fallbackEuler.x,
+                    ),
+                yaw =
+                    getTrackedValue(
+                        isTracked = dimensions.isRotationYTracked,
+                        currentValue = currentEuler.y,
+                        fallbackValue = fallbackEuler.y,
+                    ),
+                roll =
+                    getTrackedValue(
+                        isTracked = dimensions.isRotationZTracked,
+                        currentValue = currentEuler.z,
+                        fallbackValue = fallbackEuler.z,
+                    ),
+            ),
+    )
 }
 
 /**
