@@ -167,6 +167,9 @@ val DONT_TRY_RERUNNING_TASKS =
 
         // Input is all of frameworks/support with a filter sometimes causing invalidations.
         "zipOwnersFiles",
+
+        // Part of cleanup before PublishToMavenRepository that also rerun
+        "deletePerProjectRepo",
     )
 
 val DONT_TRY_RERUNNING_TASK_TYPES =
