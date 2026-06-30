@@ -16,32 +16,28 @@
 
 package androidx.compose.remote.creation.compose.vector
 
-import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import kotlin.collections.ArrayList
 
 /**
- * [RemotePathBuilder] provides a fluent API to creates a list of [RemotePathNode], used to describe
- * a path.
+ * [RemotePathScope] provides a DSL to create a list of [RemotePathNode], used to describe a path.
  */
-@Suppress("NotCloseable", "TopLevelBuilder")
-public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+// NotCloseable - because close here is a path operation, not resource closing
+@Suppress("NotCloseable")
+public class RemotePathScope constructor() {
 
     // 88% of Material icons use 32 or fewer path nodes
     private val _nodes = ArrayList<RemotePathNode>(32)
 
     /** Returns the list of [RemotePathNode] currently held in this builder. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val nodes: List<RemotePathNode>
+    internal val nodes: List<RemotePathNode>
         get() = _nodes
 
     /** Closes the current contour by adding a [RemotePathNode.Close] to [nodes]. */
-    @Suppress("BuilderSetStyle")
-    public fun close(): RemotePathBuilder = apply { _nodes.add(RemotePathNode.Close) }
+    public fun close() {
+        _nodes.add(RemotePathNode.Close)
+    }
 
     /**
      * Start a new contour at position ([x], [y]) by adding a [RemotePathNode.MoveTo] to [nodes].
@@ -49,8 +45,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x The x coordinate of the start of the new contour
      * @param y The y coordinate of the start of the new contour
      */
-    @Suppress("BuilderSetStyle")
-    public fun moveTo(x: RemoteFloat, y: RemoteFloat): RemotePathBuilder = withScope {
+    public fun moveTo(x: RemoteFloat, y: RemoteFloat) {
         _nodes.add(RemotePathNode.MoveTo(x, y))
     }
 
@@ -61,8 +56,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dx The x offset of the start of the new contour, relative to the last path position
      * @param dy The y offset of the start of the new contour, relative to the last path position
      */
-    @Suppress("BuilderSetStyle")
-    public fun moveToRelative(dx: RemoteFloat, dy: RemoteFloat): RemotePathBuilder = withScope {
+    public fun moveToRelative(dx: RemoteFloat, dy: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeMoveTo(dx, dy))
     }
 
@@ -74,8 +68,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x The x coordinate of the end of the line
      * @param y The y coordinate of the end of the line
      */
-    @Suppress("BuilderSetStyle")
-    public fun lineTo(x: RemoteFloat, y: RemoteFloat): RemotePathBuilder = withScope {
+    public fun lineTo(x: RemoteFloat, y: RemoteFloat) {
         _nodes.add(RemotePathNode.LineTo(x, y))
     }
 
@@ -87,8 +80,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dx The x offset of the end of the line, relative to the last path position
      * @param dy The y offset of the end of the line, relative to the last path position
      */
-    @Suppress("BuilderSetStyle")
-    public fun lineToRelative(dx: RemoteFloat, dy: RemoteFloat): RemotePathBuilder = withScope {
+    public fun lineToRelative(dx: RemoteFloat, dy: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeLineTo(dx, dy))
     }
 
@@ -99,8 +91,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      *
      * @param x The x coordinate of the end of the line
      */
-    @Suppress("BuilderSetStyle")
-    public fun horizontalLineTo(x: RemoteFloat): RemotePathBuilder = withScope {
+    public fun horizontalLineTo(x: RemoteFloat) {
         _nodes.add(RemotePathNode.HorizontalTo(x))
     }
 
@@ -112,8 +103,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      *
      * @param dx The x offset of the end of the line, relative to the last path position
      */
-    @Suppress("BuilderSetStyle")
-    public fun horizontalLineToRelative(dx: RemoteFloat): RemotePathBuilder = withScope {
+    public fun horizontalLineToRelative(dx: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeHorizontalTo(dx))
     }
 
@@ -124,8 +114,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      *
      * @param y The y coordinate of the end of the line
      */
-    @Suppress("BuilderSetStyle")
-    public fun verticalLineTo(y: RemoteFloat): RemotePathBuilder = withScope {
+    public fun verticalLineTo(y: RemoteFloat) {
         _nodes.add(RemotePathNode.VerticalTo(y))
     }
 
@@ -137,8 +126,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      *
      * @param dy The y offset of the end of the line, relative to the last path position
      */
-    @Suppress("BuilderSetStyle")
-    public fun verticalLineToRelative(dy: RemoteFloat): RemotePathBuilder = withScope {
+    public fun verticalLineToRelative(dy: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeVerticalTo(dy))
     }
 
@@ -154,7 +142,6 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x3 The x coordinate of the end point of the cubic curve
      * @param y3 The y coordinate of the end point of the cubic curve
      */
-    @Suppress("BuilderSetStyle")
     public fun curveTo(
         x1: RemoteFloat,
         y1: RemoteFloat,
@@ -162,7 +149,9 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
         y2: RemoteFloat,
         x3: RemoteFloat,
         y3: RemoteFloat,
-    ): RemotePathBuilder = withScope { _nodes.add(RemotePathNode.CurveTo(x1, y1, x2, y2, x3, y3)) }
+    ) {
+        _nodes.add(RemotePathNode.CurveTo(x1, y1, x2, y2, x3, y3))
+    }
 
     /**
      * Add a cubic Bézier by adding a [RemotePathNode.CurveTo] to [nodes]. If no contour has been
@@ -182,7 +171,6 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dy3 The y offset of the end point of the cubic curve, relative to the last path
      *   position
      */
-    @Suppress("BuilderSetStyle")
     public fun curveToRelative(
         dx1: RemoteFloat,
         dy1: RemoteFloat,
@@ -190,7 +178,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
         dy2: RemoteFloat,
         dx3: RemoteFloat,
         dy3: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(RemotePathNode.RelativeCurveTo(dx1, dy1, dx2, dy2, dx3, dy3))
     }
 
@@ -207,13 +195,12 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x2 The x coordinate of the end point of the cubic curve
      * @param y2 The y coordinate of the end point of the cubic curve
      */
-    @Suppress("BuilderSetStyle")
     public fun reflectiveCurveTo(
         x1: RemoteFloat,
         y1: RemoteFloat,
         x2: RemoteFloat,
         y2: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(RemotePathNode.ReflectiveCurveTo(x1, y1, x2, y2))
     }
 
@@ -232,13 +219,12 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dy2 The y offset of the end point of the cubic curve, relative to the last path
      *   position
      */
-    @Suppress("BuilderSetStyle")
     public fun reflectiveCurveToRelative(
         dx1: RemoteFloat,
         dy1: RemoteFloat,
         dx2: RemoteFloat,
         dy2: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(RemotePathNode.RelativeReflectiveCurveTo(dx1, dy1, dx2, dy2))
     }
 
@@ -252,13 +238,9 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x2 The x coordinate of the end point of the quadratic curve
      * @param y2 The y coordinate of the end point of the quadratic curve
      */
-    @Suppress("BuilderSetStyle")
-    public fun quadTo(
-        x1: RemoteFloat,
-        y1: RemoteFloat,
-        x2: RemoteFloat,
-        y2: RemoteFloat,
-    ): RemotePathBuilder = withScope { _nodes.add(RemotePathNode.QuadTo(x1, y1, x2, y2)) }
+    public fun quadTo(x1: RemoteFloat, y1: RemoteFloat, x2: RemoteFloat, y2: RemoteFloat) {
+        _nodes.add(RemotePathNode.QuadTo(x1, y1, x2, y2))
+    }
 
     /**
      * Add a quadratic Bézier by adding a [RemotePathNode.RelativeQuadTo] to [nodes]. If no contour
@@ -274,13 +256,12 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dy2 The y offset of the end point of the quadratic curve, relative to the last path
      *   position
      */
-    @Suppress("BuilderSetStyle")
     public fun quadToRelative(
         dx1: RemoteFloat,
         dy1: RemoteFloat,
         dx2: RemoteFloat,
         dy2: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(RemotePathNode.RelativeQuadTo(dx1, dy1, dx2, dy2))
     }
 
@@ -294,8 +275,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x1 The x coordinate of the end point of the quadratic curve
      * @param y1 The y coordinate of the end point of the quadratic curve
      */
-    @Suppress("BuilderSetStyle")
-    public fun reflectiveQuadTo(x1: RemoteFloat, y1: RemoteFloat): RemotePathBuilder = withScope {
+    public fun reflectiveQuadTo(x1: RemoteFloat, y1: RemoteFloat) {
         _nodes.add(RemotePathNode.ReflectiveQuadTo(x1, y1))
     }
 
@@ -310,11 +290,9 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dy1 The y offset of the end point of the quadratic curve, relative to the last path
      *   position
      */
-    @Suppress("BuilderSetStyle")
-    public fun reflectiveQuadToRelative(dx1: RemoteFloat, dy1: RemoteFloat): RemotePathBuilder =
-        withScope {
-            _nodes.add(RemotePathNode.RelativeReflectiveQuadTo(dx1, dy1))
-        }
+    public fun reflectiveQuadToRelative(dx1: RemoteFloat, dy1: RemoteFloat) {
+        _nodes.add(RemotePathNode.RelativeReflectiveQuadTo(dx1, dy1))
+    }
 
     /**
      * Add an elliptical arc from the last point to the position ([x1], [y1]) by adding
@@ -343,7 +321,6 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param x1 The x coordinate of the end point of the arc
      * @param y1 The y coordinate of the end point of the arc
      */
-    @Suppress("BuilderSetStyle")
     public fun arcTo(
         horizontalEllipseRadius: RemoteFloat,
         verticalEllipseRadius: RemoteFloat,
@@ -352,7 +329,7 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
         isPositiveArc: RemoteBoolean,
         x1: RemoteFloat,
         y1: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(
             RemotePathNode.ArcTo(
                 horizontalEllipseRadius,
@@ -393,7 +370,6 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
      * @param dx1 The x offset of the end point of the arc, relative to the last path position
      * @param dy1 The y offset of the end point of the arc, relative to the last path position
      */
-    @Suppress("BuilderSetStyle")
     public fun arcToRelative(
         a: RemoteFloat,
         b: RemoteFloat,
@@ -402,26 +378,30 @@ public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const
         isPositiveArc: RemoteBoolean,
         dx1: RemoteFloat,
         dy1: RemoteFloat,
-    ): RemotePathBuilder = withScope {
+    ) {
         _nodes.add(
             RemotePathNode.RelativeArcTo(a, b, theta, isMoreThanHalf, isPositiveArc, dx1, dy1)
         )
     }
 
-    internal fun withScope(function: () -> Boolean): RemotePathBuilder = apply { function() }
-
     /**
-     * Build the RemotePath, encoding using the given creationState.
+     * Add an elliptical arc to the path.
      *
-     * @param creationState the recording creation state.
+     * @param left The left bound of the oval defining the shape of the arc
+     * @param top The top bound of the oval defining the shape of the arc
+     * @param right The right bound of the oval defining the shape of the arc
+     * @param bottom The bottom bound of the oval defining the shape of the arc
+     * @param startAngle Starting angle (in degrees) where the arc begins
+     * @param sweepAngle Sweep angle (in degrees) measured clockwise
      */
-    public fun build(creationState: RemoteStateScope): RemotePath {
-        return nodes.toRemotePath(creationState = creationState)
+    public fun addArc(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        startAngle: RemoteFloat,
+        sweepAngle: RemoteFloat,
+    ) {
+        _nodes.add(RemotePathNode.AddArc(left, top, right, bottom, startAngle, sweepAngle))
     }
-}
-
-/** DSL for building a [RemotePathBuilder]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemotePath.Companion.Builder(block: RemotePathBuilder.() -> Unit): RemotePathBuilder {
-    return RemotePathBuilder().apply(block)
 }

@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.tan
 import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.compose.vector.RemotePathExtensions
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.AddArc
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.ArcTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.Close
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.CurveTo
@@ -79,6 +80,20 @@ internal fun List<RemotePathNode>.toRemotePath(
                     ctrlX = segmentX
                     ctrlY = segmentY
                     target.close()
+                }
+
+                is AddArc -> {
+                    with(creationState) {
+                        target.addArc(
+                            node.left.floatId,
+                            node.top.floatId,
+                            node.right.floatId,
+                            node.bottom.floatId,
+                            node.startAngle.floatId,
+                            node.sweepAngle.floatId,
+                            true,
+                        )
+                    }
                 }
 
                 is RelativeMoveTo -> {

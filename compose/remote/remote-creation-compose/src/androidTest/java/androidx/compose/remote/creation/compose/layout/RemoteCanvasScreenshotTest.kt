@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.content.Context
-import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -25,10 +24,10 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.vector.Builder
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
@@ -148,7 +147,7 @@ class RemoteCanvasScreenshotTest {
     }
 
     @Test
-    fun remoteCanvas_drawPath_remotePathBuilder() {
+    fun remoteCanvas_drawPath_remotePathScope() {
         val width = 200
         val height = 200
         remoteComposeTestRule.runScreenshotTest(
@@ -161,16 +160,13 @@ class RemoteCanvasScreenshotTest {
                 ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val builder =
-                RemotePath.Builder {
-                    moveTo(10f.rf, 10f.rf)
-                    lineTo(190f.rf, 10f.rf)
-                    lineTo(100f.rf, 190f.rf)
+            RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
+                val path = remotePath {
+                    moveTo(x = 10f.rf, y = 10f.rf)
+                    lineTo(x = 190f.rf, y = 10f.rf)
+                    lineTo(x = 100f.rf, y = 190f.rf)
                     close()
                 }
-
-            RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
-                val path = builder.build(this)
 
                 val paint = RemotePaint {
                     color = Color.Red.rc

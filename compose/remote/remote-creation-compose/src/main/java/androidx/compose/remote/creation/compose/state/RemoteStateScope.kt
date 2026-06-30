@@ -18,11 +18,14 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -63,6 +66,11 @@ public interface RemoteStateScope {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val RemoteState<*>.longId: Long
         get() = (this as BaseRemoteState<*>).getLongIdForCreationState(creationState)
+}
+
+/** Build the [RemotePath], encoding using this [RemoteStateScope]. */
+public fun RemoteStateScope.remotePath(fn: RemotePathScope.() -> Unit): RemotePath {
+    return RemotePathScope().apply(fn).nodes.toRemotePath(creationState = this)
 }
 
 /** The [RemoteComposeCreationState] associated with the document being drawn into. */

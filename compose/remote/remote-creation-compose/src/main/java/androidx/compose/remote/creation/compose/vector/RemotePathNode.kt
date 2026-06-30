@@ -320,6 +320,18 @@ public sealed class RemotePathNode(
         val arcStartX: RemoteFloat,
         val arcStartY: RemoteFloat,
     ) : RemotePathNode()
+
+    /** Adds a new contour containing an arc. */
+    @Immutable
+    @Suppress("DataClassDefinition")
+    public data class AddArc(
+        val left: RemoteFloat,
+        val top: RemoteFloat,
+        val right: RemoteFloat,
+        val bottom: RemoteFloat,
+        val startAngle: RemoteFloat,
+        val sweepAngle: RemoteFloat,
+    ) : RemotePathNode()
 }
 
 /**
