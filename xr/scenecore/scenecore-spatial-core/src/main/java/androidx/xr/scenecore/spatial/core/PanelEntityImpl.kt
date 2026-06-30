@@ -174,11 +174,6 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
             super.sizeInPixels = value
         }
 
-    override fun setHidden(hidden: Boolean) {
-        super.setHidden(hidden)
-        surfaceControlViewHost.view?.visibility = if (hidden) View.INVISIBLE else View.VISIBLE
-    }
-
     override fun dispose() {
         super.dispose()
     }

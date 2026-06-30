@@ -222,15 +222,6 @@ internal class MainPanelEntityImpl(
         }
     }
 
-    override fun setHidden(hidden: Boolean) {
-        super.setHidden(hidden)
-        activity?.let { act ->
-            val contentView = act.findViewById<android.view.View>(android.R.id.content)
-            contentView?.visibility =
-                if (hidden) android.view.View.INVISIBLE else android.view.View.VISIBLE
-        }
-    }
-
     private companion object {
         const val TAG = "MainPanelEntityImpl"
     }
