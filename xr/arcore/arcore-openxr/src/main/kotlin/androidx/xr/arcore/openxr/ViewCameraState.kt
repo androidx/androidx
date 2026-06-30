@@ -20,7 +20,7 @@ import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of a [androidx.xr.arcore.runtime.RenderViewpoint].
+ * State of an [OpenXrRenderViewpoint] instance's mutable fields.
  *
  * @property pose the [Pose] of the view camera
  * @property fieldOfView the [FieldOfView] of the view camera

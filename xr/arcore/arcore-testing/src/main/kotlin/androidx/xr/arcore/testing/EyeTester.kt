@@ -23,8 +23,7 @@ import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.math.Pose
 
 /**
- * An object which allows for testing a simulation of one of the user's eyes in ARCore unit test
- * environment.
+ * Controls a simulated [androidx.xr.arcore.Eye] in unit tests.
  *
  * @property isOpen whether the eye is open
  * @property pose the [Pose] of the eye

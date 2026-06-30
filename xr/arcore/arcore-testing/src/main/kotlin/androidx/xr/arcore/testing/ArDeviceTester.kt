@@ -22,8 +22,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.math.Pose
 
 /**
- * An object that allows for controlling a simulation of the user's device in an ARCore unit test
- * environment.
+ * Controls simulated device in unit tests.
  *
  * @property pose the current pose of the device
  * @property isCameraTracking whether the AR Device is currently tracking the environment

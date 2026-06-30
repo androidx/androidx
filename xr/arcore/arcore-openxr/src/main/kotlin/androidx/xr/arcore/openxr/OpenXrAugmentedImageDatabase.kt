@@ -56,10 +56,10 @@ internal class OpenXrAugmentedImageDatabase(
         /**
          * Converts the augmentedImageDatabase into an OpenXrAugmentedImageDatabase object.
          *
-         * @param database the [AugmentedImageDatabase] to convert.
+         * @param database the [AugmentedImageDatabase] to convert
          * @return an instance of [OpenXrAugmentedImageDatabase] or null if the database has no
-         *   entries.
-         * @throws [IllegalArgumentException] if the bitmap is not in ARGB_8888 format.
+         *   entries
+         * @throws [IllegalArgumentException] if the bitmap is not in ARGB_8888 format
          */
         internal fun fromAugmentedImageDatabase(
             database: AugmentedImageDatabase

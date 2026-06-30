@@ -170,9 +170,8 @@ public data class FakePerceptionRuntime(
     }
 
     /**
-     * Allows an additional call to [update] to not be blocked. Requires that [update] has been
-     * called exactly once before each call to this method. Failure to do so will result in an
-     * [IllegalStateException].
+     * Prevents [update] calls from blocking. Requires that [update] has been called exactly once
+     * before each call to this method. Failure to do so will result in an [IllegalStateException].
      */
     public fun allowOneMoreCallToUpdate() {
         semaphore.release()

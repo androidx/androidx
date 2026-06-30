@@ -54,7 +54,7 @@ import kotlinx.coroutines.delay
 /**
  * Implementation of the [androidx.xr.arcore.runtime.PerceptionRuntime] interface using ARCore.
  *
- * @property context The [Context] instance
+ * @property context the [Context] instance
  * @property perceptionManager that manages the perception capabilities of a runtime using ARCore
  * @property timeSource the [ArCoreTimeSource] instance
  * @property config the current [Config] of the session

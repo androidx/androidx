@@ -37,8 +37,8 @@ import java.nio.ShortBuffer
  * See
  * [glDrawElements](https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glDrawElements.xhtml)
  *
- * @param render The [SampleRender] instance to which this buffer belongs.
- * @param entries The optional [Buffer] containing the index data.
+ * @param render the [SampleRender] instance to which this buffer belongs
+ * @param entries the optional [Buffer] containing the index data
  */
 class IndexBuffer(val render: SampleRender, val entries: Buffer?) : Closeable {
     private var buffer =

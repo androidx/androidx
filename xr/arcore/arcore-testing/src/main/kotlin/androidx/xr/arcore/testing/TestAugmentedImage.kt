@@ -23,7 +23,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents an image in the test environment.
+ * Image in the test environment.
  *
  * @property index the index of the augmented image in the database
  * @property centerPose [Pose] at the center of the augmented image

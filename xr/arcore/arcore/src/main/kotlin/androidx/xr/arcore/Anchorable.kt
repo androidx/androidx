@@ -18,11 +18,8 @@ package androidx.xr.arcore
 
 import androidx.xr.runtime.math.Pose
 
-/** An object that ARCore for Jetpack XR can track and that an [Anchor] can be attached to. */
+/** Trackable object that can have an [Anchor] attached. */
 public interface Anchorable<out T> : Trackable<T> {
-    /**
-     * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
-     * world coordinate space.
-     */
+    /** Creates an [Anchor] attached to this [Trackable]. */
     public fun createAnchor(pose: Pose): AnchorResult
 }

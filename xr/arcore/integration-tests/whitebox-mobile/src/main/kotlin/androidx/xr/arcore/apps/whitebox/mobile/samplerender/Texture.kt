@@ -27,10 +27,10 @@ import java.nio.ByteBuffer
 /**
  * A GPU-side texture.
  *
- * @param render The [SampleRender] instance to use for rendering.
- * @param target The target to bind the texture to.
- * @param wrapMode The way the texture's edges are rendered.
- * @param useMipmaps Whether to generate mipmaps for the texture.
+ * @param render the [SampleRender] instance to use for rendering
+ * @param target the target to bind the texture to
+ * @param wrapMode the way the texture's edges are rendered
+ * @param useMipmaps whether to generate mipmaps for the texture
  */
 class Texture(
     val render: SampleRender,

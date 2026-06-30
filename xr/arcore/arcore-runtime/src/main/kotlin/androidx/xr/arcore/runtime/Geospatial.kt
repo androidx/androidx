@@ -178,8 +178,7 @@ public interface Geospatial {
     ): Anchor
 
     /**
-     * Creates an anchor at a specified geospatial location and altitude relative to the horizontal
-     * position's surface (Terrain or Rooftop).
+     * Creates an [Anchor] at a specified geospatial location.
      *
      * @param latitude the latitude of the anchor
      * @param longitude the longitude of the anchor

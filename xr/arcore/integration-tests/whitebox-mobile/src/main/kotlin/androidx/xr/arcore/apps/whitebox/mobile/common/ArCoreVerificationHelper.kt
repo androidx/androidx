@@ -32,10 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Observer class to manage the device ARCore verification on the lifecycle owner (activity) before
- * the session is created.
- */
+/** Manages ARCore verification before session creation. */
 class ArCoreVerificationHelper(
     val activity: ComponentActivity,
     val onArCoreVerified: () -> Unit = {},

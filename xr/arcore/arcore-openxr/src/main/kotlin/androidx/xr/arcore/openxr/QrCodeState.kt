@@ -21,15 +21,15 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of a [androidx.xr.arcore.runtime.QrCode] instance's mutable fields.
+ * State of a [OpenXrQrCode] instance's mutable fields.
  *
- * @property trackingState The [androidx.xr.arcore.runtime.TrackingState] value describing if the QR
- *   code is being updated.
- * @property centerPose The pose of the center of the detected QR code. The pose's transformed +Y
+ * @property trackingState the [androidx.xr.arcore.runtime.TrackingState] value describing if the QR
+ *   code is being updated
+ * @property centerPose the pose of the center of the detected QR code. The pose's transformed +Y
  *   axis will be point normal out of the QR code, with the +X and +Z axes orienting the extents of
- *   the bounding rectangle.
- * @property extents The dimensions of the detected QR code.
- * @property data The content of the detected QR code.
+ *   the bounding rectangle
+ * @property extents the dimensions of the detected QR code
+ * @property data the content of the detected QR code
  */
 internal data class QrCodeState(
     @JvmField val trackingState: TrackingState = TrackingState.PAUSED,

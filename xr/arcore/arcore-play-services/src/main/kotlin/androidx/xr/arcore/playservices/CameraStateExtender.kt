@@ -177,10 +177,7 @@ internal class CameraStateExtender : StateExtender {
     }
 }
 
-/**
- * Provides the latest [CameraState], which contains the latest information about the device camera,
- * such as pose, projection, and timestamp for the current frame.
- */
+/** Camera state containing information about the device camera. */
 @Suppress("ExperimentalPropertyAnnotation")
 public val CoreState.cameraState: CameraState?
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

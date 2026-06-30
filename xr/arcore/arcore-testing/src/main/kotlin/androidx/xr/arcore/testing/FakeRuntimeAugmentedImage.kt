@@ -24,10 +24,9 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Test-only implementation of [RuntimeImage]
+ * Test-only implementation of [RuntimeImage] for simulation.
  *
- * The properties of the [FakeRuntimeAugmentedImage] can be set manually in order to simulate a
- * runtime image in the environment.
+ * Properties of the [FakeRuntimeAugmentedImage] can be set manually to simulate a runtime image.
  *
  * For example, for a [FakeRuntimeAugmentedImage] with [TrackingState.PAUSED]:
  * ```

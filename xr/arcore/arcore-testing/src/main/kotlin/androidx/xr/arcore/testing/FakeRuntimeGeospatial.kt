@@ -82,7 +82,7 @@ public class FakeRuntimeGeospatial(
     /**
      * Returns the supplied Pose.
      *
-     * @throws IllegalStateException if no Pose is set.
+     * @throws [IllegalStateException] if no Pose is set
      */
     override public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         maybeThrowException()
@@ -95,7 +95,7 @@ public class FakeRuntimeGeospatial(
     /**
      * Returns the supplied [GeospatialPoseResult].
      *
-     * @throws IllegalStateException if no [GeospatialPoseResult] is set.
+     * @throws [IllegalStateException] if no [GeospatialPoseResult] is set
      */
     override public fun createGeospatialPoseFromPose(pose: Pose): GeospatialPoseResult {
         maybeThrowException()
@@ -108,7 +108,7 @@ public class FakeRuntimeGeospatial(
     /**
      * Returns the supplied anchor.
      *
-     * @throws IllegalStateException if no anchor is set.
+     * @throws [IllegalStateException] if no anchor is set
      */
     override public fun createAnchor(
         latitude: Double,
@@ -133,7 +133,7 @@ public class FakeRuntimeGeospatial(
     /**
      * Returns the supplied anchor.
      *
-     * @throws IllegalStateException if no anchor is set.
+     * @throws [IllegalStateException] if no anchor is set
      */
     override public suspend fun createAnchorOnSurface(
         latitude: Double,

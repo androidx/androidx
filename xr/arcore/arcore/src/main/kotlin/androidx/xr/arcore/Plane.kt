@@ -91,19 +91,14 @@ internal constructor(
      * @property trackingState whether this plane is being tracked or not
      * @property label the [PlaneLabel] associated with the plane
      * @property centerPose the [Pose] of the center of the detected plane's bounding box in the
-     *   world coordinate space
-     *
-     * The +Y axis relative to the [centerPose] is equivalent to the normal of the [Plane].
-     *
+     *   world coordinate space. The +Y axis relative to the [centerPose] is equivalent to the
+     *   normal of the [Plane]
      * @property extents the dimensions of the bounding box of the detected plane
      * @property vertices the 2D vertices of a convex polygon approximating the detected plane
      * @property subsumedBy if this plane has been subsumed, returns the plane this plane was merged
-     *   into
-     *
-     * If the subsuming plane is also subsumed by another plane, this plane will continue to be
-     * subsumed by the former.
-     *
-     * @property owner self-reference to the object that owns this state.
+     *   into. If the subsuming plane is also subsumed by another plane, this plane will continue to
+     *   be subsumed by the former
+     * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(
@@ -158,8 +153,7 @@ internal constructor(
         get() = typeFromRuntimeType()
 
     /**
-     * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
-     * world coordinate space.
+     * Creates an [Anchor] attached to this trackable.
      *
      * @param pose the initial [Pose] of the [Anchor]
      * @throws [IllegalStateException] if [Session.config] is set to [PlaneTrackingMode.DISABLED]

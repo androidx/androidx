@@ -17,7 +17,7 @@
 package androidx.xr.arcore
 
 /**
- * Represents the type of face blend shape.
+ * Type of face blend shape.
  *
  * A blend shape (also known as a morph target) is a deformation of a 3D model used to represent
  * different facial expressions or poses. Each `FaceBlendShapeType` corresponds to a specific facial

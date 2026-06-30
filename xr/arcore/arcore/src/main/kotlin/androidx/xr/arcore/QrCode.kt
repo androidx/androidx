@@ -79,11 +79,11 @@ public class QrCode internal constructor(internal val runtimeQrCode: RuntimeQrCo
      * center of the detected QR code's bounding box in the world coordinate space. A [QrCode] is
      * represented as a finite 2D bounding box around a [centerPose].
      *
-     * @property trackingState Whether this QR code is being tracked or not
-     * @property centerPose The pose of the center of the QR code. The +Y axis relative to the
+     * @property trackingState whether this QR code is being tracked or not
+     * @property centerPose the pose of the center of the QR code. The +Y axis relative to the
      *   [centerPose] is equivalent to the normal of the [QrCode]
-     * @property extents The dimensions of the bounding box of the detected QR code
-     * @property data The content of the detected QR code
+     * @property extents the dimensions of the bounding box of the detected QR code
+     * @property data the content of the detected QR code
      * @property owner self-reference to the object that owns this state
      */
     public class State

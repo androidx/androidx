@@ -47,8 +47,8 @@ internal class XrResources() {
      * the given [ArCoreTrackable]. If it does, it does nothing. Otherwise, it adds the
      * [androidx.xr.arcore.runtime.Trackable] to the map.
      *
-     * @param arCoreTrackable The [ArCoreTrackable] to add.
-     * @param trackable The [androidx.xr.arcore.runtime.Trackable] to add.
+     * @param arCoreTrackable the [ArCoreTrackable] to add
+     * @param trackable the [androidx.xr.arcore.runtime.Trackable] to add
      */
     internal fun addTrackable(arCoreTrackable: ArCoreTrackable, trackable: Trackable) {
         _trackables.putIfAbsent(arCoreTrackable, trackable)
@@ -61,7 +61,7 @@ internal class XrResources() {
      * corresponding [androidx.xr.arcore.runtime.Trackable] from the map. Otherwise, it does
      * nothing.
      *
-     * @param arCoreTrackable The [ArCoreTrackable] to remove.
+     * @param arCoreTrackable the [ArCoreTrackable] to remove
      */
     internal fun removeTrackable(arCoreTrackable: ArCoreTrackable) {
         _trackables.remove(arCoreTrackable)

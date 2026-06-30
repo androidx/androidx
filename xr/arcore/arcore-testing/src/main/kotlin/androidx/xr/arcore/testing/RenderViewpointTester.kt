@@ -23,8 +23,7 @@ import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 
 /**
- * An object which allows for testing the values of a simulated [RenderViewpoint] in an ARCore unit
- * test environment.
+ * Tests simulated [RenderViewpoint] in unit tests.
  *
  * @property pose the [Pose]
  * @property fieldOfView the [FieldOfView]

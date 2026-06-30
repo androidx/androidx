@@ -34,8 +34,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 
 /**
- * An object which allows for testing the overall condition of [Geospatial] operations in an ARCore
- * unit test environment.
+ * Tests [Geospatial] operations in unit tests.
  *
  * @property expectedPose the [Pose] that would be created by
  *   [Geospatial.createPoseFromGeospatialPose]

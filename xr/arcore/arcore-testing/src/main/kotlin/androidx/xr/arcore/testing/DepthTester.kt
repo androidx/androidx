@@ -24,8 +24,7 @@ import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
 /**
- * An object which allows for controlling the state one of the simulated [Depth] values in an ARCore
- * unit test environment.
+ * Controls simulated [Depth] in unit tests.
  *
  * @property width the width of the [androidx.xr.arcore.Depth]
  * @property height the height of the [androidx.xr.arcore.Depth]

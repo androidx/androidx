@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 
 /**
- * Defines an intersection between a ray and estimated real-world geometry.
+ * Intersection between a ray and estimated real-world geometry.
  *
  * @property distance the distance from the camera to the hit location, in meters
  * @property hitPose the [Pose] of the intersection between a ray and detected real-world geometry

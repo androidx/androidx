@@ -19,7 +19,7 @@ package androidx.xr.arcore
 import androidx.xr.runtime.math.Pose
 
 /**
- * Defines an intersection between a ray and estimated real-world geometry.
+ * Intersection between a ray and estimated real-world geometry.
  *
  * Can be obtained from [hitTest]. If the ray intersects a [Plane] that is being subsumed, the
  * subsuming [Plane] will be returned.
@@ -31,7 +31,7 @@ import androidx.xr.runtime.math.Pose
  * If the hit [Trackable] is a [Plane], the hitPose will be parallel to the [Pose] of the [Plane].
  *
  * The hit [Trackable] may also be an instance of [Anchorable]. If so, an anchor representing the
- * hit position can be created from the [Anchorable].
+ * hit position can be created from the [Anchorable]
  *
  * @property trackable the [Trackable] that was hit
  * @see Anchorable.createAnchor

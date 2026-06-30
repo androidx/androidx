@@ -21,8 +21,7 @@ import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
 /**
- * Contains depth related information corresponding to the latest frame from the perspective of a
- * particular view.
+ * Depth information corresponding to the latest frame.
  *
  * @property width the width of the depth maps
  * @property height the height of the depth maps

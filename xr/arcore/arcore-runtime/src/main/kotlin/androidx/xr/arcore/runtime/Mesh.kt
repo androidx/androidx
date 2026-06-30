@@ -21,7 +21,7 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
 /**
- * Represents a polygon mesh describing a piece of geometry as perceived by the perception system.
+ * Polygon mesh describing geometry perceived by system.
  *
  * @property triangleIndices a [ShortBuffer] of triangles' indices in consecutive triplets
  * @property vertices a [FloatBuffer] of 3D vertices in (x, y, z) packing

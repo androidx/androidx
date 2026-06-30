@@ -22,9 +22,8 @@ import androidx.xr.arcore.testing.internal.FakeRuntimeFace
 import androidx.xr.runtime.FaceTrackingMode
 
 /**
- * An object which allows for testing a simulation of the user's face in an ARCore unit test
- * environment. If [isValid] is `false`, the [blendShapeValues] will be ignored and tracking will be
- * [TrackingState.PAUSED].
+ * Controls a simulated [androidx.xr.arcore.Face] in unit tests. If [isValid] is `false`, the
+ * [blendShapeValues] will be ignored and tracking will be [TrackingState.PAUSED].
  *
  * @property isValid whether the [blendShapeValues] are valid
  * @property blendShapeValues a list of normalized blend shape values of facial features

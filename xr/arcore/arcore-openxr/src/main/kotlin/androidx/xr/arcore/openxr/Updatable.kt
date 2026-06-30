@@ -21,7 +21,7 @@ internal interface Updatable {
     /**
      * Updates the entity retrieving its state at [xrTime].
      *
-     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch.
+     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
      */
     fun update(xrTime: Long)
 }

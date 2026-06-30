@@ -36,11 +36,11 @@ internal constructor(internal val runtimeAugmentedImage: RuntimeAugmentedImage) 
 
     public companion object {
         /**
-         * Emits the augmented images that are currently being tracked in the [session]
+         * Emits tracked augmented images in the [session].
          *
          * Only instances of [AugmentedImage] that are [androidx.xr.arcore.TrackingState.TRACKING]
          * will be emitted in the [Collection]. Instances of the same [AugmentedImage] will remain
-         * between subsequent emits to the [StateFlow] as long as they remain tracking
+         * between subsequent emits to the [StateFlow] as long as they remain tracking.
          *
          * @param session the [Session] to subscribe to
          * @return a [StateFlow] that emits a collection of AugmentedImages
@@ -77,14 +77,14 @@ internal constructor(internal val runtimeAugmentedImage: RuntimeAugmentedImage) 
      * The representation of the current state of an [AugmentedImage]. An [AugmentedImage] is
      * represented as a finite 2D bounding box around a [centerPose]
      *
-     * @property index The id of the detected image which correlates to its zero-based positional
+     * @property index the id of the detected image which correlates to its zero-based positional
      *   index from its originating image database
-     * @property trackingState Whether this image is being tracked or not
-     * @property centerPose The [Pose] of the center of the detected image's bounding box in the
+     * @property trackingState whether this image is being tracked or not
+     * @property centerPose the [Pose] of the center of the detected image's bounding box in the
      *   world coordinate space. The +Y axis relative to the [centerPose] is equivalent to the
      *   normal of the [AugmentedImage]
-     * @property extents The dimensions of the bounding box of the detected image
-     * @property owner self-reference to the object that owns this state.
+     * @property extents the dimensions of the bounding box of the detected image
+     * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(

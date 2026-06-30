@@ -84,12 +84,12 @@ internal constructor(
         }
 
         /**
-         * Retrieves all the [UUID] instances from [Anchor] objects that have been persisted by
-         * [persist] that are still present in the local storage.
+         * Retrieves persisted [Anchor] UUIDs in local storage.
          *
          * @param session the [Session] to retrieve the persisted anchor UUIDs from
+         * @return a list of [UUID]s representing the persisted anchors
          * @throws [IllegalStateException] if [Session.config] is set to
-         *   [androidx.xr.runtime.AnchorPersistenceMode.DISABLED].
+         *   [androidx.xr.runtime.AnchorPersistenceMode.DISABLED]
          */
         @JvmStatic
         public fun getPersistedAnchorUuids(session: Session): List<UUID> {
@@ -213,8 +213,7 @@ internal constructor(
     private var persistContinuation: Continuation<UUID>? = null
 
     /**
-     * Stores this anchor in the application's local storage so that it can be shared across
-     * sessions.
+     * Stores this [Anchor] in local storage for cross-session use.
      *
      * @return the [UUID] that uniquely identifies this anchor
      * @throws [IllegalStateException] if [Session.config] is set to

@@ -24,10 +24,9 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 
 /**
- * Test-only implementation of [RuntimeQrCode]
+ * Test-only implementation of [RuntimeQrCode] for simulation.
  *
- * The properties of the [FakeRuntimeQrCode] can be set manually in order to simulate a runtime qr
- * code in the environment.
+ * Properties of the [FakeRuntimeQrCode] can be set manually to simulate a runtime QR code.
  *
  * For example, for a [FakeRuntimeQrCode] with [TrackingState.PAUSED]:
  * ```
