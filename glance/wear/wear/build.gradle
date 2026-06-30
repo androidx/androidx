@@ -40,8 +40,6 @@ dependencies {
     api("androidx.compose.runtime:runtime:$composeVersion")
     api(project(":glance:wear:wear-core"))
 
-    implementation("androidx.compose.ui:ui-graphics:$composeVersion")
-
     implementation(project(":compose:remote:remote-creation"))
 
     implementation("androidx.compose.ui:ui-graphics:$composeVersion")
