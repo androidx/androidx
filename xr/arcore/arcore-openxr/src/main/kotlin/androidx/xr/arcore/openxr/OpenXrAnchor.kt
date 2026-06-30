@@ -19,7 +19,6 @@ package androidx.xr.arcore.openxr
 import android.os.IBinder
 import androidx.annotation.GuardedBy
 import androidx.xr.arcore.runtime.Anchor
-import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import java.nio.ByteBuffer
@@ -28,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * Wraps a native `XrSpace` with the [ExportableAnchor] interface.
+ * Wraps a native `XrSpace` with the [Anchor] interface.
  *
  * @property nativePointer the native pointer to the `XrSpace` instance that backs this anchor
  * @property anchorToken an [IBinder] reference of the anchor
@@ -38,10 +37,10 @@ import kotlin.concurrent.withLock
  * @property uuid the [UUID] that identifies this Anchor if it is persisted
  */
 internal class OpenXrAnchor(
-    override val nativePointer: Long,
+    private val nativePointer: Long,
     private val xrResources: XrResources,
     loadedUuid: UUID? = null,
-) : ExportableAnchor, Updatable {
+) : Anchor, Updatable {
 
     override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
 
