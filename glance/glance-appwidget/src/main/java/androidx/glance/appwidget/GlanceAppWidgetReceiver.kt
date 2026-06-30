@@ -106,7 +106,10 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
             )
         }
         val handled =
-            maybeLaunchAsyncRequestWorker(context) {
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
                 update =
                     AsyncRequest.Update.newBuilder().run {
                         receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
@@ -132,7 +135,10 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         newOptions: Bundle,
     ) {
         val handled =
-            maybeLaunchAsyncRequestWorker(context) {
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
                 optionsChanged =
                     AsyncRequest.OptionsChanged.newBuilder().run {
                         receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
@@ -158,7 +164,10 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     @CallSuper
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         val handled =
-            maybeLaunchAsyncRequestWorker(context) {
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
                 delete =
                     AsyncRequest.Delete.newBuilder().run {
                         receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
@@ -216,7 +225,10 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                     val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
                     if (id == -1) error("Intent is missing AppWidgetId extra")
                     val handled =
-                        maybeLaunchAsyncRequestWorker(context) {
+                        maybeLaunchAsyncRequestWorker(
+                            context = context,
+                            developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+                        ) {
                             lambda =
                                 AsyncRequest.Lambda.newBuilder().run {
                                     receiver =
@@ -234,6 +246,22 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
             }
         }
     }
+
+    /**
+     * Override this to respond to broadcasts in a WorkManager worker rather than in the broadcast
+     * receiver. This might be useful if your broadcast receiver frequently times out for reasons
+     * outside of your control.
+     *
+     * This will incur a slight performance penalty compared to responding within the broadcast
+     * receiver's goAsync because it has to serialize parameters.
+     *
+     * @return true if the worker should be launcher. Apps may choose to return true on certain
+     *   devices, or according to some other internal business logic.
+     */
+    @ExperimentalGlanceApi
+    protected open fun shouldLaunchAsyncRequestWorker(): Boolean {
+        return false
+    }
 }
 
 /**
@@ -241,6 +269,9 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
  * which to call suspend functions.
  *
  * @param context Context to use to start the service
+ * @param developerRequestsForce if the client code invoking this function wants to force use of a
+ *   worker. This is expected during normal execution, unlike [ForceAsyncRequestWorker] which is
+ *   intended only for testing.
  * @param request the request to be run by the worker
  * @return true if the worker was launched and no further action needs to be taken by the receiver.
  *   If false, the receiver should continue processing the request using
@@ -248,10 +279,14 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
  */
 internal fun maybeLaunchAsyncRequestWorker(
     context: Context,
+    developerRequestsForce: Boolean = false,
     request: AsyncRequest.Builder.() -> Unit,
 ): Boolean {
+    val testingRequestsForce = ForceAsyncRequestWorker.get()
+
     if (
-        ForceAsyncRequestWorker.get() ||
+        developerRequestsForce ||
+            testingRequestsForce ||
             (Build.MANUFACTURER == "vivo" && Build.VERSION.SDK_INT < 35)
     ) {
         AsyncRequestWorker.launchAsyncRequestWorker(

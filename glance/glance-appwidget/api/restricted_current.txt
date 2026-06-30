@@ -124,6 +124,7 @@ package androidx.glance.appwidget {
     ctor public GlanceAppWidgetReceiver();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public kotlin.coroutines.CoroutineContext getCoroutineContext();
     method @InaccessibleFromKotlin public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
+    method @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi protected boolean shouldLaunchAsyncRequestWorker();
     property @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public kotlin.coroutines.CoroutineContext coroutineContext;
     property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
     field public static final String ACTION_DEBUG_UPDATE = "androidx.glance.appwidget.action.DEBUG_UPDATE";

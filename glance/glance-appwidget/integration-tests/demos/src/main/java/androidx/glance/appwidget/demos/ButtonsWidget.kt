@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.Button
 import androidx.glance.ButtonColors
 import androidx.glance.ButtonDefaults
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -57,6 +58,11 @@ class ButtonsWidgetBroadcastReceiver() : GlanceAppWidgetReceiver() {
 
     override val glanceAppWidget: GlanceAppWidget
         get() = ButtonsWidget()
+
+    @ExperimentalGlanceApi
+    override fun shouldLaunchAsyncRequestWorker(): Boolean {
+        return true
+    }
 }
 
 /**
