@@ -58,7 +58,7 @@ wire {
 android {
     namespace = "androidx.glance.wear.core"
     defaultConfig {
-        minSdk { version = release(28) }
+        minSdk { version = release(33) }
     }
     buildFeatures {
         aidl = true
