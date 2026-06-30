@@ -29,7 +29,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEvent.Companion.EDGE_NONE
 import androidx.navigationevent.NavigationEventHandler
-import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 
 @Composable
@@ -73,8 +72,8 @@ internal fun rememberNavHostEventHandler(
  * @param navigator The [ComposeNavigator] managing the current back stack.
  */
 internal class NavHostEventHandler(private val navigator: ComposeNavigator) :
-    NavigationEventHandler<NavigationEventInfo>(
-        initialInfo = NavigationEventInfo.None,
+    NavigationEventHandler<NavBackStackEntryInfo>(
+        initialInfo = NavBackStackEntryInfo(navigator.backStack.value.lastOrNull()),
         isBackEnabled = true,
         isForwardEnabled = false,
     ) {

@@ -31,14 +31,15 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
@@ -832,6 +833,17 @@ public fun NavHost(
         // Setup the navController with proper owners
         navController.setLifecycleOwner(lifecycleOwner)
         onDispose {}
+    }
+
+    SideEffect {
+        backHandler.isBackEnabled = currentBackStack.size > 1
+        backHandler.setInfo(
+            currentInfo = NavBackStackEntryInfo(currentBackStack.lastOrNull()),
+            backInfo =
+                currentBackStack.dropLast(1).reversed().fastMap { entry ->
+                    NavBackStackEntryInfo(entry)
+                },
+        )
     }
 
     val saveableStateHolder = rememberSaveableStateHolder()
