@@ -159,13 +159,25 @@ internal constructor(
      * @return The result of multiplying [RemoteColor] by [other].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun times(other: RemoteColor): RemoteColor =
-        rgb(
-            red = red * other.red,
-            green = green * other.green,
-            blue = blue * other.blue,
-            alpha = alpha * other.alpha,
-        )
+    public operator fun times(other: RemoteColor): RemoteColor {
+        val thisConst = this.constantValueOrNull
+        val otherConst = other.constantValueOrNull
+        return when {
+            thisConst == Color.White -> other
+            otherConst == Color.White -> this
+            thisConst == Color.Transparent -> this
+            otherConst == Color.Transparent -> other
+            thisConst == Color.Black && other.alpha.constantValueOrNull == 1f -> this
+            otherConst == Color.Black && this.alpha.constantValueOrNull == 1f -> other
+            else ->
+                rgb(
+                    red = red * other.red,
+                    green = green * other.green,
+                    blue = blue * other.blue,
+                    alpha = alpha * other.alpha,
+                )
+        }
+    }
 
     /**
      * Creates a copy of this [RemoteColor] with the ability to override individual ARGB components.
@@ -539,6 +551,9 @@ public fun rememberNamedRemoteColor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): RemoteColor {
+    if (from == to) {
+        return RemoteColor(from)
+    }
     tween.constantValueOrNull?.let {
         return RemoteColor(Utils.interpolateColor(from, to, it))
     }
@@ -572,6 +587,9 @@ public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): Re
  * @return A new [RemoteColor] representing the tweened color.
  */
 public fun tween(from: RemoteColor, to: RemoteColor, tween: RemoteFloat): RemoteColor {
+    if (from.cacheKey == to.cacheKey) {
+        return from
+    }
     val constFrom = from.constantValueOrNull
     val constTo = to.constantValueOrNull
     val constTween = tween.constantValueOrNull

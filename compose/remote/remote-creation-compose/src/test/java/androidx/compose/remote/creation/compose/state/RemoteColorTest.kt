@@ -592,6 +592,67 @@ class RemoteColorTest {
         assertThat(color.toDebugString()).isEqualTo("FFFF0000")
     }
 
+    @Test
+    fun times_white_elided() {
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val white = RemoteColor(Color.White)
+
+        assertThat(color * white).isSameInstanceAs(color)
+        assertThat(white * color).isSameInstanceAs(color)
+    }
+
+    @Test
+    fun times_transparent_elided() {
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val transparent = RemoteColor(Color.Transparent)
+
+        assertThat(color * transparent).isSameInstanceAs(transparent)
+        assertThat(transparent * color).isSameInstanceAs(transparent)
+    }
+
+    @Test
+    fun times_black_opaque_elided() {
+        val opaqueColor =
+            RemoteColor.rgb(red = 0.5f.rf, green = 0.5f.rf, blue = 0.5f.rf, alpha = 1f.rf)
+        val black = RemoteColor(Color.Black)
+
+        assertThat(opaqueColor * black).isSameInstanceAs(black)
+        assertThat(black * opaqueColor).isSameInstanceAs(black)
+    }
+
+    @Test
+    fun times_black_transparent_not_elided() {
+        val dynamicAlpha = RemoteFloat.createNamedRemoteFloat("alpha", 0.5f)
+        val transparentColor =
+            RemoteColor.rgb(red = 0.5f.rf, green = 0.5f.rf, blue = 0.5f.rf, alpha = dynamicAlpha)
+        val black = RemoteColor(Color.Black)
+
+        val result = transparentColor * black
+        assertThat(result).isNotSameInstanceAs(black)
+        assertThat(result.alpha).isSameInstanceAs(dynamicAlpha)
+        assertThat(result.red.constantValueOrNull).isEqualTo(0f)
+        assertThat(result.green.constantValueOrNull).isEqualTo(0f)
+        assertThat(result.blue.constantValueOrNull).isEqualTo(0f)
+    }
+
+    @Test
+    fun tween_same_from_to_elided() {
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val tweenFactor = 0.5f.rf
+
+        val tweened = tween(color, color, tweenFactor)
+        assertThat(tweened).isSameInstanceAs(color)
+    }
+
+    @Test
+    fun tweenInt_same_from_to_elided() {
+        val colorInt = Color.Red.toArgb()
+        val tweenFactor = 0.5f.rf
+
+        val tweened = tween(colorInt, colorInt, tweenFactor)
+        assertThat(tweened.constantValueOrNull).isEqualTo(Color.Red)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
