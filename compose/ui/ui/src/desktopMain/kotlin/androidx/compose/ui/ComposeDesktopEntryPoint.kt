@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.ui.semantics.SemanticsOwner
+import java.awt.image.BufferedImage
 
 /**
  * The interface for classes that are an entry point for using Compose on the desktop.
@@ -33,4 +34,13 @@ interface ComposeDesktopEntryPoint {
      * changes.
      */
     val semanticsOwners: Collection<SemanticsOwner>
+
+    /**
+     * Captures the content of this entry point into an image.
+     *
+     * Returns `null` if the entry point is not in a state where it has visual content yet.
+     *
+     * May be called only on the event dispatch thread.
+     */
+    fun captureContentToImage(): BufferedImage?
 }

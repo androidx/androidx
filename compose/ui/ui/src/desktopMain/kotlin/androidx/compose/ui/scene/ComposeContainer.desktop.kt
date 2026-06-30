@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.awt.UNSPECIFIED_DIMENSION_VALUE
+import androidx.compose.ui.unit.union
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastRoundToInt
@@ -58,6 +59,7 @@ import java.awt.event.MouseEvent as AwtMouseEvent
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 import java.awt.event.WindowListener
+import java.awt.image.BufferedImage
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -65,7 +67,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Job
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.MainUIDispatcher
@@ -620,6 +621,42 @@ internal class ComposeContainer(
 
         override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean = noBlockingInputLayers
         override fun shouldSendKeyEvent(event: AwtKeyEvent): Boolean = noBlockingInputLayers
+    }
+
+    /**
+     * Captures the content of this container into an image.
+     *
+     * Returns `null` if the window has not been made visible yet.
+     *
+     * This may be called only on the event dispatch thread.
+     */
+    fun captureContentToImage(): BufferedImage? {
+        val mainLayerBounds = mediator.boundsOnScreenPx() ?: return null
+        val layersAndBounds = layers.map {
+            it to it.boundsOnScreenPx()
+        }
+
+        var resultBounds = mainLayerBounds
+        for ((_, bounds) in layersAndBounds) {
+            if (bounds != null) {
+                resultBounds = resultBounds.union(bounds)
+            }
+        }
+
+        val x = resultBounds.left
+        val y = resultBounds.top
+        val width = resultBounds.width
+        val height = resultBounds.height
+
+        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+        mediator.drawContentInto(image, mainLayerBounds.left - x, mainLayerBounds.top - y)
+        for ((layer, bounds) in layersAndBounds) {
+            if (bounds == null) continue
+            // The offset is from mainLayerBounds because layers draw themselves relative to it
+            layer.drawContentInto(image, mainLayerBounds.left - x, mainLayerBounds.top - y)
+        }
+
+        return image
     }
 }
 

@@ -33,6 +33,8 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.key.internal
@@ -65,9 +67,12 @@ import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastRoundToInt
@@ -79,6 +84,7 @@ import androidx.compose.ui.window.toDpOffset
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
+import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Toolkit
 import java.awt.event.ContainerEvent
@@ -97,10 +103,13 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
+import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
+import javax.swing.SwingUtilities.isEventDispatchThread
 import kotlin.coroutines.CoroutineContext
 import org.jetbrains.skia.Canvas as SkCanvas
+import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
@@ -921,6 +930,40 @@ internal class ComposeSceneMediator(
             return super.requestFocus(true)
         }
     }
+
+    /**
+     * Returns the bounds of the scene on the screen in pixels; null if it has not been made
+     * visible yet.
+     */
+    fun boundsOnScreenPx(): IntRect? {
+        if (!container.isDisplayable) return null
+
+        val sceneBounds = (sceneBoundsInPx ?: Rect(offset = Offset.Zero, size = container.sizeInPx))
+        val containerScreenCoords = Point(0, 0)
+            .also {
+                SwingUtilities.convertPointToScreen(it, contentComponent)
+            }
+            .toDpOffset()
+            .toOffset(container.density)
+        return sceneBounds.translate(containerScreenCoords.x, containerScreenCoords.y).roundToIntRect()
+    }
+
+    /**
+     * Draws the scene into [target] at the given offset.
+     *
+     * May be called only on the event dispatching thread.
+     */
+    fun drawContentInto(target: BufferedImage, offsetX: Int, offsetY: Int) {
+        require(isEventDispatchThread())
+
+        val size = contentComponent.sizeInPx.roundToIntSize()
+        target.drawScene(offsetX, offsetY, size, contentComponent.density) {
+            fillBackground(contentComponent.background)
+            if (!shouldPlaceInteropAbove) drawInterop(interopContainer.root)
+            drawCompose { canvas -> canvas.withSceneOffset { scene.draw(asComposeCanvas()) } }
+            if (shouldPlaceInteropAbove) drawInterop(interopContainer.root)
+        }
+    }
 }
 
 private fun ComposeScene.onMouseEvent(
@@ -1034,3 +1077,50 @@ private val MouseEvent.isMacOsCtrlClick
             ((modifiersEx and InputEvent.BUTTON1_DOWN_MASK) != 0) &&
             ((modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0)
         )
+
+
+private class SceneImageDrawScope(
+    private val g: Graphics2D,
+    private val size: IntSize,
+    private val density: Density,
+) {
+    fun fillBackground(color: java.awt.Color?) {
+        g.color = color ?: java.awt.Color(0, 0, 0, 0)
+        g.fillRect(0, 0, size.width, size.height)
+    }
+
+    fun drawInterop(root: Component) {
+        val gInterop = g.create() as Graphics2D
+        try {
+            gInterop.scale(density.density.toDouble(), density.density.toDouble())
+            root.paint(gInterop)
+        } finally {
+            gInterop.dispose()
+        }
+    }
+
+    /** Draws the Compose content via Skia and paints it into the region. */
+    fun drawCompose(draw: (SkCanvas) -> Unit) {
+        Surface.makeRasterN32Premul(size.width, size.height).use { surface ->
+            draw(surface.canvas)
+            g.drawImage(surface.makeImageSnapshot().toComposeImageBitmap().toAwtImage(), 0, 0, null)
+        }
+    }
+}
+
+
+private inline fun BufferedImage.drawScene(
+    offsetX: Int,
+    offsetY: Int,
+    size: IntSize,
+    density: Density,
+    block: SceneImageDrawScope.() -> Unit,
+) {
+    val g = createGraphics()
+    try {
+        g.translate(offsetX, offsetY)
+        SceneImageDrawScope(g, size, density).block()
+    } finally {
+        g.dispose()
+    }
+}

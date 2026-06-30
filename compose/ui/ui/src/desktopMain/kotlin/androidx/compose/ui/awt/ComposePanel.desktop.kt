@@ -46,6 +46,7 @@ import java.awt.FocusTraversalPolicy
 import java.awt.Window
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
+import java.awt.image.BufferedImage
 import java.util.*
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
@@ -333,18 +334,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             _composeContainer?.windowContainer = value
         }
 
-    /**
-     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
-     * [ComposePanel].
-     *
-     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
-     * composable function) will cause the function to restart when the set of semantics owners
-     * changes.
-     */
-    @ComposeToolingApi
-    override val semanticsOwners: Collection<SemanticsOwner>
-        get() = _composeContainer?.semanticsOwners ?: emptyList()
-
     // Needed to preserve binary compatibility
     @Suppress("RedundantOverride")
     override fun add(component: Component): Component = super.add(component)
@@ -520,4 +509,28 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             field = value
             _composeContainer?.showLayoutBounds = value
         }
+
+    /**
+     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
+     * [ComposePanel].
+     *
+     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
+     * composable function) will cause the function to restart when the set of semantics owners
+     * changes.
+     */
+    @ComposeToolingApi
+    override val semanticsOwners: Collection<SemanticsOwner>
+        get() = _composeContainer?.semanticsOwners ?: emptyList()
+
+    /**
+     * Captures the content of this panel into an image.
+     *
+     * Returns `null` if the panel has not been made visible yet.
+     *
+     * May be called only on the event dispatching thread.
+     */
+    @ComposeToolingApi
+    override fun captureContentToImage(): BufferedImage? {
+        return _composeContainer?.captureContentToImage()
+    }
 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.toAwtRectangle
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
@@ -33,9 +34,11 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEachReversed
+import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
+import java.awt.image.BufferedImage
 import javax.swing.SwingUtilities
 import kotlin.math.max
 import org.jetbrains.skia.Canvas
@@ -231,9 +234,18 @@ internal abstract class DesktopComposeSceneLayer(
         return boundsInWindow.toAwtRectangle(density).contains(point)
     }
 
+    fun boundsOnScreenPx(): IntRect? {
+        val layerBounds = mediator?.boundsOnScreenPx() ?: return null
+        return drawBounds.translate(layerBounds.topLeft)
+    }
+
+    fun drawContentInto(target: BufferedImage, offsetX: Int, offsetY: Int) {
+        mediator?.drawContentInto(target, offsetX + drawBounds.left, offsetY + drawBounds.top)
+    }
+
     /**
      * Detect and trigger [DesktopComposeSceneLayer.onMouseEventOutside] if event happened below
-     * a layer that blocks pointer input outside of its bounds.
+     * a layer that blocks pointer input outside its bounds.
      */
     private inner class DetectEventOutsideLayer : AwtEventListener {
         override fun onMouseEvent(event: MouseEvent): Boolean {

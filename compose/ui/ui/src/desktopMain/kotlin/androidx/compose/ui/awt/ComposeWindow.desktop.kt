@@ -41,6 +41,7 @@ import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
+import java.awt.image.BufferedImage
 import java.util.*
 import javax.swing.JFrame
 import kotlin.coroutines.CoroutineContext
@@ -85,18 +86,6 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     internal val windowContext by composePanel::windowContext
     internal var rootForTestListener by composePanel::rootForTestListener
-
-    /**
-     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
-     * [ComposeWindow].
-     *
-     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
-     * composable function) will cause the function to restart when the set of semantics owners
-     * changes.
-     */
-    @ComposeToolingApi
-    override val semanticsOwners: Collection<SemanticsOwner>
-        get() = composePanel.semanticsOwners
 
     /**
      * Controls whether mouse-down on an unfocusable element clears focus.
@@ -377,5 +366,29 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     internal fun measureContent(constraints: Constraints): IntSize {
         return composePanel.measureContent(constraints)
+    }
+
+    /**
+     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
+     * [ComposeWindow].
+     *
+     * This is backed by Snapshot state, so reading this property in a restartable function (e.g., a
+     * composable function) will cause the function to restart when the set of semantics owners
+     * changes.
+     */
+    @ComposeToolingApi
+    override val semanticsOwners: Collection<SemanticsOwner>
+        get() = composePanel.semanticsOwners
+
+    /**
+     * Captures the content of this window into an image.
+     *
+     * Returns `null` if the window has not been made visible yet.
+     *
+     * May be called only on the event dispatching thread.
+     */
+    @ComposeToolingApi
+    override fun captureContentToImage(): BufferedImage? {
+        return composePanel.captureContentToImage()
     }
 }

@@ -212,4 +212,6 @@ internal class ComposeWindowPanel(
     fun actualizeSize(size: Dimension, insets: Insets): Dimension {
         return composeContainer.actualizeSize(size, insets)
     }
+
+    fun captureContentToImage() = composeContainer.captureContentToImage()
 }

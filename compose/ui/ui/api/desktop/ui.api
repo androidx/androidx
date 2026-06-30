@@ -136,6 +136,7 @@ public final class androidx/compose/ui/ComposableSingletons$ImageComposeScene_sk
 }
 
 public abstract interface class androidx/compose/ui/ComposeDesktopEntryPoint {
+	public abstract fun captureContentToImage ()Ljava/awt/image/BufferedImage;
 	public abstract fun getSemanticsOwners ()Ljava/util/Collection;
 }
 
@@ -564,6 +565,7 @@ public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog, 
 	public fun addMouseListener (Ljava/awt/event/MouseListener;)V
 	public fun addMouseMotionListener (Ljava/awt/event/MouseMotionListener;)V
 	public fun addMouseWheelListener (Ljava/awt/event/MouseWheelListener;)V
+	public fun captureContentToImage ()Ljava/awt/image/BufferedImage;
 	public fun dispose ()V
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public fun getPreferredSize ()Ljava/awt/Dimension;
@@ -595,6 +597,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun add (Ljava/awt/Component;)Ljava/awt/Component;
 	public fun addFocusListener (Ljava/awt/event/FocusListener;)V
 	public fun addNotify ()V
+	public fun captureContentToImage ()Ljava/awt/image/BufferedImage;
 	public fun getFocusTraversalKeysEnabled ()Z
 	public fun getMaximumSize ()Ljava/awt/Dimension;
 	public fun getMinimumSize ()Ljava/awt/Dimension;
@@ -635,6 +638,7 @@ public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame, a
 	public fun addMouseListener (Ljava/awt/event/MouseListener;)V
 	public fun addMouseMotionListener (Ljava/awt/event/MouseMotionListener;)V
 	public fun addMouseWheelListener (Ljava/awt/event/MouseWheelListener;)V
+	public fun captureContentToImage ()Ljava/awt/image/BufferedImage;
 	public fun dispose ()V
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public final fun getPlacement ()Landroidx/compose/ui/window/WindowPlacement;
