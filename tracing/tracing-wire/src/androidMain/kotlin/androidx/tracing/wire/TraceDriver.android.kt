@@ -35,6 +35,7 @@ import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
 import androidx.tracing.currentTaskId
+import androidx.tracing.wire.TraceDriver.Companion.getStubTraceDriver
 
 /**
  * Constructs a [TraceDriver] instance on Android.
@@ -78,6 +79,9 @@ internal constructor(
      *   overhead. This is particularly useful when you want to lower the overhead of trace events
      *   from uninteresting or noisy categories. The default implementation of this check allows all
      *   trace categories as long as a Perfetto tracing session is active ([Trace.isEnabled]).
+     *
+     *   Note: Disabling all categories still writes process and thread metadata packets. To fully
+     *   disable tracing, use [getStubTraceDriver] instead.
      *
      *   Note:This method should be **extremely** low overhead given it's called every time a
      *   [Tracer] can emit trace events.
