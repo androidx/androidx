@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
@@ -101,6 +102,7 @@ import java.util.Locale as JavaLocale
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 
 /** Android specific implementation for [Paragraph] */
 // NOTE(text-perf-review): I see most of the APIs in this class just delegate to TextLayout or to
@@ -154,6 +156,22 @@ internal class AndroidParagraph(
      * @see applyLineHeightOptimization
      */
     private var resolvedLineHeight = 0f
+
+    /**
+     * The absolute Y-coordinate on the canvas representing the top bound of the selection
+     * highlight. When the single-line line height optimization is active, the platform-returned
+     * selection path must be clipped to this value to match the visual text bounds (excluding
+     * trimmed padding).
+     */
+    private var selectionPathTop = 0f
+
+    /**
+     * The absolute Y-coordinate on the canvas representing the bottom bound of the selection
+     * highlight. When the single-line line height optimization is active, the platform-returned
+     * selection path must be clipped to this value to match the visual text bounds (excluding
+     * trimmed padding).
+     */
+    private var selectionPathBottom = 0f
 
     /**
      * Indicates whether the single-line line height optimization should be applied.
@@ -399,24 +417,22 @@ internal class AndroidParagraph(
                 }
 
                 val top =
-                    with(layout) {
-                        when (span.verticalAlign) {
-                            PlaceholderSpan.ALIGN_ABOVE_BASELINE ->
-                                getLineBaseline(line) - span.heightPx
-                            PlaceholderSpan.ALIGN_TOP -> getLineTop(line)
-                            PlaceholderSpan.ALIGN_BOTTOM -> getLineBottom(line) - span.heightPx
-                            PlaceholderSpan.ALIGN_CENTER ->
-                                (getLineTop(line) + getLineBottom(line) - span.heightPx) / 2
-                            PlaceholderSpan.ALIGN_TEXT_TOP ->
-                                span.fontMetrics.ascent + getLineBaseline(line)
-                            PlaceholderSpan.ALIGN_TEXT_BOTTOM ->
-                                span.fontMetrics.descent + getLineBaseline(line) - span.heightPx
-                            PlaceholderSpan.ALIGN_TEXT_CENTER ->
-                                with(span.fontMetrics) {
-                                    (ascent + descent - span.heightPx) / 2 + getLineBaseline(line)
-                                }
-                            else -> throw IllegalStateException("unexpected verticalAlignment")
-                        }
+                    when (span.verticalAlign) {
+                        PlaceholderSpan.ALIGN_ABOVE_BASELINE ->
+                            getLineBaseline(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_TOP -> getLineTop(line)
+                        PlaceholderSpan.ALIGN_BOTTOM -> getLineBottom(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_CENTER ->
+                            (getLineTop(line) + getLineBottom(line) - span.heightPx) / 2
+                        PlaceholderSpan.ALIGN_TEXT_TOP ->
+                            span.fontMetrics.ascent + getLineBaseline(line)
+                        PlaceholderSpan.ALIGN_TEXT_BOTTOM ->
+                            span.fontMetrics.descent + getLineBaseline(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_TEXT_CENTER ->
+                            with(span.fontMetrics) {
+                                (ascent + descent - span.heightPx) / 2 + getLineBaseline(line)
+                            }
+                        else -> throw IllegalStateException("unexpected verticalAlignment")
                     }
 
                 val bottom = top + span.heightPx
@@ -468,7 +484,11 @@ internal class AndroidParagraph(
         }
         val rectF = layout.getBoundingBox(offset)
         return with(rectF) {
-            Rect(left = left, top = top + topOffset, right = right, bottom = bottom + topOffset)
+            if (applyLineHeightOptimization) {
+                Rect(left = left, top = 0f, right = right, bottom = resolvedLineHeight)
+            } else {
+                Rect(left = left, top = top, right = right, bottom = bottom)
+            }
         }
     }
 
@@ -503,10 +523,10 @@ internal class AndroidParagraph(
         @IntRange(from = 0) arrayStart: Int,
     ) {
         layout.fillBoundingBoxes(range.min, range.max, array, arrayStart)
-        if (topOffset != 0f) {
+        if (applyLineHeightOptimization) {
             for (i in 0 until range.length) {
-                array[arrayStart + i * 4 + 1] += topOffset // top
-                array[arrayStart + i * 4 + 3] += topOffset // bottom
+                array[arrayStart + i * 4 + 1] = 0f // top
+                array[arrayStart + i * 4 + 3] = resolvedLineHeight // bottom
             }
         }
     }
@@ -518,7 +538,19 @@ internal class AndroidParagraph(
         }
         val path = android.graphics.Path()
         layout.getSelectionPath(start, end, path)
-        return path.asComposePath()
+        if (topOffset != 0f && !path.isEmpty) {
+            path.offset(0f, topOffset)
+        }
+        val composePath = path.asComposePath()
+        if (
+            applyLineHeightOptimization &&
+                (selectionPathTop != 0f || selectionPathBottom != layout.height.toFloat())
+        ) {
+            val clipPath = Path()
+            clipPath.addRect(Rect(0f, selectionPathTop, width, selectionPathBottom))
+            composePath.op(composePath, clipPath, PathOperation.Intersect)
+        }
+        return composePath
     }
 
     override fun getCursorRect(offset: Int): Rect {
@@ -530,12 +562,7 @@ internal class AndroidParagraph(
 
         // The width of the cursor is not taken into account. The callers of this API should use
         // rect.left to get the start X position and then adjust it according to the width if needed
-        return Rect(
-            horizontal,
-            layout.getLineTop(line) + topOffset,
-            horizontal,
-            layout.getLineBottom(line) + topOffset,
-        )
+        return Rect(horizontal, getLineTop(line), horizontal, getLineBottom(line))
     }
 
     override fun getWordBoundary(offset: Int): TextRange {
@@ -773,6 +800,14 @@ internal class AndroidParagraph(
             // Mirroring `descentDiff` calculation from LineHeightStyleSpan.calculateTargetMetrics
             val descentDiff = ceil(ceiledDiff * ascentRatio)
 
+            val layoutAscent = layout.getLineAscent(0)
+            val layoutDescent = layout.getLineDescent(0)
+            val descent = layoutDescent + descentDiff
+            val ascent = descent - resolvedLineHeight
+
+            val firstAscent: Float
+            val lastDescent: Float
+
             if (
                 diff <= 0 &&
                     (mode == LineHeightStyle.Mode.Minimum ||
@@ -781,6 +816,8 @@ internal class AndroidParagraph(
                 // 1. Mirroring LineHeightStyleSpan Mode.Minimum early return and legacy early-outs
                 resolvedLineHeight = layout.height.toFloat()
                 topOffset = 0f
+                firstAscent = layoutAscent
+                lastDescent = layoutDescent
             } else if (diff < 0 && mode == LineHeightStyle.Mode.Tight) {
                 // 2. Mirroring LineHeightStyleSpan Mode.Tight when shrinking
                 val appliedTopSpace = if (trimTop) ceiledDiff - descentDiff else 0f
@@ -788,6 +825,9 @@ internal class AndroidParagraph(
 
                 topOffset = appliedTopSpace
                 resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+                firstAscent = if (trimTop) max(layoutAscent, ascent) else min(layoutAscent, ascent)
+                lastDescent =
+                    if (trimBottom) min(layoutDescent, descent) else max(layoutDescent, descent)
             } else if (diff < 0) {
                 // 3. Mirroring LineHeightStyleSpan Mode.Fixed legacy alignment shifts and padding.
                 // It should have been an early return but we are canceling out the TextLayout's
@@ -806,6 +846,8 @@ internal class AndroidParagraph(
 
                 topOffset = appliedTopSpace
                 resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+                firstAscent = if (trimTop) layoutAscent else ascent
+                lastDescent = if (trimBottom) layoutDescent else descent
             } else {
                 // 4. Mirroring LineHeightStyleSpan expanding (diff > 0) and non-legacy distribution
                 val rawBottomSpace = ceil((ceiledDiff * (1f - ascentRatio)))
@@ -816,9 +858,17 @@ internal class AndroidParagraph(
 
                 topOffset = appliedTopSpace
                 resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+                firstAscent = if (trimTop) layoutAscent else ascent
+                lastDescent = if (trimBottom) layoutDescent else descent
             }
+
+            val baseline = layout.getLineBaseline(0)
+            selectionPathTop = baseline + topOffset + firstAscent
+            selectionPathBottom = baseline + topOffset + lastDescent
         } else {
             resolvedLineHeight = layout.height.toFloat()
+            selectionPathTop = 0f
+            selectionPathBottom = layout.height.toFloat()
         }
     }
 }
