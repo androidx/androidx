@@ -32,5 +32,25 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ThemeStartupActivity"
+            android:exported="true"
+            android:label="ThemeStartupActivity">
+            <intent-filter>
+                <action android:name="androidx.compose.material3.integration.macrobenchmark.target.THEME_STARTUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MaterialButtonActivity"
+            android:exported="true"
+            android:label="MaterialButtonActivity">
+            <intent-filter>
+                <action android:name="androidx.compose.material3.integration.macrobenchmark.target.MATERIAL_BUTTON_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
