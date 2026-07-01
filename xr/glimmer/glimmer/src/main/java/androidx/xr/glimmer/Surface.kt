@@ -51,13 +51,11 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
-import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -278,14 +276,7 @@ private class SurfaceNode(
 
     // Unfocused border
     private val unfocusedBorderLogic: BorderLogic = BorderLogic()
-    private val unfocusedBorderWidth: () -> Float = {
-        val b = border
-        if (b != null) {
-            with(requireDensity()) { if (b.width == Dp.Hairline) 1f else ceil(b.width.toPx()) }
-        } else {
-            0f
-        }
-    }
+    private val unfocusedBorderWidth: () -> Dp = { border?.width ?: 0.dp }
     // Focused border - this consists of two layers. A 'base' layer (which is the
     // unfocused border with a different size) and the highlight we draw on top of
     // this base layer. We need to increase the size of the underlying border to
@@ -294,7 +285,7 @@ private class SurfaceNode(
     // highlight.
     private var focusedBorderLogic: BorderLogic? = null
     private var focusedHighlightBorderLogic: BorderLogic? = null
-    private var focusedBorderWidth: (() -> Float)? = null
+    private var focusedBorderWidth: (() -> Dp)? = null
 
     // Highlight shader / brush
     var shader: Shader? = null
@@ -491,22 +482,16 @@ private class SurfaceNode(
                         ?: {
                             val b = border
                             if (b != null) {
-
-                                with(requireDensity()) {
-                                    val width =
-                                        lerp(
-                                            b.width,
-                                            FocusedSurfaceBorderWidth,
-                                            // Capture class property instead of function-local
-                                            // progress to make sure this will read the animation
-                                            // state when the lambda is invoked and not capture a
-                                            // stale variable
-                                            focusedHighlightProgress,
-                                        )
-                                    if (width == Dp.Hairline) 1f else ceil(width.toPx())
-                                }
+                                lerp(
+                                    b.width,
+                                    FocusedSurfaceBorderWidth,
+                                    // Capture class property instead of function-local progress to
+                                    // make sure this will read the animation state when the lambda
+                                    // is invoked and not capture a stale variable
+                                    focusedHighlightProgress,
+                                )
                             } else {
-                                0f
+                                0.dp
                             }
                         }
                 focusedBorderLogic!!.drawBorder(
