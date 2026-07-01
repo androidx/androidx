@@ -42,7 +42,6 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -390,7 +389,7 @@ public final class PlatformStorage {
      */
     @ExperimentalAppSearchApi
     public static @NonNull Features getFeatures(@NonNull Context context) {
-        return new FeaturesImpl(context);
+        return new FeaturesImpl(context, /* isForEnterprise= */ false);
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,

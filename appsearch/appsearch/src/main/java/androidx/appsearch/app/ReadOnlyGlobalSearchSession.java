@@ -19,10 +19,15 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.RequiresFeature;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.observer.ObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.concurrent.Executor;
 
 /**
  * Provides a connection to query over all AppSearch databases that the calling application has been
@@ -117,4 +122,71 @@ public interface ReadOnlyGlobalSearchSession {
      */
     @NonNull
     Features getFeatures();
+
+    /**
+     * Adds an {@link ObserverCallback} to monitor changes within the databases owned by
+     * {@code targetPackageName} if they match the given
+     * {@link androidx.appsearch.observer.ObserverSpec}.
+     *
+     * <p>The observer callback is only triggered for data that changes after it is registered. No
+     * notification about existing data is sent as a result of registering an observer. To find out
+     * about existing data, you must use the {@link GlobalSearchSession#search} API.
+     *
+     * <p>If the data owned by {@code targetPackageName} is not visible to you, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} changes its schema visibility settings.
+     *
+     * <p>If no package matching {@code targetPackageName} exists on the system, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} is installed and starts indexing data.
+     *
+     * <p>This feature may not be available in all implementations. Check
+     * {@link Features#GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK} before calling this method.
+     *
+     * @param targetPackageName Package whose changes to monitor
+     * @param spec            Specification of what types of changes to listen for
+     * @param executor        Executor on which to call the {@code observer} callback methods.
+     * @param observer        Callback to trigger when a schema or document changes
+     * @throws AppSearchException            if an error occurs trying to register the observer
+     * @throws UnsupportedOperationException if this feature is not available on this
+     *                                       AppSearch implementation.
+     */
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
+    void registerObserverCallback(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull ObserverCallback observer) throws AppSearchException;
+
+    /**
+     * Removes previously registered {@link ObserverCallback} instances from the system.
+     *
+     * <p>All instances of {@link ObserverCallback} which are registered to observe
+     * {@code targetPackageName} and compare equal to the provided callback using the provided
+     * argument's {@link ObserverCallback#equals} will be removed.
+     *
+     * <p>If no matching observers have been registered, this method has no effect. If multiple
+     * matching observers have been registered, all will be removed.
+     *
+     * <p>This feature may not be available in all implementations. Check
+     * {@link Features#GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK} before calling this method.
+     *
+     * @param targetPackageName Package which the observers to be removed are listening to.
+     * @param observer          Callback to unregister.
+     * @throws AppSearchException            if an error occurs trying to remove the observer, such
+     *                                       as a failure to communicate with the system service
+     *                                       in the platform backend. Note that no
+     *                                       error will be thrown if the provided observer
+     *                                       doesn't match any registered observer.
+     * @throws UnsupportedOperationException if this feature is not available on this
+     *                                       AppSearch implementation.
+     */
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
+    void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer)
+            throws AppSearchException;
 }

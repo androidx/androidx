@@ -34,6 +34,8 @@ import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.observer.ObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter;
@@ -78,15 +80,15 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
-        mFeatures = new FeaturesImpl(mContext);
+        mFeatures = new FeaturesImpl(mContext, /* isForEnterprise= */ true);
         mAdapter = adapter;
     }
 
     @Override
     public @NonNull ListenableFuture<AppSearchBatchResult<String, GenericDocument>>
-            getByDocumentIdAsync(
-                    @NonNull String packageName, @NonNull String databaseName,
-                    @NonNull GetByDocumentIdRequest request) {
+    getByDocumentIdAsync(
+            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(packageName);
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
@@ -146,5 +148,26 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
     @Override
     public @NonNull Features getFeatures() {
         return mFeatures;
+    }
+
+    @Override
+    public void registerObserverCallback(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull ObserverCallback observer) {
+        // TODO: b/529845668 - implement with features check when available in mainline
+        throw new UnsupportedOperationException(
+                Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
+                        + " is not supported on this AppSearch implementation");
+    }
+
+    @Override
+    public void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer) {
+        // TODO: b/529845668 - implement with features check when available in mainline
+        throw new UnsupportedOperationException(
+                Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
+                        + " is not supported on this AppSearch implementation");
     }
 }
