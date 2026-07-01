@@ -20,12 +20,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.JoinSpec;
+import androidx.appsearch.platformstorage.PlatformConversionAdapter;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+
 
 /**
  * Translates between Platform and Jetpack versions of {@link JoinSpec}.
@@ -38,10 +41,12 @@ public class JoinSpecToPlatformConverter {
     /**
      * Translates a Jetpack {@link JoinSpec} into a platform {@link android.app.appsearch.JoinSpec}.
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     @SuppressLint("WrongConstant")
     public static android.app.appsearch.@NonNull JoinSpec toPlatformJoinSpec(
             @NonNull Context context,
-            @NonNull JoinSpec jetpackSpec) {
+            @NonNull JoinSpec jetpackSpec,
+            @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(jetpackSpec);
         return new android.app.appsearch.JoinSpec.Builder(jetpackSpec.getChildPropertyExpression())
@@ -49,7 +54,8 @@ public class JoinSpecToPlatformConverter {
                         jetpackSpec.getNestedQuery(),
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(
                                 context,
-                                jetpackSpec.getNestedSearchSpec()))
+                                jetpackSpec.getNestedSearchSpec(),
+                                adapter))
                 .setMaxJoinedResultCount(jetpackSpec.getMaxJoinedResultCount())
                 .setAggregationScoringStrategy(jetpackSpec.getAggregationScoringStrategy())
                 .build();
