@@ -121,6 +121,10 @@ package androidx.navigationevent {
 
   @androidx.compose.runtime.Immutable public abstract class NavigationEventInfo {
     ctor public NavigationEventInfo();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.navigationevent.ExperimentalNavigationEventApi public String? getTitle();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.navigationevent.ExperimentalNavigationEventApi public String? getUrl();
+    property @SuppressCompatibility @androidx.navigationevent.ExperimentalNavigationEventApi public String? title;
+    property @SuppressCompatibility @androidx.navigationevent.ExperimentalNavigationEventApi public String? url;
   }
 
   public static final class NavigationEventInfo.None extends androidx.navigationevent.NavigationEventInfo {
