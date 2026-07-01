@@ -44,4 +44,5 @@ interface ICarApp {
   oneway void getManager(in String type, androidx.car.app.IOnDoneCallback callback) = 8;
   oneway void getAppInfo(androidx.car.app.IOnDoneCallback callback) = 9;
   oneway void onHandshakeCompleted(in androidx.car.app.serialization.Bundleable handshakeInfo, androidx.car.app.IOnDoneCallback callback) = 10;
+  oneway void getAppTheme(androidx.car.app.IOnDoneCallback callback) = 11;
 }

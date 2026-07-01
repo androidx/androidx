@@ -42,6 +42,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.SessionController;
 import androidx.car.app.testing.TestCarContext;
+import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -266,6 +267,18 @@ public class CarAppBinderTest {
         assertThat(mCarAppService.mCarContext.getResources().getConfiguration().getLocales().get(
                 0)).isEqualTo(Locale.CANADA_FRENCH);
         verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void getAppTheme() throws RemoteException, BundlerException {
+        mCarAppBinder.onAppCreate(mMockCarHost, null, new Configuration(),
+                mock(IOnDoneCallback.class));
+
+        mCarAppBinder.getAppTheme(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onSuccess(mBundleableArgumentCaptor.capture());
+        int receivedThemeStyle = (Integer) mBundleableArgumentCaptor.getValue().get();
+        assertThat(receivedThemeStyle).isEqualTo(CarAppTheme.SYSTEM_THEME);
     }
 
     @Test
