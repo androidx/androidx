@@ -26,21 +26,44 @@ import org.jspecify.annotations.NonNull;
 /**
  * <p>QuirkSummary
  *     Bug Id: b/403450605
- *     Description: Quirk denotes that repeating request fails on Samsung Galaxy S25 Ultra when
+ *     Description: Quirk denotes that repeating request fails on affected Samsung devices when
  *                  Preview uses 4:3 resolutions, VideoCapture uses 16:9 resolutions and HDR is
  *                  enabled. This issue also occurs when only VideoCapture is bound, in which case
  *                  a PRIV stream (for metering repeating) will be bound implicitly. As a result of
  *                  repeating request failure, both preview and video capture will fail.
- *     Device(s): Samsung Galaxy S25 Ultra
+ *     Device(s): Samsung Galaxy S25, S26, and Fold 7 series
  */
 public class HdrRepeatingRequestFailureQuirk implements Quirk {
 
     static boolean load() {
-        return isSamsungS25Ultra();
+        return isAffectedSamsungDevice();
     }
 
-    private static boolean isSamsungS25Ultra() {
-        return "samsung".equalsIgnoreCase(Build.BRAND) && "pa3q".equalsIgnoreCase(Build.DEVICE);
+    private static boolean isAffectedSamsungDevice() {
+        if (!"samsung".equalsIgnoreCase(Build.BRAND)) {
+            return false;
+        }
+        return isS25Series() || isS26Series() || isFold7Series();
+    }
+
+    private static boolean isS25Series() {
+        String device = Build.DEVICE.toLowerCase();
+        return "pa1q".equals(device)  // S25 (SM-S931)
+                || "pa2q".equals(device) // S25+ (SM-S936)
+                || "pa3q".equals(device); // S25 Ultra (SM-S938)
+    }
+
+    private static boolean isS26Series() {
+        String device = Build.DEVICE.toLowerCase();
+        return "m1q".equals(device) // S26 (SM-S942)
+                || "m2q".equals(device) // S26+ (SM-S947)
+                || "m3q".equals(device); // S26 Ultra (SM-S948)
+    }
+
+    private static boolean isFold7Series() {
+        String device = Build.DEVICE.toLowerCase();
+        return "q7q".equals(device) // Z Fold7 (SM-F966)
+                || "q7mq".equals(device); // Z TriFold (SM-F968)
     }
 
     /**
@@ -57,6 +80,6 @@ public class HdrRepeatingRequestFailureQuirk implements Quirk {
     @SuppressWarnings("ReferenceEquality") // dynamicRange != DynamicRange.SDR
     public boolean workaroundBySurfaceProcessing(@NonNull DynamicRange dynamicRange) {
         boolean isHdr = dynamicRange != DynamicRange.SDR;
-        return isSamsungS25Ultra() && isHdr;
+        return isAffectedSamsungDevice() && isHdr;
     }
 }
