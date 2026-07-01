@@ -1537,6 +1537,16 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
+    override fun impulseProcess(block: RcImpulseScope.() -> Unit) {
+        writer.impulseProcess(
+            object : Runnable {
+                override fun run() {
+                    RcImpulseScopeImpl(writer).block()
+                }
+            }
+        )
+    }
+
     override fun skip(type: Short, value: Int, block: RcScope.() -> Unit) {
         val offset = writer.beginSkip(type, value)
         this.block()
@@ -1717,6 +1727,33 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
 
     override fun clipPath(path: RcPath) {
         writer.addClipPath(path.id)
+    }
+
+    override fun addTouch(
+        defValue: RcFloat,
+        min: RcFloat,
+        max: RcFloat,
+        stopMode: RcTouchStopMode,
+        velocity: RcFloat,
+        notchHaptic: RcHaptic,
+        touchSpec: FloatArray?,
+        easingSpec: FloatArray?,
+        exp: RcFloat,
+    ): RcFloat {
+        return RcFloat(
+            writer,
+            writer.addTouch(
+                defValue.withWriter(writer).toFloat(),
+                min.withWriter(writer).toFloat(),
+                max.withWriter(writer).toFloat(),
+                stopMode.value,
+                velocity.withWriter(writer).toFloat(),
+                notchHaptic.value,
+                touchSpec,
+                easingSpec,
+                *exp.array,
+            ),
+        )
     }
 
     override fun addTouch(

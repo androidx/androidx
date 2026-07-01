@@ -61,7 +61,7 @@ fun dslMetronomeDemo(): ByteArray {
             drawLine(cx - 120f, lineY, cx + 120f, lineY)
 
             // Red flash + sound + haptic when ball is at line
-            debug(" line = ", lineY - ballY)
+            //            debug(" line = ", lineY - ballY)
             conditionalOperations(RcConditionOp.Lt, lineY - ballY, 64.rf) {
                 paint {
                     color(0xFFFF0000.toInt())

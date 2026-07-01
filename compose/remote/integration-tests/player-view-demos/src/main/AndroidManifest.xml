@@ -31,6 +31,9 @@
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <attribution
+        android:tag="RemoteCompose_audio_support"
+        android:label="@string/attribution" />
 
     <application
         android:enableOnBackInvokedCallback="true"
@@ -67,7 +70,22 @@
             </intent-filter>
         </activity>
 
+         <activity
+             android:name=".FloatingDocsActivity"
+             android:configChanges="uiMode|orientation|screenSize"
+             android:exported="true"
+             android:icon="@drawable/swarm"
+             android:label="RC Swarm"
+             android:screenOrientation="sensorLandscape"
+             android:theme="@android:style/Theme.Material.Light.NoActionBar">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
         <activity
+
             android:name=".ExperimentActivity"
             android:configChanges="uiMode"
             android:exported="true"
