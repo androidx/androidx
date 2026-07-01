@@ -60,6 +60,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.Insets
 import androidx.core.view.DisplayCutoutCompat
+import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsCompat
@@ -160,9 +161,18 @@ class WindowInsetsRulersTest {
         }
     }
 
+    private fun AndroidComposeView.sendInsets(view: View, insets: WindowInsetsCompat) {
+        val listener = (this.insetsWatcher ?: this.insetsListener) as OnApplyWindowInsetsListener
+        listener.onApplyWindowInsets(view, insets)
+    }
+
+    private fun AndroidComposeView.getCallback(): WindowInsetsAnimationCompat.Callback {
+        return (this.insetsWatcher ?: this.insetsListener) as WindowInsetsAnimationCompat.Callback
+    }
+
     private fun sendOnApplyWindowInsets(insets: WindowInsetsCompat) {
         val view = composeView.parent as View
-        rule.runOnIdle { composeView.insetsListener.onApplyWindowInsets(view, insets) }
+        rule.runOnIdle { composeView.sendInsets(view, insets) }
     }
 
     private fun startAnimation(
@@ -174,10 +184,10 @@ class WindowInsetsRulersTest {
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsListener
-            insetsListener.onPrepare(animation)
-            insetsListener.onApplyWindowInsets(view, createInsets(type to target))
-            insetsListener.onStart(animation, BoundsCompat(low, high))
+            val callback = composeView.getCallback()
+            callback.onPrepare(animation)
+            composeView.sendInsets(view, createInsets(type to target))
+            callback.onStart(animation, BoundsCompat(low, high))
         }
     }
 
@@ -187,18 +197,18 @@ class WindowInsetsRulersTest {
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsListener
-            insetsListener.onProgress(insets, mutableListOf(animation))
-            insetsListener.onApplyWindowInsets(view, insets)
+            val callback = composeView.getCallback()
+            callback.onProgress(insets, mutableListOf(animation))
+            composeView.sendInsets(view, insets)
         }
     }
 
     private fun endAnimation(animation: WindowInsetsAnimationCompat, insets: WindowInsetsCompat) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsListener
-            insetsListener.onEnd(animation)
-            insetsListener.onApplyWindowInsets(view, insets)
+            val callback = composeView.getCallback()
+            callback.onEnd(animation)
+            composeView.sendInsets(view, insets)
         }
     }
 
@@ -773,9 +783,9 @@ class WindowInsetsRulersTest {
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.insetsListener.onApplyWindowInsets(view, insets)
+            composeView.sendInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.insetsListener.onApplyWindowInsets(dialogView, createInsets())
+            dialogComposeView.sendInsets(dialogView, createInsets())
         }
 
         rule.runOnIdle {
@@ -823,9 +833,9 @@ class WindowInsetsRulersTest {
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.insetsListener.onApplyWindowInsets(view, insets)
+            composeView.sendInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.insetsListener.onApplyWindowInsets(dialogView, insets)
+            dialogComposeView.sendInsets(dialogView, insets)
         }
 
         rule.runOnIdle {
