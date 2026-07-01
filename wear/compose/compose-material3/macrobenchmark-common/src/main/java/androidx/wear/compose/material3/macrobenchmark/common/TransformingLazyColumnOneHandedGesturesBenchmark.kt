@@ -40,6 +40,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 import kotlinx.coroutines.launch
 
 /* Benchmark can be compared to TransformingLazyColumnBenchmark to measure one-handed gestures
@@ -84,7 +85,11 @@ val TransformingLazyColumnOneHandedGesturesBenchmark =
                                                     applyContentTransformation(scrollProgress)
                                                 }
                                             }
-                                            .oneHandedGesture(action = GestureAction.Primary) {}
+                                            .oneHandedGesture(
+                                                rememberOneHandedGestureConfiguration(
+                                                    action = GestureAction.Primary
+                                                )
+                                            ) {}
                                             .padding(10.dp),
                                 )
                             }

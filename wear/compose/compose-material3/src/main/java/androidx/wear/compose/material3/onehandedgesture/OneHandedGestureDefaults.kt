@@ -17,13 +17,40 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.material3.LocalContentColor
+import androidx.wear.compose.material3.MaterialTheme
 
 public object OneHandedGestureDefaults {
+    /** The default size constraints for the gesture indicator icon. */
+    public val indicatorSize: GestureIndicatorSize = GestureIndicatorSize.Medium
+
+    /** The tint color used for the gesture animation. */
+    public val indicatorTint: Color
+        @Composable get() = LocalContentColor.current
+
+    /** The tint color used for the scroll gesture animation icons. */
+    public val scrollIndicatorTint: Color
+        @Composable get() = MaterialTheme.colorScheme.onTertiary
+
+    /** The background color used behind the scroll gesture animations. */
+    public val scrollIndicatorBackgroundColor: Color
+        @Composable get() = MaterialTheme.colorScheme.tertiary
+
+    /** The tint color used for the pager gesture animation icons. */
+    public val pageIndicatorTint: Color
+        @Composable get() = MaterialTheme.colorScheme.onTertiary
+
+    /** The background color used behind the pager gesture animations. */
+    public val pageIndicatorBackgroundColor: Color
+        @Composable get() = MaterialTheme.colorScheme.tertiary
+
     /**
      * A scroll implementation tailored for use with [TransformingLazyColumnState].
      *
@@ -173,8 +200,15 @@ public object OneHandedGestureDefaults {
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
      * @param pagerState The state of the pager to be animated.
+     * @param wrapAround Determines whether the pager should wrap around to the first page (index 0)
+     *   after reaching the last page.
      */
-    public suspend fun scrollToNextPage(pagerState: PagerState) {
-        pagerState.animateScrollToPage((pagerState.currentPage + 1) % pagerState.pageCount)
+    public suspend fun scrollToNextPage(pagerState: PagerState, wrapAround: Boolean = true) {
+        if (
+            pagerState.pageCount > 0 &&
+                (pagerState.currentPage < pagerState.pageCount - 1 || wrapAround)
+        ) {
+            pagerState.animateScrollToPage((pagerState.currentPage + 1) % pagerState.pageCount)
+        }
     }
 }
