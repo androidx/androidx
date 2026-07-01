@@ -1568,7 +1568,6 @@ package androidx.xr.compose.subspace.node {
 package androidx.xr.compose.subspace.semantics {
 
   public final class SemanticsModifierKt {
-    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! semantics(androidx.xr.compose.subspace.layout.SubspaceModifier!, kotlin.jvm.functions.Function1!);
     method @KotlinOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier semantics(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver,kotlin.Unit> properties);
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SubspaceModifier semanticsSubspace(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver,kotlin.Unit> properties);
   }

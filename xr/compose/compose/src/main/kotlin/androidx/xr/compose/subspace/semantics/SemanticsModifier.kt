@@ -16,8 +16,6 @@
 
 package androidx.xr.compose.subspace.semantics
 
-import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
@@ -44,33 +42,6 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
 public fun SubspaceModifier.semantics(
     properties: (SubspaceSemanticsPropertyReceiver.() -> Unit)
 ): SubspaceModifier = this then AppendedSemanticsElement(properties = properties)
-
-/**
- * Add semantics key/value pairs to the layout node, for use in testing, accessibility, etc.
- *
- * @param properties Builder block where the semantics properties are defined.
- */
-// TODO(b/518020831): Remove deprecated semantics modifier.
-@Deprecated(
-    message = "Replaced by semantics that takes SubspaceSemanticsPropertyReceiver",
-    level = DeprecationLevel.HIDDEN,
-)
-public fun SubspaceModifier.semantics(
-    properties: (SemanticsPropertyReceiver.() -> Unit)
-): SubspaceModifier =
-    this then
-        AppendedSemanticsElement(
-            properties = {
-                val subspaceReceiver: SubspaceSemanticsPropertyReceiver = this
-                val receiver: SemanticsPropertyReceiver =
-                    object : SemanticsPropertyReceiver {
-                        override operator fun <T> set(key: SemanticsPropertyKey<T>, value: T) {
-                            subspaceReceiver.set(key = key, value = value)
-                        }
-                    }
-                receiver.properties()
-            }
-        )
 
 private class AppendedSemanticsElement(
     private val properties: (SubspaceSemanticsPropertyReceiver.() -> Unit)
