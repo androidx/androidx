@@ -20,6 +20,7 @@ import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.core.widget.TextViewCompat;
 
