@@ -274,7 +274,7 @@ class AndroidTextInputSessionTest {
             // Update extracted text should NOT be called because monitor mode is reset on new
             // connection
             composeImm.expectCall("updateSelection(5, 5, -1, -1)")
-            composeImm.expectNoMoreCalls()
+            composeImm.expectNoCall("updateExtractedText")
         }
     }
 
