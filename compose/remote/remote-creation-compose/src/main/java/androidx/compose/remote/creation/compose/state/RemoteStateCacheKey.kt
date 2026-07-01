@@ -201,7 +201,7 @@ internal class RemoteNamedCacheKey(
 }
 
 /** A cache key for variable by id. */
-internal class RemoteStateIdKey(private val id: Int) : BaseRemoteStateCacheKey() {
+internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteStateIdKey) return false
