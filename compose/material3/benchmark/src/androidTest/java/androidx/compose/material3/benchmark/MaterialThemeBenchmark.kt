@@ -18,9 +18,13 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +38,7 @@ import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLa
 import androidx.compose.ui.Modifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +50,10 @@ class MaterialThemeBenchmark {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val themeTestCaseFactory = { MaterialThemeTestCase() }
+    private val themeWithButtonTestCaseFactory = { MaterialThemeWithButtonTestCase() }
+    private val themeWithButtonAndDynamicColorsTestCaseFactory = {
+        MaterialThemeWithButtonAndDynamicColorsTestCase()
+    }
 
     @Test
     fun firstPixel() {
@@ -52,8 +61,32 @@ class MaterialThemeBenchmark {
     }
 
     @Test
+    fun firstPixel_withButton() {
+        benchmarkRule.benchmarkToFirstPixel(themeWithButtonTestCaseFactory)
+    }
+
+    @Test
+    fun firstPixel_withButtonAndDynamicColors() {
+        benchmarkRule.benchmarkToFirstPixel(themeWithButtonAndDynamicColorsTestCaseFactory)
+    }
+
+    @Test
     fun changeColors() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory = themeTestCaseFactory)
+    }
+
+    @Test
+    fun changeColors_withButton() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory = themeWithButtonTestCaseFactory
+        )
+    }
+
+    @Test
+    fun changeColors_withButtonAndDynamicColors() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory = themeWithButtonAndDynamicColorsTestCaseFactory
+        )
     }
 }
 
@@ -66,6 +99,63 @@ internal class MaterialThemeTestCase : LayeredComposeTestCase(), ToggleableTestC
     @Composable
     override fun MeasuredContent() {
         MaterialTheme(colorScheme = colorScheme) { Box(Modifier.fillMaxSize()) }
+    }
+
+    override fun toggleState() {
+        colorScheme =
+            if (colorScheme == lightColorScheme) {
+                darkColorScheme
+            } else {
+                lightColorScheme
+            }
+    }
+}
+
+internal class MaterialThemeWithButtonTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+
+    val lightColorScheme = lightColorScheme()
+    val darkColorScheme = darkColorScheme()
+    private var colorScheme: ColorScheme by mutableStateOf(lightColorScheme)
+
+    @Composable
+    override fun MeasuredContent() {
+        MaterialTheme(colorScheme = colorScheme) { Button(onClick = {}) { Text("Button") } }
+    }
+
+    override fun toggleState() {
+        colorScheme =
+            if (colorScheme == lightColorScheme) {
+                darkColorScheme
+            } else {
+                lightColorScheme
+            }
+    }
+}
+
+internal class MaterialThemeWithButtonAndDynamicColorsTestCase :
+    LayeredComposeTestCase(), ToggleableTestCase {
+
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+    private val lightColorScheme =
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            dynamicLightColorScheme(context)
+        } else {
+            lightColorScheme()
+        }
+
+    private val darkColorScheme =
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            dynamicDarkColorScheme(context)
+        } else {
+            darkColorScheme()
+        }
+
+    private var colorScheme: ColorScheme by mutableStateOf(lightColorScheme)
+
+    @Composable
+    override fun MeasuredContent() {
+        MaterialTheme(colorScheme = colorScheme) { Button(onClick = {}) { Text("Button") } }
     }
 
     override fun toggleState() {
