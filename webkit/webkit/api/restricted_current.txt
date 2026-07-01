@@ -212,6 +212,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default void clearCustomHeader(String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default void clearCustomHeader(String, String);
     method @SuppressCompatibility @RequiresFeature(name="SET_MAX_PRERENDERS_V1", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalUrlPrefetch public default void clearMaxPrerenders();
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.ENQUEUE_PRECONNECT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalPreconnect public default void enqueuePreconnect(String);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.CookieManager getCookieManager();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default java.util.Set<androidx.webkit.CustomHeader!> getCustomHeaders();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default java.util.Set<androidx.webkit.CustomHeader!> getCustomHeaders(String);
@@ -714,6 +715,7 @@ package androidx.webkit {
     field public static final String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
     field public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
     field public static final String DOWNLOAD_FAVICONS_ENABLED = "DOWNLOAD_FAVICONS_ENABLED";
+    field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalPreconnect public static final String ENQUEUE_PRECONNECT = "ENQUEUE_PRECONNECT";
     field public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY = "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
     field public static final String FORCE_DARK = "FORCE_DARK";
     field public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";

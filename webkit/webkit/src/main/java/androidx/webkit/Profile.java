@@ -627,13 +627,9 @@ public interface Profile {
      * Enqueue a network preconnect to occur once WebView has started up.
      * <p>
      * This method acts like {@link #preconnect(String)} but doesn't trigger WebView start up.
-     * Instead it enqueues that action for when WebView start up occurs.
+     * Instead, it enqueues that action for when WebView start up occurs.
      * If the WebView has already started, this method acts exactly like {@link #preconnect(String)}
      * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#ENQUEUE_PRECONNECT}.
-     *
      * @param url A url containing the origin to open a connection to.
      * @throws UnsupportedOperationException if the
      * {@link WebViewFeature#ENQUEUE_PRECONNECT} feature is not supported.
@@ -643,7 +639,6 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @ExperimentalPreconnect
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default void enqueuePreconnect(@NonNull String url) {
         // We provide a default implementation of this method so that embedders extending the
         // Profile (eg, for testing) don't have their build broken by the addition of this
