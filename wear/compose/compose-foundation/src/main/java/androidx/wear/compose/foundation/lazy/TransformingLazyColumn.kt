@@ -59,6 +59,7 @@ import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.WearComposeFoundationFlags
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
+import androidx.wear.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
 import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
@@ -214,7 +215,7 @@ public fun TransformingLazyColumn(
             modifier
                 .then(state.awaitLayoutModifier)
                 .then(state.remeasurementModifier)
-                .then(state.animator.modifier)
+                .lazyLayoutItemAnimator(state.animator, reverseLayout)
                 .then(
                     if (rotaryScrollableBehavior != null && userScrollEnabled)
                         Modifier.requestFocusOnHierarchyActive()
@@ -502,9 +503,10 @@ internal class TransformingLazyColumnItemProvider(
     @Composable
     override fun Item(index: Int, key: Any) {
         val itemScope =
-            remember(index, reduceMotionEnabled) {
+            remember(key, index, reduceMotionEnabled) {
                 TransformingLazyColumnItemScopeImpl(
-                    index,
+                    key = key,
+                    index = index,
                     state = state,
                     reduceMotionEnabled = reduceMotionEnabled,
                 )
