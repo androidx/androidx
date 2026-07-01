@@ -382,6 +382,7 @@ fun ButtonContentWithOneHandedGestureSample() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
+                    gestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
@@ -425,6 +426,7 @@ fun CompactButtonContentWithOneHandedGestureSample() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
+                    gestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,

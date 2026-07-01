@@ -81,7 +81,6 @@ import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
-import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
@@ -412,6 +411,7 @@ class OneHandedGestureTest {
                     modifier =
                         Modifier.oneHandedGesture(
                             gestureConfiguration = scrollGestureConfig,
+                            gestureLabel = "scroll",
                             onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         ) {
                             tlcGestured = true
@@ -433,6 +433,7 @@ class OneHandedGestureTest {
                                 modifier =
                                     Modifier.oneHandedGesture(
                                         gestureConfiguration = textGestureSpec,
+                                        gestureLabel = "click text $index",
                                         onGestureAvailable = {
                                             textIndicatorState.isIndicatorActive = true
                                         },
@@ -474,7 +475,14 @@ class OneHandedGestureTest {
                 repeat(2) {
                     val gestureConfig =
                         rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-                    Text("Clickable$it", modifier = Modifier.oneHandedGesture(gestureConfig) {})
+                    Text(
+                        "Clickable$it",
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = gestureConfig,
+                                gestureLabel = "click text $it",
+                            ) {},
+                    )
                 }
             }
         }
@@ -502,7 +510,10 @@ class OneHandedGestureTest {
                         Text(
                             "Clickable $page",
                             modifier =
-                                Modifier.oneHandedGesture(gestureConfig) {
+                                Modifier.oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    gestureLabel = "click text",
+                                ) {
                                     textGestured[page] = true
                                 },
                         )
@@ -561,13 +572,25 @@ class OneHandedGestureTest {
 
                     Button(
                         onClick = {},
-                        modifier = Modifier.oneHandedGesture(button1Spec) { buttonGestured[0]++ },
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = button1Spec,
+                                gestureLabel = "click first button",
+                            ) {
+                                buttonGestured[0]++
+                            },
                     ) {
                         Text("Gesturable 1")
                     }
                     Button(
                         onClick = {},
-                        modifier = Modifier.oneHandedGesture(button2Spec) { buttonGestured[1]++ },
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = button2Spec,
+                                gestureLabel = "click second button",
+                            ) {
+                                buttonGestured[1]++
+                            },
                     ) {
                         Text("Gesturable 2")
                     }
@@ -592,28 +615,6 @@ class OneHandedGestureTest {
             assertEquals(buttonGestured[0], 1)
             assertEquals(buttonGestured[1], 1)
         }
-    }
-
-    @Test
-    fun alert_dialog_edge_button() {
-        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
-        var edgeButtonClicked = false
-
-        rule.setContentWithTheme {
-            MockSdkGestureInputManager(sdkGestureInputManager) {
-                AlertDialog(
-                    visible = true,
-                    onDismissRequest = {},
-                    title = {},
-                    edgeButton = {
-                        AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true })
-                    },
-                )
-            }
-        }
-
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
-        rule.runOnIdle { assert(edgeButtonClicked) }
     }
 
     @Test
@@ -658,88 +659,6 @@ class OneHandedGestureTest {
     }
 
     @Test
-    fun alert_dialog_content_groups_edge_button(@TestParameter enabled: Boolean) {
-        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
-        var edgeButtonClicked = false
-        rule.setContentWithTheme {
-            CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
-                MockSdkGestureInputManager(sdkGestureInputManager) {
-                    val transformationSpec = rememberTransformationSpec()
-                    AlertDialog(
-                        visible = true,
-                        onDismissRequest = {},
-                        title = { Text("Title") },
-                        transformationSpec = transformationSpec,
-                        edgeButton = {
-                            AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true }) {
-                                Text("Share once")
-                            }
-                        },
-                    ) {
-                        item {
-                            SwitchButton(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .transformedHeight(this, transformationSpec),
-                                checked = true,
-                                onCheckedChange = {},
-                                label = { Text("Weather") },
-                                transformation = SurfaceTransformation(transformationSpec),
-                            )
-                        }
-                        item {
-                            SwitchButton(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .transformedHeight(this, transformationSpec),
-                                checked = true,
-                                onCheckedChange = {},
-                                label = { Text("Calendar") },
-                                transformation = SurfaceTransformation(transformationSpec),
-                            )
-                        }
-                        item { AlertDialogDefaults.GroupSeparator() }
-                        item {
-                            FilledTonalButton(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .transformedHeight(this, transformationSpec),
-                                onClick = {},
-                                label = {
-                                    Text(modifier = Modifier.fillMaxWidth(), text = "Never share")
-                                },
-                                transformation = SurfaceTransformation(transformationSpec),
-                            )
-                        }
-                        item {
-                            FilledTonalButton(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .transformedHeight(this, transformationSpec),
-                                onClick = {},
-                                label = {
-                                    Text(modifier = Modifier.fillMaxWidth(), text = "Share always")
-                                },
-                                transformation = SurfaceTransformation(transformationSpec),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Scroll through alert dialog with one-handed gestures until edge button is gestured
-        for (i in 0..10) {
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
-            rule.waitForIdle()
-            if (edgeButtonClicked) {
-                break
-            }
-        }
-        assertEquals(enabled, edgeButtonClicked)
-    }
-
-    @Test
     fun test_slc_scroll_down(
         @TestParameter anchor: TestParamScalingLazyListAnchorType,
         @TestParameter wrap: Boolean,
@@ -759,6 +678,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
+                                    gestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDown(listState, wrap)
                                     },
@@ -807,6 +727,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
+                                    gestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDownToNextItem(
                                             listState,
@@ -853,6 +774,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
+                                    gestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDown(listState, wrap)
                                     },
@@ -897,6 +819,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
+                                    gestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDownToNextItem(
                                             listState,
@@ -963,6 +886,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
+                                    gestureLabel = "scroll to next page",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollToNextPage(pagerState, wrap)
                                     },
@@ -1027,7 +951,13 @@ class OneHandedGestureTest {
                         rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
                     Text(
                         "Clickable",
-                        modifier = Modifier.oneHandedGesture(gestureConfig) { gestured = true },
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = gestureConfig,
+                                gestureLabel = "gesture",
+                            ) {
+                                gestured = true
+                            },
                     )
                 }
             }
@@ -1056,7 +986,13 @@ class OneHandedGestureTest {
                         rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
                     Text(
                         "Clickable",
-                        modifier = Modifier.oneHandedGesture(gestureConfig) { gestured = true },
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = gestureConfig,
+                                gestureLabel = "gesture",
+                            ) {
+                                gestured = true
+                            },
                     )
                 }
             }

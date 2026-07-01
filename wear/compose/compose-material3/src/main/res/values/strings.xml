@@ -55,4 +55,10 @@
     <string name="one_handed_gesture_primary_action_accessibility_text">Double-pinch gesture to %s</string>
     <!-- Accessibility text for dismiss gesture -->
     <string name="one_handed_gesture_dismiss_action_accessibility_text">Wrist-turn gesture to %s</string>
+    <!-- Accessibility text for dismiss gesture in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_dismiss_action_accessibility_text">dismiss</string>
+    <!-- Accessibility text for primary gesture for Confirm Button in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text">confirm</string>
+    <!-- Accessibility text for primary gesture to scroll content in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text">scroll down</string>
 </resources>
