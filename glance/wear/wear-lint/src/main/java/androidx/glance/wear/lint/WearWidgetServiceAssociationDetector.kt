@@ -21,11 +21,15 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassType
 import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UElement
 
 /**
  * A [Detector] that ensures all concrete subclasses of [GlanceWearWidgetService] are annotated with
@@ -55,16 +59,18 @@ class WearWidgetServiceAssociationDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        // TODO(b/477024153): Add an IDE Quick-Fix to auto-insert this annotation.
+        val fix = suggestAssociationFix(context, declaration)
         context.report(
             SERVICE_ASSOCIATION_ANNOTATION_ISSUE,
             declaration,
             context.getNameLocation(declaration),
             ISSUE_BRIEF_DESCRIPTION,
+            quickfixData = fix,
         )
     }
 
     companion object {
+        private const val GLANCE_WEAR_WIDGET = "androidx.glance.wear.GlanceWearWidget"
         private const val GLANCE_WEAR_WIDGET_SERVICE =
             "androidx.glance.wear.GlanceWearWidgetService"
         private const val ASSOCIATE_WITH_GLANCE_WEAR_WIDGET =
@@ -99,5 +105,64 @@ class WearWidgetServiceAssociationDetector : Detector(), SourceCodeScanner {
                         Scope.JAVA_FILE_SCOPE,
                     ),
             )
+
+        /**
+         * Helper extension to resolve a [PsiClass] only if it is a subclass of [GlanceWearWidget],
+         * excluding the base class itself.
+         *
+         * This ensures we only resolve actual custom/concrete widget implementations and prevent
+         * matching the abstract base class [GlanceWearWidget] itself.
+         */
+        private fun PsiClass?.takeIfWidgetClass(context: JavaContext): PsiClass? {
+            return this?.takeIf { context.evaluator.inheritsFrom(it, GLANCE_WEAR_WIDGET, true) }
+        }
+
+        private fun suggestAssociationFix(context: JavaContext, declaration: UClass): LintFix? {
+            var targetWidgetClass: PsiClass? = null
+
+            // 1. Try to check getWidget property return type and resolve its PsiClass
+            val widgetMethod = declaration.methods.find { it.name == "getWidget" }
+            val returnType = widgetMethod?.returnType as? PsiClassType
+            targetWidgetClass = returnType?.resolve().takeIfWidgetClass(context)
+
+            // 2. Fall back to evaluating the type of the initializer expression of the "widget"
+            // field
+            if (targetWidgetClass == null) {
+                val widgetField = declaration.fields.find { it.name == "widget" }
+                val initExpressionType =
+                    widgetField?.uastInitializer?.getExpressionType() as? PsiClassType
+                targetWidgetClass = initExpressionType?.resolve().takeIfWidgetClass(context)
+            }
+
+            // 3. Check parameterized field arguments (e.g. Lazy<MapsWidget>) and ensure the type
+            // extends GlanceWearWidget
+            if (targetWidgetClass == null) {
+                for (field in declaration.fields) {
+                    val fieldType = field.type as? PsiClassType ?: continue
+                    for (param in fieldType.parameters) {
+                        if (param is PsiClassType) {
+                            targetWidgetClass = param.resolve().takeIfWidgetClass(context)
+                            if (targetWidgetClass != null) break
+                        }
+                    }
+                    if (targetWidgetClass != null) break
+                }
+            }
+
+            // 4. If we couldn't resolve a valid concrete widget class, don't provide a broken
+            // quick-fix
+            val resolvedWidgetClass = targetWidgetClass ?: return null
+            val widgetClassName = resolvedWidgetClass.name ?: return null
+            val annotationText = "@AssociateWithGlanceWearWidget($widgetClassName::class)"
+
+            return LintFix.create()
+                .replace()
+                .name("Annotate with @AssociateWithGlanceWearWidget")
+                .range(context.getLocation(declaration as UElement))
+                .beginning()
+                .with("$annotationText\n")
+                .imports(ASSOCIATE_WITH_GLANCE_WEAR_WIDGET)
+                .build()
+        }
     }
 }
