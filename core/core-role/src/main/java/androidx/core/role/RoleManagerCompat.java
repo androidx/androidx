@@ -16,6 +16,8 @@
 
 package androidx.core.role;
 
+import android.app.PendingIntent;
+
 /**
  * This class contains the name and documentation for roles that might be available in the system.
  * <p>
@@ -74,7 +76,7 @@ public final class RoleManagerCompat {
      * <p>
      * To qualify for this role, an application needs to handle the intent to dial, and implement
      * an {@link android.telecom.InCallService} if the application targets
-     * {@link android.os.Build.VERSION_CODES.TIRAMISU} or higher:
+     * {@link android.os.Build.VERSION_CODES#TIRAMISU} or higher:
      * <pre class="prettyprint">{@code
      * <activity>
      *     <intent-filter>
