@@ -17,6 +17,7 @@
 package androidx.benchmark.darwin.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
@@ -30,8 +31,8 @@ interface XCodeBuildService : BuildService<BuildServiceParameters.None> {
 }
 
 /** Register the [XCodeBuildService] as a shared gradle service. */
-fun Project.configureXCodeBuildService() {
-    gradle.sharedServices.registerIfAbsent(
+fun Project.configureXCodeBuildService(): Provider<XCodeBuildService> {
+    return gradle.sharedServices.registerIfAbsent(
         XCodeBuildService.XCODE_BUILD_SERVICE_NAME,
         XCodeBuildService::class.java,
     ) { spec ->
