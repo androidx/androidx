@@ -26,8 +26,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.core.graphics.withMatrix
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressShapeRenderer
 import androidx.ink.authoring.latency.LatencyData
@@ -41,7 +41,7 @@ import androidx.ink.geometry.MutableBox
  * higher than it would be with [CanvasInProgressStrokesRenderHelperV29] or
  * [CanvasInProgressStrokesRenderHelperV33].
  */
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
 @UiThread
 internal class CanvasInProgressStrokesRenderHelperV21<
     ShapeSpecT : Any,
@@ -117,7 +117,7 @@ internal class CanvasInProgressStrokesRenderHelperV21<
     init {
         // Not checking that this is used for only pre-Q devices because InProgressStrokesView
         // allows
-        // forcing this implementation as a fallback (with useHighLatencyRenderHelper).
+        // forcing this implementation as a fallback.
         if (mainView.isAttachedToWindow) {
             addInnerToMainView()
         }

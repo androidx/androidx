@@ -20,8 +20,10 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.rendering.android.canvas.internal.CanvasStrokeUnifiedRenderer
 import androidx.ink.strokes.InProgressStroke
@@ -76,6 +78,7 @@ import androidx.ink.strokes.Stroke
  * that additional content will not be taken into account in geometry operations like
  * [androidx.ink.geometry.Intersection] or [androidx.ink.geometry.PartitionedMesh.computeCoverage].
  */
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 public interface CanvasStrokeRenderer {
 
     /**
@@ -115,6 +118,7 @@ public interface CanvasStrokeRenderer {
      */
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -156,6 +160,7 @@ public interface CanvasStrokeRenderer {
      */
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -193,6 +198,7 @@ public interface CanvasStrokeRenderer {
      */
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -230,6 +236,7 @@ public interface CanvasStrokeRenderer {
      */
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -265,9 +272,10 @@ public interface CanvasStrokeRenderer {
          * @param forcePathRendering Overrides the drawing strategy selected based on API version to
          *   always draw strokes using [Canvas.drawPath] instead of [Canvas.drawMesh].
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
         @JvmStatic
         @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
         public fun create(
             forcePathRendering: Boolean,
             textureStore: TextureBitmapStore = TextureBitmapStore { null },

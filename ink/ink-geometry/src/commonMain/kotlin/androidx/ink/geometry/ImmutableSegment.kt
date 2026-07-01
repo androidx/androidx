@@ -27,7 +27,8 @@ public class ImmutableSegment(start: Vec, end: Vec) : Segment() {
     override val start: ImmutableVec = start.toImmutable()
     override val end: ImmutableVec = end.toImmutable()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableSegment = this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override fun toImmutable(): ImmutableSegment = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Segment && areEquivalent(this, other))

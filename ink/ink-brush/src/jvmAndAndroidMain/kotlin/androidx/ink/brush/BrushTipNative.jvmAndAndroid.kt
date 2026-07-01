@@ -17,10 +17,12 @@
 package androidx.ink.brush
 
 import androidx.ink.geometry.AngleDegreesFloat
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object BrushTipNative {
     init {
         NativeLoader.load()

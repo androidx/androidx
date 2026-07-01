@@ -17,12 +17,14 @@
 package androidx.ink.brush.behavior
 
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
 /**
  * A [TerminalNode] that consumes two inputs, an angle and a magnitude, to affect a vector brush tip
  * property.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class PolarTargetNode
 private constructor(
     nativeAlloc: () -> Long,

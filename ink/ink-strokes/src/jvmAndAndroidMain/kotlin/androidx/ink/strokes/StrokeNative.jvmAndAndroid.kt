@@ -16,10 +16,12 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 internal actual object StrokeNative {
     init {
         NativeLoader.load()
@@ -43,6 +45,7 @@ internal actual object StrokeNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 internal actual object MultipleStrokesNative {
     init {
         NativeLoader.load()

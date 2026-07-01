@@ -17,16 +17,18 @@
 package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 
 /** Determines how the raw data of a [Mesh] is represented. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public class MeshFormat private constructor(pointerAlloc: () -> Long) {
 
     /**
      * Only for use within the ink library. Returns the native address held by this [MeshFormat].
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(pointerAlloc, MeshFormatNative::free)
 
     /** Returns whether this format and [other] mesh format have the same packed representation. */
@@ -45,15 +47,16 @@ public class MeshFormat private constructor(pointerAlloc: () -> Long) {
             MeshFormatNative.isUnpackedEquivalent(this.nativePointer, other.nativePointer)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun attributeCount(): Int = MeshFormatNative.attributeCount(nativePointer)
 
+    @InkInternalOnlyApi
     public companion object {
         /**
          * Construct a [MeshFormat], taking a callback that heap-allocates and returns a pointer to
          * a C++ `MeshFormat`.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(pointerAlloc: () -> Long): MeshFormat = MeshFormat(pointerAlloc)
     }
 }

@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 
 /**
@@ -33,6 +34,7 @@ import androidx.ink.nativeloader.NativePointer
  * `androidx.ink.authoring.InProgressStrokesView` or [InProgressStroke], which will ultimately
  * return a [Stroke] when input is completed.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class Stroke
 private constructor(
     nativeAlloc: () -> Long,
@@ -49,7 +51,8 @@ private constructor(
      * [Stroke] object, though that may share ownership of the underlying mesh data with other
      * similar (e.g. created by copying) strokes.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, StrokeNative::free)
 
     /** The user-drawn (or perhaps synthetically generated) path that this [Stroke] takes. */
@@ -180,7 +183,8 @@ private constructor(
      * @param strokeTransform The [AffineTransform] from stroke coordinates to world coordinates.
      * @return The set of [Stroke] fragments remaining after the erasure.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @ExperimentalInkEraserApi
     public fun partialErase(
         eraserShape: PartitionedMesh,
         eraserTransform: AffineTransform,
@@ -190,8 +194,7 @@ private constructor(
 
     public companion object {
         /** Construct a [Stroke] from an unowned heap-allocated native pointer to a C++ `Stroke`. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun wrapNative(brush: Brush, nativeAlloc: () -> Long): Stroke {
+        internal fun wrapNative(brush: Brush, nativeAlloc: () -> Long): Stroke {
             return Stroke(nativeAlloc, brush)
         }
     }
@@ -218,6 +221,7 @@ internal expect object StrokeNative {
     fun free(nativePointer: Long)
 }
 
+@OptIn(InkInternalOnlyApi::class)
 internal class MultipleStrokes
 private constructor(private val brush: Brush, pointerAlloc: () -> Long) {
 

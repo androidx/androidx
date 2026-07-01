@@ -25,15 +25,22 @@ import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkCustomBrushApi::class,
+    ExperimentalInkEraserApi::class,
+)
 class StrokeTest {
 
     @Test

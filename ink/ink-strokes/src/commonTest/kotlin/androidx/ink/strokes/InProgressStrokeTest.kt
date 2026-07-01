@@ -20,6 +20,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.behavior.SourceNode
@@ -27,12 +28,14 @@ import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.ImmutableVec
 import androidx.ink.geometry.MutableVec
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 /** Unit tests for [InProgressStroke]. */
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 class InProgressStrokeTest {
 
     private fun makeStartAndExtendStroke() =
@@ -88,6 +91,8 @@ class InProgressStrokeTest {
     fun startStroke_setsNoiseSeedAndBaseAnimationPhase() {
         val inProgressStroke = InProgressStroke()
         inProgressStroke.start(makeBrush(), noiseSeed = 12345, baseAnimationPhase = 0.25f)
+
+        assertThat(inProgressStroke.getBaseAnimationPhase()).isEqualTo(0.25f)
 
         val strokeInputBatch = MutableStrokeInputBatch()
         inProgressStroke.populateInputs(strokeInputBatch)

@@ -17,12 +17,14 @@
 package androidx.ink.brush.behavior
 
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
 /**
  * A [ValueNode] that interpolates between two inputs based on a parameter input. The specific kind
  * of interpolation performed depends on the [Interpolation] parameter.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class InterpolationNode
 private constructor(
     nativeAlloc: () -> Long,

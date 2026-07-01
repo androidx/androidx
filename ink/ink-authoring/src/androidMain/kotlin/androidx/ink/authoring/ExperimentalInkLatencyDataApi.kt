@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ package androidx.ink.authoring
 import androidx.annotation.RestrictTo
 
 /**
- * Marks declarations that are are part of the **experimental** Ink Authoring custom shape plugins
- * API. These declarations may (or may not) be changed, deprecated, or removed in the near future,
- * or the semantics of their behavior may change in some way that may break some code.
+ * Marks declarations that are are part of the **experimental** Ink Latency Data API. These
+ * declarations may (or may not) be changed, deprecated, or removed in the near future, or the
+ * semantics of their behavior may change in some way that may break some code.
  *
  * You can opt in to using APIs in your code by marking your declaration with `@OptIn` passing the
- * opt-in requirement annotation as its argument: `@OptIn(ExperimentalShapeAdapterApi::class)`.
+ * opt-in requirement annotation as its argument: `@OptIn(ExperimentalInkLatencyDataApi::class)`.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @MustBeDocumented
 @Retention(value = AnnotationRetention.BINARY)
 @Target(
@@ -42,5 +41,6 @@ import androidx.annotation.RestrictTo
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-public annotation class ExperimentalCustomShapeWorkflowApi
+public annotation class ExperimentalInkLatencyDataApi

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.colorspace.ColorSpaces as ComposeColorSpaces
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalInkCustomBrushApi::class)
 class BrushExtensionsTest {
     private val displayP3 = ComposeColorSpaces.DisplayP3
     private val adobeRgb = ComposeColorSpaces.AdobeRgb

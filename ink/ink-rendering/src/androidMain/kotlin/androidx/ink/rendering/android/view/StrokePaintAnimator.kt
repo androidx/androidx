@@ -22,6 +22,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.jvm.JvmName
@@ -39,6 +40,7 @@ import kotlin.jvm.JvmStatic
  * internal `Choreographer` callback and allow the animator to be garbage collected more quickly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkAnimationApi
 public class StrokePaintAnimator public constructor() {
     private var prevClockStateNanos: Long = 0L
     private val clockStateNanos: AtomicLong = AtomicLong()
@@ -180,6 +182,7 @@ public class StrokePaintAnimator public constructor() {
         @UiThread public fun onAnimationUpdate(animator: StrokePaintAnimator)
     }
 
+    @ExperimentalInkAnimationApi
     public companion object {
         // The number of nanoseconds in one millisecond.
         private const val NANOS_PER_MILLI: Long = 1_000_000L
@@ -234,6 +237,7 @@ public class StrokePaintAnimator public constructor() {
 // solely by the [Choreographer] holding a reference to this callback, and (eventually, once garbage
 // collection happens) prevents the callback from re-enqueuing itself forever once the animator is
 // no longer being used.
+@OptIn(ExperimentalInkAnimationApi::class)
 internal class ChoreographerCallback(private val animator: WeakReference<StrokePaintAnimator>) :
     Choreographer.FrameCallback {
     override fun doFrame(nextFrameTimeNanos: Long) {

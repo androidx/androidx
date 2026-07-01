@@ -17,16 +17,16 @@
 package androidx.ink.nativeloader
 
 import androidx.annotation.RestrictTo
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 @Suppress("NotCloseable") // Finalize is only used to free a native peer object.
 actual public class NativePointer
 actual constructor(
     pointerAlloc: () -> Long, // Must not be retained
     private val pointerFree: (Long) -> Unit, // Must not capture a reference to this instance
-) : ReadOnlyProperty<Any, Long> {
+) {
 
     private var pointer: Long = 0L
 
@@ -57,5 +57,5 @@ actual constructor(
         NativePointerObserver.onCleanup?.invoke(pointer)
     }
 
-    actual override operator fun getValue(thisRef: Any, property: KProperty<*>): Long = pointer
+    actual public operator fun getValue(thisRef: Any, property: KProperty<*>): Long = pointer
 }

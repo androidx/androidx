@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
+
 /** A [ValueNode] that produces a constant output value. */
+@OptIn(InkInternalOnlyApi::class)
 public class ConstantNode private constructor(nativeAlloc: () -> Long) :
     ValueNode(nativeAlloc, emptyList()) {
 

@@ -35,7 +35,8 @@ import kotlin.math.sin
 public class ImmutableVec @UsedByNative constructor(override val x: Float, override val y: Float) :
     Vec() {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableVec = this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override fun toImmutable(): ImmutableVec = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Vec && areEquivalent(this, other))

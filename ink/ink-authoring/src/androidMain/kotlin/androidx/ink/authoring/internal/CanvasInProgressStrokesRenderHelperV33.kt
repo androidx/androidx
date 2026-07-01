@@ -42,15 +42,14 @@ import androidx.core.graphics.withMatrix
 import androidx.graphics.CanvasBufferedRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.hardware.SyncFenceCompat
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressShapeRenderer
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
-import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -73,7 +72,7 @@ import kotlin.math.floor
  */
 @Suppress("ObsoleteSdkInt") // TODO(b/262911421): Should not need to suppress.
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
 internal class CanvasInProgressStrokesRenderHelperV33<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
@@ -905,7 +904,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
      * [Bounds] continue to be the same, and discarded when the [Bounds] change.
      */
     @VisibleForTesting
-    internal data class Bounds(
+    internal class Bounds(
         /** The width of [mainView]. */
         val mainViewWidth: Int,
         /** The height of [mainView]. */
@@ -1059,19 +1058,13 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         override fun onThread() = Thread.currentThread() == thread
 
         override fun execute(command: Runnable) {
-            if (isShutdown) return
-            check(thread.isAlive)
-            if (!handler.post(command)) {
-                throw RejectedExecutionException("$handler is shutting down")
-            }
+            // If the thread is already shut down, we drop the command.
+            handler.post(command)
         }
 
         override fun executeDelayed(command: Runnable, delayTime: Long, delayTimeUnit: TimeUnit) {
-            if (isShutdown) return
-            check(thread.isAlive)
-            if (!handler.postDelayed(command, delayTimeUnit.toMillis(delayTime))) {
-                throw RejectedExecutionException("$handler is shutting down")
-            }
+            // If the thread is already shut down, we drop the command.
+            handler.postDelayed(command, delayTimeUnit.toMillis(delayTime))
         }
     }
 

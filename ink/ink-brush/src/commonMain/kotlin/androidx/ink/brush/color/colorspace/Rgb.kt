@@ -26,6 +26,7 @@ import androidx.ink.brush.color.colorspace.ColorSpaces.transferHlgOetf
 import androidx.ink.brush.color.colorspace.ColorSpaces.transferSt2048Eotf
 import androidx.ink.brush.color.colorspace.ColorSpaces.transferSt2048Oetf
 import androidx.ink.brush.color.packFloats
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -134,6 +135,7 @@ import kotlin.math.pow
  * [Adaptation].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public class Rgb
 /**
  * Creates a new RGB color space using a specified set of primaries and a specified white point.
@@ -1270,6 +1272,7 @@ public constructor(
  * minimum SDK versions, this should be removed and we should use Java's version.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun interface DoubleFunction {
     public operator fun invoke(double: Double): Double
 }

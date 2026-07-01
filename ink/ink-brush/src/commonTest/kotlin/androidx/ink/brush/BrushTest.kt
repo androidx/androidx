@@ -29,11 +29,13 @@ import androidx.ink.brush.behavior.ToolTypeFilterNode
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.brush.color.toArgb
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
 class BrushTest {
     private val size = 10F
     private val epsilon = 1F

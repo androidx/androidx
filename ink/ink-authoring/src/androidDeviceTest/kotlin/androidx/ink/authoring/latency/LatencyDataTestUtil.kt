@@ -16,10 +16,10 @@
 
 package androidx.ink.authoring.latency
 
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import com.google.common.truth.Correspondence
 
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 val latencyDataEqual: Correspondence<LatencyData, LatencyData> =
     Correspondence.from(
         { actual: LatencyData?, expected: LatencyData? ->

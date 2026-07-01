@@ -20,8 +20,10 @@ import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.fastCbrt
 import androidx.ink.brush.color.fastCoerceIn
 import androidx.ink.brush.color.packFloats
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /** Implementation of the Oklab color space. Oklab uses a D65 white point. */
+@InkInternalOnlyApi
 internal class Oklab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id) {
 
     override val isWideGamut: Boolean

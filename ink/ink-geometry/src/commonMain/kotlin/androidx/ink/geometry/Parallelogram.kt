@@ -120,7 +120,7 @@ public abstract class Parallelogram internal constructor() {
      * [Parallelogram] is immutable, the returned [ImmutableParallelogram] will be the same
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableParallelogram
 
     /**

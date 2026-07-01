@@ -19,6 +19,7 @@ package androidx.ink.nativeloader
 import kotlin.test.Test
 
 /** Trivial test for native loading. */
+@OptIn(InkInternalOnlyApi::class)
 class NativeLoaderSmokeTest {
 
     @Test

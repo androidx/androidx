@@ -19,11 +19,11 @@ package androidx.ink.authoring.internal
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectIntMap
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.ShapeWorkflow
 
-@OptIn(ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
 internal interface InProgressStrokePool<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, *>,
@@ -33,7 +33,7 @@ internal interface InProgressStrokePool<
     fun recycle(inProgressShape: InProgressShapeT)
 }
 
-@OptIn(ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
 internal class InProgressStrokePoolImpl<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, *>,

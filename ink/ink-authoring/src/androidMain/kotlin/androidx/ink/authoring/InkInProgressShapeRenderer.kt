@@ -19,6 +19,7 @@ package androidx.ink.authoring
 import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.OpenForTesting
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 
@@ -27,7 +28,8 @@ import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
  * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer].
  */
 @OpenForTesting
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
+@OptIn(ExperimentalInkAnimationApi::class)
 internal open class InkInProgressShapeRenderer(
     private val canvasStrokeRenderer: CanvasStrokeRenderer
 ) : InProgressShapeRenderer<InkInProgressShape> {

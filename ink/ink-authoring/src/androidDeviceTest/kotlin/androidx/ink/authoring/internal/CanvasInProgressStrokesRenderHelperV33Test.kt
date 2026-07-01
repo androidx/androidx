@@ -21,12 +21,13 @@ import android.os.Build
 import android.os.SystemClock
 import android.view.SurfaceView
 import androidx.graphics.surface.SurfaceControlCompat
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.InkInProgressShape
 import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV33.Bounds
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.StockBrushes
 import androidx.ink.geometry.MutableBox
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
@@ -63,7 +64,11 @@ import org.mockito.kotlin.whenever
  * level but covers the functionality of [CanvasInProgressStrokesRenderHelperV33] in a different way
  * than this test.
  */
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(
+    ExperimentalInkLatencyDataApi::class,
+    ExperimentalInkCustomShapeWorkflowApi::class,
+    ExperimentalInkAnimationApi::class,
+)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(

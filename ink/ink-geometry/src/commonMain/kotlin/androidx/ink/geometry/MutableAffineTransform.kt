@@ -38,7 +38,7 @@ import kotlin.math.sin
  *   input, there is another public constructor for that.
  */
 public class MutableAffineTransform
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
@@ -103,7 +103,7 @@ public constructor(
         m21 = values[5]
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableAffineTransform =
         if (this == AffineTransform.IDENTITY) {
             AffineTransform.IDENTITY

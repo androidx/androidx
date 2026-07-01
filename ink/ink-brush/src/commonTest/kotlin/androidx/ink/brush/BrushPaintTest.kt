@@ -21,11 +21,13 @@ import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.geometry.Angle
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 class BrushPaintTest {
 
     @Test

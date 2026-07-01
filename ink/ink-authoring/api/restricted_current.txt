@@ -1,12 +1,15 @@
 // Signature format: 4.0
 package androidx.ink.authoring {
 
-  @SuppressCompatibility public interface CompletedShapeRenderer<CompletedShapeT> {
+  @SuppressCompatibility @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface CompletedShapeRenderer<CompletedShapeT> {
     method @UiThread public default boolean changesWithTime(CompletedShapeT shape);
     method @UiThread public void draw(android.graphics.Canvas canvas, CompletedShapeT shape, android.graphics.Matrix strokeToScreenTransform, long systemElapsedTimeMillis);
   }
 
-  @SuppressCompatibility public interface InProgressShape<ShapeSpecT, CompletedShapeT> {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ExperimentalInkCustomShapeWorkflowApi {
+  }
+
+  @SuppressCompatibility @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface InProgressShape<ShapeSpecT, CompletedShapeT> {
     method public void cancel();
     method public boolean changesWithTime();
     method public void enqueueInputs(androidx.ink.strokes.StrokeInputBatch realInputs, androidx.ink.strokes.StrokeInputBatch predictedInputs);
@@ -21,15 +24,15 @@ package androidx.ink.authoring {
     method public void update(long shapeDurationMillis);
   }
 
-  @SuppressCompatibility public interface InProgressShapeRenderer<InProgressShapeT extends androidx.ink.authoring.InProgressShape<?, ?>> {
+  @SuppressCompatibility @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface InProgressShapeRenderer<InProgressShapeT extends androidx.ink.authoring.InProgressShape<?, ?>> {
     method public void draw(android.graphics.Canvas canvas, InProgressShapeT shape, android.graphics.Matrix strokeToScreenTransform);
   }
 
-  @SuppressCompatibility @UiThread public interface InProgressShapesCompletedListener<CompletedShapeT> {
+  @SuppressCompatibility @UiThread @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface InProgressShapesCompletedListener<CompletedShapeT> {
     method public default void onShapesCompleted(java.util.Map<androidx.ink.authoring.InProgressStrokeId,? extends CompletedShapeT> shapes);
   }
 
-  @SuppressCompatibility @UiThread public final class InProgressShapesView<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> extends android.widget.FrameLayout {
+  @SuppressCompatibility @UiThread @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public final class InProgressShapesView<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> extends android.widget.FrameLayout {
     ctor public InProgressShapesView(android.content.Context context);
     ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
@@ -137,7 +140,7 @@ package androidx.ink.authoring {
     property public androidx.ink.brush.TextureBitmapStore textureBitmapStore;
   }
 
-  @SuppressCompatibility public interface ShapeWorkflow<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> {
+  @SuppressCompatibility @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface ShapeWorkflow<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> {
     method @WorkerThread public InProgressShapeT create(int shapeType);
     method @InaccessibleFromKotlin @UiThread public androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> getCompletedShapeRenderer();
     method @InaccessibleFromKotlin @WorkerThread public androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> getInProgressShapeRenderer();

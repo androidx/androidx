@@ -16,13 +16,16 @@
 
 @file:JvmName("BrushFamilyExtensions")
 @file:JvmMultifileClass
+@file:OptIn(InkInternalOnlyApi::class)
 
 package androidx.ink.storage
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.Version
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmMultifileClass
@@ -116,6 +119,7 @@ internal fun BrushFamily.Companion.decodeUncompressed(
  *   client texture ID.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 public fun List<BrushFamily>.encodeMultiple(
     textureIdToPngBytes: TexturePngBytesLookup? = null
 ): ByteArray {
@@ -160,6 +164,7 @@ internal fun List<BrushFamily>.encodeMultipleUncompressed(
  * @throws [IOException] if gzip-format bytes cannot be read from [input].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 @Throws(IOException::class)
 public fun BrushFamily.Companion.decodeMultiple(
     input: ByteArray,
@@ -253,6 +258,7 @@ expect internal object BrushFamilySerializationNative {
     ): Long
 }
 
+@OptIn(InkInternalOnlyApi::class)
 internal class MultipleBrushFamilies private constructor(nativeAlloc: () -> Long) {
     private val nativePointer: Long by NativePointer(nativeAlloc, MultipleBrushFamiliesNative::free)
 

@@ -17,10 +17,10 @@
 package androidx.ink.brush.behavior
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.geometry.ImmutableVec
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmField
 
@@ -33,6 +33,7 @@ import kotlin.jvm.JvmField
  * one of the parameterized curve types below. Depending on the type of curve, input and output
  * values outside [0, 1] are possible.
  */
+@OptIn(InkInternalOnlyApi::class)
 public abstract class EasingFunction private constructor(pointerAlloc: () -> Long) {
 
     internal val nativePointer: Long by NativePointer(pointerAlloc, EasingFunctionNative::free)
@@ -42,8 +43,7 @@ public abstract class EasingFunction private constructor(pointerAlloc: () -> Lon
          * Returns a (possibly-interned) clone of the C++ EasingFunction object pointed to by
          * `otherEasingFunctionNativePointer`, which remains owned by the caller.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun copyAndWrapNative(otherEasingFunctionNativePointer: Long): EasingFunction =
+        internal fun copyAndWrapNative(otherEasingFunctionNativePointer: Long): EasingFunction =
             when (EasingFunctionNative.getParametersType(otherEasingFunctionNativePointer)) {
                 0 -> Predefined.copyAndWrapNative(otherEasingFunctionNativePointer)
                 1 -> CubicBezier.copyAndWrapNative(otherEasingFunctionNativePointer)

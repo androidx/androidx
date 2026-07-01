@@ -16,14 +16,14 @@
 
 package androidx.ink.authoring.internal
 
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
 @RunWith(AndroidJUnit4::class)
 class InProgressStrokePoolTest {
 

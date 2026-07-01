@@ -16,12 +16,13 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.ConstantNodeNative_create
 import androidx.ink.nativeloader.cinterop.ConstantNodeNative_getValue
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object ConstantNodeNative {
     actual fun create(value: Float): Long =
         ConstantNodeNative_create(jni_env_pass_through = null, value, throwForNonOkStatusCallback)

@@ -21,6 +21,7 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.behavior.Node
@@ -29,6 +30,7 @@ import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.brush.behavior.ToolTypeFilterNode
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
@@ -56,6 +58,7 @@ import org.junit.runners.Parameterized.Parameters
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(Parameterized::class)
 @MediumTest
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
 class StockBrushesTest(val brushName: String) {
     val family = familiesByName[brushName]!!
 

@@ -21,9 +21,10 @@ import android.graphics.Bitmap
 import android.os.SystemClock
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
-import androidx.ink.authoring.testing.MultiTouchInputBuilder
+import androidx.ink.authoring.testing.MultiTouchInputCreator
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.Stroke
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onIdle
@@ -39,6 +40,7 @@ import org.junit.Rule
 
 /** Base class for emulator-based tests using [InProgressStrokesView]. */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkHandoffApi::class)
 open class InProgressStrokesViewTestBase {
 
     @get:Rule
@@ -72,7 +74,7 @@ open class InProgressStrokesViewTestBase {
     }
 
     protected fun runMultiTouchGesture(
-        inputStream: MultiTouchInputBuilder,
+        inputStream: MultiTouchInputCreator,
         actionToCancel: Int? = null,
     ) {
         activityScenarioRule.scenario.onActivity { activity ->

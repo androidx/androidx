@@ -17,6 +17,7 @@
 package androidx.ink.nativeloader
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object StatusNative {
     init {
         NativeLoader.load()

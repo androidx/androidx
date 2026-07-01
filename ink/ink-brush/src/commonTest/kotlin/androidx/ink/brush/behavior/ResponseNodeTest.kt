@@ -16,16 +16,23 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
 
+@OptIn(InkInternalOnlyApi::class)
 class ResponseNodeTest {
 
     @Test
     fun responseNodeNativePointers_cleanedUpWhenOutOfScope() {
+        // Companion class properties are initialized the first time the class is loaded and they're
+        // cached, so that initialization needs to be outside the block where we assert all
+        // allocations
+        // are cleaned up.
+        val easingFunction = EasingFunction.Predefined.EASE
         awaitNativePointerCleanupAfter {
-            val unused = ResponseNode(EasingFunction.Predefined.EASE, ConstantNode(0f))
+            val unused = ResponseNode(easingFunction, ConstantNode(0f))
         }
     }
 

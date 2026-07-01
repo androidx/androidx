@@ -20,10 +20,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.InkShapeWorkflow
 import androidx.ink.brush.Brush
 import androidx.ink.brush.TextureBitmapStore
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
@@ -132,6 +133,7 @@ public fun InProgressStrokes(
 
 @VisibleForTesting
 @Composable
+@OptIn(InkInternalOnlyApi::class)
 internal fun InProgressStrokesImpl(
     nextBrush: () -> Brush?,
     nextPointerEventToWorldTransform: () -> Matrix = { IDENTITY_MATRIX },
@@ -141,7 +143,7 @@ internal fun InProgressStrokesImpl(
     onSyncAvailable: ((Long, TimeUnit) -> Unit) -> Unit = {},
     onStrokesFinished: (List<Stroke>) -> Unit,
 ) {
-    @OptIn(ExperimentalCustomShapeWorkflowApi::class)
+    @OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
     InProgressShapesImpl(
         customShapeWorkflow = InkShapeWorkflow { CanvasStrokeRenderer.create(textureBitmapStore) },
         nextShapeSpec = nextBrush,

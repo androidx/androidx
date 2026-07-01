@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(InkInternalOnlyApi::class)
+
 package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
@@ -22,6 +24,7 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.unpackFloat1
 import androidx.ink.brush.color.unpackFloat2
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * A connector transforms colors from a source color space to a destination color space.
@@ -49,6 +52,7 @@ import androidx.ink.brush.color.unpackFloat2
  * @see ColorSpace.connect
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public open class Connector
 /**
  * To connect between color spaces, we might need to use adapted transforms. This should be
@@ -79,7 +83,7 @@ internal constructor(
      * @return A non-null [RenderIntent]
      * @see RenderIntent
      */
-    public val renderIntent: RenderIntent,
+    @property:Suppress("ValueClassUsageWithoutJvmName") public val renderIntent: RenderIntent,
     private val transform: FloatArray?,
 ) {
     /**

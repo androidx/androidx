@@ -18,6 +18,7 @@ package androidx.ink.authoring.testing
 
 import android.view.InputDevice
 import android.view.MotionEvent
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -26,11 +27,12 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(InkInternalOnlyApi::class)
 class InputStreamBuilderTest {
 
     @Test
     fun fingerLine_eventsHaveToolTypeFinger() {
-        InputStreamBuilder.fingerLine(0F, 0F, 100F, 200F).runInputStreamWith { event ->
+        InputStreamCreator.fingerLine(0F, 0F, 100F, 200F).runInputStreamWith { event ->
             assertThat(event.pointerCount).isEqualTo(1)
             assertThat(event.getToolType(0)).isEqualTo(MotionEvent.TOOL_TYPE_FINGER)
         }
@@ -38,7 +40,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun mouseLine_eventsHaveToolTypeMouse() {
-        InputStreamBuilder.mouseLine(MotionEvent.BUTTON_PRIMARY, 0F, 0F, 100F, 200F)
+        InputStreamCreator.mouseLine(MotionEvent.BUTTON_PRIMARY, 0F, 0F, 100F, 200F)
             .runInputStreamWith { event ->
                 assertThat(event.pointerCount).isEqualTo(1)
                 assertThat(event.getToolType(0)).isEqualTo(MotionEvent.TOOL_TYPE_MOUSE)
@@ -54,7 +56,7 @@ class InputStreamBuilderTest {
                 MotionEvent.BUTTON_TERTIARY,
             )
         for (button in buttons) {
-            val builder = InputStreamBuilder.mouseLine(button, 0F, 0F, 100F, 200F)
+            val builder = InputStreamCreator.mouseLine(button, 0F, 0F, 100F, 200F)
             builder.runWithDownEvent { event -> assertThat(event.buttonState).isEqualTo(button) }
             builder.runWithMoveEvent { event -> assertThat(event.buttonState).isEqualTo(button) }
             // The button should no longer be held down on the up event.
@@ -64,7 +66,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun stylusLine_eventsHaveToolTypeStylus() {
-        InputStreamBuilder.stylusLine(0F, 0F, 100F, 200F).runInputStreamWith { event ->
+        InputStreamCreator.stylusLine(0F, 0F, 100F, 200F).runInputStreamWith { event ->
             assertThat(event.pointerCount).isEqualTo(1)
             assertThat(event.getToolType(0)).isEqualTo(MotionEvent.TOOL_TYPE_STYLUS)
         }
@@ -72,7 +74,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun stylusLine_eventsHaveCorrespondingActions() {
-        val builder = InputStreamBuilder.stylusLine(0F, 0F, 100F, 200F)
+        val builder = InputStreamCreator.stylusLine(0F, 0F, 100F, 200F)
         builder.runWithDownEvent { event ->
             assertThat(event.actionMasked).isEqualTo(MotionEvent.ACTION_DOWN)
         }
@@ -86,7 +88,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun stylusLine_pointerPositionsFollowSegment() {
-        val builder = InputStreamBuilder.stylusLine(0F, 0F, 100F, 200F)
+        val builder = InputStreamCreator.stylusLine(0F, 0F, 100F, 200F)
         builder.runWithDownEvent { event ->
             assertThat(event.x).isEqualTo(0F)
             assertThat(event.y).isEqualTo(0F)
@@ -103,7 +105,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun scrollWheel_hasMouseToolTypeAndSource() {
-        InputStreamBuilder.scrollWheel(
+        InputStreamCreator.scrollWheel(
             1F,
             -1F,
             { event ->
@@ -116,7 +118,7 @@ class InputStreamBuilderTest {
 
     @Test
     fun scrollWheel_hasSpecifiedScrollAxes() {
-        InputStreamBuilder.scrollWheel(
+        InputStreamCreator.scrollWheel(
             0.75F,
             -0.5F,
             { event ->

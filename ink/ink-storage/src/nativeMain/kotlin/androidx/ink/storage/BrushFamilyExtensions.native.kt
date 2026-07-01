@@ -16,6 +16,7 @@
 
 package androidx.ink.storage
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushFamilySerializationNative_createFromProto
 import androidx.ink.nativeloader.cinterop.BrushFamilySerializationNative_encode
 import androidx.ink.nativeloader.cinterop.BrushFamilySerializationNative_encodeMultiple
@@ -48,6 +49,7 @@ import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 
+@OptIn(InkInternalOnlyApi::class)
 actual internal object BrushFamilySerializationNative {
 
     /**
@@ -126,6 +128,7 @@ actual internal object BrushFamilySerializationNative {
     }
 }
 
+@OptIn(InkInternalOnlyApi::class)
 actual internal object MultipleBrushFamiliesNative {
     /**
      * Returns a pointer to a heap-allocated `std::vector<std::unique_ptr<BrushFamily>>`, allowing

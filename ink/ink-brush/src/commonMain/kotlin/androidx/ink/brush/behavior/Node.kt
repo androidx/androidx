@@ -17,6 +17,7 @@
 package androidx.ink.brush.behavior
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 
 /**
@@ -24,6 +25,7 @@ import androidx.ink.nativeloader.NativePointer
  * are immutable and their inputs must be chosen at construction time; therefore, they can only ever
  * be assembled into an acyclic graph.
  */
+@OptIn(InkInternalOnlyApi::class)
 public abstract class Node
 internal constructor(
     nativeAlloc: () -> Long,
@@ -31,11 +33,15 @@ internal constructor(
     public val inputs: List<ValueNode>,
 ) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, NodeNative::free)
 
     public companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(
             nativeAlloc: () -> Long,
             nodeType: Int,

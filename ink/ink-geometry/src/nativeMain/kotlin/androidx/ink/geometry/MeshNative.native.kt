@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.MeshNative_createEmpty
 import androidx.ink.nativeloader.cinterop.MeshNative_fillAttributeUnpackingParams
 import androidx.ink.nativeloader.cinterop.MeshNative_free
@@ -34,7 +35,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object MeshNative {
 
     @VisibleForTesting actual fun createEmpty(): Long = MeshNative_createEmpty()

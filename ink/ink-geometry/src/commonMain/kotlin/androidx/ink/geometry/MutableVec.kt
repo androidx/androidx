@@ -39,7 +39,7 @@ public class MutableVec(
 
     public constructor() : this(0F, 0F)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableVec = ImmutableVec(x, y)
 
     /** Fills this [MutableVec] with the same values contained in [input]. */

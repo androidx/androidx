@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushTipNative_create
 import androidx.ink.nativeloader.cinterop.BrushTipNative_free
 import androidx.ink.nativeloader.cinterop.BrushTipNative_getBehaviorCount
@@ -33,7 +34,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BrushTipNative {
     actual fun create(
         scaleX: Float,
