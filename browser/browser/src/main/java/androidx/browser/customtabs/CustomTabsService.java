@@ -669,8 +669,8 @@ public abstract class CustomTabsService extends Service {
      * through the same session-intent-Auth Tab association.
      *
      * @param sessionToken Session token to be used as a unique identifier. This also has access
-     *                     to the {@link AuthTabCallback} passed from the client side through
-     *                     {@link AuthTabSessionToken#getCallback()}.
+     *                     to the {@link androidx.browser.auth.AuthTabCallback} passed from the
+     *                     client side through {@link AuthTabSessionToken#getCallback()}.
      * @return Whether a new session was successfully created.
      */
     protected boolean registerAuthTabSession(@NonNull AuthTabSessionToken sessionToken) {

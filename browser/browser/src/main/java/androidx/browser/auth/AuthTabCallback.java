@@ -86,7 +86,7 @@ public interface AuthTabCallback {
 
     /**
      * Called when the browser process finished warming up initiated by
-     * {@link CustomTabsClient#warmup()}.
+     * {@link CustomTabsClient#warmup(long)}.
      *
      * @param extras Reserved for future use.
      */
