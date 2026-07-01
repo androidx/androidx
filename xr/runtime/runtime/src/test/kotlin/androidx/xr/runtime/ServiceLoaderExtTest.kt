@@ -174,4 +174,22 @@ class ServiceLoaderExtTest {
 
         assertThat(selectProvider(listOf(unsupportedProvider), emptySet())).isNull()
     }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.S]) // API 31 (Android S)
+    // RequiredDisplayCategory was introudced in API 34, any API below this would work
+    fun isProjectedActivity_withMissingApi_doesNotCrashAndReturnsFalse() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val activityInfo = ActivityInfo()
+        activityInfo.packageName = activity.packageName
+        activityInfo.name = activity.componentName.className
+        val packageInfo = PackageInfo()
+        packageInfo.packageName = activity.packageName
+        packageInfo.activities = arrayOf(activityInfo)
+
+        shadowOf(activity.packageManager).installPackage(packageInfo)
+        val result = isProjectedActivity(activity)
+
+        assertThat(result).isFalse()
+    }
 }
