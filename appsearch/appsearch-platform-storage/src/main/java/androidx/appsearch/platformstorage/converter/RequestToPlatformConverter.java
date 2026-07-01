@@ -19,6 +19,7 @@ package androidx.appsearch.platformstorage.converter;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
@@ -28,9 +29,11 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.ReportUsageRequest;
+import androidx.appsearch.platformstorage.PlatformConversionAdapter;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -48,15 +51,18 @@ public final class RequestToPlatformConverter {
      * Translates a jetpack {@link PutDocumentsRequest} into a platform
      * {@link android.app.appsearch.PutDocumentsRequest}.
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static android.app.appsearch.@NonNull PutDocumentsRequest toPlatformPutDocumentsRequest(
-            @NonNull PutDocumentsRequest jetpackRequest) {
+            @NonNull PutDocumentsRequest jetpackRequest,
+            @Nullable PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.PutDocumentsRequest.Builder platformBuilder =
                 new android.app.appsearch.PutDocumentsRequest.Builder();
         // Convert normal generic documents.
         for (GenericDocument jetpackDocument : jetpackRequest.getGenericDocuments()) {
             platformBuilder.addGenericDocuments(
-                    GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDocument));
+                    GenericDocumentToPlatformConverter.toPlatformGenericDocument(
+                            jetpackDocument, adapter));
         }
         // Convert taken action generic documents.
         for (GenericDocument jetpackTakenActionGenericDocument :
@@ -65,14 +71,14 @@ public final class RequestToPlatformConverter {
                 ApiHelperForV.addTakenActionGenericDocuments(
                         platformBuilder,
                         GenericDocumentToPlatformConverter.toPlatformGenericDocument(
-                                jetpackTakenActionGenericDocument));
+                                jetpackTakenActionGenericDocument, adapter));
             } else {
                 // This version of platform-storage doesn't support the dedicated
                 // addTakenActionGenericDocuments API, but we can still add them to the index via
                 // the put API (just without logging).
                 platformBuilder.addGenericDocuments(
                         GenericDocumentToPlatformConverter.toPlatformGenericDocument(
-                                jetpackTakenActionGenericDocument));
+                                jetpackTakenActionGenericDocument, adapter));
             }
         }
         return platformBuilder.build();

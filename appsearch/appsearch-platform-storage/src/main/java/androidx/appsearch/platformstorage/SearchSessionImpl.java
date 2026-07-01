@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
@@ -71,6 +72,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -92,15 +94,21 @@ class SearchSessionImpl implements AppSearchSession {
     private final Executor mExecutor;
     private final Context mContext;
     private final Features mFeatures;
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    @Nullable
+    private final PlatformConversionAdapter mPlatformConversionAdapter;
 
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     SearchSessionImpl(
             android.app.appsearch.@NonNull AppSearchSession platformSession,
             @NonNull Executor executor,
-            @NonNull Context context) {
+            @NonNull Context context,
+            @Nullable PlatformConversionAdapter platformConversionAdapter) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
         mFeatures = new FeaturesImpl(mContext);
+        mPlatformConversionAdapter = platformConversionAdapter;
     }
 
     @Override
@@ -121,7 +129,8 @@ class SearchSessionImpl implements AppSearchSession {
             }
         }
         mPlatformSession.setSchema(
-                SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(mContext, request),
+                SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(
+                        mContext, request, mPlatformConversionAdapter),
                 mExecutor,
                 mExecutor,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
@@ -159,7 +168,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
         mPlatformSession.put(
-                RequestToPlatformConverter.toPlatformPutDocumentsRequest(request),
+                RequestToPlatformConverter.toPlatformPutDocumentsRequest(request,
+                        mPlatformConversionAdapter),
                 mExecutor,
                 BatchResultCallbackAdapter.forSameValueType(future));
         return future;
@@ -353,7 +363,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         ResolvableFuture<Void> future = ResolvableFuture.create();
         mPlatformSession.setBlobVisibility(
-                SetSchemaRequestToPlatformConverter.toPlatformSetBlobVisibilityRequest(request),
+                SetSchemaRequestToPlatformConverter.toPlatformSetBlobVisibilityRequest(request,
+                        mPlatformConversionAdapter),
                 mExecutor,
                 result -> AppSearchResultToPlatformConverter
                         .platformAppSearchResultToFuture(result, future));
@@ -383,7 +394,8 @@ class SearchSessionImpl implements AppSearchSession {
         android.app.appsearch.SearchResults platformSearchResults =
                 mPlatformSession.search(
                         queryExpression,
-                        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec));
+                        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec,
+                                mPlatformConversionAdapter));
         return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor, mContext);
     }
 
@@ -399,7 +411,8 @@ class SearchSessionImpl implements AppSearchSession {
                     mPlatformSession,
                     suggestionQueryExpression,
                     SearchSuggestionSpecToPlatformConverter
-                            .toPlatformSearchSuggestionSpec(searchSuggestionSpec),
+                            .toPlatformSearchSuggestionSpec(searchSuggestionSpec,
+                                    mPlatformConversionAdapter),
                     mExecutor,
                     result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                             result,
@@ -477,7 +490,8 @@ class SearchSessionImpl implements AppSearchSession {
                                     mPlatformSession.remove(
                                             queryExpression,
                                             SearchSpecToPlatformConverter
-                                                    .toPlatformSearchSpec(mContext, searchSpec),
+                                                    .toPlatformSearchSpec(mContext, searchSpec,
+                                                            mPlatformConversionAdapter),
                                             mExecutor,
                                             removeResult ->
                                                     AppSearchResultToPlatformConverter
@@ -497,7 +511,8 @@ class SearchSessionImpl implements AppSearchSession {
             // Handle normally for Android T and above.
             mPlatformSession.remove(
                     queryExpression,
-                    SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec),
+                    SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec,
+                            mPlatformConversionAdapter),
                     mExecutor,
                     removeResult -> AppSearchResultToPlatformConverter
                             .platformAppSearchResultToFuture(removeResult, future));

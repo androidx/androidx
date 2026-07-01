@@ -20,16 +20,19 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.platformstorage.PlatformConversionAdapter;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+
 
 import java.util.Collection;
 import java.util.List;
@@ -50,10 +53,12 @@ public final class SearchSuggestionSpecToPlatformConverter {
     // Most jetpackSearchSuggestionSpec.get calls cause WrongConstant lint errors because the
     // methods are not defined as returning the same constants as the corresponding setter
     // expects, but they do
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     @SuppressLint("WrongConstant")
     public static android.app.appsearch.@NonNull SearchSuggestionSpec
             toPlatformSearchSuggestionSpec(
-                    @NonNull SearchSuggestionSpec jetpackSearchSuggestionSpec) {
+                    @NonNull SearchSuggestionSpec jetpackSearchSuggestionSpec,
+                    @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(jetpackSearchSuggestionSpec);
 
         android.app.appsearch.SearchSuggestionSpec.Builder platformBuilder =
@@ -84,9 +89,8 @@ public final class SearchSuggestionSpecToPlatformConverter {
         }
         if (!jetpackSearchSuggestionSpec.getSearchStringParameters().isEmpty()) {
             // TODO(b/332620561): Remove this once search parameter strings APIs is supported.
-            throw new UnsupportedOperationException(
-                    Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
-                            + " is not available on this AppSearch implementation.");
+            adapter.setSearchStringParameters(
+                    platformBuilder, jetpackSearchSuggestionSpec.getSearchStringParameters());
         }
         return platformBuilder.build();
     }
