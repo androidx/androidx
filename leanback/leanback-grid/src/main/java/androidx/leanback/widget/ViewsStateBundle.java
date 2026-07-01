@@ -32,8 +32,9 @@ import java.util.Map;
 
 /**
  * Maintains a bundle of states for a group of views. Each view must have a unique id to identify
- * it. There are four different strategies {@link #SAVE_NO_CHILD} {@link #SAVE_ON_SCREEN_CHILD}
- * {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
+ * it. There are four different strategies: {@link BaseGridView#SAVE_NO_CHILD},
+ * {@link BaseGridView#SAVE_ON_SCREEN_CHILD},
+ * {@link BaseGridView#SAVE_LIMITED_CHILD}, and {@link BaseGridView#SAVE_ALL_CHILD}.
  * <p>
  * This class serves purpose of nested "listview" e.g.  a vertical list of horizontal list.
  * Vertical list maintains id->bundle mapping of all its children (even the children is offscreen
@@ -98,8 +99,9 @@ final class ViewsStateBundle {
     }
 
     /**
-     * @return the savePolicy, see {@link #SAVE_NO_CHILD} {@link #SAVE_ON_SCREEN_CHILD}
-     * {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}
+     * @return the savePolicy, see {@link BaseGridView#SAVE_NO_CHILD},
+     * {@link BaseGridView#SAVE_ON_SCREEN_CHILD},
+     * {@link BaseGridView#SAVE_LIMITED_CHILD}, {@link BaseGridView#SAVE_ALL_CHILD}
      */
     int getSavePolicy() {
         return mSavePolicy;
@@ -107,7 +109,7 @@ final class ViewsStateBundle {
 
     /**
      * @return the limitNumber, only works when {@link #getSavePolicy()} is
-     * {@link #SAVE_LIMITED_CHILD}
+     * {@link BaseGridView#SAVE_LIMITED_CHILD}
      */
     int getLimitNumber() {
         return mLimitNumber;
@@ -148,7 +150,7 @@ final class ViewsStateBundle {
     }
 
     /**
-     * The on screen view is saved when policy is not {@link #SAVE_NO_CHILD}.
+     * The on screen view is saved when policy is not {@link BaseGridView#SAVE_NO_CHILD}.
      *
      * @param bundle Bundle where we save the on screen view state.  If null,
      *               a new Bundle is created and returned.
