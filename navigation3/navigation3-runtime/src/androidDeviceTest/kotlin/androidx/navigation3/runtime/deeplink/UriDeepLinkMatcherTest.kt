@@ -617,6 +617,26 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_fragmentWildcard() {
+        val matcher =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/path#.*"), serializer<TestKey>())
+        val request = DeepLinkRequest.fromUriString("https://example.com/path#123")
+        val result = matcher.match(request)
+        assertThat(result?.key).isEqualTo(TestKey)
+        assertThat((result as UriMatchResult<TestKey>).arguments).isEmpty()
+    }
+
+    @Test
+    fun matchRequest_fragmentPartialWildcard() {
+        val matcher =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/path#a_.*"), serializer<TestKey>())
+        val request = DeepLinkRequest.fromUriString("https://example.com/path#a_123")
+        val result = matcher.match(request)
+        assertThat(result?.key).isEqualTo(TestKey)
+        assertThat((result as UriMatchResult<TestKey>).arguments).isEmpty()
+    }
+
+    @Test
     fun matchRequest_nonPrimitiveList_throws() {
         val matcher =
             UriDeepLinkMatcher(
