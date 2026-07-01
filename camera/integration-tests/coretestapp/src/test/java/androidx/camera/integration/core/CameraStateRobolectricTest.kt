@@ -39,6 +39,7 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
@@ -229,7 +230,18 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
         flushLoopers()
 
         // Assert: Wait for the error state and verify it matches expectations.
-        assertThat(cameraErrorLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        // Periodically flush the loopers while waiting for the latch to prevent real-world time
+        // delays.
+        val timeoutMs = 5000L
+        val pollIntervalMs = 20L
+        val startTime = System.currentTimeMillis()
+        while (cameraErrorLatch.count > 0 && (System.currentTimeMillis() - startTime) < timeoutMs) {
+            flushLoopers()
+            cameraErrorLatch.await(pollIntervalMs, TimeUnit.MILLISECONDS)
+        }
+        assertWithMessage("Camera error latch did not reach 0 within the timeout period.")
+            .that(cameraErrorLatch.count)
+            .isEqualTo(0L)
         assertThat(capturedState).isNotNull()
         assertThat(capturedState!!.error?.code).isEqualTo(config.expectedErrorCode)
         assertThat(capturedState.type).isIn(config.expectedCameraStateTypes)
