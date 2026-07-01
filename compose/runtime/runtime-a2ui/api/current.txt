@@ -1,7 +1,68 @@
 // Signature format: 4.0
 package androidx.compose.runtime.a2ui {
 
+  @androidx.compose.runtime.Stable public final class A2uiComponentModel {
+    ctor public A2uiComponentModel(androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface, String type, androidx.compose.runtime.a2ui.A2uiComponentProperties properties, androidx.compose.runtime.a2ui.A2uiComponentScope scope);
+    method @InaccessibleFromKotlin public androidx.compose.runtime.a2ui.A2uiComponentProperties getProperties();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.a2ui.A2uiComponentScope getScope();
+    method @InaccessibleFromKotlin public androidx.a2ui.engine.model.A2uiCoreSurfaceModel getSurface();
+    method @InaccessibleFromKotlin public String getType();
+    property public androidx.compose.runtime.a2ui.A2uiComponentProperties properties;
+    property public androidx.compose.runtime.a2ui.A2uiComponentScope scope;
+    property public androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface;
+    property public String type;
+  }
+
   @androidx.compose.runtime.Immutable public final class A2uiComponentProperties {
+  }
+
+  @androidx.compose.runtime.Immutable public final class A2uiComponentReference {
+    ctor public A2uiComponentReference(String id, optional String? dataScopePath);
+    ctor @BytecodeOnly public A2uiComponentReference(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDataScopePath();
+    method @InaccessibleFromKotlin public String getId();
+    property public String? dataScopePath;
+    property public String id;
+  }
+
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiComponentScope {
+    method public void dispatchAction(java.util.Map<java.lang.String,? extends java.lang.Object?> actionPayload);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String id, optional String? dataScopePath);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String, String?, androidx.compose.runtime.Composer?, int);
+    method public void reportError(androidx.a2ui.model.protocol.A2uiException exception);
+  }
+
+  public final class A2uiComponentScopeKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(androidx.compose.runtime.a2ui.A2uiComponentScope, androidx.compose.runtime.a2ui.A2uiComponentReference reference);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(androidx.compose.runtime.a2ui.A2uiComponentScope, androidx.compose.runtime.a2ui.A2uiComponentReference, androidx.compose.runtime.Composer?, int);
+  }
+
+  @androidx.compose.runtime.Immutable public sealed exhaustive interface A2uiComponentState {
+  }
+
+  public static final class A2uiComponentState.Error implements androidx.compose.runtime.a2ui.A2uiComponentState {
+    ctor public A2uiComponentState.Error(androidx.a2ui.model.protocol.A2uiException exception);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.protocol.A2uiException getException();
+    property public androidx.a2ui.model.protocol.A2uiException exception;
+  }
+
+  public static final class A2uiComponentState.Loading implements androidx.compose.runtime.a2ui.A2uiComponentState {
+    field public static final androidx.compose.runtime.a2ui.A2uiComponentState.Loading INSTANCE;
+  }
+
+  public static final class A2uiComponentState.Success implements androidx.compose.runtime.a2ui.A2uiComponentState {
+    ctor public A2uiComponentState.Success(androidx.compose.runtime.a2ui.A2uiComponentModel component);
+    method @InaccessibleFromKotlin public androidx.compose.runtime.a2ui.A2uiComponentModel getComponent();
+    property public androidx.compose.runtime.a2ui.A2uiComponentModel component;
+  }
+
+  public final class A2uiComponentStateKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(androidx.a2ui.engine.model.A2uiCoreSurfaceModel, androidx.compose.runtime.Composer?, int);
+  }
+
+  @androidx.compose.runtime.Stable public fun interface A2uiPropertyUpdater<T> {
+    method public operator void invoke(T? value);
   }
 
 }
