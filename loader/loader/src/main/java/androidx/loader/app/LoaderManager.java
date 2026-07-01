@@ -120,8 +120,8 @@ public abstract class LoaderManager {
      * {@link androidx.fragment.app.Fragment}.
      *
      * @param owner The owner that should be used to create the returned LoaderManager
-     * @param <T> A class that maintains its own {@link android.arch.lifecycle.Lifecycle} and
-     *           {@link android.arch.lifecycle.ViewModelStore}. For instance,
+     * @param <T> A class that maintains its own {@link androidx.lifecycle.Lifecycle} and
+     *           {@link androidx.lifecycle.ViewModelStore}. For instance,
      *           {@link androidx.fragment.app.FragmentActivity} or {@link androidx.fragment.app.Fragment}.
      * @return A valid LoaderManager
      */
