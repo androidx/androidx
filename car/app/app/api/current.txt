@@ -30,6 +30,7 @@ package androidx.car.app {
     ctor public CarAppService();
     method public abstract androidx.car.app.validation.HostValidator createHostValidator();
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getAppTheme();
     method @Deprecated public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
     method public final androidx.car.app.Session? getSession(androidx.car.app.SessionInfo);
