@@ -35,7 +35,7 @@ def prebuiltsRoot = new File(
 ).absolutePath
 def rootProjectRepositories
 
-apply from: "buildSrc/settingsScripts/out-setup.groovy"
+apply from: "buildSrc-fork/settingsScripts/out-setup.groovy"
 
 getGradle().beforeProject { project ->
     // Migrate to dependencyResolutionManagement.repositories when
@@ -69,7 +69,7 @@ apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
 apply(plugin: "com.android.settings")
 
-apply(from: "buildSrc/ndk.gradle")
+apply(from: "buildSrc-fork/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 develocity {
