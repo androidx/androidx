@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.semantics
 
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,31 +52,5 @@ class SemanticsModifierTest {
 
         composeTestRule.onSubspaceNode(hasContentDescription("Standard Description")).assertExists()
         composeTestRule.onSubspaceNode(hasContentDescription("Standard")).assertExists()
-    }
-
-    // TODO(b/518020831): Remove deprecated semantics modifier.
-    @Test
-    fun deprecatedSemantics_assignsValue_updatesUnderlyingConfiguration() {
-        val legacyProperties: SemanticsPropertyReceiver.() -> Unit = {
-            contentDescription = "Deprecated Description"
-        }
-
-        // Use reflection to invoke the @Deprecated(Hidden) binary compatibility overload.
-        // The JVM method signature is semantics(SubspaceModifier, Function1).
-        val method =
-            Class.forName("androidx.xr.compose.subspace.semantics.SemanticsModifierKt")
-                .getMethod("semantics", SubspaceModifier::class.java, kotlin.Function1::class.java)
-
-        composeTestRule.setContent {
-            Subspace {
-                SpatialPanel(
-                    modifier =
-                        method.invoke(null, SubspaceModifier, legacyProperties) as SubspaceModifier
-                ) {}
-            }
-        }
-        composeTestRule
-            .onSubspaceNode(hasContentDescription("Deprecated Description"))
-            .assertExists()
     }
 }
