@@ -109,7 +109,7 @@ public sealed class FollowBehavior protected constructor() {
          *
          * @return A [FollowBehavior] instance configured for exponential decay.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public fun ExponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
 
         @TestOnly
