@@ -1353,7 +1353,6 @@ class EntityTest {
         assertThat(activitySpace.isDisposed).isTrue()
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_getAnimations_returnsAnimations() {
         val animation1 = TestGltfAnimation.Builder().setAnimationName("anim1").build()
@@ -1368,7 +1367,6 @@ class EntityTest {
         assertThat(animations[1].name).isEqualTo("anim2")
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_startAnimation_startsAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
@@ -1381,42 +1379,68 @@ class EntityTest {
         assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun gltfModelEntity_startAnimation_withOptions_startsAnimationWithOptions() {
+    fun gltfModelEntity_loopAndSpeed_startsAnimationWithLoopAndSpeed() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
-        gltfAnimation.start(
-            GltfAnimationStartOptions(
-                shouldLoop = true,
-                speed = 2.0f,
-                seekStartTime = 0.5.seconds.toJavaDuration(),
-            )
-        )
+        gltfAnimation.loop = true
+        gltfAnimation.speed = 2.0f
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(gltfAnimation.speed).isEqualTo(2.0f)
+        gltfAnimation.start()
 
         assertThat(animation.shouldLoop).isTrue()
         assertThat(animation.speed).isEqualTo(2.0f)
-        assertThat(animation.seekStartTime).isEqualTo(0.5f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("DEPRECATION")
     @Test
-    fun gltfAnimation_startAnimation_negativeSeekTime_throwsException() {
+    fun gltfAnimation_startWithOptions_startsAnimationWithLoopAndSpeed() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
         val gltfAnimation = gltfModelEntity.getAnimations()[0]
 
-        assertThrows(IllegalArgumentException::class.java) {
-            gltfAnimation.start(
-                GltfAnimationStartOptions(seekStartTime = (-1).seconds.toJavaDuration())
-            )
-        }
+        gltfAnimation.start(GltfAnimationStartOptions(shouldLoop = true, speed = 2.0f))
+
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(gltfAnimation.speed).isEqualTo(2.0f)
+        assertThat(animation.shouldLoop).isTrue()
+        assertThat(animation.speed).isEqualTo(2.0f)
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("DEPRECATION")
+    @Test
+    fun gltfAnimation_seekTo_seeksAnimation() {
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
+
+        gltfAnimation.start()
+        gltfAnimation.seekTo(0.5.seconds.toJavaDuration())
+
+        assertThat(animation.seekStartTime).isEqualTo(0.5f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("DEPRECATION")
+    @Test
+    fun gltfAnimation_seekTo_negativeTime_throwsException() {
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
+
+        gltfAnimation.start()
+        assertThrows(IllegalArgumentException::class.java) {
+            gltfAnimation.seekTo((-0.5).seconds.toJavaDuration())
+        }
+    }
+
     @Test
     fun gltfModelEntity_stopAnimation_stopsAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
@@ -1430,7 +1454,26 @@ class EntityTest {
         assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_stopAllAnimations_stopsAllAnimations() {
+        val animation1 = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        val animation2 = TestGltfAnimation.Builder().setAnimationName("anim2").build()
+        gltfModelEntityTester.addAnimation(animation1)
+        gltfModelEntityTester.addAnimation(animation2)
+        val animations = gltfModelEntity.getAnimations()
+
+        animations[0].start()
+        animations[1].start()
+
+        assertThat(animations[0].animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+        assertThat(animations[1].animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+
+        gltfModelEntity.stopAllAnimations()
+
+        assertThat(animations[0].animationState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+        assertThat(animations[1].animationState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+    }
+
     @Test
     fun gltfModelEntity_pauseAnimation_pausesAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
@@ -1444,7 +1487,6 @@ class EntityTest {
         assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PAUSED)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_resumeAnimation_resumesAnimation() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
@@ -1459,48 +1501,20 @@ class EntityTest {
         assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun gltfModelEntity_setSpeed_setsAnimationSpeed() {
+    fun gltfModelEntity_speed_setsAnimationSpeed() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.getAnimations()
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
-        gltfAnimation.setSpeed(2.0f)
+        gltfAnimation.speed = 2.0f
 
+        assertThat(gltfAnimation.speed).isEqualTo(2.0f)
         assertThat(animation.speed).isEqualTo(2.0f)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun gltfModelEntity_seekTo_seeksAnimation() {
-        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
-        gltfModelEntityTester.addAnimation(animation)
-        val animations = gltfModelEntity.getAnimations()
-        val gltfAnimation = animations[0]
-
-        gltfAnimation.start()
-        gltfAnimation.seekTo(0.5.seconds.toJavaDuration())
-
-        assertThat(animation.seekStartTime).isEqualTo(0.5f)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun gltfAnimation_seekTo_negativeTime_throwsException() {
-        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
-        gltfModelEntityTester.addAnimation(animation)
-        val gltfAnimation = gltfModelEntity.getAnimations()[0]
-
-        gltfAnimation.start()
-        assertThrows(IllegalArgumentException::class.java) {
-            gltfAnimation.seekTo((-0.5).seconds.toJavaDuration())
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfAnimation_animationStateListener_receivesUpdates() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()

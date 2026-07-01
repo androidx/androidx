@@ -178,6 +178,18 @@
                 android:text="Resume Play"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@id/pause_play"
+                app:layout_constraintEnd_toStartOf="@id/stop_all_animations"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/stop_all_animations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="Stop All"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@id/resume_play"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -361,7 +373,7 @@
                     android:id="@+id/seek_start_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0s"
+                    android:text=""
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/seek_time_second_slider"
