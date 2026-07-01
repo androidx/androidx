@@ -44,7 +44,7 @@ import java.util.Map;
 public abstract class FragmentTransitionImpl {
 
     /**
-     * Returns {@code true} if this implementation can handle the specified {@link transition}.
+     * Returns {@code true} if this implementation can handle the specified {@code transition}.
      */
     public abstract boolean canHandle(@NonNull Object transition);
 
