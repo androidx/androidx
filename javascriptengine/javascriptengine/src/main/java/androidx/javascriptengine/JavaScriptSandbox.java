@@ -254,8 +254,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * Feature for {@link #isFeatureSupported(String)}
      * <p>
      * When this feature is present, message ports can be sent to JavaScript isolates using
-     * {@link JavaScriptIsolate#provideMessagPort(String)} and be used to send and receive messages
-     * between the embedder and the JavaScript isolate.
+     * {@link JavaScriptIsolate#createMessageChannel(String, Executor, MessagePortClient)} and be
+     * used to send and receive messages between the embedder and the JavaScript isolate.
      */
     public static final String JS_FEATURE_MESSAGE_PORTS = "JS_FEATURE_MESSAGE_PORTS";
 
