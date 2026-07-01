@@ -107,7 +107,7 @@ class SearchSessionImpl implements AppSearchSession {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
-        mFeatures = new FeaturesImpl(mContext);
+        mFeatures = new FeaturesImpl(mContext, /* isForEnterprise= */ false);
         mPlatformConversionAdapter = platformConversionAdapter;
     }
 
