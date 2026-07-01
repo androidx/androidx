@@ -266,7 +266,7 @@ public final class AudioSource {
      * <li>Retry internally with a fixed interval.</li>
      * <li>Write silent audio to the BufferProvider until a successful retry or {@link #stop()}
      * is called.
-     * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean, int)} with {@code true}
+     * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean)} with {@code true}
      * on the first failure and {@code false} on the successful retry.</li>
      *
      * @param muted {@code true} to start the audio source muted, otherwise {@code false}.
