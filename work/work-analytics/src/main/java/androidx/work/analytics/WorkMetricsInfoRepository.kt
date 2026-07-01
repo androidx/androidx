@@ -30,6 +30,7 @@ import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
 import androidx.work.analytics.impl.model.WorkMetricsSpec
 import java.time.Duration
+import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
@@ -143,6 +144,8 @@ internal constructor(
         dbExecutor: Executor? = null,
     ) : this(context, retentionDuration.toMillis(), TimeUnit.MILLISECONDS, dbExecutor)
 
+    private val lastStartTimes = Collections.synchronizedMap(mutableMapOf<String, Long>())
+
     /**
      * A hot [Flow] that emits a [WorkMetricsInfo] whenever one finishes.
      *
@@ -184,6 +187,7 @@ internal constructor(
             if (!checkCurrentMetricsSpec(spec, oldWorkInfo, "onUpdated")) {
                 return@runInTransaction
             }
+            lastStartTimes.remove(id)
             dao.setFinishTime(
                 workId = spec!!.workSpecId,
                 generation = spec.generation,
@@ -245,6 +249,7 @@ internal constructor(
             if (!checkCurrentMetricsSpec(spec, workInfo, "onCancelled")) {
                 return@runInTransaction
             }
+            lastStartTimes.remove(id)
             dao.setFinishTime(
                 workId = spec!!.workSpecId,
                 generation = spec.generation,
@@ -286,14 +291,17 @@ internal constructor(
                             "DB runAttemptCount: ${spec.runAttemptCount}",
                     )
             }
-            if (spec!!.firstStartTimeMillis == WorkMetricsSpec.TIME_NOT_SET) {
+            val currentTime = clock.currentTimeMillis()
+            lastStartTimes[spec.workSpecId] = currentTime
+            if (spec.firstStartTimeMillis == WorkMetricsSpec.TIME_NOT_SET) {
                 dao.setFirstStartTime(
                     workId = spec.workSpecId,
                     generation = spec.generation,
                     periodCount = spec.periodCount,
-                    startTime = clock.currentTimeMillis(),
+                    startTime = currentTime,
                 )
             }
+
             dao.setState(
                 workId = spec.workSpecId,
                 generation = spec.generation,
@@ -316,8 +324,16 @@ internal constructor(
             if (!checkCurrentMetricsSpec(spec, workInfo, "onStopped")) {
                 return@runInTransaction
             }
+            val currentTime = clock.currentTimeMillis()
+            val duration = calculateExecutionDuration(spec!!, currentTime)
+            dao.setTotalRuntime(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                totalRuntime = spec.totalRuntimeMillis + duration,
+            )
             dao.setState(
-                workId = spec!!.workSpecId,
+                workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 state = WorkMetricsInfo.State.ENQUEUED_PENDING,
@@ -356,9 +372,17 @@ internal constructor(
                 return@runInTransaction
             }
 
+            val duration = calculateExecutionDuration(spec!!, currentTime)
+            dao.setTotalRuntime(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                totalRuntime = spec.totalRuntimeMillis + duration,
+            )
+
             if (result is ListenableWorker.Result.Retry) {
                 dao.setState(
-                    workId = spec!!.workSpecId,
+                    workId = spec.workSpecId,
                     generation = spec.generation,
                     periodCount = spec.periodCount,
                     state = state,
@@ -370,10 +394,16 @@ internal constructor(
                 )
             } else {
                 dao.setFinishTime(
-                    workId = spec!!.workSpecId,
+                    workId = spec.workSpecId,
                     generation = spec.generation,
                     periodCount = spec.periodCount,
                     finishTime = currentTime,
+                )
+                dao.setWorkerDuration(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                    workerDuration = duration,
                 )
                 dao.setState(
                     workId = spec.workSpecId,
@@ -409,11 +439,25 @@ internal constructor(
             if (!checkCurrentMetricsSpec(spec, workInfo, "onException")) {
                 return@runInTransaction
             }
+            val currentTime = clock.currentTimeMillis()
+            val duration = calculateExecutionDuration(spec!!, currentTime)
             dao.setFinishTime(
-                workId = spec!!.workSpecId,
+                workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
-                finishTime = clock.currentTimeMillis(),
+                finishTime = currentTime,
+            )
+            dao.setTotalRuntime(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                totalRuntime = spec.totalRuntimeMillis + duration,
+            )
+            dao.setWorkerDuration(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                workerDuration = duration,
             )
             dao.setState(
                 workId = spec.workSpecId,
@@ -464,6 +508,15 @@ internal constructor(
         }
         if (finishedMetricsInfo != null) {
             finishedMetricsInfos.emit(finishedMetricsInfo)
+        }
+    }
+
+    private fun calculateExecutionDuration(spec: WorkMetricsSpec, currentTime: Long): Long {
+        val lastStartTime = lastStartTimes.remove(spec.workSpecId)
+        return if (lastStartTime != null) {
+            currentTime - lastStartTime
+        } else {
+            0L
         }
     }
 
