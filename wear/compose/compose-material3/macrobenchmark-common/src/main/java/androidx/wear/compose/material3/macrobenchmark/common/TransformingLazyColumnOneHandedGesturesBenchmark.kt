@@ -88,7 +88,8 @@ val TransformingLazyColumnOneHandedGesturesBenchmark =
                                             .oneHandedGesture(
                                                 rememberOneHandedGestureConfiguration(
                                                     action = GestureAction.Primary
-                                                )
+                                                ),
+                                                gestureLabel = "item $it",
                                             ) {}
                                             .padding(10.dp),
                                 )

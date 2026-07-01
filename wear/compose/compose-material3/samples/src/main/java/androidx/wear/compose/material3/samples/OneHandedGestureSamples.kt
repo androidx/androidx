@@ -359,6 +359,7 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
+                        gestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
@@ -438,6 +439,7 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
+                        gestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
