@@ -1656,6 +1656,10 @@ package androidx.compose.ui.input.indirect {
     ctor @KotlinOnly public IndirectPointerInputChange(androidx.compose.ui.input.pointer.PointerId id, long uptimeMillis, androidx.compose.ui.geometry.Offset position, boolean pressed, float pressure, long previousUptimeMillis, androidx.compose.ui.geometry.Offset previousPosition, boolean previousPressed);
     ctor @BytecodeOnly public IndirectPointerInputChange(long, long, long, boolean, float, long, long, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void consume();
+    method @KotlinOnly public androidx.compose.ui.input.indirect.IndirectPointerInputChange copy(optional androidx.compose.ui.input.pointer.PointerId id, optional long uptimeMillis, optional androidx.compose.ui.geometry.Offset position, optional boolean pressed, optional float pressure, optional long previousUptimeMillis, optional androidx.compose.ui.geometry.Offset previousPosition, optional boolean previousPressed, optional java.util.List<androidx.compose.ui.input.pointer.HistoricalChange> historical);
+    method @BytecodeOnly public androidx.compose.ui.input.indirect.IndirectPointerInputChange copy-oRTnPKo(long, long, long, boolean, float, long, long, boolean, java.util.List<androidx.compose.ui.input.pointer.HistoricalChange!>);
+    method @BytecodeOnly public static androidx.compose.ui.input.indirect.IndirectPointerInputChange! copy-oRTnPKo$default(androidx.compose.ui.input.indirect.IndirectPointerInputChange!, long, long, long, boolean, float, long, long, boolean, java.util.List!, int, Object!);
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.input.pointer.HistoricalChange> getHistorical();
     method @BytecodeOnly public long getId-J3iCeTQ();
     method @BytecodeOnly public long getPosition-F1C5BW0();
     method @InaccessibleFromKotlin public boolean getPressed();
@@ -1665,6 +1669,7 @@ package androidx.compose.ui.input.indirect {
     method @InaccessibleFromKotlin public long getPreviousUptimeMillis();
     method @InaccessibleFromKotlin public long getUptimeMillis();
     method @InaccessibleFromKotlin public boolean isConsumed();
+    property public java.util.List<androidx.compose.ui.input.pointer.HistoricalChange> historical;
     property public androidx.compose.ui.input.pointer.PointerId id;
     property public boolean isConsumed;
     property public androidx.compose.ui.geometry.Offset position;
