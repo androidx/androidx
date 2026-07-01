@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.ui.backhandler"
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinCoroutinesCore)
+                implementation("androidx.annotation:annotation:1.9.1")
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui-util"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                api("androidx.activity:activity-compose:1.8.0")
+            }
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        jbMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0")
+            }
+        }
+
+        jbTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jbMain)
+        }
+
+        desktopTest {
+            dependsOn(jbTest)
+        }
+
+        nativeMain {
+            dependsOn(jbMain)
+        }
+
+        nativeTest {
+            dependsOn(jbTest)
+        }
+
+        webMain {
+            dependsOn(jbMain)
+        }
+
+        webTest {
+            dependsOn(jbTest)
+        }
+    }
+}
+
+androidx {
+    name = "Compose BackHandler"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2025"
+    description = "Provides BackHandler in Compose Multiplatform projects"
+    legacyDisableKotlinStrictApiMode = true
+}

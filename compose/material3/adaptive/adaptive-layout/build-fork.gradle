@@ -1,0 +1,188 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.androidx.build.UpdateTranslationsTask
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.material3.adaptive") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.material3.adaptive.layout"
+
+            androidResources.enable = true
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api("androidx.collection:collection:1.5.0") // TODO: keep it fork until we bump the foundation version which brings the collections transitively
+            api(project(":compose:material3:adaptive:adaptive"))
+            api("org.jetbrains.compose.animation:animation-core:1.10.0")
+            api("org.jetbrains.compose.ui:ui:1.10.0")
+            implementation("org.jetbrains.compose.animation:animation:1.10.0")
+            implementation("org.jetbrains.compose.foundation:foundation:1.10.0")
+            implementation("org.jetbrains.compose.foundation:foundation-layout:1.10.0")
+            implementation("org.jetbrains.compose.ui:ui-geometry:1.10.0")
+            implementation("org.jetbrains.androidx.window:window-core:1.5.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api("androidx.annotation:annotation-experimental:1.5.1")
+            implementation("androidx.compose.runtime:runtime:1.9.0")
+            implementation("androidx.core:core:1.15.0")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:material3:material3"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":window:window-testing"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:ui:ui"))
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(skikoMain)
+        }
+
+        nativeTest {
+            dependsOn(skikoTest)
+        }
+
+        webMain {
+            dependsOn(skikoMain)
+        }
+
+        webTest {
+            dependsOn(skikoTest)
+        }
+    }
+}
+
+androidx {
+    name = "Material Adaptive"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2023"
+    description = "Compose Material Design Adaptive Library"
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material3:adaptive:adaptive-samples"))
+    addGoldenImageAssets()
+}
+
+// This task updates the translations of the localizable strings in this module.
+// It obtains them from Android's base repository.
+tasks.register("updateTranslations", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://github.com/androidx/androidx"
+    repoResDirectories = [
+            "compose/material3/adaptive/adaptive-layout/src/androidMain/res"
+    ]
+    targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material3/adaptive/l10n")
+    targetPackageName = "androidx.compose.material3.adaptive.l10n"
+    kotlinStringsPackageName = "androidx.compose.material3.adaptive.layout.internal"
+    stringByResourceName = [
+            // These come are from the material3.adaptive-layout module resources
+            "m3_adaptive_default_pane_title_primary"                            : "defaultPaneTitlePrimary",
+            "m3_adaptive_default_pane_title_secondary"                          : "defaultPaneTitleSecondary",
+            "m3_adaptive_default_pane_title_tertiary"                           : "defaultPaneTitleTertiary",
+            "m3_adaptive_default_pane_expansion_drag_handle_content_description": "defaultPaneExpansionDragHandleContentDescription",
+            "m3_adaptive_default_pane_expansion_drag_handle_state_description"  : "defaultPaneExpansionDragHandleStateDescription",
+            "m3_adaptive_default_pane_expansion_drag_handle_action_description" : "defaultPaneExpansionDragHandleActionDescription",
+            "m3_adaptive_default_pane_expansion_proportion_anchor_description"  : "defaultPaneExpansionProportionAnchorDescription",
+            "m3_adaptive_default_pane_expansion_start_offset_anchor_description": "defaultPaneExpansionStartOffsetAnchorDescription",
+            "m3_adaptive_default_pane_expansion_end_offset_anchor_description"  : "defaultPaneExpansionEndOffsetAnchorDescription",
+            "m3_adaptive_drag_to_resize_click_to_expand_description"            : "dragToResizeClickToExpandDescription",
+            "m3_adaptive_drag_to_resize_click_to_collapse_description"          : "dragToResizeClickToCollapseDescription",
+            "m3_adaptive_drag_to_resize_click_to_partially_expand_description"  : "dragToResizeClickToPartiallyExpandDescription",
+            "m3_adaptive_drag_to_resize_expanded_state_description"             : "dragToResizeExpandedStateDescription",
+            "m3_adaptive_drag_to_resize_collapsed_state_description"            : "dragToResizeCollapsedStateDescription",
+            "m3_adaptive_drag_to_resize_partially_expanded_state_description"   : "dragToResizePartiallyExpandedStateDescription",
+    ]
+    // This is all the locales translated by Compose on Android in the ui module:
+    // https://github.com/androidx/androidx/tree/androidx-main/compose/material3/adaptive/adaptive-layout/src/androidMain/res
+    // with the exception of
+    // - b+sr+Latn which doesn't appear to be supported by Java
+    locales = [
+            "en", "af", "am", "ar", "as", "az", "be", "bg", "bn", "bs", "ca", "cs", "da",
+            "de", "el", "en_AU", "en_CA", "en_GB", "en_IN", "es_US", "es", "et", "eu", "fa",
+            "fi", "fr_CA", "fr", "gl", "gu", "hi", "hr", "hu", "hy", "in", "is", "it", "iw", "ja",
+            "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr", "ms",
+            "my", "nb", "ne", "nl", "or", "pa", "pl", "pt_BR", "pt_PT", "pt", "ro", "ru", "si",
+            "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur", "uz",
+            "vi", "zh_CN", "zh_HK", "zh_TW", "zu"
+    ]
+}

@@ -1,0 +1,93 @@
+// This file applies dependencies common to projects in buildSrc
+
+apply from: "${buildscript.sourceFile.parent}/kotlin-dsl-dependency.gradle"
+// copy findGradleKotlinDsl to a local variable: https://github.com/gradle/gradle/issues/26057
+def findGradleKotlinDsl = project.findGradleKotlinDsl
+
+configurations {
+    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
+    // Until we migrate, use the configuration below. It removes need for suppressing
+    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
+    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
+    // IDE does not support this configuration yet, so you will still see references to internal
+    // members marked as an error
+    friends {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+        attributes {
+            attribute(
+                    Attribute.of("artifactType", String), "jar"
+            )
+        }
+    }
+    compileOnly.extendsFrom(friends)
+}
+
+dependencies {
+
+    // Gradle APIs
+    implementation(gradleApi())
+    compileOnly(findGradleKotlinDsl())
+
+    // Android Gradle Plugin APIs used by Stable AIDL
+    api(libs.androidGradlePluginApi)
+
+    // Plugins we use and configure
+    api(libs.kotlinGradlePlugin)
+    friends(libs.kotlinCompiler) // for binaryCompatibilityValidator
+    implementation(libs.androidGradlePluginApi)
+    runtimeOnly(libs.androidGradlePlugin)
+    implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+    implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
+    implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
+    implementation(libs.spdxGradlePluginz)
+    runtimeOnly(libs.androidExperimentalBuiltInKotlinPlugin)
+    runtimeOnly(libs.androidKotlinMultiplatform)
+    runtimeOnly(libs.androidLegacyKaptPlugin)
+    compileOnly(libs.kotlinAbiTools)
+
+    // TODO: keep it in our fork until https://youtrack.jetbrains.com/issue/CMP-9512/Migrate-to-BCV-from-KGP
+    implementation(libs.binaryCompatibilityValidator)
+
+    // For Room Gradle Plugin
+    implementation(libs.kspGradlePlugin) {
+        // ensure that AGP dependency doesn't override KSP version we use
+        version { strictly(libs.versions.ksp.get()) }
+    }
+
+    // Force jsoup upgrade on spdx (b/309773103)
+    implementation(libs.jsoup)
+
+    // json parser
+    implementation(libs.gson)
+
+    // XML parsers used in MavenUploadHelper.kt
+    implementation(libs.dom4j) {
+        // Optional dependency where Ivy fails to parse the POM file.
+        exclude(group:"net.java.dev.msv", module:"xsdlib")
+    }
+    implementation(libs.xerces)
+
+    implementation(libs.shadow) // used by BundleInsideHelper.kt
+    api(libs.apacheAnt) // used in AarManifestTransformerTask.kt for unziping
+    implementation(libs.toml)
+    implementation(libs.apacheCommonIo) // used in CheckApiEquivalenceTask.kt
+
+    implementation(libs.protobufGradlePlugin) // needed to compile inspection plugin
+    implementation(libs.kotlinPoet) // needed to compile glance-layout-generator
+
+    implementation("com.google.protobuf:protobuf-java:3.25.5") // needed to compile baseline-profile gradle plugins
+    implementation(libs.agpTestingPlatformCoreProto) // needed to compile baseline-profile gradle plugins
+
+    // dependencies that aren't used by buildSrc directly but that we resolve here so that the
+    // root project doesn't need to re-resolve them and their dependencies on every build
+    runtimeOnly(libs.hiltAndroidGradlePlugin)
+    runtimeOnly(libs.javapoet) // for hiltAndroidGradlePlugin to workaround https://github.com/google/dagger/issues/3068
+    runtimeOnly(libs.wireGradlePluginz)
+
+    // Plugin for analyzing dependencies
+    implementation(libs.dependency.analysis.gradle.plugin)
+
+    implementation("com.google.cloud:google-cloud-secretmanager:2.67.0")
+}

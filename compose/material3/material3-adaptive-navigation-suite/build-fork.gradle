@@ -1,0 +1,133 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.material3") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.material3.adaptive.navigationsuite"
+
+            compileSdk = 35
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":compose:material3:material3"))
+                api("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
+                implementation("org.jetbrains.androidx.window:window-core:1.4.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api("androidx.annotation:annotation-experimental:1.4.1")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation(project(":window:window-testing"))
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
+            implementation(project(":compose:ui:ui"))
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(skikoMain)
+        }
+
+        nativeTest {
+            dependsOn(skikoTest)
+        }
+
+        webMain {
+            dependsOn(skikoMain)
+        }
+
+        webTest {
+            dependsOn(skikoTest)
+        }
+    }
+}
+
+
+androidx {
+    name = "Material Adaptive Navigation Suite"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2023"
+    description = "Compose Material Design Adaptive Navigation Suite Library"
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
+}

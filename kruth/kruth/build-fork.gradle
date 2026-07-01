@@ -1,0 +1,76 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+
+import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+    watchos()
+    tvos()
+    androidNative()
+    mingwX64()
+    wasmJs()
+    js()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinTest)
+        }
+
+        jvmMain.dependencies {
+            implementation(libs.guavaAndroid)
+            implementation(libs.junit)
+        }
+
+        jvmTest.dependencies {
+            api(libs.kotlinCoroutinesTest)
+        }
+
+        webTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+        }
+    }
+}
+
+androidx {
+    legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
+    type = SoftwareType.SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS // Used to diff against Google Truth
+    doNotDocumentReason = "Not shipped externally"
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
+}

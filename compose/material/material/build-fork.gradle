@@ -1,0 +1,208 @@
+/*./material/material/build.gradle
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.androidx.build.UpdateTranslationsTask
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.atomicFu)
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.material") {
+        androidLibrary {
+            compileSdk = 35
+            namespace = "org.jetbrains.androidx.compose.material"
+
+            androidResources.enable = true
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
+        commonMain.dependencies {
+            api(project(":compose:animation:animation-core"))
+            api(project(":compose:foundation:foundation"))
+            api(project(":compose:ui:ui-text"))
+            api(project(":compose:material:material-ripple"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui"))
+
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:animation:animation"))
+            implementation(project(":compose:foundation:foundation-layout"))
+            implementation(project(":compose:ui:ui-util"))
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":compose:ui:ui-test"))
+            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+            implementation("androidx.navigationevent:navigationevent-compose:$navigationEventVersion")
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api("androidx.annotation:annotation-experimental:1.4.1")
+
+            // TODO: remove next 3 dependencies when b/202810604 is fixed
+            implementation("androidx.savedstate:savedstate:1.2.1")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:material:material:material-samples"))
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.ui:ui-test:1.6.0")
+            implementation("androidx.compose.ui:ui-test-junit4:1.6.0")
+            implementation(project(":test:screenshot:screenshot"))
+
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoCore)
+            implementation(libs.mockitoKotlin)
+            implementation(libs.testUiautomator)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
+            }
+        }
+
+        nonJvmMain {
+            dependsOn(skikoMain)
+        }
+
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        // TODO: Align it with AOSP or make explicit
+        configureEach {
+            languageSettings.optIn("androidx.compose.material.ExperimentalMaterialApi")
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:material:material-lint"))
+}
+
+androidx {
+    name = "Compose Material Components"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2018"
+    description = "Compose Material Design Components library"
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material:material:material-samples"))
+    addGoldenImageAssets()
+}
+
+// This task updates the translations of the localizable strings in this module.
+// It obtains them from Android's base repository.
+tasks.register("updateTranslations", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://github.com/androidx/androidx"
+    repoResDirectories = ["compose/ui/ui/src/androidMain/res"]
+    targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material/l10n")
+    targetPackageName = "androidx.compose.material.l10n"
+    kotlinStringsPackageName = "androidx.compose.material"
+    stringByResourceName = [
+            "navigation_menu": "NavigationMenu",
+            "close_drawer": "CloseDrawer",
+            "close_sheet": "CloseSheet",
+            "default_error_message": "DefaultErrorMessage",
+            "dropdown_menu": "ExposedDropdownMenu",
+            "range_start": "SliderRangeStart",
+            "range_end": "SliderRangeEnd",
+            "snackbar_pane_title": "SnackbarPaneTitle",
+    ]
+    // This is all the locales translated by Compose on Android in the ui module:
+    // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res
+    // with the exception of
+    // - b+sr+Latn which doesn't appear to be supported by Java
+    // - en_XC which has weird invisible LRM characters, and the visible text is the same as for
+    //   en anyway.
+    locales = [
+            "en", "af", "am", "ar", "as", "az", "be", "bg", "bn", "bs", "ca", "cs", "da", "de",
+            "el", "en_AU", "en_CA", "en_GB", "en_IN", "es", "es_US", "et", "eu", "fa",
+            "fi", "fr", "fr_CA", "gl", "gu", "hi", "hr", "hu", "hy", "in", "is", "it", "iw",
+            "ja", "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr",
+            "ms", "my", "nb", "ne", "nl", "or", "pa", "pl", "pt", "pt_BR", "pt_PT", "ro", "ru",
+            "si", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur",
+            "uz", "vi", "zh_CN", "zh_HK", "zh_TW", "zu"
+    ]
+}

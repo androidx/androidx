@@ -1,0 +1,136 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+androidXMultiplatform {
+    redirect("androidx.navigation3") {
+        androidLibrary {
+            compileSdk = 36
+            namespace = "org.jetbrains.androidx.navigation3.ui"
+
+            androidResources.enable = true
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        def navigation3Version = project.redirectVersions.get('androidx.navigation3')
+        def navigationEventVersion = project.redirectVersions.get('androidx.navigationevent')
+
+        commonMain.dependencies {
+            api("androidx.navigation3:navigation3-runtime:$navigation3Version")
+            api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0")
+            api("org.jetbrains.compose.animation:animation:1.10.0")
+            api("org.jetbrains.compose.runtime:runtime:1.10.0")
+            api("org.jetbrains.compose.runtime:runtime-saveable:1.10.0")
+            api("org.jetbrains.compose.ui:ui:1.10.0")
+            api("androidx.savedstate:savedstate:1.4.0")
+            api("androidx.savedstate:savedstate-compose:1.4.0")
+            implementation("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":compose:runtime:runtime-test-utils"))
+            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+        }
+
+        androidMain.dependencies {
+            api("androidx.activity:activity-compose:1.12.0")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation("androidx.activity:activity-compose:1.12.0")
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.testExtJunitKtx)
+            implementation(libs.truth)
+            implementation("androidx.compose.material3:material3:1.3.1")
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:ui:ui-test"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(libs.kotlinSerializationCore)
+        }
+
+        create("nonAndroidMain").dependsOn(commonMain)
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+        }
+    }
+}
+
+androidx {
+    name = "Androidx Navigation 3 UI"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2024"
+    description = "Provides a Navigation3 display that uses the building blocks from runtime to " +
+            "create a higher level solution."
+    samples(project(":navigation3:navigation3-ui:navigation3-ui-samples"))
+    addGoldenImageAssets()
+}

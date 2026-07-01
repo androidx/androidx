@@ -1,0 +1,125 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.atomicFu)
+}
+
+androidXMultiplatform {
+    redirect("androidx.compose.ui") {
+        androidLibrary {
+            namespace = "org.jetbrains.androidx.compose.ui.unit"
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api(project(":compose:ui:ui-geometry"))
+            implementation("androidx.collection:collection:1.5.0")
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.collection:collection-ktx:1.4.2")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testExtJunit)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(nonAndroidTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+        nonJvmMain {
+            dependsOn(nonAndroidMain)
+            dependencies {
+                implementation(libs.atomicFu)
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.annotation-internal:annotation:1.10.0")
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+    }
+}
+
+androidx {
+    name = "Compose Unit"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2020"
+    description = "Compose classes for simple units"
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-unit:ui-unit-samples"))
+}

@@ -1,73 +1,19 @@
 import groovy.transform.Field
 
-pluginManagement {
-    def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
-    if (!isRunFromGradlewStudio) {
-        apply from: "settings-plugin-management-fork.gradle"
-        this.ext.configureForkPluginManagement.call(delegate)
-        return
-    }
-
-    repositories {
-        /*
-        maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
-        }
-        maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/internal").getCanonicalFile()
-        }
-         */
-        if (true /* In JetBrains Fork */) {
-            mavenCentral()
-            google()
-            maven {
-                url = "https://plugins.gradle.org/m2/"
-            }
-        }
-    }
-    includeBuild("androidx-settings-plugins")
-}
-
-buildscript {
-    def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
-    if (!isRunFromGradlewStudio) {
-        apply from: "settings-buildscript-fork.gradle"
-        this.ext.configureForkBuildscript.call(delegate)
-        return
-    }
-
-    ext.supportRootFolder = buildscript.sourceFile.getParentFile()
-    apply(from: "buildSrc-fork/repos.gradle")
-    apply(from: "buildSrc-fork/settingsScripts/project-dependency-graph.groovy")
-    apply(from: "buildSrc-fork/settingsScripts/skiko-setup.groovy")
-
-    repos.addMavenRepositories(repositories)
-
-    dependencies {
-        // upgrade protobuf to be compatible with AGP
-        classpath("com.google.protobuf:protobuf-java:3.25.5")
-        classpath("com.gradle:develocity-gradle-plugin:4.3")
-        classpath("com.gradle:common-custom-user-data-gradle-plugin:2.4.0")
-        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0")
-        classpath("com.google.cloud:google-cloud-secretmanager:2.67.0")
-        def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
-        if (agpOverride != null) {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
-        } else {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:8.12.0")
-        }
-        // set guava version to be compatible with Depdendency analysis gradle plugin
-        classpath("com.google.guava:guava:33.3.1-jre")
-    }
-}
-
-def isRunFromGradlewStudio = System.getenv().get("EXPECTED_AGP_VERSION")
-if (!isRunFromGradlewStudio) {
-    apply from: "settings-fork.gradle"
-    return
-}
+rootProject.buildFileName = "build-fork.gradle"
 
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
+
+dependencyResolutionManagement {
+    // the default libs.version.toml is automatically registered by Gradle under `libs` name.
+    // to avoid the conflict with `libs-fork`, rename it
+    defaultLibrariesExtensionName = "aospLibs"
+    versionCatalogs {
+        libs {
+            from(files("gradle/libs-fork.versions.toml"))
+        }
+    }
+}
 
 def supportRootFolder = buildscript.sourceFile.getParentFile()
 skikoSetup.defineSkikoInVersionCatalog(settings)
@@ -89,7 +35,7 @@ def prebuiltsRoot = new File(
 ).absolutePath
 def rootProjectRepositories
 
-apply from: "buildSrc-fork/settingsScripts/out-setup.groovy"
+apply from: "buildSrc/settingsScripts/out-setup.groovy"
 
 getGradle().beforeProject { project ->
     // Migrate to dependencyResolutionManagement.repositories when
@@ -123,7 +69,7 @@ apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
 apply(plugin: "com.android.settings")
 
-apply(from: "buildSrc-fork/ndk.gradle")
+apply(from: "buildSrc/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 develocity {
@@ -192,28 +138,6 @@ switch (cacheSetting) {
 }
 
 rootProject.name = "compose-multiplatform-core"
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        libs {
-            def metalavaOverride = System.getenv("METALAVA_VERSION")
-            if (metalavaOverride != null) {
-                logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
-                version('metalava', metalavaOverride)
-            }
-            def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
-            if (agpOverride != null) {
-                logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
-                version('androidGradlePlugin', agpOverride)
-            }
-            def lintOverride = System.getenv("LINT_VERSION")
-            if (lintOverride != null) {
-                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
-                version('androidLint', lintOverride)
-            }
-        }
-    }
-}
 
 /////////////////////////////
 //
@@ -617,7 +541,12 @@ void includeRequestedProjectsAndDependencies() {
             .getAllProjectsWithDependencies(filteredProjects)
     projectsToInclude.forEach { path, dir ->
         settings.include(path)
-        project(path).projectDir = dir
+        def project = project(path)
+        project.projectDir = dir
+        project.buildFileName = ["build-fork.gradle.kts", "build-fork.gradle", "build.gradle.kts", "build.gradle"]
+                .find {
+                    new File(project.projectDir, it).isFile()
+                }
     }
 }
 includeRequestedProjectsAndDependencies()

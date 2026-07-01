@@ -1,0 +1,183 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+import org.jetbrains.androidx.build.XcodeBuildLock
+import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.Architecture
+
+// TODO: Correctly apply AndroidXPlugin to pass all verification checks.
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin-multiplatform")
+}
+
+kotlin {
+    iosArm64("iosArm64") {
+        configure(it, true)
+    }
+    iosSimulatorArm64("iosSimulatorArm64") {
+        configure(it, false)
+    }
+
+    sourceSets {
+        commonMain {}
+
+        configureEach {
+            languageSettings.languageVersion = KotlinTarget.DEFAULT.apiVersion.version
+            languageSettings.optIn("kotlinx.cinterop.BetaInteropApi")
+            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
+        }
+    }
+}
+
+private static String getSdkPlatformPath(platform) {
+    return new ProcessBuilder("xcrun", "--sdk", platform, "--show-sdk-platform-path")
+            .redirectErrorStream(true) // Combine stdout and stderr
+            .start()
+            .inputStream
+            .text
+            .trim()
+}
+
+private static String frameworksPath(target) {
+    try {
+        def path
+        switch (target) {
+            case KonanTarget.IOS_SIMULATOR_ARM64:
+            case KonanTarget.IOS_X64:
+                path = getSdkPlatformPath("iphonesimulator")
+                break
+            case KonanTarget.IOS_ARM64:
+                path = getSdkPlatformPath("iphoneos")
+                break
+            default:
+                throw new IllegalArgumentException("Unexpected target ${target}")
+        }
+        return "${path}/Developer/Library/Frameworks/"
+    } catch (IOException e) {
+        println "Error occurred while running xcrun: ${e.message}"
+        return ""
+    }
+}
+
+private def configure(target, isDevice) {
+    def frameworkName = "CMPTestUtils"
+    def buildSchemeName = frameworkName
+    def frameworkSourcesDir = new File(project.projectDir, "src/iosMain/objc")
+    def headersPath = new File(frameworkSourcesDir, frameworkName)
+    def sdkName
+    def destination
+    if (isDevice) {
+        sdkName = "iphoneos"
+        destination = "generic/platform=iOS"
+    } else {
+        sdkName = "iphonesimulator"
+        destination = "generic/platform=iOS Simulator"
+    }
+    def buildDir = new File(project.buildDir, "objc/${sdkName}.xcarchive")
+    def frameworkPath = new File(buildDir, "/Products/usr/local/lib/lib${frameworkName}.a")
+    def systemFrameworks = ["UIKit", "IOKit", "XCTest", frameworkName]
+    def linkerFlags = ["-ObjC"] + systemFrameworks.collectMany {
+        ["-framework", it]
+    }
+    def compilerArgs = [
+            "-include-binary", frameworkPath.toString(),
+    ] + linkerFlags.collectMany {
+        ["-linker-option", it]
+    }
+
+    def architecture
+    switch (target.konanTarget.architecture) {
+        case Architecture.ARM64:
+            architecture = "arm64"
+            break
+        case Architecture.X64:
+            architecture = "x86_64"
+            break
+        case Architecture.ARM32:
+            return
+        case Architecture.X86:
+            return
+    }
+
+    target.compilations.main {
+        def libTaskName = "${compileTaskProvider.name}ObjCLib"
+        project.tasks.register(libTaskName, Exec) {
+            usesService(XcodeBuildLock.instance(project))
+            inputs.dir(frameworkSourcesDir)
+                    .withPropertyName("${frameworkName}-${sdkName}")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+
+            outputs.cacheIf { true }
+            outputs.dir(buildDir)
+                    .withPropertyName("${frameworkName}-${sdkName}-archive")
+
+            workingDir(frameworkSourcesDir)
+            commandLine("xcodebuild")
+            args(
+                    "archive",
+                    "-scheme", buildSchemeName,
+                    "-archivePath", buildDir,
+                    "-sdk", sdkName,
+                    "-destination", destination,
+                    "SKIP_INSTALL=NO",
+                    "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                    "VALID_ARCHS=${architecture}",
+                    "MACH_O_TYPE=staticlib"
+            )
+        }
+
+        tasks[compileTaskProvider.name].dependsOn(libTaskName)
+
+        cinterops {
+            XCTest {
+                def path = frameworksPath(target.konanTarget)
+                compilerOpts("-iframework", path)
+            }
+            CMPTestUtils {
+                def cinteropTask = tasks[interopProcessingTaskName]
+                headersPath.eachFileRecurse {
+                    if (it.name.endsWith('.h')) {
+                        extraOpts("-header", it.name)
+                        cinteropTask.inputs.file(it)
+                    }
+                }
+                compilerOpts("-I${headersPath}")
+            }
+        }
+    }
+
+    target.binaries.all {
+        freeCompilerArgs += compilerArgs
+    }
+    target.compilations.all {
+        kotlinOptions {
+            freeCompilerArgs += compilerArgs
+        }
+    }
+}
+
+androidx {
+    name = "Compose Instrumented Test Utils"
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    inceptionYear = "2025"
+    description = "Internal utilities that convert kotlin.test into XCTest."
+    legacyDisableKotlinStrictApiMode = true
+}

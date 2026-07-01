@@ -1,0 +1,60 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+rootProject.buildFileName = "../buildSrc-fork/build.gradle"
+
+dependencyResolutionManagement {
+    // the default libs.version.toml is automatically registered by Gradle under `libs` name.
+    // to avoid the conflict with `libs-fork`, rename it
+    defaultLibrariesExtensionName = "aospLibs"
+    versionCatalogs {
+        libs {
+            from(files("../gradle/libs-fork.versions.toml"))
+        }
+    }
+}
+
+def includeProject(String projectPath, String projectDir) {
+    include projectPath
+    project(projectPath).projectDir = new File(projectDir)
+}
+
+apply from: "../buildSrc-fork/settingsScripts/out-setup.groovy"
+getGradle().beforeProject { project ->
+    def checkoutRoot = new File("${buildscript.sourceFile.parent}/..")
+    init.chooseBuildDirectory(checkoutRoot, rootProject.name, project)
+
+    /*
+    Could not set unknown property 'kotlin.project.persistent.dir' for project ':buildSrc' of type org.gradle.api.Project.
+
+    // https://youtrack.jetbrains.com/issue/KT-58223
+    def kotlinDir = new File(System.env.OUT_DIR ?: checkoutRoot, ".kotlinBuildSrc")
+    project.setProperty("kotlin.project.persistent.dir", kotlinDir.absolutePath)
+    */
+}
+
+include ":jetpad-integration"
+includeProject(":plugins", "../buildSrc-fork/plugins")
+includeProject(":private", "../buildSrc-fork/private")
+includeProject(":public", "../buildSrc-fork/public")
+includeProject(":imports:binary-compatibility-validator", "../buildSrc-fork/imports/binary-compatibility-validator")
+includeProject(":imports:benchmark-gradle-plugin", "../buildSrc-fork/imports/benchmark-gradle-plugin")
+includeProject(":imports:benchmark-darwin-plugin", "../buildSrc-fork/imports/benchmark-darwin-plugin")
+includeProject(":imports:baseline-profile-gradle-plugin", "../buildSrc-fork/imports/baseline-profile-gradle-plugin")
+includeProject(":imports:inspection-gradle-plugin", "../buildSrc-fork/imports/inspection-gradle-plugin")
+includeProject(":imports:room-gradle-plugin", "../buildSrc-fork/imports/room-gradle-plugin")
+includeProject(":imports:glance-layout-generator", "../buildSrc-fork/imports/glance-layout-generator")
+includeProject(":imports:stableaidl-gradle-plugin", "../buildSrc-fork/imports/stableaidl-gradle-plugin")

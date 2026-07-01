@@ -1,0 +1,52 @@
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    redirect("androidx.lifecycle") {
+        androidLibrary {
+            namespace = "org.jetbrains.lifecycle.runtime"
+            withJava()
+            androidResources.enable = true
+        }
+        desktop()
+        mac()
+        linux()
+        ios()
+        watchos()
+        tvos()
+        mingwX64()
+        js()
+        wasmJs()
+    }
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                // Keep direct references to fork versions to correctly resolve
+                // new redirections to Google's artifacts.
+                api(project(":lifecycle:lifecycle-common"))
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Lifecycle Runtime"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2017"
+    description = "Android Lifecycle Runtime"
+}
