@@ -204,7 +204,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                     should be inflated. May be {@code null} to use the
      *                     view theme. If set, this will override any value
      *                     specified by
-     *                     {@link R.styleable#Spinner_popupTheme}.
+     *                     {@link R.attr#popupTheme}.
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */

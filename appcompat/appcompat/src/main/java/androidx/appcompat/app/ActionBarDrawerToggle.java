@@ -59,8 +59,8 @@ import org.jspecify.annotations.Nullable;
  * your own listener, call through to each of the listener methods from your own.</p>
  *
  * <p>
- * You can customize the the animated toggle by defining the
- * {@link androidx.appcompat.R.styleable#DrawerArrowToggle drawerArrowStyle} in your
+ * You can customize the animated toggle by defining the
+ * {@link androidx.appcompat.R.style#Widget_AppCompat_DrawerArrowToggle drawerArrowStyle} in your
  * ActionBar theme.
  */
 public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
