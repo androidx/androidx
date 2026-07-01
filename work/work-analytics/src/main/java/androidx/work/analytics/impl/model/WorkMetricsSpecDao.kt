@@ -240,4 +240,43 @@ internal interface WorkMetricsSpecDao {
     """
     )
     fun deleteFinishedSpecsOlderThan(thresholdTimeMillis: Long): Int
+
+    /**
+     * Sets the worker duration of a [WorkMetricsSpec] matching the specified primary keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @param workerDuration The worker duration in milliseconds.
+     * @return The number of updated rows.
+     */
+    @Query(
+        """
+        UPDATE WorkMetricsSpec SET worker_duration_ms = :workerDuration
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun setWorkerDuration(
+        workId: String,
+        generation: Int,
+        periodCount: Int,
+        workerDuration: Long,
+    ): Int
+
+    /**
+     * Sets the total runtime of a [WorkMetricsSpec] matching the specified primary keys.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @param totalRuntime The total runtime in milliseconds.
+     * @return The number of updated rows.
+     */
+    @Query(
+        """
+        UPDATE WorkMetricsSpec SET total_runtime_ms = :totalRuntime
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun setTotalRuntime(workId: String, generation: Int, periodCount: Int, totalRuntime: Long): Int
 }
