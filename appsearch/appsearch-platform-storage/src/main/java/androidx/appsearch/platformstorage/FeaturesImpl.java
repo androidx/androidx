@@ -34,9 +34,13 @@ import org.jspecify.annotations.NonNull;
 final class FeaturesImpl implements Features {
     // Context is used to check mainline module version, as support varies by module version.
     private final Context mContext;
+    // TODO: b/529845668 - update enterprise observer callback check when available in mainline
+    // Observer callbacks are currently not supported for EnterpriseGlobalSearchSession
+    private final boolean mIsForEnterprise;
 
-    FeaturesImpl(@NonNull Context context) {
+    FeaturesImpl(@NonNull Context context, boolean isForEnterprise) {
         mContext = Preconditions.checkNotNull(context);
+        mIsForEnterprise = isForEnterprise;
     }
 
     @Override
@@ -61,10 +65,11 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_GET_BY_ID:
                 // fall through
-            case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
-                // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+            case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
+                // TODO: b/529845668 - update for enterprise when available in mainline
+                return !mIsForEnterprise && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 
             // SDK extension U Base features
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
