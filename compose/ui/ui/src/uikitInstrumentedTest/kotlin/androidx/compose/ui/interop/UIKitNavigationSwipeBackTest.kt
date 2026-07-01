@@ -38,6 +38,7 @@ import androidx.compose.ui.test.findNodeWithTagOrNull
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.rightCenter
+import androidx.compose.ui.test.utils.up
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -109,7 +110,7 @@ internal abstract class UIKitNavigationSwipeBackTest(
             TestContent(currentPage = mutableIntStateOf(1))
         }
 
-        swipeRightFromEdge()
+        swipeRightFromEdge().up()
 
         waitForPopped(viewControllerHostingCompose)
     }
@@ -167,7 +168,7 @@ internal abstract class UIKitNavigationSwipeBackTest(
             TestContent(currentPage = currentPage)
         }
 
-        swipeRightFromEdge()
+        swipeRightFromEdge().up()
 
         waitForPopped(viewControllerHostingCompose)
     }
@@ -257,7 +258,6 @@ private fun TestContent(
                 .weight(1f)
                 .testTag("pager")
         ) { page ->
-            currentPage.value = page
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(pagerColors[page])

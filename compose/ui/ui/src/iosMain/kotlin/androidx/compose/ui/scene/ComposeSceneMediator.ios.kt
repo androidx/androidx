@@ -312,7 +312,7 @@ internal class ComposeSceneMediator(
         onCancelScroll = ::onCancelScroll,
         onHoverEvent = ::onHoverEvent,
         onKeyboardPresses = ::onKeyboardPresses,
-        ignoreTouchChanges = navigationEventInput::isBackGestureActive,
+        ignoreTouchChanges = navigationEventInput::isBackGestureTrackingTouches,
         onRemoveSubview = {
             CoroutineScope(coroutineContext).launch {
                 finishUnattachedKeysPresses()
@@ -333,7 +333,7 @@ internal class ComposeSceneMediator(
         isPointInsideInteractionBounds = ::isPointInsideInteractionBounds,
         onTouchesEvent = ::onTouchesEvent,
         onCancelAllTouches = ::onCancelAllTouches,
-        ignoreTouchChanges = navigationEventInput::isBackGestureActive
+        ignoreTouchChanges = navigationEventInput::isBackGestureTrackingTouches
     )
 
     val backgroundView: UIView get() = _backgroundView

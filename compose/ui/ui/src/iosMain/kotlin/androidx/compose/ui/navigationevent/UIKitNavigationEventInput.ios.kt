@@ -86,15 +86,10 @@ internal class UIKitNavigationEventInput(
         action = NSSelectorFromString(UiKitScreenEdgePanGestureHandler::handleEdgePan.name + ":")
     )
 
-    private val activeGestureStates = listOf(
-        UIGestureRecognizerStateBegan,
-        UIGestureRecognizerStateChanged
-    )
-
-    val isBackGestureActive: Boolean
+    val isBackGestureTrackingTouches: Boolean
         get() =
-            startEdgePanGestureRecognizer.state in activeGestureStates ||
-                endEdgePanGestureRecognizer.state in activeGestureStates
+            startEdgePanGestureRecognizer.isTrackingTouches ||
+                endEdgePanGestureRecognizer.isTrackingTouches
 
     init {
         updateRecognizers()
@@ -312,3 +307,13 @@ internal class UIKitBackGestureRecognizer(
         return true
     }
 }
+
+private val UIGestureRecognizer.isTrackingTouches: Boolean
+    get() =
+        numberOfTouches > 0uL && !isInTerminalState
+
+private val UIGestureRecognizer.isInTerminalState: Boolean
+    get() =
+        state == UIGestureRecognizerStateFailed ||
+            state == UIGestureRecognizerStateCancelled ||
+            state == UIGestureRecognizerStateEnded

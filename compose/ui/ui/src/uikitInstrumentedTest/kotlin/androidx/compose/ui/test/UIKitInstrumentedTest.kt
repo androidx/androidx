@@ -412,28 +412,31 @@ internal class UIKitInstrumentedTest(
      * @param position The position on the window.
      * @param window will be used to handle touches; otherwise,
      * the window hosting the view will be used.
+     * @param fromEdge If true, the touch will be simulated from the edge of the screen.
      * @return A UITouch object representing the touch interaction.
      */
     fun touchDown(position: DpOffset, window: UIWindow? = null, fromEdge: Boolean = false): UITouch {
         return getTargetWindow(position, window).touchDown(position, fromEdge)
     }
 
-    private val EdgeSwipeDuration = 200.milliseconds
+    private val EdgeSwipeDuration = 500.milliseconds
 
-    fun swipeRightFromEdge() {
+    fun swipeRightFromEdge(
+        duration: Duration = EdgeSwipeDuration,
+    ): UITouch {
         val swipeToLocation = screenBounds.rightCenter().offsetBy(dx = (-16).dp)
 
-        touchDown(screenBounds.leftCenter(), fromEdge = true)
-            .dragTo(swipeToLocation, duration = EdgeSwipeDuration)
-            .up()
+        return touchDown(screenBounds.leftCenter(), fromEdge = true)
+            .dragTo(swipeToLocation, duration = duration)
     }
 
-    fun swipeLeftFromEdge() {
+    fun swipeLeftFromEdge(
+        duration: Duration = EdgeSwipeDuration,
+    ): UITouch {
         val swipeToLocation = screenBounds.leftCenter().offsetBy(dx = 16.dp)
 
-        touchDown(screenBounds.rightCenter(), fromEdge = true)
-            .dragTo(swipeToLocation, duration = EdgeSwipeDuration)
-            .up()
+        return touchDown(screenBounds.rightCenter(), fromEdge = true)
+            .dragTo(swipeToLocation, duration = duration)
     }
 
     /**
@@ -666,11 +669,11 @@ internal class UIKitInstrumentedTest(
     }
 
     fun AccessibilityTestNode.swipeRight(fromEdge: Boolean = false, duration: Duration = SwipeDuration) {
-        swipe(fromPosition = { center() }, toPosition = { rightCenter() }, fromEdge = fromEdge, duration = duration)
+        swipe(fromPosition = { leftCenter().offsetBy(dx = 16.dp) }, toPosition = { rightCenter().offsetBy(dx = (-16).dp) }, fromEdge = fromEdge, duration = duration)
     }
 
     fun AccessibilityTestNode.swipeLeft(fromEdge: Boolean = false, duration: Duration = SwipeDuration) {
-        swipe(fromPosition = { center() }, toPosition = { leftCenter() }, fromEdge = fromEdge, duration = duration)
+        swipe(fromPosition = { rightCenter().offsetBy(dx = (-16).dp) }, toPosition = { leftCenter().offsetBy(dx = 16.dp) }, fromEdge = fromEdge, duration = duration)
     }
 }
 
