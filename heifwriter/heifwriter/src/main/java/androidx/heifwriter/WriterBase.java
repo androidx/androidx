@@ -244,7 +244,8 @@ public class WriterBase implements AutoCloseable {
      * starting with "Exif\0\0" followed by the TIFF header (See JEITA CP-3451C Section 4.5.2.)
      *
      * @param imageIndex index of the image, must be a valid index for the max number of image
-     *                   specified by {@link Builder#setMaxImages(int)}.
+     *                   specified by {@link HeifWriter.Builder#setMaxImages(int)} or
+     *                   {@link AvifWriter.Builder#setMaxImages(int)}.
      * @param exifData byte buffer containing a Exif data block.
      * @param offset offset of the Exif data block within exifData.
      * @param length length of the Exif data block.
