@@ -105,9 +105,9 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  */
 public fun Modifier.oneHandedGesture(
     gestureConfiguration: OneHandedGestureConfiguration,
+    gestureLabel: String,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-    gestureLabel: String? = null,
     onGestureAvailable: () -> Unit = {},
     onGesture: suspend () -> Unit,
 ): Modifier {
@@ -132,7 +132,7 @@ public fun Modifier.oneHandedGesture(
 private class GestureElement(
     val gestureConfiguration: OneHandedGestureConfiguration,
     val enabledInAmbient: Boolean,
-    val gestureLabel: String?,
+    val gestureLabel: String,
     val onGestureAvailable: () -> Unit,
     val onGesture: suspend (centerOffset: Offset) -> Unit,
 ) : ModifierNodeElement<GestureNode>() {
@@ -186,7 +186,7 @@ private class GestureElement(
 private class GestureNode(
     private var gestureConfiguration: OneHandedGestureConfiguration,
     private var enabledInAmbient: Boolean,
-    private var gestureLabel: String?,
+    private var gestureLabel: String,
     private var onGestureAvailable: () -> Unit,
     private var onGesture: suspend (centerOffset: Offset) -> Unit,
 ) :
@@ -223,7 +223,7 @@ private class GestureNode(
     fun updateGesture(
         newConfig: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
-        newGestureLabel: String?,
+        newGestureLabel: String,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
@@ -298,7 +298,7 @@ private class GestureNode(
         haptic: HapticFeedback,
         gestureConfiguration: OneHandedGestureConfiguration,
         enabledInAmbient: Boolean,
-        gestureLabel: String?,
+        gestureLabel: String,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
     ) {

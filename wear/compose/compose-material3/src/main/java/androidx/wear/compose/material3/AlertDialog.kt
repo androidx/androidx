@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,9 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.onVisibilityChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.onClick as semanticOnClick
@@ -57,7 +55,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -163,6 +160,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -269,6 +270,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -351,6 +356,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -443,6 +452,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -536,6 +549,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -642,6 +659,10 @@ public fun AlertDialog(
         modifier =
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
+                gestureLabel =
+                    stringResource(
+                        R.string.one_handed_gesture_alert_dialog_dismiss_action_accessibility_text
+                    ),
                 onGesture = onDismissRequest,
             ),
         properties = properties,
@@ -744,6 +765,11 @@ public fun AlertDialogContent(
                     Modifier.fillMaxSize()
                         .oneHandedGesture(
                             gestureConfiguration = gestureConfig,
+                            gestureLabel =
+                                stringResource(
+                                    R.string
+                                        .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                                ),
                             onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                         ),
@@ -869,6 +895,11 @@ public fun AlertDialogContent(
                     Modifier.fillMaxSize()
                         .oneHandedGesture(
                             gestureConfiguration = gestureConfig,
+                            gestureLabel =
+                                stringResource(
+                                    R.string
+                                        .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                                ),
                             onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                         ),
@@ -988,6 +1019,11 @@ public fun AlertDialogContent(
                     Modifier.fillMaxSize()
                         .oneHandedGesture(
                             gestureConfiguration = gestureConfig,
+                            gestureLabel =
+                                stringResource(
+                                    R.string
+                                        .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                                ),
                             onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                         ),
@@ -1097,6 +1133,11 @@ public fun AlertDialogContent(
                     Modifier.fillMaxSize()
                         .oneHandedGesture(
                             gestureConfiguration = gestureConfig,
+                            gestureLabel =
+                                stringResource(
+                                    R.string
+                                        .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                                ),
                             onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                         ),
@@ -1217,6 +1258,11 @@ public fun AlertDialogContent(
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
+                        gestureLabel =
+                            stringResource(
+                                R.string
+                                    .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                            ),
                         onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                     ),
@@ -1325,6 +1371,11 @@ public fun AlertDialogContent(
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
+                        gestureLabel =
+                            stringResource(
+                                R.string
+                                    .one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text
+                            ),
                         onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(state) },
                     ),
@@ -1360,57 +1411,12 @@ public object AlertDialogDefaults {
         colors: ButtonColors = ButtonDefaults.buttonColors(),
         content: @Composable RowScope.() -> Unit = ConfirmIcon,
     ) {
-        var currentButtonSize by remember { mutableStateOf(IntSize.Zero) }
-        val density = LocalDensity.current
-        val buttonSize = EdgeButtonSize.Medium
-        val fullSizeInPx = with(density) { buttonSize.maximumHeight.toPx() }
-
-        val isButtonFullyVisible by remember {
-            derivedStateOf {
-                // EdgeButton includes internal padding in its layout. Since that padding value
-                // isn't
-                // exposed here, we consider the button 'fully visible' once its transformed height
-                // meets or exceeds its base theoretical size in pixels.
-                currentButtonSize.height.toFloat() >= fullSizeInPx
-            }
-        }
-
-        val interactionSource = remember { MutableInteractionSource() }
-        val gestureConfig =
-            rememberOneHandedGestureConfiguration(
-                action = GestureAction.Primary,
-                priority = GesturePriority.Clickable,
-            )
-        val indicatorState = remember { OneHandedGestureIndicatorState() }
-
-        return EdgeButton(
-            modifier =
-                modifier.onSizeChanged { size -> currentButtonSize = size } then
-                    if (isButtonFullyVisible) {
-                        Modifier.oneHandedGesture(
-                            gestureConfiguration = gestureConfig,
-                            onGestureAvailable = { indicatorState.isIndicatorActive = true },
-                            interactionSource = interactionSource,
-                            onGesture = onClick,
-                        )
-                    } else {
-                        Modifier
-                    },
-            interactionSource = interactionSource,
+        EdgeButton(
+            modifier = modifier,
             onClick = onClick,
             colors = colors,
-            buttonSize = buttonSize,
-            content = {
-                OneHandedGestureIndicator(
-                    gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
-                    gestureIndicatorTint = colors.iconColor,
-                ) {
-                    // wrap content() in a Row because EdgeButton's content parameter is as
-                    // RowScope.() -> Unit.
-                    Row(content = content)
-                }
-            },
+            buttonSize = EdgeButtonSize.Medium,
+            content = content,
         )
     }
 
@@ -1454,6 +1460,11 @@ public object AlertDialogDefaults {
                         if (buttonVisible) {
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
+                                gestureLabel =
+                                    stringResource(
+                                        R.string
+                                            .one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+                                    ),
                                 onGestureAvailable = { indicatorState.isIndicatorActive = true },
                                 interactionSource = interactionSource,
                                 onGesture = onClick,

@@ -365,6 +365,7 @@ fun OHGTonalButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
+                    gestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
@@ -401,6 +402,7 @@ fun OHGOutlinedButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
+                    gestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
@@ -437,6 +439,7 @@ fun OHGChildButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
+                    gestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
