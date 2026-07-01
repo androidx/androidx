@@ -46,7 +46,7 @@ import java.lang.annotation.Target;
  * to include from the interfaces on the annotated view. For example, a view that implements
  * {@link androidx.core.view.TintableBackgroundView} will report
  * {@code androidx.appcompat:backgroundTint} directly from the platform
- * {@link android.view.View.getBackgroundTintList()} getter. This approach allows views within
+ * {@link android.view.View#getBackgroundTintList()} getter. This approach allows views within
  * AppCompat to mix shadowed attributes and regular attribute annotations on the same view
  * without hand-written inspection companions.
  * <p>
@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  * {@link androidx.core.widget.TintableCompoundButton},
  * {@link androidx.core.widget.TintableCompoundDrawablesView}, and
  * {@link androidx.core.widget.TintableImageSourceView}.
- * Please see the mapping in {@link androidx.resourceinspection.processor} for full details.
+ * Please see the mapping in {@code androidx.resourceinspection.processor} for full details.
  *
  */
 @Target(TYPE)
