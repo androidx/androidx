@@ -75,13 +75,19 @@ public object CameraMath {
      * Computes the rotation required to rotate coordinates from sensor space to the display
      * coordinate system.
      *
-     * @param displayRotation The rotation of the display in degrees. Must be one of 0, 90, 180,
-     *     270. (Note: do not pass Surface.ROTATION_X constants directly as they represent index
-     *          values rather than degrees).
-     *
+     * @param displayRotation The rotation of the display in degrees. Must be one of 0, 90,
+     *   180, 270. Negative values are not supported. This can be obtained from
+     *   [android.view.Display.getRotation] and converted using
+     *   [DiscreteRotation.fromSurfaceRotation] (e.g.,
+     *   `DiscreteRotation.fromSurfaceRotation(display.rotation).degrees`). (Note: do not pass
+     *   [android.view.Surface] `ROTATION_X` constants directly as they represent index values
+     *   rather than degrees).
      * @param sensorOrientation The physical orientation of the sensor in degrees (typically
-     *   SENSOR_ORIENTATION from CameraCharacteristics). Must be one of 0, 90, 180, 270.
+     *   SENSOR_ORIENTATION from CameraCharacteristics). Must be one of 0, 90, 180, 270. Negative
+     *   values are not supported.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
+     * @throws IllegalArgumentException if [displayRotation] or [sensorOrientation] is not one of 0,
+     *   90, 180, 270.
      */
     @JvmStatic
     @JvmName("computeSensorRotationToDisplayOrientation")
@@ -90,17 +96,19 @@ public object CameraMath {
         sensorOrientation: Int,
         sensorIsFacingScreen: Boolean,
     ): DiscreteRotation =
-        if (sensorIsFacingScreen) {
-            DiscreteRotation.from(sensorOrientation) + DiscreteRotation.from(displayRotation)
-        } else {
-            DiscreteRotation.from(sensorOrientation) - DiscreteRotation.from(displayRotation)
-        }
+        computeSensorRotationToDisplayOrientation(
+            displayRotation = DiscreteRotation.from(displayRotation),
+            sensorOrientation = DiscreteRotation.from(sensorOrientation),
+            sensorIsFacingScreen = sensorIsFacingScreen,
+        )
 
     /**
      * Computes the rotation required to rotate coordinates from sensor space to the display
      * coordinate system.
      *
-     * @param displayRotation The rotation of the display.
+     * @param displayRotation The rotation of the display. This can be obtained from
+     *   [android.view.Display.getRotation] and converted using
+     *   [DiscreteRotation.fromSurfaceRotation].
      * @param sensorOrientation The physical orientation of the sensor.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
      */
@@ -121,10 +129,20 @@ public object CameraMath {
      * Computes the clockwise rotation required to be applied to the captured image to be viewed
      * upright.
      *
-     * @param deviceOrientation The orientation of the device in degrees.
+     * See [android.hardware.camera2.CaptureRequest.JPEG_ORIENTATION] for more details.
+     *
+     * @param deviceOrientation The physical orientation of the device in degrees. Must be one of 0,
+     *   90, 180, 270. Negative values are not supported. This is typically obtained from an
+     *   [android.view.OrientationEventListener] and rounded to the nearest 90 degrees using
+     *   [DiscreteRotationMath.round]. See the
+     *   [Camera Orientation Guide](https://chromeos.dev/en/android/camera-orientation#jpeg-orientation)
+     *   for more details.
      * @param sensorOrientation The physical orientation of the sensor (typically SENSOR_ORIENTATION
-     *   from CameraCharacteristics).
+     *   from CameraCharacteristics). Must be one of 0, 90, 180, 270. Negative values are not
+     *   supported.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
+     * @throws IllegalArgumentException if [deviceOrientation] or [sensorOrientation] is not one of
+     *   0, 90, 180, 270.
      */
     @JvmStatic
     @JvmName("computeSensorRotationToJpegOrientation")
@@ -133,17 +151,23 @@ public object CameraMath {
         sensorOrientation: Int,
         sensorIsFacingScreen: Boolean,
     ): DiscreteRotation =
-        if (sensorIsFacingScreen) {
-            DiscreteRotation.from(sensorOrientation) - DiscreteRotation.from(deviceOrientation)
-        } else {
-            DiscreteRotation.from(sensorOrientation) + DiscreteRotation.from(deviceOrientation)
-        }
+        computeSensorRotationToJpegOrientation(
+            deviceOrientation = DiscreteRotation.from(deviceOrientation),
+            sensorOrientation = DiscreteRotation.from(sensorOrientation),
+            sensorIsFacingScreen = sensorIsFacingScreen,
+        )
 
     /**
      * Computes the clockwise rotation required to be applied to the captured image to be viewed
      * upright.
      *
-     * @param deviceOrientation The orientation of the device.
+     * See [android.hardware.camera2.CaptureRequest.JPEG_ORIENTATION] for more details.
+     *
+     * @param deviceOrientation The physical orientation of the device. This is typically obtained
+     *   from an [android.view.OrientationEventListener] and rounded to the nearest 90 degrees using
+     *   [DiscreteRotation.round]. See the
+     *   [Camera Orientation Guide](https://chromeos.dev/en/android/camera-orientation#jpeg-orientation)
+     *   for more details.
      * @param sensorOrientation The physical orientation of the sensor.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
      */
@@ -178,7 +202,11 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapUiPointToStreamPointF(
@@ -221,7 +249,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toStreamPoint A callback to construct the final return object from the computed stream
      *   coordinates.
      */
@@ -292,7 +321,11 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapUiRectToStreamRectF(
@@ -343,7 +376,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toStreamRect A callback to construct the final return object from the computed stream
      *   coordinates.
      */
@@ -434,9 +468,13 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param touchToFocusRatio The ratio to use when computing a rectangle based on the short
      *   dimension of the stream.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmOverloads
@@ -482,7 +520,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param ratio The ratio to use when computing a rectangle based on the short dimension of the
      *   stream.
      * @param toStreamRect A callback to construct the final return object from the computed stream
@@ -536,7 +575,11 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmName("mapUiSizeToStreamSizeF")
@@ -575,7 +618,8 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toStreamSize A callback to construct the final return object from the computed stream
      *   coordinates.
      */
@@ -628,11 +672,15 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
      *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
      *   are relative to the sensor 0,0.
      * @param coerceToCropRegion Whether to coerce the output point into the crop region.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmOverloads
@@ -683,7 +731,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
      *   relative to the sensor 0,0.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
@@ -749,7 +798,9 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
      *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
      *   are relative to the sensor 0,0.
@@ -758,6 +809,8 @@ public object CameraMath {
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
      *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmOverloads
@@ -818,7 +871,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
      *   relative to the sensor 0,0.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
@@ -900,7 +954,9 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
      *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
      *   are relative to the sensor 0,0.
@@ -911,6 +967,8 @@ public object CameraMath {
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      * @param touchToFocusRatio The ratio to use when computing a rectangle based on the short
      *   dimension of the stream.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmOverloads
@@ -965,7 +1023,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
      *   relative to the sensor 0,0.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
@@ -1039,9 +1098,13 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapUiSizeToSensorSize(
@@ -1084,7 +1147,8 @@ public object CameraMath {
      *   streamWidth/streamHeight.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
      * @param toSensorSize A callback to construct the final return object from the computed sensor
@@ -1136,7 +1200,11 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapStreamPointToUiPointF(
@@ -1175,7 +1243,8 @@ public object CameraMath {
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toUiPoint A callback to construct the final return object from the computed UI
      *   coordinates.
      */
@@ -1244,7 +1313,11 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapStreamRectToUiRectF(
@@ -1289,7 +1362,8 @@ public object CameraMath {
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toUiRect A callback to construct the final return object from the computed UI
      *   coordinates.
      */
@@ -1375,7 +1449,11 @@ public object CameraMath {
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmName("mapStreamSizeToUiSizeF")
@@ -1412,7 +1490,8 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param toUiSize A callback to construct the final return object from the computed UI
      *   coordinates.
      */
@@ -1885,9 +1964,13 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
      *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapSensorPointToUiPointF(
@@ -1933,7 +2016,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor.
      * @param sensorCropY The y coordinate of the crop region of the sensor.
      * @param sensorCropWidth The width of the crop region of the sensor.
@@ -1992,9 +2076,13 @@ public object CameraMath {
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
      *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     public fun mapSensorRectToUiRectF(
@@ -2046,7 +2134,8 @@ public object CameraMath {
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
      * @param streamMirroring Whether the camera stream is mirrored.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor.
      * @param sensorCropY The y coordinate of the crop region of the sensor.
      * @param sensorCropWidth The width of the crop region of the sensor.
@@ -2108,9 +2197,13 @@ public object CameraMath {
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
      *   streamWidth/Height.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
+     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
+     *   [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
+     *   180, 270.
      */
     @JvmStatic
     @JvmName("mapSensorSizeToUiSizeF")
@@ -2152,7 +2245,8 @@ public object CameraMath {
      *   streamWidth/streamHeight.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
      *   streamWidth/streamHeight.
-     * @param sensorRotationToDisplayOrientation The orientation from sensor to display.
+     * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
+     *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
      * @param toUiSize A callback to construct the final return object from the computed UI
