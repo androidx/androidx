@@ -95,11 +95,14 @@ public class RemoteListenableDelegatingWorker(
         super.onStopped()
         if (componentName != null) {
             client.execute(componentName!!) { iListenableWorkerImpl, callback ->
-                val interruptRequest =
-                    ParcelableInterruptRequest(workerParameters.id.toString(), stopReason)
-                val request = ParcelConverters.marshall(interruptRequest)
-                iListenableWorkerImpl.interrupt(request, callback)
-                client.unbindService()
+                try {
+                    val interruptRequest =
+                        ParcelableInterruptRequest(workerParameters.id.toString(), stopReason)
+                    val request = ParcelConverters.marshall(interruptRequest)
+                    iListenableWorkerImpl.interrupt(request, callback)
+                } finally {
+                    client.unbindService()
+                }
             }
         }
     }
@@ -123,16 +126,18 @@ public class RemoteListenableDelegatingWorker(
                 "Need to specify a class name for the Remote Service."
             }
             componentName = ComponentName(servicePackageName, serviceClassName)
-            val response =
-                client
-                    .execute(componentName!!) { iListenableWorkerImpl, callback ->
-                        block(iListenableWorkerImpl, callback)
-                    }
-                    .awaitWithin(this@RemoteListenableDelegatingWorker)
-            val result = transformation(response)
-            Logger.get().debug(TAG, "Cleaning up")
-            client.unbindService()
-            result
+            try {
+                val response =
+                    client
+                        .execute(componentName!!) { iListenableWorkerImpl, callback ->
+                            block(iListenableWorkerImpl, callback)
+                        }
+                        .awaitWithin(this@RemoteListenableDelegatingWorker)
+                transformation(response)
+            } finally {
+                Logger.get().debug(TAG, "Cleaning up")
+                client.unbindService()
+            }
         }
     }
 
