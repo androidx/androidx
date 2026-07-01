@@ -185,3 +185,10 @@ fun RedBox(text: String) {
         BasicText(text, Modifier.size(50.dp), style = TextStyle(textAlign = TextAlign.Center))
     }
 }
+
+@Composable
+fun GreenBox(text: String) {
+    Box(Modifier.fillMaxSize().background(Color.Green), contentAlignment = Alignment.Center) {
+        BasicText(text, Modifier.size(300.dp), style = TextStyle(textAlign = TextAlign.Center))
+    }
+}
