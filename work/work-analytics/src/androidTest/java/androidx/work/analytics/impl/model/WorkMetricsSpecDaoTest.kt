@@ -190,6 +190,52 @@ class WorkMetricsSpecDaoTest {
         assertEquals(5000L, result.firstStartTimeMillis)
     }
 
+    @Test
+    fun setWorkerDuration_updatesCorrectly() = runBlocking {
+        val workSpecId = UUID.randomUUID().toString()
+        val spec =
+            createWorkMetricsSpec(
+                workSpecId = workSpecId,
+                generation = 0,
+                periodCount = 0,
+                state = WorkMetricsInfo.State.ENQUEUED_PENDING,
+            )
+        dao.insertWorkMetricsSpec(spec)
+
+        dao.setWorkerDuration(
+            workId = workSpecId,
+            generation = 0,
+            periodCount = 0,
+            workerDuration = 6000L,
+        )
+
+        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
+        assertEquals(6000L, result.workerDurationMillis)
+    }
+
+    @Test
+    fun setTotalRuntime_updatesCorrectly() = runBlocking {
+        val workSpecId = UUID.randomUUID().toString()
+        val spec =
+            createWorkMetricsSpec(
+                workSpecId = workSpecId,
+                generation = 0,
+                periodCount = 0,
+                state = WorkMetricsInfo.State.ENQUEUED_PENDING,
+            )
+        dao.insertWorkMetricsSpec(spec)
+
+        dao.setTotalRuntime(
+            workId = workSpecId,
+            generation = 0,
+            periodCount = 0,
+            totalRuntime = 7000L,
+        )
+
+        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
+        assertEquals(7000L, result.totalRuntimeMillis)
+    }
+
     private fun createWorkMetricsSpec(
         workSpecId: String = UUID.randomUUID().toString(),
         generation: Int = 0,
