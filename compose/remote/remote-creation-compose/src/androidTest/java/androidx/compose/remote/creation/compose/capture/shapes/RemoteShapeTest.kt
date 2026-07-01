@@ -53,15 +53,7 @@ class RemoteShapeTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     val size = Size(500f, 500f)
-    private val creationDisplayInfoLtr =
-        RemoteCreationDisplayInfo(
-            size.width.toInt(),
-            size.height.toInt(),
-            context.resources.displayMetrics.densityDpi,
-            context.resources.configuration.fontScale,
-        )
-
-    private val creationDisplayInfoRtl =
+    private val creationDisplayInfo =
         RemoteCreationDisplayInfo(
             size.width.toInt(),
             size.height.toInt(),
@@ -73,7 +65,7 @@ class RemoteShapeTest {
     val remoteComposeTestRule: RemoteScreenshotTestRule =
         RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            remoteCreationDisplayInfo = creationDisplayInfoLtr,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         )
 
     @Test
@@ -132,8 +124,7 @@ class RemoteShapeTest {
     @Test
     fun roundedDifferentPercentRadiusRTL() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = creationDisplayInfoRtl,
-            creationComposableWrapper = ComposableWrappers.rtl,
+            creationComposableWrapper = ComposableWrappers.rtl
         ) {
             val topStart = 50
             val topEnd = 25

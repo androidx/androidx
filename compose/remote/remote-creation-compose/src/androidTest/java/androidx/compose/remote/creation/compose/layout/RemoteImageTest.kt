@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,16 +50,16 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class RemoteImageTest {
+    private val bitmapLoader = BitmapLoader {
+        val resources = ApplicationProvider.getApplicationContext<Context>().resources
+        resources.openRawResource(R.drawable.clear)
+    }
+
     @get:Rule
     val remoteComposeTestRule =
         RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             context = ApplicationProvider.getApplicationContext(),
-            bitmapLoader =
-                BitmapLoader {
-                    val resources = ApplicationProvider.getApplicationContext<Context>().resources
-                    resources.openRawResource(R.drawable.clear)
-                },
         )
 
     @get:Rule val limitsRule = LimitsRule()
@@ -71,6 +72,7 @@ class RemoteImageTest {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+            bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val avatarImage =
@@ -93,6 +95,7 @@ class RemoteImageTest {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+            bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val backgroundImage =
@@ -115,7 +118,8 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+            bitmapLoader = bitmapLoader,
         ) {
             // Without PlayerState API, will be blank
             val dummyImage =
@@ -138,7 +142,8 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+            bitmapLoader = bitmapLoader,
         ) {
             val backgroundImage = createImage(size, size)
             RemoteImage(
@@ -157,10 +162,11 @@ class RemoteImageTest {
         limitsRule.setEnableImageUrls(false)
 
         val size = 48
-        org.junit.Assert.assertThrows(RuntimeException::class.java) {
+        assertThrows(RuntimeException::class.java) {
             remoteComposeTestRule.runScreenshotTest(
                 remoteCreationDisplayInfo =
-                    createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
+                    createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                bitmapLoader = bitmapLoader,
             ) {
                 val dummyImage =
                     rememberNamedRemoteImageBitmap(
