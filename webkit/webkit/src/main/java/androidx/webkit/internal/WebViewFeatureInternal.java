@@ -1006,7 +1006,6 @@ public class WebViewFeatureInternal {
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers {@link Profile#enqueuePreconnect(String)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework ENQUEUE_PRECONNECT =
             new ApiFeature.NoFramework(WebViewFeature.ENQUEUE_PRECONNECT,
                     Features.ENQUEUE_PRECONNECT);
