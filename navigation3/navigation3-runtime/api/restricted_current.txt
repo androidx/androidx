@@ -64,7 +64,7 @@ package androidx.navigation3.runtime {
     method public boolean containsAll(java.util.Collection<T> elements);
     method public operator T get(int index);
     method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
-    method @BytecodeOnly public int getSize();
+    method public int getSize();
     method @BytecodeOnly public int indexOf(Object!);
     method public int indexOf(T element);
     method public boolean isEmpty();
