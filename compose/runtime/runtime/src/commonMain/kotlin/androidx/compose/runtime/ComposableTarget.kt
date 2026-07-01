@@ -17,42 +17,71 @@
 package androidx.compose.runtime
 
 /**
- * The [Composable] function is declared to expect an applier with the name [applier]. The [applier]
- * name can be an arbitrary string but is expected to be a fully qualified name of a class that is
- * annotated by [ComposableTargetMarker] containing a descriptive name to be used in diagnostic
- * messages.
+ * This annotation may be applied to a [Composable] function one or more times to declare that the
+ * function expects an applier whose name is the [applier] argument of any of the [ComposableTarget]
+ * annotations marking the function.
  *
- * The [applier] name is used in diagnostic messages but, if it refers to a marked annotation,
- * [ComposableTargetMarker.description] is used instead of the class name.
+ * Beware that only version 2.4.20 and newer of the Compose compiler plugin correctly acknowledge
+ * multiple applications of this annotation on a single function. Older versions of the Compose
+ * compiler plugin will only acknowledge the [ComposableTarget] annotation on a function that comes
+ * earliest in the file.
  *
- * The Compose compiler plugin can, in most cases, infer this or an equivalent
- * [ComposableInferredTarget], for composable functions. For example, if a composable function calls
- * another composable function then both must be of the same group of composable functions (that is,
- * have declared or inferred the same [applier] value). This means that, if the function called is
- * already determined to be in a group, them the function that calls it must also be in the same
- * group. If two functions are called of different groups then the Compose compiler plugin will
- * generate an diagnostic message describing which group was received and which group was expected.
+ * The [applier] name can be an arbitrary string but is expected to be the fully qualified name of a
+ * class that is annotated by [ComposableTargetMarker]. The [applier] name is used in diagnostic
+ * messages unless it refers to a class annotated by [ComposableTargetMarker], then the
+ * corresponding [ComposableTargetMarker.description] is used instead.
  *
- * The grouping of composable functions corresponds to the instance of [Applier] that is required to
- * be used by the [Composer] to apply changes to the composition. The [Applier] is checked at
- * runtime to ensure the [Applier] that is expected by a composable function is the one supplied at
- * runtime. This annotation, and the corresponding validation performed by the Compose compiler
- * plugin, can detect mismatches at compile time, and issue a diagnostic message when calling a
- * [Composable] function will result in the [Applier] check failing.
+ * The Compose compiler plugin can, in most cases, infer the necessary [ComposableTarget]
+ * annotations, or equivalent pair of [ComposableInferredTarget] and
+ * [ComposableInferredTargetConstraints] annotations, to apply to a composable function. Some
+ * insight into how this inference works is provided below.
  *
- * In most cases this annotation can be inferred. However, this annotation is required for
- * [Composable] functions that call [ComposeNode] directly, for abstract methods, such as interfaces
- * functions (which do not contain a body from which the plugin can infer the annotation), when
- * using a composable lambda in sub-composition, or when a composable lambda is stored in a class
- * field or global variable.
+ * If it has been declared or inferred that a composable function expects an applier with precisely
+ * one allowed name, then that function is considered to be in the group of functions corresponding
+ * to that name. If a composable function calls another composable function, then both must be of
+ * the same group of composable functions. This means that if it has been determined that a called
+ * function is part of a certain group, then the function that calls it must also be in the same
+ * group. If a function calls another function of a different group, then the Compose compiler
+ * plugin will generate a diagnostic message describing which group was received and which group was
+ * expected.
  *
- * Leaving the annotation off in such cases will result in the compiler ignoring the function and it
- * will not emit the diagnostic when the function is called incorrectly.
+ * If it has been declared or inferred that a composable function expects an applier whose name is
+ * in a set of allowed names, then that function is considered to be constrained to that set of
+ * names. As mentioned above, if a composable function calls another composable function then both
+ * must be of the same group of composable functions. This means that if it has been determined that
+ * a called function is constrained to a set of names, then the function that calls it must be 1)
+ * part of the group of functions corresponding to one of the names in that set, or 2) constrained
+ * to a set of names that has at least one name in common with that set. If the calling function
+ * does not fit in either of those two categories, then the Compose compiler plugin will generate a
+ * diagnostic message describing the incompatibility between the appliers expected by the two
+ * functions.
  *
- * @param applier The applier name used during composable call checking. This is usually inferred by
- *   the compiler. This can be an arbitrary string value but is expected to be a fully qualified
- *   name of a class that is marked with [ComposableTargetMarker].
+ * If an [Applier] is supplied to a composable function at runtime that the function did not expect,
+ * an error will be reported. This annotation, and the corresponding validation performed by the
+ * Compose compiler plugin, can detect incompatibilities at compile time, and issue a diagnostic
+ * message when calling a [Composable] function will result in the [Applier] check failing. This
+ * makes it possible to eliminate the possibility of encountering runtime [Applier]
+ * incompatibilities.
+ *
+ * The Compose compiler plugin can infer the necessary annotations to apply to a composable function
+ * in most cases. However, there are certain categories of functions that need to be annotated
+ * explicitly by the user to indicate that they are part of a certain group or constrained to a
+ * certain set of names. They are listed below:
+ * - [Composable] functions that call [ComposeNode] directly
+ * - Abstract methods, such as interface functions (which do not contain a body from which the
+ *   plugin can infer the necessary annotations)
+ * - [Composable] lambdas used in sub-composition
+ * - [Composable] lambdas that are stored in class fields or global variables
+ *
+ * Functions in the above categories that are not explicitly annotated will be ignored by the
+ * Compose compiler plugin, and diagnostics will not be emitted when those functions are called
+ * incorrectly.
+ *
+ * @param applier The applier name used during composable call checking. This can be an arbitrary
+ *   string value but is expected to be a fully qualified name of a class that is marked with
+ *   [ComposableTargetMarker].
  */
+@Repeatable
 @Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.FILE,

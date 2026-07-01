@@ -66,6 +66,15 @@ open annotation class androidx.compose.runtime/Composable : kotlin/Annotation { 
     constructor <init>() // androidx.compose.runtime/Composable.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.runtime/ComposableInferredTargetConstraints : kotlin/Annotation { // androidx.compose.runtime/ComposableInferredTargetConstraints|null[0]
+    constructor <init>(kotlin/String, kotlin/String) // androidx.compose.runtime/ComposableInferredTargetConstraints.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
+    final val indexed // androidx.compose.runtime/ComposableInferredTargetConstraints.indexed|{}indexed[0]
+        final fun <get-indexed>(): kotlin/String // androidx.compose.runtime/ComposableInferredTargetConstraints.indexed.<get-indexed>|<get-indexed>(){}[0]
+    final val positional // androidx.compose.runtime/ComposableInferredTargetConstraints.positional|{}positional[0]
+        final fun <get-positional>(): kotlin/String // androidx.compose.runtime/ComposableInferredTargetConstraints.positional.<get-positional>|<get-positional>(){}[0]
+}
+
 open annotation class androidx.compose.runtime/ComposableOpenTarget : kotlin/Annotation { // androidx.compose.runtime/ComposableOpenTarget|null[0]
     constructor <init>(kotlin/Int) // androidx.compose.runtime/ComposableOpenTarget.<init>|<init>(kotlin.Int){}[0]
 
