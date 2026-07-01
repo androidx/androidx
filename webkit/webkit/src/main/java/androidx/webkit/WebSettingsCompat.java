@@ -340,7 +340,7 @@ public class WebSettingsCompat {
      *
      * <p>
      * WebView always sets the media query {@code prefers-color-scheme} according to the app's
-     * theme attribute {@link android.R.styleable#Theme_isLightTheme isLightTheme}, i.e.
+     * theme attribute {@code android.R.styleable#Theme_isLightTheme isLightTheme}, i.e.
      * {@code prefers-color-scheme} is {@code light} if isLightTheme is true or not specified,
      * otherwise it is {@code dark}. This means that the web content's light or dark style will
      * be applied automatically to match the app's theme if the content supports it.
