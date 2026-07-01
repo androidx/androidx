@@ -174,6 +174,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      */
     public fun setRemoteComposeCreationState(creationState: RemoteComposeCreationState) {
         this.creationState = creationState
+        (document as? OptimizingRemoteComposeWriter)?.let { it.creationState = creationState }
     }
 
     /**
