@@ -2,6 +2,25 @@
 package androidx.a2ui.engine.catalog {
 
   public interface A2uiCoreCatalog {
+    method public androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition? getComponent(String name);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> getComponents();
+    method public androidx.a2ui.model.catalog.A2uiFunction? getFunction(String name);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
+    property public abstract java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> components;
+    property public abstract java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public abstract String id;
+    property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
+  }
+
+  public interface A2uiCoreComponentDefinition {
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getPropertySchema();
+    property public abstract String description;
+    property public abstract String name;
+    property public abstract androidx.a2ui.model.schema.A2uiSchema propertySchema;
   }
 
 }

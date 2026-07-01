@@ -16,5 +16,40 @@
 
 package androidx.a2ui.engine.catalog
 
-/** TODO(nimrodp): Replace this placeholder with an actual interface defining the catalog. */
-public interface A2uiCoreCatalog
+import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.schema.A2uiSchema
+
+/** A registry of UI components and functions that a client surface can render. */
+public interface A2uiCoreCatalog {
+    /**
+     * A unique identifier for this catalog. Ideally, this is a URI including a version number. Full
+     * guidelines regarding catalog id convention can be found in:
+     * https://a2ui.org/concepts/catalogs/#catalog-naming-versioning
+     */
+    public val id: String
+
+    /** The list of components available in this catalog. */
+    public val components: List<A2uiCoreComponentDefinition>
+
+    /** The list of functions available in this catalog. */
+    public val functions: List<A2uiFunction>
+
+    /** The schema this catalog uses to define the theme the is applied over the components. */
+    public val themeSchema: A2uiSchema?
+
+    /**
+     * Retrieves a component definition by its unique name.
+     *
+     * @param name The name of the component.
+     * @return The component definition, or `null` if it is not registered in this catalog.
+     */
+    public fun getComponent(name: String): A2uiCoreComponentDefinition?
+
+    /**
+     * Retrieves a function implementation by its unique name.
+     *
+     * @param name The name of the function.
+     * @return The function implementation, or `null` if it is not registered in this catalog.
+     */
+    public fun getFunction(name: String): A2uiFunction?
+}
