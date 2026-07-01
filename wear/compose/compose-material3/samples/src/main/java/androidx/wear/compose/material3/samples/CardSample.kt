@@ -63,7 +63,9 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.TitleCardContent
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 
 @Preview
 @Sampled
@@ -374,6 +376,8 @@ fun AppCardContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("App Card") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card(
@@ -383,13 +387,15 @@ fun AppCardContentWithOneHandedGestureSample() {
                 Modifier.padding(horizontal = 12.dp)
                     .fillMaxWidth()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
+                        gestureConfiguration = gestureConfig,
+                        onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         interactionSource = interactionSource,
                         onGesture = onClick,
                     ),
         ) {
             OneHandedGestureIndicator(
-                interactionSource = interactionSource,
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
                 AppCardContent(
@@ -417,6 +423,8 @@ fun TitleCardContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("Title Card") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card(
@@ -426,13 +434,15 @@ fun TitleCardContentWithOneHandedGestureSample() {
                 Modifier.padding(horizontal = 12.dp)
                     .fillMaxWidth()
                     .oneHandedGesture(
-                        action = GestureAction.Primary,
+                        gestureConfiguration = gestureConfig,
+                        onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         interactionSource = interactionSource,
                         onGesture = onClick,
                     ),
         ) {
             OneHandedGestureIndicator(
-                interactionSource = interactionSource,
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
                 TitleCardContent(
