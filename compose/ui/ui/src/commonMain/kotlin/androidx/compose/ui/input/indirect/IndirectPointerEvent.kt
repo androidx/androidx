@@ -16,6 +16,7 @@
 package androidx.compose.ui.input.indirect
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerId
 
@@ -122,6 +123,38 @@ class IndirectPointerInputChange(
     val previousPosition: Offset,
     @get:Suppress("GetterSetterNames") val previousPressed: Boolean,
 ) {
+    internal constructor(
+        id: PointerId,
+        uptimeMillis: Long,
+        position: Offset,
+        pressed: Boolean,
+        pressure: Float,
+        previousUptimeMillis: Long,
+        previousPosition: Offset,
+        previousPressed: Boolean,
+        historical: List<HistoricalChange>,
+    ) : this(
+        id = id,
+        uptimeMillis = uptimeMillis,
+        position = position,
+        pressed = pressed,
+        pressure = pressure,
+        previousUptimeMillis = previousUptimeMillis,
+        previousPosition = previousPosition,
+        previousPressed = previousPressed,
+    ) {
+        _historical = historical
+    }
+
+    /**
+     * Optional high-frequency pointer moves in between the last two dispatched events. Can be used
+     * for extra accuracy when input rate exceeds framerate.
+     */
+    val historical: List<HistoricalChange>
+        get() = _historical ?: emptyList()
+
+    private var _historical: List<HistoricalChange>? = null
+
     /** Indicates whether the change was consumed or not. */
     var isConsumed: Boolean = false
         private set
@@ -131,15 +164,57 @@ class IndirectPointerInputChange(
         isConsumed = true
     }
 
+    fun copy(
+        id: PointerId = this.id,
+        uptimeMillis: Long = this.uptimeMillis,
+        position: Offset = this.position,
+        pressed: Boolean = this.pressed,
+        pressure: Float = this.pressure,
+        previousUptimeMillis: Long = this.previousUptimeMillis,
+        previousPosition: Offset = this.previousPosition,
+        previousPressed: Boolean = this.previousPressed,
+        historical: List<HistoricalChange> = this.historical,
+    ): IndirectPointerInputChange =
+        IndirectPointerInputChange(
+                id = id,
+                uptimeMillis = uptimeMillis,
+                position = position,
+                pressed = pressed,
+                pressure = pressure,
+                previousUptimeMillis = previousUptimeMillis,
+                previousPosition = previousPosition,
+                previousPressed = previousPressed,
+                historical = historical,
+            )
+            .also {
+                if (this.isConsumed) {
+                    it.consume()
+                }
+            }
+
     override fun toString(): String {
-        return "IndirectPointerInputChange(id=$id, " +
-            "uptimeMillis=$uptimeMillis, " +
-            "position=$position, " +
-            "pressed=$pressed, " +
-            "pressure=$pressure, " +
-            "previousUptimeMillis=$previousUptimeMillis, " +
-            "previousPosition=$previousPosition, " +
-            "previousPressed=$previousPressed, " +
-            "isConsumed=$isConsumed)"
+        return buildString {
+            append("IndirectPointerInputChange(id=")
+            append(id)
+            append(", uptimeMillis=")
+            append(uptimeMillis)
+            append(", position=")
+            append(position)
+            append(", pressed=")
+            append(pressed)
+            append(", pressure=")
+            append(pressure)
+            append(", previousUptimeMillis=")
+            append(previousUptimeMillis)
+            append(", previousPosition=")
+            append(previousPosition)
+            append(", previousPressed=")
+            append(previousPressed)
+            append(", historical=")
+            append(historical)
+            append(", isConsumed=")
+            append(isConsumed)
+            append(")")
+        }
     }
 }

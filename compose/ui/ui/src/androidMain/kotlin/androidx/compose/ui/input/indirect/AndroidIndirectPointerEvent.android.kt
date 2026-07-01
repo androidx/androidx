@@ -24,7 +24,9 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.util.fastIsFinite
 import org.jetbrains.annotations.TestOnly
 
 internal class AndroidIndirectPointerEvent(
@@ -140,6 +142,8 @@ internal fun createIndirectPointerInputChangesFromMotionEvents(
             previousUptimeMillis = previousUptimeMillis,
             previousPosition = previousPosition,
             previousPressed = previousPressed,
+            motionEvent = motionEvent,
+            motionEventIndex = index,
         )
     }
 }
@@ -187,3 +191,87 @@ internal fun isMotionEventPressed(action: Int): Boolean =
 
 // TODO: Remove once platform supports device specifying preferred axis for scrolling.
 private const val RATIO_CUTOFF = 5f
+
+/**
+ * Platform-specific constructor helper for Android [MotionEvent] sources that extracts
+ * [HistoricalChange] events lazily.
+ */
+internal fun IndirectPointerInputChange(
+    id: PointerId,
+    uptimeMillis: Long,
+    position: Offset,
+    pressed: Boolean,
+    pressure: Float,
+    previousUptimeMillis: Long,
+    previousPosition: Offset,
+    previousPressed: Boolean,
+    // Required for providing historical information on-demand
+    motionEvent: MotionEvent,
+    motionEventIndex: Int,
+): IndirectPointerInputChange {
+    if (motionEvent.historySize > 0) {
+        return IndirectPointerInputChange(
+            id = id,
+            uptimeMillis = uptimeMillis,
+            position = position,
+            pressed = pressed,
+            pressure = pressure,
+            previousUptimeMillis = previousUptimeMillis,
+            previousPosition = previousPosition,
+            previousPressed = previousPressed,
+            historical = LazyHistoricalChangeList(motionEvent, motionEventIndex),
+        )
+    }
+
+    return IndirectPointerInputChange(
+        id = id,
+        uptimeMillis = uptimeMillis,
+        position = position,
+        pressed = pressed,
+        pressure = pressure,
+        previousUptimeMillis = previousUptimeMillis,
+        previousPosition = previousPosition,
+        previousPressed = previousPressed,
+    )
+}
+
+/**
+ * A lazy [List] implementation that computes the list of [HistoricalChange]s on-demand and clears
+ * its [MotionEvent] reference after first evaluation to release resources.
+ */
+private class LazyHistoricalChangeList(
+    private var motionEvent: MotionEvent?,
+    private val index: Int,
+) : AbstractList<HistoricalChange>() {
+    private var delegate: List<HistoricalChange>? = null
+
+    private fun getDelegate(): List<HistoricalChange> {
+        var result = delegate
+        if (result == null) {
+            val event = motionEvent!!
+            val historySize = event.historySize
+            val list = ArrayList<HistoricalChange>(historySize)
+            repeat(historySize) { pos ->
+                val x = event.getHistoricalX(index, pos)
+                val y = event.getHistoricalY(index, pos)
+                if (x.fastIsFinite() && y.fastIsFinite()) {
+                    list.add(
+                        HistoricalChange(
+                            uptimeMillis = event.getHistoricalEventTime(pos),
+                            position = Offset(x, y),
+                        )
+                    )
+                }
+            }
+            result = list
+            delegate = result
+            motionEvent = null // Release native/MotionEvent reference to prevent leaks
+        }
+        return result
+    }
+
+    override val size: Int
+        get() = getDelegate().size
+
+    override fun get(index: Int): HistoricalChange = getDelegate()[index]
+}

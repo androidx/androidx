@@ -378,6 +378,8 @@ internal class MotionEventAdapter {
                     previousUptimeMillis = previousData?.uptime ?: motionEvent.eventTime,
                     previousPosition = previousData?.position ?: currentLocation,
                     previousPressed = previousData?.down ?: false,
+                    motionEvent = motionEvent,
+                    motionEventIndex = index,
                 )
             }
 

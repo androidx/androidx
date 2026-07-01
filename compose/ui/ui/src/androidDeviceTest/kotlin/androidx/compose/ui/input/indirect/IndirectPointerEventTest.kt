@@ -214,6 +214,89 @@ class IndirectPointerEventTest {
     }
 
     @Test
+    fun androidTouchNavigationEvent_withHistoricalChanges_isProperlyPropagated() {
+        ContentWithInitialFocus {
+            Box(
+                modifier =
+                    @Suppress("DEPRECATION")
+                    Modifier.onIndirectPointerInput(
+                            onEvent = {
+                                indirectPointerEvent: IndirectPointerEvent,
+                                pointerEventPass: PointerEventPass ->
+                                capturedTestIndirectPointerEventInformation.add(
+                                    CapturedTestIndirectPointerEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectPointerEvent,
+                                    )
+                                )
+                            },
+                            onCancel = { indirectPointerCancellations = true },
+                        )
+                        .focusable(focusRequester = initialFocus, initiallyFocused = true)
+            )
+        }
+
+        rule.runOnIdle {
+            // Build MotionEvent in chronological order to set up correct history batching
+            val motionEvent =
+                MotionEvent.obtain(
+                    0L /* downTime */,
+                    2000L /* eventTime */,
+                    MotionEvent.ACTION_MOVE,
+                    5f /* x */,
+                    5f /* y */,
+                    0, /* metaState */
+                )
+            motionEvent.source = SOURCE_TOUCH_NAVIGATION
+
+            // Add batch at 3000L
+            motionEvent.addBatch(
+                3000L /* eventTime */,
+                8f /* x */,
+                8f /* y */,
+                0.7f /* pressure */,
+                0f /* size */,
+                0, /* metaState */
+            )
+            // Main event at 5000L
+            motionEvent.addBatch(
+                5000L /* eventTime */,
+                10f /* x */,
+                20f /* y */,
+                0.5f /* pressure */,
+                0f /* size */,
+                0, /* metaState */
+            )
+
+            rootView.dispatchGenericMotionEvent(motionEvent)
+        }
+
+        rule.runOnIdle {
+            assertThat(capturedTestIndirectPointerEventInformation).hasSize(3)
+
+            // Initial, Main, Final passes should all receive the event
+            val initialEvent = capturedTestIndirectPointerEventInformation[0].event
+            val mainEvent = capturedTestIndirectPointerEventInformation[1].event
+            val finalEvent = capturedTestIndirectPointerEventInformation[2].event
+
+            for (event in listOf(initialEvent, mainEvent, finalEvent)) {
+                assertThat(event.changes).hasSize(1)
+                val change = event.changes[0]
+                assertThat(change.uptimeMillis).isEqualTo(5000L)
+                assertThat(change.position).isEqualTo(Offset(10f, 20f))
+
+                // Verify history
+                assertThat(change.historical).hasSize(2)
+                assertThat(change.historical[0].uptimeMillis).isEqualTo(2000L)
+                assertThat(change.historical[0].position).isEqualTo(Offset(5f, 5f))
+                assertThat(change.historical[1].uptimeMillis).isEqualTo(3000L)
+                assertThat(change.historical[1].position).isEqualTo(Offset(8f, 8f))
+            }
+        }
+    }
+
+    @Test
     fun androidTouchNavigationEvent_withBadData_doesNotTriggerIndirectPointerEvent() {
         ContentWithInitialFocus {
             Box(
