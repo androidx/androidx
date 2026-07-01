@@ -62,19 +62,16 @@ class RemoteScreenshotTestRule(
     moduleDirectory: String,
     val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
     val matcher: BitmapMatcher? = null,
-    val bitmapLoader: BitmapLoader? = null,
 ) : TestRule {
 
     constructor(
         moduleDirectory: String,
         context: Context,
         matcher: BitmapMatcher? = null,
-        bitmapLoader: BitmapLoader? = null,
     ) : this(
         moduleDirectory = moduleDirectory,
         remoteCreationDisplayInfo = createCreationDisplayInfo(context),
         matcher = matcher,
-        bitmapLoader = bitmapLoader,
     )
 
     private val remoteContentTestRule: RemoteContentTestRule = RemoteContentTestRule()
@@ -101,23 +98,27 @@ class RemoteScreenshotTestRule(
      * Use when no interaction with the UI is needed before verifying the screenshot.
      */
     fun runScreenshotTest(
+        goldenScreenshotName: GoldenScreenshotName? = null,
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
+        // creation params
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        typefaceResolver: TypefaceResolver? = null,
         creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
-        goldenScreenshotName: GoldenScreenshotName? = null,
+        // play params
         update: (RemoteComposePlayer) -> Unit = {},
+        bitmapLoader: BitmapLoader? = null,
+        typefaceResolver: TypefaceResolver? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         setContent(
             remoteCreationDisplayInfo = remoteCreationDisplayInfo,
             profile = profile,
-            typefaceResolver = typefaceResolver,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             update = update,
+            bitmapLoader = bitmapLoader,
+            typefaceResolver = typefaceResolver,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -127,25 +128,25 @@ class RemoteScreenshotTestRule(
 
     fun setContent(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
+        // creation params
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        typefaceResolver: TypefaceResolver? = null,
-        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
-            it()
-        },
+        creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
+        // play params
         update: (RemoteComposePlayer) -> Unit = {},
-        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
-            it()
-        },
+        bitmapLoader: BitmapLoader? = null,
+        typefaceResolver: TypefaceResolver? = null,
+        playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         setContentInternal(
             remoteCreationDisplayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo,
             profile = profile,
-            typefaceResolver = typefaceResolver,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = getOnCoreDocumentCreated(onCoreDocumentCreated),
             update = update,
+            bitmapLoader = bitmapLoader,
+            typefaceResolver = typefaceResolver,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -157,11 +158,14 @@ class RemoteScreenshotTestRule(
 
     private fun setContentInternal(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
+        // creation params
         profile: Profile,
-        typefaceResolver: TypefaceResolver?,
         creationComposableWrapper: ComposableWrapper,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)?,
+        // play params
         update: (RemoteComposePlayer) -> Unit,
+        bitmapLoader: BitmapLoader?,
+        typefaceResolver: TypefaceResolver?,
         playComposableWrapper: ComposableWrapper,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
