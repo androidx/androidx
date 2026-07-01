@@ -371,9 +371,11 @@ internal constructor(
         primaryCategory = DEFAULT_STRING
         if (lastMetadataEntryIndex >= 0) {
             // Reset metadata entries and resize
+            // We are currently relocating here when the list size exceeds the expected size.
+            // We can do better, but that will happen in a future version.
             forEachMetadataEntry { it.reset() }
             if (lastMetadataEntryIndex >= METADATA_ENTRIES_EXPECTED_SIZE) {
-                metadataEntries = metadataEntries.subList(0, METADATA_ENTRIES_EXPECTED_SIZE)
+                metadataEntries = MutableList(METADATA_ENTRIES_EXPECTED_SIZE) { MetadataEntry() }
             }
             lastMetadataEntryIndex = LAST_INDEX_WHEN_EMPTY
         }
@@ -381,21 +383,21 @@ internal constructor(
             // Reset categories and resize
             repeat(lastCategoryIndex + 1) { categories[it] = DEFAULT_STRING }
             if (lastCategoryIndex >= CATEGORIES_EXPECTED_SIZE) {
-                categories = categories.subList(0, CATEGORIES_EXPECTED_SIZE)
+                categories = MutableList(CATEGORIES_EXPECTED_SIZE) { DEFAULT_STRING }
             }
             lastCategoryIndex = LAST_CATEGORY_INDEX
         }
         if (lastFrameIndex >= 0) {
             repeat(lastFrameIndex + 1) { frames[it].reset() }
             if (lastFrameIndex >= FRAMES_EXPECTED_SIZE) {
-                frames = frames.subList(0, FRAMES_EXPECTED_SIZE)
+                frames = MutableList(FRAMES_EXPECTED_SIZE) { Frame() }
             }
             lastFrameIndex = LAST_INDEX_WHEN_EMPTY
         }
         if (lastAttributeIndex >= 0) {
             repeat(lastAttributeIndex + 1) { attributes[it].reset() }
             if (lastAttributeIndex >= ATTRIBUTES_EXPECTED_SIZE) {
-                attributes = attributes.subList(0, ATTRIBUTES_EXPECTED_SIZE)
+                attributes = MutableList(ATTRIBUTES_EXPECTED_SIZE) { AttributeEntry() }
             }
             lastAttributeIndex = LAST_INDEX_WHEN_EMPTY
         }
