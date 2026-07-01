@@ -529,6 +529,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             keyIndexMap = keyIndexMap,
             layoutMinOffset = 0,
             layoutMaxOffset = containerConstraints.maxHeight,
+            itemSpacing = itemSpacingPx,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
         )

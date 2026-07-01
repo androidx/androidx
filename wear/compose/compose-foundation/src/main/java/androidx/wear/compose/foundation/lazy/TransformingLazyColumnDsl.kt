@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.trace
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
@@ -240,6 +241,7 @@ public inline fun <T> TransformingLazyColumnScope.itemsIndexed(
     }
 
 internal class TransformingLazyColumnItemScopeImpl(
+    val key: Any,
     val index: Int,
     val state: TransformingLazyColumnState,
     val reduceMotionEnabled: Boolean,
@@ -248,14 +250,28 @@ internal class TransformingLazyColumnItemScopeImpl(
     private val _scrollProgress: TransformingLazyColumnItemScrollProgress
         get() =
             trace("wear-compose:tlc:scrollProgress") {
-                with(state.layoutInfo.visibleItems) {
-                    val firstItem =
-                        firstOrNull()
-                            ?: return@trace TransformingLazyColumnItemScrollProgress.Unspecified
-                    val delta = index - firstItem.index
-                    if (delta in indices) this[delta].scrollProgress
-                    else TransformingLazyColumnItemScrollProgress.Unspecified
+                val visibleItems = state.layoutInfo.visibleItems
+                val fastResolvedItemByIndex =
+                    visibleItems.getOrNull(index - (visibleItems.firstOrNull()?.index ?: 0))
+                val resolvedItem =
+                    if (fastResolvedItemByIndex?.key == key) {
+                        fastResolvedItemByIndex
+                    } else {
+                        visibleItems.fastFirstOrNull { it.key == key }
+                    }
+                if (resolvedItem != null) {
+                    return@trace resolvedItem.scrollProgress
                 }
+
+                val animatedProgress = state.animator.getAnimation(key)?.animatedScrollProgress
+                if (
+                    animatedProgress != null &&
+                        animatedProgress != TransformingLazyColumnItemScrollProgress.Unspecified
+                ) {
+                    return@trace animatedProgress
+                }
+
+                TransformingLazyColumnItemScrollProgress.Unspecified
             }
 
     override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress

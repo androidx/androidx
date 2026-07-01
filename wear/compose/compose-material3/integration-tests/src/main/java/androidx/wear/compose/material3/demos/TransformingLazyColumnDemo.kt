@@ -408,8 +408,8 @@ fun TransformingLazyColumnAnimationSample() {
                     ) {
                         Text("Card $cardKey")
                         Row {
-                            CompactButton(onClick = { moveCardToEnd(index) }) { Text("\u2193") }
-                            CompactButton(onClick = { moveCardToStart(index) }) { Text("\u2191") }
+                            CompactButton(onClick = { moveCardToEnd(index) }) { Text(ArrowDown) }
+                            CompactButton(onClick = { moveCardToStart(index) }) { Text(ArrowUp) }
                             Spacer(modifier = Modifier.weight(1f))
                             CompactButton(
                                 onClick = { removeCardAt(index) },
@@ -446,6 +446,20 @@ fun TransformingLazyColumnReverseLayoutSample() {
         elements = elements.subList(0, index) + elements.subList(index + 1, elements.count())
     }
 
+    fun moveCardToStart(index: Int) {
+        elements =
+            elements.subList(index, index + 1) +
+                elements.subList(0, index) +
+                elements.subList(index + 1, elements.count())
+    }
+
+    fun moveCardToEnd(index: Int) {
+        elements =
+            elements.subList(0, index) +
+                elements.subList(index + 1, elements.count()) +
+                elements.subList(index, index + 1)
+    }
+
     AppScaffold {
         ScreenScaffold(
             state,
@@ -471,6 +485,12 @@ fun TransformingLazyColumnReverseLayoutSample() {
                     ) {
                         Text("Card $cardKey")
                         Row {
+                            CompactButton(onClick = { moveCardToEnd(index) }) {
+                                Text(if (reverseLayout) ArrowUp else ArrowDown)
+                            }
+                            CompactButton(onClick = { moveCardToStart(index) }) {
+                                Text(if (reverseLayout) ArrowDown else ArrowUp)
+                            }
                             Spacer(modifier = Modifier.weight(1f))
                             CompactButton(
                                 onClick = { removeCardAt(index) },
@@ -520,3 +540,6 @@ fun TransformingLazyColumnExpandableCardSample() {
         }
     }
 }
+
+private const val ArrowUp = "\u2191"
+private const val ArrowDown = "\u2193"
