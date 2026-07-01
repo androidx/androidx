@@ -24,8 +24,8 @@ import java.io.Closeable
 /**
  * Interface for processing images to recognize text.
  *
- * Implementations should handle the complexity of OCR processing and return a structured
- * [OcrResult] that allows for spatial queries.
+ * Implementations should handle the complexity of OCR (Optical Character Recognition) processing
+ * and return a structured [OcrResult] that allows for spatial queries.
  */
 public interface OcrProvider : Closeable {
     /**

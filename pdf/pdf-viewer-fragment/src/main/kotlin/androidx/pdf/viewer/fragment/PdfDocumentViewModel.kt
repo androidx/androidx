@@ -147,9 +147,12 @@ public open class PdfDocumentViewModel(
     /** Provider for OCR-based search in images. */
     internal var ocrProvider: OcrProvider? = null
         set(value) {
-            field = value
-            if (::searchRepository.isInitialized) {
-                searchRepository.setOcrProvider(value)
+            if (field != value) {
+                field?.close()
+                field = value
+                if (::searchRepository.isInitialized) {
+                    searchRepository.setOcrProvider(value)
+                }
             }
         }
 
@@ -540,6 +543,7 @@ public open class PdfDocumentViewModel(
     override fun onCleared() {
         super.onCleared()
         releaseDocument()
+        ocrProvider?.close()
     }
 
     @Suppress("UNCHECKED_CAST")

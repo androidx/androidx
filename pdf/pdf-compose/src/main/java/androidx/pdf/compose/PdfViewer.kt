@@ -51,7 +51,9 @@ import kotlin.random.Random
  * @param isFormFillingEnabled boolean flag to enable / disable the form-filling feature surface.
  * @param isImageSelectionEnabled boolean flag to enable / disable the image-selection feature
  *   surface.
- * @param ocrProvider an [OcrProvider] instance to be used for text recognition in image PDF content
+ * @param ocrProvider an [OcrProvider] instance to be used for OCR (Optical Character Recognition)
+ *   in image PDF content. The caller retains ownership of the [OcrProvider] and is responsible for
+ *   calling [OcrProvider.close] when it is no longer needed.
  * @param minZoom the minimum zoom / scaling factor that can be applied to the PDF viewer
  * @param maxZoom the maximum zoom / scaling factor that can be applied to the PDF viewer
  * @param verticalAlignment the alignment of the top page within the view

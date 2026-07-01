@@ -14,7 +14,7 @@ package androidx.pdf.viewer.fragment {
     method @InaccessibleFromKotlin public final boolean isTextSearchActive();
     method @InaccessibleFromKotlin public final boolean isToolboxVisible();
     method public static final androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
-    method public androidx.pdf.ocr.OcrProvider? onCreateOcrProvider();
+    method public androidx.pdf.ocr.OcrProvider? onInitOcrProvider();
     method protected boolean onLinkClicked(androidx.pdf.content.ExternalLink externalLink);
     method public void onLoadDocumentError(Throwable error);
     method public void onLoadDocumentSuccess(androidx.pdf.PdfDocument document);
