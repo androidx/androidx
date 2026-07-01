@@ -1,4 +1,37 @@
 // Signature format: 4.0
+package androidx.a2ui.model.catalog {
+
+  public interface A2uiFunction {
+    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    property public abstract androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
+  }
+
+  public interface A2uiFunctionDefinition {
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getArgumentSchema();
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionReturnType getReturnType();
+    property public abstract androidx.a2ui.model.schema.A2uiSchema argumentSchema;
+    property public abstract String description;
+    property public abstract String name;
+    property public abstract androidx.a2ui.model.catalog.A2uiFunctionReturnType returnType;
+  }
+
+  public enum A2uiFunctionReturnType {
+    method @InaccessibleFromKotlin public String getValue();
+    property public String value;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType ANY;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType ARRAY;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType BOOLEAN;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType NUMBER;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType OBJECT;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType STRING;
+    enum_constant public static final androidx.a2ui.model.catalog.A2uiFunctionReturnType VOID;
+  }
+
+}
+
 package androidx.a2ui.model.protocol {
 
   public final class A2uiClientError implements androidx.a2ui.model.protocol.A2uiClientToServerMessage {
