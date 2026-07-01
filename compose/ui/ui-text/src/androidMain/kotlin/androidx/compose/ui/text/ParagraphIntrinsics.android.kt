@@ -109,13 +109,9 @@ internal class AndroidParagraphIntrinsics(
      * single-line optimization.
      */
     private var _mayHaveNewLine = -1
-    @OptIn(ExperimentalTextApi::class)
     internal val mayHaveNewLine: Boolean
         get() {
-            if (
-                AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled &&
-                    _mayHaveNewLine == -1
-            ) {
+            if (_mayHaveNewLine == -1) {
                 _mayHaveNewLine =
                     if (text.length > MaxSingleLineLengthThreshold || text.contains('\n')) {
                         1
