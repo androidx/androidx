@@ -55,6 +55,13 @@ public interface AnnotationOperationsTracker {
     public fun getSnapshot(): List<KeyedAnnotationOperation>
 
     /**
+     * Removes the operation entry associated with the given [key].
+     *
+     * @param key The unique identifier for the annotation.
+     */
+    public fun removeEntry(key: String)
+
+    /**
      * Retrieves a snapshot of all current modifications (additions, updates, and removals)
      * accumulated in this tracker.
      *

@@ -446,8 +446,7 @@ public interface PdfDocument : Closeable {
     public interface OnEditAppliedListener {
         /**
          * Called when an edit is applied on the document. The order of the callback is preserved
-         * according to the order of the sorted list returned by
-         * [EditsDraft.getOperationsSortedByPage].
+         * according to the order of the provided list of [EditsDraft].
          *
          * @param pageNum page number where the annotation is applied.
          * @param editId id of the annotation that was applied.

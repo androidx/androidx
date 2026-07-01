@@ -40,8 +40,8 @@ public interface EditablePdfDocument : PdfDocument {
     public suspend fun applyEdit(record: FormEditInfo)
 
     /**
-     * Applies a list of edits to the document sequentially. The edits are sorted by page number
-     * before applying using [EditsDraft.getOperationsSortedByPage].
+     * Applies a list of edits to the document sequentially in the order they are provided in the
+     * [editsDraft].
      *
      * @param editsDraft: edits to be applied on pdf document.
      * @return List of annotationId for each operation in sequence of the order they were enqueued.

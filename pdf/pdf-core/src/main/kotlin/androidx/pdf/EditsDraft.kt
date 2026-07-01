@@ -66,13 +66,18 @@ internal constructor(
         return EditsDraft(combinedOperations)
     }
 
+    /** Returns a new [EditsDraft] with operations sorted by their target page number. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun sortedByPage(): EditsDraft {
+        return EditsDraft(getOperationsSortedByPage())
+    }
+
     /**
      * Retrieves the list of draft edit operations, ordered by their target page number.
      *
      * @return A list of [DraftEditOperation] sorted by page index.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun getOperationsSortedByPage(): List<DraftEditOperation> {
+    private fun getOperationsSortedByPage(): List<DraftEditOperation> {
         val sortedOperations =
             operations
                 .map { draftEditOperation ->

@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.EditablePdfDocument
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfEditApplyException
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.SandboxedPdfLoader
@@ -299,6 +300,11 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                 recordsHistoryManager?.clear()
                 annotationsManager?.discardChanges()
                 _applyEditsStatus.value = ApplyEditsState.Success(handle)
+            } catch (e: PdfEditApplyException) {
+                recordsHistoryManager?.clear()
+                localAnnotationsManager.clearAppliedEdits(appliedCount = e.failureIndex)
+                _applyEditsStatus.value = ApplyEditsState.Failure(e)
+                refreshVisibleAnnotations(visiblePageRange)
             } catch (e: Exception) {
                 _applyEditsStatus.value = ApplyEditsState.Failure(e)
             }
