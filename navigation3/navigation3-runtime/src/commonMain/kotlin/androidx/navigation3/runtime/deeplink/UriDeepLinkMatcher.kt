@@ -58,6 +58,8 @@ private const val STRICT_SCHEME_PATTERN = "https://"
  * 4. Wildcard
  *     - Pattern: `www.example.com/users/.*`
  *     - Arguments: Extracts no arguments.
+ *     - Request: `www.example.com/users/123/456`
+ *     - Extracted values: None extracted.
  * 5. Mixed literal and placeholder
  *     - Pattern: `www.example.com/users/user_{id}`
  *     - Arguments: Extracts argument ["id"].
@@ -130,9 +132,9 @@ private const val STRICT_SCHEME_PATTERN = "https://"
  *     - Extracted values: Maps "id" to ["123"].
  * 3. Wildcard
  *     - Pattern: `#section_.*`
- *     - Arguments: Extracts argument ["section"].
+ *     - Arguments: Extracts no arguments
  *     - Request: `#section_123`
- *     - Extracted values: Maps "section" to ["123"].
+ *     - Extracted values: None extracted.
  *
  * @param uriPattern The [DeepLinkUri] containing the uri pattern that this matcher supports.
  * @param serializer The serializer to instantiate an instance of [T]
