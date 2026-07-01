@@ -16,6 +16,17 @@
 
 rootProject.buildFileName = "../buildSrc-fork/build.gradle"
 
+dependencyResolutionManagement {
+    // the default libs.version.toml is automatically registered by Gradle under `libs` name.
+    // to avoid the conflict with `libs-fork`, rename it
+    defaultLibrariesExtensionName = "aospLibs"
+    versionCatalogs {
+        libs {
+            from(files("../gradle/libs-fork.versions.toml"))
+        }
+    }
+}
+
 def includeProject(String projectPath, String projectDir) {
     include projectPath
     project(projectPath).projectDir = new File(projectDir)
@@ -47,20 +58,3 @@ includeProject(":imports:inspection-gradle-plugin", "../buildSrc-fork/imports/in
 includeProject(":imports:room-gradle-plugin", "../buildSrc-fork/imports/room-gradle-plugin")
 includeProject(":imports:glance-layout-generator", "../buildSrc-fork/imports/glance-layout-generator")
 includeProject(":imports:stableaidl-gradle-plugin", "../buildSrc-fork/imports/stableaidl-gradle-plugin")
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        libs {
-            def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
-            if (agpOverride != null) {
-                logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
-                version('androidGradlePlugin', agpOverride)
-            }
-            def lintOverride = System.getenv("LINT_VERSION")
-            if (lintOverride != null) {
-                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
-                version('androidLint', lintOverride)
-            }
-        }
-    }
-}

@@ -4,6 +4,17 @@ rootProject.buildFileName = "build-fork.gradle"
 
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
 
+dependencyResolutionManagement {
+    // the default libs.version.toml is automatically registered by Gradle under `libs` name.
+    // to avoid the conflict with `libs-fork`, rename it
+    defaultLibrariesExtensionName = "aospLibs"
+    versionCatalogs {
+        libs {
+            from(files("gradle/libs-fork.versions.toml"))
+        }
+    }
+}
+
 def supportRootFolder = buildscript.sourceFile.getParentFile()
 skikoSetup.defineSkikoInVersionCatalog(settings)
 
@@ -127,28 +138,6 @@ switch (cacheSetting) {
 }
 
 rootProject.name = "compose-multiplatform-core"
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        libs {
-            def metalavaOverride = System.getenv("METALAVA_VERSION")
-            if (metalavaOverride != null) {
-                logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
-                version('metalava', metalavaOverride)
-            }
-            def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
-            if (agpOverride != null) {
-                logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
-                version('androidGradlePlugin', agpOverride)
-            }
-            def lintOverride = System.getenv("LINT_VERSION")
-            if (lintOverride != null) {
-                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
-                version('androidLint', lintOverride)
-            }
-        }
-    }
-}
 
 /////////////////////////////
 //

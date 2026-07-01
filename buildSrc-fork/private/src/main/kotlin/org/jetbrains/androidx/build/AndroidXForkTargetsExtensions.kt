@@ -19,6 +19,7 @@ package org.jetbrains.androidx.build
 import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.PlatformIdentifier
 import androidx.build.configurePinnedKotlinLibraries
+import androidx.build.getVersionByName
 import androidx.build.multiplatformExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -30,7 +31,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTes
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.tomlj.Toml
 
 private fun KotlinJsTest.passTestFlagsToEnvironment() {
     listOf(
@@ -51,10 +51,7 @@ fun <T> AndroidXMultiplatformExtension.configureForkWebTarget(
     createTarget: (KotlinJsTargetDsl.() -> Unit) -> T,
     block: Action<KotlinJsTargetDsl>? = null,
 ): T? {
-    val toml = Toml.parse(
-        project.rootProject.projectDir.resolve("gradle/libs.versions.toml").toPath()
-    )
-    val skikoVersion = toml.getTable("versions")!!.getString("skiko")!!
+    val skikoVersion = project.getVersionByName("skiko")
     val skikoWasm = project.configurations.findByName("skikoWasm")
         ?: project.configurations.create("skikoWasm")
 
