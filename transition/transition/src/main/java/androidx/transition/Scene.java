@@ -96,7 +96,7 @@ public class Scene {
      * the hierarchy specified by the layoutId resource file.
      *
      * <p>This method is hidden because layoutId-based scenes should be
-     * created by the caching factory method {@link Scene#getCurrentScene(View)}.</p>
+     * created by the caching factory method {@link Scene#getCurrentScene(ViewGroup)}.</p>
      *
      * @param sceneRoot The root of the hierarchy in which scene changes
      *                  and transitions will take place.
