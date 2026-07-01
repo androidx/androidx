@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
@@ -46,6 +47,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 
@@ -63,15 +65,21 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
     private final Executor mExecutor;
     private final Context mContext;
     private final Features mFeatures;
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    @Nullable
+    private final PlatformConversionAdapter mAdapter;
 
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     EnterpriseGlobalSearchSessionImpl(
             android.app.appsearch.@NonNull EnterpriseGlobalSearchSession platformSession,
             @NonNull Executor executor,
-            @NonNull Context context) {
+            @NonNull Context context,
+            @Nullable PlatformConversionAdapter adapter) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
         mFeatures = new FeaturesImpl(mContext);
+        mAdapter = adapter;
     }
 
     @Override
@@ -118,7 +126,8 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
         android.app.appsearch.SearchResults platformSearchResults =
                 mPlatformSession.search(
                         queryExpression,
-                        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec));
+                        SearchSpecToPlatformConverter.toPlatformSearchSpec(
+                                mContext, searchSpec, mAdapter));
         return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor, mContext);
     }
 
