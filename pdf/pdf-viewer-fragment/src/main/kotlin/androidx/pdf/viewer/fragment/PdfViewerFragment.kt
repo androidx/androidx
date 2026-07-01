@@ -263,9 +263,13 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * Invoked when the [OcrProvider] is needed for recognizing text in image-based PDF content.
      * Subclasses can override this method to provide a custom [OcrProvider] implementation.
      *
-     * @return The [OcrProvider] instance to be used, or `null` if OCR is not supported or desired.
+     * The fragment takes ownership of the returned [OcrProvider] and will call its
+     * [OcrProvider.close] method when it's no longer needed (e.g., when the fragment is destroyed)
+     *
+     * @return The [OcrProvider] instance to be used, or `null` if OCR (Optical Character
+     *   Recognition) is not supported or desired.
      */
-    public open fun onCreateOcrProvider(): OcrProvider? = null
+    public open fun onInitOcrProvider(): OcrProvider? = null
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     protected open val documentViewModel: PdfDocumentViewModel by viewModels {
@@ -368,6 +372,14 @@ public open class PdfViewerFragment constructor() : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Only initialize OcrProvider if it's not already set, to avoid recreation on rotation.
+        if (documentViewModel.ocrProvider == null) {
+            documentViewModel.ocrProvider = onInitOcrProvider()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -398,8 +410,6 @@ public open class PdfViewerFragment constructor() : Fragment() {
         if (stylingOptions != null) {
             applyPdfViewStyledAttributes(stylingOptions.containerStyleResId)
         }
-
-        documentViewModel.ocrProvider = onCreateOcrProvider()
 
         setupPdfView()
         setupToolbox()

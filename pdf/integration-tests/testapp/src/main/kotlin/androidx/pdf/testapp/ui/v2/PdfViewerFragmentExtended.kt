@@ -118,7 +118,7 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         activePdfDocument = null
     }
 
-    override fun onCreateOcrProvider(): OcrProvider {
+    override fun onInitOcrProvider(): OcrProvider {
         return MlKitOcrProvider()
     }
 

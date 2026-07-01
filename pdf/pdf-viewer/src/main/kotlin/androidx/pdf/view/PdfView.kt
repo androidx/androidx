@@ -305,8 +305,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     /**
      * Sets the [OcrProvider] used for recognizing text in image-based PDF content.
      *
-     * When set, it enables text selection within images by delegating OCR processing to the
-     * provided engine.
+     * When set, it enables text selection within images by delegating OCR (Optical Character
+     * Recognition) processing to the provided engine.
+     *
+     * The caller retains ownership of the [OcrProvider] and is responsible for calling
+     * [OcrProvider.close] when it is no longer needed.
      *
      * @param ocrProvider the [OcrProvider] to use for text recognition
      */
