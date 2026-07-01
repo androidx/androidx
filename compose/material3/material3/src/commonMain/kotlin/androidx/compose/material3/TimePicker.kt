@@ -1447,7 +1447,10 @@ private fun TimeInputImpl(
     }
 
     Row(
-        modifier = modifier.semantics { isTraversalGroup = true },
+        modifier =
+            modifier
+                .semantics { isTraversalGroup = true }
+                .then(shapes.orRich(Modifier, Modifier.padding(RichTimePickerPaddingVertical))),
         verticalAlignment = Alignment.Top,
     ) {
         val textStyle =
@@ -1621,7 +1624,7 @@ private fun TimeScrollImpl(
         modifier =
             modifier
                 .semantics { isTraversalGroup = true }
-                .then(shapes.orRich(Modifier, Modifier.padding(RichTimePickerPaddingHorizontal))),
+                .then(shapes.orRich(Modifier, Modifier.padding(RichTimePickerPaddingVertical))),
         verticalAlignment = Alignment.Top,
     ) {
         val textStyle =
