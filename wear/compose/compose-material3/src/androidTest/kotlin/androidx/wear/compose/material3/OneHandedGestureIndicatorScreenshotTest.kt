@@ -18,8 +18,8 @@ package androidx.wear.compose.material3
 
 import android.content.Context
 import android.view.View
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,9 +47,10 @@ import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureInteraction
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
@@ -78,10 +79,12 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter layoutDirection: LayoutDirection,
         @TestParameter gestureAction: GestureActions,
     ) {
-        val interactionSource = MutableInteractionSource()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
+        val indicatorState = OneHandedGestureIndicatorState()
+
         verifyOneHandedGestureContentScreenshot(
-            interactionSource = interactionSource,
-            gestureAction = gestureAction.action,
+            indicatorState = indicatorState,
             testName = testName,
             screenshotRule = screenshotRule,
             wrist = wrist,
@@ -89,7 +92,8 @@ class OneHandedGestureIndicatorScreenshotTest {
         ) {
             CompositionLocalProvider(LocalContentColor provides Color.Black) {
                 OneHandedGestureIndicator(
-                    interactionSource = interactionSource,
+                    gestureConfiguration = gestureConfig,
+                    indicatorState = indicatorState,
                     modifier = Modifier.testTag(TEST_TAG),
                 ) {
                     Icon(
@@ -108,22 +112,26 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter layoutDirection: LayoutDirection,
         @TestParameter gestureAction: GestureActions,
     ) {
-        val interactionSource = MutableInteractionSource()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
+        val indicatorState = OneHandedGestureIndicatorState()
+
         verifyOneHandedGestureContentScreenshot(
-            gestureAction = gestureAction.action,
-            interactionSource = interactionSource,
+            indicatorState = indicatorState,
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
-        ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureScrollIndicator(
-                    interactionSource = interactionSource,
-                    state = rememberTransformingLazyColumnState(),
-                )
-            }
-        }
+            {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        scrollState = rememberTransformingLazyColumnState(),
+                    )
+                }
+            },
+        )
     }
 
     @Test
@@ -132,22 +140,25 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter layoutDirection: LayoutDirection,
         @TestParameter gestureAction: GestureActions,
     ) {
-        val interactionSource = MutableInteractionSource()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
+        val indicatorState = OneHandedGestureIndicatorState()
         verifyOneHandedGestureContentScreenshot(
-            gestureAction = gestureAction.action,
-            interactionSource = interactionSource,
+            indicatorState = indicatorState,
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
-        ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureScrollIndicator(
-                    interactionSource = interactionSource,
-                    state = rememberScalingLazyListState(),
-                )
-            }
-        }
+            {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        scrollState = rememberScalingLazyListState(),
+                    )
+                }
+            },
+        )
     }
 
     @Test
@@ -156,22 +167,25 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter layoutDirection: LayoutDirection,
         @TestParameter gestureAction: GestureActions,
     ) {
-        val interactionSource = MutableInteractionSource()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
+        val indicatorState = OneHandedGestureIndicatorState()
         verifyOneHandedGestureContentScreenshot(
-            gestureAction = gestureAction.action,
-            interactionSource = interactionSource,
+            indicatorState = indicatorState,
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
-        ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureHorizontalPageIndicator(
-                    interactionSource = interactionSource,
-                    pagerState = rememberPagerState { 0 },
-                )
-            }
-        }
+            {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureHorizontalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        pagerState = rememberPagerState { 0 },
+                    )
+                }
+            },
+        )
     }
 
     @Test
@@ -180,27 +194,29 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter layoutDirection: LayoutDirection,
         @TestParameter gestureAction: GestureActions,
     ) {
-        val interactionSource = MutableInteractionSource()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
+        val indicatorState = OneHandedGestureIndicatorState()
         verifyOneHandedGestureContentScreenshot(
-            gestureAction = gestureAction.action,
-            interactionSource = interactionSource,
+            indicatorState = indicatorState,
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
-        ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureVerticalPageIndicator(
-                    interactionSource = interactionSource,
-                    pagerState = rememberPagerState { 0 },
-                )
-            }
-        }
+            {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureVerticalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        pagerState = rememberPagerState { 0 },
+                    )
+                }
+            },
+        )
     }
 
     private fun verifyOneHandedGestureContentScreenshot(
-        gestureAction: GestureAction,
-        interactionSource: MutableInteractionSource,
+        indicatorState: OneHandedGestureIndicatorState,
         testName: TestName,
         screenshotRule: AndroidXScreenshotTestRule,
         layoutDirection: LayoutDirection,
@@ -218,12 +234,12 @@ class OneHandedGestureIndicatorScreenshotTest {
                 LocalLayoutDirection provides layoutDirection,
                 LocalWristOrientation provides wrist.toWristOrientation(),
                 LocalGestureManager provides gestureManager,
-                content = content,
+                content = { Box(modifier = Modifier.fillMaxSize()) { content() } },
             )
         }
 
-        interactionSource.tryEmit(OneHandedGestureInteraction.Indicate(gestureAction, "test"))
         rule.waitForIdle()
+        indicatorState.isIndicatorActive = true
         // Advance alpha animation of gesture indicator. After this, gesture should be fully visible
         rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS)
 
