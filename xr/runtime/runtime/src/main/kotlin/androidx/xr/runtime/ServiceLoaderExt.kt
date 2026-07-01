@@ -88,7 +88,9 @@ private fun hasXrProjectedDisplayCategory(activityInfo: ActivityInfo): Boolean {
         val category = field.get(activityInfo) as? String
         category == REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED ||
             category == REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED_LEGACY
-    } catch (e: Exception) {
+    } catch (e: ReflectiveOperationException) {
+        false
+    } catch (e: SecurityException) {
         false
     }
 }
