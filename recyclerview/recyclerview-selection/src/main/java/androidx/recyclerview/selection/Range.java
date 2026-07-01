@@ -47,7 +47,7 @@ final class Range {
      *
      * <p>
      * Provisionally selected items are considered to be selected in
-     * {@link Selection#contains(String)} and related methods. A provisional may be abandoned or
+     * {@link Selection#contains(Object)} and related methods. A provisional may be abandoned or
      * merged into the promary selection.
      *
      * <p>
