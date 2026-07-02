@@ -924,10 +924,14 @@ package androidx.compose.remote.creation.compose.state {
 
   public final class RemoteImageBitmapKt {
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap getRb(androidx.compose.ui.graphics.ImageBitmap);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap initialValue);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap, androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.ImageBitmap> value);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberRemoteImageBitmap(String url);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberRemoteImageBitmap(String, androidx.compose.runtime.Composer?, int);
     property public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap androidx.compose.ui.graphics.ImageBitmap.rb;
   }
 
