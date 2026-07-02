@@ -199,6 +199,64 @@ class RemoteStateCreationTest {
     }
 
     @Test
+    fun rememberRemoteBitmap_FromUrl_isRendered() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val bitmap =
+                    rememberRemoteImageBitmap(
+                        url = "android.resource://androidx.compose.remote.foundation/drawable/dummy"
+                    )
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp).background(painterRemoteImageBitmap(bitmap))
+                )
+            }
+    }
+
+    @Test
+    fun rememberRemoteBitmap_sameUrl_isDeduplicated() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        var id1 = -1
+        var id2 = -1
+        var id3 = -1
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val creationState = LocalRemoteComposeCreationState.current
+                val bitmap1 = rememberRemoteImageBitmap(url = "url1")
+                val bitmap2 = rememberRemoteImageBitmap(url = "url1")
+                val bitmap3 = rememberRemoteImageBitmap(url = "url2")
+
+                id1 = bitmap1.getIdForCreationState(creationState)
+                id2 = bitmap2.getIdForCreationState(creationState)
+                id3 = bitmap3.getIdForCreationState(creationState)
+            }
+
+        com.google.common.truth.Truth.assertThat(id1).isNotEqualTo(-1)
+        com.google.common.truth.Truth.assertThat(id1).isEqualTo(id2) // Same URL should have same ID
+        com.google.common.truth.Truth.assertThat(id1)
+            .isNotEqualTo(id3) // Different URL should have different ID
+    }
+
+    @Test
+    fun rememberMutableRemoteBitmap_isRendered() = runTest {
+        val imageBitmap =
+            Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                .apply { eraseColor(android.graphics.Color.GREEN) }
+                .asImageBitmap()
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val bitmap = rememberMutableRemoteImageBitmap(imageBitmap)
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp).background(painterRemoteImageBitmap(bitmap))
+                )
+            }
+    }
+
+    @Test
     fun creation_invoke_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current

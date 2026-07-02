@@ -197,13 +197,30 @@ internal constructor(
  * @param initialValue The initial [ImageBitmap] value.
  * @return A [MutableRemoteImageBitmap] instance that will be remembered across recompositions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap {
     return remember {
         MutableRemoteImageBitmap(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
             creationState ->
             creationState.document.addBitmap(initialValue.asAndroidBitmap())
+        }
+    }
+}
+
+/**
+ * Remembers a remote bitmap from a URL.
+ *
+ * @param url The URL of the image.
+ * @return A [RemoteImageBitmap] representing the image from the URL.
+ */
+@Composable
+public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
+    return remember(url) {
+        MutableRemoteImageBitmap(
+            constantValueOrNull = null,
+            cacheKey = RemoteConstantCacheKey(url),
+        ) { creationState ->
+            creationState.document.addBitmapUrl(url)
         }
     }
 }
