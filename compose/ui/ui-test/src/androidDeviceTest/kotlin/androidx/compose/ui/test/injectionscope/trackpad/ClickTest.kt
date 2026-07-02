@@ -480,7 +480,9 @@ class ClickTest {
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
     fun dragAndDropTest() = runComposeUiTest {
         Assume.assumeTrue(ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled)
-        val sizeDp = 50.dp
+        // Kept at 24.dp to ensure the drag gesture stays within window bounds on low-density
+        // (240dpi) devices.
+        val sizeDp = 24.dp
         val sizePx = with(density) { sizeDp.toPx() }
         val marginPx = with(density) { 0.5.dp.toPx() }
 
