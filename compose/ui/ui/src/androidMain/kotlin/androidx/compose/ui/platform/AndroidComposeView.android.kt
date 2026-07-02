@@ -169,6 +169,7 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.InsetsListener
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
@@ -289,19 +290,28 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     FocusListener,
     ExecuteDelayed {
 
-    var composeViewContext: ComposeViewContext = composeViewContext
-        set(newContext) {
-            val current = field
-            if (newContext === current) {
+    private var _composeViewContext by mutableStateOf(composeViewContext)
+    var composeViewContext: ComposeViewContext
+        get() = _composeViewContext
+        set(value) {
+            requirePrecondition(
+                coroutineContext === value.compositionContext.effectCoroutineContext ||
+                    root.children.isEmpty() // composition has likely been disposed
+            ) {
+                "Changing ComposeViewContext cannot change the coroutine context without disposing of the composition first."
+            }
+            val currentComposeViewContext = Snapshot.withoutReadObservation { _composeViewContext }
+            if (value == currentComposeViewContext) {
                 return
             }
             if (isAttachedToWindow) {
-                current.decrementViewCount()
-                newContext.incrementViewCount()
+                currentComposeViewContext.decrementViewCount()
+                value.incrementViewCount()
             }
-            field = newContext
+            _composeViewContext = value
+            coroutineContext = value.compositionContext.effectCoroutineContext
             @OptIn(ExperimentalMediaQueryApi::class)
-            _uiMediaScope?._windowInfo = newContext.windowInfo
+            _uiMediaScope?._windowInfo = value.windowInfo
         }
 
     /**
