@@ -17,6 +17,8 @@
 package androidx.build
 
 import androidx.build.dependencyTracker.AffectedModuleDetector
+import java.io.StringReader
+import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
@@ -207,6 +209,36 @@ fun Project.isWriteVersionedApiFilesEnabled(): Boolean =
 /** Returns whether the build is for checking forward compatibility across projects */
 fun Project.usingMaxDepVersions(): Provider<Boolean> {
     return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).map { true }.orElse(false)
+}
+
+/** Gradle property controlling whether Kotlin/Native KLIBs are cross-compiled on non-Mac hosts. */
+private const val KLIB_CROSS_COMPILATION_ENABLED = "kotlin.native.enableKlibsCrossCompilation"
+
+/**
+ * Returns whether Kotlin/Native KLIB cross-compilation is enabled for this project.
+ *
+ * When disabled (via `kotlin.native.enableKlibsCrossCompilation=false` in the project's
+ * `gradle.properties`), the project's Apple targets cannot be built on a non-Mac host because it,
+ * or one of its dependencies, uses C-interop.
+ *
+ * Gradle does not surface per-project `gradle.properties` values through the standard property
+ * APIs, so the project's own `gradle.properties` file is read directly, falling back to the global
+ * value which defaults to `true`.
+ */
+fun Project.isKlibCrossCompilationEnabled(): Provider<Boolean> {
+    val globalValue =
+        providers.gradleProperty(KLIB_CROSS_COMPILATION_ENABLED).map { it.toBoolean() }.orElse(true)
+    return providers
+        .fileContents(layout.projectDirectory.file("gradle.properties"))
+        .asText
+        .map { text -> Properties().apply { load(StringReader(text)) } }
+        .flatMap { props ->
+            when (val value = props.getProperty(KLIB_CROSS_COMPILATION_ENABLED)) {
+                null -> globalValue
+                else -> providers.provider { value.toBoolean() }
+            }
+        }
+        .orElse(globalValue)
 }
 
 /** Returns whether we should use the offline mirror for dependencies */
