@@ -209,11 +209,51 @@ public constructor(
      * @return a flow that emits a list of [AppFunctionPackageMetadata] matching the search criteria
      *   and updated versions of this list when underlying data changes.
      */
+    // TODO(b/508188326): Remove this API completely after migrating usages.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
     public fun observeAppFunctions(
         searchSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>> {
         return appFunctionReader.searchAppFunctionsPackageMetadata(searchSpec)
+    }
+
+    /**
+     * Observes changes to app functions within packages the caller can query.
+     *
+     * The returned flow only emits changes that occur after collection starts. Any changes before
+     * collection are not reported.
+     *
+     * An example usage flow is:
+     * 1. Start collecting from the [Flow] to monitor app function changes.
+     * 2. Call [searchAppFunctions] and
+     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] to get the initial list
+     *    of app functions and their states.
+     * 3. When receiving [ObserveAppFunctionsEvent.MetadataChanged], call [searchAppFunctions] with
+     *    a [AppFunctionSearchSpec] that matches the changed packages to get the updated metadata.
+     * 4. When receiving [ObserveAppFunctionsEvent.StatesChanged], call
+     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] with the list of
+     *    [androidx.appfunctions.metadata.AppFunctionName]s matching the changed functions to get
+     *    the updated states. Note that this is guaranteed to trigger after
+     *    [ObserveAppFunctionsEvent.MetadataChanged] for new functions or functions that also
+     *    changed states. There is no need to call
+     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] when receiving
+     *    [ObserveAppFunctionsEvent.MetadataChanged].
+     *
+     * @return a [Flow] emitting [ObserveAppFunctionsEvent]s representing metadata or state changes
+     */
+    // TODO(b/494238383) : Reference jetpack getAppFunctionState in KDoc once available.
+    @RequiresPermission(
+        anyOf =
+            [
+                "android.permission.EXECUTE_APP_FUNCTIONS",
+                "android.permission.DISCOVER_APP_FUNCTIONS",
+                "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM",
+            ],
+        conditional = true,
+    )
+    public fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+        return appFunctionReader.observeAppFunctions()
     }
 
     /**
