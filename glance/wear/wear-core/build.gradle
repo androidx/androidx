@@ -32,11 +32,12 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.9.1")
     api(libs.kotlinCoroutinesAndroid)
-
     implementation(libs.jspecify)
     implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
+    compileOnly files("../../../wear/wear_sdk/wear-sdk.jar")
     testImplementation(libs.junit)
+    testImplementation(files("../../../wear/wear_sdk/wear-sdk.jar"))
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
