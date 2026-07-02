@@ -570,19 +570,19 @@ class DeferredAnimatedVisibilityTest {
         rule.runOnIdle { previewOffset = 100 }
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        // slideIn starts at 200, preview adds 100, so it's 300
-        assertEquals(300, measuredX)
+        // slideIn starts at 200, preview overrides to 100
+        assertEquals(100, measuredX)
 
         rule.runOnIdle { state.animateTo(state.pendingTargetState ?: state.targetState) }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeBy(80L)
         rule.mainClock.advanceTimeByFrame()
 
-        // It should animate from 300 towards 0 (which is the natural resting state of enter
+        // It should animate from 100 towards 0 (which is the natural resting state of enter
         // transitions)
         assertTrue(
-            "Offset should be animating from 300 to 0. Actually: $measuredX",
-            measuredX < 300 && measuredX > 0,
+            "Offset should be animating from 100 to 0. Actually: $measuredX",
+            measuredX < 100 && measuredX > 0,
         )
 
         rule.mainClock.advanceTimeBy(1000L)
@@ -660,8 +660,8 @@ class DeferredAnimatedVisibilityTest {
         // the preview.
         val widthWithPreview1 = measuredWidth
         assertTrue(
-            "Width should be scaled down by 0.5. midAnimationWidth=$midAnimationWidth, widthWithPreview1=$widthWithPreview1",
-            widthWithPreview1 < midAnimationWidth,
+            "Width should animate towards the preview scale of 0.5. midAnimationWidth=$midAnimationWidth, widthWithPreview1=$widthWithPreview1",
+            widthWithPreview1 < expectedFullWidth * 0.55f,
         )
 
         // Advance another frame to prove the underlying transition is still continuing
@@ -669,8 +669,8 @@ class DeferredAnimatedVisibilityTest {
         val widthWithPreview2 = measuredWidth
 
         assertTrue(
-            "Underlying transition should continue, causing width to grow. widthWithPreview1=$widthWithPreview1, widthWithPreview2=$widthWithPreview2",
-            widthWithPreview2 > widthWithPreview1,
+            "Underlying transition continues, but visual width animates to preview target. widthWithPreview1=$widthWithPreview1, widthWithPreview2=$widthWithPreview2",
+            widthWithPreview2 <= widthWithPreview1,
         )
     }
 
@@ -921,6 +921,7 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
         assertEquals(fullWidth, measuredWidth, 1f)
+        testTimeSource = null
     }
 
     @Test
@@ -930,6 +931,7 @@ class DeferredAnimatedVisibilityTest {
         var measuredWidth = 0f
 
         rule.setContent {
+            testTimeSource = { rule.mainClock.currentTime }
             // Start hidden
             state = remember { DeferredTransitionState(false) }
             val transition = rememberTransition(state)
