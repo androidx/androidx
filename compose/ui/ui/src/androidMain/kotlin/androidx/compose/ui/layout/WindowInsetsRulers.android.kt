@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.R
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.CaptionBar
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.DisplayCutout
@@ -331,7 +332,13 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
         return insets
     }
 
+    @OptIn(ExperimentalMediaQueryApi::class)
     private fun updateInsets(insets: WindowInsetsCompat) {
+        // Query IME updates using existing rulers listener.
+        composeView._uiMediaScope?.let {
+            it.isImeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+        }
+
         var changed = false
         var hasInsets = false
         WindowInsetsTypeMap.forEach { type, rulers ->

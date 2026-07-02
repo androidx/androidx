@@ -49,7 +49,7 @@ internal val LocalOwner = staticCompositionLocalOf<Owner> { noLocalProvidedFor("
 
 @Suppress("BanInlineOptIn", "NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
-private inline fun <T : Any> computedDefaultOf(
+internal inline fun <T : Any> computedDefaultOf(
     name: String,
     crossinline compute: CompositionLocalAccessorScope.() -> T,
 ): ProvidableCompositionLocal<T> =
@@ -313,6 +313,6 @@ internal fun ProvideCommonCompositionLocals(owner: Owner, content: @Composable (
     }
 }
 
-private fun noLocalProvidedFor(name: String): Nothing {
+internal fun noLocalProvidedFor(name: String): Nothing {
     error("CompositionLocal $name not present")
 }

@@ -44,7 +44,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.R
-import androidx.compose.ui.adaptive.obtainUiMediaScope
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
@@ -531,14 +530,7 @@ private constructor(
                     },
                 LocalHostDefaultProvider providesComputed { owner.hostDefaultProvider },
             ) {
-                if (isMediaQueryIntegrationEnabled) {
-                    val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)
-                    CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
-                        ProvideCommonCompositionLocals(owner = owner, content = content)
-                    }
-                } else {
-                    ProvideCommonCompositionLocals(owner = owner, content = content)
-                }
+                ProvideCommonCompositionLocals(owner = owner, content = content)
             }
         } else {
             CompositionLocalProvider(
@@ -560,8 +552,13 @@ private constructor(
                 LocalHostDefaultProvider provides owner.hostDefaultProvider,
             ) {
                 if (isMediaQueryIntegrationEnabled) {
-                    val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)
-                    CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                    CompositionLocalProvider(
+                        // Defer owner.uiMediaScope evaluation until actively read in composition.
+                        LocalUiMediaScope providesComputed
+                            {
+                                owner.uiMediaScope ?: error("UiMediaScope is not initialized.")
+                            }
+                    ) {
                         ProvideCommonCompositionLocals(owner = owner, content = content)
                     }
                 } else {
