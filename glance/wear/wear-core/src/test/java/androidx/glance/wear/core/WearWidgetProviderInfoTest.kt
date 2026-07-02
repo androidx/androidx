@@ -349,6 +349,14 @@ class WearWidgetProviderInfoTest {
             )
     }
 
+    @Test
+    fun containerTypeConstants_matchResources() {
+        assertThat(ContainerInfo.CONTAINER_TYPE_LARGE)
+            .isEqualTo(context.resources.getInteger(R.integer.glance_wear_container_type_large))
+        assertThat(ContainerInfo.CONTAINER_TYPE_SMALL)
+            .isEqualTo(context.resources.getInteger(R.integer.glance_wear_container_type_small))
+    }
+
     private fun getXml(resourceId: Int): XmlResourceParser = context.resources.getXml(resourceId)
 
     private fun createServiceInfo(componentName: ComponentName): ServiceInfo {
