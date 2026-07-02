@@ -18,6 +18,7 @@ package androidx.pdf.selection
 
 import android.graphics.Point
 import android.graphics.RectF
+import android.os.Parcel
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary
@@ -39,6 +40,54 @@ class SelectionModelTest {
     fun testCreate_returnsNullOnNoSelections() {
         val result = SelectionModel.create(emptyList())
         assertNull(result)
+    }
+
+    @Test
+    fun testCreate_isOcrFlag() {
+        val newBounds: List<RectF> = listOf(RectF(100f, 100f, 200f, 200f))
+        val newPageSelections: List<PageSelection?> =
+            listOf(
+                PageSelection(
+                    1,
+                    selectionBoundary,
+                    selectionBoundary,
+                    listOf(PdfPageTextContent(newBounds, "Hello")),
+                )
+            )
+
+        val ocrSelection = SelectionModel.create(newPageSelections, isOcr = true)
+        assertNotNull(ocrSelection)
+        assertEquals(true, ocrSelection?.isOcr)
+
+        val nonOcrSelection = SelectionModel.create(newPageSelections, isOcr = false)
+        assertNotNull(nonOcrSelection)
+        assertEquals(false, nonOcrSelection?.isOcr)
+    }
+
+    @Test
+    fun testParcelable_isOcrPreserved() {
+        val newBounds: List<RectF> = listOf(RectF(100f, 100f, 200f, 200f))
+        val newPageSelections: List<PageSelection?> =
+            listOf(
+                PageSelection(
+                    1,
+                    selectionBoundary,
+                    selectionBoundary,
+                    listOf(PdfPageTextContent(newBounds, "Hello")),
+                )
+            )
+
+        val original = SelectionModel.create(newPageSelections, isOcr = true)
+        val parcel = Parcel.obtain()
+        original?.writeToParcel(parcel, 0)
+        parcel.setDataPosition(0)
+
+        val restored = SelectionModel.CREATOR.createFromParcel(parcel)
+        assertNotNull(restored)
+        assertEquals(true, restored.isOcr)
+        assertEquals(original?.startBoundary, restored.startBoundary)
+        assertEquals(original?.endBoundary, restored.endBoundary)
+        parcel.recycle()
     }
 
     @Test

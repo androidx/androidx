@@ -35,6 +35,7 @@ internal class SelectionModel(
     val documentSelection: DocumentSelection,
     val startBoundary: UiSelectionBoundary,
     val endBoundary: UiSelectionBoundary,
+    val isOcr: Boolean = false,
 ) : Parcelable {
     constructor(
         parcel: Parcel
@@ -42,6 +43,7 @@ internal class SelectionModel(
         documentSelection = DocumentSelection.selectionValueFromParcel(parcel = parcel),
         startBoundary = UiSelectionBoundary(parcel),
         endBoundary = UiSelectionBoundary(parcel),
+        isOcr = parcel.readInt() == 1,
     )
 
     override fun describeContents(): Int = 0
@@ -50,6 +52,7 @@ internal class SelectionModel(
         documentSelection.writeToParcel(dest, flags)
         startBoundary.writeToParcel(dest, flags)
         endBoundary.writeToParcel(dest, flags)
+        dest.writeInt(if (isOcr) 1 else 0)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -59,6 +62,7 @@ internal class SelectionModel(
         if (other.documentSelection != documentSelection) return false
         if (other.startBoundary != startBoundary) return false
         if (other.endBoundary != endBoundary) return false
+        if (other.isOcr != isOcr) return false
         return true
     }
 
@@ -66,6 +70,7 @@ internal class SelectionModel(
         var result = documentSelection.hashCode()
         result = 31 * result + startBoundary.hashCode()
         result = 31 * result + endBoundary.hashCode()
+        result = 31 * result + isOcr.hashCode()
         return result
     }
 
@@ -75,9 +80,10 @@ internal class SelectionModel(
          *
          * @param pageSelections New [androidx.pdf.content.PageSelection] objects on different
          *   pages.
+         * @param isOcr Whether the selection was made using OCR.
          * @return A [SelectionModel] that encompasses all selections, or `null` if none were found.
          */
-        fun create(pageSelections: List<PageSelection?>): SelectionModel? {
+        fun create(pageSelections: List<PageSelection?>, isOcr: Boolean = false): SelectionModel? {
             val selectedContents = SparseArray<List<Selection>>()
             pageSelections.forEach { newPageSelection ->
                 if (newPageSelection != null) {
@@ -95,6 +101,7 @@ internal class SelectionModel(
                 selection,
                 UiSelectionBoundary(selectionBounds.first, isRtl),
                 UiSelectionBoundary(selectionBounds.second, isRtl),
+                isOcr = isOcr,
             )
         }
 
@@ -104,10 +111,16 @@ internal class SelectionModel(
          * @param pageNum The page number where the selection exists.
          * @param selection The selected content.
          * @param isRtl Whether the selection direction is Right-to-Left.
+         * @param isOcr Whether the selection was made using OCR.
          * @return A [SelectionModel] representing the content selection, or `null` if the selection
          *   bounds are empty.
          */
-        fun create(pageNum: Int, selection: Selection, isRtl: Boolean): SelectionModel? {
+        fun create(
+            pageNum: Int,
+            selection: Selection,
+            isRtl: Boolean,
+            isOcr: Boolean = false,
+        ): SelectionModel? {
             if (selection.bounds.isEmpty()) return null
 
             val selectedContents =
@@ -117,6 +130,7 @@ internal class SelectionModel(
                 DocumentSelection(selectedContents),
                 UiSelectionBoundary(selection.bounds.first().leftCenter, isRtl),
                 UiSelectionBoundary(selection.bounds.last().rightCenter, isRtl),
+                isOcr = isOcr,
             )
         }
 
