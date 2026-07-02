@@ -16,75 +16,28 @@
 
 package androidx.pdf.ink.state
 
-import android.annotation.SuppressLint
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.annotation.IntDef
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 
 /** Represents the current editing state of the PDF document. */
-@SuppressLint("BanParcelableUsage")
-internal sealed interface PdfEditMode : Parcelable {
+internal sealed interface PdfEditMode {
 
     /** Edit mode is disabled; the user is in viewing mode. */
-    object Disabled : PdfEditMode {
-        override fun writeToParcel(parcel: Parcel, flags: Int) {
-            parcel.writeInt(EDITING_DISABLED)
-        }
-
-        override fun describeContents(): Int = 0
-
-        @JvmField
-        val CREATOR =
-            object : Parcelable.Creator<Disabled> {
-                override fun createFromParcel(parcel: Parcel) = Disabled
-
-                override fun newArray(size: Int) = arrayOfNulls<Disabled>(size)
-            }
-    }
+    object Disabled : PdfEditMode
 
     /**
      * Edit mode is enabled for a specific [journey].
      *
      * @property journey The current editing journey. Defaults to [EDITING_JOURNEY_ANNOTATIONS]
      */
-    data class Enabled(@EditingJourney val journey: Int = EDITING_JOURNEY_ANNOTATIONS) :
-        PdfEditMode {
-        override fun writeToParcel(parcel: Parcel, flags: Int) {
-            parcel.writeInt(EDITING_ENABLED)
-            parcel.writeInt(journey)
-        }
-
-        override fun describeContents(): Int = 0
-
-        @JvmField
-        val CREATOR =
-            object : Parcelable.Creator<Enabled> {
-                override fun createFromParcel(parcel: Parcel) = Enabled(parcel.readInt())
-
-                override fun newArray(size: Int) = arrayOfNulls<Enabled>(size)
-            }
-    }
+    data class Enabled(@EditingJourney val journey: Int = EDITING_JOURNEY_ANNOTATIONS) : PdfEditMode
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(EDITING_JOURNEY_ANNOTATIONS, EDITING_JOURNEY_FORM_FILLING)
     annotation class EditingJourney
 
     companion object {
-        private const val EDITING_DISABLED: Int = 0
-        private const val EDITING_ENABLED: Int = 1
         internal const val EDITING_JOURNEY_ANNOTATIONS: Int = 0
         internal const val EDITING_JOURNEY_FORM_FILLING: Int = 1
-
-        val CREATOR =
-            object : Parcelable.Creator<PdfEditMode> {
-                override fun createFromParcel(parcel: Parcel): PdfEditMode {
-                    return when (parcel.readInt()) {
-                        EDITING_ENABLED -> Enabled(parcel.readInt())
-                        else -> Disabled
-                    }
-                }
-
-                override fun newArray(size: Int) = arrayOfNulls<PdfEditMode>(size)
-            }
     }
 }
