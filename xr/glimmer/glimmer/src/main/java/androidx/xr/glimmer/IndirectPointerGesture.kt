@@ -192,19 +192,16 @@ private class IndirectPointerGestureNode(
                 // TODO(b/526962189): Use `VelocityTracker#addIndirectPointerInputChange` to
                 // calculate the velocity instead of providing historical events manually
                 val nativeEvent = event.nativeEvent
-                val pointerIndex = nativeEvent.findPointerIndex(pointerId.value.toInt())
-                if (pointerIndex >= 0) {
-                    val historySize = nativeEvent.historySize
-                    for (historicalEventIndex in 0 until historySize) {
-                        getVelocityTracker()
-                            .addPosition(
-                                nativeEvent.getHistoricalEventTime(historicalEventIndex),
-                                Offset(
-                                    nativeEvent.getHistoricalX(pointerIndex, historicalEventIndex),
-                                    nativeEvent.getHistoricalY(pointerIndex, historicalEventIndex),
-                                ),
-                            )
-                    }
+                val historySize = nativeEvent.historySize
+                for (historicalEventIndex in 0 until historySize) {
+                    getVelocityTracker()
+                        .addPosition(
+                            nativeEvent.getHistoricalEventTime(historicalEventIndex),
+                            Offset(
+                                nativeEvent.getHistoricalX(0, historicalEventIndex),
+                                nativeEvent.getHistoricalY(0, historicalEventIndex),
+                            ),
+                        )
                 }
                 getVelocityTracker().addPosition(change.uptimeMillis, change.position)
             }
