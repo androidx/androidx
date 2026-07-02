@@ -54,4 +54,5 @@ androidx {
 
 android {
     namespace = "androidx.lifecycle.reactivestreams"
+    testOptions.unitTests.returnDefaultValues = true
 }

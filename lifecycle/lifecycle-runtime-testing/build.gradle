@@ -23,7 +23,7 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
@@ -32,6 +32,9 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.testing"
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
     desktop()
     mac()
