@@ -19,7 +19,9 @@ package androidx.compose.ui.node
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
@@ -147,6 +149,11 @@ internal interface Owner : PositionCalculator {
 
     /** Provide information about the window that hosts this [Owner]. */
     val windowInfo: WindowInfo
+
+    /** Provide information about media query features that host this [Owner]. */
+    @ExperimentalMediaQueryApi
+    val uiMediaScope: UiMediaScope?
+        get() = null
 
     /**
      * Sets the [RetainedValuesStore] for the composition. On Android, this is a lifecycle-aware

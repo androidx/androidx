@@ -28,6 +28,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ExperimentalMediaQueryApi
+import androidx.compose.ui.LocalUiMediaScope
+import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +46,7 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -439,6 +445,7 @@ fun DeviceConfigurationOverride.Companion.WindowInsets(
     )
 }
 
+@OptIn(ExperimentalMediaQueryApi::class, ExperimentalComposeUiApi::class)
 actual fun DeviceConfigurationOverride.Companion.WindowSize(
     size: DpSize
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
@@ -462,7 +469,28 @@ actual fun DeviceConfigurationOverride.Companion.WindowSize(
                 }
             }
 
-        CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
+        val providedLocals =
+            if (ComposeUiFlags.isMediaQueryIntegrationEnabled) {
+                val currentUiMediaScope = LocalUiMediaScope.current
+                val newUiMediaScope =
+                    remember(currentUiMediaScope, newWindowInfo) {
+                        object : UiMediaScope by currentUiMediaScope {
+                            override val windowWidth: Dp
+                                get() = newWindowInfo.containerDpSize.width
+
+                            override val windowHeight: Dp
+                                get() = newWindowInfo.containerDpSize.height
+                        }
+                    }
+                arrayOf(
+                    LocalWindowInfo provides newWindowInfo,
+                    LocalUiMediaScope provides newUiMediaScope,
+                )
+            } else {
+                arrayOf(LocalWindowInfo provides newWindowInfo)
+            }
+
+        CompositionLocalProvider(*providedLocals) {
             // Third, override the configuration to use the updated window size and updated
             // density
             OverriddenConfiguration(
