@@ -27,8 +27,6 @@ BecameUnchecked: androidx.compose.material3.TooltipKt:
 
 ChangedType: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
     Binary breaking change: Method androidx.compose.material3.NavigationItemColors.iconColor has changed return type from long to androidx.compose.ui.graphics.Color
-ChangedType: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):
-    Binary breaking change: Method androidx.compose.material3.NavigationItemColors.textColor has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.material3.WideNavigationRailItemDefaults#iconPositionFor(boolean):
     Binary breaking change: Method androidx.compose.material3.WideNavigationRailItemDefaults.iconPositionFor has changed return type from int to androidx.compose.material3.NavigationItemIconPosition
 
@@ -299,8 +297,6 @@ RemovedFromBytecode: androidx.compose.material3.NavigationDrawerKt#rememberDrawe
     Binary breaking change: method androidx.compose.material3.NavigationDrawerKt.rememberDrawerState(androidx.compose.material3.DrawerValue,kotlin.jvm.functions.Function1<? super androidx.compose.material3.DrawerValue,java.lang.Boolean>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
     Binary breaking change: method androidx.compose.material3.NavigationItemColors.iconColor(boolean,boolean) has been removed from bytecode
-RemovedFromBytecode: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):
-    Binary breaking change: method androidx.compose.material3.NavigationItemColors.textColor(boolean,boolean) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.NavigationRailItemDefaults#colors():
     Binary breaking change: method androidx.compose.material3.NavigationRailItemDefaults.colors() has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.NavigationRailKt#NavigationRailItem(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.NavigationRailItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
@@ -897,6 +893,8 @@ RemovedMethod: androidx.compose.material3.NavigationDrawerKt#PermanentDrawerShee
     Binary breaking change: Removed method androidx.compose.material3.NavigationDrawerKt.PermanentDrawerSheet(androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Shape,long,long,float,androidx.compose.foundation.layout.WindowInsets,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.NavigationItemColors#copy(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.NavigationItemColors.copy(long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):
+    Binary breaking change: Removed method androidx.compose.material3.NavigationItemColors.textColor(boolean,boolean)
 RemovedMethod: androidx.compose.material3.NavigationRailDefaults#getWindowInsets():
     Binary breaking change: Removed method androidx.compose.material3.NavigationRailDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.NavigationRailItemColors#copy(long, long, long, long, long, long, long):
