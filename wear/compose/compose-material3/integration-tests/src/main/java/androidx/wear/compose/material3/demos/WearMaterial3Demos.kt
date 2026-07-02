@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
 import androidx.wear.compose.material3.samples.ButtonWithImageSample
 import androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
+import androidx.wear.compose.material3.samples.DynamicColorSchemeSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
@@ -85,7 +86,13 @@ val WearMaterial3Demos =
                     ),
                 ),
                 ComposableDemo("Color Scheme") { ColorSchemeDemos() },
-                ComposableDemo("Dynamic Color Scheme") { DynamicColorSchemeDemos() },
+                Material3DemoCategory(
+                    "Dynamic Color Scheme",
+                    listOf(
+                        ComposableDemo("Sample") { DynamicColorSchemeSample() },
+                        ComposableDemo("Exhaustive") { DynamicColorSchemeDemos() },
+                    ),
+                ),
                 Material3DemoCategory("Curved Text", CurvedTextDemos),
                 Material3DemoCategory("Alert Dialog", AlertDialogDemos),
                 Material3DemoCategory("Confirmation Dialog", ComfirmationDialogDemos),
