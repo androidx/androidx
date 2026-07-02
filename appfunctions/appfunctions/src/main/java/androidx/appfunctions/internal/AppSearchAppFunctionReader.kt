@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -44,11 +45,15 @@ import androidx.appsearch.observer.ObserverCallback
 import androidx.appsearch.observer.ObserverSpec
 import androidx.appsearch.observer.SchemaChangeInfo
 import com.android.extensions.appfunctions.AppFunctionManager
+import java.util.concurrent.Executor
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
@@ -194,6 +199,7 @@ internal class AppSearchAppFunctionReader(
         }
     }
 
+    // TODO(b/508188326): Remove this once legacy observeAppFunctions API is migrated.
     private class AppSearchChannelObserver : ObserverCallback {
         private val updateChannel = Channel<Unit>(Channel.RENDEZVOUS)
 
@@ -217,10 +223,10 @@ internal class AppSearchAppFunctionReader(
             .addFilterSchemas(
                 packageNames.flatMap {
                     listOf(
-                        "AppFunctionStaticMetadata-$it",
-                        "AppFunctionRuntimeMetadata-$it",
+                        "${AppFunctionMetadataDocument.SCHEMA_TYPE}-$it",
+                        "${AppFunctionRuntimeMetadata.SCHEMA_TYPE}-$it",
                         // TODO: b/418723242 - Add tests for observing changes in components
-                        "AppFunctionComponentMetadataDocument-$it",
+                        "${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-$it",
                     )
                 }
             )
@@ -308,7 +314,7 @@ internal class AppSearchAppFunctionReader(
                 .addFilterNamespaces(APP_FUNCTIONS_NAMESPACE)
                 .addFilterSchemas(
                     (packageNames ?: emptySet()).flatMap {
-                        listOf("AppFunctionComponentMetadataDocument-$it")
+                        listOf("${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-$it")
                     }
                 )
                 .addFilterPackageNames(SYSTEM_PACKAGE_NAME)
@@ -480,7 +486,35 @@ internal class AppSearchAppFunctionReader(
         }
     }
 
-    private companion object {
+    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+        return callbackFlow {
+            val session = createSearchSession(context)
+            val appSearchObserver = AppFunctionObserverCallback()
+            val dispatcher =
+                currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher
+            val executor = dispatcher?.asExecutor() ?: Executor { command -> command.run() }
+
+            session.registerObserverCallback(
+                SYSTEM_PACKAGE_NAME,
+                ObserverSpec.Builder().build(),
+                executor,
+                appSearchObserver,
+            )
+
+            val observerJob = launch {
+                appSearchObserver.observe().collect { event -> send(event) }
+            }
+
+            awaitClose {
+                observerJob.cancel()
+                appSearchObserver.close()
+                session.unregisterObserverCallback(SYSTEM_PACKAGE_NAME, appSearchObserver)
+                session.close()
+            }
+        }
+    }
+
+    companion object {
         const val SYSTEM_PACKAGE_NAME = "android"
         const val APP_FUNCTIONS_NAMESPACE = "app_functions"
         const val APP_FUNCTIONS_RUNTIME_NAMESPACE = "app_functions_runtime"

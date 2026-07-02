@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
@@ -98,4 +99,8 @@ internal class PlatformAppFunctionReader(
             )
             .firstOrNull()
     }
+
+    // TODO(b/494238381): Use Platform observeAppFunctions API in SDK 37+
+    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> =
+        appSearchReader.observeAppFunctions()
 }

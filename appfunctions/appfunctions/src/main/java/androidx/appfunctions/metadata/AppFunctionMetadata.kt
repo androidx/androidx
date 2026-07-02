@@ -513,7 +513,7 @@ public data class CompileTimeAppFunctionMetadata(
 }
 
 /** Represents the persistent storage format of [AppFunctionMetadata]. */
-@Document(name = "AppFunctionStaticMetadata")
+@Document(name = AppFunctionMetadataDocument.SCHEMA_TYPE)
 @Suppress("InlinedApi")
 internal data class AppFunctionMetadataDocument(
     @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
@@ -545,4 +545,24 @@ internal data class AppFunctionMetadataDocument(
     /** The lifecycle scope of the AppFunction. */
     @Document.StringProperty(name = android.app.appfunctions.AppFunctionMetadata.PROPERTY_SCOPE)
     val scope: String? = null,
-)
+) {
+    companion object {
+        const val SCHEMA_TYPE = "AppFunctionStaticMetadata"
+
+        fun getPackageFromSchemaName(schemaName: String): String? {
+            return when {
+                schemaName.startsWith("${SCHEMA_TYPE}-") -> {
+                    schemaName.substringAfter("${SCHEMA_TYPE}-")
+                }
+
+                schemaName.startsWith("${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-") -> {
+                    schemaName.substringAfter(
+                        "${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-"
+                    )
+                }
+
+                else -> null
+            }
+        }
+    }
+}
