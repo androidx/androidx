@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.CanvasOp
 import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
@@ -140,18 +141,14 @@ public class RemoteCanvas(
     }
 
     private fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
-        return internalCanvas.buffer.recordRenderingOp(action)
+        return internalCanvas.recordRenderingOp(action)
     }
 
     private fun recordRenderingOp(
         paint: RemotePaint?,
         action: () -> Unit,
     ): CanvasOperationBuffer.SpanOp {
-        val paintSnapshot = internalCanvas.snapshotPaint(paint)
-        return internalCanvas.buffer.recordRenderingOp {
-            internalCanvas.usePaintInternal(paintSnapshot)
-            action()
-        }
+        return internalCanvas.recordRenderingOp(paint, action)
     }
 
     /**
@@ -540,17 +537,20 @@ public class RemoteCanvas(
         drawCommands()
         internalCanvas.buffer.insertPoint = prevInsertPoint
 
-        val op = recordRenderingOp {
-            document.conditionalOperations(
-                ConditionalOperations.TYPE_NEQ,
-                condition.toRemoteInt().toRemoteFloat().floatId,
-                0f,
+        val op =
+            internalCanvas.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.conditionalOperations(
+                        ConditionalOperations.TYPE_NEQ,
+                        condition.toRemoteInt().toRemoteFloat().floatId,
+                        0f,
+                    ) {
+                        internalCanvas.forceSendingPaint = true
+                        childSpan.record(writer, internalCanvas.creationState)
+                        internalCanvas.forceSendingPaint = true
+                    }
+                }
             )
-            internalCanvas.forceSendingPaint = true
-            childSpan.record()
-            internalCanvas.forceSendingPaint = true
-            document.endConditionalOperations()
-        }
         internalCanvas.buffer.addRoots(op, condition)
     }
 
@@ -567,13 +567,16 @@ public class RemoteCanvas(
         internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
         internalCanvas.buffer.insertPoint = prevInsertPoint
 
-        val op = recordRenderingOp {
-            document.drawOnBitmap(bitmapId, 1, 0)
-            internalCanvas.forceSendingPaint = true
-            childSpan.record()
-            internalCanvas.forceSendingPaint = true
-            document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
-        }
+        val op =
+            internalCanvas.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.drawOnBitmap(bitmapId, 1, 0)
+                    internalCanvas.forceSendingPaint = true
+                    childSpan.record(writer, internalCanvas.creationState)
+                    internalCanvas.forceSendingPaint = true
+                    writer.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+                }
+            )
         internalCanvas.buffer.addRoots(op, bitmap)
     }
 
@@ -597,13 +600,16 @@ public class RemoteCanvas(
         internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
         internalCanvas.buffer.insertPoint = prevInsertPoint
 
-        val op = recordRenderingOp {
-            document.drawOnBitmap(bitmapId, 0, clearColor)
-            internalCanvas.forceSendingPaint = true
-            childSpan.record()
-            internalCanvas.forceSendingPaint = true
-            document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
-        }
+        val op =
+            internalCanvas.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.drawOnBitmap(bitmapId, 0, clearColor)
+                    internalCanvas.forceSendingPaint = true
+                    childSpan.record(writer, internalCanvas.creationState)
+                    internalCanvas.forceSendingPaint = true
+                    writer.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+                }
+            )
         internalCanvas.buffer.addRoots(op, bitmap)
     }
 
@@ -626,16 +632,19 @@ public class RemoteCanvas(
         body(loopVariable)
         internalCanvas.buffer.insertPoint = prevInsertPoint
 
-        val op = recordRenderingOp {
-            document.loop(
-                Utils.idFromNan(loopVariableId),
-                from.floatId,
-                step.floatId,
-                until.floatId,
-            ) {
-                childSpan.record()
-            }
-        }
+        val op =
+            internalCanvas.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.loop(
+                        Utils.idFromNan(loopVariableId),
+                        from.floatId,
+                        step.floatId,
+                        until.floatId,
+                    ) {
+                        childSpan.record(writer, internalCanvas.creationState)
+                    }
+                }
+            )
         internalCanvas.buffer.addRoots(op, from, until, step)
     }
 

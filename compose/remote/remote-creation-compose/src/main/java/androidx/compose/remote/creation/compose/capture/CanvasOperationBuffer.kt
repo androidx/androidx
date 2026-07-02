@@ -17,18 +17,211 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.collection.MutableObjectIntMap
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import java.util.ArrayList
 import java.util.HashMap
 
 /**
+ * Represents a pending matrix transformation operation that can potentially be optimized.
+ *
+ * Unlike [CanvasOp.Save] trees which form the main hierarchical tree, [PendingOp]s are flat,
+ * intermediate representations of transforms. They are accumulated in lists during the transform
+ * optimization pass, where they are fused and commuted before being converted back to
+ * [CanvasOp.Transform] nodes for final flushing.
+ */
+internal sealed class PendingOp {
+    /** Flushes this transformation to the [writer]. */
+    abstract fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState)
+
+    /** Represents a translation transformation. */
+    class Translate(val dx: RemoteFloat, val dy: RemoteFloat) : PendingOp() {
+        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
+            writer.addMatrixTranslate(
+                dx.getFloatIdForCreationState(creationState),
+                dy.getFloatIdForCreationState(creationState),
+            )
+        }
+    }
+
+    /** Represents a scale transformation. */
+    class Scale(
+        val sx: RemoteFloat,
+        val sy: RemoteFloat,
+        val px: RemoteFloat?,
+        val py: RemoteFloat?,
+    ) : PendingOp() {
+        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
+            writer.addMatrixScale(
+                sx.getFloatIdForCreationState(creationState),
+                sy.getFloatIdForCreationState(creationState),
+                px?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+                py?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+            )
+        }
+    }
+
+    /** Represents a rotation transformation. */
+    class Rotate(val angle: RemoteFloat, val px: RemoteFloat?, val py: RemoteFloat?) : PendingOp() {
+        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
+            writer.addMatrixRotate(
+                angle.getFloatIdForCreationState(creationState),
+                px?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+                py?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+            )
+        }
+    }
+
+    /** Represents a skew transformation. */
+    class Skew(val sx: RemoteFloat, val sy: RemoteFloat) : PendingOp() {
+        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
+            writer.addMatrixSkew(
+                sx.getFloatIdForCreationState(creationState),
+                sy.getFloatIdForCreationState(creationState),
+            )
+        }
+    }
+}
+
+/**
+ * Represents an operation in the structured canvas recording buffer.
+ *
+ * These operations are optimized (elided, flattened, fused) before being flushed to the actual
+ * [RemoteComposeWriter] during serialization.
+ */
+internal sealed class CanvasOp {
+    /** Flushes this operation (and its children, if any) to the [writer]. */
+    abstract fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState)
+
+    /** Returns true if this operation modifies the canvas transform or clip state. */
+    open fun hasTransformsOrClips(): Boolean = false
+
+    /** Represents an actual drawing or state-setting operation (e.g., drawRect). */
+    class Draw(val action: (RemoteComposeWriter) -> Unit) : CanvasOp() {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            action(writer)
+        }
+
+        override fun toString(): String = "Draw"
+    }
+
+    /** Represents a clipping operation. */
+    class Clip(val action: (RemoteComposeWriter) -> Unit) : CanvasOp() {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            action(writer)
+        }
+
+        override fun hasTransformsOrClips(): Boolean = true
+
+        override fun toString(): String = "Clip"
+    }
+
+    /**
+     * Represents a matrix transformation operation (Translate, Scale, Rotate, Skew).
+     *
+     * @property op The underlying [PendingOp] transformation.
+     */
+    class Transform(val op: PendingOp) : CanvasOp() {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            op.write(writer.buffer, creationState)
+        }
+
+        override fun hasTransformsOrClips(): Boolean = true
+
+        override fun toString(): String = "Transform(${op.javaClass.simpleName})"
+    }
+
+    /**
+     * Represents a save/restore group (corresponding to [RemoteComposeWriter.save] and
+     * [RemoteComposeWriter.restore]).
+     *
+     * @property parent The parent [Save] scope, or null if this is the root scope.
+     * @property children The list of child operations inside this save/restore block.
+     */
+    class Save(val parent: Save? = null, val children: MutableList<CanvasOp> = ArrayList()) :
+        CanvasOp() {
+        /**
+         * Indicates whether this scope or any of its descendants contain actual drawing calls. Used
+         * during the elision pass to discard empty scopes.
+         */
+        var hasDrawCalls = false
+
+        /** The elision strategy decided for this scope during the elision pass. */
+        var elisionMode = ElisionMode.PRESERVE
+        var spanOp: CanvasOperationBuffer.SpanOp? = null
+
+        fun getRootSaveNode(): Save {
+            var curr = this
+            while (curr.parent != null) {
+                curr = curr.parent!!
+            }
+            return curr
+        }
+
+        override fun hasTransformsOrClips(): Boolean {
+            for (i in 0 until children.size) {
+                if (children[i].hasTransformsOrClips()) return true
+            }
+            return false
+        }
+
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            when (elisionMode) {
+                ElisionMode.DISCARD -> {}
+                ElisionMode.INLINE -> {
+                    for (i in 0 until children.size) {
+                        children[i].write(writer, creationState)
+                    }
+                }
+                ElisionMode.PRESERVE -> {
+                    writer.save()
+                    for (i in 0 until children.size) {
+                        children[i].write(writer, creationState)
+                    }
+                    writer.restore()
+                }
+            }
+        }
+
+        override fun toString(): String = "Save@${hashCode().toString(16)}"
+    }
+
+    /** Represents an expression evaluation (hoisted variable assignment). */
+    class Expression(val key: RemoteOperationCacheKey, val state: BaseRemoteState<*>) : CanvasOp() {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            creationState.getOrPutVariableId(key) { state.writeToDocument(creationState) }
+        }
+    }
+
+    /** The strategy for rendering a [Save] node during flush. */
+    enum class ElisionMode {
+        /**
+         * Keep the save/restore bounds and write [RemoteComposeWriter.save] and
+         * [RemoteComposeWriter.restore].
+         */
+        PRESERVE,
+
+        /**
+         * Discard the save/restore bounds but write all the children. This inlines the children
+         * into the parent scope.
+         */
+        INLINE,
+
+        /** Discard the save/restore block and all of its children. */
+        DISCARD,
+    }
+}
+
+/**
  * Buffers drawing operations and tracks expression roots. It allows for global optimizations such
  * as common subexpression elimination and operation reordering before operations are recorded into
  * the document.
  */
-internal class CanvasOperationBuffer {
+internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
     /**
      * Represents a node in the tree of operations, corresponding to a lexical scope (e.g., a branch
@@ -40,9 +233,9 @@ internal class CanvasOperationBuffer {
         var child: Span? = null
         var next: Span? = null
 
-        fun record() {
+        fun record(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
             for (i in 0 until operations.size) {
-                operations[i].action()
+                operations[i].op.write(writer, creationState)
             }
         }
 
@@ -88,7 +281,7 @@ internal class CanvasOperationBuffer {
      * tracks its dependencies and can be hoisted to a higher span if it is used across multiple
      * spans.
      */
-    internal class SpanOp(var idealSpan: Span, val action: () -> Unit) {
+    internal class SpanOp(var idealSpan: Span, val op: CanvasOp) {
         val deps = ArrayList<SpanOp>()
         var visited = false
     }
@@ -101,21 +294,21 @@ internal class CanvasOperationBuffer {
     internal var lastRenderingOp: SpanOp? = null
 
     /**
-     * Records a rendering operation and ensures it is correctly ordered.
+     * Records a structured rendering operation into the current active span.
      *
-     * This method creates a new [SpanOp] for the operation, adds it to the current insert point,
-     * and chains it to the previous rendering operation by adding a dependency. This guarantees
-     * that rendering operations preserve their relative order during execution.
+     * This method creates a [SpanOp] wrapping the given [op], adds it to the current [insertPoint]
+     * span, and automatically establishes a sequential dependency on the previously recorded
+     * rendering operation (if any) to preserve execution order.
      *
-     * @param action The action that performs the rendering operation.
-     * @return The newly created and recorded operation.
+     * @param op The structured canvas operation to record.
+     * @return The created [SpanOp] representing this operation in the dependency graph.
      */
-    public fun recordRenderingOp(action: () -> Unit): SpanOp {
-        val op = SpanOp(insertPoint, action = action)
-        insertPoint.operations.add(op)
-        lastRenderingOp?.let { op.deps.add(it) }
-        lastRenderingOp = op
-        return op
+    public fun recordRenderingOp(op: CanvasOp): SpanOp {
+        val spanOp = SpanOp(insertPoint, op)
+        insertPoint.operations.add(spanOp)
+        lastRenderingOp?.let { spanOp.deps.add(it) }
+        lastRenderingOp = spanOp
+        return spanOp
     }
 
     /**
@@ -174,8 +367,14 @@ internal class CanvasOperationBuffer {
      */
     public fun flush(creationState: RemoteComposeCreationState) {
         commonSubExpressionElimination(creationState)
+
+        // Run optimizations on the span tree
+        if (enableOptimizations) {
+            optimizeSpan(spanTreeRoot)
+        }
+
         spanTreeRoot.sortAllSpans()
-        spanTreeRoot.record()
+        spanTreeRoot.record(creationState.document, creationState)
 
         // Reset for next flush
         spanTreeRoot = Span(null, 0)
@@ -184,6 +383,535 @@ internal class CanvasOperationBuffer {
         usageMap.clear()
         expressionMap.clear()
         lastRenderingOp = null
+    }
+
+    /**
+     * Recursively applies optimizations to the span tree.
+     *
+     * It runs the elision pass to identify useless save/restores, flattens (inlines) them, and then
+     * optimizes transforms in the resulting simplified tree.
+     */
+    private fun optimizeSpan(span: Span) {
+        elisionPassSpan(span)
+        flattenSpan(span)
+        optimizeTransformsSpan(span)
+
+        var currentChild = span.child
+        while (currentChild != null) {
+            optimizeSpan(currentChild)
+            currentChild = currentChild.next
+        }
+    }
+
+    private fun RemoteFloat?.cacheKeysMatch(other: RemoteFloat?): Boolean {
+        if (this == null && other == null) return true
+        if (this == null || other == null) return false
+        return this.cacheKey == other.cacheKey
+    }
+
+    /**
+     * Pushes a translation operation into the pending operations list, attempting to commute it
+     * leftwards past other transformations (Scale, Rotate, Skew) to enable further fusing with
+     * existing translations.
+     *
+     * As the translation commutes past other operations, its offsets are adjusted:
+     * - Past [PendingOp.Scale]: Offsets are scaled by the scale factors.
+     * - Past [PendingOp.Rotate]: Offsets are rotated by the rotation angle.
+     * - Past [PendingOp.Skew]: Offsets are skewed by the skew factors.
+     *
+     * Commutation is only possible if the encountered transformation has constant values (not
+     * dynamic/animated expressions), allowing the adjustment to be computed at creation time. If
+     * commutation is blocked, the translation is inserted at the current position.
+     */
+    private fun MutableList<PendingOp>.pushTranslate(dx: RemoteFloat, dy: RemoteFloat) {
+        var currDx = dx
+        var currDy = dy
+        var i = size - 1
+        // Travel backwards through the list to find a Translate to fuse with,
+        // or commute past Scale/Rotate/Skew.
+        while (i >= 0) {
+            val op = this[i]
+            when (op) {
+                is PendingOp.Translate -> {
+                    // Found another Translate, fuse them by adding offsets.
+                    this[i] = PendingOp.Translate(op.dx + currDx, op.dy + currDy)
+                    return
+                }
+                is PendingOp.Scale -> {
+                    // Commute past Scale: we must scale the translation offsets.
+                    // This is only possible if the scale factors are constants.
+                    val sxVal = op.sx.constantValueOrNull
+                    val syVal = op.sy.constantValueOrNull
+                    if (sxVal == null || syVal == null) {
+                        break // Cannot commute past dynamic scale, stop here.
+                    }
+                    currDx = currDx * op.sx
+                    currDy = currDy * op.sy
+                    i--
+                }
+                is PendingOp.Rotate -> {
+                    // Commute past Rotate: we must rotate the translation offsets.
+                    // This is only possible if the rotation angle is constant.
+                    val angleVal = op.angle.constantValueOrNull
+                    if (angleVal == null) {
+                        break // Cannot commute past dynamic rotation, stop here.
+                    }
+                    val rad = Math.toRadians(angleVal.toDouble())
+                    val cos = Math.cos(rad).toFloat()
+                    val sin = Math.sin(rad).toFloat()
+                    val rx = currDx * cos - currDy * sin
+                    val ry = currDx * sin + currDy * cos
+                    currDx = rx
+                    currDy = ry
+                    i--
+                }
+                is PendingOp.Skew -> {
+                    // Commute past Skew: we must skew the translation offsets.
+                    // This is only possible if the skew factors are constants.
+                    val sxVal = op.sx.constantValueOrNull
+                    val syVal = op.sy.constantValueOrNull
+                    if (sxVal == null || syVal == null) {
+                        break // Cannot commute past dynamic skew, stop here.
+                    }
+                    val rx = currDx + currDy * sxVal
+                    val ry = currDx * syVal + currDy
+                    currDx = rx
+                    currDy = ry
+                    i--
+                }
+            }
+        }
+        // Insert the accumulated translation at the position we stopped.
+        this.add(i + 1, PendingOp.Translate(currDx, currDy))
+    }
+
+    /**
+     * Pushes a scale operation into the pending operations list.
+     *
+     * If the immediate preceding operation is also a [PendingOp.Scale] and shares the exact same
+     * pivot point ([px], [py]), the two scales are fused into a single scale by multiplying their
+     * scale factors. Otherwise, the scale is appended.
+     */
+    private fun MutableList<PendingOp>.pushScale(
+        sx: RemoteFloat,
+        sy: RemoteFloat,
+        px: RemoteFloat?,
+        py: RemoteFloat?,
+    ) {
+        if (isNotEmpty()) {
+            val last = last()
+            // If the last op is also a Scale with the same pivot, we can fuse them.
+            if (
+                last is PendingOp.Scale && last.px.cacheKeysMatch(px) && last.py.cacheKeysMatch(py)
+            ) {
+                // Fuse by multiplying the scale factors.
+                this[size - 1] = PendingOp.Scale(last.sx * sx, last.sy * sy, px, py)
+                return
+            }
+        }
+        // Otherwise, append the new scale.
+        add(PendingOp.Scale(sx, sy, px, py))
+    }
+
+    /**
+     * Pushes a rotation operation into the pending operations list.
+     *
+     * If the immediate preceding operation is also a [PendingOp.Rotate] and shares the exact same
+     * pivot point ([px], [py]), the two rotations are fused into a single rotation by adding their
+     * angles. Otherwise, the rotation is appended.
+     */
+    private fun MutableList<PendingOp>.pushRotate(
+        angle: RemoteFloat,
+        px: RemoteFloat?,
+        py: RemoteFloat?,
+    ) {
+        if (isNotEmpty()) {
+            val last = last()
+            // If the last op is also a Rotate with the same pivot, we can fuse them.
+            if (
+                last is PendingOp.Rotate && last.px.cacheKeysMatch(px) && last.py.cacheKeysMatch(py)
+            ) {
+                // Fuse by adding the rotation angles.
+                this[size - 1] = PendingOp.Rotate(last.angle + angle, px, py)
+                return
+            }
+        }
+        // Otherwise, append the new rotation.
+        add(PendingOp.Rotate(angle, px, py))
+    }
+
+    /**
+     * Pushes a skew operation into the pending operations list.
+     *
+     * Skew operations are not fused because consecutive skews in different axes cannot be
+     * mathematically combined by simply adding their factors.
+     */
+    private fun MutableList<PendingOp>.pushSkew(sx: RemoteFloat, sy: RemoteFloat) {
+        add(PendingOp.Skew(sx, sy))
+    }
+
+    /**
+     * Fuses and commutes a list of consecutive [PendingOp] transforms.
+     *
+     * Consecutive translations, scales, and rotations are fused. Translations are commuted left
+     * past scales/rotates/skews when possible to enable further fusing.
+     */
+    private fun optimizeTransformList(ops: List<PendingOp>): List<PendingOp> =
+        buildList(ops.size) {
+            for (i in 0 until ops.size) {
+                val op = ops[i]
+                when (op) {
+                    is PendingOp.Translate -> pushTranslate(op.dx, op.dy)
+                    is PendingOp.Scale -> pushScale(op.sx, op.sy, op.px, op.py)
+                    is PendingOp.Rotate -> pushRotate(op.angle, op.px, op.py)
+                    is PendingOp.Skew -> pushSkew(op.sx, op.sy)
+                }
+            }
+        }
+
+    /**
+     * Recursively optimizes transform operations within each scope of the tree.
+     *
+     * Within each [CanvasOp.Save] node, consecutive [CanvasOp.Transform] nodes (separated only by
+     * other transforms) are grouped and optimized via [optimizeTransformList]. Non-transform nodes
+     * (like drawings or clips) act as barriers.
+     */
+    internal fun optimizeTransforms(ops: MutableList<CanvasOp>) {
+        for (i in 0 until ops.size) {
+            val child = ops[i]
+            if (child is CanvasOp.Save) {
+                optimizeTransforms(child.children)
+            }
+        }
+
+        val pendingTransforms = ArrayList<PendingOp>()
+        val newOps =
+            buildList(ops.size) {
+                fun flushTransforms() {
+                    if (pendingTransforms.isNotEmpty()) {
+                        val optimized = optimizeTransformList(pendingTransforms)
+                        for (j in 0 until optimized.size) {
+                            add(CanvasOp.Transform(optimized[j]))
+                        }
+                        pendingTransforms.clear()
+                    }
+                }
+
+                for (i in 0 until ops.size) {
+                    val child = ops[i]
+                    when (child) {
+                        is CanvasOp.Transform -> {
+                            pendingTransforms.add(child.op)
+                        }
+                        else -> {
+                            flushTransforms()
+                            add(child)
+                        }
+                    }
+                }
+                flushTransforms()
+            }
+        ops.clear()
+        ops.addAll(newOps)
+    }
+
+    private fun replaceDependency(span: Span, oldDep: SpanOp, newDep: SpanOp) {
+        for (i in 0 until span.operations.size) {
+            val op = span.operations[i]
+            if (op.deps.remove(oldDep)) {
+                op.deps.add(newDep)
+            }
+        }
+        var child = span.child
+        while (child != null) {
+            replaceDependency(child, oldDep, newDep)
+            child = child.next
+        }
+    }
+
+    private fun routeDependenciesAround(span: Span, oldDep: SpanOp) {
+        for (i in 0 until span.operations.size) {
+            val op = span.operations[i]
+            if (op.deps.remove(oldDep)) {
+                op.deps.addAll(oldDep.deps)
+            }
+        }
+        var child = span.child
+        while (child != null) {
+            routeDependenciesAround(child, oldDep)
+            child = child.next
+        }
+    }
+
+    /**
+     * Optimizes consecutive transforms inside a [Span].
+     *
+     * Fuses consecutive [CanvasOp.Transform] nodes in the span's operations list, ensuring that any
+     * dependencies on hoisted variables are correctly propagated to the new fused operation.
+     */
+    private fun optimizeTransformsSpan(span: Span) {
+        for (i in 0 until span.operations.size) {
+            val child = span.operations[i]
+            if (child.op is CanvasOp.Save) {
+                optimizeTransforms(child.op.children)
+            }
+        }
+
+        val pendingSpanOps = ArrayList<SpanOp>()
+        val newOps =
+            buildList(span.operations.size) {
+                fun flushTransforms() {
+                    if (pendingSpanOps.isNotEmpty()) {
+                        val pendingTransforms = ArrayList<PendingOp>(pendingSpanOps.size)
+                        for (k in 0 until pendingSpanOps.size) {
+                            pendingTransforms.add((pendingSpanOps[k].op as CanvasOp.Transform).op)
+                        }
+                        val optimized = optimizeTransformList(pendingTransforms)
+
+                        val fusedSet = HashSet<SpanOp>(pendingSpanOps.size)
+                        for (k in 0 until pendingSpanOps.size) {
+                            fusedSet.add(pendingSpanOps[k])
+                        }
+
+                        val commonDeps = ArrayList<SpanOp>()
+                        val seenDeps = HashSet<SpanOp>()
+                        for (k in 0 until pendingSpanOps.size) {
+                            val deps = pendingSpanOps[k].deps
+                            for (m in 0 until deps.size) {
+                                val dep = deps[m]
+                                if (dep !in fusedSet && seenDeps.add(dep)) {
+                                    commonDeps.add(dep)
+                                }
+                            }
+                        }
+
+                        var lastNewOp: SpanOp? = null
+                        for (j in 0 until optimized.size) {
+                            val newSpanOp = SpanOp(span, CanvasOp.Transform(optimized[j]))
+                            if (j == 0) {
+                                newSpanOp.deps.addAll(commonDeps)
+                            } else {
+                                newSpanOp.deps.add(lastNewOp!!)
+                            }
+                            add(newSpanOp)
+                            lastNewOp = newSpanOp
+                        }
+
+                        if (lastNewOp != null) {
+                            val lastOldOp = pendingSpanOps.last()
+                            replaceDependency(span, lastOldOp, lastNewOp)
+                        }
+                        pendingSpanOps.clear()
+                    }
+                }
+
+                for (i in 0 until span.operations.size) {
+                    val child = span.operations[i]
+                    when (child.op) {
+                        is CanvasOp.Transform -> {
+                            pendingSpanOps.add(child)
+                        }
+                        else -> {
+                            flushTransforms()
+                            add(child)
+                        }
+                    }
+                }
+                flushTransforms()
+            }
+        span.operations.clear()
+        span.operations.addAll(newOps)
+    }
+
+    /**
+     * Traverses the operation list from right-to-left (reverse post-order) to identify redundant
+     * `save`/`restore` blocks.
+     *
+     * A block is marked as [CanvasOp.ElisionMode.INLINE] if it contains draw calls but there are no
+     * subsequent draw calls after its restore point (making the state restoration pointless).
+     * Blocks with no draw calls at all are marked as [CanvasOp.ElisionMode.DISCARD].
+     *
+     * To prevent state leakage, `Save` blocks containing transforms or clips are **never** inlined
+     * if they reside in a nested child span ([isRootSpan] is false).
+     *
+     * @param ops The list of operations to process.
+     * @param seenDrawCall Whether a draw call has been seen to the right of this list.
+     * @param isRootSpan Whether we are processing the root span of the document.
+     * @return True if a draw call was seen during the traversal of this list or to its right.
+     */
+    internal fun elisionPass(
+        ops: MutableList<CanvasOp>,
+        seenDrawCall: Boolean,
+        isRootSpan: Boolean,
+    ): Boolean {
+        var currentSeenDrawCall = seenDrawCall
+        for (i in ops.size - 1 downTo 0) {
+            val child = ops[i]
+            when (child) {
+                is CanvasOp.Draw -> {
+                    currentSeenDrawCall = true
+                }
+                is CanvasOp.Save -> {
+                    if (!child.hasDrawCalls) {
+                        child.elisionMode = CanvasOp.ElisionMode.DISCARD
+                    } else {
+                        val hasTransformsOrClips = child.hasTransformsOrClips()
+                        if (!hasTransformsOrClips) {
+                            // No state changes, safe to inline anywhere!
+                            child.elisionMode = CanvasOp.ElisionMode.INLINE
+                            currentSeenDrawCall =
+                                elisionPass(child.children, currentSeenDrawCall, isRootSpan)
+                        } else if (!currentSeenDrawCall) {
+                            // Has transforms/clips, but no drawing after it.
+                            // Safe to inline only if it's the root span (to prevent leakage to
+                            // sibling branches in child spans).
+                            if (isRootSpan) {
+                                child.elisionMode = CanvasOp.ElisionMode.INLINE
+                                currentSeenDrawCall =
+                                    elisionPass(child.children, currentSeenDrawCall, isRootSpan)
+                            } else {
+                                child.elisionMode = CanvasOp.ElisionMode.PRESERVE
+                                elisionPass(child.children, false, isRootSpan)
+                                currentSeenDrawCall = true
+                            }
+                        } else {
+                            // Has transforms/clips and drawing after it. Must preserve.
+                            child.elisionMode = CanvasOp.ElisionMode.PRESERVE
+                            elisionPass(child.children, false, isRootSpan)
+                            currentSeenDrawCall = true
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
+        return currentSeenDrawCall
+    }
+
+    /** Applies the elision pass to the operations directly in a [Span]. */
+    private fun elisionPassSpan(span: Span) {
+        val isRootSpan = (span == spanTreeRoot)
+        var seenDrawCall = false
+        for (i in span.operations.size - 1 downTo 0) {
+            val child = span.operations[i]
+            when (val op = child.op) {
+                is CanvasOp.Draw -> {
+                    seenDrawCall = true
+                }
+                is CanvasOp.Save -> {
+                    if (!op.hasDrawCalls) {
+                        op.elisionMode = CanvasOp.ElisionMode.DISCARD
+                    } else {
+                        val hasTransformsOrClips = op.hasTransformsOrClips()
+                        if (!hasTransformsOrClips) {
+                            op.elisionMode = CanvasOp.ElisionMode.INLINE
+                            seenDrawCall = elisionPass(op.children, seenDrawCall, isRootSpan)
+                        } else if (!seenDrawCall) {
+                            if (isRootSpan) {
+                                op.elisionMode = CanvasOp.ElisionMode.INLINE
+                                seenDrawCall = elisionPass(op.children, seenDrawCall, isRootSpan)
+                            } else {
+                                op.elisionMode = CanvasOp.ElisionMode.PRESERVE
+                                elisionPass(op.children, false, isRootSpan)
+                                seenDrawCall = true
+                            }
+                        } else {
+                            op.elisionMode = CanvasOp.ElisionMode.PRESERVE
+                            elisionPass(op.children, false, isRootSpan)
+                            seenDrawCall = true
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    /**
+     * Recursively applies the elision decisions made in [elisionPass].
+     *
+     * Removes [CanvasOp.ElisionMode.DISCARD] nodes and inlines the children of
+     * [CanvasOp.ElisionMode.INLINE] nodes directly into their parent's children list.
+     */
+    private fun flatten(node: CanvasOp.Save) {
+        val newChildren =
+            buildList(node.children.size) {
+                for (i in 0 until node.children.size) {
+                    val child = node.children[i]
+                    when (child) {
+                        is CanvasOp.Save -> {
+                            flatten(child)
+                            when (child.elisionMode) {
+                                CanvasOp.ElisionMode.DISCARD -> {}
+                                CanvasOp.ElisionMode.INLINE -> {
+                                    addAll(child.children)
+                                }
+                                CanvasOp.ElisionMode.PRESERVE -> {
+                                    add(child)
+                                }
+                            }
+                        }
+                        else -> {
+                            add(child)
+                        }
+                    }
+                }
+            }
+        node.children.clear()
+        node.children.addAll(newChildren)
+    }
+
+    /**
+     * Flattens (inlines) elided [CanvasOp.Save] nodes that reside directly in a [Span].
+     *
+     * If a `Save` node is inlined, its children are flattened into the span's operations list,
+     * chained sequentially (to preserve execution order), and dependencies of subsequent operations
+     * are re-routed to the last inlined operation. If a `Save` node is discarded, dependencies are
+     * routed around it.
+     */
+    private fun flattenSpan(span: Span) {
+        val newOps =
+            buildList(span.operations.size) {
+                for (i in 0 until span.operations.size) {
+                    val child = span.operations[i]
+                    when (val op = child.op) {
+                        is CanvasOp.Save -> {
+                            flatten(op)
+                            when (op.elisionMode) {
+                                CanvasOp.ElisionMode.DISCARD -> {
+                                    routeDependenciesAround(span, child)
+                                }
+                                CanvasOp.ElisionMode.INLINE -> {
+                                    var lastInlinedOp: SpanOp? = null
+                                    for (j in 0 until op.children.size) {
+                                        val newSpanOp = SpanOp(span, op.children[j])
+                                        if (j == 0) {
+                                            newSpanOp.deps.addAll(child.deps)
+                                        } else {
+                                            newSpanOp.deps.add(lastInlinedOp!!)
+                                        }
+                                        add(newSpanOp)
+                                        lastInlinedOp = newSpanOp
+                                    }
+                                    if (lastInlinedOp != null) {
+                                        replaceDependency(span, child, lastInlinedOp)
+                                    } else {
+                                        routeDependenciesAround(span, child)
+                                    }
+                                }
+                                CanvasOp.ElisionMode.PRESERVE -> {
+                                    add(child)
+                                }
+                            }
+                        }
+                        else -> {
+                            add(child)
+                        }
+                    }
+                }
+            }
+        span.operations.clear()
+        span.operations.addAll(newOps)
     }
 
     private fun commonSubExpressionElimination(creationState: RemoteComposeCreationState) {
@@ -306,10 +1034,7 @@ internal class CanvasOperationBuffer {
                 }
             }
 
-            val op =
-                SpanOp(idealSpan) {
-                    creationState.getOrPutVariableId(key) { state.writeToDocument(creationState) }
-                }
+            val op = SpanOp(idealSpan, CanvasOp.Expression(key, state))
 
             // Add dependencies on other common ops
             for (i in 0 until key.args.size) {
