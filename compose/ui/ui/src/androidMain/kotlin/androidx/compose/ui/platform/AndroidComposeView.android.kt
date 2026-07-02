@@ -19,10 +19,14 @@
 package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
+import android.hardware.input.InputManager
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.M
 import android.os.Build.VERSION_CODES.N
@@ -30,6 +34,7 @@ import android.os.Build.VERSION_CODES.O
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.S
 import android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
+import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
 import android.os.SystemClock
@@ -89,10 +94,17 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.SessionMutex
+import androidx.compose.ui.adaptive.UiMediaScopeImpl
+import androidx.compose.ui.adaptive.hasPhysicalKeyboard
+import androidx.compose.ui.adaptive.isDocked
+import androidx.compose.ui.adaptive.isImeVisible
+import androidx.compose.ui.adaptive.resolvePointerPrecision
+import androidx.compose.ui.adaptive.resolvePosture
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.AutofillTree
@@ -221,6 +233,7 @@ import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.withClip
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
@@ -239,11 +252,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.get
+import androidx.window.layout.WindowInfoTracker
 import java.lang.reflect.Method
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /** Allows tests to inject a custom [PlatformTextInputService]. */
 internal var platformTextInputServiceInterceptor:
@@ -281,6 +300,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 newContext.incrementViewCount()
             }
             field = newContext
+            @OptIn(ExperimentalMediaQueryApi::class)
+            _uiMediaScope?._windowInfo = newContext.windowInfo
         }
 
     /**
@@ -328,6 +349,94 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     internal fun disposeSavedStateRegistry() {
         _savedStateRegistry?.dispose()
         _savedStateRegistry = null
+    }
+
+    @OptIn(ExperimentalMediaQueryApi::class) internal var _uiMediaScope: UiMediaScopeImpl? = null
+
+    @OptIn(ExperimentalMediaQueryApi::class, ExperimentalComposeUiApi::class)
+    override val uiMediaScope: UiMediaScopeImpl?
+        get() {
+            if (!ComposeUiFlags.isMediaQueryIntegrationEnabled) return null
+            val scope = _uiMediaScope
+            if (scope != null) return scope
+
+            val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
+            // Query initial IME visibility state
+            val initialImeVisibility = ViewCompat.getRootWindowInsets(this)?.isImeVisible ?: false
+            val newScope = UiMediaScopeImpl(context, inputManager, windowInfo, initialImeVisibility)
+            _uiMediaScope = newScope
+
+            if (isAttachedToWindow) {
+                // Setup listeners asynchronously to keep composition side-effect free and wait for
+                // layout to complete.
+                post {
+                    // Re-check attachment status as view detachment may have occurred in the
+                    // meantime.
+                    if (isAttachedToWindow) {
+                        initializeMediaQueryListeners(newScope)
+                    }
+                }
+            }
+            return newScope
+        }
+
+    private var postureScope: CoroutineScope? = null
+    private var inputDeviceListener: InputManager.InputDeviceListener? = null
+    private var dockReceiver: BroadcastReceiver? = null
+
+    @OptIn(ExperimentalMediaQueryApi::class)
+    private fun initializeMediaQueryListeners(scope: UiMediaScopeImpl) {
+        // Window posture
+        if (postureScope != null) return
+        // Use SupervisorJob to prevent scope cancellation or child failure from affecting the
+        // parent View's job.
+        postureScope = CoroutineScope(coroutineContext + SupervisorJob())
+        postureScope?.launch {
+            WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).collectLatest { layout
+                ->
+                scope._windowPosture = resolvePosture(layout)
+            }
+        }
+
+        // Input Devices (Pointer & Physical Keyboard)
+        val inputManager = scope.inputManager
+        val listener =
+            object : InputManager.InputDeviceListener {
+                override fun onInputDeviceAdded(id: Int) = update()
+
+                override fun onInputDeviceRemoved(id: Int) = update()
+
+                override fun onInputDeviceChanged(id: Int) = update()
+
+                fun update() {
+                    scope._anyPointer = resolvePointerPrecision(inputManager)
+                    scope.hasPhysicalKeyboard = hasPhysicalKeyboard(inputManager)
+                }
+            }
+        inputManager.registerInputDeviceListener(listener, Handler(Looper.getMainLooper()))
+        listener.update()
+        inputDeviceListener = listener
+
+        // IME visibility (Virtual Keyboard)
+        scope.isImeVisible = ViewCompat.getRootWindowInsets(this)?.isImeVisible ?: false
+
+        // Docked state receiver for reachability
+        val filter = IntentFilter(Intent.ACTION_DOCK_EVENT)
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    scope.isDocked = isDocked(intent)
+                }
+            }
+        val stickyIntent =
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                filter,
+                ContextCompat.RECEIVER_EXPORTED,
+            )
+        scope.isDocked = isDocked(stickyIntent)
+        dockReceiver = receiver
     }
 
     override var retainedValuesStore: RetainedValuesStore = ForgetfulRetainedValuesStore
@@ -2374,7 +2483,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         invalidate()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
@@ -2429,6 +2538,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             semanticsOwner.listeners += it
         }
         focusOwner.listeners += this
+
+        val scope = _uiMediaScope
+        if (scope != null) {
+            initializeMediaQueryListeners(scope)
+        }
     }
 
     private fun installLocalRetainedValuesStore(
@@ -2455,7 +2569,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return retainedValuesStoreEntry.retainedValuesStore
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         isAttached = false
@@ -2494,6 +2608,19 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         rectManager.removeScheduledCallback()
 
         focusOwner.listeners -= this
+
+        if (_uiMediaScope != null) {
+            postureScope?.cancel()
+            postureScope = null
+
+            inputDeviceListener?.let {
+                _uiMediaScope?.inputManager?.unregisterInputDeviceListener(it)
+            }
+            inputDeviceListener = null
+
+            dockReceiver?.let { context.unregisterReceiver(it) }
+            dockReceiver = null
+        }
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
@@ -3378,11 +3505,18 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     // on a different position, but also in the position of each of the grandparents as all
     // these
     // positions add up to final global position)
+    @OptIn(ExperimentalMediaQueryApi::class)
     override fun onGlobalLayout() {
         // make sure that we use an updated window position and matrix
         lastMatrixRecalculationAnimationTime = 0
         updatePositionCacheAndDispatch()
         dispatchConfigurationChangeIfNeeded()
+        // Fallback polling when rulers are disabled to ensure IME updates still occur.
+        if (!areWindowInsetsRulersEnabled) {
+            _uiMediaScope?.let { scope ->
+                scope.isImeVisible = ViewCompat.getRootWindowInsets(this)?.isImeVisible ?: false
+            }
+        }
     }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the
