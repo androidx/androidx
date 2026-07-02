@@ -995,11 +995,8 @@ public fun <S> Transition<S>.AnimatedContent(
  *   ends and the automatic transition begins when [DeferredTransitionState.animateTo] is called.
  *
  *   **Transformations:** During this phase, you can manually manipulate the entering and exiting
- *   content's transformations (via [MutableContentTransform]). These transformations are combined
- *   with (i.e., applied on top of) the transition's initial state. Properties like alpha and scale
- *   are applied multiplicatively, while offset is applied additively. For example, if the enter
- *   transition starts at an alpha of 0.5, applying a manual alpha of 0.5 will result in a combined
- *   visual alpha of 0.25. Properties that are not manually set default to the transition's values.
+ *   content's transformations (via [MutableContentTransform]). Properties that are not manually set
+ *   default to the transition's initial values during the deferred phase.
  *
  * **Handoff:** Once the transition starts, the manually applied transformations are seamlessly
  * handed off to the configured [transitionSpec]. For exiting content, a "sustain unless specified"
