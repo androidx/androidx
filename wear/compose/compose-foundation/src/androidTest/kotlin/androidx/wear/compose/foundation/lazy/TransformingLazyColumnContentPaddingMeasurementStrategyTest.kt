@@ -16,6 +16,9 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.collection.IntList
+import androidx.collection.emptyIntList
+import androidx.collection.intListOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
@@ -1287,6 +1290,7 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
                 scrollToBeConsumed = 10f, // Scroll by 10px
                 coroutineScope = CoroutineScope(EmptyCoroutineContext),
                 density = density,
+                pinnedItems = emptyIntList(),
                 layout = { width, height, _ ->
                     object : MeasureResult {
                         override val width = width
@@ -1310,6 +1314,269 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         val item0 = result.visibleItems.first { it.index == 0 }
         assertThat(item1.offset).isEqualTo(15)
         assertThat(item0.offset).isEqualTo(-5)
+    }
+
+    @Test
+    fun pinnedItems_includesExtraItemsBefore() {
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50, 50, 50),
+                anchorItemIndex = 2, // Visible item index 2 in center
+                pinnedItems = intListOf(0, 1),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        // Index 0 should be measured as extra items before (Index 1 is already visible)
+        assertThat(measuredItemOffsets).containsKey(0)
+        assertThat(measuredItemOffsets).containsKey(1) // Measured as visible
+        assertThat(result.visibleItems.map { it.index }).contains(1)
+        assertThat(result.visibleItems.map { it.index }).doesNotContain(0)
+
+        // Check positioning: extra items should be placed above visible items
+        val firstVisibleItem = result.visibleItems.first() // This should be Item 1
+        val item0 = measuredItemOffsets[0]!!
+
+        // itemSpacing is 8 (hardcoded in test helper)
+        // firstVisibleItem is Item 1. Its offset is -33.
+        // item0 (extra) is placed above Item 1.
+        // Its BOTTOM should be firstVisibleItem.offset - 8
+        assertThat(item0).isEqualTo(firstVisibleItem.offset - 8)
+    }
+
+    @Test
+    fun pinnedItems_multipleExtraBefore_maintainsAscendingIndexOrder() {
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50, 50, 50, 50),
+                anchorItemIndex = 4, // Item 4 is in center, items 0 and 1 are extra items before
+                pinnedItems = intListOf(0, 1),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            )
+
+        // positionedItems (which includes extra pinned items) must have indices in ascending order
+        val indices = result.positionedItems.map { it.index }
+        assertThat(indices).isEqualTo(indices.sorted())
+    }
+
+    @Test
+    fun pinnedItems_includesExtraItemsAfter() {
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50, 50, 50),
+                anchorItemIndex = 1, // Visible item index 1 in center
+                pinnedItems = intListOf(2, 3),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        // Index 3 should be measured as extra items after (Index 2 is already visible)
+        assertThat(measuredItemOffsets).containsKey(3)
+        assertThat(measuredItemOffsets).containsKey(2) // Measured as visible
+        assertThat(result.visibleItems.map { it.index }).contains(2)
+        assertThat(result.visibleItems.map { it.index }).doesNotContain(3)
+
+        // Check positioning: extra items should be placed below visible items
+        val lastVisibleItem = result.visibleItems.last() // This should be Item 2
+        val item3 = measuredItemOffsets[3]!!
+
+        // itemSpacing is 8
+        // lastVisibleItem is Item 2.
+        // item3 (extra) is placed below Item 2.
+        // Its TOP should be lastVisibleItem.offset + lastVisibleItem.transformedHeight + 8
+        assertThat(item3).isEqualTo(lastVisibleItem.offset + lastVisibleItem.transformedHeight + 8)
+    }
+
+    @Test
+    fun pinnedItems_mixedBeforeAndAfter() {
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50, 50, 50, 50),
+                anchorItemIndex = 2, // Visible item index 2
+                pinnedItems = intListOf(0, 4),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        assertThat(measuredItemOffsets).containsKey(0)
+        assertThat(measuredItemOffsets).containsKey(4)
+        assertThat(result.visibleItems.map { it.index }).doesNotContain(0)
+        assertThat(result.visibleItems.map { it.index }).doesNotContain(4)
+
+        val firstVisible = result.visibleItems.first()
+        val lastVisible = result.visibleItems.last()
+
+        assertThat(measuredItemOffsets[0]).isEqualTo(firstVisible.offset - 8)
+        assertThat(measuredItemOffsets[4])
+            .isEqualTo(lastVisible.offset + lastVisible.transformedHeight + 8)
+    }
+
+    @Test
+    fun pinnedItems_alreadyVisible_notDuplicatedInExtra() {
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50, 50),
+                anchorItemIndex = 1, // All items likely visible
+                pinnedItems = intListOf(1),
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        // Index 1 is visible
+        assertThat(result.visibleItems.map { it.index }).contains(1)
+        // Index 1 is measured (as visible item/anchor)
+        assertThat(measuredItemOffsets).containsKey(1)
+    }
+
+    @Test
+    fun pinnedItems_reverseLayout_correctDirectionsAndProgress() {
+        val measuredItems = mutableListOf<TransformingLazyColumnMeasuredItem>()
+        val customMeasuredItemProvider =
+            MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+                val item =
+                    TransformingLazyColumnMeasuredItem(
+                        index = index,
+                        offset = offset,
+                        placeable =
+                            EmptyPlaceable(
+                                width = screenWidth,
+                                height = 50,
+                                transformedHeight = null,
+                                minimumTopContentPadding = null,
+                                minimumBottomContentPadding = null,
+                            ),
+                        containerConstraints = containerConstraints,
+                        spacing = 8,
+                        leftPadding = 0,
+                        rightPadding = 0,
+                        measureScrollProgress = progressProvider(50),
+                        measurementDirection = measurementDirection,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        layoutDirection = LayoutDirection.Ltr,
+                        key = index.toString(),
+                        contentType = null,
+                        reverseLayout = true,
+                    )
+                measuredItems.add(item)
+                item
+            }
+
+        val reverseStrategy = measurementStrategy(reverseLayout = true)
+        reverseStrategy.measure(
+            itemsCount = 4,
+            measuredItemProvider = customMeasuredItemProvider,
+            keyIndexMap =
+                object : LazyLayoutKeyIndexMap {
+                    override fun getIndex(key: Any): Int = key.toString().toInt()
+
+                    override fun getKey(index: Int): Any? = index.toString()
+                },
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            containerConstraints = containerConstraints,
+            anchorItemKey = "2",
+            anchorItemIndex = 2,
+            anchorItemScrollOffset = -40, // Shift down to make items 0 and 3 invisible
+            lastMeasuredAnchorItemHeight = 50,
+            scrollToBeConsumed = 0f,
+            coroutineScope = CoroutineScope(EmptyCoroutineContext),
+            density = density,
+            pinnedItems = intListOf(0, 3), // 0 is before, 3 is after
+            layout = { width, height, _ ->
+                object : MeasureResult {
+                    override val width = width
+                    override val height = height
+                    override val alignmentLines
+                        get() = TODO("Not yet implemented")
+
+                    override fun placeChildren() {}
+                }
+            },
+        )
+
+        // Find the measured extra items
+        val item0 = measuredItems.first { it.index == 0 }
+        val item3 = measuredItems.first { it.index == 3 }
+
+        // Since PinnableContainer logic does not consider reverseLayout (visual offset is resolved
+        // on placement), extraBefore items are measured UPWARD and extraAfter items DOWNWARD.
+        assertThat(item0.measurementDirection).isEqualTo(MeasurementDirection.UPWARD)
+        assertThat(item3.measurementDirection).isEqualTo(MeasurementDirection.DOWNWARD)
+    }
+
+    @Test
+    fun pinnedItems_emptyVisibleItems_beforePaddingLargerThanScreenHeight() {
+        val strategyWithLargeBeforePadding =
+            measurementStrategy(contentPadding = PaddingValues(top = 150.dp))
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategyWithLargeBeforePadding.measure(
+                itemHeights = listOf(50),
+                anchorItemIndex = 0,
+                pinnedItems = intListOf(0),
+                // Since anchor is at 0, strategy centers it (~25px). We need to push
+                // it down by 125px so it settles at 150px (offscreen topPadding boundary).
+                anchorItemScrollOffset = -125,
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        // No items should be visible
+        assertThat(result.visibleItems).isEmpty()
+
+        // Pinned item-0 should be measured (placed)
+        assertThat(measuredItemOffsets).containsKey(0)
+        // Since it is extraItemsAfter (index 0 > -1), it starts at topOffset = maxHeight = 100
+        assertThat(measuredItemOffsets[0]).isEqualTo(100)
+    }
+
+    @Test
+    fun pinnedItems_emptyVisibleItems_afterPaddingLargerThanScreenHeight() {
+        val strategyWithLargeAfterPadding =
+            measurementStrategy(contentPadding = PaddingValues(bottom = 150.dp))
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+
+        // We set anchorItemScrollOffset to align at bottom
+        val result =
+            strategyWithLargeAfterPadding.measure(
+                itemHeights = listOf(50),
+                anchorItemIndex = 0,
+                pinnedItems = intListOf(0),
+                // scrolled to bottom, so it pushes item up by 150px
+                anchorItemScrollOffset = 150,
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        assertThat(result.visibleItems).isEmpty()
+        assertThat(measuredItemOffsets).containsKey(0)
+        assertThat(measuredItemOffsets[0]).isEqualTo(0)
+    }
+
+    @Test
+    fun pinnedItems_emptyVisibleItems_spacingLargerThanScreenHeight() {
+        val measuredItemOffsets = mutableMapOf<Int, Int>()
+        val result =
+            strategy.measure(
+                itemHeights = listOf(50, 50),
+                anchorItemIndex = 1,
+                pinnedItems = intListOf(0, 1),
+                // verticalArrangement with spacing 150
+                verticalArrangement = Arrangement.spacedBy(150.dp),
+                // scrolled so that viewport is in the middle:
+                // item 1 is at 100+ (offscreen bottom), item 0 is at <0 (offscreen top)
+                anchorItemScrollOffset = -120, // push item 1 down
+                onItemMeasured = { index, offset -> measuredItemOffsets[index] = offset },
+            )
+
+        assertThat(result.visibleItems).isEmpty()
+        assertThat(measuredItemOffsets).containsKey(0)
+        assertThat(measuredItemOffsets).containsKey(1)
+
+        // item-0 (index 0) is extraItemsBefore (starts at bottomOffset = 0)
+        assertThat(measuredItemOffsets[0]).isEqualTo(0)
+        // item-1 (index 1) is extraItemsAfter (starts at topOffset = 100 -> offset = 100)
+        assertThat(measuredItemOffsets[1]).isEqualTo(100)
     }
 
     private val mockGraphicContext =
@@ -1355,6 +1622,8 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         scrollToBeConsumed: Float = 0f,
         reverseLayout: Boolean = false,
         minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
+        pinnedItems: IntList = emptyIntList(),
+        onItemMeasured: ((Int, Int) -> Unit)? = null,
     ): TransformingLazyColumnMeasureResult =
         measure(
             itemsCount = itemHeights.size,
@@ -1365,6 +1634,7 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
                     transformedHeight,
                     reverseLayout,
                     minimumVerticalContentPaddings,
+                    onItemMeasured,
                 ),
             keyIndexMap =
                 object : LazyLayoutKeyIndexMap {
@@ -1381,6 +1651,7 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
             scrollToBeConsumed = scrollToBeConsumed,
             coroutineScope = CoroutineScope(EmptyCoroutineContext),
             density = density,
+            pinnedItems = pinnedItems,
             layout = { width, height, _ ->
                 object : MeasureResult {
                     override val width = width
@@ -1435,7 +1706,9 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? = null,
         reverseLayout: Boolean = false,
         minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
+        onItemMeasured: ((Int, Int) -> Unit)? = null,
     ) = MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+        onItemMeasured?.invoke(index, offset)
         val minimumVerticalContentPaddings = minimumVerticalContentPaddings?.getOrNull(index)
         TransformingLazyColumnMeasuredItem(
             index = index,

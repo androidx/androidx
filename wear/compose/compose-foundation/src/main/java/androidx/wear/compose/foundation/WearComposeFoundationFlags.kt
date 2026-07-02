@@ -63,6 +63,16 @@ public object WearComposeFoundationFlags {
     public var isTransformingLazyColumnClickableThresholdEnabled: Boolean = true
 
     /**
+     * Whether to wrap items in [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] with
+     * a pinnable container. When true, items support pinning behavior (e.g. for focus). If false,
+     * items will not be pinnable.
+     */
+    // TODO: b/533029222
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTransformingLazyColumnPinnableContainerEnabled: Boolean = true
+
+    /**
      * Whether to use warped curved text, true by default. Warping provides higher quality rendering
      * for curved text, specially for cursive fonts, but can have a slight performance impact for
      * big curved text.

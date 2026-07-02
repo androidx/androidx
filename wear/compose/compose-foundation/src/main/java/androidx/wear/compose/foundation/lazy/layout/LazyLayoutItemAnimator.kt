@@ -81,7 +81,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         this.keyIndexMap = keyIndexMap
 
         val previousFirstVisibleIndex = firstVisibleIndex
-        firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
+        firstVisibleIndex =
+            positionedItems
+                .fastFirstOrNull { it.mainAxisOffset + it.transformedHeight > layoutMinOffset }
+                ?.index ?: 0
 
         // If `shouldAnimate` is false, a scroll is in progress. Prioritize performance by
         // releasing all animation resources. They will be recreated when the scroll ends.

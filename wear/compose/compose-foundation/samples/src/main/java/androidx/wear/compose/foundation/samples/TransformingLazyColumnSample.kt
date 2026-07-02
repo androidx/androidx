@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
@@ -276,6 +278,55 @@ fun TransformingLazyColumnFirstLayoutItemProviderSample() {
                     AnimatedVisibility(isExpanded) { Text("Expanded content is available here") }
                 },
                 content = { Text("Tap to expand") },
+            )
+        }
+    }
+}
+
+@Sampled
+@Preview
+@Composable
+fun TransformingLazyColumnPinnableContainerSample() {
+    val state = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+
+    TransformingLazyColumn(state = state, contentPadding = PaddingValues(horizontal = 20.dp)) {
+        items(count = 20) { index ->
+            var isPinned by remember { mutableStateOf(false) }
+            var pinHandle by remember { mutableStateOf<PinnableContainer.PinnedHandle?>(null) }
+            val pinnableContainer = LocalPinnableContainer.current
+
+            // This state will be reset if the item is scrolled out and not pinned
+            var counter by remember { mutableIntStateOf(0) }
+
+            TitleCard(
+                onClick = { counter++ },
+                modifier = Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+                title = { Text("Item $index") },
+                subtitle = { Text("Count: $counter (Tap card to +)") },
+                content = {
+                    // This button toggles the pin state
+                    Button(
+                        onClick = {
+                            if (isPinned) {
+                                pinHandle?.release().also { pinHandle = null }
+                                isPinned = false
+                            } else {
+                                pinHandle = pinnableContainer?.pin()
+                                isPinned = true
+                            }
+                        },
+                        colors =
+                            if (isPinned) {
+                                ButtonDefaults.buttonColors()
+                            } else {
+                                ButtonDefaults.filledTonalButtonColors()
+                            },
+                    ) {
+                        Text(if (isPinned) "Unpin" else "Pin Off-screen")
+                    }
+                },
             )
         }
     }
