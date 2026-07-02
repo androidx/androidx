@@ -31,6 +31,7 @@ import androidx.compose.animation.core.createDeferredAnimation
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1077,7 +1078,15 @@ internal fun Transition<EnterExitState>.trackActiveMutableState(
 ): SharedMutableTransformState {
     val shared = sharedMutableTransformState ?: remember(this) { SharedMutableTransformState() }
     val isMutating = pendingTargetState != null && shared.mutableData != null
-    shared.isMutating = isMutating
+    val isSettled = currentState == targetState
+    shared.updateMutationState(isMutating, isSettled)
+
+    LaunchedEffect(isMutating) {
+        if (isMutating && !isSettled) {
+            shared.startCatchUp()
+        }
+    }
+
     DeferredTransitionCleanupEffect { shared.clear() }
     return shared
 }
@@ -1288,7 +1297,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
     }
 }
 
-private val TransformOriginVectorConverter =
+internal val TransformOriginVectorConverter =
     TwoWayConverter<TransformOrigin, AnimationVector2D>(
         convertToVector = { AnimationVector2D(it.pivotFractionX, it.pivotFractionY) },
         convertFromVector = { TransformOrigin(it.v1, it.v2) },

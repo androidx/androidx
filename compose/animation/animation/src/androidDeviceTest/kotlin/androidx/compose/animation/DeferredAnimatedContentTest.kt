@@ -693,9 +693,9 @@ class DeferredAnimatedContentTest {
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
-        // slideIn starts at 200, preview adds 50 -> 250
-        assertEquals(250, enterX)
-        // slideOut starts at 0, preview adds -50 -> -50
+        // slideIn starts at 200, preview overrides to 50
+        assertEquals(50, enterX)
+        // slideOut starts at 0, preview overrides to -50
         assertEquals(-50, exitX)
 
         assertEquals(100, enterY)
@@ -709,11 +709,8 @@ class DeferredAnimatedContentTest {
         rule.mainClock.advanceTimeBy(80L)
         rule.mainClock.advanceTimeByFrame()
 
-        // Enter is animating from 250 -> 0
-        assertTrue(
-            "Enter x offset should be between 0 and 250. Actually $enterX",
-            enterX in 1..<250,
-        )
+        // Enter is animating from 50 -> 0
+        assertTrue("Enter x offset should be between 0 and 50. Actually $enterX", enterX in 1..<50)
         // Exit is animating from -50 -> -200
         assertTrue(
             "Exit x offset should be between -50 and -200. Actually $exitX",
@@ -1351,6 +1348,158 @@ class DeferredAnimatedContentTest {
         assertTrue(
             "Expected corner pixel to be covered by the Red-ish veil, but was exactly Blue",
             pixelColor != Color.Blue,
+        )
+    }
+
+    @Test
+    fun animatedContent_manualGesture_snapsWhenIdle_springsWhenAnimating() {
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+        var measuredWidthA = 0f
+        var measuredWidthB = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        targetContentTransform { scale = previewScale }
+                        initialContentTransform { scale = previewScale }
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") measuredWidthA = coords.boundsInRoot().width
+                        if (target == "B") measuredWidthB = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidthA
+        rule.mainClock.autoAdvance = false
+
+        // PART 1: SNAP WHEN IDLE
+        // The view A is idle (isSettled = true). If we start a manual mutation, it should
+        // immediately snap to the gesture value.
+        rule.runOnIdle {
+            state.defer("B")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // It should snap immediately since it was idle!
+        // No spring catch-up here.
+        assertEquals(fullWidth * 0.5f, measuredWidthA, 1f)
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle {
+            previewScale = 1f
+            state.animateTo("A")
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // PART 2: SPRING WHEN ANIMATING
+        // Start an animation from A -> B. Wait a bit so B is entering.
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(100) // Animating! isSettled = false
+
+        // Now, while animating, start a manual mutation back to A to scale A to 0.5.
+        // It should spring (catch up), NOT snap!
+        val currentWidthA = measuredWidthA
+        rule.runOnIdle {
+            state.defer("A")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // It should NOT snap directly to 0.5x, because it was in the middle of animating!
+        val initialCatchUpWidthA = measuredWidthA
+        assertTrue(
+            "Width should not snap directly to 0.5x, expected catchup to smooth it. Was $initialCatchUpWidthA vs target ${fullWidth * 0.5f}",
+            kotlin.math.abs(initialCatchUpWidthA - fullWidth * 0.5f) > 5f,
+        )
+
+        // Advance some time, it should eventually settle exactly on 0.5x
+        rule.mainClock.advanceTimeBy(5000)
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.5f, measuredWidthA, 1f)
+    }
+
+    @Test
+    fun testUnmutatedPropertiesDoNotJump() {
+        var state by mutableStateOf<DeferredTransitionState<String>?>(null)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            testTimeSource = { rule.mainClock.currentTime }
+            state = remember { DeferredTransitionState("A") }
+            val transition = rememberTransition(state!!)
+
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0.0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0.0f)
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        // ONLY mutate offset, do NOT mutate scale
+                        targetContentTransform { offset = IntOffset(100, 100) }
+                    }
+                },
+            ) { target ->
+                if (target == "B") {
+                    Box(
+                        Modifier.size(100.dp).onGloballyPositioned { coords ->
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Start animating in
+        rule.runOnIdle { state!!.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(500) // Halfway through the 1000ms animation
+        rule.waitForIdle()
+
+        val halfwayWidth = measuredWidth
+        assertTrue("Width should be halfway: $halfwayWidth", halfwayWidth > 10f)
+
+        // Now start a manual gesture
+        rule.runOnIdle { state!!.defer("A") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Wait a few frames for the catch-up to potentially jump
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        val widthAfterGestureStart = measuredWidth
+
+        // Since the gesture only mutates the offset, the scale should continue its
+        // natural transition towards 1f. It shouldn't snap to or immediately
+        // jump to 1f (which would result in a width near 300f). It will have
+        // grown slightly as the transition progresses normally.
+        assertTrue(
+            "Width jumped! Expected around ${halfwayWidth + 40f} but was $widthAfterGestureStart",
+            widthAfterGestureStart < 200f,
         )
     }
 }

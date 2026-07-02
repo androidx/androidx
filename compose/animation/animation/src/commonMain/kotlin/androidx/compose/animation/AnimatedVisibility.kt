@@ -628,18 +628,16 @@ public fun <T> Transition<T>.AnimatedVisibility(
  * this is `null`, meaning no manual transformations are applied. This phase starts when
  * [DeferredTransitionState.defer] is called and ends when [DeferredTransitionState.animateTo] is
  * called to start the automatic transition. During this phase, you can manually manipulate the
- * content's transformations (like [TransformScope.alpha] and [TransformScope.scale]). These
- * transformations are combined with (i.e., applied on top of) the transition's initial state.
- * Properties like alpha and scale are applied multiplicatively, while offset is applied additively.
- * Properties that are not manually set default to the transition's values. Once the transition
- * starts, the manually applied transformations are handed off to the configured [enter] and [exit]
- * transitions. For exiting content, a "sustain unless specified" policy is applied: if an exit
- * transition (e.g. `fadeOut`) is specified, the hand-off will animate towards the target value of
- * that transition. However, if no exit transition is specified for a given property (e.g.
- * `slideOut` is missing), that property will sustain its last manual value until the entire
- * transition completes. While in the deferred phase, entering content remains in the
- * [EnterExitState.PreEnter] state, and exiting content remains in the [EnterExitState.Visible]
- * state.
+ * content's transformations (like [TransformScope.alpha], [TransformScope.scale],
+ * [TransformScope.offset], and [TransformScope.veil]). Properties that are not manually set default
+ * to the transition's initial values during the deferred phase. Once the transition starts, the
+ * manually applied transformations are handed off to the configured [enter] and [exit] transitions.
+ * For exiting content, a "sustain unless specified" policy is applied: if an exit transition (e.g.
+ * `fadeOut`) is specified, the hand-off will animate towards the target value of that transition.
+ * However, if no exit transition is specified for a given property (e.g. `slideOut` is missing),
+ * that property will sustain its last manual value until the entire transition completes. While in
+ * the deferred phase, entering content remains in the [EnterExitState.PreEnter] state, and exiting
+ * content remains in the [EnterExitState.Visible] state.
  *
  * @sample androidx.compose.animation.samples.DeferredAnimatedVisibilitySample
  *
