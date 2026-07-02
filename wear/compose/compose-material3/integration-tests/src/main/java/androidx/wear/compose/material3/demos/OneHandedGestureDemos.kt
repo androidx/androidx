@@ -40,7 +40,6 @@ import androidx.wear.compose.integration.demos.common.ActivityDemo
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.Material3DemoCategory
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonContent
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.FilledTonalButton
@@ -376,7 +375,7 @@ fun OHGTonalButtonDemo() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurfaceVariant,
             ) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     secondaryLabel = { Text("Secondary Label") },
                     icon = { FavoriteIcon(ButtonDefaults.IconSize) },
                     colors = ButtonDefaults.filledTonalButtonColors(),
@@ -413,7 +412,7 @@ fun OHGOutlinedButtonDemo() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.primary,
             ) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     secondaryLabel = { Text("Secondary Label") },
                     icon = { FavoriteIcon(ButtonDefaults.IconSize) },
                     colors = ButtonDefaults.outlinedButtonColors(),
@@ -450,7 +449,7 @@ fun OHGChildButtonDemo() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     secondaryLabel = { Text("Secondary Label") },
                     icon = { FavoriteIcon(ButtonDefaults.IconSize) },
                     colors = ButtonDefaults.childButtonColors(),

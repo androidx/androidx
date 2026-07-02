@@ -52,7 +52,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.AppCard
-import androidx.wear.compose.material3.AppCardContent
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.Icon
@@ -60,7 +59,6 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
-import androidx.wear.compose.material3.TitleCardContent
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
@@ -399,7 +397,7 @@ fun AppCardContentWithOneHandedGestureSample() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
-                AppCardContent(
+                CardDefaults.AppCardContent(
                     appName = { Text("App Name") },
                     title = { Text(label) },
                     appImage = {
@@ -447,7 +445,7 @@ fun TitleCardContentWithOneHandedGestureSample() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
-                TitleCardContent(
+                CardDefaults.TitleCardContent(
                     title = { Text(label) },
                     time = { Text("now") },
                     subtitle = { Text("Subtitle") },
