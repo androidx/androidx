@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.findImpl
@@ -33,6 +34,7 @@ import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -205,6 +207,77 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
             currentMap +
                 (packageName to
                     (existingPackageMap + (functionId to appFunctionStaticAndRuntimeMetadata)))
+        }
+    }
+
+    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+        return flow {
+            var prevFunctionMap: Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>? =
+                null
+
+            packageToFunctionMetadataMapState.collect { newFunctionMap ->
+                val oldFunctionMap = prevFunctionMap
+                prevFunctionMap = newFunctionMap
+
+                if (oldFunctionMap == null) {
+                    return@collect
+                }
+
+                val changedPackages = mutableSetOf<String>()
+                val changedFunctions = mutableSetOf<AppFunctionName>()
+
+                for ((newPackage, newPackageFunctions) in newFunctionMap) {
+                    val oldPackageFunctions = oldFunctionMap[newPackage]
+                    // Check if package was added
+                    if (oldPackageFunctions == null) {
+                        changedPackages.add(newPackage)
+                        // To align with observe API's behaviour, state change events should be
+                        // emitted for all functions within the newly added package.
+                        changedFunctions.addAll(
+                            newPackageFunctions.keys.map { AppFunctionName(newPackage, it) }
+                        )
+                    } else {
+                        for ((newFunc, newFunctionMetadata) in newPackageFunctions) {
+                            val oldFunctionMetadata = oldPackageFunctions[newFunc]
+                            // Check if function was added or its state changed
+                            if (
+                                oldFunctionMetadata == null ||
+                                    oldFunctionMetadata.runtimeMetadata.enabled !=
+                                        newFunctionMetadata.runtimeMetadata.enabled
+                            ) {
+                                changedFunctions.add(AppFunctionName(newPackage, newFunc))
+                            }
+                        }
+                    }
+                }
+
+                for ((oldPackage, oldPackageFunctions) in oldFunctionMap) {
+                    val newPackageFunctions = newFunctionMap[oldPackage]
+                    // Check if package was removed
+                    if (newPackageFunctions == null) {
+                        changedPackages.add(oldPackage)
+                    } else {
+                        for ((oldFunc, oldFunctionMetadata) in oldPackageFunctions) {
+                            val newFunctionMetadata = newPackageFunctions[oldFunc]
+                            // Check if function was removed or its state was changed
+                            if (
+                                newFunctionMetadata == null ||
+                                    oldFunctionMetadata.runtimeMetadata.enabled !=
+                                        newFunctionMetadata.runtimeMetadata.enabled
+                            ) {
+                                changedFunctions.add(AppFunctionName(oldPackage, oldFunc))
+                            }
+                        }
+                    }
+                }
+
+                if (changedPackages.isNotEmpty()) {
+                    emit(ObserveAppFunctionsEvent.MetadataChanged(changedPackages))
+                }
+                if (changedFunctions.isNotEmpty()) {
+                    emit(ObserveAppFunctionsEvent.StatesChanged(changedFunctions))
+                }
+            }
         }
     }
 }

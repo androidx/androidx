@@ -18,8 +18,10 @@ package androidx.appfunctions.testing
 
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import kotlinx.coroutines.flow.Flow
 
 class FakeAppFunctionReader : AppFunctionReader {
 
@@ -47,5 +49,9 @@ class FakeAppFunctionReader : AppFunctionReader {
         val key = Pair(functionId, packageName)
         if (!appFunctionMetadataMap.containsKey(key)) throw AppFunctionFunctionNotFoundException()
         return appFunctionMetadataMap[key]
+    }
+
+    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+        TODO("Not yet implemented")
     }
 }
