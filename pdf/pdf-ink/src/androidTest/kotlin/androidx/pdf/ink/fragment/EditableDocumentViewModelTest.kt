@@ -98,6 +98,11 @@ class EditableDocumentViewModelTest {
     fun statePersistence_restoresEditMode_afterRecreation() = runTest {
         annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
 
+        // Assert that state persistence only stores primitives to avoid ClassLoader issues
+        assertThat(savedStateHandle.get<Boolean>("isEditModeEnabled")).isTrue()
+        assertThat(savedStateHandle.get<Int>("editModeJourney"))
+            .isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
+
         val newViewModel =
             EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
 
@@ -108,15 +113,23 @@ class EditableDocumentViewModelTest {
     }
 
     @Test
-    fun editMode_setJourneyFormFilling() = runTest {
-        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Disabled).isTrue()
-        annotationsViewModel.pdfEditMode =
-            PdfEditMode.Enabled(journey = EDITING_JOURNEY_ANNOTATIONS)
+    fun statePersistence_restoresEditModeDisabled_afterRecreation() = runTest {
+        // Transition from Enabled to Disabled to trigger the state setter
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
+        assertThat(savedStateHandle.get<Boolean>("isEditModeEnabled")).isTrue()
 
-        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
-        assertThat(annotationsViewModel.pdfEditModeFlow.first() is PdfEditMode.Enabled).isTrue()
-        assertThat((annotationsViewModel.pdfEditModeFlow.first() as PdfEditMode.Enabled).journey)
-            .isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
+        annotationsViewModel.pdfEditMode = PdfEditMode.Disabled
+
+        // Assert that state persistence only stores primitives to avoid ClassLoader issues
+        assertThat(savedStateHandle.get<Boolean>("isEditModeEnabled")).isFalse()
+        // Journey key should be removed/null when disabled
+        assertThat(savedStateHandle.get<Int>("editModeJourney")).isNull()
+
+        val newViewModel =
+            EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
+
+        assertThat(newViewModel.pdfEditMode is PdfEditMode.Disabled).isTrue()
+        assertThat(newViewModel.pdfEditModeFlow.first() is PdfEditMode.Disabled).isTrue()
     }
 
     @Test
@@ -392,6 +405,49 @@ class EditableDocumentViewModelTest {
         val emittedState = annotationsViewModel.annotationsDisplayStateFlow.first()
 
         assertThat(emittedState.viewportState).isEqualTo(viewportState)
+    }
+
+    @Test
+    fun updateViewportState_updatesFlow_evenWhenDocumentIsNull() = runTest {
+        annotationsViewModel.resetState()
+        assertThat(annotationsViewModel.editablePdfDocument).isNull()
+
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 1,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(1, RectF(0f, 0f, 100f, 100f)) },
+                zoom = 2.0f,
+            )
+
+        annotationsViewModel.updateViewportState(viewportState)
+        val emittedState = annotationsViewModel.annotationsDisplayStateFlow.first()
+
+        assertThat(emittedState.viewportState).isEqualTo(viewportState)
+        assertThat(annotationsViewModel.visiblePageRange).isEqualTo(1..1)
+        // Also check if pageInfoProvider is updated
+        assertThat(annotationsViewModel.pageInfoProvider.getPageInfo(1)).isNotNull()
+    }
+
+    @Test
+    fun maybeInitialiseForDocument_preservesViewportState() = runTest {
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 5,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(5, RectF(0f, 0f, 100f, 100f)) },
+                zoom = 3.0f,
+            )
+        annotationsViewModel.updateViewportState(viewportState)
+
+        val newDoc = FakeEditablePdfDocument(uri = Uri.parse("content://test/new.pdf"))
+        annotationsViewModel.maybeInitialiseForDocument(newDoc)
+
+        // Wait for the async initialization in setupManagersAndHandlers
+        testScheduler.advanceUntilIdle()
+
+        val finalState = annotationsViewModel.annotationsDisplayStateFlow.value
+        assertThat(finalState.viewportState).isEqualTo(viewportState)
     }
 
     // --- Interaction State Tests ---

@@ -84,17 +84,37 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     private val _canRedo = MutableStateFlow(false)
     internal val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
 
-    internal val pdfEditModeFlow: StateFlow<PdfEditMode> =
-        state.getStateFlow(EDIT_MODE_ENABLED_KEY, PdfEditMode.Disabled)
+    private val _pdfEditModeFlow =
+        MutableStateFlow(
+            if (state.get<Boolean>(EDIT_MODE_ENABLED_KEY) == true) {
+                PdfEditMode.Enabled(
+                    state.get<Int>(EDIT_MODE_JOURNEY_KEY) ?: EDITING_JOURNEY_ANNOTATIONS
+                )
+            } else {
+                PdfEditMode.Disabled
+            }
+        )
+    internal val pdfEditModeFlow: StateFlow<PdfEditMode> = _pdfEditModeFlow.asStateFlow()
 
     internal var pdfEditMode: PdfEditMode
-        get() = state[EDIT_MODE_ENABLED_KEY] ?: PdfEditMode.Disabled
+        get() = _pdfEditModeFlow.value
         set(value) {
-            if (pdfEditMode == value) return
+            if (_pdfEditModeFlow.value == value) return
             // Cannot switch journeys in the same session
-            if (pdfEditMode is PdfEditMode.Enabled && value is PdfEditMode.Enabled) return
+            if (_pdfEditModeFlow.value is PdfEditMode.Enabled && value is PdfEditMode.Enabled)
+                return
 
-            state[EDIT_MODE_ENABLED_KEY] = value
+            _pdfEditModeFlow.value = value
+            when (value) {
+                is PdfEditMode.Disabled -> {
+                    state[EDIT_MODE_ENABLED_KEY] = false
+                    state.remove<Int>(EDIT_MODE_JOURNEY_KEY)
+                }
+                is PdfEditMode.Enabled -> {
+                    state[EDIT_MODE_ENABLED_KEY] = true
+                    state[EDIT_MODE_JOURNEY_KEY] = value.journey
+                }
+            }
             if (value !is PdfEditMode.Enabled) {
                 // Discard any draft changes when exiting edit mode
                 discardUnsavedChanges()
@@ -233,7 +253,6 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
 
     /** Updates the transformation matrices for rendering annotations. */
     internal fun updateViewportState(viewportState: PdfViewportState) {
-        if (editablePdfDocument == null) return
         pageInfoProvider.setZoom(viewportState.zoom)
         pageInfoProvider.setPageBounds(viewportState.pageBounds)
         visiblePageRange =
@@ -369,8 +388,9 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                                 .associateWith { pageNum -> manager.getAnnotations(pageNum) }
                                 .filterValues { it.isNotEmpty() }
                     )
-                _annotationDisplayStateFlow.value =
-                    AnnotationsDisplayState(visiblePageAnnotations = visiblePdfAnnotations)
+                _annotationDisplayStateFlow.update {
+                    it.copy(visiblePageAnnotations = visiblePdfAnnotations)
+                }
             }
         } else {
             editablePdfDocument = null
@@ -441,6 +461,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     internal companion object {
         const val LOADED_DOCUMENT_URI_KEY = "loadedDocumentUri"
         private const val EDIT_MODE_ENABLED_KEY = "isEditModeEnabled"
+        private const val EDIT_MODE_JOURNEY_KEY = "editModeJourney"
 
         private const val ANNOTATION_VISIBLE_KEY = "isAnnotationVisible"
         private const val INITIAL_FORM_FILLING_STATE_KEY = "initialFormFillingState"
