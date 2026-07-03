@@ -106,6 +106,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.hamcrest.Matchers.startsWith
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -144,7 +145,7 @@ class OneHandedGestureTest {
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
                                     interactionSource = interactionSource,
-                                    gestureLabel = gestureLabel,
+                                    onGestureLabel = gestureLabel,
                                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                                 ) {
                                     gestured = true
@@ -201,7 +202,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
-                                gestureLabel = gestureLabel,
+                                onGestureLabel = gestureLabel,
                             ) {
                                 gestured = true
                             },
@@ -257,7 +258,7 @@ class OneHandedGestureTest {
                                     onGestureAvailable = {
                                         indicatorState.isIndicatorActive = true
                                     },
-                                    gestureLabel = gestureLabel,
+                                    onGestureLabel = gestureLabel,
                                 ) {
                                     gestured = true
                                 },
@@ -334,7 +335,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = scrollGestureConfig,
-                                gestureLabel = "scroll",
+                                onGestureLabel = "scroll",
                             ) {
                                 scrollGestured = true
                             },
@@ -350,7 +351,7 @@ class OneHandedGestureTest {
                                     modifier =
                                         Modifier.oneHandedGesture(
                                             gestureConfiguration = textGestureConfig,
-                                            gestureLabel = buttonGestureLabel,
+                                            onGestureLabel = buttonGestureLabel,
                                             onGestureAvailable = {
                                                 textIndicatorState.isIndicatorActive = true
                                             },
@@ -412,7 +413,7 @@ class OneHandedGestureTest {
                     modifier =
                         Modifier.oneHandedGesture(
                             gestureConfiguration = scrollGestureConfig,
-                            gestureLabel = "scroll",
+                            onGestureLabel = "scroll",
                             onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         ) {
                             tlcGestured = true
@@ -434,7 +435,7 @@ class OneHandedGestureTest {
                                 modifier =
                                     Modifier.oneHandedGesture(
                                         gestureConfiguration = textGestureSpec,
-                                        gestureLabel = "click text $index",
+                                        onGestureLabel = "click text $index",
                                         onGestureAvailable = {
                                             textIndicatorState.isIndicatorActive = true
                                         },
@@ -481,7 +482,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
-                                gestureLabel = "click text $it",
+                                onGestureLabel = "click text $it",
                             ) {},
                     )
                 }
@@ -513,7 +514,7 @@ class OneHandedGestureTest {
                             modifier =
                                 Modifier.oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "click text",
+                                    onGestureLabel = "click text",
                                 ) {
                                     textGestured[page] = true
                                 },
@@ -576,7 +577,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = button1Spec,
-                                gestureLabel = "click first button",
+                                onGestureLabel = "click first button",
                             ) {
                                 buttonGestured[0]++
                             },
@@ -588,7 +589,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = button2Spec,
-                                gestureLabel = "click second button",
+                                onGestureLabel = "click second button",
                             ) {
                                 buttonGestured[1]++
                             },
@@ -680,7 +681,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "scroll",
+                                    onGestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDown(listState, wrap)
                                     },
@@ -729,7 +730,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "scroll",
+                                    onGestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDownToNextItem(
                                             listState,
@@ -776,7 +777,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "scroll",
+                                    onGestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDown(listState, wrap)
                                     },
@@ -821,7 +822,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "scroll",
+                                    onGestureLabel = "scroll",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollDownToNextItem(
                                             listState,
@@ -888,7 +889,7 @@ class OneHandedGestureTest {
                                 .fillMaxSize()
                                 .oneHandedGesture(
                                     gestureConfiguration = gestureConfig,
-                                    gestureLabel = "scroll to next page",
+                                    onGestureLabel = "scroll to next page",
                                     onGesture = {
                                         OneHandedGestureDefaults.scrollToNextPage(pagerState, wrap)
                                     },
@@ -956,7 +957,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
-                                gestureLabel = "gesture",
+                                onGestureLabel = "gesture",
                             ) {
                                 gestured = true
                             },
@@ -991,7 +992,7 @@ class OneHandedGestureTest {
                         modifier =
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
-                                gestureLabel = "gesture",
+                                onGestureLabel = "gesture",
                             ) {
                                 gestured = true
                             },
@@ -1115,7 +1116,7 @@ class OneHandedGestureTest {
                         Modifier.oneHandedGesture(
                             gestureConfiguration =
                                 rememberOneHandedGestureConfiguration(GestureAction.Primary),
-                            gestureLabel = primaryLabel,
+                            onGestureLabel = primaryLabel,
                         ) {},
                 )
 
@@ -1125,7 +1126,7 @@ class OneHandedGestureTest {
                         Modifier.oneHandedGesture(
                             gestureConfiguration =
                                 rememberOneHandedGestureConfiguration(GestureAction.Dismiss),
-                            gestureLabel = dismissLabel,
+                            onGestureLabel = dismissLabel,
                         ) {},
                 )
             }
@@ -1169,7 +1170,7 @@ class OneHandedGestureTest {
                                     action = GestureAction.Primary,
                                     priority = GesturePriority.Scrollable,
                                 ),
-                            gestureLabel = primaryLabelScrollable,
+                            onGestureLabel = primaryLabelScrollable,
                         ) {},
                 )
 
@@ -1183,7 +1184,7 @@ class OneHandedGestureTest {
                                         action = GestureAction.Primary,
                                         priority = GesturePriority.Clickable,
                                     ),
-                                gestureLabel = primaryLabelClickable,
+                                onGestureLabel = primaryLabelClickable,
                             ) {},
                     )
                 }
@@ -1219,6 +1220,36 @@ class OneHandedGestureTest {
         rule.mainClock.advanceTimeBy(3000)
         onView(withContentDescription(primaryExpectedClickableText)).checkExists()
         onView(withContentDescription(primaryExpectedScrollableText)).checkDoesNotExist()
+    }
+
+    @Test
+    fun test_accessibility_null() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Text(
+                    "Gesturable text",
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration =
+                                rememberOneHandedGestureConfiguration(
+                                    action = GestureAction.Primary
+                                ),
+                            onGestureLabel = null,
+                        ) {},
+                )
+            }
+        }
+
+        // It takes at least a second for accessibility to trigger. Fast-forward 3s to allow some
+        // delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val unexpectedContentDescription =
+            context.getString(R.string.one_handed_gesture_primary_action_accessibility_text, "")
+        onView(withContentDescription(startsWith(unexpectedContentDescription))).checkDoesNotExist()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

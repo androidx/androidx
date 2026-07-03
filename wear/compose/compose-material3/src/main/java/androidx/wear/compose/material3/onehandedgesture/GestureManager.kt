@@ -69,7 +69,7 @@ internal interface GestureManager {
      * @param view The [View] containing the gesturable content.
      * @param haptic The haptic to trigger events.
      * @param gestureConfiguration The [OneHandedGestureConfiguration] defining the gesture.
-     * @param gestureLabel An optional label used for accessibility or debugging purposes.
+     * @param onGestureLabel A label used for accessibility or debugging purposes.
      * @param onGestureAvailable Callback invoked to signal that the gesture indicator should be
      *   displayed.
      * @param onGesture The suspend callback invoked when the gesture is triggered, providing the
@@ -82,7 +82,7 @@ internal interface GestureManager {
         haptic: HapticFeedback,
         gestureConfiguration: OneHandedGestureConfiguration,
         enabledInAmbient: Boolean,
-        gestureLabel: String,
+        onGestureLabel: String?,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
         isActive: () -> Boolean,
@@ -106,7 +106,7 @@ internal interface GestureManager {
      * @param oldGestureConfiguration The [OneHandedGestureConfiguration] of the currently
      *   registered gesture.
      * @param newGestureConfiguration The new [OneHandedGestureConfiguration] to apply.
-     * @param newGestureLabel An optional updated label for accessibility or debugging.
+     * @param newOnGestureLabel An updated label for accessibility or debugging.
      * @param newOnGestureAvailable The updated callback invoked to signal that the gesture
      *   indicator should be displayed.
      * @param newOnGesture The updated callback to be invoked when the gesture is triggered.
@@ -116,7 +116,7 @@ internal interface GestureManager {
         oldGestureConfiguration: OneHandedGestureConfiguration,
         newGestureConfiguration: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
-        newGestureLabel: String,
+        newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     )
@@ -173,7 +173,7 @@ internal class GestureManagerImpl(
         haptic: HapticFeedback,
         gestureConfiguration: OneHandedGestureConfiguration,
         enabledInAmbient: Boolean,
-        gestureLabel: String,
+        onGestureLabel: String?,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
         isActive: () -> Boolean,
@@ -188,7 +188,7 @@ internal class GestureManagerImpl(
         gestureRegistry.register(
             gestureConfiguration,
             enabledInAmbient,
-            gestureLabel,
+            onGestureLabel,
             onGestureAvailable,
             onGesture,
             isActive,
@@ -215,7 +215,7 @@ internal class GestureManagerImpl(
         oldGestureConfiguration: OneHandedGestureConfiguration,
         newGestureConfiguration: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
-        newGestureLabel: String,
+        newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
@@ -223,7 +223,7 @@ internal class GestureManagerImpl(
             oldGestureConfiguration,
             newGestureConfiguration,
             newEnabledInAmbient,
-            newGestureLabel,
+            newOnGestureLabel,
             newOnGestureAvailable,
             newOnGesture,
         )
@@ -267,7 +267,7 @@ internal class GestureRegistry(
     fun register(
         gestureConfiguration: OneHandedGestureConfiguration,
         enabledInAmbient: Boolean,
-        gestureLabel: String,
+        onGestureLabel: String?,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
         isActive: () -> Boolean,
@@ -278,7 +278,7 @@ internal class GestureRegistry(
             RegisteredGesture(
                 gestureConfiguration,
                 enabledInAmbient,
-                gestureLabel,
+                onGestureLabel,
                 onGestureAvailable,
                 onGesture,
                 isActive,
@@ -308,7 +308,7 @@ internal class GestureRegistry(
         oldGestureConfiguration: OneHandedGestureConfiguration,
         newGestureConfiguration: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
-        newGestureLabel: String,
+        newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
@@ -323,7 +323,7 @@ internal class GestureRegistry(
         register(
             newGestureConfiguration,
             newEnabledInAmbient,
-            newGestureLabel,
+            newOnGestureLabel,
             newOnGestureAvailable,
             newOnGesture,
             isActive,
@@ -372,9 +372,10 @@ internal class GestureRegistry(
                                 gesture.isActive()
                         ) {
                             gesture.onGestureAvailable()
+
                             gestureAccessibilityAnnouncer.announce(
                                 gesture.gestureConfiguration,
-                                gesture.gestureLabel,
+                                gesture.onGestureLabel,
                             )
                         }
                     }
@@ -513,7 +514,7 @@ internal class GestureRegistry(
     private data class RegisteredGesture(
         val gestureConfiguration: OneHandedGestureConfiguration,
         val enabledInAmbient: Boolean,
-        val gestureLabel: String,
+        val onGestureLabel: String?,
         val onGestureAvailable: () -> Unit,
         val onGesture: suspend (centerOffset: Offset) -> Unit,
         val isActive: () -> Boolean,
@@ -713,14 +714,18 @@ private class GestureAccessibilityAnnouncer(val container: View) {
      *
      * @param gestureConfiguration The [OneHandedGestureConfiguration] defining the gesture to be
      *   announced.
-     * @param gestureLabel the label to announce.
+     * @param onGestureLabel the label to announce.
      */
-    fun announce(gestureConfiguration: OneHandedGestureConfiguration, gestureLabel: String) {
+    fun announce(gestureConfiguration: OneHandedGestureConfiguration, onGestureLabel: String?) {
         val stringId = getGestureLabelStringId(gestureConfiguration.action)
         val resources = gestureAnnouncers[gestureConfiguration.action.value]?.view?.resources
         if (stringId != null && resources != null) {
             gestureAnnouncers[gestureConfiguration.action.value]?.view?.contentDescription =
-                resources.getString(stringId, gestureLabel)
+                if (onGestureLabel == null) {
+                    null
+                } else {
+                    resources.getString(stringId, onGestureLabel)
+                }
         }
     }
 

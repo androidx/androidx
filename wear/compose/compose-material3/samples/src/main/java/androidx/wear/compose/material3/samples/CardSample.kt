@@ -388,7 +388,7 @@ fun AppCardContentWithOneHandedGestureSample() {
                     .fillMaxWidth()
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
-                        gestureLabel = "click",
+                        onGestureLabel = "click",
                         onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         interactionSource = interactionSource,
                         onGesture = onClick,
@@ -436,7 +436,7 @@ fun TitleCardContentWithOneHandedGestureSample() {
                     .fillMaxWidth()
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
-                        gestureLabel = "click",
+                        onGestureLabel = "click",
                         onGestureAvailable = { indicatorState.isIndicatorActive = true },
                         interactionSource = interactionSource,
                         onGesture = onClick,
