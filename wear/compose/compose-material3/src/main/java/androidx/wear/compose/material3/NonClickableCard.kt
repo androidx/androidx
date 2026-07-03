@@ -252,7 +252,7 @@ public fun AppCard(
                 containerPainter = null,
                 transformation = transformation,
             )
-        AppCardContent(
+        CardDefaults.AppCardContent(
             appName = appName,
             title = title,
             modifier = cardModifier,
@@ -340,7 +340,7 @@ public fun TitleCard(
                 containerPainter = null,
                 transformation = transformation,
             )
-        TitleCardContent(
+        CardDefaults.TitleCardContent(
             title = title,
             modifier = cardModifier,
             time = time,
@@ -439,7 +439,7 @@ public fun TitleCard(
                 containerPainter = containerPainter,
                 transformation = transformation,
             )
-        TitleCardContent(
+        CardDefaults.TitleCardContent(
             title = title,
             modifier = cardModifier,
             time = time,

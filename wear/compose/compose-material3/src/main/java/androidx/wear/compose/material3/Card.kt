@@ -355,7 +355,7 @@ public fun AppCard(
                 containerPainter = null,
                 transformation = transformation,
             )
-        AppCardContent(
+        CardDefaults.AppCardContent(
             appName = appName,
             title = title,
             modifier = cardModifier,
@@ -477,7 +477,7 @@ public fun TitleCard(
                 containerPainter = null,
                 transformation = transformation,
             )
-        TitleCardContent(
+        CardDefaults.TitleCardContent(
             title = title,
             modifier = cardModifier,
             time = time,
@@ -589,7 +589,7 @@ public fun TitleCard(
                 containerPainter = containerPainter,
                 transformation = transformation,
             )
-        TitleCardContent(
+        CardDefaults.TitleCardContent(
             title = title,
             modifier = cardModifier,
             time = time,
@@ -683,185 +683,193 @@ public fun OutlinedCard(
     }
 }
 
-/**
- * Lays out the content of a [TitleCard] with support for a title, time, subtitle, and body content.
- *
- * While the standard [TitleCard] overloads provide this layout out-of-the-box, [TitleCardContent]
- * can be used inside the [Card] overload that takes a generic `content` to build custom card
- * layouts (for example, to wrap the content in a gesture hint indicator like
- * OneHandedGestureIndicator) while maintaining standard typography, colors, and spacing.
- *
- * Example of a [TitleCardContent] layout with OneHandedGestureIndicator:
- *
- * @sample androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
- * @param title A slot for displaying the title of the card, expected to be one or two lines of
- *   text.
- * @param modifier Modifier to be applied to the card.
- * @param time An optional slot for displaying the time relevant to the contents of the card,
- *   expected to be a short piece of text. Depending on whether we have a [content] or not, can be
- *   placed at the end of the [title] line or above it.
- * @param subtitle An optional slot for displaying the subtitle of the card, expected to be one line
- *   of text.
- * @param colors [CardColors] that will be used to resolve the colors used for this card in
- *   different states. See [CardDefaults.cardColors].
- * @param content The optional body content of the card. If not provided then title and subtitle are
- *   expected to be provided.
- */
-@Composable
-public fun TitleCardContent(
-    title: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    time: @Composable (() -> Unit)? = null,
-    subtitle: @Composable (ColumnScope.() -> Unit)? = null,
-    colors: CardColors = CardDefaults.cardColors(),
-    content: @Composable (() -> Unit)? = null,
-) {
-    val timeWithTextStyle =
-        @Composable {
-            time?.let {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides CardTokens.TimeTypography.value,
-                    content = time,
-                )
-            }
-        }
-
-    Column(modifier = modifier) {
-        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
-        // Modifier.height().
-        if (content == null && time != null) {
-            timeWithTextStyle()
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Row(Modifier.weight(1f)) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
-                }
-            }
-            if (content != null) {
-                Spacer(modifier = Modifier.width(4.dp))
-                timeWithTextStyle()
-            }
-        }
-        content?.let {
-            Spacer(modifier = Modifier.height(2.dp))
-            CompositionLocalProvider(
-                values =
-                    arrayOf(
-                        LocalContentColor provides colors.contentColor,
-                        LocalTextStyle provides CardTokens.ContentTypography.value,
-                    ),
-                content = content,
-            )
-        }
-        subtitle?.let {
-            Spacer(modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp))
-            CompositionLocalProvider(
-                LocalContentColor provides colors.subtitleColor,
-                LocalTextStyle provides CardTokens.SubtitleTypography.value,
-            ) {
-                subtitle()
-            }
-        }
-    }
-}
-
-/**
- * Lays out the content of an [AppCard] with support for an app icon, app name, time, title, and
- * body content.
- *
- * While the standard [AppCard] overloads provide this layout out-of-the-box, [AppCardContent] can
- * be used inside the [Card] overload that takes a generic `content` to build custom card layouts
- * (for example, to wrap the content in a gesture hint indicator like OneHandedGestureIndicator)
- * while maintaining standard typography, colors, and spacing.
- *
- * Example of an [AppCardContent] layout with OneHandedGestureIndicator:
- *
- * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
- * @param appName A slot for displaying the application name, expected to be a single line of start
- *   aligned text.
- * @param title A slot for displaying the title of the card, expected to be one or two lines of
- *   start aligned text.
- * @param modifier Modifier to be applied to the card.
- * @param colors [CardColors] that will be used to resolve the colors used for this card in
- *   different states. See [CardDefaults.cardColors].
- * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
- *   [Image] associated with the application.
- * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- *   short piece of end aligned text.
- * @param content The main slot for a content of this card.
- */
-@Composable
-public fun AppCardContent(
-    appName: @Composable RowScope.() -> Unit,
-    title: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    colors: CardColors = CardDefaults.cardColors(),
-    appImage: @Composable (RowScope.() -> Unit)? = null,
-    time: @Composable (RowScope.() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Column(modifier = modifier) {
-        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
-        // Modifier.height().
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                appImage?.let {
-                    appImage()
-                    Spacer(Modifier.width(4.dp))
-                }
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.appNameColor,
-                    LocalTextStyle provides CardTokens.AppNameTypography.value,
-                ) {
-                    appName()
-                }
-            }
-
-            time?.let {
-                Spacer(Modifier.width(6.dp))
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides CardTokens.TimeTypography.value,
-                ) {
-                    time()
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            content = {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
-                }
-            },
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor,
-            LocalTextStyle provides CardTokens.ContentTypography.value,
-        ) {
-            content()
-        }
-    }
-}
-
 /** Contains the default values used by [Card] */
 public object CardDefaults {
+    /**
+     * Lays out the content of a [TitleCard] with support for a title, time, subtitle, and body
+     * content.
+     *
+     * While the standard [TitleCard] overloads provide this layout out-of-the-box,
+     * [CardDefaults.TitleCardContent] can be used inside the [Card] overload that takes a generic
+     * `content` to build custom card layouts (for example, to wrap the content in a gesture hint
+     * indicator like OneHandedGestureIndicator) while maintaining standard typography, colors, and
+     * spacing.
+     *
+     * Example of a [CardDefaults.TitleCardContent] layout with OneHandedGestureIndicator:
+     *
+     * @sample androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
+     * @param title A slot for displaying the title of the card, expected to be one or two lines of
+     *   text.
+     * @param modifier Modifier to be applied to the card.
+     * @param time An optional slot for displaying the time relevant to the contents of the card,
+     *   expected to be a short piece of text. Depending on whether we have a [content] or not, can
+     *   be placed at the end of the [title] line or above it.
+     * @param subtitle An optional slot for displaying the subtitle of the card, expected to be one
+     *   line of text.
+     * @param colors [CardColors] that will be used to resolve the colors used for this card in
+     *   different states. See [CardDefaults.cardColors].
+     * @param content The optional body content of the card. If not provided then title and subtitle
+     *   are expected to be provided.
+     */
+    @Composable
+    public fun TitleCardContent(
+        title: @Composable RowScope.() -> Unit,
+        modifier: Modifier = Modifier,
+        time: @Composable (() -> Unit)? = null,
+        subtitle: @Composable (ColumnScope.() -> Unit)? = null,
+        colors: CardColors = cardColors(),
+        content: @Composable (() -> Unit)? = null,
+    ) {
+        val timeWithTextStyle =
+            @Composable {
+                time?.let {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.timeColor,
+                        LocalTextStyle provides CardTokens.TimeTypography.value,
+                        content = time,
+                    )
+                }
+            }
+
+        Column(modifier = modifier) {
+            // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+            // Modifier.height().
+            if (content == null && time != null) {
+                timeWithTextStyle()
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Row(Modifier.weight(1f)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
+                }
+                if (content != null) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    timeWithTextStyle()
+                }
+            }
+            content?.let {
+                Spacer(modifier = Modifier.height(2.dp))
+                CompositionLocalProvider(
+                    values =
+                        arrayOf(
+                            LocalContentColor provides colors.contentColor,
+                            LocalTextStyle provides CardTokens.ContentTypography.value,
+                        ),
+                    content = content,
+                )
+            }
+            subtitle?.let {
+                Spacer(
+                    modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp)
+                )
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.subtitleColor,
+                    LocalTextStyle provides CardTokens.SubtitleTypography.value,
+                ) {
+                    subtitle()
+                }
+            }
+        }
+    }
+
+    /**
+     * Lays out the content of an [AppCard] with support for an app icon, app name, time, title, and
+     * body content.
+     *
+     * While the standard [AppCard] overloads provide this layout out-of-the-box,
+     * [CardDefaults.AppCardContent] can be used inside the [Card] overload that takes a generic
+     * `content` to build custom card layouts (for example, to wrap the content in a gesture hint
+     * indicator like OneHandedGestureIndicator) while maintaining standard typography, colors, and
+     * spacing.
+     *
+     * Example of an [CardDefaults.AppCardContent] layout with OneHandedGestureIndicator:
+     *
+     * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
+     * @param appName A slot for displaying the application name, expected to be a single line of
+     *   start aligned text.
+     * @param title A slot for displaying the title of the card, expected to be one or two lines of
+     *   start aligned text.
+     * @param modifier Modifier to be applied to the card.
+     * @param colors [CardColors] that will be used to resolve the colors used for this card in
+     *   different states. See [CardDefaults.cardColors].
+     * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
+     *   [Image] associated with the application.
+     * @param time A slot for displaying the time relevant to the contents of the card, expected to
+     *   be a short piece of end aligned text.
+     * @param content The main slot for a content of this card.
+     */
+    @Composable
+    public fun AppCardContent(
+        appName: @Composable RowScope.() -> Unit,
+        title: @Composable RowScope.() -> Unit,
+        modifier: Modifier = Modifier,
+        colors: CardColors = cardColors(),
+        appImage: @Composable (RowScope.() -> Unit)? = null,
+        time: @Composable (RowScope.() -> Unit)? = null,
+        content: @Composable ColumnScope.() -> Unit,
+    ) {
+        Column(modifier = modifier) {
+            // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+            // Modifier.height().
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    appImage?.let {
+                        appImage()
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.appNameColor,
+                        LocalTextStyle provides CardTokens.AppNameTypography.value,
+                    ) {
+                        appName()
+                    }
+                }
+
+                time?.let {
+                    Spacer(Modifier.width(6.dp))
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.timeColor,
+                        LocalTextStyle provides CardTokens.TimeTypography.value,
+                    ) {
+                        time()
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                content = {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
+                },
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            CompositionLocalProvider(
+                LocalContentColor provides colors.contentColor,
+                LocalTextStyle provides CardTokens.ContentTypography.value,
+            ) {
+                content()
+            }
+        }
+    }
+
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
      * [Card], [AppCard] or [TitleCard].

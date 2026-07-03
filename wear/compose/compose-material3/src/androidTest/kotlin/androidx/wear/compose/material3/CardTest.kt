@@ -762,7 +762,7 @@ class CardTest {
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
-                AppCardContent(
+                CardDefaults.AppCardContent(
                     appName = { actualAppColor = LocalContentColor.current },
                     time = { actualTimeColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
@@ -796,7 +796,7 @@ class CardTest {
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
-                TitleCardContent(
+                CardDefaults.TitleCardContent(
                     time = { actualTimeColor = LocalContentColor.current },
                     subtitle = { actualSubtitleColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
@@ -828,7 +828,7 @@ class CardTest {
             expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
-            AppCardContent(
+            CardDefaults.AppCardContent(
                 appName = { actualAppTextStyle = LocalTextStyle.current },
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
@@ -859,7 +859,7 @@ class CardTest {
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
             expectedSubtitleTextStyle = MaterialTheme.typography.labelMedium
 
-            TitleCardContent(
+            CardDefaults.TitleCardContent(
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 subtitle = { actualSubtitleTextStyle = LocalTextStyle.current },

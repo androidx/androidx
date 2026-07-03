@@ -42,11 +42,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonContent
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
-import androidx.wear.compose.material3.CompactButtonContent
 import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
@@ -393,7 +391,7 @@ fun ButtonContentWithOneHandedGestureSample() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
             ) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     secondaryLabel = { Text("Secondary Label") },
                     icon = {
                         Icon(
@@ -437,7 +435,7 @@ fun CompactButtonContentWithOneHandedGestureSample() {
                 indicatorState = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
             ) {
-                CompactButtonContent(
+                CompactButtonDefaults.Content(
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_favorite_rounded),
