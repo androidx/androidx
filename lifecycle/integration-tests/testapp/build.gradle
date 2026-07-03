@@ -43,4 +43,5 @@ dependencies {
 
 android {
     namespace = "androidx.lifecycle.testapp"
+    testOptions.unitTests.returnDefaultValues = true
 }

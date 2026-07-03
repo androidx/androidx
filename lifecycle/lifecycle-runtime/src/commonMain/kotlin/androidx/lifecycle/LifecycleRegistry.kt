@@ -154,7 +154,13 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
      */
     public open fun handleLifecycleEvent(event: Event) {
         enforceMainThreadIfNeeded("handleLifecycleEvent")
-        moveToState(event.targetState)
+        LifecycleTracer.trace(
+            name = "LifecycleRegistry#handleLifecycleEvent",
+            owner = lifecycleOwner.get(),
+            event = event,
+        ) {
+            moveToState(event.targetState)
+        }
     }
 
     /**
@@ -384,14 +390,21 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 
     /** Wrapper that couples a [LifecycleObserver] with its current [State]. */
-    internal class ObserverWithState(observer: LifecycleObserver?, initialState: State) {
+    internal class ObserverWithState(private val observer: LifecycleObserver, initialState: State) {
         var state = initialState
-        var lifecycleObserver = Lifecycling.lifecycleEventObserver(observer!!)
+        var lifecycleObserver = Lifecycling.lifecycleEventObserver(observer)
 
-        fun dispatchEvent(owner: LifecycleOwner?, event: Event) {
+        fun dispatchEvent(owner: LifecycleOwner, event: Event) {
             val newState = event.targetState
             state = min(state, newState)
-            lifecycleObserver.onStateChanged(owner!!, event)
+            LifecycleTracer.trace(
+                name = "LifecycleRegistry#onStateChanged",
+                owner = owner,
+                observer = observer,
+                event = event,
+            ) {
+                lifecycleObserver.onStateChanged(owner, event)
+            }
             state = newState
         }
     }
