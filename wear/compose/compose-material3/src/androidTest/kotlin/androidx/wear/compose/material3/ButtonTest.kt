@@ -1429,7 +1429,7 @@ class ButtonTest {
             expectedSecondaryLabelStyle = FilledButtonTokens.SecondaryLabelFont.value
 
             Button(onClick = {}) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     label = {
                         actualLabelColor = LocalContentColor.current
                         actualLabelStyle = LocalTextStyle.current
@@ -1475,7 +1475,7 @@ class ButtonTest {
             expectedSecondaryLabelStyle = FilledButtonTokens.SecondaryLabelFont.value
 
             Button(onClick = {}, enabled = false) {
-                ButtonContent(
+                ButtonDefaults.Content(
                     label = {
                         actualLabelColor = LocalContentColor.current
                         actualLabelStyle = LocalTextStyle.current
