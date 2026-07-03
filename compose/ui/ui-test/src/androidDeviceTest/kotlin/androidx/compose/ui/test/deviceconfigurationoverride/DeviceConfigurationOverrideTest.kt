@@ -1175,16 +1175,15 @@ class DeviceConfigurationOverrideTest {
 
     @Test
     fun forcedSizeOverride_largeRequestedSize_canDragAndDropMouse() {
-        val sizeDp = 50.dp
+        val targetSizePx = 100f
         var xOffsetPx by mutableStateOf(0f)
         var yOffsetPx by mutableStateOf(0f)
-        var density: Density? = null
 
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
             ) {
-                density = LocalDensity.current
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
                 Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
                     Box(
                         Modifier.testTag("draggable-box")
@@ -1202,7 +1201,6 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        val sizePx = with(density!!) { sizeDp.toPx() }
         val tolerance = 2f
 
         rule.onNodeWithTag("draggable-box").performMouseInput {
@@ -1210,24 +1208,21 @@ class DeviceConfigurationOverrideTest {
         }
         rule.waitForIdle()
 
-        assertEquals(2 * sizePx, xOffsetPx, tolerance)
-        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
     }
 
     @Test
     fun forcedSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
-        val sizeDp = 50.dp
+        val targetSizePx = 100f
         var xOffsetPx by mutableStateOf(0f)
         var yOffsetPx by mutableStateOf(0f)
-        var density: Density? = null
 
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
             ) {
-                // We must capture LocalDensity because DeviceConfigurationOverride dynamically
-                // scales down the density to fit the size on the physical screen.
-                density = LocalDensity.current
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
                 Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
                     Box(
                         Modifier.testTag("draggable-box")
@@ -1245,7 +1240,6 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        val sizePx = with(density!!) { sizeDp.toPx() }
         val tolerance = 2f
 
         rule.onNodeWithTag("draggable-box").performTrackpadInput {
@@ -1253,8 +1247,8 @@ class DeviceConfigurationOverrideTest {
         }
         rule.waitForIdle()
 
-        assertEquals(2 * sizePx, xOffsetPx, tolerance)
-        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
     }
 
     @Test
@@ -1285,16 +1279,15 @@ class DeviceConfigurationOverrideTest {
 
     @Test
     fun windowSizeOverride_largeRequestedSize_canDragAndDropMouse() {
-        val sizeDp = 50.dp
+        val targetSizePx = 100f
         var xOffsetPx by mutableStateOf(0f)
         var yOffsetPx by mutableStateOf(0f)
-        var density: Density? = null
 
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
             ) {
-                density = LocalDensity.current
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
                 Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
                     Box(
                         Modifier.testTag("draggable-box")
@@ -1312,7 +1305,6 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        val sizePx = with(density!!) { sizeDp.toPx() }
         val tolerance = 2f
 
         rule.onNodeWithTag("draggable-box").performMouseInput {
@@ -1320,22 +1312,21 @@ class DeviceConfigurationOverrideTest {
         }
         rule.waitForIdle()
 
-        assertEquals(2 * sizePx, xOffsetPx, tolerance)
-        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
     }
 
     @Test
     fun windowSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
-        val sizeDp = 50.dp
+        val targetSizePx = 100f
         var xOffsetPx by mutableStateOf(0f)
         var yOffsetPx by mutableStateOf(0f)
-        var density: Density? = null
 
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
             ) {
-                density = LocalDensity.current
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
                 Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
                     Box(
                         Modifier.testTag("draggable-box")
@@ -1353,7 +1344,6 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        val sizePx = with(density!!) { sizeDp.toPx() }
         val tolerance = 2f
 
         rule.onNodeWithTag("draggable-box").performTrackpadInput {
@@ -1361,8 +1351,8 @@ class DeviceConfigurationOverrideTest {
         }
         rule.waitForIdle()
 
-        assertEquals(2 * sizePx, xOffsetPx, tolerance)
-        assertEquals(4 * sizePx, yOffsetPx, tolerance)
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
     }
 
     @Test
