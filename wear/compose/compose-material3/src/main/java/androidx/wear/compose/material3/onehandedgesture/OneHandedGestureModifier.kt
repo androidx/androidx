@@ -91,9 +91,10 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *   this gesture.
  * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
- *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
- *   visualize the gesture state (e.g., showing a ripple, custom pressed state) when the one-handed
- *   gesture is being interacted with.
+ *   [androidx.compose.foundation.interaction.PressInteraction.Press] and an immediate
+ *   [androidx.compose.foundation.interaction.PressInteraction.Release] when this gesture is
+ *   triggered. This allows UI components to visually react (such as triggering a touch ripple or
+ *   pressed state animation) upon gesture activation.
  * @param onGestureLabel Semantic label used by accessibility services to describe the purpose of
  *   this gesture. This is highly recommended for ensuring that users with screen readers understand
  *   what action will be performed.
