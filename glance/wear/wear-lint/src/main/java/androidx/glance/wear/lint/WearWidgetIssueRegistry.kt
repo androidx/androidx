@@ -19,14 +19,14 @@ package androidx.glance.wear.lint
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
-import com.android.tools.lint.detector.api.Issue
 
 /** [IssueRegistry] for Glance Wear widget lint checks. */
 class WearWidgetIssueRegistry : IssueRegistry() {
     override val api = 16
     override val minApi = CURRENT_API
 
-    override val issues = listOf<Issue>()
+    override val issues =
+        listOf(WearWidgetServiceAssociationDetector.SERVICE_ASSOCIATION_ANNOTATION_ISSUE)
 
     override val vendor =
         Vendor(
