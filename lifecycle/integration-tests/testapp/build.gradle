@@ -29,6 +29,7 @@ dependencies {
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
     androidTestImplementation(project(":lifecycle:lifecycle-common")) // Added for b/155802460
+    androidTestImplementation(project(":tracing:tracing"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
