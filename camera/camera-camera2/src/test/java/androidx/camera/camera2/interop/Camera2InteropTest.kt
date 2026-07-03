@@ -17,6 +17,7 @@
 package androidx.camera.camera2.interop
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
@@ -24,12 +25,21 @@ import android.util.Range
 import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
+import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
 import androidx.camera.testing.impl.fakes.FakeConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowCameraCharacteristics
 
 private const val INVALID_TEMPLATE_TYPE = -1
 private const val INVALID_COLOR_CORRECTION_MODE = -1
@@ -243,5 +253,126 @@ class Camera2InteropTest {
 
         // Assert
         assertThat(config.getPhysicalCameraId(null)).isEqualTo(PHYSICAL_CAMERA_ID)
+    }
+
+    @Test
+    fun canGetId_fromCamera2InteropStatic() {
+        val cameraId = "42"
+        val cameraInfo = createCameraInfoAdapter(cameraId = CameraId(cameraId))
+        val extractedId: String = Camera2Interop.getCameraId(cameraInfo)
+
+        // Assert.
+        assertThat(extractedId).isEqualTo(cameraId)
+    }
+
+    @Test
+    fun canExtractCharacteristics_fromCamera2InteropStatic() {
+        val cameraInfo =
+            createCameraInfoWithCharacteristics(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+            )
+
+        val hardwareLevel =
+            Camera2Interop.getCameraCharacteristics(cameraInfo)
+                .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+
+        // Assert.
+        assertThat(hardwareLevel)
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+    }
+
+    @Test
+    fun canCreateCameraSelector_fromCamera2InteropStatic() {
+        val cameraId = "42"
+        val cameraSelector = Camera2Interop.getCameraSelectorFromCameraId(cameraId)
+
+        // Assert.
+        assertThat(cameraSelector).isNotNull()
+        assertCameraSelectorSelectsCameraId(cameraSelector, cameraId)
+    }
+
+    @Test
+    fun canGetId_fromCameraInfoExtension() {
+        val cameraId = "42"
+        val cameraInfo: CameraInfo = createCameraInfoAdapter(cameraId = CameraId(cameraId))
+        val extractedId: String = cameraInfo.cameraId
+
+        // Assert.
+        assertThat(extractedId).isEqualTo(cameraId)
+    }
+
+    @Test
+    fun canExtractCharacteristics_fromCameraInfoExtension() {
+        val cameraInfo =
+            createCameraInfoWithCharacteristics(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+            )
+
+        val hardwareLevel =
+            cameraInfo.cameraCharacteristics.get(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+            )
+
+        // Assert.
+        assertThat(hardwareLevel)
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+    }
+
+    @Test
+    fun canCreateCameraSelector_fromCameraIdExtension() {
+        val cameraId = "42"
+        val cameraSelector = cameraId.toCameraSelector()
+
+        // Assert.
+        assertThat(cameraSelector).isNotNull()
+        assertCameraSelectorSelectsCameraId(cameraSelector, cameraId)
+    }
+
+    private fun createCameraInfoWithCharacteristics(cameraHardwareLevel: Int): CameraInfo {
+        val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
+        val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
+        shadowCharacteristics.set(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+            cameraHardwareLevel,
+        )
+
+        class FakeCamera2Metadata(
+            private val delegate: FakeCameraMetadata,
+            private val cameraCharacteristics: CameraCharacteristics,
+        ) : androidx.camera.camera2.pipe.CameraMetadata by delegate {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : Any> unwrapAs(type: Class<T>): T? {
+                if (type == CameraCharacteristics::class.java) {
+                    return cameraCharacteristics as T
+                }
+                return delegate.unwrapAs(type)
+            }
+        }
+
+        val fakeMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to cameraHardwareLevel
+                    ),
+            )
+
+        return createCameraInfoAdapter(
+            cameraProperties =
+                FakeCameraProperties(FakeCamera2Metadata(fakeMetadata, characteristics))
+        )
+    }
+
+    private fun assertCameraSelectorSelectsCameraId(
+        cameraSelector: CameraSelector,
+        expectedCameraId: String,
+    ) {
+        val cameraInfo0 = createCameraInfoAdapter(cameraId = CameraId("0"))
+        val cameraInfoExpected = createCameraInfoAdapter(cameraId = CameraId(expectedCameraId))
+        val cameraInfo1 = createCameraInfoAdapter(cameraId = CameraId("1"))
+        val filteredCameraInfos =
+            cameraSelector.filter(listOf(cameraInfo0, cameraInfoExpected, cameraInfo1))
+        assertThat(filteredCameraInfos).containsExactly(cameraInfoExpected)
     }
 }

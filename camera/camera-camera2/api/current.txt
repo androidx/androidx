@@ -39,7 +39,19 @@ package androidx.camera.camera2.interop {
     method public androidx.camera.camera2.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
   }
 
-  @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2Interop {
+  public final class Camera2Interop {
+    method public static android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
+    method public static androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
+    method public static String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
+    method public static androidx.camera.core.CameraSelector getCameraSelectorFromCameraId(String cameraId);
+    field public static final androidx.camera.camera2.interop.Camera2Interop.Companion Companion;
+  }
+
+  public static final class Camera2Interop.Companion {
+    method public android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
+    method public androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
+    method public String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
+    method public androidx.camera.core.CameraSelector getCameraSelectorFromCameraId(String cameraId);
   }
 
   @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class Camera2Interop.Extender<T> {
@@ -50,6 +62,14 @@ package androidx.camera.camera2.interop {
     method public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setSessionCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback captureCallback);
     method public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback stateCallback);
     method @RequiresApi(33) public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setStreamUseCase(long streamUseCase);
+  }
+
+  public final class Camera2InteropEx {
+    method @BytecodeOnly public static android.hardware.camera2.CameraCharacteristics! getCameraCharacteristics(androidx.camera.core.CameraInfo!);
+    method @BytecodeOnly public static String! getCameraId(androidx.camera.core.CameraInfo!);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static androidx.camera.core.CameraSelector toCameraSelector(String);
+    property @kotlin.jvm.JvmSynthetic public static android.hardware.camera2.CameraCharacteristics androidx.camera.core.CameraInfo.cameraCharacteristics;
+    property @kotlin.jvm.JvmSynthetic public static String androidx.camera.core.CameraInfo.cameraId;
   }
 
   @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {

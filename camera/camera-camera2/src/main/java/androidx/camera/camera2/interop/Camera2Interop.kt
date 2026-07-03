@@ -18,12 +18,18 @@ package androidx.camera.camera2.interop
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.unwrapAs
 import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.impl.createCaptureRequestOption
+import androidx.camera.core.CameraFilter
+import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExtendableBuilder
 import androidx.camera.core.impl.Config
 
@@ -32,8 +38,91 @@ import androidx.camera.core.impl.Config
  *
  * @constructor Private constructor to ensure this class isn't instantiated.
  */
-@ExperimentalCamera2Interop
 public class Camera2Interop private constructor() {
+
+    public companion object {
+        /**
+         * Returns the Camera2 camera ID from a [CameraInfo].
+         *
+         * Example:
+         * ```java
+         * String cameraId = Camera2Interop.getCameraId(cameraInfo);
+         * ```
+         *
+         * @param cameraInfo target [CameraInfo]
+         * @return Camera2 camera ID
+         * @throws IllegalArgumentException if [cameraInfo] does not contain Camera2 information
+         */
+        @JvmStatic
+        @OptIn(ExperimentalCamera2Interop::class)
+        public fun getCameraId(cameraInfo: CameraInfo): String {
+            return Camera2CameraInfo.from(cameraInfo).cameraId
+        }
+
+        /**
+         * Returns the [CameraCharacteristics] from a [CameraInfo].
+         *
+         * Example:
+         * ```java
+         * CameraCharacteristics characteristics = Camera2Interop.getCameraCharacteristics(cameraInfo);
+         * Integer sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+         * ```
+         *
+         * @param cameraInfo target [CameraInfo]
+         * @return [CameraCharacteristics] associated with [cameraInfo]
+         * @throws IllegalArgumentException if [cameraInfo] does not contain Camera2 information
+         */
+        @JvmStatic
+        public fun getCameraCharacteristics(cameraInfo: CameraInfo): CameraCharacteristics {
+            val characteristics = cameraInfo.unwrapAs(CameraCharacteristics::class.java)
+            requireNotNull(characteristics) {
+                "Could not unwrap $cameraInfo as CameraCharacteristics!"
+            }
+            return characteristics
+        }
+
+        /**
+         * Creates a [CameraSelector] targeting a specific Camera2 camera ID.
+         *
+         * Example:
+         * ```java
+         * CameraSelector cameraSelector = Camera2Interop.getCameraSelectorFromCameraId("0");
+         * cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCase);
+         * ```
+         *
+         * @param cameraId target Camera2 camera ID
+         * @return [CameraSelector] that filters for [cameraId]
+         */
+        @JvmStatic
+        public fun getCameraSelectorFromCameraId(cameraId: String): CameraSelector {
+            return CameraSelector.Builder()
+                .addCameraFilter(getCameraFilterFromCameraId(cameraId))
+                .build()
+        }
+
+        /**
+         * Creates a [CameraFilter] that matches a specific Camera2 camera ID.
+         *
+         * @param cameraId target Camera2 camera ID
+         * @return [CameraFilter] matching [cameraId]
+         */
+        @JvmStatic
+        public fun getCameraFilterFromCameraId(cameraId: String): CameraFilter {
+            return CameraFilter { cameraInfos ->
+                val filtered = ArrayList<CameraInfo>()
+                for (cameraInfo in cameraInfos) {
+                    try {
+                        if (getCameraId(cameraInfo) == cameraId) {
+                            filtered.add(cameraInfo)
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        // Ignore non-Camera2 cameras
+                    }
+                }
+                filtered
+            }
+        }
+    }
 
     /**
      * Extends [baseBuilder] to add Camera2 options.
@@ -42,6 +131,7 @@ public class Camera2Interop private constructor() {
      * @param baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
+    @ExperimentalCamera2Interop
     public class Extender<T>(private var baseBuilder: ExtendableBuilder<T>) {
 
         /**
