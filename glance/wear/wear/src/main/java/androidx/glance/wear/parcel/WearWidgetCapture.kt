@@ -22,8 +22,8 @@ import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
+import androidx.glance.wear.GlanceWearProfiles
 import androidx.glance.wear.core.WearWidgetRawContent
 
 internal object WearWidgetCapture {
@@ -41,7 +41,8 @@ internal object WearWidgetCapture {
             captureSingleRemoteDocument(
                 context = context,
                 creationDisplayInfo = creationDisplayInfo,
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                // TODO: b/526716195 - Use Host's supported operations
+                profile = GlanceWearProfiles.wearWidgets(),
                 content = content,
             )
         return WearWidgetRawContent(
