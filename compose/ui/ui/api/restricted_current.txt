@@ -170,6 +170,7 @@ package androidx.compose.ui {
     property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     property public boolean isTrackpadPinchReinterpretationEnabled;
     property public boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
+    property public boolean isVelocityTrackerMinSampleSizeFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
@@ -182,6 +183,7 @@ package androidx.compose.ui {
     field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     field public static boolean isTrackpadPinchReinterpretationEnabled;
     field public static boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
+    field public static boolean isVelocityTrackerMinSampleSizeFixEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
 

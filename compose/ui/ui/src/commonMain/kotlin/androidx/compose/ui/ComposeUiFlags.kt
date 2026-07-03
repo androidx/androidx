@@ -154,4 +154,15 @@ object ComposeUiFlags {
      */
     // TODO: b/523295932 - Cleanup feature flag
     @field:Suppress("MutableBareField") @JvmField var isMinimalistLocalsEnabled: Boolean = false
+
+    /**
+     * Enables calculating velocity from two sample points instead of returning zero. This changes
+     * how velocity is calculated for flings, which may affect scrolling, nested scrolling, and
+     * similar gesture behaviors. Please file a bug report if disabling this flag resolves the
+     * issue.
+     */
+    // TODO: b/530873034 - Cleanup feature flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isVelocityTrackerMinSampleSizeFixEnabled: Boolean = true
 }
