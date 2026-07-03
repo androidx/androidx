@@ -241,6 +241,18 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isDraggableZeroDeltaConsumptionEnabled: Boolean = true
+
+    /**
+     * This flag controls a fix in the lazy layout prefetch scheduler's idle detection. When
+     * enabled, it prevents the scheduler from incorrectly identifying an idle state when a frame is
+     * delayed longer than our idle detection threshold. If disabled, only the idle detection
+     * threshold will be used to determine if a frame is idle, which could lead to janky frames when
+     * scrolling.
+     */
+    // TODO: b/531649461
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPrefetchSchedulerLateFrameDetectionEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
