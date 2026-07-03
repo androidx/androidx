@@ -94,9 +94,9 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
  *   visualize the gesture state (e.g., showing a ripple, custom pressed state) when the one-handed
  *   gesture is being interacted with.
- * @param gestureLabel Semantic label used by accessibility services to describe the purpose of this
- *   gesture. This is highly recommended for ensuring that users with screen readers understand what
- *   action will be performed.
+ * @param onGestureLabel Semantic label used by accessibility services to describe the purpose of
+ *   this gesture. This is highly recommended for ensuring that users with screen readers understand
+ *   what action will be performed.
  * @param onGestureAvailable A callback invoked by the system to signal that this gesture is
  *   currently available as a high-priority action. Developers should use this callback to set
  *   [OneHandedGestureIndicatorState.isIndicatorActive] to `true` to trigger the associated visual
@@ -105,7 +105,7 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  */
 public fun Modifier.oneHandedGesture(
     gestureConfiguration: OneHandedGestureConfiguration,
-    gestureLabel: String,
+    onGestureLabel: String?,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     onGestureAvailable: () -> Unit = {},
@@ -115,7 +115,7 @@ public fun Modifier.oneHandedGesture(
         GestureElement(
             gestureConfiguration = gestureConfiguration,
             enabledInAmbient = enabledInAmbient,
-            gestureLabel = gestureLabel,
+            onGestureLabel = onGestureLabel,
             onGestureAvailable = onGestureAvailable,
             onGesture = { centerOffset ->
                 interactionSource?.let { source ->
@@ -132,7 +132,7 @@ public fun Modifier.oneHandedGesture(
 private class GestureElement(
     val gestureConfiguration: OneHandedGestureConfiguration,
     val enabledInAmbient: Boolean,
-    val gestureLabel: String,
+    val onGestureLabel: String?,
     val onGestureAvailable: () -> Unit,
     val onGesture: suspend (centerOffset: Offset) -> Unit,
 ) : ModifierNodeElement<GestureNode>() {
@@ -141,7 +141,7 @@ private class GestureElement(
         GestureNode(
             gestureConfiguration,
             enabledInAmbient,
-            gestureLabel,
+            onGestureLabel,
             onGestureAvailable,
             onGesture,
         )
@@ -150,7 +150,7 @@ private class GestureElement(
         node.updateGesture(
             gestureConfiguration,
             enabledInAmbient,
-            gestureLabel,
+            onGestureLabel,
             onGestureAvailable,
             onGesture,
         )
@@ -168,7 +168,7 @@ private class GestureElement(
         if (this === other) return true
         if (other !is GestureElement) return false
         return gestureConfiguration == other.gestureConfiguration &&
-            gestureLabel == other.gestureLabel &&
+            onGestureLabel == other.onGestureLabel &&
             onGesture === other.onGesture &&
             onGestureAvailable === other.onGestureAvailable
     }
@@ -176,7 +176,7 @@ private class GestureElement(
     override fun hashCode(): Int {
         var result = gestureConfiguration.hashCode()
         result = 31 * result + enabledInAmbient.hashCode()
-        result = 31 * result + gestureLabel.hashCode()
+        result = 31 * result + onGestureLabel.hashCode()
         result = 31 * result + onGesture.hashCode()
         result = 31 * result + onGestureAvailable.hashCode()
         return result
@@ -186,7 +186,7 @@ private class GestureElement(
 private class GestureNode(
     private var gestureConfiguration: OneHandedGestureConfiguration,
     private var enabledInAmbient: Boolean,
-    private var gestureLabel: String,
+    private var onGestureLabel: String?,
     private var onGestureAvailable: () -> Unit,
     private var onGesture: suspend (centerOffset: Offset) -> Unit,
 ) :
@@ -223,7 +223,7 @@ private class GestureNode(
     fun updateGesture(
         newConfig: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
-        newGestureLabel: String,
+        newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
@@ -248,7 +248,7 @@ private class GestureNode(
                     hapticFeedback!!,
                     gestureConfiguration,
                     newEnabledInAmbient,
-                    gestureLabel,
+                    onGestureLabel,
                     onGestureAvailable,
                     onGesture,
                 )
@@ -258,7 +258,7 @@ private class GestureNode(
                     oldConfig,
                     newConfig,
                     newEnabledInAmbient,
-                    newGestureLabel,
+                    newOnGestureLabel,
                     newOnGestureAvailable,
                     newOnGesture,
                 )
@@ -266,7 +266,7 @@ private class GestureNode(
         }
 
         gestureConfiguration = newConfig
-        gestureLabel = newGestureLabel
+        onGestureLabel = newOnGestureLabel
         onGesture = newOnGesture
     }
 
@@ -284,7 +284,7 @@ private class GestureNode(
                 hapticFeedback!!,
                 gestureConfiguration,
                 enabledInAmbient,
-                gestureLabel,
+                onGestureLabel,
                 onGestureAvailable,
                 onGesture,
             )
@@ -298,7 +298,7 @@ private class GestureNode(
         haptic: HapticFeedback,
         gestureConfiguration: OneHandedGestureConfiguration,
         enabledInAmbient: Boolean,
-        gestureLabel: String,
+        onGestureLabel: String?,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
@@ -308,7 +308,7 @@ private class GestureNode(
                 haptic = haptic,
                 gestureConfiguration = gestureConfiguration,
                 enabledInAmbient = enabledInAmbient,
-                gestureLabel = gestureLabel,
+                onGestureLabel = onGestureLabel,
                 onGestureAvailable = onGestureAvailable,
                 onGesture = onGesture,
                 isActive = { localScreenIsActive },
