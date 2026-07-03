@@ -82,7 +82,7 @@ fun OneHandedGestureButtonSample() {
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
                     interactionSource = interactionSource,
-                    gestureLabel = "activate the button",
+                    onGestureLabel = "activate the button",
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
                 ),
@@ -115,7 +115,7 @@ fun OneHandedGestureDisableButtonSample() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = gestureConfig,
                             interactionSource = interactionSource,
-                            gestureLabel = "increase the counter",
+                            onGestureLabel = "increase the counter",
                             onGestureAvailable = { indicatorState.isIndicatorActive = true },
                             onGesture = { counter++ },
                         ),
@@ -165,7 +165,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
-                            gestureLabel = "close",
+                            onGestureLabel = "close",
                             onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
@@ -198,7 +198,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
-                        gestureLabel = "scroll",
+                        onGestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
@@ -245,7 +245,7 @@ fun OneHandedGestureScalingLazyColumnSample() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
-                            gestureLabel = "close",
+                            onGestureLabel = "close",
                             onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
@@ -278,7 +278,7 @@ fun OneHandedGestureScalingLazyColumnSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
-                        gestureLabel = "scroll",
+                        onGestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
@@ -326,7 +326,7 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
-                            gestureLabel = "close",
+                            onGestureLabel = "close",
                             onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
@@ -359,7 +359,7 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
-                        gestureLabel = "scroll",
+                        onGestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
@@ -406,7 +406,7 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = buttonGestureConfig,
                             interactionSource = buttonInteractionSource,
-                            gestureLabel = "close",
+                            onGestureLabel = "close",
                             onGestureAvailable = { buttonIndicatorState.isIndicatorActive = true },
                             onGesture = onClick,
                         )
@@ -439,7 +439,7 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
-                        gestureLabel = "scroll",
+                        onGestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDownToNextItem(scrollState) },
                     ),
@@ -472,7 +472,7 @@ fun OneHandedGestureHorizontalPagerSample() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
-                    gestureLabel = "scroll to the next page",
+                    onGestureLabel = "scroll to the next page",
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)
@@ -517,7 +517,7 @@ fun OneHandedGestureVerticalPagerSample() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
-                    gestureLabel = "scroll to the next page",
+                    onGestureLabel = "scroll to the next page",
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                 ) {
                     OneHandedGestureDefaults.scrollToNextPage(pagerState)

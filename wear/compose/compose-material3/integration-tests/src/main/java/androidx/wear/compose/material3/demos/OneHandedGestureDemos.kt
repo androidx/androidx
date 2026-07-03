@@ -176,7 +176,7 @@ fun OneHandedGesturePrimaryDismissButtons() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = dismissGestureConfig,
                             interactionSource = dismissInteractionSource,
-                            gestureLabel = "dismiss",
+                            onGestureLabel = "dismiss",
                             onGestureAvailable = { dismissIndicatorState.isIndicatorActive = true },
                             onGesture = dismissOnClick,
                         ),
@@ -193,7 +193,7 @@ fun OneHandedGesturePrimaryDismissButtons() {
                         Modifier.oneHandedGesture(
                             gestureConfiguration = primaryGestureConfig,
                             interactionSource = primaryInteractionSource,
-                            gestureLabel = "confirm",
+                            onGestureLabel = "confirm",
                             onGestureAvailable = { primaryIndicatorState.isIndicatorActive = true },
                             onGesture = primaryOnClick,
                         ),
@@ -275,7 +275,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
-                        gestureLabel = "scroll",
+                        onGestureLabel = "scroll",
                         onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
@@ -301,7 +301,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                 Modifier.oneHandedGesture(
                                     gestureConfiguration = buttonGestureSpec,
                                     interactionSource = buttonInteractionSource,
-                                    gestureLabel = "click",
+                                    onGestureLabel = "click",
                                     onGestureAvailable = {
                                         buttonIndicatorState.isIndicatorActive = true
                                     },
@@ -336,7 +336,7 @@ private fun OneHandedGestureButton(
             Modifier.oneHandedGesture(
                 gestureConfiguration = gestureConfig,
                 interactionSource = interactionSource,
-                gestureLabel = gestureLabel,
+                onGestureLabel = gestureLabel,
                 onGestureAvailable = { indicatorState.isIndicatorActive = true },
                 onGesture = onClick,
             ),
@@ -364,7 +364,7 @@ fun OHGTonalButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
-                    gestureLabel = "click",
+                    onGestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
@@ -401,7 +401,7 @@ fun OHGOutlinedButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
-                    gestureLabel = "click",
+                    onGestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
@@ -438,7 +438,7 @@ fun OHGChildButtonDemo() {
             modifier =
                 Modifier.oneHandedGesture(
                     gestureConfiguration = gestureConfig,
-                    gestureLabel = "click",
+                    onGestureLabel = "click",
                     interactionSource = interactionSource,
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
