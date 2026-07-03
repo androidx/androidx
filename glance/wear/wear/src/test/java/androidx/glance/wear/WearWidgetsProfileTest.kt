@@ -54,7 +54,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testRequiredOperations() {
-        val profile = RcPlatformProfiles.WEAR_WIDGETS
+        val profile = GlanceWearProfiles.wearWidgets()
         val operations = profile.supportedOperations
         val exclusions =
             setOf(

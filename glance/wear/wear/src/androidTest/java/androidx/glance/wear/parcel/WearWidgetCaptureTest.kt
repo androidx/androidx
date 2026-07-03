@@ -38,7 +38,6 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +55,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
+import androidx.glance.wear.GlanceWearProfiles
 import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -202,7 +202,7 @@ class WearWidgetCaptureTest {
     fun pendingIntentCollection() = runTest {
         val creationDisplayInfo =
             RemoteCreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
-        val profile = RcPlatformProfiles.WEAR_WIDGETS
+        val profile = GlanceWearProfiles.wearWidgets()
         val result =
             captureSingleRemoteDocument(
                 creationDisplayInfo = creationDisplayInfo,
