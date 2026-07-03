@@ -19,6 +19,7 @@ package androidx.pdf.ink
 import android.content.Context
 import android.graphics.Path
 import android.graphics.RectF
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.SparseArray
@@ -288,6 +289,13 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
          */
         pdfLoaderHandle = SandboxedPdfLoader.startInitialization(context)
     }
+
+    /**
+     * Unlike [PdfViewerFragment], [EditablePdfViewerFragment] handles annotations internally using
+     * built-in editing capabilities, so external intent resolution is not required.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun checkAnnotationIntentResolvability(uri: Uri): Boolean = true
 
     override fun onDetach() {
         super.onDetach()

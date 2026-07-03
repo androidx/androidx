@@ -474,7 +474,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
             _pdfSearchView.searchQueryBox.requestFocus()
 
         super.onResume()
-        pdfView.pdfDocument?.uri?.let { uri -> setAnnotationIntentResolvability(uri) }
+        pdfView.pdfDocument?.uri?.let { uri -> updateAnnotationIntentResolvability(uri) }
     }
 
     override fun onDestroyView() {
@@ -794,7 +794,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
 
         _pdfView.pdfDocument = uiState.pdfDocument
         _toolboxView.setPdfDocument(uiState.pdfDocument)
-        setAnnotationIntentResolvability(uiState.pdfDocument.uri)
+        updateAnnotationIntentResolvability(uiState.pdfDocument.uri)
         setViewVisibility(pdfView = VISIBLE, loadingView = GONE, errorView = GONE)
         if (uiState.pdfDocument.isFeatureSupported(PdfFeature.SEARCH)) {
             setupSearchView(_pdfSearchView)
@@ -803,9 +803,20 @@ public open class PdfViewerFragment constructor() : Fragment() {
         collectViewStates(uiState.pdfDocument)
     }
 
-    private fun setAnnotationIntentResolvability(uri: Uri) {
-        isAnnotationIntentResolvable =
-            AnnotationUtils.resolveAnnotationIntent(requireContext(), uri)
+    /**
+     * Determines whether annotation capabilities are available for the given document [uri].
+     *
+     * The default implementation checks whether an external application is available to handle
+     * annotation intents for the document URI. Subclasses that handle annotations internally may
+     * override this method.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected open fun checkAnnotationIntentResolvability(uri: Uri): Boolean {
+        return AnnotationUtils.resolveAnnotationIntent(requireContext(), uri)
+    }
+
+    private fun updateAnnotationIntentResolvability(uri: Uri) {
+        isAnnotationIntentResolvable = checkAnnotationIntentResolvability(uri)
         if (!isAnnotationIntentResolvable) {
             _toolboxView.hide()
         }

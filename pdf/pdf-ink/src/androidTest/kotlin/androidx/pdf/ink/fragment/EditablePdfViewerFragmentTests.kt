@@ -116,10 +116,24 @@ class EditablePdfViewerFragmentTests {
         )
         onIdle() // Wait for document to load
 
-        scenario.onFragment { fragment ->
-            fragment.setIsAnnotationIntentResolvable(true)
-            fragment.isToolboxVisible = true
-        }
+        scenario.onFragment { fragment -> fragment.isToolboxVisible = true }
+    }
+
+    @Test
+    fun test_isToolboxVisible_showsToolboxWithoutExternalAnnotationIntent() {
+        if (!isAnnotationsFeatureAvailable()) return
+
+        scenarioLoadDocument(
+            scenario = scenario,
+            filename = TEST_DOCUMENT_FILE,
+            nextState = Lifecycle.State.RESUMED,
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
+        )
+        onIdle()
+
+        scenario.onFragment { fragment -> fragment.isToolboxVisible = true }
+
+        onView(withId(PdfR.id.edit_fab)).check(matches(isDisplayed()))
     }
 
     private fun enterEditMode() {
