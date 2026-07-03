@@ -125,6 +125,155 @@ class AppFunctionRuntimeRegistrationTest {
     }
 
     @Test
+    fun registerAppFunctions_multipleFunctions_shouldSucceed() {
+        val functionId1 =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val expectedResult1 = "self_execution_result_1"
+        val functionId2 =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS_2
+        val expectedResult2 = "self_execution_result_2"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction1 = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult1))
+            }
+            val callbackAppFunction2 = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult2))
+            }
+
+            val request1 =
+                RegisterAppFunctionRequest(functionId1, activity.mainExecutor, callbackAppFunction1)
+            val request2 =
+                RegisterAppFunctionRequest(functionId2, activity.mainExecutor, callbackAppFunction2)
+
+            val registration =
+                activityAppFunctionManager.registerAppFunctions(listOf(request1, request2))
+
+            try {
+                val executionRequest1 =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId1,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response1 = appFunctionManager.executeAppFunction(executionRequest1)
+
+                assertThat(response1).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse1 = response1 as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse1.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult1)
+
+                val executionRequest2 =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId2,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response2 = appFunctionManager.executeAppFunction(executionRequest2)
+
+                assertThat(response2).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse2 = response2 as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse2.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult2)
+            } finally {
+                registration.unregister()
+            }
+
+            val unregisteredException1 = executeAppFunctionAndGetException(activity, functionId1)
+            assertIs<AppFunctionDisabledException>(unregisteredException1)
+
+            val unregisteredException2 = executeAppFunctionAndGetException(activity, functionId2)
+            assertIs<AppFunctionDisabledException>(unregisteredException2)
+        }
+    }
+
+    @Test
+    fun handleAppFunctions_multipleFunctions_shouldSucceed() {
+        val functionId1 =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val expectedResult1 = "self_execution_result_1"
+        val functionId2 =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS_2
+        val expectedResult2 = "self_execution_result_2"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val suspendAppFunction1 = SuspendingAppFunction { _ ->
+                createReturnStringResponse(expectedResult1)
+            }
+            val suspendAppFunction2 = SuspendingAppFunction { _ ->
+                createReturnStringResponse(expectedResult2)
+            }
+
+            val request1 = HandleAppFunctionRequest(functionId1, suspendAppFunction1)
+            val request2 = HandleAppFunctionRequest(functionId2, suspendAppFunction2)
+
+            val handleJob =
+                launch(Dispatchers.Default) {
+                    activityAppFunctionManager.handleAppFunctions(listOf(request1, request2))
+                }
+
+            metadataTestHelper.awaitAppFunctionEnabled(activityAppFunctionManager, functionId1)
+            metadataTestHelper.awaitAppFunctionEnabled(activityAppFunctionManager, functionId2)
+
+            try {
+                val executionRequest1 =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId1,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response1 = appFunctionManager.executeAppFunction(executionRequest1)
+
+                assertThat(response1).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse1 = response1 as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse1.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult1)
+
+                val executionRequest2 =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId2,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response2 = appFunctionManager.executeAppFunction(executionRequest2)
+
+                assertThat(response2).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse2 = response2 as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse2.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult2)
+            } finally {
+                handleJob.cancel()
+            }
+
+            val unregisteredException1 = executeAppFunctionAndGetException(activity, functionId1)
+            assertIs<AppFunctionDisabledException>(unregisteredException1)
+
+            val unregisteredException2 = executeAppFunctionAndGetException(activity, functionId2)
+            assertIs<AppFunctionDisabledException>(unregisteredException2)
+        }
+    }
+
+    @Test
     fun testRegisterAppFunction_callerCancellation_propagatesCancellation() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS

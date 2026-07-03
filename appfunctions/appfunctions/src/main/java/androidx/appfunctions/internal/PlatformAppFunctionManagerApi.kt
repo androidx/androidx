@@ -28,12 +28,11 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEFAULT
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
+import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -147,13 +146,12 @@ internal class PlatformAppFunctionManagerApi(
     }
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    override fun registerAppFunction(
-        functionId: String,
-        executor: Executor,
-        appFunction: CallbackAppFunction,
+    override fun registerAppFunctions(
+        requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
-        val platformAppFunction = appFunction.toPlatformAppFunction(appFunctionReader, executor)
-        return appFunctionManager.registerAppFunction(functionId, executor, platformAppFunction)
+        val platformRequests =
+            requests.map { it.toPlatformRegisterAppFunctionRequest(appFunctionReader) }
+        return appFunctionManager.registerAppFunctions(platformRequests)
     }
 
     private fun convertToPlatformEnabledState(

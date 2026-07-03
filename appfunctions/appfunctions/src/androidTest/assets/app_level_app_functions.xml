@@ -13,4 +13,17 @@
         </response>
         <functionId>androidx.appfunctions.test.FakeClass#dynamic_registration_return_success</functionId>
     </appfunction>
+    <appfunction>
+        <id>androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2</id>
+        <scope>global</scope>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <functionId>androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2</functionId>
+    </appfunction>
 </appfunctions>

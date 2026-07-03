@@ -325,6 +325,9 @@ public constructor(
      * [IllegalArgumentException]. Attempting to register a duplicate function for the same scope
      * will throw an [IllegalStateException].
      *
+     * To register multiple functions at once, consider using [registerAppFunctions] as a more
+     * efficient alternative.
+     *
      * The system holds a strong reference to the provided [CallbackAppFunction] implementation as
      * long as it is registered. To prevent memory leaks and ensure the system is aware that the
      * function is no longer available, you must explicitly call
@@ -352,7 +355,47 @@ public constructor(
         executor: Executor,
         appFunction: CallbackAppFunction,
     ): AppFunctionRegistration {
-        return appFunctionManagerApi.registerAppFunction(functionId, executor, appFunction)
+        return registerAppFunctions(
+            listOf(RegisterAppFunctionRequest(functionId, executor, appFunction))
+        )
+    }
+
+    /**
+     * Registers several [CallbackAppFunction] implementations at once, sharing a single lifecycle.
+     *
+     * This is a more efficient alternative to calling [registerAppFunction] multiple times.
+     *
+     * ### Behavior and Lifecycle
+     *
+     * Each function registered through this method follows the same execution and lifecycle rules
+     * as those registered with [registerAppFunction].
+     *
+     * ### Batch Operation and Atomicity
+     *
+     * The registration is atomic: either all functions in the provided list are registered
+     * successfully, or none are. If any function in the list fails validation (e.g., it is already
+     * registered or not declared in the manifest), this method will throw an exception, and no
+     * functions from the batch will be registered. Each function in the request follows the scoping
+     * rules declared in the app's XML resources.
+     *
+     * A single [AppFunctionRegistration] object is returned, which can be used to unregister the
+     * entire batch of functions with one call.
+     *
+     * @param requests A list of [RegisterAppFunctionRequest] objects, each specifying a function to
+     *   be registered.
+     * @return A single [AppFunctionRegistration] object that can be used to unregister all the
+     *   functions in the batch with one call.
+     * @throws IllegalStateException if any function in the `requests` list is already registered by
+     *   this app.
+     * @throws IllegalArgumentException if any [RegisterAppFunctionRequest.functionIdentifier] is
+     *   not declared in the app's application-level XML assets or the `requests` list is empty.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun registerAppFunctions(
+        requests: List<RegisterAppFunctionRequest>
+    ): AppFunctionRegistration {
+        return appFunctionManagerApi.registerAppFunctions(requests)
     }
 
     /**
@@ -390,43 +433,68 @@ public constructor(
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun handleAppFunction(request: HandleAppFunctionRequest): Nothing =
+        handleAppFunctions(listOf(request))
+
+    /**
+     * Registers multiple runtime implementations of app functions bound to the calling coroutine's
+     * lifecycle.
+     *
+     * This method suspends and keeps the functions registered until the calling coroutine scope is
+     * cancelled. Under the hood, it delegates the registration to [registerAppFunctions] and
+     * ensures they are unregistered when the coroutine is cancelled.
+     *
+     * For a callback-based API that does not require a coroutine scope, see [registerAppFunctions].
+     *
+     * @param requests The list of requests containing the function identifiers and implementations.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun handleAppFunctions(requests: List<HandleAppFunctionRequest>): Nothing =
         coroutineScope {
             val dispatcher =
                 currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher
             val executor = dispatcher?.asExecutor() ?: Executor { it.run() }
 
             suspendCancellableCoroutine<Nothing> { cont ->
-                val callbackAppFunction =
-                    CallbackAppFunction { executeRequest, cancellationSignal, callback ->
-                        val job = launch {
-                            try {
-                                val response =
-                                    request.appFunction.executeAppFunction(executeRequest)
-                                callback.accept(response)
-                            } catch (t: CancellationSignalTriggeredException) {
-                                callback.accept(
-                                    ExecuteAppFunctionResponse.Error(
-                                        AppFunctionCancelledException(t.message)
-                                    )
-                                )
-                            } catch (t: AppFunctionException) {
-                                callback.accept(ExecuteAppFunctionResponse.Error(t))
-                            } catch (t: Throwable) {
-                                callback.accept(
-                                    ExecuteAppFunctionResponse.Error(
-                                        AppFunctionAppUnknownException(t.message)
-                                    )
-                                )
-                                throw t
+                val callbackRequests =
+                    requests.map { request ->
+                        val callbackAppFunction =
+                            CallbackAppFunction { executeRequest, cancellationSignal, callback ->
+                                val job = launch {
+                                    try {
+                                        val response =
+                                            request.appFunction.executeAppFunction(executeRequest)
+                                        callback.accept(response)
+                                    } catch (t: CancellationSignalTriggeredException) {
+                                        callback.accept(
+                                            ExecuteAppFunctionResponse.Error(
+                                                AppFunctionCancelledException(t.message)
+                                            )
+                                        )
+                                    } catch (t: AppFunctionException) {
+                                        callback.accept(ExecuteAppFunctionResponse.Error(t))
+                                    } catch (t: Throwable) {
+                                        callback.accept(
+                                            ExecuteAppFunctionResponse.Error(
+                                                AppFunctionAppUnknownException(t.message)
+                                            )
+                                        )
+                                        throw t
+                                    }
+                                }
+                                cancellationSignal.setOnCancelListener {
+                                    job.cancel(CancellationSignalTriggeredException())
+                                }
                             }
-                        }
-                        cancellationSignal.setOnCancelListener {
-                            job.cancel(CancellationSignalTriggeredException())
-                        }
+
+                        RegisterAppFunctionRequest(
+                            request.functionIdentifier,
+                            executor,
+                            callbackAppFunction,
+                        )
                     }
 
-                val registration =
-                    registerAppFunction(request.functionIdentifier, executor, callbackAppFunction)
+                val registration = registerAppFunctions(callbackRequests)
 
                 cont.invokeOnCancellation { registration.unregister() }
             }
