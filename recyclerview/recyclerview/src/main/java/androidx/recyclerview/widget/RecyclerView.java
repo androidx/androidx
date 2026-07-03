@@ -240,6 +240,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private static final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
     private static final float DECELERATION_RATE = (float) (Math.log(0.78) / Math.log(0.9));
     private final float mPhysicalCoef;
+    private boolean mIsTracingDrag = false;
 
     /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
@@ -1795,9 +1796,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         return mScrollState;
     }
 
+    private void beginDragTrace() {
+        if (!mIsTracingDrag) {
+            TraceCompat.beginAsyncSection("RecyclerView#drag", System.identityHashCode(this));
+            mIsTracingDrag = true;
+        }
+    }
+
+    private void endDragTrace() {
+        if (mIsTracingDrag) {
+            TraceCompat.endAsyncSection("RecyclerView#drag", System.identityHashCode(this));
+            mIsTracingDrag = false;
+        }
+    }
+
     void setScrollState(int state) {
         if (state == mScrollState) {
             return;
+        }
+        if (state == SCROLL_STATE_DRAGGING) {
+            beginDragTrace();
+        } else {
+            endDragTrace();
         }
         if (sVerboseLoggingEnabled) {
             Log.d(TAG, "setting scroll state to " + state + " from " + mScrollState,
