@@ -19,6 +19,13 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PathMeasure
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteContext
@@ -28,6 +35,7 @@ import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.ClipRect
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawArc
 import androidx.compose.remote.core.operations.DrawBitmap
 import androidx.compose.remote.core.operations.DrawBitmapFontText
@@ -47,6 +55,8 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
+import androidx.compose.remote.core.operations.FloatFunctionCall
+import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.MatrixRestore
 import androidx.compose.remote.core.operations.MatrixRotate
 import androidx.compose.remote.core.operations.MatrixSave
@@ -55,8 +65,14 @@ import androidx.compose.remote.core.operations.MatrixSkew
 import androidx.compose.remote.core.operations.MatrixTranslate
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.core.operations.ParticlesCompare
+import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.ImpulseOperation
+import androidx.compose.remote.core.operations.layout.ImpulseProcess
+import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.compose.utils.getTweenPath
@@ -117,7 +133,7 @@ internal fun resolveCanvasBitmap(
     id: Int,
 ): Bitmap? {
     val loaded = graph?.imageLoader?.loadImage(id)?.value
-    if (loaded is android.graphics.drawable.BitmapDrawable) return loaded.bitmap
+    if (loaded is BitmapDrawable) return loaded.bitmap
     return resolveBitmap(remoteContext, id)
 }
 
@@ -185,21 +201,31 @@ internal fun DrawScope.executeOperations(
             }
             is ColorConstant -> op.apply(remoteContext)
             is NamedVariable -> op.apply(remoteContext)
-            is androidx.compose.remote.core.operations.layout.ImpulseProcess,
-            is androidx.compose.remote.core.operations.layout.ImpulseOperation -> {
+            is ParticlesLoop -> {
+                // Particle system: bridged to the core (View player) implementation. Needs the
+                // graph for seed state + frame-clock observation; without it skip.
+                if (graph != null) drawParticles(op, remoteContext, paintState, graph)
+            }
+            is ParticlesCompare -> {
+                // Particle interaction pass: bridged to the core implementation like
+                // ParticlesLoop.
+                if (graph != null) drawParticlesCompare(op, remoteContext, paintState, graph)
+            }
+            is ImpulseProcess,
+            is ImpulseOperation -> {
                 // Impulse containers wrap their children (commonly the particle loop). The trigger
                 // /
                 // duration gating isn't modelled here — the children always run — so impulse-driven
                 // content (e.g. particles) renders continuously rather than on event.
                 executeOperations(
-                    (op as androidx.compose.remote.core.operations.layout.Container).list,
+                    (op as Container).list,
                     remoteContext,
                     paintState,
                     onDrawContent,
                     graph,
                 )
             }
-            is androidx.compose.remote.core.operations.ConditionalOperations -> {
+            is ConditionalOperations -> {
                 // Conditional draw: resolve the two operands, compare per type, and draw the child
                 // ops only when the condition holds. Mirrors ConditionalOperations.paint.
                 op.updateVariables(read)
@@ -208,21 +234,16 @@ internal fun DrawScope.executeOperations(
                 val b = data.varBOut
                 val run =
                     when (data.type) {
-                        androidx.compose.remote.core.operations.ConditionalOperations.TYPE_EQ ->
-                            a == b
-                        androidx.compose.remote.core.operations.ConditionalOperations.TYPE_NEQ ->
-                            a != b
-                        androidx.compose.remote.core.operations.ConditionalOperations.TYPE_LT ->
-                            a < b
-                        androidx.compose.remote.core.operations.ConditionalOperations.TYPE_LTE ->
-                            a <= b
-                        androidx.compose.remote.core.operations.ConditionalOperations.TYPE_GT ->
-                            a > b
+                        ConditionalOperations.TYPE_EQ -> a == b
+                        ConditionalOperations.TYPE_NEQ -> a != b
+                        ConditionalOperations.TYPE_LT -> a < b
+                        ConditionalOperations.TYPE_LTE -> a <= b
+                        ConditionalOperations.TYPE_GT -> a > b
                         else -> a >= b // TYPE_GTE
                     }
                 if (run) executeOperations(op.list, remoteContext, paintState, onDrawContent, graph)
             }
-            is androidx.compose.remote.core.operations.layout.LoopOperation -> {
+            is LoopOperation -> {
                 // Loop: resolve from/until/step (NaN-id bounds → variables), then run the child
                 // list
                 // once per iteration, loading the index variable each pass. Mirrors
@@ -244,7 +265,7 @@ internal fun DrawScope.executeOperations(
                     }
                 }
             }
-            is androidx.compose.remote.core.operations.FloatFunctionCall -> {
+            is FloatFunctionCall -> {
                 // Invoke a defined float function: load the resolved argument values
                 // (updateVariables
                 // ran above) into the function's parameter variables, then run its body, which
@@ -252,8 +273,7 @@ internal fun DrawScope.executeOperations(
                 // its outputs to the context for downstream ops to read. Mirrors FloatFunctionCall
                 // .paint. FloatFunctionDefine itself has no draw effect, so it needs no case.
                 val data = op.readData()
-                val fn =
-                    data.function as? androidx.compose.remote.core.operations.FloatFunctionDefine
+                val fn = data.function as? FloatFunctionDefine
                 val outArgs = data.outArgs
                 if (fn != null && outArgs != null) {
                     val argIds = fn.args
@@ -935,7 +955,7 @@ internal fun DrawScope.executeOperations(
                         }
                     }
                     val textPath =
-                        android.graphics.Path().apply {
+                        Path().apply {
                             addArc(
                                 centerX - finalRadius,
                                 centerY - finalRadius,
@@ -1169,13 +1189,13 @@ internal fun DrawScope.executeOperations(
                     val pathId = derefId(data.pathId, read)
                     val androidPath =
                         remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f).asAndroidPath()
-                    val pathMeasure = android.graphics.PathMeasure(androidPath, false)
+                    val pathMeasure = PathMeasure(androidPath, false)
                     val pathLength = pathMeasure.length
                     if (width > 0f && pathLength > 0f) {
-                        val matrix = android.graphics.Matrix()
+                        val matrix = Matrix()
                         val canvas = drawContext.canvas.nativeCanvas
                         val nativePaint =
-                            android.graphics.Paint().apply {
+                            Paint().apply {
                                 isAntiAlias = true
                                 isFilterBitmap = true
                                 alpha = (paintState.alpha * 255f).toInt().coerceIn(0, 255)
@@ -1209,13 +1229,13 @@ internal fun DrawScope.executeOperations(
                                 pathMeasure.getMatrix(
                                     fraction * pathLength,
                                     matrix,
-                                    android.graphics.PathMeasure.POSITION_MATRIX_FLAG or
-                                        android.graphics.PathMeasure.TANGENT_MATRIX_FLAG,
+                                    PathMeasure.POSITION_MATRIX_FLAG or
+                                        PathMeasure.TANGENT_MATRIX_FLAG,
                                 )
                                 canvas.save()
                                 canvas.concat(matrix)
                                 val dst =
-                                    android.graphics.RectF(
+                                    RectF(
                                         -halfGlyphWidth,
                                         yAdj + glyph.mMarginTop,
                                         halfGlyphWidth,
@@ -1223,12 +1243,7 @@ internal fun DrawScope.executeOperations(
                                     )
                                 canvas.drawBitmap(
                                     glyphBitmap,
-                                    android.graphics.Rect(
-                                        0,
-                                        0,
-                                        glyphBitmap.width,
-                                        glyphBitmap.height,
-                                    ),
+                                    Rect(0, 0, glyphBitmap.width, glyphBitmap.height),
                                     dst,
                                     nativePaint,
                                 )
