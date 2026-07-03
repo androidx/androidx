@@ -36,13 +36,11 @@ import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.computeMeasure
 import androidx.compose.remote.creation.computePosition
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
 class LayoutTest : BaseLayoutTest() {
-    @Before
-    fun setUp() {
+    init {
         GENERATE_GOLD_FILES = false
     }
 

@@ -1989,18 +1989,8 @@ public class CoreDocument implements Serializable {
         if (mRootLayoutComponent != null) {
             context.mWidth = maxWidth;
             context.mHeight = maxHeight;
-
-            boolean rootDirty = mRootLayoutComponent.mNeedsMeasure
-                    || maxWidth != mRootLayoutComponent.getWidth()
-                    || maxHeight != mRootLayoutComponent.getHeight();
-
-            if (rootDirty) {
-                mRootLayoutComponent.invalidateMeasure();
-                mRootLayoutComponent.measure(context, minWidth, maxWidth, minHeight, maxHeight);
-            } else {
-                mRootLayoutComponent.performPartialLayoutPass(context);
-            }
-
+            mRootLayoutComponent.invalidateMeasure();
+            mRootLayoutComponent.measure(context, minWidth, maxWidth, minHeight, maxHeight);
             if ((getHeight() != h || getWidth() != w) && mLayoutCallback != null) {
                 mLayoutCallback.onRequestLayout();
             }
