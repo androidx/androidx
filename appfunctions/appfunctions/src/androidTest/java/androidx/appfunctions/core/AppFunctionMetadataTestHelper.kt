@@ -159,6 +159,8 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
 
         const val DYNAMIC_REGISTRATION_RETURN_SUCCESS =
             "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success"
+        const val DYNAMIC_REGISTRATION_RETURN_SUCCESS_2 =
+            "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2"
 
         const val ADDITIONAL_LEGACY_CREATE_NOTE =
             "com.example.android.architecture.blueprints.todoapp#NoteFunctions_createNote"
@@ -235,6 +237,28 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     AppFunctionName(
                         packageName = "androidx.appfunctions.test",
                         functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    ),
+                schema = null,
+                parameters = emptyList<AppFunctionParameterMetadata>(),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "androidx.appfunctions.test",
+                        components = sharedComponents,
+                    ),
+                isEnabled = false,
+                description = "",
+            )
+
+        val DYNAMIC_REGISTRATION_RETURN_SUCCESS_2 =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = "androidx.appfunctions.test",
+                        functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
                     ),
                 schema = null,
                 parameters = emptyList<AppFunctionParameterMetadata>(),

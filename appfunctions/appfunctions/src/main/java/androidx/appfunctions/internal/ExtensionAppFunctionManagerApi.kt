@@ -29,12 +29,11 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEF
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
 import androidx.appfunctions.AppFunctionSystemUnknownException
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionManager as ExtensionAppFunctionManager
-import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -169,10 +168,8 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     }
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    override fun registerAppFunction(
-        functionId: String,
-        executor: Executor,
-        appFunction: CallbackAppFunction,
+    override fun registerAppFunctions(
+        requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
         throw UnsupportedOperationException("Not implemented")
     }
