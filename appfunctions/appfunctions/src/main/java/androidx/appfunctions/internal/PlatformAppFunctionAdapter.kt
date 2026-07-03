@@ -27,6 +27,7 @@ import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.RegisterAppFunctionRequest
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.GlobalScope
@@ -100,4 +101,15 @@ internal fun CallbackAppFunction.toPlatformAppFunction(
             }
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+internal fun RegisterAppFunctionRequest.toPlatformRegisterAppFunctionRequest(
+    appFunctionReader: AppFunctionReader
+): android.app.appfunctions.RegisterAppFunctionRequest {
+    return android.app.appfunctions.RegisterAppFunctionRequest(
+        functionIdentifier,
+        executor,
+        appFunction.toPlatformAppFunction(appFunctionReader, executor),
+    )
 }

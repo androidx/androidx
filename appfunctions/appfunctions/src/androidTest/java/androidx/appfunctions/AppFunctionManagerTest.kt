@@ -378,6 +378,8 @@ class AppFunctionManagerTest {
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
                     AppFunctionMetadataTestHelper.FunctionMetadata
                         .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
                 )
         }
 
@@ -434,6 +436,8 @@ class AppFunctionManagerTest {
                     AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
                     AppFunctionMetadataTestHelper.FunctionMetadata
                         .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
                 )
         }
 

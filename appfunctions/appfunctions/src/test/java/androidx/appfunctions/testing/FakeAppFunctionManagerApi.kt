@@ -17,12 +17,11 @@
 package androidx.appfunctions.testing
 
 import android.app.appfunctions.AppFunctionRegistration
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import java.util.concurrent.Executor
 
 class FakeAppFunctionManagerApi : AppFunctionManagerApi {
     var executeAppFunctionResponse: ExecuteAppFunctionResponse? = null
@@ -40,9 +39,7 @@ class FakeAppFunctionManagerApi : AppFunctionManagerApi {
     override suspend fun setAppFunctionEnabled(functionId: String, newEnabledState: Int) =
         throw UnsupportedOperationException()
 
-    override fun registerAppFunction(
-        functionId: String,
-        executor: Executor,
-        appFunction: CallbackAppFunction,
+    override fun registerAppFunctions(
+        requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration = throw UnsupportedOperationException()
 }
