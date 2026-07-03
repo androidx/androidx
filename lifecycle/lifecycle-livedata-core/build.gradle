@@ -53,4 +53,5 @@ androidx {
 
 android {
     namespace = "androidx.lifecycle.livedata.core"
+    testOptions.unitTests.returnDefaultValues = true
 }

@@ -55,4 +55,5 @@ android {
         androidTest.kotlin.directories.add(testDir)
     }
     namespace = "androidx.lifecycle.kotlintestapp"
+    testOptions.unitTests.returnDefaultValues = true
 }
