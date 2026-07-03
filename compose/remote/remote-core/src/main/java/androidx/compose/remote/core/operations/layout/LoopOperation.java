@@ -226,4 +226,39 @@ public class LoopOperation extends PaintOperation
                 .add("step", mStep, mStepOut)
                 .add("list", mList);
     }
+
+    /** Returns the raw loop start, preserving NaN-encoded variable IDs. */
+    public float getFrom() {
+        return mFrom;
+    }
+
+    /** Returns the raw loop end, preserving NaN-encoded variable IDs. */
+    public float getUntil() {
+        return mUntil;
+    }
+
+    /** Returns the raw loop step, preserving NaN-encoded variable IDs. */
+    public float getStep() {
+        return mStep;
+    }
+
+    /** Returns {@code mFromOut}. */
+    public float getFromOut() {
+        return mFromOut;
+    }
+
+    /** Returns {@code mUntilOut}. */
+    public float getUntilOut() {
+        return mUntilOut;
+    }
+
+    /** Returns {@code mStepOut}. */
+    public float getStepOut() {
+        return mStepOut;
+    }
+
+    /** Returns {@code mIndexVariableId}. */
+    public int getIndexVariableId() {
+        return mIndexVariableId;
+    }
 }

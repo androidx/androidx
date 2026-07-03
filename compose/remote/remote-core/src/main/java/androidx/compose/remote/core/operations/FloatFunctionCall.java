@@ -196,4 +196,24 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
                 .add("args", Collections.singletonList(mArgs))
                 .add("outArgs", Collections.singletonList(mOutArgs));
     }
+
+    /** Returns the id of the function being called. */
+    public int getId() {
+        return mId;
+    }
+
+    /** Returns the raw call arguments, preserving NaN-encoded variable IDs. */
+    public float @Nullable [] getArgs() {
+        return mArgs;
+    }
+
+    /** Returns {@code mFunction}. */
+    public @Nullable FloatFunctionDefine getFunction() {
+        return mFunction;
+    }
+
+    /** Returns {@code mOutArgs}. */
+    public float @Nullable [] getOutArgs() {
+        return mOutArgs;
+    }
 }

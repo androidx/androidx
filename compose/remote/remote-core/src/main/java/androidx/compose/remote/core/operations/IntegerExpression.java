@@ -68,6 +68,14 @@ public class IntegerExpression extends Operation
         mId = id;
     }
 
+    /**
+     * Returns the mask marking which entries of {@link #mSrcValue} are operators or variable ids
+     * rather than literal values.
+     */
+    public int getMask() {
+        return mMask;
+    }
+
     public IntegerExpression(int id, int mask, int @NonNull [] value) {
         this.mId = id;
         this.mMask = mask;

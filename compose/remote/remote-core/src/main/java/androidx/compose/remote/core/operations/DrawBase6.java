@@ -195,4 +195,64 @@ public abstract class DrawBase6 extends PaintOperation implements VariableSuppor
                 .add(v5Name, mValue5, mV5)
                 .add(v6Name, mValue6, mV6);
     }
+
+    /** Returns {@code mV1}. */
+    public float getV1() {
+        return mV1;
+    }
+
+    /** Returns {@code mV2}. */
+    public float getV2() {
+        return mV2;
+    }
+
+    /** Returns {@code mV3}. */
+    public float getV3() {
+        return mV3;
+    }
+
+    /** Returns {@code mV4}. */
+    public float getV4() {
+        return mV4;
+    }
+
+    /** Returns {@code mV5}. */
+    public float getV5() {
+        return mV5;
+    }
+
+    /** Returns {@code mV6}. */
+    public float getV6() {
+        return mV6;
+    }
+
+    /** Returns {@code mValue1}. */
+    public float getValue1() {
+        return mValue1;
+    }
+
+    /** Returns {@code mValue2}. */
+    public float getValue2() {
+        return mValue2;
+    }
+
+    /** Returns {@code mValue3}. */
+    public float getValue3() {
+        return mValue3;
+    }
+
+    /** Returns {@code mValue4}. */
+    public float getValue4() {
+        return mValue4;
+    }
+
+    /** Returns {@code mValue5}. */
+    public float getValue5() {
+        return mValue5;
+    }
+
+    /** Returns {@code mValue6}. */
+    public float getValue6() {
+        return mValue6;
+    }
 }

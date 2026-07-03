@@ -87,6 +87,14 @@ public class MultiClickModifier extends PaintOperation
         return true;
     }
 
+    /**
+     * Returns the click type: {@link #CLICK_TYPE_SINGLE}, {@link #CLICK_TYPE_LONG}, or {@link
+     * #CLICK_TYPE_DOUBLE}.
+     */
+    public int getClickType() {
+        return mClickType;
+    }
+
     @Nullable
     @Override
     public Role getRole() {

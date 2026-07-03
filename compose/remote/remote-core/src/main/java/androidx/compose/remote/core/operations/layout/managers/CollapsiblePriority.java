@@ -20,6 +20,8 @@ import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 
 /** Utility class to manage collapsible priorities on components */
@@ -79,8 +81,8 @@ public class CollapsiblePriority {
      * @param components the children components
      * @return list of components sorted by their priority in decreasing order
      */
-    static ArrayList<Component> sortWithPriorities(
-            ArrayList<Component> components, int orientation) {
+    public static @NonNull ArrayList<Component> sortWithPriorities(
+            @NonNull ArrayList<Component> components, int orientation) {
         ArrayList<Component> sorted = new ArrayList<>(components);
         sorted.sort(
                 (t1, t2) -> {

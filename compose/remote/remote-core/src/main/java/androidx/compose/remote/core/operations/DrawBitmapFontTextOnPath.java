@@ -342,4 +342,39 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 .add("end", mEnd)
                 .add("mGlyphSpacing", mGlyphSpacing);
     }
+
+    /** Returns {@code mTextID}. */
+    public int getTextID() {
+        return mTextID;
+    }
+
+    /** Returns {@code mBitmapFontID}. */
+    public int getBitmapFontID() {
+        return mBitmapFontID;
+    }
+
+    /** Returns {@code mPathID}. */
+    public int getPathID() {
+        return mPathID;
+    }
+
+    /** Returns {@code mStart}. */
+    public int getStart() {
+        return mStart;
+    }
+
+    /** Returns {@code mEnd}. */
+    public int getEnd() {
+        return mEnd;
+    }
+
+    /** Returns {@code mOutYAdj}. */
+    public float getOutYAdj() {
+        return mOutYAdj;
+    }
+
+    /** Returns {@code mOutGlyphSpacing}. */
+    public float getOutGlyphSpacing() {
+        return mOutGlyphSpacing;
+    }
 }

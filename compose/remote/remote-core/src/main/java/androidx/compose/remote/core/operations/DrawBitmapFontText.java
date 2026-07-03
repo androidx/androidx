@@ -300,4 +300,39 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
                 .add("y", mY, mOutY)
                 .add("mGlyphSpacing", mGlyphSpacing);
     }
+
+    /** Returns {@code mTextID}. */
+    public int getTextID() {
+        return mTextID;
+    }
+
+    /** Returns {@code mBitmapFontID}. */
+    public int getBitmapFontID() {
+        return mBitmapFontID;
+    }
+
+    /** Returns {@code mStart}. */
+    public int getStart() {
+        return mStart;
+    }
+
+    /** Returns {@code mEnd}. */
+    public int getEnd() {
+        return mEnd;
+    }
+
+    /** Returns {@code mOutX}. */
+    public float getOutX() {
+        return mOutX;
+    }
+
+    /** Returns {@code mOutY}. */
+    public float getOutY() {
+        return mOutY;
+    }
+
+    /** Returns {@code mOutGlyphSpacing}. */
+    public float getOutGlyphSpacing() {
+        return mOutGlyphSpacing;
+    }
 }

@@ -159,4 +159,14 @@ public class ClipPath extends PaintOperation implements Serializable {
                 return "UNDEFINED";
         }
     }
+
+    /** Returns {@code mId}. */
+    public int getId() {
+        return mId;
+    }
+
+    /** Returns {@code mRegionOp}. */
+    public int getRegionOp() {
+        return mRegionOp;
+    }
 }
