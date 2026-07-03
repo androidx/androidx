@@ -129,7 +129,6 @@ class EditablePdfViewerFragmentTestSuite {
                 fragment.documentLoaded,
                 "Unable to load document due to ${fragment.documentError?.message}",
             )
-            fragment.setIsAnnotationIntentResolvable(true)
             fragment.isToolboxVisible = true
         }
     }
