@@ -22,6 +22,8 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.collection.IntSet
+import androidx.collection.intSetOf
 
 /**
  * The version information of the renderer supported by the Host.
@@ -31,18 +33,149 @@ import androidx.annotation.VisibleForTesting
  * @property minor Minor version. Incremented on non-breaking changes (e.g. feature additions).
  *   Anything consuming a payload can safely consume anything with a lower minor version.
  * @property revision Revision version. Incremented on non-breaking changes.
+ * @property supportedOperations The set of operations supported by the renderer.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class RendererVersion(
     @IntRange(from = 1) public val major: Int = DEFAULT_RENDERER_VERSION_MAJOR,
     @IntRange(from = 0) public val minor: Int = DEFAULT_RENDERER_VERSION_MINOR,
     @IntRange(from = 0) public val revision: Int = DEFAULT_RENDERER_VERSION_REVISION,
+    public val supportedOperations: IntSet = DEFAULT_SUPPORTED_OPERATIONS,
 ) : Comparable<RendererVersion> {
 
     public override fun compareTo(other: RendererVersion): Int =
         compareValuesBy(this, other, { it.major }, { it.minor }, { it.revision })
 
     public companion object {
+        /** The set of operations supported by initial version (1.6.0). */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val DEFAULT_SUPPORTED_OPERATIONS: IntSet =
+            // TODO: b/529699478 - Use proper API constants once they are available.
+            intSetOf(
+                0 /* HEADER */,
+                2 /* COMPONENT_START */,
+                14 /* ANIMATION_SPEC */,
+                16 /* MODIFIER_WIDTH */,
+                39 /* CLIP_RECT */,
+                40 /* PAINT_VALUES */,
+                42 /* DRAW_RECT */,
+                43 /* DRAW_TEXT_RUN */,
+                44 /* DRAW_BITMAP */,
+                46 /* DRAW_CIRCLE */,
+                47 /* DRAW_LINE */,
+                51 /* DRAW_ROUND_RECT */,
+                52 /* DRAW_SECTOR */,
+                54 /* MODIFIER_ROUNDED_CLIP_RECT */,
+                55 /* MODIFIER_BACKGROUND */,
+                56 /* DRAW_OVAL */,
+                57 /* DRAW_TEXT_ON_CIRCLE */,
+                58 /* MODIFIER_PADDING */,
+                59 /* MODIFIER_CLICK */,
+                64 /* CLICK_AREA */,
+                66 /* DRAW_BITMAP_INT */,
+                67 /* MODIFIER_HEIGHT */,
+                80 /* DATA_FLOAT */,
+                81 /* ANIMATED_FLOAT */,
+                101 /* DATA_BITMAP */,
+                102 /* DATA_TEXT */,
+                107 /* MODIFIER_BORDER */,
+                108 /* MODIFIER_CLIP_RECT */,
+                123 /* DATA_PATH */,
+                124 /* DRAW_PATH */,
+                125 /* DRAW_TWEEN_PATH */,
+                126 /* MATRIX_SCALE */,
+                127 /* MATRIX_TRANSLATE */,
+                128 /* MATRIX_SKEW */,
+                129 /* MATRIX_ROTATE */,
+                130 /* MATRIX_SAVE */,
+                131 /* MATRIX_RESTORE */,
+                133 /* DRAW_TEXT_ANCHOR */,
+                134 /* COLOR_EXPRESSIONS */,
+                135 /* TEXT_FROM_FLOAT */,
+                136 /* TEXT_MERGE */,
+                137 /* NAMED_VARIABLE */,
+                138 /* COLOR_CONSTANT */,
+                139 /* DRAW_CONTENT */,
+                140 /* DATA_INT */,
+                143 /* DATA_BOOLEAN */,
+                144 /* INTEGER_EXPRESSION */,
+                145 /* ID_MAP */,
+                146 /* ID_LIST */,
+                147 /* FLOAT_LIST */,
+                148 /* DATA_LONG */,
+                149 /* DRAW_BITMAP_SCALED */,
+                150 /* COMPONENT_VALUE */,
+                151 /* TEXT_LOOKUP */,
+                152 /* DRAW_ARC */,
+                153 /* TEXT_LOOKUP_INT */,
+                154 /* DATA_MAP_LOOKUP */,
+                155 /* TEXT_MEASURE */,
+                156 /* TEXT_LENGTH */,
+                158 /* PATH_TWEEN */,
+                159 /* PATH_CREATE */,
+                160 /* PATH_ADD */,
+                164 /* IMPULSE_START */,
+                165 /* IMPULSE_PROCESS */,
+                166 /* FUNCTION_CALL */,
+                168 /* FUNCTION_DEFINE */,
+                170 /* ATTRIBUTE_TEXT */,
+                171 /* ATTRIBUTE_IMAGE */,
+                172 /* ATTRIBUTE_TIME */,
+                173 /* CANVAS_OPERATIONS */,
+                174 /* MODIFIER_DRAW_CONTENT */,
+                175 /* PATH_COMBINE */,
+                176 /* LAYOUT_FIT_BOX */,
+                177 /* HAPTIC_FEEDBACK */,
+                178 /* CONDITIONAL_OPERATIONS */,
+                179 /* DEBUG_MESSAGE */,
+                180 /* ATTRIBUTE_COLOR */,
+                181 /* MATRIX_FROM_PATH */,
+                182 /* TEXT_SUBTEXT */,
+                183 /* BITMAP_TEXT_MEASURE */,
+                184 /* DRAW_BITMAP_TEXT_ANCHORED */,
+                185 /* REM */,
+                186 /* MATRIX_CONSTANT */,
+                187 /* MATRIX_EXPRESSION */,
+                188 /* MATRIX_VECTOR_MATH */,
+                189 /* DATA_FONT */,
+                192 /* ID_LOOKUP */,
+                193 /* PATH_EXPRESSION */,
+                197 /* DYNAMIC_FLOAT_LIST */,
+                198 /* UPDATE_DYNAMIC_FLOAT_LIST */,
+                199 /* TEXT_TRANSFORM */,
+                200 /* LAYOUT_ROOT */,
+                201 /* LAYOUT_CONTENT */,
+                202 /* LAYOUT_BOX */,
+                203 /* LAYOUT_ROW */,
+                204 /* LAYOUT_COLUMN */,
+                205 /* LAYOUT_CANVAS */,
+                207 /* LAYOUT_CANVAS_CONTENT */,
+                208 /* LAYOUT_TEXT */,
+                209 /* HOST_ACTION */,
+                210 /* HOST_NAMED_ACTION */,
+                211 /* MODIFIER_VISIBILITY */,
+                212 /* VALUE_INTEGER_CHANGE_ACTION */,
+                213 /* VALUE_STRING_CHANGE_ACTION */,
+                214 /* CONTAINER_END */,
+                215 /* LOOP_START */,
+                216 /* HOST_METADATA_ACTION */,
+                217 /* LAYOUT_STATE */,
+                218 /* VALUE_INTEGER_EXPRESSION_CHANGE_ACTION */,
+                221 /* MODIFIER_OFFSET */,
+                222 /* VALUE_FLOAT_CHANGE_ACTION */,
+                223 /* MODIFIER_ZINDEX */,
+                224 /* MODIFIER_GRAPHICS_LAYER */,
+                227 /* VALUE_FLOAT_EXPRESSION_CHANGE_ACTION */,
+                228 /* MODIFIER_MARQUEE */,
+                229 /* MODIFIER_RIPPLE */,
+                231 /* MODIFIER_WIDTH_IN */,
+                232 /* MODIFIER_HEIGHT_IN */,
+                234 /* LAYOUT_IMAGE */,
+                236 /* RUN_ACTION */,
+                237 /* MODIFIER_ALIGN_BY */,
+                250, /* ACCESSIBILITY_SEMANTICS */
+            )
+
         /**
          * The default major version, describing the renderer Host offering initial RemoteCompose
          * support.
