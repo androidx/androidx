@@ -36,8 +36,8 @@ class CanvasOperationBufferTest {
         }
 
         val buffer = CanvasOperationBuffer()
-        val op1 = buffer.recordRenderingOp {}
-        val op2 = buffer.recordRenderingOp {}
+        val op1 = buffer.recordRenderingOp(CanvasOp.Draw {})
+        val op2 = buffer.recordRenderingOp(CanvasOp.Draw {})
         buffer.addRoots(op1, x)
         buffer.addRoots(op2, x)
 

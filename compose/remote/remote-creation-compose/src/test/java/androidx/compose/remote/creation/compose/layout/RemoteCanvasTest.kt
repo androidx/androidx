@@ -170,6 +170,7 @@ class RemoteCanvasTest {
             remoteCanvas.drawConditionally(condition2) {
                 remoteCanvas.drawConditionally(condition3) {
                     recordingCanvas.save()
+                    recordingCanvas.translate(1f, 1f)
                     remoteCanvas.drawRect(sub, 0f.rf, 0f.rf, 0f.rf, null)
                     recordingCanvas.restore()
                 }
@@ -178,6 +179,7 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition2) {
             recordingCanvas.save()
+            recordingCanvas.translate(1f, 1f)
             remoteCanvas.drawRect(sub, 10f.rf, 10f.rf, 10f.rf, null)
             recordingCanvas.restore()
         }
@@ -201,6 +203,7 @@ class RemoteCanvasTest {
                 "setNamedVariable(47, \"USER:cond3\", 4)",
                 "addConditionalOperations(1, ID(47), 0.0)",
                 "addMatrixSave",
+                "addMatrixTranslate(1.0, 1.0)",
                 "addDrawRect(ID(44), 0.0, 0.0, 0.0)",
                 "addMatrixRestore",
                 "endConditionalOperations",
@@ -211,6 +214,7 @@ class RemoteCanvasTest {
                 "addContainerEnd",
                 "addConditionalOperations(1, ID(46), 0.0)",
                 "addMatrixSave",
+                "addMatrixTranslate(1.0, 1.0)",
                 "addDrawRect(ID(44), 10.0, 10.0, 10.0)",
                 "addMatrixRestore",
                 "endConditionalOperations",
