@@ -41,6 +41,14 @@ android {
             includeAndroidResources = true
         }
     }
+    sourceSets {
+        test {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+        androidTest {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+    }
 }
 
 dependencies {
