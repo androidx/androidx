@@ -45,6 +45,7 @@ tasks.withType(Test).configureEach { test ->
             ":core:core-viewtree:publish",
             ":annotation:annotation:publish",
             ":arch:core:core-common:publish",
-            ":arch:core:core-runtime:publish"
+            ":arch:core:core-runtime:publish",
+            ":tracing:tracing:publish"
     )
 }
