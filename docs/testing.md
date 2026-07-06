@@ -245,6 +245,13 @@ Presubmit tests represent only a subset of the devices on which our tests run.
 The remaining devices are tested only in postsubmit. In postsubmit, all host and
 device tests are run for all modules.
 
+> Note: Presubmits and postsubmits also include tests that run with your
+> dependencies unpinned, even if you specify pinned dependencies.
+>
+> Specifically, device tests are built (but not run) via
+> `androidx_max_dep_versions`, and host tests are both built and run via
+> `androidx_host_tests_max_dep_versions`.
+
 ### Test annotations {#annotations}
 
 #### Disabling tests {#disabling-tests}
