@@ -704,7 +704,7 @@ public object ToggleButtonDefaults {
             return defaultToggleButtonShapesCached
                 ?: ToggleButtonShapes(
                         shape = fromToken(ButtonSmallTokens.ContainerShapeRound),
-                        pressedShape = RoundedCornerShape(6.dp),
+                        pressedShape = fromToken(ButtonSmallTokens.PressedContainerShape),
                         checkedShape = fromToken(ButtonSmallTokens.SelectedContainerShapeSquare),
                     )
                     .also { defaultToggleButtonShapesCached = it }
@@ -716,7 +716,7 @@ public object ToggleButtonDefaults {
 
     /** The default pressed shape for [ToggleButton] */
     public val pressedShape: Shape
-        @Composable get() = RoundedCornerShape(6.dp)
+        @Composable get() = ButtonSmallTokens.PressedContainerShape.value
 
     /** The default checked shape for [ToggleButton] */
     public val checkedShape: Shape
