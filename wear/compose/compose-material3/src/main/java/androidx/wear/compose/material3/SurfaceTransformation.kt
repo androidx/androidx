@@ -55,6 +55,9 @@ import androidx.wear.compose.material3.lazy.TransformedContainerPainterScope
  *
  * @sample androidx.wear.compose.material3.samples.SurfaceTransformationCardSample
  *
+ * ![SurfaceTransformationCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SurfaceTransformationCardSample_CompositeImage.png)
+ *
  * Example of adding support in a custom component:
  *
  * @sample androidx.wear.compose.material3.samples.SurfaceTransformationOnCustomComponent

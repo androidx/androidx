@@ -41,6 +41,10 @@ import androidx.compose.ui.graphics.graphicsLayer
  * Example of using AppScaffold and ScreenScaffold:
  *
  * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
  * @param modifier The modifier for the top level of the scaffold.
  * @param timeText The default time (and potentially status message) to display at the top middle of
  *   the screen in this app. When [AppScaffold] is used in combination with [ScreenScaffold], the
