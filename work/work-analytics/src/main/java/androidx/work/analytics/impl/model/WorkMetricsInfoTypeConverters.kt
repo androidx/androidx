@@ -26,12 +26,6 @@ internal class WorkMetricsInfoTypeConverters {
     fun stringToState(value: String): WorkMetricsInfo.State = WorkMetricsInfo.State.valueOf(value)
 
     @TypeConverter
-    fun stringToStringList(value: String): List<String> =
-        if (value.isEmpty()) emptyList() else value.split(",")
-
-    @TypeConverter fun stringListToString(list: List<String>): String = list.joinToString(",")
-
-    @TypeConverter
     fun stringToIntMap(value: String): Map<Int, Int> {
         if (value.isEmpty()) return emptyMap()
         return value.split(";").associate {
