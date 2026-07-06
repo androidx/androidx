@@ -427,7 +427,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     override fun onViewDetachedFromWindow(view: View) {
-        handler!!.removeCallbacks(semanticsChangeChecker)
+        // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
+        //  detachment to see if handler? can be removed.
+        handler?.removeCallbacks(semanticsChangeChecker)
         accessibilityManager.removeAccessibilityStateChangeListener(this)
         accessibilityManager.removeTouchExplorationStateChangeListener(this)
     }

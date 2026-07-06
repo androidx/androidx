@@ -175,7 +175,9 @@ internal class AndroidContentCaptureManager(
     override fun onViewAttachedToWindow(v: View) {}
 
     override fun onViewDetachedFromWindow(v: View) {
-        handler!!.removeCallbacks(contentCaptureChangeChecker)
+        // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
+        //  detachment to see if handler? can be removed.
+        handler?.removeCallbacks(contentCaptureChangeChecker)
         contentCaptureSession = null
     }
 
