@@ -8,10 +8,12 @@ package androidx.core.locationbutton {
     ctor public LocationButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr, optional int defStyleRes);
     ctor @BytecodeOnly public LocationButton(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getCompositionOrder();
+    method @InaccessibleFromKotlin public android.os.LocaleList? getLocales();
     method @InaccessibleFromKotlin public android.app.Activity? getParentActivity();
     method public void setCompositionOrder(int order);
     method public void setCornerRadius(float radius);
     method public void setIconTint(int color);
+    method @InaccessibleFromKotlin public void setLocales(android.os.LocaleList?);
     method public void setOnErrorListener(androidx.core.locationbutton.OnErrorListener? listener);
     method public void setOnPermissionResultListener(androidx.core.locationbutton.OnPermissionResultListener? listener);
     method public void setOnRequestPermissionsListener(androidx.core.locationbutton.OnRequestPermissionsListener? listener);
@@ -21,6 +23,7 @@ package androidx.core.locationbutton {
     method public void setStrokeWidth(int strokeWidth);
     method public void setTextColor(int color);
     method public void setTextType(int textType);
+    property public android.os.LocaleList? locales;
     property public android.app.Activity? parentActivity;
     field public static final androidx.core.locationbutton.LocationButton.Companion Companion;
     field public static final int TEXT_TYPE_NEAR_MY_PRECISE_LOCATION = 4; // 0x4

@@ -18,24 +18,37 @@ package androidx.core.locationbutton.compose
 
 import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
+import android.content.res.Configuration
 import android.os.Build
+import android.os.LocaleList
+import android.view.ContextThemeWrapper
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.core.locationbutton.R
 import androidx.core.locationbutton.testing.TestLocationButtonProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -61,6 +74,138 @@ class LocationButtonTest {
         }
 
         // If it reaches here without crashing, it passes!
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testLocationButtonLocales_remoteSystemUI() {
+        val capturedRequests = mutableListOf<LocationButtonRequest>()
+        val provider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun onSessionRequestReceived(
+                    request: LocationButtonRequest,
+                    session: LocationButtonSession,
+                ) {
+                    capturedRequests.add(request)
+                }
+            }
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalLocationButtonProvider provides provider) {
+                    Column {
+                        CompositionLocalProvider(
+                            LocalConfiguration provides
+                                Configuration().apply {
+                                    setLocales(LocaleList(Locale.forLanguageTag("en-US")))
+                                }
+                        ) {
+                            LocationButton(
+                                modifier = Modifier.size(200.dp, 50.dp),
+                                textType = LocationButtonTextType.PreciseLocation,
+                                onRequestPermissions = {},
+                            ) {
+                                // onPermissionResult
+                            }
+                        }
+
+                        CompositionLocalProvider(
+                            LocalConfiguration provides
+                                Configuration().apply {
+                                    setLocales(LocaleList(Locale.forLanguageTag("fr-CA")))
+                                }
+                        ) {
+                            LocationButton(
+                                modifier = Modifier.size(200.dp, 50.dp),
+                                textType = LocationButtonTextType.PreciseLocation,
+                                onRequestPermissions = {},
+                            ) {
+                                // onPermissionResult
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        assertThat(capturedRequests).hasSize(2)
+        assertThat(capturedRequests[0].configuration.locales.get(0))
+            .isEqualTo(Locale.forLanguageTag("en-US"))
+        assertThat(capturedRequests[1].configuration.locales.get(0))
+            .isEqualTo(Locale.forLanguageTag("fr-CA"))
+    }
+
+    @Composable
+    private fun ProvideLocaleOverride(localeTag: String, content: @Composable () -> Unit) {
+        val context = LocalContext.current
+        val config =
+            Configuration(LocalConfiguration.current).apply {
+                setLocales(LocaleList(Locale.forLanguageTag(localeTag)))
+            }
+        val newContext =
+            ContextThemeWrapper(context, 0).apply { applyOverrideConfiguration(config) }
+
+        CompositionLocalProvider(
+            LocalContext provides newContext,
+            LocalConfiguration provides config,
+        ) {
+            content()
+        }
+    }
+
+    @Test
+    fun testLocationButtonLocales_localFallback() {
+        assumeTrue(Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN)
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column {
+                    ProvideLocaleOverride("en-US") {
+                        LocationButton(
+                            modifier = Modifier.size(200.dp, 50.dp).testTag("LocationButton_en-US"),
+                            textType = LocationButtonTextType.PreciseLocation,
+                            onRequestPermissions = {},
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                    ProvideLocaleOverride("fr-CA") {
+                        LocationButton(
+                            modifier = Modifier.size(200.dp, 50.dp).testTag("LocationButton_fr-CA"),
+                            textType = LocationButtonTextType.PreciseLocation,
+                            onRequestPermissions = {},
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                }
+            }
+        }
+        val enString = getLocalizedString("en-US", R.string.location_button_precise_location)
+        val frString = getLocalizedString("fr-CA", R.string.location_button_precise_location)
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNode(hasText(enString) and hasAnyAncestor(hasTestTag("LocationButton_en-US")))
+            .assertExists()
+        composeTestRule
+            .onNode(hasText(frString) and hasAnyAncestor(hasTestTag("LocationButton_fr-CA")))
+            .assertExists()
+    }
+
+    private fun getLocalizedString(localeTag: String, @StringRes resId: Int): String {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val config =
+            Configuration(context.resources.configuration).apply {
+                setLocales(LocaleList(Locale.forLanguageTag(localeTag)))
+            }
+        return context.createConfigurationContext(config).getString(resId)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
