@@ -1823,6 +1823,9 @@ public object ButtonDefaults {
      * padding values and its own contentPadding parameter.
      *
      * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnButtonsSample
+     *
+     * ![TransformingLazyColumnButtonsSample Composite
+     * Image](https://developer.android.com/wear/images/design/WearComposeM3_TransformingLazyColumnButtonsSample_CompositeImage.png)
      */
     public val minimumVerticalListContentPadding: Dp
         @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)

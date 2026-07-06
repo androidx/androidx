@@ -79,6 +79,10 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * Example of an [IconButton] with image content:
  *
  * @sample androidx.wear.compose.material3.samples.IconButtonWithImageSample
+ *
+ * ![IconButtonWithImageSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_IconButtonWithImageSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is

@@ -252,6 +252,9 @@ public fun RadioButton(
  *
  * @sample androidx.wear.compose.material3.samples.SplitRadioButtonSample
  *
+ * ![SplitRadioButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SplitRadioButtonSample_CompositeImage.png)
+ *
  * For a [SplitRadioButton] the background of the tappable background area behind the selection
  * control will have a visual effect applied to provide a "divider" between the two tappable areas.
  *

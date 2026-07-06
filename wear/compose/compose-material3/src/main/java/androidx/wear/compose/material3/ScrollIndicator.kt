@@ -218,6 +218,10 @@ public fun ScrollIndicator(
  * Example of a sample ScrollIndicator with TransformingLazyColumn:
  *
  * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithTLCSample
+ *
+ * ![ScrollIndicatorWithTLCSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScrollIndicatorWithTLCSample_CompositeImage.png)
+ *
  * @param state the [TransformingLazyColumnState] to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param colors [ScrollIndicatorColors] that will be used to resolve the indicator and track colors
