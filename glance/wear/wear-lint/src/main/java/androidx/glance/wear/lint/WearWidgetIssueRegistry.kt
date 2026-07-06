@@ -26,7 +26,10 @@ class WearWidgetIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
 
     override val issues =
-        listOf(WearWidgetServiceAssociationDetector.SERVICE_ASSOCIATION_ANNOTATION_ISSUE)
+        listOf(
+            WearWidgetServiceAssociationDetector.SERVICE_ASSOCIATION_ANNOTATION_ISSUE,
+            WearWidgetBackgroundDetector.EMPTY_BACKGROUND_ISSUE,
+        )
 
     override val vendor =
         Vendor(
