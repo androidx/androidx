@@ -21,8 +21,8 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R
-import androidx.pdf.ink.util.setSliderValue
-import androidx.pdf.ink.util.withSliderValue
+import androidx.pdf.util.setSliderValue
+import androidx.pdf.util.withSliderValue
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START

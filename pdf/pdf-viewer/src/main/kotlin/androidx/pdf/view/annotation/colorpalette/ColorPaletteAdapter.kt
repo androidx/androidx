@@ -18,7 +18,6 @@ package androidx.pdf.view.annotation.colorpalette
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
-import androidx.annotation.VisibleForTesting
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -32,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 internal class ColorPaletteAdapter(private var onItemClicked: (Int, PaletteItem) -> Unit) :
     ListAdapter<PaletteItem, ColorPaletteAdapter.PaletteItemViewHolder>(PaletteItemDiffCallback) {
 
-    @VisibleForTesting var areAnimationsEnabled: Boolean = true
+    var areAnimationsEnabled: Boolean = true
 
     // Store the position of the selected item. Initialize to no selection.
     var selectedPosition = RecyclerView.NO_POSITION

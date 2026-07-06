@@ -20,16 +20,13 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.pdf.PdfTestActivity
-import androidx.pdf.ink.util.ToolbarViewActions
-import androidx.pdf.ink.util.ToolbarViewActions.performDragAndDrop
+import androidx.pdf.util.ToolbarViewActions
+import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.view.annotation.AnnotationToolbar
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.test.espresso.Espresso.onIdle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -72,7 +69,7 @@ class ToolbarCoordinatorTest {
             )
             coordinator.attachToolbar(toolbar)
         }
-        instrumentation.waitForIdleSync()
+        onIdle()
     }
 
     @After
@@ -102,10 +99,11 @@ class ToolbarCoordinatorTest {
 
     @Test
     fun dragAndDrop_toLeftSide_snapsToStart() {
-        onView(withId(TOOLBAR_VIEW_ID)).perform(longClick())
-        onIdle()
-
-        performDragAndDrop(toolbarId = TOOLBAR_VIEW_ID, to = ToolbarViewActions.DragTarget.LEFT)
+        performDragAndDrop(
+            activity = getHostActivity(),
+            toolbarId = TOOLBAR_VIEW_ID,
+            to = ToolbarViewActions.DragTarget.LEFT,
+        )
         onIdle()
 
         assertThat(toolbar.dockState).isEqualTo(DOCK_STATE_START)
@@ -119,10 +117,11 @@ class ToolbarCoordinatorTest {
 
     @Test
     fun dragAndDrop_toRightSide_snapsToEnd() {
-        onView(withId(TOOLBAR_VIEW_ID)).perform(longClick())
-        onIdle()
-
-        performDragAndDrop(toolbarId = TOOLBAR_VIEW_ID, to = ToolbarViewActions.DragTarget.RIGHT)
+        performDragAndDrop(
+            activity = getHostActivity(),
+            toolbarId = TOOLBAR_VIEW_ID,
+            to = ToolbarViewActions.DragTarget.RIGHT,
+        )
         onIdle()
 
         assertThat(toolbar.dockState).isEqualTo(DOCK_STATE_END)
@@ -134,19 +133,29 @@ class ToolbarCoordinatorTest {
     @Test
     fun dragAndDrop_toBottomSide_snapsToBottom() {
         // Move to Start first so we can drag back to bottom
-        activityRule.scenario.onActivity { toolbar.dockState = DOCK_STATE_START }
+        activityRule.scenario.onActivity {
+            toolbar.dockState = DOCK_STATE_START
+            coordinator.updateLayout()
+        }
         onIdle()
 
-        onView(withId(TOOLBAR_VIEW_ID)).perform(longClick())
-        onIdle()
-
-        performDragAndDrop(toolbarId = TOOLBAR_VIEW_ID, to = ToolbarViewActions.DragTarget.BOTTOM)
+        performDragAndDrop(
+            activity = getHostActivity(),
+            toolbarId = TOOLBAR_VIEW_ID,
+            to = ToolbarViewActions.DragTarget.BOTTOM,
+        )
         onIdle()
 
         assertThat(toolbar.dockState).isEqualTo(DOCK_STATE_BOTTOM)
         val params = toolbar.layoutParams as ConstraintLayout.LayoutParams
         assertThat(params.verticalBias).isEqualTo(1f)
         assertThat(params.horizontalBias).isEqualTo(0.5f)
+    }
+
+    private fun getHostActivity(): PdfTestActivity {
+        var activity: PdfTestActivity? = null
+        activityRule.scenario.onActivity { activity = it }
+        return activity!!
     }
 
     companion object {

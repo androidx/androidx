@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.ink.util
+package androidx.pdf.util
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView

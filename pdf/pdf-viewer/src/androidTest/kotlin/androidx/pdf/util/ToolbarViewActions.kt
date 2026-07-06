@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.ink.util
+package androidx.pdf.util
 
 import android.app.Activity
 import android.graphics.PointF
@@ -33,7 +33,7 @@ internal object ToolbarViewActions {
     /** Offset from the edge of the coordinator to avoid triggering system gesture insets. */
     private const val GESTURE_SAFE_BOUNDARY_OFFSET = 60f
 
-    /** Number of steps for [UiDevice.drag] gesture animation. */
+    /** Number of steps for [androidx.test.uiautomator.UiDevice.drag] gesture animation. */
     private const val DRAG_STEPS = 40
 
     /** Target dock edges for drag-and-drop actions. */

@@ -36,8 +36,8 @@ import android.view.ViewGroup.LayoutParams
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R as PdfR
 import androidx.pdf.assertScreenshot
-import androidx.pdf.ink.util.clickItemAt
-import androidx.pdf.ink.util.setSliderValue
+import androidx.pdf.util.clickItemAt
+import androidx.pdf.util.setSliderValue
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteAdapter
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START

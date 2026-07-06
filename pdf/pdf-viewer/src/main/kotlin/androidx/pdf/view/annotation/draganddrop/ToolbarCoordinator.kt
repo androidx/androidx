@@ -20,8 +20,8 @@ import android.content.Context
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.SparseArray
+import android.view.DragEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -48,13 +48,16 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
     ConstraintLayout(context, attrs) {
 
     // Required to disable any animation while performing ui tests
-    @VisibleForTesting internal var areAnimationsEnabled: Boolean = true
+    @VisibleForTesting
+    internal var areAnimationsEnabled: Boolean = true
+        set(value) {
+            field = value
+            toolbar?.areAnimationsEnabled = value
+        }
 
     private var toolbar: AnnotationToolbar? = null
 
     private val anchorManager: AnchorManager
-
-    private lateinit var toolbarDragListener: ToolbarDragListener
 
     private val collapseToolWidth = resources.getDimensionPixelSize(R.dimen.annotation_tool_width)
     private val collapsedToolHeight =
@@ -83,6 +86,7 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
         toolbar?.let { removeView(it) }
 
         this.toolbar = view
+        view.areAnimationsEnabled = areAnimationsEnabled
 
         addView(view)
         initializeDragAndDrop()
@@ -104,21 +108,21 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
 
     private fun initializeDragAndDrop() {
         val toolbar = toolbar ?: return
-        val isToolbarVertical = toolbar.dockState != DOCK_STATE_BOTTOM
 
-        toolbarDragListener =
-            object : ToolbarDragListener {
-
-                override fun onDragStart(event: MotionEvent) {
+        setOnDragListener { _, event ->
+            val isToolbarVertical = toolbar.dockState != DOCK_STATE_BOTTOM
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
                     anchorManager.showAnchors()
                     toolbar.collapseToolbar()
+                    true
                 }
 
-                override fun onDragMove(event: MotionEvent) {
+                DragEvent.ACTION_DRAG_LOCATION -> {
                     val collapseViewSize =
                         if (isToolbarVertical) collapsedToolHeight else collapseToolWidth
-                    toolbar.x = event.rawX - collapseViewSize
-                    toolbar.y = event.rawY - collapseViewSize
+                    toolbar.x = event.x - collapseViewSize
+                    toolbar.y = event.y - collapseViewSize
 
                     anchorManager.updateHighlightingAndGetClosest(
                         toolbar.x,
@@ -126,9 +130,17 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
                         toolbar.width,
                         toolbar.height,
                     )
+                    true
                 }
 
-                override fun onDragEnd() {
+                DragEvent.ACTION_DROP -> {
+                    // No-Op: We handle snapping in ACTION_DRAG_ENDED to ensure it happens even if
+                    // the drop occurs outside the coordinator's bounds.
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    anchorManager.hideAnchors()
                     val closestState =
                         anchorManager.updateHighlightingAndGetClosest(
                             toolbar.x,
@@ -136,14 +148,13 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
                             toolbar.width,
                             toolbar.height,
                         )
-
-                    anchorManager.hideAnchors()
-
                     snapToState(closestState)
+                    true
                 }
-            }
 
-        toolbar.setOnToolbarDragListener(toolbarDragListener)
+                else -> false
+            }
+        }
     }
 
     /**
