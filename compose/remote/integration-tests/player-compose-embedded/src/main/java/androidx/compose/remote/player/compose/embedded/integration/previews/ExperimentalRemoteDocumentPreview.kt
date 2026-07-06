@@ -20,30 +20,43 @@ package androidx.compose.remote.player.compose.embedded.integration.previews
 
 import android.annotation.SuppressLint
 import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * Displays a [RemoteDocument] using the experimental Compose-embedded player (RcPlayer) in the
- * Android Studio Preview.
+ * Displays a [RemoteDocument] in the Android Studio Preview. Dispatches to either the production
+ * View player or the experimental Compose-embedded player (RcPlayer), so a document can be
+ * previewed both ways.
  */
 @Composable
 public fun ExperimentalRemoteDocumentPreview(
     remoteDocument: RemoteDocument,
     modifier: Modifier = Modifier,
+    playerImpl: PlayerImpl = PlayerImpl.COMPOSE,
 ) {
-    RcPlayer(document = remoteDocument.document, modifier = modifier)
+    when (playerImpl) {
+        PlayerImpl.JAVA ->
+            RemoteDocumentPreview(remoteDocument = remoteDocument, modifier = modifier)
+        PlayerImpl.COMPOSE -> RcPlayer(document = remoteDocument.document, modifier = modifier)
+    }
 }
 
 /**
- * Displays a [RemoteDocument] from a [ByteArray] using the experimental Compose-embedded player
- * (RcPlayer) in the Android Studio Preview.
+ * Displays a [RemoteDocument] from a [ByteArray] in the Android Studio Preview, with the same
+ * player dispatch as the [RemoteDocument] overload.
  */
 @Composable
-public fun ExperimentalRemoteDocumentPreview(document: ByteArray, modifier: Modifier = Modifier) {
+public fun ExperimentalRemoteDocumentPreview(
+    document: ByteArray,
+    modifier: Modifier = Modifier,
+    playerImpl: PlayerImpl = PlayerImpl.COMPOSE,
+) {
     ExperimentalRemoteDocumentPreview(
         remoteDocument = RemoteDocument(document),
         modifier = modifier,
+        playerImpl = playerImpl,
     )
 }
