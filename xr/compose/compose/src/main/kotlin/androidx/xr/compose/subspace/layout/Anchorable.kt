@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.compose.subspace.layout
 
 import android.content.pm.PackageManager
@@ -62,6 +61,7 @@ import androidx.xr.scenecore.scene
  *   match one of the supplied list of semantic interpretations, such as a "table" or "floor". Can
  *   be used without anchorPlaneOrientations being supplied.
  */
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal fun SubspaceModifier.anchorable(
     enabled: Boolean = true,
     stickyPose: Boolean = true,
@@ -78,6 +78,7 @@ internal fun SubspaceModifier.anchorable(
         )
     )
 
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 private class AnchorableElement(
     private val enabled: Boolean,
     private val stickyPose: Boolean,
@@ -125,6 +126,7 @@ private class AnchorableElement(
     }
 }
 
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal class AnchorableNode(
     var enabled: Boolean,
     var stickyPose: Boolean,
@@ -256,6 +258,7 @@ internal class AnchorableNode(
 
 /** Type of plane based on orientation i.e. Horizontal or Vertical. */
 @JvmInline
+@ExperimentalMoveAnchorPolicy
 public value class PlaneOrientation
 private constructor(internal val value: Set<SceneCorePlaneOrientation>) {
     public companion object {
@@ -278,6 +281,7 @@ private constructor(internal val value: Set<SceneCorePlaneOrientation>) {
 
 /** Semantic plane types. */
 @JvmInline
+@ExperimentalMoveAnchorPolicy
 public value class PlaneSemantic
 private constructor(internal val value: Set<SceneCorePlaneSemantic>) {
     public companion object {

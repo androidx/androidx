@@ -179,6 +179,7 @@ internal data class CustomMovePolicy(
     val onMove: (SpatialMoveEvent) -> Unit,
 ) : MovePolicy
 
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal data class Anchor(
     val anchorPlaneOrientations: Set<PlaneOrientation>,
     val anchorPlaneSemantics: Set<PlaneSemantic>,
@@ -217,6 +218,7 @@ private class MovableElement(val enabled: Boolean, val movePolicy: MovePolicy) :
     }
 }
 
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     SubspaceModifier.Node(),
     CompositionLocalConsumerSubspaceModifierNode,
