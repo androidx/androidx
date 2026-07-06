@@ -42,6 +42,16 @@ class WearWidgetServiceAssociationDetectorTest : LintDetectorTest() {
             )
             .indented()
 
+    private val glanceWearWidgetStub: TestFile =
+        kotlin(
+                """
+        package androidx.glance.wear
+
+        abstract class GlanceWearWidget
+        """
+            )
+            .indented()
+
     private val associateAnnotationStub: TestFile =
         kotlin(
                 """
@@ -106,6 +116,144 @@ class WearWidgetServiceAssociationDetectorTest : LintDetectorTest() {
                 """
                     .trimIndent()
             )
+    }
+
+    @Test
+    fun testMissingAnnotation_providesQuickFix() {
+        lint()
+            .files(
+                glanceWearWidgetServiceStub,
+                glanceWearWidgetStub,
+                associateAnnotationStub,
+                kotlin(
+                        """
+                    package com.example
+
+                    import androidx.glance.wear.GlanceWearWidget
+                    import androidx.glance.wear.GlanceWearWidgetService
+
+                    class MyWidget : GlanceWearWidget()
+
+                    class MyWidgetService : GlanceWearWidgetService() {
+                        override val widget: MyWidget = MyWidget()
+                    }
+                    """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/MyWidget.kt line 8: Annotate with @AssociateWithGlanceWearWidget:
+                @@ -2,0 +3 @@
+                +import androidx.glance.wear.AssociateWithGlanceWearWidget
+                @@ -7,0 +9 @@
+                +@AssociateWithGlanceWearWidget(MyWidget::class)
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testMissingAnnotation_explicitBaseType_providesQuickFix() {
+        lint()
+            .files(
+                glanceWearWidgetServiceStub,
+                glanceWearWidgetStub,
+                associateAnnotationStub,
+                kotlin(
+                        """
+                    package com.example
+
+                    import androidx.glance.wear.GlanceWearWidget
+                    import androidx.glance.wear.GlanceWearWidgetService
+
+                    class MyWidget : GlanceWearWidget()
+
+                    class MyWidgetService : GlanceWearWidgetService() {
+                        override val widget: GlanceWearWidget = MyWidget()
+                    }
+                    """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/MyWidget.kt line 8: Annotate with @AssociateWithGlanceWearWidget:
+                @@ -2,0 +3 @@
+                +import androidx.glance.wear.AssociateWithGlanceWearWidget
+                @@ -7,0 +9 @@
+                +@AssociateWithGlanceWearWidget(MyWidget::class)
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testMissingAnnotation_parameterizedField_providesQuickFix() {
+        lint()
+            .files(
+                glanceWearWidgetServiceStub,
+                glanceWearWidgetStub,
+                associateAnnotationStub,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.glance.wear.GlanceWearWidget
+                import androidx.glance.wear.GlanceWearWidgetService
+
+                class MyWidget : GlanceWearWidget()
+
+                class MyWidgetService : GlanceWearWidgetService() {
+                    // Backing property using a parameterized type (Lazy<MyWidget>)
+                    val widgetDelegate: Lazy<MyWidget> = lazy { MyWidget() }
+
+                    override val widget: GlanceWearWidget
+                        get() = widgetDelegate.value
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/MyWidget.kt line 8: Annotate with @AssociateWithGlanceWearWidget:
+                @@ -2,0 +3 @@
+                +import androidx.glance.wear.AssociateWithGlanceWearWidget
+                @@ -7,0 +9 @@
+                +@AssociateWithGlanceWearWidget(MyWidget::class)
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testMissingAnnotation_unresolvedWidget_providesNoQuickFix() {
+        lint()
+            .files(
+                glanceWearWidgetServiceStub,
+                glanceWearWidgetStub,
+                associateAnnotationStub,
+                kotlin(
+                        """
+                    package com.example
+
+                    import androidx.glance.wear.GlanceWearWidgetService
+
+                    // This compiles enough for AST parsing, but UnresolvedWidget cannot be resolved
+                    // because it is not defined in this file or any imported package.
+                    abstract class MyWidgetService : GlanceWearWidgetService() {
+                        abstract val widget: UnresolvedWidget
+                    }
+                    """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectFixDiffs("")
     }
 
     @Test
