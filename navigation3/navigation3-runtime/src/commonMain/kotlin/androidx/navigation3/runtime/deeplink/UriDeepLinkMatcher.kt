@@ -31,6 +31,8 @@ private const val PLACEHOLDER_CONTENT_PATTERN = "([\\s\\S]+?)?"
 private val PATH_REGEX = Regex("([^/]*?|)")
 private const val DEFAULT_SCHEME_PATTERN = "http[s]?://"
 private const val STRICT_SCHEME_PATTERN = "https://"
+// references RFC 3986 section 3.1
+private val EXPECTED_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+\\-.]*:")
 
 /**
  * Represents a deep link that can be deep linked into when matched with a [DeepLinkRequest]
@@ -141,23 +143,38 @@ private const val STRICT_SCHEME_PATTERN = "https://"
  * @param filters an optional list of filters to filter a [DeepLinkRequest] when matching
  */
 public open class UriDeepLinkMatcher<out T : Any>(
-    private val uriPattern: DeepLinkUri,
+    uriPattern: DeepLinkUri,
     private val serializer: KSerializer<T>,
     filters: List<Filter> = emptyList(),
 ) : DeepLinkMatcher<T>(filters) {
 
+    // By RFC 2396/3986 standard, uri without a scheme or "//" is treated as no authority,
+    // i.e. "www.example.com/path". This throws off path segment count and desyncs with
+    // requests that do contain a scheme or "//". So we normalize it to ensure we can handle
+    // a no-authority case properly.
+    private val normalizedUriPattern =
+        when {
+            EXPECTED_SCHEME_REGEX.containsMatchIn(uriPattern.toString()) ||
+                uriPattern.toString().startsWith("//") -> {
+                uriPattern
+            }
+            else -> {
+                DeepLinkUri("//${uriPattern}")
+            }
+        }
+
     // Pair of path pattern regex to list of extracted arg names. List is empty if path
     // has no args.
     private val parsedPath: Pair<Regex, List<String>> by lazy {
-        UriPatternParser.parsePath(uriPattern)
+        UriPatternParser.parsePath(normalizedUriPattern)
     }
     // empty if uriPattern does not have any query or query params
     private val parsedQuery: Map<String, QueryParamPattern> by lazy {
-        UriPatternParser.parseQuery(uriPattern)
+        UriPatternParser.parseQuery(normalizedUriPattern)
     }
     // null if uriPattern does not have a fragment. null list if fragment has no args.
     private val parsedFragment: Pair<Regex, List<String>>? by lazy {
-        UriPatternParser.parseFragment(uriPattern)
+        UriPatternParser.parseFragment(normalizedUriPattern)
     }
 
     /**
@@ -190,8 +207,9 @@ public open class UriDeepLinkMatcher<out T : Any>(
         val schemeRegex =
             regexPattern.substring(1, regexPattern.indexOf("://")).toRegex(RegexOption.IGNORE_CASE)
         if (!schemeRegex.matches(uri.getScheme().orEmpty())) return null
-        if (!uri.getAuthority().equals(uriPattern.getAuthority(), ignoreCase = true)) return null
-        val pathSegments = uriPattern.getPathSegments()
+        if (!uri.getAuthority().equals(normalizedUriPattern.getAuthority(), ignoreCase = true))
+            return null
+        val pathSegments = normalizedUriPattern.getPathSegments()
         if (
             pathSegments.lastIndexOf(".*") != pathSegments.lastIndex &&
                 uri.getPathSegments().size != pathSegments.size
@@ -242,7 +260,8 @@ public open class UriDeepLinkMatcher<out T : Any>(
             } catch (e: DeepLinkDecoderException) {
                 return null
             }
-        val isExactPath = pathArgs.isEmpty() && !uriPattern.getPathSegments().contains(".*")
+        val isExactPath =
+            pathArgs.isEmpty() && !normalizedUriPattern.getPathSegments().contains(".*")
         return UriMatchResult(key, arguments, isExactPath, pathArgs.size)
     }
 }
