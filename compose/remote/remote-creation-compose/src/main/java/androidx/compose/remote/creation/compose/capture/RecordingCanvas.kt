@@ -67,13 +67,18 @@ import androidx.graphics.shapes.RoundedPolygon
  * [RemoteColor], etc.
  *
  * Note [flush] MUST be called to commit commands to the underlying document.
+ *
+ * @param bitmap The backing [Bitmap] for the Android [Canvas].
+ * @param enableOptimizations Whether to enable save/restore elision and transform fusing
+ *   optimizations. Defaults to `false`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateScope {
+public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations: Boolean = false) :
+    Canvas(bitmap), RemoteStateScope {
 
     internal val tracker = PaintTracker()
 
-    internal val buffer: CanvasOperationBuffer = CanvasOperationBuffer()
+    internal val buffer: CanvasOperationBuffer = CanvasOperationBuffer(enableOptimizations)
 
     internal lateinit var creationState: RemoteComposeCreationState
 
@@ -84,6 +89,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
 
     public var saveCounter: Int = 0
     internal var currentDrawToBitmapId = 0
+    internal var currentSaveNode: CanvasOp.Save? = null
 
     override val document: RemoteComposeWriter
         get() = creationState.document
@@ -97,38 +103,119 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     public val creationDisplayInfo: RemoteCreationDisplayInfo
         get() = creationState.creationDisplayInfo
 
-    internal fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
-        return buffer.recordRenderingOp(action)
+    /**
+     * Records a [CanvasOp] into the canvas operation buffer.
+     *
+     * If optimizations are enabled and the canvas is currently inside a save block
+     * ([currentSaveNode] is not null), the operation is added to the active save node's children
+     * list for post-processing/optimization rather than being immediately recorded.
+     *
+     * If the operation is a [CanvasOp.Draw], this method also triggers [markDrawCall] to mark the
+     * active save hierarchy as containing drawing operations, ensuring they are not optimized away.
+     *
+     * @param op The [CanvasOp] to record.
+     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation's span.
+     */
+    internal fun recordRenderingOp(op: CanvasOp): CanvasOperationBuffer.SpanOp {
+        if (op is CanvasOp.Draw) {
+            markDrawCall()
+        }
+        if (currentSaveNode != null) {
+            currentSaveNode!!.children.add(op)
+            return currentSaveNode!!.getRootSaveNode().spanOp!!
+        } else {
+            val spanOp = buffer.recordRenderingOp(op)
+            if (op is CanvasOp.Save) {
+                op.spanOp = spanOp
+            }
+            return spanOp
+        }
     }
 
+    /**
+     * Propagates a flag up the active save block hierarchy ([currentSaveNode] and its parents)
+     * marking them as containing at least one draw call.
+     *
+     * This is used during optimization to ensure that save/restore blocks that actually perform
+     * drawing are preserved, while empty save/restore blocks can be pruned.
+     */
+    private fun markDrawCall() {
+        var s = currentSaveNode
+        while (s != null) {
+            s.hasDrawCalls = true
+            s = s.parent
+        }
+    }
+
+    /**
+     * Records a generic drawing action as a [CanvasOp.Draw] operation.
+     *
+     * @param action The block containing drawing commands to record.
+     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded draw operation.
+     */
+    internal fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
+        return recordRenderingOp(CanvasOp.Draw { action() })
+    }
+
+    /**
+     * Records a drawing action that uses a [RemotePaint].
+     *
+     * This method takes a snapshot of the paint state, records a command to use that paint, and
+     * then records the drawing action.
+     *
+     * @param paint The [RemotePaint] to apply for this drawing action.
+     * @param action The block containing drawing commands to record.
+     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
+     */
     internal fun recordRenderingOp(
         paint: RemotePaint?,
         action: () -> Unit,
     ): CanvasOperationBuffer.SpanOp {
         val paintSnapshot = snapshotPaint(paint)
-        return buffer.recordRenderingOp() {
+        return recordRenderingOp {
             usePaintInternal(paintSnapshot)
             action()
         }
     }
 
+    /**
+     * Records a drawing action that uses a platform [Paint].
+     *
+     * This method takes a snapshot of the paint state, records a command to use that paint, and
+     * then records the drawing action.
+     *
+     * @param paint The platform [Paint] to apply for this drawing action.
+     * @param action The block containing drawing commands to record.
+     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
+     */
     internal fun recordRenderingOp(
         paint: Paint?,
         action: () -> Unit,
     ): CanvasOperationBuffer.SpanOp {
         val paintSnapshot = snapshotPaint(paint)
-        return buffer.recordRenderingOp() {
+        return recordRenderingOp {
             usePaintInternal(paintSnapshot)
             action()
         }
     }
 
+    /**
+     * Records a drawing action that uses a Compose [androidx.compose.ui.graphics.Paint].
+     *
+     * This method takes a snapshot of the paint state, records a command to use that paint, and
+     * then records the drawing action.
+     *
+     * @param paint The Compose [androidx.compose.ui.graphics.Paint] to apply for this drawing
+     *   action.
+     * @param action The block containing drawing commands to record.
+     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
+     */
     internal fun recordRenderingOp(
         paint: androidx.compose.ui.graphics.Paint,
         action: () -> Unit,
     ): CanvasOperationBuffer.SpanOp {
         val paintSnapshot = snapshotPaint(paint)
-        return buffer.recordRenderingOp() {
+        return recordRenderingOp {
             usePaintInternal(paintSnapshot)
             action()
         }
@@ -137,11 +224,14 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     private inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span {
         val childSpan = buffer.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
+        val prevSaveNode = currentSaveNode
         buffer.insertPoint = childSpan
+        currentSaveNode = null
         try {
             action()
         } finally {
             buffer.insertPoint = prevInsertPoint
+            currentSaveNode = prevSaveNode
         }
         return childSpan
     }
@@ -174,7 +264,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      */
     public fun setRemoteComposeCreationState(creationState: RemoteComposeCreationState) {
         this.creationState = creationState
-        (document as? OptimizingRemoteComposeWriter)?.let { it.creationState = creationState }
     }
 
     /**
@@ -411,44 +500,36 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
 
     override fun translate(dx: Float, dy: Float) {
         if (dx != 0f || dy != 0f) {
-            recordRenderingOp { document.translate(dx, dy) }
+            recordRenderingOp(CanvasOp.Transform(PendingOp.Translate(dx.rf, dy.rf)))
         }
     }
 
     public fun translate(dx: RemoteFloat, dy: RemoteFloat) {
-        val op = recordRenderingOp {
-            document.translate(
-                dx.getFloatIdForCreationState(creationState),
-                dy.getFloatIdForCreationState(creationState),
-            )
-        }
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Translate(dx, dy)))
         buffer.addRoots(op, dx, dy)
     }
 
     override fun scale(sx: Float, sy: Float) {
-        recordRenderingOp { document.scale(sx, sy) }
+        recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx.rf, sy.rf, null, null)))
     }
 
     public fun scale(sx: RemoteFloat, sy: RemoteFloat) {
-        val op = recordRenderingOp {
-            document.scale(
-                sx.getFloatIdForCreationState(creationState),
-                sy.getFloatIdForCreationState(creationState),
-            )
-        }
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx, sy, null, null)))
         buffer.addRoots(op, sx, sy)
     }
 
     public fun scale(sx: RemoteFloat, sy: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
-        val op = recordRenderingOp {
-            document.scale(
-                sx.getFloatIdForCreationState(creationState),
-                sy.getFloatIdForCreationState(creationState),
-                px.getFloatIdForCreationState(creationState),
-                py.getFloatIdForCreationState(creationState),
-            )
-        }
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx, sy, px, py)))
         buffer.addRoots(op, sx, sy, px, py)
+    }
+
+    override fun skew(sx: Float, sy: Float) {
+        recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx.rf, sy.rf)))
+    }
+
+    public fun skew(sx: RemoteFloat, sy: RemoteFloat) {
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx, sy)))
+        buffer.addRoots(op, sx, sy)
     }
 
     public fun drawBitmap(bitmap: ImageBitmap, left: Float, top: Float, paint: Paint?) {
@@ -617,14 +698,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     }
 
     override fun save(): Int {
-        recordRenderingOp { document.save() }
+        val node = CanvasOp.Save(parent = currentSaveNode)
+        recordRenderingOp(node)
+        currentSaveNode = node
         saveCounter++
         return saveCounter
     }
 
     override fun restore() {
         if (saveCounter > 0) {
-            recordRenderingOp { document.restore() }
+            currentSaveNode = currentSaveNode?.parent
             saveCounter--
         } else {
             throw IllegalStateException("Underflow in restore - more restores than saves")
@@ -669,7 +752,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         clipRect(rect.left, rect.top, rect.right, rect.bottom)
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float): Boolean {
-        recordRenderingOp { document.clipRect(left, top, right, bottom) }
+        recordRenderingOp(CanvasOp.Clip { it.clipRect(left, top, right, bottom) })
         return true
     }
 
@@ -679,13 +762,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         right: RemoteFloat,
         bottom: RemoteFloat,
     ): Boolean {
-        val op = recordRenderingOp {
-            val l = left.getFloatIdForCreationState(creationState)
-            val t = top.getFloatIdForCreationState(creationState)
-            val r = right.getFloatIdForCreationState(creationState)
-            val b = bottom.getFloatIdForCreationState(creationState)
-            document.clipRect(l, t, r, b)
-        }
+        val op =
+            recordRenderingOp(
+                CanvasOp.Clip { writer ->
+                    val l = left.getFloatIdForCreationState(creationState)
+                    val t = top.getFloatIdForCreationState(creationState)
+                    val r = right.getFloatIdForCreationState(creationState)
+                    val b = bottom.getFloatIdForCreationState(creationState)
+                    writer.clipRect(l, t, r, b)
+                }
+            )
         buffer.addRoots(op, left, top, right, bottom)
         return true
     }
@@ -879,7 +965,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     }
 
     override fun rotate(degrees: Float) {
-        recordRenderingOp { document.rotate(degrees) }
+        recordRenderingOp(CanvasOp.Transform(PendingOp.Rotate(degrees.rf, null, null)))
     }
 
     /**
@@ -888,10 +974,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param degrees The angle of rotation in degrees.
      */
     public fun rotate(degrees: RemoteFloat) {
-        val op = recordRenderingOp {
-            val id = degrees.getFloatIdForCreationState(creationState)
-            document.rotate(id)
-        }
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Rotate(degrees, null, null)))
         buffer.addRoots(op, degrees)
     }
 
@@ -903,13 +986,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param py The Y-coordinate of the pivot point.
      */
     public fun rotate(degrees: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
-        val op = recordRenderingOp {
-            document.rotate(
-                degrees.getFloatIdForCreationState(creationState),
-                px.getFloatIdForCreationState(creationState),
-                py.getFloatIdForCreationState(creationState),
-            )
-        }
+        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Rotate(degrees, px, py)))
         buffer.addRoots(op, degrees, px, py)
     }
 
@@ -1436,11 +1513,14 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         val loopVariable = MutableRemoteFloat()
         val childSpan = recordInChildSpan { body(loopVariable) }
 
-        val op = recordRenderingOp {
-            document.loop(loopVariable.id, from.floatId, step.floatId, until.floatId) {
-                childSpan.record()
-            }
-        }
+        val op =
+            recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.loop(loopVariable.id, from.floatId, step.floatId, until.floatId) {
+                        childSpan.record(writer, creationState)
+                    }
+                }
+            )
         buffer.addRoots(op, from, until, step)
     }
 
@@ -1458,9 +1538,14 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         val loopVariable = MutableRemoteFloat()
         val childSpan = recordInChildSpan { body(loopVariable.toRemoteInt()) }
 
-        val op = recordRenderingOp {
-            document.loop(loopVariable.id, from.toFloat(), 1f, until.floatId) { childSpan.record() }
-        }
+        val op =
+            recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.loop(loopVariable.id, from.toFloat(), 1f, until.floatId) {
+                        childSpan.record(writer, creationState)
+                    }
+                }
+            )
         buffer.addRoots(op, until)
     }
 
@@ -1496,26 +1581,29 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
         val childSpan = recordInChildSpan(drawCommands)
 
-        val op = recordRenderingOp {
-            if (condition.hasConstantValue) {
-                if (condition.constantValue) {
-                    childSpan.record()
+        val op =
+            recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    if (condition.hasConstantValue) {
+                        if (condition.constantValue) {
+                            childSpan.record(writer, creationState)
+                        }
+                    } else {
+                        writer.conditionalOperations(
+                            ConditionalOperations.TYPE_NEQ,
+                            condition
+                                .toRemoteInt()
+                                .toRemoteFloat()
+                                .getFloatIdForCreationState(creationState),
+                            0f,
+                        ) {
+                            forceSendingPaint = true
+                            childSpan.record(writer, creationState)
+                            forceSendingPaint = true
+                        }
+                    }
                 }
-            } else {
-                document.conditionalOperations(
-                    ConditionalOperations.TYPE_NEQ,
-                    condition
-                        .toRemoteInt()
-                        .toRemoteFloat()
-                        .getFloatIdForCreationState(creationState),
-                    0f,
-                )
-                forceSendingPaint = true
-                childSpan.record()
-                forceSendingPaint = true
-                document.endConditionalOperations()
-            }
-        }
+            )
         buffer.addRoots(op, condition)
     }
 
@@ -1538,13 +1626,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             }
         }
 
-        val op = recordRenderingOp {
-            document.drawOnBitmap(bitmapId, 1, 0)
-            forceSendingPaint = true
-            childSpan.record()
-            forceSendingPaint = true
-            document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
-        }
+        val op =
+            recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.drawOnBitmap(bitmapId, 1, 0)
+                    forceSendingPaint = true
+                    childSpan.record(writer, creationState)
+                    forceSendingPaint = true
+                    writer.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+                }
+            )
         buffer.addRoots(op, bitmap)
     }
 
@@ -1572,13 +1663,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             }
         }
 
-        val op = recordRenderingOp {
-            document.drawOnBitmap(bitmapId, 0, clearColor)
-            forceSendingPaint = true
-            childSpan.record()
-            forceSendingPaint = true
-            document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
-        }
+        val op =
+            recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.drawOnBitmap(bitmapId, 0, clearColor)
+                    forceSendingPaint = true
+                    childSpan.record(writer, creationState)
+                    forceSendingPaint = true
+                    writer.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+                }
+            )
         buffer.addRoots(op, bitmap)
     }
 
