@@ -16,12 +16,14 @@
 
 package androidx.appstate
 
+import androidx.appstate.transform.listener
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -34,16 +36,26 @@ import org.junit.runner.RunWith
 class AppStateDeviceTest {
     @Serializable object StringKey : AppStateKey<String>()
 
+    @Serializable object AutoClearKey : AppStateKey<String>(autoClearKey = StringKey)
+
+    @Serializable
+    object StringKeyWithPredicate :
+        AppStateKey<String>(
+            autoClearKey = StringKey,
+            shouldClearState = { appState -> appState.getState(StringKey, "").value == "clear" },
+        )
+
     @Test
-    fun testAddAppStateListener() = runTest {
+    fun testListenerReceivesAppStateUpdates() = runTest {
         val appState = AppState()
         var receivedValue: String? = null
 
         appState.setState(StringKey, "initial")
-
-        val token =
-            appState.addAppStateListener(testDispatcher) { map ->
-                receivedValue = map[StringKey]?.value as? String
+        val job =
+            backgroundScope.launch {
+                listener(testDispatcher) {
+                    receivedValue = appState.getState(StringKey, "default").value
+                }
             }
 
         // Wait for first composition
@@ -56,12 +68,51 @@ class AppStateDeviceTest {
         assertThat(receivedValue).isEqualTo("updated")
 
         // Remove listener
-        appState.removeAppStateListener(token)
+        job.cancel()
 
         // Update state again and verify listener is NOT called
         appState.setState(StringKey, "ignored")
         runRecomposition()
         assertThat(receivedValue).isEqualTo("updated")
+    }
+
+    @Test
+    fun testAutoClear() = runTest {
+        val appState = AppState()
+
+        appState.setState(AutoClearKey, "targetValue")
+        assertThat(appState.keys).contains(AutoClearKey)
+
+        // Set key to trigger clear
+        appState.setState(StringKey, "triggerValue")
+
+        // Run recomposition to let the listener and LaunchedEffect run
+        runRecomposition()
+
+        // this clears because the default for AppStateKey is to autoclear.
+        assertThat(appState.keys).doesNotContain(AutoClearKey)
+    }
+
+    @Test
+    fun testAutoClearWithPredicate() = runTest {
+        val appState = AppState()
+
+        appState.setState(StringKeyWithPredicate, "targetValue")
+        assertThat(appState.keys).contains(StringKeyWithPredicate)
+
+        // Set trigger key to something that does NOT satisfy predicate
+        appState.setState(StringKey, "dont-clear")
+        runRecomposition()
+
+        // Verify TargetKeyWithPredicate is NOT cleared
+        assertThat(appState.keys).contains(StringKeyWithPredicate)
+
+        // Set trigger key to "clear" which satisfies predicate
+        appState.setState(StringKey, "clear")
+        runRecomposition()
+
+        // Verify TargetKeyWithPredicate IS cleared
+        assertThat(appState.keys).doesNotContain(StringKeyWithPredicate)
     }
 
     private fun TestScope.runRecomposition() {
