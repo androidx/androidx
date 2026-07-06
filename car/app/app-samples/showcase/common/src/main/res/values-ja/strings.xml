@@ -384,6 +384,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"地図およびコンテンツのデモ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"地図およびメッセージ テンプレートのデモ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"地図およびグリッド テンプレートのデモ"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <string name="banner_demo_title" msgid="6740573531391394513">"バナーのデモ"</string>
+    <!-- no translation found for enhanced_header_demo_title (5926669146325565791) -->
     <skip />
 </resources>
