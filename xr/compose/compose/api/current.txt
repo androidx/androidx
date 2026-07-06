@@ -315,19 +315,19 @@ package androidx.xr.compose.spatial {
 
 package androidx.xr.compose.subspace {
 
-  public final class AnchorPolicy extends androidx.xr.compose.subspace.DragPolicy {
-    ctor public AnchorPolicy();
-    ctor @BytecodeOnly public AnchorPolicy(boolean, java.util.Set!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public AnchorPolicy(optional boolean isEnabled, optional java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> anchorPlaneOrientations, optional java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> anchorPlaneSemantics);
-    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> getAnchorPlaneOrientations();
-    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> getAnchorPlaneSemantics();
-    method @InaccessibleFromKotlin public boolean isEnabled();
-    property public java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> anchorPlaneOrientations;
-    property public java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> anchorPlaneSemantics;
-    property public boolean isEnabled;
+  @Deprecated public final class AnchorPolicy extends androidx.xr.compose.subspace.DragPolicy {
+    ctor @Deprecated public AnchorPolicy();
+    ctor @BytecodeOnly @Deprecated public AnchorPolicy(boolean, java.util.Set!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated public AnchorPolicy(optional boolean isEnabled, optional java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> anchorPlaneOrientations, optional java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> anchorPlaneSemantics);
+    method @InaccessibleFromKotlin @Deprecated public java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> getAnchorPlaneOrientations();
+    method @InaccessibleFromKotlin @Deprecated public java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> getAnchorPlaneSemantics();
+    method @InaccessibleFromKotlin @Deprecated public boolean isEnabled();
+    property @Deprecated public java.util.Set<androidx.xr.compose.subspace.layout.PlaneOrientation> anchorPlaneOrientations;
+    property @Deprecated public java.util.Set<androidx.xr.compose.subspace.layout.PlaneSemantic> anchorPlaneSemantics;
+    property @Deprecated public boolean isEnabled;
   }
 
-  public abstract class DragPolicy {
+  @Deprecated public abstract class DragPolicy {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialGltfAnimationApi {
@@ -850,13 +850,13 @@ package androidx.xr.compose.subspace.layout {
     method public void adjustParams(androidx.xr.compose.subspace.layout.ParentLayoutParamsAdjustable params);
   }
 
-  @kotlin.jvm.JvmInline public final value class PlaneOrientation {
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy @kotlin.jvm.JvmInline public final value class PlaneOrientation {
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneOrientation! box-impl(java.util.Set!);
     method @BytecodeOnly public java.util.Set! unbox-impl();
     field public static final androidx.xr.compose.subspace.layout.PlaneOrientation.Companion Companion;
   }
 
-  public static final class PlaneOrientation.Companion {
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy public static final class PlaneOrientation.Companion {
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getAny-rnqRDCc();
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getHorizontal-rnqRDCc();
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getVertical-rnqRDCc();
@@ -865,13 +865,13 @@ package androidx.xr.compose.subspace.layout {
     property public androidx.xr.compose.subspace.layout.PlaneOrientation Vertical;
   }
 
-  @kotlin.jvm.JvmInline public final value class PlaneSemantic {
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy @kotlin.jvm.JvmInline public final value class PlaneSemantic {
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneSemantic! box-impl(java.util.Set!);
     method @BytecodeOnly public java.util.Set! unbox-impl();
     field public static final androidx.xr.compose.subspace.layout.PlaneSemantic.Companion Companion;
   }
 
-  public static final class PlaneSemantic.Companion {
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy public static final class PlaneSemantic.Companion {
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getAny-FWya8ks();
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getCeiling-FWya8ks();
     method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getFloor-FWya8ks();
