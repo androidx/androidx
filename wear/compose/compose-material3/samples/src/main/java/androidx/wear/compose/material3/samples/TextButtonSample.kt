@@ -103,7 +103,11 @@ fun TextButtonWithOnLongClickSample(onLongClick: () -> Unit) {
 @Composable
 @Sampled
 fun TextButtonWithCornerAnimationSample() {
-    TextButton(onClick = { /* Do something */ }, shapes = TextButtonDefaults.animatedShapes()) {
+    TextButton(
+        onClick = { /* Do something */ },
+        colors = TextButtonDefaults.filledTextButtonColors(),
+        shapes = TextButtonDefaults.animatedShapes(),
+    ) {
         Text(text = "ABC")
     }
 }
