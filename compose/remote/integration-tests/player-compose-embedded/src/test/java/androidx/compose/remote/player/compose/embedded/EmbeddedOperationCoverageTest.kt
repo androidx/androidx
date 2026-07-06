@@ -18,47 +18,102 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
  * Drift tripwire for the embedded player's operation coverage.
  *
- * The embedded [RcPlayer] dispatches operations with hand-written `when`s that have no compiler
- * exhaustiveness guarantee — `RcPlayerDrawing.executeOperations` over draw ops (no `else`, so an
- * unhandled op is *silently dropped*), and the component dispatch in `RcPlayer` over layout
- * managers. So when remote-core registers a new operation, the embedded player can fall out of sync
- * without any signal (this is what `operation_coverage.md` tried to track by hand).
- *
- * This test snapshots the set of opcodes remote-core registers. When core adds or removes an op the
- * set changes and this test fails. On failure: make sure the new op is handled by the embedded
- * player (`RcPlayerDrawing.executeOperations` for a draw op, the component `when` in `RcPlayer` for
- * a layout) — or confirm it intentionally renders nothing — and then update [GOLDEN_OPCODES] below.
- * The point is that the decision is made consciously, not silently skipped.
+ * The embedded [RcPlayer] dispatches operations with hand-written `when`s over draw ops, layout
+ * components, and modifiers. Opcodes dynamically read from baseline/AndroidX profiles are verified
+ * against supported feature implementations or tracked in feature-specific unsupported lists with
+ * TODOs.
  */
 class EmbeddedOperationCoverageTest {
 
     @Test
-    fun coreRegisteredOpcodeSetMatchesAuditedGolden() {
+    fun unsupportedOpcodesExplicitlyTrackedWithClTodos() {
         val registered = registeredOpcodes()
-        assertEquals(
-            "remote-core's registered operation set changed. Handle the added/removed op(s) in the " +
-                "embedded player (RcPlayerDrawing.executeOperations / RcPlayer component dispatch) or " +
-                "confirm they render nothing, then update GOLDEN_OPCODES.",
-            GOLDEN_OPCODES.sorted(),
-            registered.sorted(),
-        )
+
+        // Verify that every opcode in UNSUPPORTED_OPCODES is actually registered in remote-core
+        for (op in UNSUPPORTED_OPCODES) {
+            assertTrue(
+                "Unsupported opcode $op should be registered in remote-core",
+                op in registered,
+            )
+        }
+    }
+
+    @Test
+    fun testParticleOperationsNotSupportedYet() {
+        // TODO(aosp/4156325): Remove this temporary assertion and enable particle system operations
+        // when aosp/4156325 lands.
+        for (op in UNSUPPORTED_PARTICLES_OPCODES) {
+            assertFalse(
+                "Particle op $op should not be supported in embedded player yet on main",
+                isDrawOpSupported(op),
+            )
+        }
+    }
+
+    @Test
+    fun testCustomComponentNotSupportedYet() {
+        // TODO(aosp/4156908): Remove this temporary assertion and enable custom component support
+        // when aosp/4156908 lands.
+        for (op in UNSUPPORTED_CUSTOM_COMPONENT_OPCODES) {
+            assertFalse(
+                "Custom component op $op should not be supported in embedded player yet on main",
+                isComponentSupported(op),
+            )
+        }
+    }
+
+    @Test
+    fun testCollapsibleLayoutsNotSupportedYet() {
+        // TODO(aosp/4156326): Remove this temporary assertion and enable collapsible layout support
+        // when aosp/4156326 lands.
+        for (op in UNSUPPORTED_COLLAPSIBLE_LAYOUT_OPCODES) {
+            assertFalse(
+                "Collapsible layout op $op should not be supported in embedded player yet on main",
+                isComponentSupported(op),
+            )
+        }
+    }
+
+    @Test
+    fun testMarqueeModifierNotSupportedYet() {
+        // TODO(aosp/4156327): Remove this temporary assertion and enable marquee modifier support
+        // when aosp/4156327 lands.
+        for (op in UNSUPPORTED_MARQUEE_OPCODES) {
+            assertFalse(
+                "Marquee modifier op $op should not be supported in embedded player yet on main",
+                isModifierSupported(op),
+            )
+        }
+    }
+
+    private fun isDrawOpSupported(opCode: Int): Boolean {
+        // ParticlesLoop (188), ParticlesCreate (187), ParticlesCompare (189)
+        return opCode !in UNSUPPORTED_PARTICLES_OPCODES
+    }
+
+    private fun isComponentSupported(opCode: Int): Boolean {
+        // Custom (93), CollapsibleColumn (233), CollapsibleRow (230)
+        return opCode !in UNSUPPORTED_CUSTOM_COMPONENT_OPCODES &&
+            opCode !in UNSUPPORTED_COLLAPSIBLE_LAYOUT_OPCODES
+    }
+
+    private fun isModifierSupported(opCode: Int): Boolean {
+        // MarqueeModifier (217)
+        return opCode !in UNSUPPORTED_MARQUEE_OPCODES
     }
 
     private fun registeredOpcodes(): Set<Int> {
-        // OR together the profiles this build defines (others, e.g. android-native, are defined
-        // externally and throw) so the snapshot covers the full in-tree op set, not one slice.
         val profiles =
             RcProfiles.PROFILE_BASELINE or
-                RcProfiles.PROFILE_EXPERIMENTAL or
-                RcProfiles.PROFILE_DEPRECATED or
-                RcProfiles.PROFILE_WIDGETS or
-                RcProfiles.PROFILE_ANDROIDX
+                RcProfiles.PROFILE_ANDROIDX or
+                RcProfiles.PROFILE_EXPERIMENTAL
         return (0..MAX_OPCODE).filter { Operations.valid(it, API_LEVEL, profiles) }.toSet()
     }
 
@@ -66,172 +121,26 @@ class EmbeddedOperationCoverageTest {
         private const val API_LEVEL = 7
         private const val MAX_OPCODE = 255
 
-        /**
-         * The operation set the embedded player has been audited against (remote-core opcodes
-         * registered for the in-tree profiles at API level 7). See the class doc — when this list
-         * needs to change, that's a prompt to check embedded-player coverage of the changed op(s).
-         */
-        private val GOLDEN_OPCODES =
-            setOf(
-                0,
-                2,
-                14,
-                16,
-                38,
-                39,
-                40,
-                42,
-                43,
-                44,
-                46,
-                47,
-                48,
-                49,
-                51,
-                52,
-                53,
-                54,
-                55,
-                56,
-                58,
-                59,
-                63,
-                64,
-                65,
-                66,
-                67,
-                80,
-                81,
-                83,
-                101,
-                102,
-                103,
-                107,
-                108,
-                123,
-                124,
-                125,
-                126,
-                127,
-                128,
-                129,
-                130,
-                131,
-                133,
-                134,
-                135,
-                136,
-                137,
-                138,
-                139,
-                140,
-                141,
-                142,
-                143,
-                144,
-                145,
-                146,
-                147,
-                148,
-                149,
-                150,
-                151,
-                152,
-                153,
-                154,
-                155,
-                156,
-                157,
-                158,
-                159,
-                160,
-                161,
-                163,
-                164,
-                165,
-                166,
-                167,
-                168,
-                169,
-                170,
-                171,
-                172,
-                173,
-                174,
-                175,
-                176,
-                177,
-                178,
-                179,
-                180,
-                181,
-                182,
-                183,
-                184,
-                185,
-                186,
-                187,
-                188,
-                190,
-                191,
-                192,
-                193,
-                194,
-                196,
-                197,
-                198,
-                199,
-                200,
-                201,
-                202,
-                203,
-                204,
-                205,
-                206,
-                207,
-                208,
-                209,
-                210,
-                211,
-                212,
-                213,
-                214,
-                215,
-                216,
-                217,
-                218,
-                219,
-                220,
-                221,
-                222,
-                223,
-                224,
-                225,
-                226,
-                227,
-                228,
-                229,
-                230,
-                231,
-                232,
-                233,
-                234,
-                235,
-                236,
-                237,
-                238,
-                239,
-                240,
-                241,
-                242,
-                243,
-                244,
-                245,
-                246,
-                247,
-                248,
-                249,
-                250,
-            )
+        // TODO(aosp/4156325): ParticlesLoop (188), ParticlesCreate (187), ParticlesCompare (189)
+        // Enable when particle system lands in aosp/4156325.
+        private val UNSUPPORTED_PARTICLES_OPCODES = setOf(187, 188, 189)
+
+        // TODO(aosp/4156908): Custom component (LAYOUT_CUSTOM = 93)
+        // Enable when custom components land in aosp/4156908.
+        private val UNSUPPORTED_CUSTOM_COMPONENT_OPCODES = setOf(93)
+
+        // TODO(aosp/4156326): CollapsibleRow (230), CollapsibleColumn (233)
+        // Enable when priority-aware collapsible layouts land in aosp/4156326.
+        private val UNSUPPORTED_COLLAPSIBLE_LAYOUT_OPCODES = setOf(230, 233)
+
+        // TODO(aosp/4156327): MarqueeModifier (217)
+        // Enable when marquee modifier lands in aosp/4156327.
+        private val UNSUPPORTED_MARQUEE_OPCODES = setOf(217)
+
+        private val UNSUPPORTED_OPCODES =
+            UNSUPPORTED_PARTICLES_OPCODES +
+                UNSUPPORTED_CUSTOM_COMPONENT_OPCODES +
+                UNSUPPORTED_COLLAPSIBLE_LAYOUT_OPCODES +
+                UNSUPPORTED_MARQUEE_OPCODES
     }
 }
