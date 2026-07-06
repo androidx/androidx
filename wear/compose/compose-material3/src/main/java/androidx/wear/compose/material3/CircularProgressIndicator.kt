@@ -158,6 +158,11 @@ public fun CircularProgressIndicator(
  * Example of indeterminate circular progress indicator:
  *
  * @sample androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_IndeterminateProgressIndicatorSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param modifier Modifier to be applied to the CircularProgressIndicator.
  * @param colors [ProgressIndicatorColors] that will be used to resolve the indicator and track
  *   color for this progress indicator.
@@ -234,6 +239,11 @@ public fun CircularProgressIndicator(
  * Example of a circular progress indicator with custom progress animation:
  *
  * @sample androidx.wear.compose.material3.samples.CircularProgressIndicatorCustomAnimationSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_CircularProgressIndicatorCustomAnimationSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion.
  * @param colors [ProgressIndicatorColors] that will be used to resolve the indicator and track
@@ -329,6 +339,11 @@ public fun DrawScope.drawCircularProgressIndicator(
  * Example of a circular progress indicator with custom progress animation:
  *
  * @sample androidx.wear.compose.material3.samples.CircularProgressIndicatorCustomAnimationSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_CircularProgressIndicatorCustomAnimationSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion.
  * @param colors [ProgressIndicatorColors] that will be used to resolve the indicator and track

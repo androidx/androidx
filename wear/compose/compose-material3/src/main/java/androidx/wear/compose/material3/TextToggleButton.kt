@@ -61,14 +61,27 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *
  * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * A simple text toggle button using the default colors, animated when pressed and with different
  * shapes for the checked and unchecked states.
  *
  * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonVariantSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of a large text toggle button:
  *
  * @sample androidx.wear.compose.material3.samples.LargeTextToggleButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_LargeTextToggleButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
@@ -202,6 +215,10 @@ public object TextToggleButtonDefaults {
      * A simple text toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
      */
     @Composable
     public fun animatedShapes(): TextToggleButtonShapes =
@@ -214,6 +231,11 @@ public object TextToggleButtonDefaults {
      * A simple text toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param shape The normal shape of the TextToggleButton - if null, the default
      *   [TextToggleButtonDefaults.shape] is used.
      * @param pressedShape The pressed shape of the TextToggleButton if null, the default
@@ -236,6 +258,10 @@ public object TextToggleButtonDefaults {
      * A simple text toggle button using the default colors, animated on Press and Check/Uncheck:
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonVariantSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
      */
     @Composable
     public fun variantAnimatedShapes(): TextToggleButtonShapes =
@@ -248,6 +274,11 @@ public object TextToggleButtonDefaults {
      * A simple text toggle button using the default colors, animated on Press and Check/Uncheck:
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextToggleButtonVariantSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param uncheckedShape the unchecked shape - if null, the default
      *   [TextToggleButtonDefaults.shape] is used.
      * @param checkedShape the checked shape - if null, the default
