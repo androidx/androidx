@@ -38,6 +38,7 @@ import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.ocr.FakeOcrProvider
 import androidx.pdf.ocr.FakeOcrResult
+import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.ocr.OcrText
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
@@ -856,8 +857,8 @@ class SelectionStateManagerTest {
                 errorFlow = errorFlow,
                 pageLayoutManager = null,
                 pageManager = null,
+                isImageSelectionEnabled = true,
             )
-        manager.isImageSelectionEnabled = true
 
         // Verify the initial state is null, as placeholders are filtered out
         assertNull(manager.selectionModel.value)
@@ -874,6 +875,42 @@ class SelectionStateManagerTest {
         assertThat(finalImageSelection.isPlaceholder).isFalse()
         assertThat(finalImageSelection.bitmap).isNotNull()
         assertThat(finalImageSelection.bounds.first().pageNum).isEqualTo(placeholderBounds.pageNum)
+    }
+
+    @Test
+    fun processInitialSelection_withOcrSelection_returnsNullAndStartsRefetch() = runTest {
+        // Create an OCR Selection
+        val topLeft = PdfPoint(0, 10f, 10f)
+        val bottomRight = PdfPoint(0, 90f, 90f)
+        val initialOcrSelection =
+            SelectionModel(
+                DocumentSelection(SparseArray()), // Exact content doesn't matter for restoration
+                UiSelectionBoundary(topLeft, false),
+                UiSelectionBoundary(bottomRight, false),
+                isOcr = true,
+            )
+
+        val mockOcrProvider = mock<OcrProvider>()
+        val manager =
+            SelectionStateManager(
+                fakePdfDocument,
+                testScope,
+                initialSelection = initialOcrSelection,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlow,
+                pageLayoutManager = null,
+                pageManager = null,
+                ocrProvider = mockOcrProvider,
+            )
+
+        // Verify the initial state is null, as OCR selections are filtered out for re-fetch
+        assertNull(manager.selectionModel.value)
+
+        // Advance the coroutine to allow the background re-fetch to start
+        testDispatcher.scheduler.runCurrent()
+
+        // Verify that OCR was requested
+        verify(mockOcrProvider).recognizeText(any())
     }
 
     @Test
