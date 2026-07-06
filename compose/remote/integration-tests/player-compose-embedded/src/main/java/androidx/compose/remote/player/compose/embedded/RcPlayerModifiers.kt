@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation
+import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation
@@ -50,6 +51,7 @@ import androidx.compose.remote.player.compose.embedded.modifier.dimensionConstra
 import androidx.compose.remote.player.compose.embedded.modifier.graphicsLayer
 import androidx.compose.remote.player.compose.embedded.modifier.height
 import androidx.compose.remote.player.compose.embedded.modifier.heightIn
+import androidx.compose.remote.player.compose.embedded.modifier.marquee
 import androidx.compose.remote.player.compose.embedded.modifier.offset
 import androidx.compose.remote.player.compose.embedded.modifier.padding
 import androidx.compose.remote.player.compose.embedded.modifier.ripple
@@ -93,6 +95,7 @@ internal fun ComponentModifiers.toModifier(): Modifier {
                 is DimensionConstraintsModifierOperation -> modifier.dimensionConstraints(op)
                 is ClickModifierOperation -> modifier.click(op)
                 is ComponentVisibilityOperation -> modifier.visible(op)
+                is MarqueeModifierOperation -> modifier.marquee(op)
                 is CoreSemantics -> modifier.semantics(op)
                 is DrawContentOperation -> modifier
                 // AlignBy is applied per-child inside Row/Column scope (RcPlayerRow), where the
