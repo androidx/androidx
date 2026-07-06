@@ -18,6 +18,7 @@ package androidx.work.analytics.impl.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.work.analytics.WorkMetricsInfo
 import java.util.UUID
 
@@ -25,14 +26,16 @@ import java.util.UUID
  * This class persists state transitions, tracking metadata, and timing details (such as enqueue and
  * execution durations) for analyzing WorkManager execution trends.
  */
-@Entity(primaryKeys = ["work_spec_id", "generation", "period_count"])
+@Entity(
+    primaryKeys = ["work_spec_id", "generation", "period_count"],
+    indices = [Index(value = ["enqueue_time_ms"])],
+)
 internal data class WorkMetricsSpec(
     @ColumnInfo(name = "work_spec_id") val workSpecId: String,
     @ColumnInfo(name = "generation") val generation: Int,
     @ColumnInfo(name = "period_count") val periodCount: Int = 0,
     @ColumnInfo(name = "worker_class_name") val workerClassName: String?,
     @ColumnInfo(name = "state") var state: WorkMetricsInfo.State,
-    @ColumnInfo(name = "tags") val tags: List<String>,
     @ColumnInfo(name = "enqueue_time_ms") var enqueueTimeMillis: Long = TIME_NOT_SET,
     @ColumnInfo(name = "unblock_time_ms") var unblockTimeMillis: Long = TIME_NOT_SET,
     @ColumnInfo(name = "first_start_time_ms") var firstStartTimeMillis: Long = TIME_NOT_SET,
@@ -47,12 +50,12 @@ internal data class WorkMetricsSpec(
         const val TIME_NOT_SET: Long = -1L
     }
 
-    fun toWorkMetricsInfo(): WorkMetricsInfo {
+    fun toWorkMetricsInfo(tags: Set<String>): WorkMetricsInfo {
         return WorkMetricsInfo(
             workSpecId = UUID.fromString(workSpecId),
             generation = generation,
             workerClassName = workerClassName,
-            tags = tags.toSet(),
+            tags = tags,
             state = state,
             enqueueTimeMillis = enqueueTimeMillis,
             unblockTimeMillis = unblockTimeMillis,

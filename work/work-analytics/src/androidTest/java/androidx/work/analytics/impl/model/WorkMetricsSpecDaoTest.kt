@@ -56,10 +56,28 @@ class WorkMetricsSpecDaoTest {
         val spec = createWorkMetricsSpec(workSpecId = workSpecId)
 
         dao.insertWorkMetricsSpec(spec)
-        val result = dao.getWorkMetricsSpecs(workSpecId)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
 
         assertEquals(1, result.size)
-        assertEquals(spec, result[0])
+        val resultSpec = result.keys.first()
+        assertEquals(spec, resultSpec)
+    }
+
+    @Test
+    fun insertAndGetWorkMetricsSpec_withTags() = runBlocking {
+        val workSpecId = UUID.randomUUID().toString()
+        val tags = setOf("tag1", "tag2")
+
+        val spec = createWorkMetricsSpec(workSpecId = workSpecId)
+
+        dao.insertWorkMetricsSpec(spec, tags)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
+
+        assertEquals(1, result.size)
+        val resultSpec = result.keys.first()
+
+        assertEquals(spec, resultSpec)
+        assertEquals(tags, result[resultSpec])
     }
 
     @Test
@@ -73,32 +91,28 @@ class WorkMetricsSpecDaoTest {
         dao.insertWorkMetricsSpec(spec1)
         dao.insertWorkMetricsSpec(spec2)
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
 
         assertEquals(2, result.size)
-        assertEquals(spec2, result[0])
-        assertEquals(spec1, result[1])
+        val specs = result.keys.toList()
+        assertEquals(spec2, specs[0])
+        assertEquals(spec1, specs[1])
     }
 
     @Test
     fun typeConverters_handleComplexTypes() = runBlocking {
         val workSpecId = UUID.randomUUID().toString()
-        val tags = listOf("tag1", "tag2")
         val stopReasons = mapOf(1 to 5, 2 to 3)
 
-        val spec =
-            createWorkMetricsSpec(
-                workSpecId = workSpecId,
-                tags = tags,
-                stopReasonCounts = stopReasons,
-            )
+        val spec = createWorkMetricsSpec(workSpecId = workSpecId, stopReasonCounts = stopReasons)
 
         dao.insertWorkMetricsSpec(spec)
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
 
-        assertEquals(tags, result.tags)
-        assertEquals(stopReasons, result.stopReasonCounts)
-        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, result.state)
+        assertEquals(1, result.size)
+        val resultSpec = result.keys.first()
+
+        assertEquals(stopReasons, resultSpec.stopReasonCounts)
     }
 
     @Test
@@ -140,8 +154,9 @@ class WorkMetricsSpecDaoTest {
         dao.insertWorkMetricsSpec(spec)
         dao.setFinishTime(workId = workSpecId, generation = 0, periodCount = 0, finishTime = 3000L)
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
-        assertEquals(3000L, result.finishTimeMillis)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
+        val resultSpec = result.keys.first()
+        assertEquals(3000L, resultSpec.finishTimeMillis)
     }
 
     @Test
@@ -163,8 +178,9 @@ class WorkMetricsSpecDaoTest {
             unblockTime = 4000L,
         )
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
-        assertEquals(4000L, result.unblockTimeMillis)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
+        val resultSpec = result.keys.first()
+        assertEquals(4000L, resultSpec.unblockTimeMillis)
     }
 
     @Test
@@ -186,8 +202,9 @@ class WorkMetricsSpecDaoTest {
             startTime = 5000L,
         )
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
-        assertEquals(5000L, result.firstStartTimeMillis)
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId)
+        val resultSpec = result.keys.first()
+        assertEquals(5000L, resultSpec.firstStartTimeMillis)
     }
 
     @Test
@@ -209,7 +226,7 @@ class WorkMetricsSpecDaoTest {
             workerDuration = 6000L,
         )
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId).keys.first()
         assertEquals(6000L, result.workerDurationMillis)
     }
 
@@ -232,7 +249,7 @@ class WorkMetricsSpecDaoTest {
             totalRuntime = 7000L,
         )
 
-        val result = dao.getWorkMetricsSpecs(workSpecId)[0]
+        val result = dao.getWorkMetricsSpecsAndTags(workSpecId).keys.first()
         assertEquals(7000L, result.totalRuntimeMillis)
     }
 
@@ -241,7 +258,6 @@ class WorkMetricsSpecDaoTest {
         generation: Int = 0,
         periodCount: Int = 0,
         enqueueTime: Long = 1000L,
-        tags: List<String> = emptyList(),
         stopReasonCounts: Map<Int, Int> = emptyMap(),
         state: WorkMetricsInfo.State = WorkMetricsInfo.State.ENQUEUED_PENDING,
     ): WorkMetricsSpec {
@@ -251,7 +267,6 @@ class WorkMetricsSpecDaoTest {
             periodCount = periodCount,
             workerClassName = "MyWorker",
             state = state,
-            tags = tags,
             enqueueTimeMillis = enqueueTime,
             stopReasonCounts = stopReasonCounts,
         )

@@ -59,6 +59,7 @@ package androidx.work.analytics {
     ctor @BytecodeOnly public WorkMetricsInfoRepository(android.content.Context!, long, java.util.concurrent.TimeUnit!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.work.analytics.WorkMetricsInfo> getFinishedWorkMetricsInfoFlow();
     method public suspend Object? getWorkMetricsInfoById(java.util.UUID workId, kotlin.coroutines.Continuation<? super java.util.List<androidx.work.analytics.WorkMetricsInfo>>);
+    method public suspend Object? getWorkMetricsInfos(androidx.work.analytics.WorkMetricsQuery query, kotlin.coroutines.Continuation<? super java.util.List<androidx.work.analytics.WorkMetricsInfo>>);
     method public suspend Object? onCancelled(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? onEnqueued(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? onException(Throwable throwable, androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -77,6 +78,36 @@ package androidx.work.analytics {
   @SuppressCompatibility @androidx.work.ExperimentalEventsApi @androidx.work.analytics.ExperimentalWorkMetricsApi public static final class WorkMetricsInfoRepository.Companion {
     property public long DEFAULT_RETENTION_TIME_MILLIS;
     property public long MAX_RETENTION_TIME_MILLIS;
+  }
+
+  @SuppressCompatibility @androidx.work.analytics.ExperimentalWorkMetricsApi public final class WorkMetricsQuery {
+    method @InaccessibleFromKotlin public long getBeginTimeMillis();
+    method @InaccessibleFromKotlin public long getEndTimeMillis();
+    method @InaccessibleFromKotlin public java.util.List<androidx.work.analytics.WorkMetricsInfo.State> getStates();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getTags();
+    method @InaccessibleFromKotlin public java.util.List<java.util.UUID> getWorkIds();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getWorkerClassNames();
+    property public long beginTimeMillis;
+    property public long endTimeMillis;
+    property public java.util.List<androidx.work.analytics.WorkMetricsInfo.State> states;
+    property public java.util.List<java.lang.String> tags;
+    property public java.util.List<java.util.UUID> workIds;
+    property public java.util.List<java.lang.String> workerClassNames;
+  }
+
+  @SuppressCompatibility @androidx.work.analytics.ExperimentalWorkMetricsApi public static final class WorkMetricsQuery.Builder {
+    ctor public WorkMetricsQuery.Builder();
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addStates(androidx.work.analytics.WorkMetricsInfo.State... states);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addStates(java.util.List<? extends androidx.work.analytics.WorkMetricsInfo.State> states);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addTags(java.lang.String... tags);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addWorkIds(java.util.List<java.util.UUID> workIds);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addWorkIds(java.util.UUID... workIds);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addWorkerClassNames(java.lang.String... workerClassNames);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder addWorkerClassNames(java.util.List<java.lang.String> workerClassNames);
+    method public androidx.work.analytics.WorkMetricsQuery build();
+    method public androidx.work.analytics.WorkMetricsQuery.Builder setBeginTimeMillis(long beginTimeMillis);
+    method public androidx.work.analytics.WorkMetricsQuery.Builder setEndTimeMillis(long endTimeMillis);
   }
 
 }

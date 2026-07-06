@@ -22,9 +22,14 @@ import androidx.room.TypeConverters
 import androidx.work.analytics.impl.model.WorkMetricsInfoTypeConverters
 import androidx.work.analytics.impl.model.WorkMetricsSpec
 import androidx.work.analytics.impl.model.WorkMetricsSpecDao
+import androidx.work.analytics.impl.model.WorkMetricsTag
 
 /** Internal database for storing historical work execution analytics. */
-@Database(entities = [WorkMetricsSpec::class], version = 2, exportSchema = false)
+@Database(
+    entities = [WorkMetricsSpec::class, WorkMetricsTag::class],
+    version = 3,
+    exportSchema = false,
+)
 @TypeConverters(WorkMetricsInfoTypeConverters::class)
 internal abstract class WorkMetricsDatabase : RoomDatabase() {
     /** Returns the DAO for [WorkMetricsSpec]. */

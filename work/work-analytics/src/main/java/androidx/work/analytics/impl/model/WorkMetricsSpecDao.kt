@@ -18,8 +18,12 @@ package androidx.work.analytics.impl.model
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Transaction
+import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.work.analytics.WorkMetricsInfo
 import androidx.work.analytics.impl.model.WorkMetricsInfoStateStrings.COMPLETED_STATES
 
@@ -42,6 +46,30 @@ internal object WorkMetricsInfoStateStrings {
 @Dao
 internal interface WorkMetricsSpecDao {
     /**
+     * Inserts a new [WorkMetricsSpec] record into the database along with its associated tags in a
+     * single transaction.
+     *
+     * @param spec The [WorkMetricsSpec] to be inserted.
+     * @param tags The set of tag strings associated with the work request.
+     */
+    @Transaction
+    fun insertWorkMetricsSpec(spec: WorkMetricsSpec, tags: Set<String> = emptySet()) {
+        insertWorkMetricsSpec(spec)
+        val tagsToInsert =
+            tags.map { tag ->
+                WorkMetricsTag(
+                    tag = tag,
+                    workSpecId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                )
+            }
+        if (tagsToInsert.isNotEmpty()) {
+            insertWorkMetricsTags(tagsToInsert)
+        }
+    }
+
+    /**
      * Inserts a new [WorkMetricsSpec] record into the database.
      *
      * @param spec The [WorkMetricsSpec] to be inserted.
@@ -49,31 +77,85 @@ internal interface WorkMetricsSpecDao {
     @Insert(onConflict = OnConflictStrategy.ABORT) fun insertWorkMetricsSpec(spec: WorkMetricsSpec)
 
     /**
-     * Retrieves all [WorkMetricsSpec] records associated with a specific [workId], ordered by their
-     * enqueue time in ascending order.
+     * Inserts [WorkMetricsTag] records into the database.
      *
-     * @param workId The identifier of the [androidx.work.WorkRequest].
-     * @return A list of matching [WorkMetricsSpec] records.
+     * @param tags The list of [WorkMetricsTag]s to be inserted.
      */
-    @Query(
-        "SELECT * FROM WorkMetricsSpec WHERE work_spec_id = :workId ORDER BY enqueue_time_ms ASC"
-    )
-    fun getWorkMetricsSpecs(workId: String): List<WorkMetricsSpec>
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertWorkMetricsTags(tags: List<WorkMetricsTag>)
 
     /**
-     * Retrieves the current active [WorkMetricsSpec] record for a specific [workId].
+     * Retrieves all [WorkMetricsSpec] and tags associated with a specific [workId], ordered by
+     * their enqueue time in ascending order.
      *
      * @param workId The identifier of the [androidx.work.WorkRequest].
-     * @return The matching [WorkMetricsSpec] record, or null if none exists.
+     * @return A map of matching [WorkMetricsSpec] records with the set of their corresponding tags.
      */
     @Query(
         """
-        SELECT * FROM WorkMetricsSpec
-        WHERE work_spec_id = :workId AND state NOT IN $COMPLETED_STATES
-        ORDER BY enqueue_time_ms DESC LIMIT 1
+        SELECT WorkMetricsSpec.*, WorkMetricsTag.tag FROM WorkMetricsSpec
+        LEFT JOIN WorkMetricsTag ON WorkMetricsSpec.work_spec_id = WorkMetricsTag.work_spec_id
+            AND WorkMetricsSpec.generation = WorkMetricsTag.generation
+            AND WorkMetricsSpec.period_count = WorkMetricsTag.period_count
+        WHERE WorkMetricsSpec.work_spec_id = :workId
+        ORDER BY WorkMetricsSpec.enqueue_time_ms ASC
     """
     )
-    fun getCurrentWorkMetricsSpec(workId: String): WorkMetricsSpec?
+    suspend fun getWorkMetricsSpecsAndTags(
+        workId: String
+    ): Map<WorkMetricsSpec, Set<@MapColumn("tag") String>>
+
+    /**
+     * Retrieves [WorkMetricsInfo] records using a raw SQL query inside a database transaction.
+     *
+     * @param query The raw SQL query.
+     */
+    @Transaction
+    suspend fun getWorkMetricsInfos(query: SupportSQLiteQuery): List<WorkMetricsInfo> {
+        val specs = getWorkMetricsSpecs(query)
+        if (specs.isEmpty()) return emptyList()
+        val workSpecIds = specs.map { it.workSpecId }.distinct()
+        val tagsList = getWorkSpecTagsByIds(workSpecIds)
+        val tagsMap =
+            tagsList.groupBy({ Triple(it.workSpecId, it.generation, it.periodCount) }, { it.tag })
+        return specs.map { spec ->
+            val key = Triple(spec.workSpecId, spec.generation, spec.periodCount)
+            val tags = tagsMap[key]?.toSet() ?: emptySet()
+            spec.toWorkMetricsInfo(tags)
+        }
+    }
+
+    /**
+     * Retrieves [WorkMetricsSpec] records using a raw SQL query.
+     *
+     * @param query The raw SQL query.
+     * @return The list of matching [WorkMetricsSpec] records.
+     */
+    @RawQuery suspend fun getWorkMetricsSpecs(query: SupportSQLiteQuery): List<WorkMetricsSpec>
+
+    /**
+     * Retrieves all tags associated with a list of [workSpecIds].
+     *
+     * @param workSpecIds The list of identifiers of work requests.
+     * @return The list of matching [WorkMetricsTag]s.
+     */
+    @Query("SELECT * FROM WorkMetricsTag WHERE work_spec_id IN (:workSpecIds)")
+    suspend fun getWorkSpecTagsByIds(workSpecIds: List<String>): List<WorkMetricsTag>
+
+    /**
+     * Retrieves the completed [WorkMetricsInfo] record with its tags directly from the database.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @return The matching [WorkMetricsInfo] record, or null if none exists.
+     */
+    @Transaction
+    fun getWorkMetricsInfo(workId: String, generation: Int, periodCount: Int): WorkMetricsInfo? {
+        val spec = getWorkMetricsSpec(workId, generation, periodCount) ?: return null
+        val tags = getTags(workId, generation, periodCount).toSet()
+        return spec.toWorkMetricsInfo(tags)
+    }
 
     /**
      * Retrieves a specific [WorkMetricsSpec] record matching the primary keys.
@@ -90,6 +172,37 @@ internal interface WorkMetricsSpecDao {
     """
     )
     fun getWorkMetricsSpec(workId: String, generation: Int, periodCount: Int): WorkMetricsSpec?
+
+    /**
+     * Retrieves the tags associated with a specific work request execution.
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @param generation The generation of the work request.
+     * @param periodCount The period count of the work request.
+     * @return A list of tags that match the specified primary key.
+     */
+    @Query(
+        """
+        SELECT tag FROM WorkMetricsTag
+        WHERE work_spec_id = :workId AND generation = :generation AND period_count = :periodCount
+    """
+    )
+    fun getTags(workId: String, generation: Int, periodCount: Int): List<String>
+
+    /**
+     * Retrieves the current active [WorkMetricsSpec] record for a specific [workId].
+     *
+     * @param workId The identifier of the [androidx.work.WorkRequest].
+     * @return The matching [WorkMetricsSpec] record, or null if none exists.
+     */
+    @Query(
+        """
+        SELECT * FROM WorkMetricsSpec
+        WHERE work_spec_id = :workId AND state NOT IN $COMPLETED_STATES
+        ORDER BY enqueue_time_ms DESC LIMIT 1
+    """
+    )
+    fun getCurrentWorkMetricsSpec(workId: String): WorkMetricsSpec?
 
     /**
      * Updates the state of a [WorkMetricsSpec] matching the specified primary keys.
@@ -279,4 +392,9 @@ internal interface WorkMetricsSpecDao {
     """
     )
     fun setTotalRuntime(workId: String, generation: Int, periodCount: Int, totalRuntime: Long): Int
+}
+
+/** Retrieves all [WorkMetricsInfo] records associated with a specific [workId]. */
+internal suspend fun WorkMetricsSpecDao.getWorkMetricsInfos(workId: String): List<WorkMetricsInfo> {
+    return getWorkMetricsSpecsAndTags(workId).map { (spec, tags) -> spec.toWorkMetricsInfo(tags) }
 }
