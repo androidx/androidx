@@ -21,7 +21,6 @@ import android.graphics.Color as AndroidColor
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -37,6 +36,7 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,34 +49,29 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.io.ByteArrayInputStream
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Pixel verification tests for the embedded player. */
+@MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 class RcPlayerPixelTest {
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     /** Renders [content] in a 100dp player box at top-start and rasterizes the content view. */
     private fun renderPlayerToBitmap(content: @Composable @RemoteComposable () -> Unit): Bitmap {
         val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val bytes =
-            kotlinx.coroutines.runBlocking {
-                captureSingleRemoteDocument(context = ctx, content = content).bytes
-            }
         val document =
-            androidx.compose.remote.core
-                .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                .apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(
-                            androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                        )
-                    }
-                }
+            kotlinx.coroutines.runBlocking {
+                captureRule.captureDocument(context = ctx, content = content)
+            }
         rule.setContent {
             Box(modifier = Modifier.size(100.dp).testTag("player")) {
                 RcPlayer(document = document, autoUpdate = false)
