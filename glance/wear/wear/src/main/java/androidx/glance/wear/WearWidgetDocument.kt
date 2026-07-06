@@ -64,6 +64,7 @@ public class WearWidgetDocument(
                     ),
                 isInspectionMode = isInspectionMode,
             ),
+            params.rendererVersion.supportedOperations,
         ) {
             WearWidgetContainer(
                 horizontalPadding = params.horizontalPaddingDp.rdp,
