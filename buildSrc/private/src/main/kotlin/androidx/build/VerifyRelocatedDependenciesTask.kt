@@ -82,6 +82,7 @@ internal fun Project.registerValidateRelocatedDependenciesTask() =
         ) {
             val depsProvider: Provider<List<Pair<String, List<String>>>> =
                 project.providers.provider {
+                    @Suppress("EagerGradleConfiguration")
                     project.configurations
                         .filter { configuration ->
                             configuration.isPublished() &&
