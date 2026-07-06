@@ -670,7 +670,7 @@ public class RemoteComposeJsonParser {
                     normalized.put(k, obj.get(k));
                 }
             } else {
-                if (key.equals("drawPath") || key.equals("pathAppendClose")) {
+                if (key.equalsIgnoreCase("drawPath") || key.equalsIgnoreCase("pathAppendClose")) {
                     normalized.put("path", val);
                 } else {
                     normalized.put("value", val);
@@ -678,7 +678,7 @@ public class RemoteComposeJsonParser {
             }
             command = normalized;
         }
-        String type = command.getString("type");
+        String type = command.getString("type").toLowerCase();
         switch (type) {
             case "paint":
                 RcPaint paint = mWriter.getRcPaint();
@@ -689,7 +689,7 @@ public class RemoteComposeJsonParser {
                         Iterator<String> keys = op.keys();
                         while (keys.hasNext()) {
                             String key = keys.next();
-                            switch (key) {
+                            switch (key.toLowerCase(java.util.Locale.ROOT)) {
                                 case "shader":
                                     paint.setShader(op.getInt(key));
                                     break;
@@ -703,7 +703,7 @@ public class RemoteComposeJsonParser {
                                         paint.setStyle(2);
                                     }
                                     break;
-                                case "linearGradient": {
+                                case "lineargradient": {
                                     JSONObject g = op.getJSONObject("linearGradient");
                                     JSONArray colorsArr = g.getJSONArray("colors");
                                     int[] colors = new int[colorsArr.length()];
@@ -737,7 +737,7 @@ public class RemoteComposeJsonParser {
                                     );
                                     break;
                                 }
-                                case "pathEffect": {
+                                case "patheffect": {
                                     JSONArray pe = op.optJSONArray(key);
                                     if (pe == null) {
                                         paint.setPathEffect(null);
@@ -765,7 +765,7 @@ public class RemoteComposeJsonParser {
                                 case "width":
                                     paint.setStrokeWidth(parseFloat(op.get(key)));
                                     break;
-                                case "strokeCap": {
+                                case "strokecap": {
                                     String cap = op.getString(key);
                                     if (cap.equalsIgnoreCase("round")) {
                                         paint.setStrokeCap(1);
@@ -776,10 +776,10 @@ public class RemoteComposeJsonParser {
                                     }
                                     break;
                                 }
-                                case "textSize":
+                                case "textsize":
                                     paint.setTextSize(parseFloat(op.get(key)));
                                     break;
-                                case "sweepGradient": {
+                                case "sweepgradient": {
                                     JSONObject g = op.getJSONObject("sweepGradient");
                                     JSONArray colorsArr = g.getJSONArray("colors");
                                     int[] colors = new int[colorsArr.length()];
@@ -930,11 +930,11 @@ public class RemoteComposeJsonParser {
                 }
                 paint.commit();
                 break;
-            case "setColor":
+            case "setcolor":
                 mWriter.getRcPaint().setColor(parseColor(command.get("color")));
                 mWriter.getRcPaint().commit();
                 break;
-            case "setStyle": {
+            case "setstyle": {
                 String style = command.getString("style");
                 if (style.equalsIgnoreCase("fill")) {
                     mWriter.getRcPaint().setStyle(0);
@@ -946,11 +946,11 @@ public class RemoteComposeJsonParser {
                 mWriter.getRcPaint().commit();
                 break;
             }
-            case "setStrokeWidth":
+            case "setstrokewidth":
                 mWriter.getRcPaint().setStrokeWidth(parseFloat(command.get("width")));
                 mWriter.getRcPaint().commit();
                 break;
-            case "drawRect":
+            case "drawrect":
                 mWriter.drawRect(
                         parseFloat(command.get("left")),
                         parseFloat(command.get("top")),
@@ -958,7 +958,7 @@ public class RemoteComposeJsonParser {
                         parseFloat(command.get("bottom"))
                 );
                 break;
-            case "drawLine":
+            case "drawline":
                 mWriter.drawLine(
                         parseFloat(command.get("x1")),
                         parseFloat(command.get("y1")),
@@ -966,17 +966,17 @@ public class RemoteComposeJsonParser {
                         parseFloat(command.get("y2"))
                 );
                 break;
-            case "drawPath":
+            case "drawpath":
                 mWriter.drawPath(parsePath(command.getString("path")));
                 break;
-            case "drawCircle":
+            case "drawcircle":
                 mWriter.drawCircle(
                         parseFloat(command.get("cx")),
                         parseFloat(command.get("cy")),
                         parseFloat(command.get("radius"))
                 );
                 break;
-            case "addBitmap": {
+            case "addbitmap": {
                 String imageName = command.getString("image");
                 Object bitmapObj = mBitmaps.get(imageName);
                 if (bitmapObj == null) {
@@ -989,7 +989,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "drawOval":
+            case "drawoval":
                 mWriter.drawOval(
                         parseFloat(command.get("left")),
                         parseFloat(command.get("top")),
@@ -997,7 +997,7 @@ public class RemoteComposeJsonParser {
                         parseFloat(command.get("bottom"))
                 );
                 break;
-            case "drawRoundRect":
+            case "drawroundrect":
                 mWriter.drawRoundRect(
                         parseFloat(command.get("left")),
                         parseFloat(command.get("top")),
@@ -1007,7 +1007,7 @@ public class RemoteComposeJsonParser {
                         parseFloat(command.get("ry"))
                 );
                 break;
-            case "drawArc":
+            case "drawarc":
                 mWriter.drawArc(
                         parseFloat(command.get("left")),
                         parseFloat(command.get("top")),
@@ -1017,7 +1017,7 @@ public class RemoteComposeJsonParser {
                         parseFloat(command.get("sweepAngle"))
                 );
                 break;
-            case "drawTextAnchored": {
+            case "drawtextanchored": {
                 Object textObj = command.get("text");
                 int textId = resolveTextId(textObj);
                 mWriter.drawTextAnchored(
@@ -1030,7 +1030,7 @@ public class RemoteComposeJsonParser {
                 );
                 break;
             }
-            case "drawBitmap": {
+            case "drawbitmap": {
                 int imageId = resolveTextId(command.get("image"));
                 String contentDescription = command.optString("contentDescription", null);
                 if (command.has("srcLeft")) {
@@ -1064,7 +1064,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "drawBitmapInt": {
+            case "drawbitmapint": {
                 int imageId = resolveTextId(command.get("image"));
                 int imageWidth = command.optInt("imageWidth", 0);
                 int imageHeight = command.optInt("imageHeight", 0);
@@ -1086,7 +1086,7 @@ public class RemoteComposeJsonParser {
                         dstLeft, dstTop, dstRight, dstBottom, contentDescriptionId);
                 break;
             }
-            case "drawScaledBitmap": {
+            case "drawscaledbitmap": {
                 int imageId = resolveTextId(command.get("image"));
                 float srcLeft = parseFloat(command.get("srcLeft"));
                 float srcTop = parseFloat(command.get("srcTop"));
@@ -1106,7 +1106,7 @@ public class RemoteComposeJsonParser {
                         scaleFactor, contentDescription);
                 break;
             }
-            case "drawBitmapFontTextRun": {
+            case "drawbitmapfonttextrun": {
                 int textId = resolveTextId(command.get("text"));
                 int bitmapFontId = resolveTextId(command.get("bitmapFont"));
                 int start = command.optInt("start", 0);
@@ -1119,7 +1119,7 @@ public class RemoteComposeJsonParser {
                         textId, bitmapFontId, start, end, x, y, glyphSpacing);
                 break;
             }
-            case "drawBitmapFontTextRunOnPath": {
+            case "drawbitmapfonttextrunonpath": {
                 int textId = resolveTextId(command.get("text"));
                 int bitmapFontId = resolveTextId(command.get("bitmapFont"));
                 int pathId = resolvePathId(command.get("path"));
@@ -1132,7 +1132,7 @@ public class RemoteComposeJsonParser {
                         textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
                 break;
             }
-            case "drawBitmapTextAnchored": {
+            case "drawbitmaptextanchored": {
                 int textId = resolveTextId(command.get("text"));
                 int bitmapFontId = resolveTextId(command.get("bitmapFont"));
                 float start = command.has("start") ? parseFloat(command.get("start")) : 0f;
@@ -1147,7 +1147,7 @@ public class RemoteComposeJsonParser {
                         textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
                 break;
             }
-            case "drawTextRun": {
+            case "drawtextrun": {
                 int textId = resolveTextId(command.get("text"));
                 int start = command.optInt("start", 0);
                 int end = command.optInt("end", -1);
@@ -1159,7 +1159,7 @@ public class RemoteComposeJsonParser {
                 mWriter.drawTextRun(textId, start, end, contextStart, contextEnd, x, y, rtl);
                 break;
             }
-            case "drawTextOnPath": {
+            case "drawtextonpath": {
                 int textId = resolveTextId(command.get("text"));
                 int pathId = resolvePathId(command.get("path"));
                 float hOffset = command.has("hOffset") ? parseFloat(command.get("hOffset")) : 0f;
@@ -1167,7 +1167,7 @@ public class RemoteComposeJsonParser {
                 mWriter.drawTextOnPath(textId, pathId, hOffset, vOffset);
                 break;
             }
-            case "drawTextOnCircle": {
+            case "drawtextoncircle": {
                 int textId = resolveTextId(command.get("text"));
                 float cx = parseFloat(command.get("cx"));
                 float cy = parseFloat(command.get("cy"));
@@ -1194,7 +1194,7 @@ public class RemoteComposeJsonParser {
                         textId, cx, cy, radius, startAngle, warpRadiusOffset, align, placement);
                 break;
             }
-            case "drawSector": {
+            case "drawsector": {
                 float left = parseFloat(command.get("left"));
                 float top = parseFloat(command.get("top"));
                 float right = parseFloat(command.get("right"));
@@ -1204,7 +1204,7 @@ public class RemoteComposeJsonParser {
                 mWriter.drawSector(left, top, right, bottom, startAngle, sweepAngle);
                 break;
             }
-            case "drawTweenPath": {
+            case "drawtweenpath": {
                 int path1Id = resolvePathId(command.get("path1"));
                 int path2Id = resolvePathId(command.get("path2"));
                 float tween = parseFloat(command.get("tween"));
@@ -1213,23 +1213,25 @@ public class RemoteComposeJsonParser {
                 mWriter.drawTweenPath(path1Id, path2Id, tween, start, stop);
                 break;
             }
-            case "drawOnBitmap": {
+            case "drawtobitmap":
+            case "drawonbitmap": {
                 int bitmapId = resolveTextId(command.get("bitmap"));
                 int mode = command.optInt("mode", 0);
                 int color = command.optInt("color", 0);
                 mWriter.drawOnBitmap(bitmapId, mode, color);
                 break;
             }
-            case "drawComponentContent": {
+            case "drawcontent":
+            case "drawcomponentcontent": {
                 mWriter.drawComponentContent();
                 break;
             }
-            case "clipPath": {
+            case "clippath": {
                 int pathId = resolvePathId(command.get("path"));
                 mWriter.addClipPath(pathId);
                 break;
             }
-            case "pathCombine": {
+            case "pathcombine": {
                 int path1Id = resolvePathId(command.get("path1"));
                 int path2Id = resolvePathId(command.get("path2"));
                 int op = command.optInt("op", 0);
@@ -1240,7 +1242,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "pathTween": {
+            case "pathtween": {
                 int path1Id = resolvePathId(command.get("path1"));
                 int path2Id = resolvePathId(command.get("path2"));
                 float tween = parseFloat(command.get("tween"));
@@ -1257,7 +1259,7 @@ public class RemoteComposeJsonParser {
                 mWriter.skew(skewX, skewY);
                 break;
             }
-            case "matrixFromPath": {
+            case "matrixfrompath": {
                 int pathId = resolvePathId(command.get("path"));
                 float fraction = parseFloat(command.get("fraction"));
                 float vOffset = command.has("vOffset") ? parseFloat(command.get("vOffset")) : 0f;
@@ -1265,7 +1267,7 @@ public class RemoteComposeJsonParser {
                 mWriter.matrixFromPath(pathId, fraction, vOffset, flags);
                 break;
             }
-            case "matrixConstant": {
+            case "matrixconstant": {
                 JSONArray valArr = command.getJSONArray("values");
                 float[] values = new float[valArr.length()];
                 for (int i = 0; i < valArr.length(); i++) {
@@ -1282,7 +1284,7 @@ public class RemoteComposeJsonParser {
                 mWriter.getBuffer().addMatrixConst(matrixId, values);
                 break;
             }
-            case "matrixVectorMath": {
+            case "matrixvectormath": {
                 float matrixId = parseFloat(command.get("matrix"));
                 short mathType = (short) command.optInt("type", 0);
                 JSONArray fromArr = command.getJSONArray("from");
@@ -1297,6 +1299,129 @@ public class RemoteComposeJsonParser {
                     mVariables.put(name, id);
                 }
                 mWriter.getBuffer().addMatrixVectorMath(matrixId, mathType, from, outIds);
+                break;
+            }
+            case "textmeasure": {
+                int textId = resolveTextId(command.get("text"));
+                int mode = command.optInt("mode", 0);
+                String name = command.optString("name", null);
+                float val = mWriter.textMeasure(textId, mode);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "bitmaptextmeasure": {
+                int textId = resolveTextId(command.get("text"));
+                int bmFontId = resolveTextId(command.get("bitmapFont"));
+                int mode = command.optInt("mode", 0);
+                float glyphSpacing = command.has("glyphSpacing")
+                        ? parseFloat(command.get("glyphSpacing")) : 0f;
+                String name = command.optString("name", null);
+                float val = mWriter.bitmapTextMeasure(textId, bmFontId, mode, glyphSpacing);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "textlength": {
+                int textId = resolveTextId(command.get("text"));
+                String name = command.optString("name", null);
+                float val = mWriter.textLength(textId);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "dynamicfloatarray":
+            case "dynamicfloatlist": {
+                int listId = command.optInt("id", mWriter.nextId());
+                float size = command.has("size") ? parseFloat(command.get("size")) : 0f;
+                String name = command.optString("name", null);
+                if (name != null) {
+                    mVariables.put(name, (float) listId);
+                }
+                mWriter.addDynamicFloatArray(listId, size);
+                break;
+            }
+            case "updatedynamicfloatlist": {
+                int listId = (int) parseFloat(command.get("list"));
+                float index = parseFloat(command.get("index"));
+                float value = parseFloat(command.get("value"));
+                mWriter.setArrayValue(listId, index, value);
+                break;
+            }
+            case "touchexpression": {
+                float defVal = command.has("defaultValue")
+                        ? parseFloat(command.get("defaultValue")) : 0f;
+                float min = command.has("min") ? parseFloat(command.get("min")) : Float.NaN;
+                float max = command.has("max") ? parseFloat(command.get("max")) : 1f;
+                int touchMode = command.optInt("touchMode", 0);
+                float velocityId = command.has("velocityId")
+                        ? parseFloat(command.get("velocityId")) : Float.NaN;
+                int touchEffects = command.optInt("touchEffects", 0);
+                JSONArray expArr = command.optJSONArray("expression");
+                float[] exp = new float[expArr != null ? expArr.length() : 0];
+                if (expArr != null) {
+                    for (int i = 0; i < expArr.length(); i++) {
+                        exp[i] = parseFloat(expArr.get(i));
+                    }
+                }
+                String name = command.optString("name", null);
+                float idVal = mWriter.addTouch(
+                        defVal, min, max, touchMode, velocityId, touchEffects, null, null, exp);
+                if (name != null) {
+                    mVariables.put(name, idVal);
+                }
+                break;
+            }
+            case "colorattribute": {
+                int baseColor = command.optInt("color", 0);
+                int typeOpt = command.optInt("colorType", command.optInt("type", 0));
+                short colorType = (short) command.optInt("attribute", typeOpt);
+                String name = command.optString("name", null);
+                float val = mWriter.getColorAttribute(baseColor, colorType);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "imageattribute":
+            case "bitmapattribute": {
+                int bitmapId = resolveTextId(command.get("bitmap"));
+                short attr = (short) command.optInt("attribute", 0);
+                String name = command.optString("name", null);
+                float val = mWriter.bitmapAttribute(bitmapId, attr);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "textattribute": {
+                int textId = resolveTextId(command.get("text"));
+                short attr = (short) command.optInt("attribute", 0);
+                String name = command.optString("name", null);
+                float val = mWriter.textAttribute(textId, attr);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
+                break;
+            }
+            case "timeattribute": {
+                int longId = command.optInt("timeId", 0);
+                short timeType = (short) command.optInt("type", 0);
+                JSONArray argsArr = command.optJSONArray("args");
+                int[] args = new int[argsArr != null ? argsArr.length() : 0];
+                if (argsArr != null) {
+                    for (int i = 0; i < argsArr.length(); i++) {
+                        args[i] = argsArr.getInt(i);
+                    }
+                }
+                String name = command.optString("name", null);
+                float val = mWriter.timeAttribute(longId, timeType, args);
+                if (name != null) {
+                    mVariables.put(name, val);
+                }
                 break;
             }
             case "rotate": {
@@ -1318,7 +1443,7 @@ public class RemoteComposeJsonParser {
                 );
                 break;
             }
-            case "matrixMultiply": {
+            case "matrixmultiply": {
                 float matrixId = parseFloat(command.get("matrix"));
                 short mType = (short) command.optInt("mType", 0);
                 JSONArray fromArr = command.getJSONArray("from");
@@ -1335,7 +1460,7 @@ public class RemoteComposeJsonParser {
                 mWriter.addMatrixMultiply(matrixId, mType, from, out);
                 break;
             }
-            case "pathCreate": {
+            case "pathcreate": {
                 String id = command.optString("id", null);
                 float x = parseFloat(command.get("x"));
                 float y = parseFloat(command.get("y"));
@@ -1343,17 +1468,36 @@ public class RemoteComposeJsonParser {
                 if (id != null) mPaths.put(id, pathId);
                 break;
             }
-            case "pathAppendLineTo":
+            case "pathappendlineto":
                 mWriter.pathAppendLineTo(
                         parsePath(command.getString("path")),
                         parseFloat(command.get("x")),
                         parseFloat(command.get("y"))
                 );
                 break;
-            case "pathAppendClose":
+            case "pathappendmoveto":
+                mWriter.pathAppendMoveTo(
+                        parsePath(command.getString("path")),
+                        parseFloat(command.get("x")),
+                        parseFloat(command.get("y"))
+                );
+                break;
+            case "pathappendquadto":
+                mWriter.pathAppendQuadTo(
+                        parsePath(command.getString("path")),
+                        parseFloat(command.get("x1")),
+                        parseFloat(command.get("y1")),
+                        parseFloat(command.get("x2")),
+                        parseFloat(command.get("y2"))
+                );
+                break;
+            case "pathappendreset":
+                mWriter.pathAppendReset(parsePath(command.getString("path")));
+                break;
+            case "pathappendclose":
                 mWriter.pathAppendClose(parsePath(command.getString("path")));
                 break;
-            case "pathExpression": {
+            case "pathexpression": {
                 String pathIdStr = command.getString("id");
                 float[] expX = parseFloatExpression(command.get("expressionX"));
                 float[] expY = parseFloatExpression(command.get("expressionY"));
@@ -1365,7 +1509,7 @@ public class RemoteComposeJsonParser {
                 mPaths.put(pathIdStr, pathId);
                 break;
             }
-            case "polarPathExpression": {
+            case "polarpathexpression": {
                 String pathIdStr = command.getString("id");
                 float[] expR = parseFloatExpression(command.get("expressionR"));
                 float start = parseFloat(command.get("start"));
@@ -1419,7 +1563,7 @@ public class RemoteComposeJsonParser {
                 });
                 break;
             }
-            case "impulseProcess": {
+            case "impulseprocess": {
                 final JSONObject finalCommand = command;
                 mWriter.impulseProcess(() -> {
                     try {
@@ -1430,7 +1574,7 @@ public class RemoteComposeJsonParser {
                 });
                 break;
             }
-            case "createParticles": {
+            case "createparticles": {
                 JSONArray varsArray = command.getJSONArray("variables");
                 JSONArray initArray = command.getJSONArray("initialValues");
                 int count = command.getInt("count");
@@ -1450,7 +1594,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "particlesLoop": {
+            case "particlesloop": {
                 float systemIdFloat = parseFloat(command.get("system"));
                 float[] restartExpr = command.has("restart")
                         ? parseFloatExpression(command.get("restart")) : null;
@@ -1471,7 +1615,7 @@ public class RemoteComposeJsonParser {
                 });
                 break;
             }
-            case "particlesComparison": {
+            case "particlescomparison": {
                 float systemIdFloat = parseFloat(command.get("systemId"));
                 short flags = (short) command.optInt("flags", 0);
                 float min = parseFloat(command.get("min"));
@@ -1501,23 +1645,23 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "wakeIn":
+            case "wakein":
                 mWriter.wakeIn(parseFloat(command.get("seconds")));
                 break;
-            case "performHaptic":
+            case "performhaptic":
                 mWriter.performHaptic(command.getInt("constant"));
                 break;
-            case "playSound":
+            case "playsound":
                 mWriter.playSound(resolveTextId(command.get("id")));
                 break;
-            case "setArrayValue": {
+            case "setarrayvalue": {
                 int arrayId = resolveTextId(command.get("id"));
                 float index = parseFloat(command.get("index"));
                 float value = parseFloat(command.get("value"));
                 mWriter.setArrayValue(arrayId, index, value);
                 break;
             }
-            case "callFloatFunction": {
+            case "callfloatfunction": {
                 int fnId = resolveTextId(command.get("id"));
                 JSONArray argsArr = command.getJSONArray("args");
                 float[] args = new float[argsArr.length()];
@@ -1527,7 +1671,27 @@ public class RemoteComposeJsonParser {
                 mWriter.callFloatFunction(fnId, args);
                 break;
             }
-            case "clickArea": {
+            case "createfloatfunction":
+            case "floatfunction": {
+                JSONArray paramsArr = command.optJSONArray("params");
+                int paramCount = paramsArr != null
+                        ? paramsArr.length() : command.optInt("count", 0);
+                float[] args = new float[paramCount];
+                int fnId = mWriter.createFloatFunction(args);
+                String name = command.optString("name", null);
+                if (name != null) {
+                    mVariables.put(name, (float) fnId);
+                }
+                if (paramsArr != null) {
+                    for (int i = 0; i < paramsArr.length(); i++) {
+                        mVariables.put(paramsArr.getString(i), args[i]);
+                    }
+                }
+                parseCommands(command.getJSONArray("commands"));
+                mWriter.endFloatFunction();
+                break;
+            }
+            case "clickarea": {
                 int id = resolveTextId(command.get("id"));
                 String contentDescription = command.optString("contentDescription", null);
                 float left = parseFloat(command.get("left"));
@@ -1538,7 +1702,59 @@ public class RemoteComposeJsonParser {
                 mWriter.addClickArea(id, contentDescription, left, top, right, bottom, metadata);
                 break;
             }
-            case "textSubtext": {
+            case "textlookup": {
+                float arrId = parseFloat(command.get("array"));
+                float index = parseFloat(command.get("index"));
+                float res = mWriter.textLookup(arrId, index);
+                String varName = command.optString("varName", null);
+                if (varName != null) mVariables.put(varName, res);
+                break;
+            }
+            case "maplookup":
+            case "datamaplookup": {
+                int mapId = resolveTextId(command.get("map"));
+                String keyStr = command.getString("key");
+                int res = mWriter.mapLookup(mapId, keyStr);
+                String varName = command.optString("varName", null);
+                if (varName != null) mVariables.put(varName, (float) res);
+                break;
+            }
+            case "idlookup": {
+                float arrId = parseFloat(command.get("array"));
+                float index = parseFloat(command.get("index"));
+                float res = mWriter.idLookup(arrId, index);
+                String varName = command.optString("varName", null);
+                if (varName != null) mVariables.put(varName, res);
+                break;
+            }
+            case "debugmessage": {
+                String msg = command.getString("message");
+                float val = parseFloat(command.opt("value"));
+                int flag = command.optInt("flag", 0);
+                mWriter.addDebugMessage(msg, val, flag);
+                break;
+            }
+            case "skip": {
+                short skipType = (short) command.optInt("type", 0);
+                int val = command.optInt("value", 0);
+                int offset = command.optInt("offset", 0);
+                mWriter.beginSkip(skipType, val);
+                if (command.has("commands")) {
+                    parseCommands(command.getJSONArray("commands"));
+                }
+                mWriter.endSkip(offset);
+                break;
+            }
+            case "runaction":
+            case "runactions": {
+                mWriter.startRunActions();
+                if (command.has("commands")) {
+                    parseCommands(command.getJSONArray("commands"));
+                }
+                mWriter.endRunActions();
+                break;
+            }
+            case "textsubtext": {
                 int txtId = resolveTextId(command.get("text"));
                 float start = parseFloat(command.get("start"));
                 float len = parseFloat(command.get("len"));
@@ -1549,7 +1765,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "textTransform": {
+            case "texttransform": {
                 int txtId = resolveTextId(command.get("text"));
                 float start = parseFloat(command.get("start"));
                 float len = parseFloat(command.get("len"));
@@ -1575,7 +1791,7 @@ public class RemoteComposeJsonParser {
                 String varName = command.getString("name");
                 String varType = command.optString("vtype", "float");
                 boolean named = command.optBoolean("export", false);
-                if (varType.equals("floatArrays")) {
+                if (varType.equalsIgnoreCase("floatArrays")) {
                     JSONArray arr;
                     Object val = command.get("value");
                     if (val instanceof JSONObject) {
@@ -1596,14 +1812,14 @@ public class RemoteComposeJsonParser {
                         );
                     }
                     mVariables.put(varName, varVal);
-                } else if (varType.equals("path")) {
+                } else if (varType.equalsIgnoreCase("path")) {
                     String pathVal = command.getString("value");
                     int id = parsePath(pathVal);
                     if (named) {
                         mWriter.setStringName(id, varName);
                     }
                     mPaths.put(varName, id);
-                } else if (varType.equals("color")) {
+                } else if (varType.equalsIgnoreCase("color")) {
                     boolean commit = command.optBoolean("commit", false);
                     if (mInFirstPass || commit) {
                         int colorVal = parseColor(command.getString("value"));
@@ -1617,7 +1833,7 @@ public class RemoteComposeJsonParser {
                     } else {
                         mDeferredVariables.put(varName, command);
                     }
-                } else if (varType.equals("string")) {
+                } else if (varType.equalsIgnoreCase("string")) {
                     boolean commit = command.optBoolean("commit", false);
                     if (mInFirstPass || commit) {
                         int textId = resolveTextId(command.get("value"));
@@ -1668,7 +1884,7 @@ public class RemoteComposeJsonParser {
                             }
                         } else if (val instanceof JSONObject) {
                             JSONObject vo = (JSONObject) val;
-                            if (vo.optString("type", "").equals("textFromFloat")) {
+                            if (vo.optString("type", "").equalsIgnoreCase("textFromFloat")) {
                                 float floatVal = parseFloat(vo.get("value"));
                                 int after = vo.optInt("decimal", 3);
                                 int before = vo.optInt("whole", 0);
@@ -1676,7 +1892,7 @@ public class RemoteComposeJsonParser {
                                 varVal = (float) mWriter.createTextFromFloat(floatVal, before,
                                         after, flags);
                             } else if (vo.optString("type", "")
-                                    .equals("textMerge")) {
+                                    .equalsIgnoreCase("textMerge")) {
                                 int id1 = resolveTextId(vo.get("id1"));
                                 int id2 = resolveTextId(vo.get("id2"));
                                 varVal = (float) mWriter.textMerge(id1, id2);
@@ -1719,7 +1935,7 @@ public class RemoteComposeJsonParser {
                 }
                 break;
             }
-            case "conditionalOperations": {
+            case "conditionaloperations": {
                 String conditionStr = command.getString("condition");
                 byte type_val = 0;
                 switch (conditionStr.toLowerCase()) {
@@ -1755,7 +1971,7 @@ public class RemoteComposeJsonParser {
             case "restore":
                 mWriter.restore();
                 break;
-            case "clipRect":
+            case "cliprect":
                 mWriter.clipRect(
                         parseFloat(command.get("left")),
                         parseFloat(command.get("top")),
@@ -1776,6 +1992,42 @@ public class RemoteComposeJsonParser {
                     mResourceParser.parseResources(command);
                 }
                 break;
+            case "fontdata":
+            case "addfont": {
+                int id = resolveTextId(command.get("id"));
+                JSONArray dataArr = command.getJSONArray("data");
+                byte[] data = new byte[dataArr.length()];
+                for (int i = 0; i < dataArr.length(); i++) {
+                    data[i] = (byte) dataArr.getInt(i);
+                }
+                mWriter.getBuffer().addFont(id, command.optInt("fontType", 0), data);
+                break;
+            }
+            case "componentvalue":
+            case "addcomponentvalue": {
+                int id = resolveTextId(command.get("id"));
+                int valueType = command.getInt("valueType");
+                mWriter.getBuffer().addComponentValue(id, valueType);
+                break;
+            }
+            case "textlookupint": {
+                int id = resolveTextId(command.get("id"));
+                float dataSetNan = parseFloat(command.get("dataSet"));
+                int indexId = resolveTextId(command.get("index"));
+                mWriter.getBuffer().textLookup(id, dataSetNan, indexId);
+                break;
+            }
+            case "datalistids":
+            case "idlist":
+            case "adddatalist": {
+                JSONArray idsArr = command.getJSONArray("list");
+                int[] ids = new int[idsArr.length()];
+                for (int i = 0; i < idsArr.length(); i++) {
+                    ids[i] = resolveTextId(idsArr.get(i));
+                }
+                mWriter.addList(ids);
+                break;
+            }
         }
     }
 
@@ -1842,7 +2094,7 @@ public class RemoteComposeJsonParser {
             Object val = command.get("value");
             if (val instanceof JSONObject) {
                 JSONObject vo = (JSONObject) val;
-                if (vo.has("type") && vo.getString("type").equals("textFromFloat")) {
+                if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textFromFloat")) {
                     float floatVal = parseFloat(vo.get("value"));
                     int after = vo.optInt("after", 3);
                     if (vo.has("decimal")) after = vo.optInt("decimal", 3);
@@ -1856,7 +2108,7 @@ public class RemoteComposeJsonParser {
                     }
                     return (float) textId;
                 }
-                if (vo.has("type") && vo.getString("type").equals("textMerge")) {
+                if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textMerge")) {
                     int id1 = resolveTextId(vo.get("id1"));
                     int id2 = resolveTextId(vo.get("id2"));
                     int mergedId = mWriter.textMerge(id1, id2);
@@ -1868,7 +2120,7 @@ public class RemoteComposeJsonParser {
                 }
             }
             String varType = command.optString("vtype", "float");
-            if (varType.equals("string")) {
+            if (varType.equalsIgnoreCase("string")) {
                 int textId = mWriter.textCreateId(command.getString("value"));
                 mVariables.put(name, (float) textId);
                 if (named) {
@@ -2044,11 +2296,11 @@ public class RemoteComposeJsonParser {
             }
         } else if (textObj instanceof JSONObject) {
             JSONObject vo = (JSONObject) textObj;
-            if (vo.has("type") && vo.getString("type").equals("textMerge")) {
+            if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textMerge")) {
                 int id1 = resolveTextId(vo.get("id1"));
                 int id2 = resolveTextId(vo.get("id2"));
                 return mWriter.textMerge(id1, id2);
-            } else if (vo.has("type") && vo.getString("type").equals("textFromFloat")) {
+            } else if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textFromFloat")) {
                 float val = parseFloat(vo.get("value"));
                 int after = vo.optInt("after", 3);
                 if (vo.has("decimal")) after = vo.optInt("decimal", 3);

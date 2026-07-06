@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.modifiers.MarqueeModifier;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.modifiers.RippleModifier;
 import androidx.compose.remote.creation.modifiers.SemanticsModifier;
+import androidx.compose.remote.creation.modifiers.ZIndexModifier;
 
 import org.json.JSONException;
 import org.jspecify.annotations.NonNull;
@@ -962,6 +963,634 @@ public class RemoteComposeComparisonTest {
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    public void testVisibilityComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"Visibility\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"horizontalAlignment\": \"center\","
+                + "    \"verticalAlignment\": \"center\","
+                + "    \"modifiers\": [ { \"visibility\": 12 } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.then(new androidx.compose.remote.creation.modifiers.VisibilityModifier(12));
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testZIndexComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"ZIndex\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"horizontalAlignment\": \"center\","
+                + "    \"verticalAlignment\": \"center\","
+                + "    \"modifiers\": [ { \"zindex\": 2.5 } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.then(new ZIndexModifier(2.5f));
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDimensionConstraintsComparison() throws JSONException {
+        String json = "{"
+                + "\"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"DimensionConstraints\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"horizontalAlignment\": \"center\","
+                + "    \"verticalAlignment\": \"center\","
+                + "    \"modifiers\": [ { \"widthin\": [10.0, 100.0] } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.widthIn(10.0f, 100.0f);
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testTextMeasureComparison() throws JSONException {
+        String json = "{"
+                + "\"header\": { \"apiLevel\": "
+                + "7, \"profiles\": 769, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"TextMeasure\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"textMeasure\", \"text\": \"Sample Text\", \"mode\": 0,"
+                + " \"name\": \"w\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            int textId = expectedWriter.addText("Sample Text");
+            expectedWriter.textMeasure(textId, 0);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("TextMeasure", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testTouchExpressionComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"TouchExp\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"touchExpression\", \"defaultValue\": 0.0, \"min\": 0.0,"
+                + " \"max\": 100.0, \"touchMode\": 0, \"expression\": [1.0, 2.0],"
+                + " \"name\": \"touch\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.addTouch(0.0f, 0.0f, 100.0f, 0, Float.NaN, 0, null, null, 1.0f, 2.0f);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("TouchExp", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDynamicFloatListComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"DynamicFloatList\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"dynamicFloatList\", \"id\": 10, \"size\": 5.0,"
+                + " \"name\": \"list\" },"
+                + "      { \"type\": \"updateDynamicFloatList\", \"list\": 10.0, \"index\": 0.0,"
+                + " \"value\": 42.0 }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.addDynamicFloatArray(10, 5.0f);
+            expectedWriter.setArrayValue(10, 0.0f, 42.0f);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("DynamicFloatList", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testAttributeReflectionComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"AttrReflect\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"colorAttribute\", \"color\": 1, \"attribute\": 0,"
+                + " \"name\": \"c\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.getColorAttribute(1, (short) 0);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("AttrReflect", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testOffsetComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"Offset\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"modifiers\": [ { \"offset\": [10.0, 20.0] } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().offset(10.0f, 20.0f);
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testMarqueeComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"Marquee\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"modifiers\": [ { \"marquee\": { \"iterations\": 3 } } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.then(new androidx.compose.remote.creation.modifiers.MarqueeModifier(
+                    3, 0, 1200f, 1200f, 0f, 0f));
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testRippleComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"Ripple\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"box\","
+                + "    \"modifiers\": [ { \"ripple\": {} } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.then(new androidx.compose.remote.creation.modifiers.RippleModifier());
+            expectedWriter.box(mod, 2, 2);
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testFloatFunctionComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"FloatFn\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"createFloatFunction\", \"name\": \"fn\","
+                + " \"params\": [\"x\"],"
+                + " \"commands\": ["
+                + "        { \"type\": \"callFloatFunction\", \"id\": 1, \"args\": [10.0] }"
+                + "      ] }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            float[] args = new float[1];
+            int fnId = expectedWriter.createFloatFunction(args);
+            expectedWriter.callFloatFunction(1, 10.0f);
+            expectedWriter.endFloatFunction();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testImageAttributeComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"ImgAttr\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"imageAttribute\", \"bitmap\": 1, \"attribute\": 0,"
+                + " \"name\": \"w\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.bitmapAttribute(1, (short) 0);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testLoopBlockComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"LoopBlock\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"loop\", \"from\": 0.0, \"step\": 1.0, \"until\": 5.0,"
+                + " \"index\": \"i\", \"commands\": [] }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            int idxId = expectedWriter.textCreateId("i");
+            expectedWriter.startLoop(idxId, 0.0f, 1.0f, 5.0f);
+            expectedWriter.endLoop();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testCollapsibleRowComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"width\": 400, \"height\": 400,"
+                + " \"contentDescription\": \"CollapsibleRow\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"collapsibleRow\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCollapsibleRow(mod, 2, 2);
+            expectedWriter.endCollapsibleRow();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testPathOpsComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"PathOps\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"pathCreate\", \"id\": \"p1\", \"x\": 0.0, \"y\": 0.0 },"
+                + "      { \"type\": \"pathAppendLineTo\", \"path\": \"p1\", \"x\": 10.0,"
+                + " \"y\": 10.0 },"
+                + "      { \"type\": \"pathAppendQuadTo\", \"path\": \"p1\", \"x1\": 15.0,"
+                + " \"y1\": 15.0, \"x2\": 20.0, \"y2\": 20.0 },"
+                + "      { \"type\": \"pathAppendMoveTo\", \"path\": \"p1\", \"x\": 30.0,"
+                + " \"y\": 30.0 },"
+                + "      { \"type\": \"pathAppendReset\", \"path\": \"p1\" },"
+                + "      { \"type\": \"pathAppendClose\", \"path\": \"p1\" }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            int p1 = expectedWriter.pathCreate(0.0f, 0.0f);
+            expectedWriter.pathAppendLineTo(p1, 10.0f, 10.0f);
+            expectedWriter.pathAppendQuadTo(p1, 15.0f, 15.0f, 20.0f, 20.0f);
+            expectedWriter.pathAppendMoveTo(p1, 30.0f, 30.0f);
+            expectedWriter.pathAppendReset(p1);
+            expectedWriter.pathAppendClose(p1);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testPaintOpsComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"PaintOps\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"paint\", \"color\": \"#FF0000\", \"style\": \"stroke\","
+                + " \"width\": 4.0 }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            RcPaint paint = expectedWriter.getRcPaint();
+            paint.setColor(0xFFFF0000);
+            paint.setStyle(1);
+            paint.setStrokeWidth(4.0f);
+            paint.commit();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDrawScaledBitmapComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"ScaledBitmap\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"drawScaledBitmap\", \"image\": 1, \"srcLeft\": 0.0,"
+                + " \"srcTop\": 0.0, \"srcRight\": 10.0, \"srcBottom\": 10.0, \"dstLeft\": 0.0,"
+                + " \"dstTop\": 0.0, \"dstRight\": 20.0, \"dstBottom\": 20.0, \"scaleType\": 0,"
+                + " \"scaleFactor\": 1.0 }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.drawScaledBitmap(1, 0.0f, 0.0f, 10.0f, 10.0f, 0.0f, 0.0f, 20.0f, 20.0f,
+                    0, 1.0f, null);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDebugMessageComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"Debug\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"debugMessage\", \"message\": \"test\", \"value\": 1.0,"
+                + " \"flag\": 0 }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.addDebugMessage("test", 1.0f, 0);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
     private void generateCanvasOpsKotlin(RemoteComposeWriter writer) {
         writer.root(() -> {
             RecordingModifier mod = new RecordingModifier();
@@ -1008,6 +1637,299 @@ public class RemoteComposeComparisonTest {
                 + "    ]"
                 + "  }"
                 + "}";
+    }
+
+
+
+    @Test
+    public void testDrawOnBitmapComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"DrawBitmap\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"drawOnBitmap\",\"bitmap\":1,\"mode\":0,"
+                + "\"color\":0}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.drawOnBitmap(1, 0, 0);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("Test", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDrawContentComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"DrawContent\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"drawContent\"}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.drawComponentContent();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("Test", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testAddFontComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":512,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"FontData\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"addFont\",\"id\":1,\"fontType\":0,"
+                + "\"data\":[1,2,3]}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.getBuffer().addFont(1, 0, new byte[] {1, 2, 3});
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("Test", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testComponentValueComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"CompVal\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"addComponentValue\",\"id\":1,"
+                + "\"valueType\":2}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.getBuffer().addComponentValue(1, 2);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("Test", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testTextLookupIntComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"TextLookupInt\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"textLookupInt\",\"id\":1,\"dataSet\":2.0,"
+                + "\"index\":3}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.getBuffer().textLookup(1, 2.0f, 3);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDataListIdsComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"DataListIds\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"fillMaxSize\":1.0}],"
+                + "\"commands\":[{\"type\":\"addDataList\",\"list\":[1,2,3]}]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            expectedWriter.addList(new int[] {1, 2, 3});
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testMultiClickComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"MultiClick\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"multiClick\":{\"clickType\":1,"
+                + "\"actions\":[{\"type\":\"ValueFloatChange\",\"targetId\":10,"
+                + "\"value\":1.0}]}}],\"commands\":[]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            java.util.List<androidx.compose.remote.creation.actions.Action> actions =
+                    new java.util.ArrayList<>();
+            actions.add(new ValueFloatChange(10, 1.0f));
+            mod.then(new androidx.compose.remote.creation.modifiers.ClickActionModifier(
+                    actions, 1));
+            expectedWriter.startCanvas(mod);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testTouchDownComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"TouchDown\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"touchDown\":[{\"type\":"
+                + "\"ValueFloatChange\",\"targetId\":10,\"value\":1.0}]}],\"commands\":[]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            java.util.List<androidx.compose.remote.creation.actions.Action> actions =
+                    new java.util.ArrayList<>();
+            actions.add(new ValueFloatChange(10, 1.0f));
+            mod.then(new androidx.compose.remote.creation.modifiers.TouchActionModifier(
+                    androidx.compose.remote.creation.modifiers.TouchActionModifier.DOWN,
+                    actions));
+            expectedWriter.startCanvas(mod);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testLayoutComputeComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"LayoutCompute\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"layoutCompute\":{\"type\":0}}],"
+                + "\"commands\":[]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            mod.then(new androidx.compose.remote.creation.modifiers.ComponentLayoutComputeModifier(
+                    0, changes -> {}));
+            expectedWriter.startCanvas(mod);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testHostActionComparison() throws JSONException {
+        String json = "{\"header\":{\"apiLevel\":7,\"profiles\":769,\"width\":400,"
+                + "\"height\":400,\"contentDescription\":\"HostAction\"},\"root\":{"
+                + "\"type\":\"canvas\",\"modifiers\":[{\"onClick\":[{\"type\":"
+                + "\"HostAction\",\"name\":\"myAction\"}]}],\"commands\":[]}}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier();
+            java.util.List<androidx.compose.remote.creation.actions.Action> actions =
+                    new java.util.ArrayList<>();
+            actions.add(new androidx.compose.remote.creation.actions.HostAction("myAction"));
+            mod.then(new androidx.compose.remote.creation.modifiers.ClickActionModifier(actions));
+            expectedWriter.startCanvas(mod);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
     }
 
     private void printMismatch(String name, byte[] expected, byte[] actual) {

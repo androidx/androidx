@@ -16,8 +16,10 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation;
 import androidx.compose.remote.core.semantics.CoreSemantics;
 import androidx.compose.remote.creation.actions.Action;
+import androidx.compose.remote.creation.actions.HostAction;
 import androidx.compose.remote.creation.actions.ValueFloatChange;
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange;
 import androidx.compose.remote.creation.actions.ValueIntegerChange;
@@ -26,6 +28,7 @@ import androidx.compose.remote.creation.actions.ValueStringChange;
 import androidx.compose.remote.creation.dsl.RcFloat;
 import androidx.compose.remote.creation.dsl.VerticalScrollRcFloatModifier;
 import androidx.compose.remote.creation.modifiers.ClickActionModifier;
+import androidx.compose.remote.creation.modifiers.ComponentLayoutComputeModifier;
 import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier;
 import androidx.compose.remote.creation.modifiers.IncludeReferencedOperationsModifier;
 import androidx.compose.remote.creation.modifiers.MacroCallModifier;
@@ -33,6 +36,8 @@ import androidx.compose.remote.creation.modifiers.MarqueeModifier;
 import androidx.compose.remote.creation.modifiers.RippleModifier;
 import androidx.compose.remote.creation.modifiers.SemanticsModifier;
 import androidx.compose.remote.creation.modifiers.TouchActionModifier;
+import androidx.compose.remote.creation.modifiers.VisibilityModifier;
+import androidx.compose.remote.creation.modifiers.ZIndexModifier;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -179,6 +184,29 @@ class DefaultModifierParsers {
                     parser.parseFloat(hi.get(1))
             );
         });
+        p.registerModifierParser("requiredwidthin", (mod, key, recordingModifier, parser) -> {
+            JSONArray rwi = mod.getJSONArray(key);
+            recordingModifier.requiredWidthIn(
+                    parser.parseFloat(rwi.get(0)),
+                    parser.parseFloat(rwi.get(1))
+            );
+        });
+        p.registerModifierParser("requiredheightin", (mod, key, recordingModifier, parser) -> {
+            JSONArray rhi = mod.getJSONArray(key);
+            recordingModifier.requiredHeightIn(
+                    parser.parseFloat(rhi.get(0)),
+                    parser.parseFloat(rhi.get(1))
+            );
+        });
+        p.registerModifierParser("dimensionconstraints", (mod, key, recordingModifier, parser) -> {
+            JSONObject dc = mod.getJSONObject(key);
+            int type = dc.optInt("type", 0);
+            float min = parser.parseFloat(dc.get("min"));
+            float max = parser.parseFloat(dc.get("max"));
+            recordingModifier.then(
+                    new androidx.compose.remote.creation.modifiers.WidthInModifier(
+                            type, min, max));
+        });
         p.registerModifierParser("clip", (mod, key, recordingModifier, parser) -> {
             recordingModifier.clip(parser.parseShape(mod.getJSONObject(key)));
         });
@@ -203,7 +231,17 @@ class DefaultModifierParsers {
         p.registerModifierParser("onclick", (mod, key, recordingModifier, parser) -> {
             recordingModifier.then(new ClickActionModifier(parseActions(mod.get(key), parser)));
         });
+        p.registerModifierParser("multiclick", (mod, key, recordingModifier, parser) -> {
+            JSONObject obj = mod.getJSONObject(key);
+            int clickType = obj.optInt("clickType", 0);
+            recordingModifier.then(new ClickActionModifier(
+                    parseActions(obj.get("actions"), parser), clickType));
+        });
         p.registerModifierParser("ontouchdown", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.DOWN, parseActions(mod.get(key), parser)));
+        });
+        p.registerModifierParser("touchdown", (mod, key, recordingModifier, parser) -> {
             recordingModifier.then(new TouchActionModifier(
                     TouchActionModifier.DOWN, parseActions(mod.get(key), parser)));
         });
@@ -211,13 +249,28 @@ class DefaultModifierParsers {
             recordingModifier.then(new TouchActionModifier(
                     TouchActionModifier.UP, parseActions(mod.get(key), parser)));
         });
+        p.registerModifierParser("touchup", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.UP, parseActions(mod.get(key), parser)));
+        });
         p.registerModifierParser("ontouchcancel", (mod, key, recordingModifier, parser) -> {
+            recordingModifier.then(new TouchActionModifier(
+                    TouchActionModifier.CANCEL, parseActions(mod.get(key), parser)));
+        });
+        p.registerModifierParser("touchcancel", (mod, key, recordingModifier, parser) -> {
             recordingModifier.then(new TouchActionModifier(
                     TouchActionModifier.CANCEL, parseActions(mod.get(key), parser)));
         });
         p.registerModifierParser("drawwithcontent",
                 (mod, key, recordingModifier, parser) -> {
                     recordingModifier.drawWithContent();
+                });
+        p.registerModifierParser("layoutcompute",
+                (mod, key, recordingModifier, parser) -> {
+                    int computeType = mod.getJSONObject(key).optInt("type", 0);
+                    recordingModifier.then(
+                            new ComponentLayoutComputeModifier(
+                                    computeType, changes -> {}));
                 });
         p.registerModifierParser("spacedby", (mod, key, recordingModifier, parser) -> {
             recordingModifier.spacedBy(parser.parseFloat(mod.get(key)));
@@ -249,12 +302,12 @@ class DefaultModifierParsers {
                     while (keys.hasNext()) {
                         String k = keys.next();
                         int attrId = -1;
-                        switch (k) {
-                            case "scaleX": attrId = 0; break;
-                            case "scaleY": attrId = 1; break;
-                            case "rotationZ": attrId = 4; break;
-                            case "translationX": attrId = 7; break;
-                            case "translationY": attrId = 8; break;
+                        switch (k.toLowerCase()) {
+                            case "scalex": attrId = 0; break;
+                            case "scaley": attrId = 1; break;
+                            case "rotationz": attrId = 4; break;
+                            case "translationx": attrId = 7; break;
+                            case "translationy": attrId = 8; break;
                             case "alpha": attrId = 11; break;
                         }
                         if (attrId != -1) {
@@ -296,6 +349,28 @@ class DefaultModifierParsers {
             semantics.mClickable = sObj.optBoolean("clickable", false);
             recordingModifier.then(new SemanticsModifier(semantics));
         });
+        p.registerModifierParser("visibility", (mod, key, recordingModifier, parser) -> {
+            int valId = parser.resolveTextId(mod.get(key));
+            recordingModifier.then(new VisibilityModifier(valId));
+        });
+        p.registerModifierParser("zindex", (mod, key, recordingModifier, parser) -> {
+            float z = parser.parseFloat(mod.get(key));
+            recordingModifier.then(new ZIndexModifier(z));
+        });
+        p.registerModifierParser("offset", (mod, key, recordingModifier, parser) -> {
+            Object val = mod.get(key);
+            if (val instanceof JSONObject) {
+                JSONObject obj = (JSONObject) val;
+                float x = parser.parseFloat(obj.opt("x"));
+                float y = parser.parseFloat(obj.opt("y"));
+                recordingModifier.offset(x, y);
+            } else if (val instanceof JSONArray) {
+                JSONArray arr = (JSONArray) val;
+                float x = parser.parseFloat(arr.get(0));
+                float y = parser.parseFloat(arr.get(1));
+                recordingModifier.offset(x, y);
+            }
+        });
     }
 
     private static List<Action> parseActions(
@@ -314,27 +389,50 @@ class DefaultModifierParsers {
 
     private static Action parseAction(
             JSONObject obj, RemoteComposeJsonParser parser) throws JSONException {
-        String type = obj.getString("type");
-        int targetId = parser.resolveTextId(obj.get("targetId"));
+        String type = obj.getString("type").toLowerCase();
+        int targetId = obj.has("targetId") ? parser.resolveTextId(obj.get("targetId")) : -1;
         switch (type) {
-            case "ValueFloatExpressionChange": {
+            case "hostaction":
+            case "hostnamedaction":
+            case "hostmetadataaction": {
+                if (obj.has("name")) {
+                    String name = obj.getString("name");
+                    if (obj.has("value")) {
+                        int actionType = obj.optInt("actionType",
+                                HostNamedActionOperation.STRING_TYPE);
+                        int valueId = parser.resolveTextId(obj.get("value"));
+                        return new HostAction(name, actionType, valueId);
+                    } else {
+                        return new HostAction(name);
+                    }
+                } else {
+                    int actionId = obj.getInt("actionId");
+                    if (obj.has("metadataId")) {
+                        int metadataId = obj.getInt("metadataId");
+                        return new HostAction(actionId, metadataId);
+                    } else {
+                        return new HostAction(actionId);
+                    }
+                }
+            }
+            case "valuefloatexpressionchange": {
                 float valNan = parser.parseFloat(obj.get("value"));
                 int valId = androidx.compose.remote.core.operations.Utils.idFromNan(valNan);
                 return new ValueFloatExpressionChange(targetId, valId);
             }
-            case "ValueFloatChange": {
+            case "valuefloatchange": {
                 float val = parser.parseFloat(obj.get("value"));
                 return new ValueFloatChange(targetId, val);
             }
-            case "ValueIntegerChange": {
+            case "valueintegerchange": {
                 int val = obj.getInt("value");
                 return new ValueIntegerChange(targetId, val);
             }
-            case "ValueIntegerExpressionChange": {
+            case "valueintegerexpressionchange": {
                 long val = obj.getLong("value");
                 return new ValueIntegerExpressionChange(targetId, val);
             }
-            case "ValueStringChange": {
+            case "valuestringchange": {
                 Object valObj = obj.get("value");
                 if (valObj instanceof String) {
                     String s = (String) valObj;
