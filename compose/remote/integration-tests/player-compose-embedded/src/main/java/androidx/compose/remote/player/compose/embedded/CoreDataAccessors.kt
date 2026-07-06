@@ -1655,3 +1655,22 @@ private val dimensionMValueField =
 
 internal fun dimensionRawValue(op: DimensionModifierOperation): Float =
     dimensionMValueField.getFloat(op)
+
+// 10. CollapsiblePriority Reflection
+private val sortWithPrioritiesMethod =
+    Class.forName("androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority")
+        .getDeclaredMethod(
+            "sortWithPriorities",
+            ArrayList::class.java,
+            Int::class.javaPrimitiveType,
+        )
+        .apply { isAccessible = true }
+
+internal fun sortWithPriorities(
+    children: ArrayList<androidx.compose.remote.core.operations.layout.Component>,
+    orientation: Int,
+): List<androidx.compose.remote.core.operations.layout.Component> {
+    @Suppress("UNCHECKED_CAST")
+    return sortWithPrioritiesMethod.invoke(null, children, orientation)
+        as ArrayList<androidx.compose.remote.core.operations.layout.Component>
+}
