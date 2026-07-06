@@ -35,8 +35,14 @@ package androidx.credentials.registry.provider
  *   fulfillment activity, it will build an intent with the given `intentAction` targeting your
  *   package, so this is useful when you need to define different fulfillment activities for
  *   different registries
+ * @property serviceAction the intent action that will be used to bind to your background
+ *   fulfillment service (silent / FULL delegation), defaults to
+ *   [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]. If you configure your credentials with a
+ *   delegation type other than NONE, you MUST implement and provide a background service that
+ *   handles this action to fulfill requests silently.
  * @constructor
- * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64 characters
+ * @throws IllegalArgumentException if [id], [intentAction], or [serviceAction] length is greater
+ *   than 64 characters
  */
 public abstract class RegisterCredentialsRequest
 @JvmOverloads
@@ -46,9 +52,11 @@ constructor(
     public val credentials: ByteArray,
     public val matcher: ByteArray,
     public val intentAction: String = RegistryManager.ACTION_GET_CREDENTIAL,
+    public val serviceAction: String = RegistryManager.ACTION_GET_CREDENTIAL_SERVICE,
 ) {
     init {
         require(id.length <= 64) { "`id` length must be less than 64" }
         require(intentAction.length <= 64) { "`intentAction` length must be less than 64" }
+        require(serviceAction.length <= 64) { "`serviceAction` length must be less than 64" }
     }
 }
