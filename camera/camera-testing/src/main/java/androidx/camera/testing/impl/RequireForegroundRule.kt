@@ -261,19 +261,34 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
 
-                activityRef =
-                    instrumentation.startActivitySync(startIntent) as ForegroundTestActivity
+                var retryCount = 0
+                while (retryCount < 3) {
+                    try {
+                        activityRef =
+                            instrumentation.startActivitySync(startIntent) as ForegroundTestActivity
+                        break
+                    } catch (e: RuntimeException) {
+                        Logger.w(
+                            TAG,
+                            "Failed to launch ForegroundTestActivity on attempt $retryCount",
+                            e,
+                        )
+                        retryCount++
+                        if (retryCount >= 3) throw e
+                        clearDeviceUI(instrumentation)
+                    }
+                }
                 instrumentation.waitForIdleSync()
 
-                IdlingRegistry.getInstance().register(activityRef.viewReadyIdlingResource)
+                IdlingRegistry.getInstance().register(activityRef!!.viewReadyIdlingResource)
                 Espresso.onIdle()
                 return
             } catch (e: Exception) {
                 Logger.d(TAG, "Fail to get foreground", e)
             } finally {
                 if (activityRef != null) {
-                    IdlingRegistry.getInstance().unregister(activityRef.viewReadyIdlingResource)
-                    instrumentation.runOnMainSync { activityRef.finish() }
+                    IdlingRegistry.getInstance().unregister(activityRef!!.viewReadyIdlingResource)
+                    instrumentation.runOnMainSync { activityRef?.finish() }
                     instrumentation.waitForIdleSync()
                 }
             }
