@@ -27,6 +27,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * This class encodes images into HEIF-compatible samples using AV1 encoder.
@@ -35,8 +36,8 @@ import java.io.IOException;
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
  * The output format and samples are sent back in {@link
- * Callback#onOutputFormatChanged(HeifEncoder, MediaFormat)} and {@link
- * Callback#onDrainOutputBuffer(HeifEncoder, ByteBuffer)}. If the client
+ * Callback#onOutputFormatChanged(EncoderBase, MediaFormat)} and {@link
+ * Callback#onDrainOutputBuffer(EncoderBase, ByteBuffer)}. If the client
  * requests to use grid, each tile will be sent back individually.
  *
  * HeifEncoder is made a separate class from {@link HeifWriter}, as some more
