@@ -125,7 +125,7 @@ fun ScaffoldWithTLCEdgeButtonSample() {
                 // Bottom spacing is derived from [ScreenScaffold.edgeButtonSpacing].
                 contentPadding = contentPadding,
             ) {
-                items(10) {
+                items(4) {
                     Button(
                         onClick = {},
                         label = { Text("Item ${it + 1}") },
