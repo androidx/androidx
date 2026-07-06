@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -465,6 +466,29 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testLoopOptimized() {
+        runWithOptimizingCanvas { canvas, optimizingBuffer ->
+            val from = 0f.rf
+            val until = 10f.rf
+            val step = 1f.rf
+            canvas.loop(from, until, step) { index ->
+                canvas.drawRect(index, 63f.rf, 64f.rf, 65f.rf, Paint())
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(optimizingBuffer.calls)
+                .containsExactly(
+                    "addLoopStart(42, 0.0, 1.0, 10.0)",
+                    "addPaint",
+                    "addDrawRect(ID(42), 63.0, 64.0, 65.0)",
+                    "addLoopEnd",
+                )
+        }
+    }
+
+    @Test
     fun testDrawToOffscreenBitmapBuffered() {
         val dummyBitmap =
             object :
@@ -526,12 +550,14 @@ class RecordingCanvasTest {
 
         recordingCanvas.drawToOffscreenBitmap(outerBitmap, android.graphics.Color.TRANSPARENT) {
             recordingCanvas.save()
+            recordingCanvas.translate(1f, 1f)
 
             recordingCanvas.drawToOffscreenBitmap(innerBitmap, android.graphics.Color.TRANSPARENT) {
                 recordingCanvas.drawRect(0f, 0f, 10f, 10f, Paint())
             }
 
             recordingCanvas.restore()
+            recordingCanvas.drawRect(0f, 0f, 1f, 1f, Paint())
         }
 
         recordingCanvas.flush()
@@ -540,11 +566,14 @@ class RecordingCanvasTest {
             .containsExactly(
                 "drawOnBitmap(100, 0, 0)",
                 "addMatrixSave",
+                "addMatrixTranslate(1.0, 1.0)",
                 "drawOnBitmap(200, 0, 0)",
                 "addPaint",
                 "addDrawRect(0.0, 0.0, 10.0, 10.0)",
                 "drawOnBitmap(100, 1, 0)",
                 "addMatrixRestore",
+                "addPaint",
+                "addDrawRect(0.0, 0.0, 1.0, 1.0)",
                 "drawOnBitmap(0, 1, 0)",
             )
     }
@@ -1451,6 +1480,12 @@ class RecordingCanvasTest {
         assertThat(CanvasOperationBuffer.findCommonAncestor(child1, child1)).isEqualTo(child1)
     }
 
+    private class TestRemoteComposeWriter(
+        profile: Profile,
+        buffer: RemoteComposeBuffer,
+        vararg tags: RemoteComposeWriter.HTag,
+    ) : RemoteComposeWriterAndroid(profile, buffer, *tags)
+
     private fun runWithOptimizingCanvas(
         action: (RecordingCanvas, OptimizingTestRemoteComposeBuffer) -> Unit
     ) {
@@ -1460,17 +1495,26 @@ class RecordingCanvasTest {
             Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
                 creationDisplayInfo,
                 profile,
-                callbacks ->
-                OptimizingRemoteComposeWriter(
-                    creationDisplayInfo,
-                    callbacks,
+                _ ->
+                TestRemoteComposeWriter(
                     profile,
                     optimizingBuffer,
+                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, profile.operationsProfiles),
+                    RemoteComposeWriter.hTag(
+                        Header.DOC_DENSITY_BEHAVIOR,
+                        creationDisplayInfo.densityBehavior,
+                    ),
                 )
             }
         val localCreationState =
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
-        val localCanvas = RecordingCanvas(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
+        val localCanvas =
+            RecordingCanvas(
+                Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888),
+                enableOptimizations = true,
+            )
         localCanvas.setRemoteComposeCreationState(localCreationState)
 
         action(localCanvas, optimizingBuffer)
@@ -1693,9 +1737,9 @@ class RecordingCanvasTest {
 
             assertThat(buffer.calls)
                 .containsExactly(
-                    "addAnimatedFloat(ID(44), [ID(42), 10.0, +])",
-                    "addAnimatedFloat(ID(45), [ID(43), 20.0, +])",
-                    "addMatrixTranslate(ID(44), ID(45))",
+                    "addAnimatedFloat(ID(43), [ID(42), 10.0, +])",
+                    "addAnimatedFloat(ID(45), [ID(44), 20.0, +])",
+                    "addMatrixTranslate(ID(43), ID(45))",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
                 )
@@ -1741,9 +1785,9 @@ class RecordingCanvasTest {
             // They should be fused into a single scale.
             assertThat(buffer.calls)
                 .containsExactly(
-                    "addAnimatedFloat(ID(44), [ID(42), 2.0, *])",
-                    "addAnimatedFloat(ID(45), [ID(43), 3.0, *])",
-                    "addMatrixScale(ID(44), ID(45), NaN, NaN)",
+                    "addAnimatedFloat(ID(43), [ID(42), 2.0, *])",
+                    "addAnimatedFloat(ID(45), [ID(44), 3.0, *])",
+                    "addMatrixScale(ID(43), ID(45), NaN, NaN)",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
                 )
@@ -1790,31 +1834,6 @@ class RecordingCanvasTest {
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
                 )
         }
-    }
-
-    @Test
-    fun testProfileWithOptimizingWriter_upgradesRegularWriterWithOptimizingBuffer() {
-        val platform = AndroidxRcPlatformServices()
-        val badProfile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                _ ->
-                val buffer = OptimizingRemoteComposeBuffer(profile.apiLevel)
-                object :
-                    RemoteComposeWriterAndroid(
-                        profile,
-                        buffer,
-                        RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    ) {}
-            }
-
-        val optimizingProfile = badProfile.withOptimizingWriter()
-        val displayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1f)
-        val writer = optimizingProfile.create(displayInfo.toCreationDisplayInfo(), null)
-
-        assertThat(writer).isInstanceOf(OptimizingRemoteComposeWriter::class.java)
     }
 
     @Test
@@ -1879,6 +1898,127 @@ class RecordingCanvasTest {
             assertThat(buffer.calls).containsExactly("setTheme(42)")
         }
     }
+
+    @Test
+    fun testDiscardedSaveDependency() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.restore()
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // The save/restore and translate should be completely discarded.
+            // Only the drawRect (and its paint) should be present.
+            assertThat(buffer.calls).containsExactly("addPaint", "addDrawRect(0.0, 0.0, 5.0, 5.0)")
+        }
+    }
+
+    @Test
+    fun testInlinedSaveDependencyAndOrdering() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.clipRect(0f, 0f, 10f, 10f)
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.restore()
+            // No drawing after it, so it will be inlined.
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // The save/restore should be inlined.
+            // The translate and clip should be in the correct order.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixTranslate(10.0, 10.0)",
+                    "addClipRect(0.0, 0.0, 10.0, 10.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testConsecutiveSkewsAreNotFused() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.skew(1f, 0f)
+            canvas.skew(0f, 1f)
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Skews should not be fused.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixSkew(1.0, 0.0)",
+                    "addMatrixSkew(0.0, 1.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testSaveRestoreWithoutTransformsInlinedEvenWithDrawingAfter() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val paint1 = Paint().apply { color = android.graphics.Color.RED }
+            val paint2 = Paint().apply { color = android.graphics.Color.BLUE }
+            canvas.save()
+            canvas.drawRect(0f, 0f, 5f, 5f, paint1)
+            canvas.restore()
+            canvas.drawRect(10f, 10f, 15f, 15f, paint2) // Drawing after!
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // The save/restore should be inlined because it contains no transforms or clips.
+            assertThat(buffer.calls).doesNotContain("addMatrixSave")
+            assertThat(buffer.calls).doesNotContain("addMatrixRestore")
+
+            // We should see both draw calls and their paints in correct order.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint", // red
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                    "addPaint", // blue
+                    "addDrawRect(10.0, 10.0, 15.0, 15.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testOptimizationsAreOffByDefault() {
+        // By default, RecordingCanvas should NOT optimize save/restore.
+        val localCreationState =
+            RemoteComposeCreationState(
+                RemoteCreationDisplayInfo(500, 500, 160, 1f),
+                null,
+                RcPlatformProfiles.ANDROIDX,
+            )
+        val localCanvas = RecordingCanvas(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
+        localCanvas.setRemoteComposeCreationState(localCreationState)
+
+        val calls = ArrayList<String>()
+        val testBuffer = OptimizingTestRemoteComposeBuffer(calls)
+        val optimizingWriter = TestRemoteComposeWriter(RcPlatformProfiles.ANDROIDX, testBuffer)
+        localCreationState.document = optimizingWriter
+
+        localCanvas.save()
+        localCanvas.translate(10f, 20f)
+        localCanvas.restore()
+
+        localCanvas.flush()
+        localCanvas.document.encodeToByteArray()
+
+        // Since optimizations are off by default, we expect the save/restore and translate to be
+        // preserved.
+        assertThat(calls)
+            .containsExactly("addMatrixSave", "addMatrixTranslate(10.0, 20.0)", "addMatrixRestore")
+    }
 }
 
 private fun formatFloat(f: Float): String {
@@ -1903,7 +2043,7 @@ private fun FloatArray.formatToString(): String {
     return this.joinToString(prefix = "[", postfix = "]") { formatFloat(it) }
 }
 
-private class TestRemoteComposeBuffer(val calls: ArrayList<String>) :
+private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>) :
     RemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
 
     override fun addMatrixSave() {
@@ -1940,6 +2080,11 @@ private class TestRemoteComposeBuffer(val calls: ArrayList<String>) :
         super.addMatrixRotate(angle, centerX, centerY)
     }
 
+    override fun addMatrixSkew(skewX: Float, skewY: Float) {
+        calls.add("addMatrixSkew(${formatFloat(skewX)}, ${formatFloat(skewY)})")
+        super.addMatrixSkew(skewX, skewY)
+    }
+
     override fun addClipRect(left: Float, top: Float, right: Float, bottom: Float) {
         calls.add(
             "addClipRect(${formatFloat(left)}, ${formatFloat(top)}, ${formatFloat(right)}, ${formatFloat(bottom)})"
@@ -1963,15 +2108,22 @@ private class TestRemoteComposeBuffer(val calls: ArrayList<String>) :
         calls.add("setTheme($theme)")
         super.setTheme(theme)
     }
+
+    override fun addLoopStart(indexId: Int, from: Float, step: Float, until: Float) {
+        calls.add(
+            "addLoopStart($indexId, ${formatFloat(from)}, ${formatFloat(step)}, ${formatFloat(until)})"
+        )
+        super.addLoopStart(indexId, from, step, until)
+    }
+
+    override fun addLoopEnd() {
+        calls.add("addLoopEnd")
+        super.addLoopEnd()
+    }
 }
 
-private class OptimizingTestRemoteComposeBuffer :
-    OptimizingRemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
-    val calls = ArrayList<String>()
-
-    override fun createDelegate(apiLevel: Int): RemoteComposeBuffer {
-        return TestRemoteComposeBuffer(calls)
-    }
+private class OptimizingTestRemoteComposeBuffer(calls: ArrayList<String> = ArrayList()) :
+    RecordingTestRemoteComposeBuffer(calls) {
 
     override fun addAnimatedFloat(id: Int, value: FloatArray) {
         calls.add("addAnimatedFloat(ID($id), ${value.formatToString()})")
