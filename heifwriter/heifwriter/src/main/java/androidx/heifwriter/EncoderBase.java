@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
  * Callback#onOutputFormatChanged(MediaCodec, MediaFormat)} and {@link
- * Callback#onDrainOutputBuffer(MediaCodec, ByteBuffer)}. If the client
+ * Callback#onDrainOutputBuffer(EncoderBase, ByteBuffer)}. If the client
  * requests to use grid, each tile will be sent back individually.
  *
  *
