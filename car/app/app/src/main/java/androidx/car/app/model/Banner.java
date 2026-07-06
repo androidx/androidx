@@ -120,17 +120,6 @@ public final class Banner implements Item {
     }
 
     /**
-     * Returns the {@link Background} of the banner, or {@code null} if not set.
-     *
-     * @see Builder#setBackground(Background)
-     * @deprecated Use {@link #getStyle()} and check the {@link BannerStyle} instead.
-     */
-    @Deprecated
-    public @Nullable Background getBackground() {
-        return mStyle != null ? mStyle.getBackground() : null;
-    }
-
-    /**
      * Returns the leading element of the banner.
      *
      * <p>This is currently restricted to icons and images only.
@@ -293,25 +282,6 @@ public final class Banner implements Item {
          */
         public @NonNull Builder setStyle(@NonNull BannerStyle style) {
             mStyle = requireNonNull(style);
-            return this;
-        }
-
-        /**
-         * Sets the {@link Background} of the banner.
-         *
-         * <p>The {@code background} must conform to {@link BackgroundConstraints#COLOR_ONLY}.
-         *
-         * @throws NullPointerException     if {@code background} is {@code null}
-         * @throws IllegalArgumentException if an unsupported background is added
-         * @deprecated Use {@link #setStyle(BannerStyle)} instead.
-         */
-        @Deprecated
-        public @NonNull Builder setBackground(@NonNull Background background) {
-            BannerStyle style =
-                    new BannerStyle.Builder()
-                            .setBackground(background)
-                            .build();
-            setStyle(style);
             return this;
         }
 
