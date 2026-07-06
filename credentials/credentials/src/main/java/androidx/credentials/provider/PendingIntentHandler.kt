@@ -818,6 +818,10 @@ class PendingIntentHandler {
                     } else {
                         response.credential
                     }
+                val bundle = credential.data
+                if (bundle.containsKey(GetCredentialResponse.EXTRA_CREDENTIAL_LIST_SIZE)) {
+                    return GetCredentialResponse.fromBundle(bundle)
+                }
                 return GetCredentialResponse(Credential.createFrom(credential))
             }
 
@@ -827,15 +831,17 @@ class PendingIntentHandler {
                 response: GetCredentialResponse,
                 request: ProviderGetCredentialRequest?,
             ) {
+                val responseBundle =
+                    if (response.credentials.size > 1) {
+                        GetCredentialResponse.asBundle(response)
+                    } else {
+                        response.credential.data
+                    }
                 // If the response is small enough, set it directly on the intent. This is
                 // consistent with the ResultReceiver == null case below to ensure that
                 // existing flows are not impacted.
-                if (!response.credential.data.isLargerThan200Kb()) {
-                    setGetCredentialResponseExtra(
-                        intent,
-                        response.credential.type,
-                        response.credential.data,
-                    )
+                if (!responseBundle.isLargerThan200Kb()) {
+                    setGetCredentialResponseExtra(intent, response.credential.type, responseBundle)
                     return
                 }
                 val resultReceiver =
@@ -854,15 +860,11 @@ class PendingIntentHandler {
                 // directly. This ensures that existing flows are not impacted if the
                 // ResultReceiver optimization is not available.
                 if (resultReceiver == null) {
-                    setGetCredentialResponseExtra(
-                        intent,
-                        response.credential.type,
-                        response.credential.data,
-                    )
+                    setGetCredentialResponseExtra(intent, response.credential.type, responseBundle)
                     return
                 }
                 // If the response is too large, use the ResultReceiver to pass the data.
-                val data = delegateBundleToFd(response.credential.data)
+                val data = delegateBundleToFd(responseBundle)
                 val passIntent: Intent = intent.clone() as Intent
                 setGetCredentialResponseExtra(passIntent, response.credential.type, data)
                 intent.putExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER, true)
