@@ -77,9 +77,17 @@ import kotlin.math.pow
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithIconAndLabelAndPlaceholders_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * If there is some cached data for this field, it may be better to show that while loading, see
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelCachedData
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithIconAndLabelCachedData_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Note that the component should still be sized close to the target, so the final reveal of the
  * content is less disruptive.
@@ -149,9 +157,18 @@ public fun Modifier.placeholder(
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithIconAndLabelAndPlaceholders_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of a simple text placeholder:
  *
  * @sample androidx.wear.compose.material3.samples.TextPlaceholder
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_TextPlaceholder_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param placeholderState the current placeholder state that determine whether the placeholder
  *   shimmer should be shown.
  * @param shape the shape of the component.
@@ -259,6 +276,10 @@ public object PlaceholderDefaults {
  * modifiers.
  *
  * @sample androidx.wear.compose.material3.samples.TextPlaceholder
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_TextPlaceholder_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Once all of the components content is loaded the shimmer will stop and a wipe off animation will
  * remove the placeholders.

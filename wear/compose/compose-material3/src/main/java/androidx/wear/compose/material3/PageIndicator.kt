@@ -70,6 +70,11 @@ import kotlin.math.sin
  * Example usage with [HorizontalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_HorizontalPageIndicatorWithPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param pagerState State of the [HorizontalPager] used to control this indicator
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
  * @param selectedColor The color which will be used for a selected indicator item.
@@ -111,8 +116,11 @@ public fun HorizontalPageIndicator(
  * Example usage with [VerticalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
- *   ![VerticalPageIndicatorWithPagerSample
- *   CompositeImage](https://developer.android.com/wear/images/design/WearComposeM3_VerticalPageIndicatorWithPagerSample_CompositeImage.png)
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPageIndicatorWithPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param pagerState State of the [VerticalPager] used to control this indicator
  * @param modifier Modifier to be applied to the [VerticalPageIndicator]
  * @param selectedColor The color which will be used for a selected indicator item.

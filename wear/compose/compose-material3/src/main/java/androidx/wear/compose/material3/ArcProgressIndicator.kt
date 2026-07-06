@@ -43,6 +43,11 @@ import kotlin.math.asin
  * Example of indeterminate arc progress indicator:
  *
  * @sample androidx.wear.compose.material3.samples.IndeterminateProgressArcSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_IndeterminateProgressArcSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param modifier Modifier to be applied to the ArcProgressIndicator.
  * @param startAngle the start angle of this progress indicator arc (specified in degrees). It is
  *   recommended to use [ArcProgressIndicatorDefaults.IndeterminateStartAngle]. Measured clockwise

@@ -85,14 +85,27 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.wear.compose.material3.samples.AnimatedTextSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AnimatedTextSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of an animation in response to a button press with AnimatedText
  *
  * @sample androidx.wear.compose.material3.samples.AnimatedTextSampleButtonResponse
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AnimatedTextSampleButtonResponse_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example showing how [AnimatedTextFontRegistry] can be reused and shared between two
  * [AnimatedText] composables
  *
  * @sample androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegistry
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AnimatedTextSampleSharedFontRegistry_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param text The text to be displayed.
  * @param fontRegistry The font registry to be used to animate the text.
  * @param progressFraction A provider for the current state of the animation. Provided value should

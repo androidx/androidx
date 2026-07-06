@@ -174,14 +174,26 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of [SwipeToReveal] with a Card composable, it reveals a taller button:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealSingleActionCardSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.TransformingLazyColumn],
  * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithTransformingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealWithTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn],
  * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
@@ -194,6 +206,11 @@ import kotlinx.coroutines.launch
  * reset when scrolling):
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealNoPartialRevealWithScalingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealNoPartialRevealWithScalingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param primaryAction The primary action of this component.
  *   [SwipeToRevealScope.PrimaryActionButton] should be used to create a button for this slot. If
  *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
@@ -716,14 +733,26 @@ public fun SwipeToReveal(
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of [SwipeToReveal] with a Card composable, it reveals a taller button:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealSingleActionCardSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.TransformingLazyColumn],
  * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithTransformingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealWithTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn],
  * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
@@ -736,6 +765,11 @@ public fun SwipeToReveal(
  * reset when scrolling):
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealNoPartialRevealWithScalingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealNoPartialRevealWithScalingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param primaryAction The primary action of this component.
  *   [SwipeToRevealScope.PrimaryActionButton] should be used to create a button for this slot. If
  *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
