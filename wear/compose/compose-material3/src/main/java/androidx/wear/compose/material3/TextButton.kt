@@ -81,6 +81,11 @@ import androidx.wear.compose.material3.tokens.TextButtonTokens
  * Example of an [TextButton] with shape animation of rounded corners on press:
  *
  * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_TextButtonWithCornerAnimationSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -187,6 +192,10 @@ public object TextButtonDefaults {
      * Example of a simple text button using the default colors, animated when pressed:
      *
      * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextButtonWithCornerAnimationSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
      */
     @Composable
     public fun animatedShapes(): TextButtonShapes =
@@ -198,6 +207,11 @@ public object TextButtonDefaults {
      * Example of a simple text button using the default colors, animated when pressed:
      *
      * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TextButtonWithCornerAnimationSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param shape The normal shape of the TextButton - if null, the default
      *   [TextButtonDefaults.shape] is used.
      * @param pressedShape The pressed shape of the TextButton - if null, the default

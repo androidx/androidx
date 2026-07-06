@@ -61,10 +61,19 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *
  * @sample androidx.wear.compose.material3.samples.IconToggleButtonSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * A simple icon toggle button using the default colors, animated when pressed, with different
  * shapes and icons for the checked and unchecked states.
  *
  * @sample androidx.wear.compose.material3.samples.IconToggleButtonVariantSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonVariantSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
@@ -227,6 +236,10 @@ public object IconToggleButtonDefaults {
      * A simple icon toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.IconToggleButtonSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
      */
     @Composable
     public fun animatedShapes(): IconToggleButtonShapes =
@@ -239,6 +252,11 @@ public object IconToggleButtonDefaults {
      * A simple icon toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.IconToggleButtonSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param shape The normal shape of the IconToggleButton when unpressed - if null, the default
      *   [IconToggleButtonDefaults.shape] is used.
      * @param pressedShape The pressed shape of the IconToggleButton - if null, the default
@@ -261,6 +279,10 @@ public object IconToggleButtonDefaults {
      * A simple icon toggle button using the default colors, animated on Press and Check/Uncheck:
      *
      * @sample androidx.wear.compose.material3.samples.IconToggleButtonVariantSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonVariantSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
      */
     @Composable
     public fun variantAnimatedShapes(): IconToggleButtonShapes =
@@ -273,6 +295,11 @@ public object IconToggleButtonDefaults {
      * A simple icon toggle button using the default colors, animated on Press and Check/Uncheck:
      *
      * @sample androidx.wear.compose.material3.samples.IconToggleButtonVariantSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_IconToggleButtonVariantSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param uncheckedShape the unchecked shape - if null, the default
      *   [IconToggleButtonDefaults.shape] is used.
      * @param checkedShape the checked shape - if null, the default
