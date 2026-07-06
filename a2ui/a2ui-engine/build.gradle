@@ -38,6 +38,9 @@ dependencies {
 android {
     namespace = "androidx.a2ui.engine"
     compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 }
 androidx {
     name = "A2UI engine"
