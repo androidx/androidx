@@ -22,7 +22,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
@@ -34,9 +33,6 @@ import androidx.compose.ui.graphics.drawscope.scale
 
 @Composable
 internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
-    val componentValueMap = LocalComponentValueMap.current
-    val componentValueStateMap = LocalComponentValueStateMap.current
-
     // A CanvasLayout's draw instructions are not in its own op list — they live in the (single)
     // CanvasContent component nested in its subtree (CanvasLayout -> ... -> CanvasContent ->
     // draws).
@@ -49,15 +45,13 @@ internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
     Box(modifier = modifier) {
+        // WIDTH/HEIGHT ComponentValue feedback is published from the component dispatch's
+        // onSizeChanged (RcPlayerComponent), which fires at layout time — before anything draws —
+        // so expressions reading the canvas size are correct on the same frame. Publishing here in
+        // the draw pass (as this used to) is redundant and a frame-lag hazard: a reader drawn
+        // earlier in the pass would see the previous frame's value, and writing snapshot state
+        // during draw re-invalidates the frame.
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val ops = componentValueMap[layout.getId()]
-            ops?.forEach { op ->
-                if (op.type == ComponentValue.WIDTH) {
-                    componentValueStateMap[op.valueId]?.value = this.size.width
-                } else if (op.type == ComponentValue.HEIGHT) {
-                    componentValueStateMap[op.valueId]?.value = this.size.height
-                }
-            }
             val density = remoteContext.density
             scale(density, density, pivot = Offset.Zero) {
                 executeOperations(operations, remoteContext, graph = graph)
