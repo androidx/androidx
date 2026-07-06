@@ -20,6 +20,7 @@ import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegistryManager
+import androidx.credentials.registry.provider.UiDelegationFulfillmentService
 
 /**
  * A request to register digital credentials with Credential Manager.
@@ -43,8 +44,8 @@ import androidx.credentials.registry.provider.RegistryManager
  * @param serviceAction the intent action that will be used to bind to your background fulfillment
  *   service (silent / FULL delegation), defaults to
  *   [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]. If you configure your credentials with a
- *   delegation type other than NONE, you MUST implement and provide a background service that
- *   handles this action to fulfill requests silently.
+ *   delegation type other than NONE, you MUST implement and provide a background
+ *   [UiDelegationFulfillmentService] that handles this action to fulfill requests silently.
  * @constructor
  */
 @OptIn(ExperimentalDigitalCredentialApi::class)

@@ -38,8 +38,8 @@ package androidx.credentials.registry.provider
  * @property serviceAction the intent action that will be used to bind to your background
  *   fulfillment service (silent / FULL delegation), defaults to
  *   [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]. If you configure your credentials with a
- *   delegation type other than NONE, you MUST implement and provide a background service that
- *   handles this action to fulfill requests silently.
+ *   delegation type other than NONE, you MUST implement and provide a background
+ *   [UiDelegationFulfillmentService] that handles this action to fulfill requests silently.
  * @constructor
  * @throws IllegalArgumentException if [id], [intentAction], or [serviceAction] length is greater
  *   than 64 characters
