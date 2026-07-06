@@ -193,21 +193,47 @@ internal constructor(
     public fun toRemoteString(
         format: android.icu.text.DecimalFormat = DefaultIntegerFormat
     ): RemoteString {
-        return toRemoteFloat().toRemoteString(format)
+        val (before, after, flags) = format.toTextFromFloatOptions()
+        // If the format doesn't require fractional digits, we force it to 0.
+        // This is typical for integer formatting.
+        val resolvedAfter = if (format.minimumFractionDigits == 0) 0 else after
+
+        // Optimization: We call toRemoteStringWithPadding directly on the float
+        // representation rather than calling toRemoteFloat().toRemoteString(format).
+        // This bypasses the dynamic isInteger check in RemoteFloat.toRemoteString, which is
+        // redundant for RemoteInt and would cause infinite recursion (StackOverflowError)
+        // since RemoteFloat's workaround delegates back to RemoteInt.toRemoteString.
+        return toRemoteFloat().toRemoteStringWithPadding(format, before, resolvedAfter, flags)
     }
 
     /**
-     * Converts this RemoteInt to a RemoteString.
+     * Converts this [RemoteInt] to a [RemoteString] using the specified [format].
      *
      * This method maps the localized [DecimalFormat] symbols (such as separators and grouping
      * sizes) and configuration (such as padding and rounding) to a remote-compatible string
      * representation.
      *
      * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
-     * @return A [RemoteString] representing the formatted float.
+     * @return A [RemoteString] representing the formatted integer.
      */
     public fun toRemoteString(format: DecimalFormat): RemoteString {
-        return toRemoteFloat().toRemoteString(format)
+        // We manually convert java.text.DecimalFormat to android.icu.text.DecimalFormat
+        // and delegate to the ICU overload. This ensures we route through the optimized
+        // direct-formatting path (bypassing RemoteFloat.toRemoteString) to avoid the
+        // stack overflow hazard and redundant runtime checks.
+        val icuFormat = android.icu.text.DecimalFormat(format.toPattern())
+        icuFormat.decimalFormatSymbols =
+            android.icu.text.DecimalFormatSymbols.getInstance().apply {
+                decimalSeparator = format.decimalFormatSymbols.decimalSeparator
+                groupingSeparator = format.decimalFormatSymbols.groupingSeparator
+            }
+        icuFormat.minimumIntegerDigits = format.minimumIntegerDigits
+        icuFormat.maximumIntegerDigits = format.maximumIntegerDigits
+        icuFormat.minimumFractionDigits = format.minimumFractionDigits
+        icuFormat.maximumFractionDigits = format.maximumFractionDigits
+        icuFormat.groupingSize = format.groupingSize
+        icuFormat.negativePrefix = format.negativePrefix
+        return toRemoteString(icuFormat)
     }
 
     /**

@@ -50,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import java.text.DecimalFormat
+import kotlin.math.pow
 
 /**
  * Abstract base class for all remote float representations.
@@ -221,10 +222,21 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                 return toRemoteStringWithPadding(format, before, resolvedAfter, flags)
             }
 
-            // Dynamic path: dynamically check if the value is an integer at playback time.
-            val isInteger = (this % 1f).isEqualTo(0f.rf)
+            // Dynamic path: dynamically check if the value is close to an integer at playback time.
+            // This is a workaround for float precision errors (e.g. 9.000001f should format as
+            // "9").
+            //
+            // We calculate a tolerance (epsilon) based on the requested maximum fraction digits.
+            // The epsilon is capped at a minimum of 1e-5 to ensure that 1 ULP float precision
+            // errors are caught even when high precision (e.g. 6 decimal places) is requested.
+            val epsilonVal = (0.5f * 10f.pow(-after)).coerceAtLeast(0.00001f)
+            val epsilon = epsilonVal.rf
+            val isInteger = abs(this - round(this)).isLessThan(epsilon)
             return isInteger.select(
-                toRemoteStringWithPadding(format, before, 0, flags),
+                // If it is close to an integer, we round it first to the nearest integer
+                // (to handle values close to the ceiling like 9.999999f correctly without
+                // truncation) and then delegate to RemoteInt.toRemoteString() for clean formatting.
+                round(this).toRemoteInt().toRemoteString(format),
                 toRemoteStringWithPadding(format, before, after, flags),
             )
         }
@@ -233,7 +245,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return toRemoteStringWithPadding(format, before, after, flags)
     }
 
-    private fun toRemoteStringWithPadding(
+    internal fun toRemoteStringWithPadding(
         format: android.icu.text.DecimalFormat,
         before: Int,
         after: Int,
