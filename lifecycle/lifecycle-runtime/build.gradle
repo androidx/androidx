@@ -54,7 +54,7 @@ androidXMultiplatform {
 
         jvmAndAndroidMain.dependencies {
             api("androidx.arch.core:core-common:2.2.0")
-            implementation("androidx.tracing:tracing:2.0.0-alpha09")
+            implementation(project(":tracing:tracing"))
         }
 
         desktopTest.dependencies {
