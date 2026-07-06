@@ -25,16 +25,11 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
 import androidx.compose.remote.player.compose.embedded.columnSpacedBy
 import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
-import androidx.compose.remote.player.compose.embedded.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
 
 @Composable
 internal fun RcPlayerColumn(layout: ColumnLayout, modifier: Modifier) {
@@ -45,45 +40,8 @@ internal fun RcPlayerColumn(layout: ColumnLayout, modifier: Modifier) {
     val spacedBy = rememberRemoteFloatAsState(columnSpacedBy(layout)).value
 
     if (layout is CollapsibleColumnLayout) {
-        Layout(content = { RcPlayerChildren(layout) { Modifier } }, modifier = modifier) {
-            measurables,
-            constraints ->
-            val placeables = ArrayList<Placeable>()
-            var accumulatedHeight = 0
-            var maxWidth = 0
-
-            val spacedByDp = rawDimensionDp(spacedBy, behavior, density)
-            val spacingPx = spacedByDp.roundToPx()
-
-            measurables.forEachIndexed { index, measurable ->
-                val childSpacing = if (index > 0 && spacedBy > 0f) spacingPx else 0
-                // Measure with original constraints (minHeight = 0) to get natural preferred size
-                val childPlaceable = measurable.measure(constraints.copy(minHeight = 0))
-
-                if (
-                    index == 0 ||
-                        accumulatedHeight + childSpacing + childPlaceable.height <=
-                            constraints.maxHeight
-                ) {
-                    placeables.add(childPlaceable)
-                    accumulatedHeight += childSpacing + childPlaceable.height
-                    maxWidth = maxOf(maxWidth, childPlaceable.width)
-                }
-            }
-
-            val width = constraints.constrainWidth(maxWidth)
-            val height = constraints.constrainHeight(accumulatedHeight)
-
-            layout(width, height) {
-                var y = 0
-                placeables.forEachIndexed { index, placeable ->
-                    val childSpacing = if (index > 0 && spacedBy > 0f) spacingPx else 0
-                    y += childSpacing
-                    placeable.placeRelative(0, y)
-                    y += placeable.height
-                }
-            }
-        }
+        // Priority-aware collapsing: drop lowest-CollapsiblePriority children until the rest fit.
+        RcPlayerCollapsible(layout, modifier, vertical = true, spacedBy = spacedBy)
     } else {
         Column(
             modifier = modifier,
