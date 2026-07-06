@@ -25,7 +25,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.size
@@ -58,12 +57,16 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -471,16 +474,8 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
 
                 if (index in 1 until measurables.lastIndex) {
                     // We constrain the growth by the paddings of the neighbors
-                    val previousItemPadding =
-                        configs[index - 1]
-                            .compressionLimit
-                            .calculateEndPadding(layoutDirection)
-                            .toPx()
-                    val nextItemPadding =
-                        configs[index + 1]
-                            .compressionLimit
-                            .calculateEndPadding(layoutDirection)
-                            .toPx()
+                    val previousItemPadding = configs[index - 1].compressionLimit.toPx()
+                    val nextItemPadding = configs[index + 1].compressionLimit.toPx()
                     val growth =
                         (animatables[index].value *
                                 minOf(
@@ -499,11 +494,7 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
                     if (index == 0) {
                         // We are the first item, so we need to compress the next item
                         // We constrain the growth by the paddings of the next item
-                        val nextItemPadding =
-                            configs[index + 1]
-                                .compressionLimit
-                                .calculateEndPadding(layoutDirection)
-                                .toPx()
+                        val nextItemPadding = configs[index + 1].compressionLimit.toPx()
                         val targetGrowth =
                             (animatables[index].value *
                                     min(expandedRatio * widths[index], nextItemPadding))
@@ -514,11 +505,7 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
                     } else {
                         // We are the last item, so we need to compress the previous item
                         // We constrain the growth by the paddings of the previous item
-                        val previousItemPadding =
-                            configs[index - 1]
-                                .compressionLimit
-                                .calculateEndPadding(layoutDirection)
-                                .toPx()
+                        val previousItemPadding = configs[index - 1].compressionLimit.toPx()
                         val targetGrowth =
                             (animatables[index].value *
                                     min(expandedRatio * widths[index], previousItemPadding))
@@ -739,14 +726,8 @@ private class ButtonGroupMeasurePolicy(
                         (animatables[index].value *
                                 minOf(
                                     (expandedRatio * widths[index] / 2f),
-                                    configs[index - 1]
-                                        .compressionLimit
-                                        .calculateEndPadding(layoutDirection)
-                                        .toPx(),
-                                    configs[index + 1]
-                                        .compressionLimit
-                                        .calculateEndPadding(layoutDirection)
-                                        .toPx(),
+                                    configs[index - 1].compressionLimit.toPx(),
+                                    configs[index + 1].compressionLimit.toPx(),
                                 ))
                             .roundToInt()
                     // We are a middle button, so we must compress both neighbors
@@ -762,10 +743,7 @@ private class ButtonGroupMeasurePolicy(
                             (animatables[index].value *
                                     min(
                                         expandedRatio * widths[index],
-                                        configs[index + 1]
-                                            .compressionLimit
-                                            .calculateEndPadding(layoutDirection)
-                                            .toPx(),
+                                        configs[index + 1].compressionLimit.toPx(),
                                     ))
                                 .roundToInt()
                         val growthRight = min(targetGrowth, widths[index + 1])
@@ -777,10 +755,7 @@ private class ButtonGroupMeasurePolicy(
                             (animatables[index].value *
                                     min(
                                         expandedRatio * widths[index],
-                                        configs[index - 1]
-                                            .compressionLimit
-                                            .calculateEndPadding(layoutDirection)
-                                            .toPx(),
+                                        configs[index - 1].compressionLimit.toPx(),
                                     ))
                                 .roundToInt()
                         val growthLeft = min(targetGrowth, widths[index - 1])
@@ -839,7 +814,7 @@ private class ButtonGroupMeasurePolicy(
  * Button group scope used to indicate a [Modifier.weight] and [Modifier.animateWidth] of a child
  * element. Also defines the DSL to build the content of a [ButtonGroup]
  */
-interface ButtonGroupScope {
+sealed interface ButtonGroupScope {
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
@@ -854,9 +829,9 @@ interface ButtonGroupScope {
      * Specifies the interaction source to use with this item. This is used to listen to events and
      * animate growing the pressed button and shrink the neighbor(s).
      *
+     * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
      * @param interactionSource the [InteractionSource] that button group will observe.
      */
-    @Deprecated("maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
 
     /**
@@ -865,13 +840,10 @@ interface ButtonGroupScope {
      *
      * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
      * @param interactionSource the [InteractionSource] that button group will observe.
-     * @param compressionLimit the [PaddingValues] used to determine the maximum compression that
-     *   this item will be able to squish by.
+     * @param compressionLimit the [Dp] used to determine the maximum compression that this item
+     *   will be able to squish by.
      */
-    fun Modifier.animateWidth(
-        interactionSource: InteractionSource,
-        compressionLimit: PaddingValues = ButtonDefaults.ContentPadding,
-    ): Modifier
+    fun Modifier.animateWidth(interactionSource: InteractionSource, compressionLimit: Dp): Modifier
 
     /**
      * Align the element vertically within the [ButtonGroup]. This alignment will have priority over
@@ -940,7 +912,7 @@ internal data class ButtonGroupParentData(
     var weight: Float = 0f,
     var pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f),
     var alignment: Alignment.Vertical? = null,
-    var compressionLimit: PaddingValues = PaddingValues(0.dp),
+    var compressionLimit: Dp = 0.dp,
 )
 
 internal class ButtonGroupElement(val weight: Float = 0f) : ModifierNodeElement<ButtonGroupNode>() {
@@ -979,7 +951,7 @@ internal class ButtonGroupNode(var weight: Float) : ParentDataModifierNode, Modi
 internal class EnlargeOnPressElement(
     val interactionSource: InteractionSource,
     val animationSpec: AnimationSpec<Float>,
-    val compressionLimit: PaddingValues = PaddingValues(0.dp),
+    val compressionLimit: Dp? = null,
 ) : ModifierNodeElement<EnlargeOnPressNode>() {
 
     override fun create(): EnlargeOnPressNode {
@@ -1018,8 +990,8 @@ internal class EnlargeOnPressElement(
 internal class EnlargeOnPressNode(
     var interactionSource: InteractionSource,
     var animationSpec: AnimationSpec<Float>,
-    var compressionLimit: PaddingValues,
-) : ParentDataModifierNode, Modifier.Node() {
+    var compressionLimit: Dp?,
+) : ParentDataModifierNode, Modifier.Node(), CompositionLocalConsumerModifierNode {
     private val pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f)
 
     private var collectionJob: Job? = null
@@ -1067,7 +1039,18 @@ internal class EnlargeOnPressNode(
 
     override fun Density.modifyParentData(parentData: Any?) =
         ((parentData as? ButtonGroupParentData) ?: ButtonGroupParentData()).let { prev ->
-            ButtonGroupParentData(prev.weight, pressedAnimatable, prev.alignment, compressionLimit)
+            val resolvedLimit =
+                compressionLimit
+                    ?: run {
+                        val layoutDirection =
+                            if (isAttached) {
+                                currentValueOf(LocalLayoutDirection)
+                            } else {
+                                LayoutDirection.Ltr
+                            }
+                        ButtonDefaults.ContentPadding.calculateEndPadding(layoutDirection)
+                    }
+            ButtonGroupParentData(prev.weight, pressedAnimatable, prev.alignment, resolvedLimit)
         }
 }
 
@@ -1097,12 +1080,14 @@ internal class ClickableButtonGroupItem(
     @Composable
     override fun ButtonGroupContent() {
         val interactionSource = remember { MutableInteractionSource() }
-        val compressionLimit =
+        val contentPadding =
             if (icon != null) {
                 ButtonDefaults.ButtonWithIconContentPadding
             } else {
                 ButtonDefaults.ContentPadding
             }
+        val layoutDirection = LocalLayoutDirection.current
+        val compressionLimit = contentPadding.calculateEndPadding(layoutDirection)
 
         val modifier =
             Modifier.then(
@@ -1124,7 +1109,7 @@ internal class ClickableButtonGroupItem(
             modifier = modifier,
             interactionSource = interactionSource,
             enabled = enabled,
-            contentPadding = compressionLimit,
+            contentPadding = contentPadding,
         ) {
             icon?.let {
                 it.invoke()
@@ -1167,12 +1152,14 @@ internal class ToggleableButtonGroupItem(
     @Composable
     override fun ButtonGroupContent() {
         val interactionSource = remember { MutableInteractionSource() }
-        val compressionLimit =
+        val contentPadding =
             if (icon != null) {
                 ButtonDefaults.ButtonWithIconContentPadding
             } else {
                 ButtonDefaults.ContentPadding
             }
+        val layoutDirection = LocalLayoutDirection.current
+        val compressionLimit = contentPadding.calculateEndPadding(layoutDirection)
 
         val modifier =
             Modifier.then(
@@ -1196,7 +1183,7 @@ internal class ToggleableButtonGroupItem(
             modifier = modifier,
             interactionSource = interactionSource,
             enabled = enabled,
-            contentPadding = compressionLimit,
+            contentPadding = contentPadding,
         ) {
             icon?.let {
                 it.invoke()
@@ -1417,13 +1404,18 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
         )
     }
 
-    @Deprecated("maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     override fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier =
-        animateWidth(interactionSource)
+        this.then(
+            EnlargeOnPressElement(
+                interactionSource = interactionSource,
+                animationSpec = animationSpec,
+                compressionLimit = null,
+            )
+        )
 
     override fun Modifier.animateWidth(
         interactionSource: InteractionSource,
-        compressionLimit: PaddingValues,
+        compressionLimit: Dp,
     ): Modifier =
         this.then(
             EnlargeOnPressElement(

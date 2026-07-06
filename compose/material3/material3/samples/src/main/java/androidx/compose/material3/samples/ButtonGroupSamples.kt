@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -98,6 +100,8 @@ fun ButtonGroupWithCustomItemSample() {
         options.forEachIndexed { index, label ->
             customItem(
                 buttonGroupContent = {
+                    val contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    val layoutDirection = LocalLayoutDirection.current
                     ToggleButton(
                         checked = checked[index],
                         onCheckedChange = { checked[index] = it },
@@ -108,12 +112,13 @@ fun ButtonGroupWithCustomItemSample() {
                                     ButtonGroupDefaults.connectedTrailingButtonShapes()
                                 else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                             },
-                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                        contentPadding = contentPadding,
                         interactionSource = interactionSources[index],
                         modifier =
                             Modifier.animateWidth(
                                 interactionSource = interactionSources[index],
-                                compressionLimit = ButtonDefaults.ButtonWithIconContentPadding,
+                                compressionLimit =
+                                    contentPadding.calculateEndPadding(layoutDirection),
                             ),
                     ) {
                         Icon(
