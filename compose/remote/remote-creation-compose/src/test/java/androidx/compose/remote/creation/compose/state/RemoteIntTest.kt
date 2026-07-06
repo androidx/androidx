@@ -222,6 +222,46 @@ class RemoteIntTest {
     }
 
     @Test
+    fun toRemoteString_operations() {
+        val formatOptional = DecimalFormat("0.######") // min 0, max 6
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val str = x.toRemoteString(formatOptional)
+        str.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "TextFromFloat[44] = [43] 255.0 517",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun remoteFloat_toRemoteInt_toRemoteString() {
+        val n3_99 = RemoteFloat.createNamedRemoteFloat("n3_99", 3.99f)
+        val str = n3_99.toRemoteInt().toRemoteString()
+        val strId = str.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(strId)).isEqualTo("3")
+    }
+
+    @Test
+    fun remoteFloat_toRemoteInt_toRemoteString_customFormat() {
+        val formatOptional = DecimalFormat("0.######")
+        val n3_99 = RemoteFloat.createNamedRemoteFloat("n3_99", 3.99f)
+        val str = n3_99.toRemoteInt().toRemoteString(formatOptional)
+        val strId = str.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(strId)).isEqualTo("3")
+    }
+
+    @Test
     fun selectIfLt_less() {
         val result = selectIfLt(RemoteInt(1), RemoteInt(2), RemoteInt(100), RemoteInt(200))
         val resultId = result.getIdForCreationState(creationState)

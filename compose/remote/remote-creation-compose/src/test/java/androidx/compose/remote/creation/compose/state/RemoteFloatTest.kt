@@ -980,6 +980,35 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun textFromFloat_precisionError_formattedAsInteger() {
+        val formatOptional = DecimalFormat("0.######") // min 0, max 6
+
+        // Simulate a value that should be 9.0 but has a tiny precision error (9.000001)
+        val n9_error =
+            RemoteFloat.createNamedRemoteFloat("n9_error", 9.000001f).toRemoteString(formatOptional)
+        val n9_error_id = n9_error.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        // With tolerance, this should be recognized as an integer and formatted as "9"
+        assertThat(context.getText(n9_error_id)).isEqualTo("9")
+    }
+
+    @Test
+    fun textFromFloat_closeToNextInteger_formattedCorrectly() {
+        val formatOptional = DecimalFormat("0.######")
+        // Value close to 10.0
+        val n9_999999 =
+            RemoteFloat.createNamedRemoteFloat("n9_999999", 9.999999f)
+                .toRemoteString(formatOptional)
+        val n9_999999_id = n9_999999.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(n9_999999_id)).isEqualTo("10")
+    }
+
+    @Test
     fun addAndAddPeepholeOptimization() {
         val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 100f + 50f
         val array = expr.arrayForCreationState(creationState)
