@@ -60,6 +60,7 @@ import androidx.xr.compose.platform.getValue
 import androidx.xr.compose.subspace.layout.CoreActivityPanelEntity
 import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
+import androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy
 import androidx.xr.compose.subspace.layout.InteractionPolicy
 import androidx.xr.compose.subspace.layout.PlaneOrientation
 import androidx.xr.compose.subspace.layout.PlaneSemantic
@@ -119,6 +120,7 @@ public object SpatialPanelDefaults {
  * the environment. Implementations of this class, such as [MovePolicy] and [AnchorPolicy], are
  * mutually exclusive.
  */
+@Deprecated("Use SubspaceModifier.movable() on the Composable's modifier instead.")
 public abstract class DragPolicy internal constructor()
 
 /**
@@ -144,6 +146,12 @@ public abstract class DragPolicy internal constructor()
  *   planes this object can anchor to. An empty set means anchoring is not restricted by semantic
  *   type. For example, [PlaneSemantic.Floor] or [PlaneSemantic.Wall]. Defaults to an empty set.
  */
+@OptIn(ExperimentalMoveAnchorPolicy::class)
+@Deprecated(
+    message =
+        "Use SubspaceModifier.movable(movePolicy = MovePolicy.anchor()) on the Composable's modifier instead."
+)
+@Suppress("DEPRECATION")
 public class AnchorPolicy(
     public val isEnabled: Boolean = true,
     @Suppress("PrimitiveInCollection")
@@ -196,7 +204,11 @@ public class AnchorPolicy(
  *   [SpatialMoveEvent] with current move details and should return `true` to indicate the move
  *   should continue, or `false` to cancel it. Defaults to `null`.
  */
-@Deprecated("Use SubspaceModifier.movable() instead.")
+@Deprecated(
+    message =
+        "Use SubspaceModifier.movable(movePolicy = MovePolicy.default()) or SubspaceModifier.movable(movePolicy = MovePolicy.custom()) on the Composable's modifier instead."
+)
+@Suppress("DEPRECATION")
 public class MovePolicy(
     public val isEnabled: Boolean = true,
     public val isStickyPose: Boolean = false,
@@ -205,7 +217,6 @@ public class MovePolicy(
     public val onMoveEnd: ((SpatialMoveEvent) -> Unit)? = null,
     public val onMove: ((SpatialMoveEvent) -> Boolean)? = null,
 ) : DragPolicy() {
-    @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MovePolicy) return false
@@ -881,6 +892,7 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
  * @return A [SubspaceModifier] with all applicable policies integrated.
  */
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal fun buildSpatialPanelModifier(
     baseModifier: SubspaceModifier,
     dragPolicy: DragPolicy?,
