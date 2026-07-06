@@ -53,6 +53,10 @@ import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
  * Example of a [ListHeader]:
  *
  * @sample androidx.wear.compose.material3.samples.ListHeaderSample
+ *
+ * ![ListHeaderSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ListHeaderSample_CompositeImage.png)
+ *
  * @param modifier The modifier for the [ListHeader].
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content.
@@ -106,6 +110,10 @@ public fun ListHeader(
  * Example with use of [ListSubHeader]:
  *
  * @sample androidx.wear.compose.material3.samples.ListHeaderSample
+ *
+ * ![ListHeaderSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ListHeaderSample_CompositeImage.png)
+ *
  * @param modifier The modifier for the [ListSubHeader].
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content.

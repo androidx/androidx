@@ -84,6 +84,9 @@ import kotlinx.coroutines.flow.flowOn
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatus
  *
+ * ![TimeTextWithStatus Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextWithStatus_CompositeImage.png)
+ *
  * A [TimeText] with a long status message, that needs ellipsizing:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
