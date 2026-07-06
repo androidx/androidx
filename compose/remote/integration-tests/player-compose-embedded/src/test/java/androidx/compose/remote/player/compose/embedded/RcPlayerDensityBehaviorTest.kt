@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -33,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -41,7 +40,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ApplicationProvider
-import java.io.ByteArrayInputStream
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -68,13 +66,16 @@ class RcPlayerDensityBehaviorTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     private val paddingUnits = 16f
     private val renderDensity = 2f
 
     /** A 100×100 outer box padded by [paddingUnits], wrapping a 20×20 inner box. */
-    private fun documentBytes(): ByteArray = runBlocking {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        captureSingleRemoteDocument(
+    private fun documentWith(behavior: Int): CoreDocument = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val doc =
+            captureRule.captureDocument(
                 context = context,
                 content = {
                     RemoteBox(
@@ -92,16 +93,8 @@ class RcPlayerDensityBehaviorTest {
                     }
                 },
             )
-            .bytes
+        doc.apply { setDensityBehavior(behavior) }
     }
-
-    private fun documentWith(behavior: Int): CoreDocument =
-        CoreDocument(RemoteClock.SYSTEM).apply {
-            ByteArrayInputStream(documentBytes()).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-            }
-            setDensityBehavior(behavior)
-        }
 
     /** Renders [document] at [renderDensity] and returns the inner box's left inset, in dp. */
     private fun paddingInsetDp(document: CoreDocument): Float {
@@ -151,9 +144,10 @@ class RcPlayerDensityBehaviorTest {
     /**
      * A column with two 20×20 boxes ("a", "b") separated by a raw [paddingUnits] `spacedBy` gap.
      */
-    private fun columnBytes(): ByteArray = runBlocking {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        captureSingleRemoteDocument(
+    private fun columnWith(behavior: Int): CoreDocument = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val doc =
+            captureRule.captureDocument(
                 context = context,
                 content = {
                     RemoteColumn(
@@ -175,16 +169,8 @@ class RcPlayerDensityBehaviorTest {
                     }
                 },
             )
-            .bytes
+        doc.apply { setDensityBehavior(behavior) }
     }
-
-    private fun columnWith(behavior: Int): CoreDocument =
-        CoreDocument(RemoteClock.SYSTEM).apply {
-            ByteArrayInputStream(columnBytes()).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-            }
-            setDensityBehavior(behavior)
-        }
 
     /** Renders [document] at [renderDensity] and returns the gap between the two boxes, in dp. */
     private fun spacingGapDp(document: CoreDocument): Float {
@@ -211,35 +197,23 @@ class RcPlayerDensityBehaviorTest {
     /**
      * Density independence across displays: a `40.rdp` box authored at a creation density of 3 must
      * still render as 40dp when played back at a display density of 2 — i.e. dp resolves at the
-     * *playback* density, not the *creation* density. This holds only because the recording side
-     * encodes dp against the runtime density variable ([RemoteDensity.Host]); the previous baked
-     * creation-density constant would render it as 60dp here (40 × 3 ÷ 2).
+     * *playback* density, not the *creation* density.
      */
     @Test
     fun dpResolvesAtPlaybackDensityNotCreationDensity() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val bytes = runBlocking {
-            captureSingleRemoteDocument(
-                    context = context,
-                    // density = dpi / 160 = 480 / 160 = 3, deliberately != the render density (2).
-                    creationDisplayInfo = RemoteCreationDisplayInfo(300, 300, 480, 1f),
-                    content = {
-                        RemoteBox(
-                            modifier =
-                                RemoteModifier.size(40.rdp).semantics {
-                                    contentDescription = "box".rs
-                                }
-                        )
-                    },
-                )
-                .bytes
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo = RemoteCreationDisplayInfo(300, 300, 480, 1f),
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(40.rdp).semantics { contentDescription = "box".rs }
+                    )
+                },
+            )
         }
-        val document =
-            CoreDocument(RemoteClock.SYSTEM).apply {
-                ByteArrayInputStream(bytes).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
