@@ -129,6 +129,9 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
     private var metadataMatchingCaptureCallback: CameraCaptureCallback? = null
     private var reprocessingImageDeferrableSurface: DeferrableSurface? = null
 
+    private val zslIntersectionSizes: List<Size> =
+        ZslUtil.computeZslIntersectionSizes(cameraMetadata, FORMAT)
+
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
         reset()
 
@@ -152,7 +155,7 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
             return
         }
 
-        val size = streamConfigurationMap.getInputSizes(FORMAT).toList().maxBy { it.area() }
+        val size = zslIntersectionSizes.maxByOrNull { it.area() }
         if (size == null) {
             Camera2Logger.warn { "ZslControlImpl: Unable to find a supported size for ZSL" }
             return

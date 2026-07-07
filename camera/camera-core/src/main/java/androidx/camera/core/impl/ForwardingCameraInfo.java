@@ -175,6 +175,12 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     }
 
     @Override
+    @ExperimentalZeroShutterLag
+    public boolean canSupportZsl(@NonNull List<Size> sizes) {
+        return mCameraInfoInternal.canSupportZsl(sizes);
+    }
+
+    @Override
     public @NonNull Set<Range<Integer>> getSupportedFrameRateRanges() {
         return mCameraInfoInternal.getSupportedFrameRateRanges();
     }
