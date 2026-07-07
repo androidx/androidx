@@ -297,6 +297,11 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                     mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
                 "evaluationDependsOnChildren" to
                     mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
+                "filter" to
+                    mapOf(
+                        CONFIGURATION_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                        TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                    ),
                 "findAll" to
                     mapOf(
                         NAMED_DOMAIN_OBJECT_COLLECTION to
@@ -311,7 +316,11 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                     mapOf(
                         PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
                     ),
-                "forEach" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
+                "forEach" to
+                    mapOf(
+                        CONFIGURATION_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                        TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                    ),
                 "hasProperty" to
                     mapOf(
                         PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
@@ -347,9 +356,16 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "groupBy" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
                 "matching" to
                     mapOf(TASK_COLLECTION to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "map" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
+                "map" to
+                    mapOf(
+                        CONFIGURATION_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                        TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                    ),
                 "mapNotNull" to
-                    mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
+                    mapOf(
+                        CONFIGURATION_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                        TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                    ),
                 "maybeCreate" to
                     mapOf(
                         CONFIGURATION_CONTAINER to

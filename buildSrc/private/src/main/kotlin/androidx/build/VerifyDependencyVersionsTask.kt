@@ -125,6 +125,7 @@ internal fun Project.createVerifyDependencyVersionsTask():
             task.androidXDependencySet.set(
                 project.provider {
                     val dependencies = mutableSetOf<AndroidXDependency>()
+                    @Suppress("EagerGradleConfiguration")
                     project.configurations.filter(project::shouldVerifyConfiguration).forEach {
                         configuration ->
                         configuration.allDependencies.filter(::shouldVerifyDependency).forEach {
