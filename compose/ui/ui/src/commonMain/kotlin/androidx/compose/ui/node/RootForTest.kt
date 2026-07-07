@@ -91,12 +91,13 @@ interface RootForTest {
     fun updateSemanticsForTest() {}
 
     /**
-     * Unregisters callbacks scheduled by delegating to the event queue (e.g. Handler on Android).
+     * Unregisters callbacks scheduled by delegating to the event queue (e.g. Handler on Android)
+     * and runs them immediately.
      *
      * This method is used to ensure that root instance does not leak when the event queue is not
      * drained.
      */
-    fun clearCallbacks() {}
+    fun runAndClearPendingCallbacks() {}
 
     /**
      * Sets the [UncaughtExceptionHandler] callback to dispatch layout, measure, and draw exceptions

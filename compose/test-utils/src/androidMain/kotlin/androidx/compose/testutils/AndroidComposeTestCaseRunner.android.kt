@@ -284,8 +284,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         val rootView = activity.findViewById(android.R.id.content) as ViewGroup
         rootView.removeAllViews()
 
-        // Remove outOfFrameExecutor callbacks
-        owner?.clearCallbacks()
+        // Run and remove outOfFrameExecutor callbacks
+        owner?.runAndClearPendingCallbacks()
 
         // Dispatcher will clean up the cancelled coroutines when it advances to them
         testCoroutineDispatcher.scheduler.advanceUntilIdle()

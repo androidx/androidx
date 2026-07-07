@@ -926,9 +926,9 @@ abstract interface androidx.compose.ui.node/RootForTest { // androidx.compose.ui
         abstract fun <get-textInputService>(): androidx.compose.ui.text.input/TextInputService // androidx.compose.ui.node/RootForTest.textInputService.<get-textInputService>|<get-textInputService>(){}[0]
 
     abstract fun sendKeyEvent(androidx.compose.ui.input.key/KeyEvent): kotlin/Boolean // androidx.compose.ui.node/RootForTest.sendKeyEvent|sendKeyEvent(androidx.compose.ui.input.key.KeyEvent){}[0]
-    open fun clearCallbacks() // androidx.compose.ui.node/RootForTest.clearCallbacks|clearCallbacks(){}[0]
     open fun forceAccessibilityForTesting(kotlin/Boolean) // androidx.compose.ui.node/RootForTest.forceAccessibilityForTesting|forceAccessibilityForTesting(kotlin.Boolean){}[0]
     open fun measureAndLayoutForTest() // androidx.compose.ui.node/RootForTest.measureAndLayoutForTest|measureAndLayoutForTest(){}[0]
+    open fun runAndClearPendingCallbacks() // androidx.compose.ui.node/RootForTest.runAndClearPendingCallbacks|runAndClearPendingCallbacks(){}[0]
     open fun sendIndirectPointerEvent(androidx.compose.ui.input.indirect/IndirectPointerEvent): kotlin/Boolean // androidx.compose.ui.node/RootForTest.sendIndirectPointerEvent|sendIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent){}[0]
     open fun setAccessibilityEventBatchIntervalMillis(kotlin/Long) // androidx.compose.ui.node/RootForTest.setAccessibilityEventBatchIntervalMillis|setAccessibilityEventBatchIntervalMillis(kotlin.Long){}[0]
     open fun setUncaughtExceptionHandler(androidx.compose.ui.node/RootForTest.UncaughtExceptionHandler?) // androidx.compose.ui.node/RootForTest.setUncaughtExceptionHandler|setUncaughtExceptionHandler(androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler?){}[0]
