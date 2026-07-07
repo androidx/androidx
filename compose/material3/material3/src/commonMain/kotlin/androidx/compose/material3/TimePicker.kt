@@ -1574,7 +1574,6 @@ private fun TimeInputImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TimeScrollImpl(
     modifier: Modifier,
@@ -1775,7 +1774,7 @@ private fun ClockDisplayNumbers(
     val isPortrait = defaultTimePickerLayoutType() == TimePickerLayoutType.Vertical
 
     val richSelectorWidth =
-        if (isPortrait) {
+        if (isPortrait && state.is24hour) {
             RichTimeFieldWidthPortrait
         } else {
             RichTimeFieldWidth
