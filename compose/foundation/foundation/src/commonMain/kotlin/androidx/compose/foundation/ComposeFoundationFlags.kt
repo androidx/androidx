@@ -89,14 +89,19 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField") @JvmField var isPausableCompositionInPrefetchEnabled = true
 
     /**
-     * With this flag on, Pager will use Cache Window as the default prefetching strategy, instead
-     * of 1 item in the direction of the scroll. The window used will be 1 view port AFTER the
-     * currently composed items, this includes visible and items composed through beyond bounds.
+     * With this flag on, Pager will use
+     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] as the default prefetching
+     * strategy, instead of 1 item in the direction of the scroll. The window used will be 1 view
+     * port AFTER the currently composed items, this includes visible and items composed through
+     * beyond bounds.
      */
     // TODO: b/485967807
     @field:Suppress("MutableBareField") @JvmField var isCacheWindowForPagerEnabled = true
 
-    /** With this flag on, lazy layout Cache Window will support multi-lane configurations. */
+    /**
+     * With this flag on, [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] will
+     * support multi-lane configurations.
+     */
     // TODO: b/522643119
     @field:Suppress("MutableBareField") @JvmField var isMultiLaneCacheWindowEnabled = true
 
