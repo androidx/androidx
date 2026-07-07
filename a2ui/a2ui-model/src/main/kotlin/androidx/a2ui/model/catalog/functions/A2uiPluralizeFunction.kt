@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
@@ -96,9 +97,11 @@ public constructor(
      * Returns the matching plural form based on count in [args].
      *
      * @param args arguments containing the count "value" and plural form strings
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return the selected plural form, or null if count or default fallback is missing
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
         val other = A2uiFunctionArgParser.getStringArg(args, ARG_OTHER_KEY)
 

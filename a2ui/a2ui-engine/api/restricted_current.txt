@@ -37,6 +37,7 @@ package androidx.a2ui.engine.model {
     ctor public A2uiCoreSurfaceModel(String id, androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog, androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiUserAction,kotlin.Unit> onDispatchAction, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiClientError,kotlin.Unit> onDispatchError, optional java.util.Map<java.lang.String,? extends java.lang.Object?> theme, optional boolean shouldSendDataModel, optional kotlin.jvm.functions.Function0<java.lang.Long> timeProvider);
     method public void dispatchAction(String componentId, java.util.Map<java.lang.String,? extends java.lang.Object?> actionDefinition);
     method public void dispatchError(String componentId, androidx.a2ui.model.protocol.A2uiException exception);
+    method public Object? evaluatePayload(String componentId, androidx.a2ui.engine.model.A2uiCoreValueResolver valueResolver, androidx.a2ui.model.protocol.A2uiDataPath dataPath, Object? payload);
     method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreCatalog getCatalog();
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry getComponentRegistry();
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreDataModel getDataModel();

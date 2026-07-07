@@ -19,6 +19,7 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
@@ -59,9 +60,11 @@ public class A2uiAndFunction private constructor() : A2uiFunction {
      * Runs the logical AND operation on the given [args].
      *
      * @param args arguments containing the "values" list of booleans to check
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return true if all values in the list are true, false otherwise
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val values = A2uiFunctionArgParser.getBooleanListArg(args, ARG_VALUES_KEY)
         return values.all { it }
     }

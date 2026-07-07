@@ -19,6 +19,7 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
@@ -54,9 +55,11 @@ public class A2uiRequiredFunction private constructor() : A2uiFunction {
      * Checks if the value in [args] is present and not blank.
      *
      * @param args arguments containing the "value" to check
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return true if the value is not null, not empty, and not blank
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getArg(args, ARG_VALUE_KEY) ?: return false
         return when (value) {
             is CharSequence -> value.isNotEmpty()
