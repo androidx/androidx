@@ -26,12 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -58,7 +58,7 @@ fun RunComposeUiTestSample() = runComposeUiTest {
 fun RunComposeUiTestConfigSample() =
     runComposeUiTest(
         config =
-            ComposeTestConfig(
+            ComposeUiTestConfig(
                 effectContext = StandardTestDispatcher(),
                 runTestContext = StandardTestDispatcher(),
                 testTimeout = 30.seconds,

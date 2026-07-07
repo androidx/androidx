@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.AndroidComposeUiTestEnvironment
 import androidx.compose.ui.test.ComposeAccessibilityValidator
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
 import androidx.compose.ui.test.MainTestClock
@@ -30,7 +31,6 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.onRootWithViewInteraction
-import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilDoesNotExist
 import androidx.compose.ui.test.waitUntilExactlyOneExists
@@ -361,7 +361,7 @@ private constructor(
         activityProvider: (R) -> A,
     ) : this(
         activityRule = activityRule,
-        config = ComposeTestConfig(effectContext = effectContext),
+        config = ComposeUiTestConfig(effectContext = effectContext),
         useStandardTestDispatcher = false,
         enforceInputModeFromConfig = false,
         activityProvider = activityProvider,
@@ -383,7 +383,7 @@ private constructor(
      * and monitor the compose content.
      *
      * @param activityRule Test rule to use to launch the Activity.
-     * @param config The [ComposeTestConfig] used to configure the test environment, providing
+     * @param config The [ComposeUiTestConfig] used to configure the test environment, providing
      *   control over the [CoroutineContext] used for composition, the test timeout, and other
      *   environment-specific settings.
      * @param useStandardTestDispatcher Controls the default dispatcher used for composition. If
@@ -396,7 +396,7 @@ private constructor(
      */
     internal constructor(
         activityRule: R,
-        config: ComposeTestConfig,
+        config: ComposeUiTestConfig,
         useStandardTestDispatcher: Boolean = true,
         enforceInputModeFromConfig: Boolean = true,
         activityProvider: (R) -> A,
@@ -626,7 +626,7 @@ internal fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScena
 @OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION")
 private fun <A : ComponentActivity> createTestEnvironment(
-    config: ComposeTestConfig,
+    config: ComposeUiTestConfig,
     useStandardTestDispatcher: Boolean,
     enforceInputModeFromConfig: Boolean,
     content: () -> A,
