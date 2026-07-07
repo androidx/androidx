@@ -19,7 +19,6 @@ package androidx.compose.ui.test.injectionscope.touch
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
@@ -69,7 +68,7 @@ class MoveByWithUnplacedUiTest {
     @Test
     fun onePointer_moveByWithUnPlaceUi_stopsTrackingChanges() {
         rule.setContent {
-            Box(Modifier.fillMaxSize().safeContentPadding()) {
+            Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier.testTag(targetTag)
                         .layout { measurable, constraints ->
@@ -137,7 +136,7 @@ class MoveByWithUnplacedUiTest {
     @Test
     fun onePointer_moveByAndUnPlaceUiThenPlaceUi_temporarilyStopsTrackingChangesDuringUnPlace() {
         rule.setContent {
-            Box(Modifier.fillMaxSize().safeContentPadding()) {
+            Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier.testTag(targetTag)
                         .layout { measurable, constraints ->
