@@ -595,6 +595,36 @@ class NavigationEventDispatcherTest {
     }
 
     @Test
+    fun fallback_propagatesToChildAndClearsOnDispose() {
+        val parentFallback = OnBackCompletedFallback {}
+        val parentDispatcher = NavigationEventDispatcher(onBackCompletedFallback = parentFallback)
+        val childDispatcher = NavigationEventDispatcher(parentDispatcher)
+
+        assertThat(childDispatcher.onBackCompletedFallback === parentFallback).isTrue()
+
+        childDispatcher.dispose()
+
+        assertThat(childDispatcher.onBackCompletedFallback).isNull()
+    }
+
+    @Test
+    fun forwardFallback_propagatesToChildAndClearsOnDispose() {
+        val parentFallback = OnForwardCompletedFallback {}
+        val parentDispatcher =
+            NavigationEventDispatcher(
+                onBackCompletedFallback = {},
+                onForwardCompletedFallback = parentFallback,
+            )
+        val childDispatcher = NavigationEventDispatcher(parentDispatcher)
+
+        assertThat(childDispatcher.onForwardCompletedFallback === parentFallback).isTrue()
+
+        childDispatcher.dispose()
+
+        assertThat(childDispatcher.onForwardCompletedFallback).isNull()
+    }
+
+    @Test
     fun setEnabled_onDisabledHandler_reEnablesEventReceiving() {
         val dispatcher = NavigationEventDispatcher()
         val handler = TestNavigationEventHandler()
