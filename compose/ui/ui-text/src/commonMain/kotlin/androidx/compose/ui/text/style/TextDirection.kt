@@ -42,10 +42,12 @@ value class TextDirection internal constructor(val value: Int) {
 
     companion object {
         /** Sets the text direction to Left-to-Right. */
-        val Ltr = TextDirection(1)
+        val Ltr
+            get() = TextDirection(1)
 
         /** Sets the text direction to Right-to-Left. */
-        val Rtl = TextDirection(2)
+        val Rtl
+            get() = TextDirection(2)
 
         /**
          * Resolves direction using the first strong directional character according to the Unicode
@@ -57,7 +59,8 @@ value class TextDirection internal constructor(val value: Int) {
          * [androidx.compose.ui.text.Paragraph] (ignoring
          * [androidx.compose.ui.unit.LayoutDirection]).
          */
-        val Content = TextDirection(3)
+        val Content
+            get() = TextDirection(3)
 
         /**
          * Resolves direction based on the first strong directional character according to the
@@ -65,7 +68,8 @@ value class TextDirection internal constructor(val value: Int) {
          *
          * Falls back to Left-to-Right if no strong directional characters are found.
          */
-        val ContentOrLtr = TextDirection(4)
+        val ContentOrLtr
+            get() = TextDirection(4)
 
         /**
          * Resolves direction based on the first strong directional character according to the
@@ -73,10 +77,12 @@ value class TextDirection internal constructor(val value: Int) {
          *
          * Falls back to Right-to-Left if no strong directional characters are found.
          */
-        val ContentOrRtl = TextDirection(5)
+        val ContentOrRtl
+            get() = TextDirection(5)
 
         /** Represents an unset [TextDirection] value. */
-        val Unspecified = TextDirection(0)
+        val Unspecified
+            get() = TextDirection(0)
 
         /**
          * Creates [TextDirection] from [value].

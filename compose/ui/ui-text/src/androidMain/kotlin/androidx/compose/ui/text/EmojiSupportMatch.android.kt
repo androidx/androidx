@@ -38,12 +38,15 @@ value class EmojiSupportMatch internal constructor(internal val value: Int) {
     companion object {
 
         /** Default support strategy defers to EmojiCompat.get() */
-        val Default = EmojiSupportMatch(0)
+        val Default
+            get() = EmojiSupportMatch(0)
 
         /** Do not use support emoji for this paragraph. */
-        val None = EmojiSupportMatch(1)
+        val None
+            get() = EmojiSupportMatch(1)
 
         /** Attempt to replace all emoji, even if they're available on this device's fonts. */
-        val All = EmojiSupportMatch(2)
+        val All
+            get() = EmojiSupportMatch(2)
     }
 }

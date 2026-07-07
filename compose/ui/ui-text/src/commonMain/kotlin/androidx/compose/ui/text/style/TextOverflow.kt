@@ -39,7 +39,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowClipSample
          */
-        @Stable val Clip = TextOverflow(1)
+        @Stable
+        val Clip
+            get() = TextOverflow(1)
 
         /**
          * Displays an ellipsis at the end of the line to indicate overflow.
@@ -48,7 +50,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowEllipsisSample
          */
-        @Stable val Ellipsis = TextOverflow(2)
+        @Stable
+        val Ellipsis
+            get() = TextOverflow(2)
 
         /**
          * Displays all text, even if it exceeds the specified bounds.
@@ -62,7 +66,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * Note: Text expanding past its bounds may still be clipped by modifiers like
          * `Modifier.clipToBounds`.
          */
-        @Stable val Visible = TextOverflow(3)
+        @Stable
+        val Visible
+            get() = TextOverflow(3)
 
         /**
          * Displays an ellipsis at the start of the line.
@@ -72,7 +78,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * Note: On Android, this falls back to [Clip] for multiline text (only supported for single
          * line or maxLines=1).
          */
-        @Stable val StartEllipsis = TextOverflow(4)
+        @Stable
+        val StartEllipsis
+            get() = TextOverflow(4)
 
         /**
          * Displays an ellipsis in the middle of the line.
@@ -82,6 +90,8 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * Note: On Android, this falls back to [Clip] for multiline text (only supported for single
          * line or maxLines=1).
          */
-        @Stable val MiddleEllipsis = TextOverflow(5)
+        @Stable
+        val MiddleEllipsis
+            get() = TextOverflow(5)
     }
 }
