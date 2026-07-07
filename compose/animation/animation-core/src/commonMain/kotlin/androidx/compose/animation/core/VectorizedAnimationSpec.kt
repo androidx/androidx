@@ -521,20 +521,23 @@ public value class ArcMode internal constructor(internal val value: Int) {
          * Interpolates using a quarter of an Ellipse where the curve is "above" the center of the
          * Ellipse.
          */
-        public val ArcAbove: ArcMode = ArcMode(ArcSplineArcAbove)
+        public val ArcAbove: ArcMode
+            get() = ArcMode(ArcSplineArcAbove)
 
         /**
          * Interpolates using a quarter of an Ellipse where the curve is "below" the center of the
          * Ellipse.
          */
-        public val ArcBelow: ArcMode = ArcMode(ArcSplineArcBelow)
+        public val ArcBelow: ArcMode
+            get() = ArcMode(ArcSplineArcBelow)
 
         /**
          * An [ArcMode] that forces linear interpolation.
          *
          * You'll likely only use this mode within a keyframe.
          */
-        public val ArcLinear: ArcMode = ArcMode(ArcSplineArcStartLinear)
+        public val ArcLinear: ArcMode
+            get() = ArcMode(ArcSplineArcStartLinear)
     }
 }
 

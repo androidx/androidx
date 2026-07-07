@@ -321,12 +321,23 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
     @kotlin.jvm.JvmInline
     public value class SlideDirection internal constructor(private val value: Int) {
         public companion object {
-            public val Left: SlideDirection = SlideDirection(0)
-            public val Right: SlideDirection = SlideDirection(1)
-            public val Up: SlideDirection = SlideDirection(2)
-            public val Down: SlideDirection = SlideDirection(3)
-            public val Start: SlideDirection = SlideDirection(4)
-            public val End: SlideDirection = SlideDirection(5)
+            public val Left: SlideDirection
+                get() = SlideDirection(0)
+
+            public val Right: SlideDirection
+                get() = SlideDirection(1)
+
+            public val Up: SlideDirection
+                get() = SlideDirection(2)
+
+            public val Down: SlideDirection
+                get() = SlideDirection(3)
+
+            public val Start: SlideDirection
+                get() = SlideDirection(4)
+
+            public val End: SlideDirection
+                get() = SlideDirection(5)
         }
 
         override fun toString(): String {
