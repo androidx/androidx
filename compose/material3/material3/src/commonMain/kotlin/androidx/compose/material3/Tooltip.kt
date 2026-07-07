@@ -1191,7 +1191,7 @@ private fun Modifier.layoutCaret(
     positionProvider: PopupPositionProvider,
     layoutDirection: LayoutDirection,
 ): Modifier =
-    this.onLayoutRectChanged(throttleMillis = 64) { bounds ->
+    this.onLayoutRectChanged(throttleMillis = 0, debounceMillis = 0) { bounds ->
         val anchorCoordinates = getAnchorLayoutCoordinates()
         if (anchorCoordinates != null && anchorCoordinates.isAttached) {
             val tooltipScreenPos = bounds.boundsInScreen
