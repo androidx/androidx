@@ -29,6 +29,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.captureToImage
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -607,6 +608,28 @@ class AndroidCanvasTest {
                 )
             }
         }
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
+    @Test
+    fun testDrawVerticesDoesNotCrashBelowAPI29() {
+        val imageBitmap = ImageBitmap(200, 200)
+        val canvas = Canvas(imageBitmap)
+
+        val vertices =
+            Vertices(
+                vertexMode = VertexMode.Triangles,
+                positions =
+                    listOf(Offset(0f, 0f), Offset(200f, 0f), Offset(0f, 200f), Offset(200f, 200f)),
+                textureCoordinates =
+                    listOf(Offset(0f, 0f), Offset(200f, 0f), Offset(0f, 200f), Offset(200f, 200f)),
+                colors = listOf(Color.Red, Color.Red, Color.Red, Color.Red),
+                indices = listOf(0, 1, 2, 1, 2, 3),
+            )
+
+        canvas.drawVertices(vertices, BlendMode.SrcOver, Paint())
+
+        imageBitmap.assertPixels { Color.Red }
     }
 
     fun frameworkPaint(): android.graphics.Paint =
