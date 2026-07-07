@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.createAndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
@@ -65,6 +66,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -838,5 +840,16 @@ class ContentCaptureTest {
                 )
             )
             .isEqualTo(expected)
+    }
+
+    @Test
+    fun onViewDetachedFromWindow_nullHandler_doesNotCrash() {
+        // A newly instantiated View is not attached to a window, so view.handler is null.
+        rule.runOnUiThread {
+            val view = rule.createAndroidComposeView(coroutineContext = Dispatchers.Main)
+            val manager =
+                AndroidContentCaptureManager(view = view, onContentCaptureSession = { null })
+            manager.onViewDetachedFromWindow(view)
+        }
     }
 }
