@@ -4901,10 +4901,12 @@ package androidx.core.view.accessibility {
   }
 
   public static final class AccessibilityNodeInfoCompat.SelectionCompat {
+    ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.os.Bundle);
     ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.view.accessibility.AccessibilityNodeInfo.Selection?);
     ctor public AccessibilityNodeInfoCompat.SelectionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getEnd();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getStart();
+    method public android.os.Bundle toActionArguments();
     method public android.view.accessibility.AccessibilityNodeInfo.Selection? unwrap();
   }
 
@@ -4915,8 +4917,19 @@ package androidx.core.view.accessibility {
     ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getNode();
     method public int getOffset();
+    method @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public int getOffsetType();
     method public android.view.View? getView();
     method public int getVirtualDescendantId();
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_CHILD = 1; // 0x1
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_TEXT = 0; // 0x0
+  }
+
+  @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final class AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder {
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat build();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder setOffsetType(int);
   }
 
   public abstract static class AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
@@ -5083,6 +5096,9 @@ package androidx.core.view.accessibility {
     field public static final int TYPE_MAGNIFICATION_OVERLAY = 6; // 0x6
     field public static final int TYPE_SPLIT_SCREEN_DIVIDER = 5; // 0x5
     field public static final int TYPE_SYSTEM = 3; // 0x3
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is a preview accessibility API. It may be changed or removed in future releases.") @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.FIELD}) public @interface PreviewAccessibilityApi {
   }
 
 }
@@ -5333,17 +5349,20 @@ package androidx.core.widget {
     method public int getMaxScrollAmount();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isFillViewport();
+    method public boolean isScrollToTopEnabled();
     method public boolean isSmoothScrollingEnabled();
     method public void onAttachedToWindow();
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onScrollToTop(int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
     method public boolean pageScroll(int);
     method public void setFillViewport(boolean);
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener?);
+    method public void setScrollToTopEnabled(boolean);
     method public void setSmoothScrollingEnabled(boolean);
     method public final void smoothScrollBy(int, int);
     method public final void smoothScrollBy(int, int, int);

@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ಸಂದೇಶವನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಲಾಗುತ್ತದೆ.\nಹೆಚ್ಚಿನ ಪಠ್ಯವನ್ನು ಎರಡನೇ ಸಾಲಿನಲ್ಲಿ ಸೇರಿಸಬಹುದು."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ಕಿರು ಸಂದೇಶ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೊ"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"ಸಂಕ್ಷಿಪ್ತ ಐಟಂ ಡೆಮೋ"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ AlphaJump ಸಕ್ರಿಯಗೊಳಿಸಿದ ಡೆಮೋ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ರೇಡಿಯೋ ಬಟನ್ ಸೆಕ್ಷನ್"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ಟಾಗಲ್ ಸೆಕ್ಷನ್"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ಚಿತ್ರ ಮತ್ತು ಕ್ರಿಯೆಗಳ ಡೆಮೋವನ್ನು ಕೊನೆಗೊಳಿಸಿ"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"ಚಿಪ್ ಡೆಮೋ"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ಪ್ರಗತಿ ಪಟ್ಟಿಯ ಡೆಮೋ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"ವಿಭಾಗದ ಹೆಡರ್ ಡೆಮೋ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದ ಡೆಮೋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ಪೇನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ಸ್ಥಳ ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ಕಂಟೆಂಟ್ ಡೆಮೋಗಳನ್ನು ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್‌‌ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ಗ್ರಿಡ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

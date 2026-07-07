@@ -56,11 +56,12 @@ public final class Speed {
     /**
      * Returns the display speed of the car in meters/second.
      *
-     * <p>Some cars display a slightly slower speed than the actual speed. This is usually
-     * displayed on the speedometer.
+     * <p>This is the value expected to be displayed on the speedometer.
+     *
+     * <p>Some cars may display a slightly higher speed than the actual speed.
      *
      * <p>The value is positive when the vehicle is moving forward, negative when moving
-     * backwards and zero when stopped.
+     * backwards, and zero when stopped.
      */
     public @NonNull CarValue<Float> getDisplaySpeedMetersPerSecond() {
         return requireNonNull(mDisplaySpeedMetersPerSecond);

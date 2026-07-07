@@ -454,6 +454,7 @@ package androidx.recyclerview.widget {
     method public boolean isComputingLayout();
     method @Deprecated public boolean isLayoutFrozen();
     method public final boolean isLayoutSuppressed();
+    method public boolean isScrollToTopEnabled();
     method public void nestedScrollBy(int, int);
     method public void offsetChildrenHorizontal(@Px int);
     method public void offsetChildrenVertical(@Px int);
@@ -461,6 +462,7 @@ package androidx.recyclerview.widget {
     method public void onChildDetachedFromWindow(android.view.View);
     method public void onDraw(android.graphics.Canvas);
     method public void onScrollStateChanged(int);
+    method public boolean onScrollToTop(int);
     method public void onScrolled(@Px int, @Px int);
     method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void removeItemDecorationAt(int);
@@ -486,6 +488,7 @@ package androidx.recyclerview.widget {
     method public void setPreserveFocusAfterLayout(boolean);
     method public void setRecycledViewPool(androidx.recyclerview.widget.RecyclerView.RecycledViewPool?);
     method @Deprecated public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
+    method public void setScrollToTopEnabled(boolean);
     method public void setScrollingTouchSlop(int);
     method public static void setVerboseLoggingEnabled(boolean);
     method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension?);

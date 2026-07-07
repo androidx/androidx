@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ข้อความจะแสดงที่นี่\nข้อความเพิ่มเติมจะอยู่ในบรรทัดที่ 2"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"การสาธิตเทมเพลตข้อความสั้น"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"เดโมเทมเพลตรายการแบบแยกส่วน"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"เดโมรายการแบบย่อ"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"เดโมที่เปิดใช้ Sectioned Item AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ส่วนปุ่มตัวเลือก"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"สลับส่วน"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"การสาธิตรูปภาพและการดำเนินการสิ้นสุด"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"การสาธิตเกี่ยวกับชิป"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"เดโมแถบความคืบหน้า"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"การแสดงตัวอย่างส่วนหัวของส่วน"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"เดโมส่วนสปอตไลท์"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"การสาธิตเทมเพลตแผง"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"การสาธิตเทมเพลตรายการสถานที่"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"เรียกดูสถานที่"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"การสาธิตแผนที่พร้อมเนื้อหา"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"การสาธิตแผนที่พร้อมเทมเพลตข้อความ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"การสาธิตแผนที่พร้อมเทมเพลตตารางกริด"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

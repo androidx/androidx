@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"መልእክት እዚህ ይሆናል።\nበሁለተኛው መስመር ላይ ተጨማሪ ጽሁፍ።"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"የአጭር መልዕክት ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"የተከፈለ ንጥል ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"የተጨመቀ ንጥል ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"የተከፈለ ንጥል AlphaJump የነቃ ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"የራድዮ አዝራር ክፍል"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"የቀያይር ክፍል"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"የመጨረሻ ምስል እና የድርጊቶች ቅንጭብ ማሳያ"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"የቺፕ ቅንጭብ ማሳያ"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"የግስጋሴ አሞሌ ቅንጭብ ማሳያ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"የክፍል ራስጌ ቅንጭብ ማሳያ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"የSpotlight ክፍል ቅንጭብ ማሳያ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"የፔን ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"የዝርዝር ቅንብር ደንብ ቅንጭብ ማሳያ ይመድቡ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ቦታዎችን ያስሱ"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ካርታ ከይዘት ቅንጭብ ማሳያዎች ጋር"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ካርታ በመልዕክት ቅንብር ደንብ ቅንጭብ ማሳያ ጋር"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ካርታ ከGrid ቅንብር ደንብ ጋር"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

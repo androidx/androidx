@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"A mensagem fica aqui.\nMais texto na segunda linha."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstração do modelo de mensagem curta"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstração do modelo de itens com seções"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstração de item condensado"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demonstração com AlphaJump ativado para itens organizados por seções"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Seção de botão de opção"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Alternar seção"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demonstração final de ações e imagem"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Demonstração de chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demonstração da barra de progresso"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstração do cabeçalho da seção"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstração da seção Destaques"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstração do modelo de painel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstração do modelo de lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar lugares"</string>
@@ -374,11 +377,13 @@
     <string name="vector_toggle_details" msgid="1301305340033556819">"Mudar para adicionar/remover cor"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modelo de mapa com botões"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Evitar pedágios"</string>
-    <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Trajetos"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Evitar rodovias"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Evitar balsas"</string>
     <string name="map_demos_title" msgid="2169766615521476592">"Demonstrações de mapas"</string>
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa com demonstrações de conteúdo"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa com demonstração de modelo de mensagem"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa com demonstração de modelo de grade"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

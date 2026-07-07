@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Здесь указывается сообщение.\nНа второй строке есть ещё текст."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Шаблоны коротких сообщений (режим демонстрации)"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Шаблон списка с разделами"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Демонстрация уменьшенного элемента"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Демонстрация списка с разделами и включенной функции AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Раздел с переключателем"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Раздел с переключателем"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Завершить демонстрацию изображения и действий"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Демонстрация чипа"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демоверсия индикатора выполнения"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Заголовок раздела (демоверсия)"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Демонстрация раздела \"В центре внимания\""</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демонстрация шаблона панели"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демонстрация шаблона списка мест"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Просмотр мест"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Карта с демонстрацией контента"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Карта с демонстрацией шаблона сообщения"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Карта с демонстрацией шаблона сетки"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

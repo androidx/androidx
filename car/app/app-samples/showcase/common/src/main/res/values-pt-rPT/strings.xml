@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"A mensagem é colocada aqui.\nMais texto na segunda linha."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstração do modelo de mensagem curta"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstração do modelo de item em secções"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstração do item condensada"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demonstração do AlphaJump de itens em secções ativado"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secção Botão de opção"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Ativar/desativar secção"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demonstração de ações e imagem final"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Demonstração do chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demonstração da barra de progresso"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstração do cabeçalho da secção"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstração da secção de destaque"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstração do modelo de painel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstração do modelo de lista de locais"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar locais"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapeie com demonstrações de conteúdo"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapeie com uma demonstração do modelo de mensagem"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapeie com uma demonstração do modelo de grelha"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>
