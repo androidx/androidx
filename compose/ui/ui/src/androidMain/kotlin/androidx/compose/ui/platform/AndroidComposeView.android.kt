@@ -2099,7 +2099,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         composeAccessibilityDelegate.processSemanticChangesForTest()
     }
 
-    override fun clearCallbacks() {
+    override fun runAndClearPendingCallbacks() {
+        outOfFrameRunnable.run()
         handler.removeCallbacks(outOfFrameRunnable)
     }
 

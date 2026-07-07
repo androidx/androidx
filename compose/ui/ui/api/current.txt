@@ -3856,12 +3856,12 @@ package androidx.compose.ui.node {
   }
 
   public interface RootForTest {
-    method public default void clearCallbacks();
     method public default void forceAccessibilityForTesting(boolean enable);
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.input.TextInputService getTextInputService();
     method public default void measureAndLayoutForTest();
+    method public default void runAndClearPendingCallbacks();
     method public default boolean sendIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent indirectPointerEvent);
     method @KotlinOnly public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent keyEvent);
     method @BytecodeOnly public boolean sendKeyEvent-ZmokQxo(android.view.KeyEvent);
