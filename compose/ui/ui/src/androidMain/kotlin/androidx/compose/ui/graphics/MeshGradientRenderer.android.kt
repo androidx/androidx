@@ -16,4 +16,11 @@
 
 package androidx.compose.ui.graphics
 
-internal actual fun MeshGradientRenderer(): MeshGradientRenderer = MeshGradientRendererImpl()
+import android.os.Build
+
+internal actual fun MeshGradientRenderer(): MeshGradientRenderer =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        MeshGradientRendererV34Impl()
+    } else {
+        MeshGradientRendererImpl()
+    }
