@@ -38,7 +38,8 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          *
          * It can be useful when you want to briefly reveal the content by toggling a reveal icon.
          */
-        val Visible = TextObfuscationMode(0)
+        val Visible
+            get() = TextObfuscationMode(0)
 
         /**
          * Reveals the last typed character for a short amount of time.
@@ -46,10 +47,12 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          * Forces reveal behavior regardless of platform settings. For platform-dependent behavior,
          * e.g. Androids "Show Passwords" setting, use [System].
          */
-        val RevealLastTyped = TextObfuscationMode(1)
+        val RevealLastTyped
+            get() = TextObfuscationMode(1)
 
         /** All characters are hidden. */
-        val Hidden = TextObfuscationMode(2)
+        val Hidden
+            get() = TextObfuscationMode(2)
 
         /**
          * Gives the choice to the platform to hide or show characters.
@@ -65,6 +68,7 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          * - Below SDK 37: Respects the system-wide "Show passwords" toggle
          *   (`Settings.System.TEXT_SHOW_PASSWORD`) for all input types.
          */
-        val System = TextObfuscationMode(3)
+        val System
+            get() = TextObfuscationMode(3)
     }
 }
