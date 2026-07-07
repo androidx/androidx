@@ -160,6 +160,7 @@ import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeTrue
@@ -3142,6 +3143,16 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 },
                 "has same properties as",
             )
+    }
+
+    @Test
+    fun onViewDetachedFromWindow_nullHandler_doesNotCrash() {
+        // A newly instantiated View is not attached to a window, so view.handler is null.
+        rule.runOnUiThread {
+            val view = rule.createAndroidComposeView(coroutineContext = Dispatchers.Main)
+            val delegate = AndroidComposeViewAccessibilityDelegateCompat(view)
+            delegate.onViewDetachedFromWindow(view)
+        }
     }
 
     private val View.composeAccessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
