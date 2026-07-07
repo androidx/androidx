@@ -19,6 +19,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -77,6 +80,11 @@ class LazyStaggeredGridPrefetcherTest(orientation: Orientation) :
             intArrayOf(initialFirstVisibleItemOffset),
             scheduler,
         )
+    }
+
+    @Before
+    fun setup() {
+        assumeFalse(ComposeFoundationFlags.isUsingCacheWindowInStaggeredGrids)
     }
 
     @Test

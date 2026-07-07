@@ -106,6 +106,14 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField") @JvmField var isMultiLaneCacheWindowEnabled = true
 
     /**
+     * With this flag enabled, [androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGrid]
+     * layouts will make use of a cache window, either a default cache window or the cache window
+     * provided by the user via the composable function arguments.
+     */
+    // TODO: b/530894185
+    @field:Suppress("MutableBareField") @JvmField var isUsingCacheWindowInStaggeredGrids = true
+
+    /**
      * With this flag enabled,
      * [androidx.compose.foundation.gestures.AnchoredDraggableState.targetValue] correctly returns
      * the [androidx.compose.foundation.gestures.AnchoredDraggableState.currentValue] when no
