@@ -91,34 +91,14 @@ public fun ComponentActivity.enableEdgeToEdge(
                 Build.VERSION.SDK_INT >= 26 -> EdgeToEdgeApi26()
                 else -> EdgeToEdgeApi23()
             }.also { Impl = it }
-    val setup = Runnable {
-        impl.setUp(
-            statusBarStyle,
-            navigationBarStyle,
-            window,
-            view,
-            statusBarStyle.detectDarkMode(view.resources),
-            navigationBarStyle.detectDarkMode(view.resources),
-        )
-    }
-    (view as ViewGroup).apply {
-        if (children.none { it.tag is EdgeToEdgeImpl }) {
-            // Adds a view to listen to configuration changes.
-            addView(
-                object : View(view.context) {
-                        override fun onConfigurationChanged(newConfig: Configuration) {
-                            setup.run()
-                        }
-                    }
-                    .apply {
-                        tag = impl
-                        visibility = View.GONE
-                        setWillNotDraw(true)
-                    }
-            )
-        }
-    }
-    setup.run()
+    impl.setUp(
+        statusBarStyle,
+        navigationBarStyle,
+        window,
+        view,
+        statusBarStyle.detectDarkMode(view.resources),
+        navigationBarStyle.detectDarkMode(view.resources),
+    )
     impl.adjustLayoutInDisplayCutoutMode(window)
 }
 
