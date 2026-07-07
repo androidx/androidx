@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.v2
+package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
@@ -22,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @Immutable
-actual class ComposeTestConfig
+actual class ComposeUiTestConfig
 actual constructor(
     actual val effectContext: CoroutineContext,
     actual val runTestContext: CoroutineContext,

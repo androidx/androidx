@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
 import androidx.compose.ui.test.ComposeRootRegistry.OnRegistrationChangedListener
-import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -448,7 +447,7 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     return object :
         AndroidComposeUiTestEnvironment<A>(
             config =
-                ComposeTestConfig(
+                ComposeUiTestConfig(
                     effectContext = effectContext,
                     runTestContext = runTestContext,
                     testTimeout = testTimeout,
@@ -466,7 +465,7 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * some of the properties and methods on [test] will only work during the call to [runTest], as they
  * require that the environment has been set up.
  *
- * If the [ComposeTestConfig.effectContext] contains a [TestDispatcher], that dispatcher will be
+ * If the [ComposeUiTestConfig.effectContext] contains a [TestDispatcher], that dispatcher will be
  * used to run composition, and its [TestCoroutineScheduler] will be used to construct the
  * [MainTestClock]. If the `effectContext` does not contain a `TestDispatcher`, a
  * [StandardTestDispatcher] will be created for `androidx.compose.ui.test.v2.*` APIs; otherwise, an
@@ -475,15 +474,15 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  *
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
  *   activity that was launched and hosts the Compose content.
- * @param config The [ComposeTestConfig] used to set up the test environment, providing control over
- *   the [CoroutineContext] used for composition, the test timeout, and other environment-specific
- *   settings.
+ * @param config The [ComposeUiTestConfig] used to set up the test environment, providing control
+ *   over the [CoroutineContext] used for composition, the test timeout, and other
+ *   environment-specific settings.
  */
 // Added OptIn(ExperimentalTestApi::class) for TestMonotonicFrameClock.
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>
 internal constructor(
-    private val config: ComposeTestConfig,
+    private val config: ComposeUiTestConfig,
     private val enforceInputModeFromConfig: Boolean = false,
     private val useStandardTestDispatcherForComposition: Boolean,
 ) {
@@ -495,8 +494,8 @@ internal constructor(
      * that some of the properties and methods on [test] will only work during the call to
      * [runTest], as they require that the environment has been set up.
      *
-     * If the [ComposeTestConfig.effectContext] contains a [TestDispatcher], that dispatcher will be
-     * used to run composition, and its [TestCoroutineScheduler] will be used to construct the
+     * If the [ComposeUiTestConfig.effectContext] contains a [TestDispatcher], that dispatcher will
+     * be used to run composition, and its [TestCoroutineScheduler] will be used to construct the
      * [MainTestClock]. If the `effectContext` does not contain a `TestDispatcher`, a
      * [StandardTestDispatcher] will be created for `androidx.compose.ui.test.v2.*` APIs; otherwise,
      * an [UnconfinedTestDispatcher] will be created. In both cases, the `TestCoroutineScheduler`
@@ -543,13 +542,13 @@ internal constructor(
         runTestContext: CoroutineContext = EmptyCoroutineContext,
         testTimeout: Duration = 60.seconds,
     ) : this(
-        ComposeTestConfig(effectContext, runTestContext, testTimeout),
+        ComposeUiTestConfig(effectContext, runTestContext, testTimeout),
         enforceInputModeFromConfig = false,
         useStandardTestDispatcherForComposition = true,
     )
 
     constructor(
-        config: ComposeTestConfig
+        config: ComposeUiTestConfig
     ) : this(
         config = config,
         enforceInputModeFromConfig = true,
@@ -781,7 +780,7 @@ internal constructor(
     }
 
     /**
-     * Applies the [InputMode] specified in the [ComposeTestConfig] to the
+     * Applies the [InputMode] specified in the [ComposeUiTestConfig] to the
      * [android.app.Instrumentation].
      */
     private fun setInputMode(inputMode: InputMode) {
@@ -795,7 +794,7 @@ internal constructor(
 
     /**
      * Resets the [android.app.Instrumentation] input mode to the system default, effectively
-     * reverting the input mode specified in the test configuration [ComposeTestConfig].
+     * reverting the input mode specified in the test configuration [ComposeUiTestConfig].
      */
     private fun resetInputMode() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -1148,7 +1147,7 @@ internal class AndroidComposeUiTestTimeoutException(message: String, cause: Thro
     Exception(message, cause)
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private fun ComposeTestConfig.createDefaultTestDispatcher(
+private fun ComposeUiTestConfig.createDefaultTestDispatcher(
     useStandardTestDispatcher: Boolean
 ): TestDispatcher {
     if (useStandardTestDispatcher) {

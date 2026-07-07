@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.v2
+package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
@@ -48,7 +48,7 @@ import kotlinx.coroutines.test.TestDispatcher
  *   [InputMode.Touch].
  */
 @Immutable
-expect class ComposeTestConfig(
+expect class ComposeUiTestConfig(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = 60.seconds,

@@ -18,7 +18,6 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.test.v2.ComposeTestConfig
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -33,7 +32,7 @@ class ComposeUiTestConfigTest {
 
     @Test
     fun runComposeUiTestWithTouchInputMode() =
-        runComposeUiTest(ComposeTestConfig(inputMode = InputMode.Touch)) {
+        runComposeUiTest(ComposeUiTestConfig(inputMode = InputMode.Touch)) {
             var actualInputMode: InputMode? = null
             setContent { actualInputMode = LocalInputModeManager.current.inputMode }
             assertThat(actualInputMode).isEqualTo(InputMode.Touch)
@@ -41,7 +40,7 @@ class ComposeUiTestConfigTest {
 
     @Test
     fun runComposeUiTestWithKeyboardInputMode() =
-        runComposeUiTest(ComposeTestConfig(inputMode = InputMode.Keyboard)) {
+        runComposeUiTest(ComposeUiTestConfig(inputMode = InputMode.Keyboard)) {
             var actualInputMode: InputMode? = null
             setContent { actualInputMode = LocalInputModeManager.current.inputMode }
             assertThat(actualInputMode).isEqualTo(InputMode.Keyboard)
@@ -50,7 +49,7 @@ class ComposeUiTestConfigTest {
     @Test
     @Suppress("KotlinRunTestResultUnused")
     fun inputModeResetsToDefaultAfterTest() {
-        runComposeUiTest(ComposeTestConfig(inputMode = InputMode.Keyboard)) {}
+        runComposeUiTest(ComposeUiTestConfig(inputMode = InputMode.Keyboard)) {}
 
         runComposeUiTest {
             var actualInputMode: InputMode? = null
