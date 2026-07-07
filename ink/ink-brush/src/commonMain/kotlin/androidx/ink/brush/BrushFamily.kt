@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
@@ -91,6 +92,7 @@ private constructor(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
+    @get:IntRange(from = 0, to = 1 shl 24)
     // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
     // getters, and just applies to the backing field if there is one).`
     public val textureAnimationLoopDurationMillis: Long by lazy {

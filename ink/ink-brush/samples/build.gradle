@@ -45,4 +45,6 @@ androidx {
     description = "Sample code for the Ink Brush module"
 }
 
-tasks.register("updateApi")  // No-op to simplify export process
+// No-ops to simplify export process
+tasks.register("updateApi")
+tasks.register("updateAbi")
