@@ -185,22 +185,19 @@ public fun VolumeConstraints.constrainDepth(depth: Int): Int = depth.coerceIn(mi
  * @param horizontal the horizontal offset to apply.
  * @param vertical the vertical offset to apply.
  * @param depth the depth offset to apply.
- * @param resetMins if true, the minimum values in the new constraints will be set to 0, otherwise.
- *   they will be offset.
  * @return a new [VolumeConstraints] object with offset values.
  */
 public fun VolumeConstraints.offset(
     horizontal: Int = 0,
     vertical: Int = 0,
     depth: Int = 0,
-    resetMins: Boolean = false,
 ): VolumeConstraints =
     VolumeConstraints(
-        if (resetMins) 0 else (minWidth + horizontal).coerceAtLeast(0),
+        (minWidth + horizontal).coerceAtLeast(0),
         addMaxWithMinimum(maxWidth, horizontal),
-        if (resetMins) 0 else (minHeight + vertical).coerceAtLeast(0),
+        (minHeight + vertical).coerceAtLeast(0),
         addMaxWithMinimum(maxHeight, vertical),
-        if (resetMins) 0 else (minDepth + depth).coerceAtLeast(0),
+        (minDepth + depth).coerceAtLeast(0),
         addMaxWithMinimum(maxDepth, depth),
     )
 
