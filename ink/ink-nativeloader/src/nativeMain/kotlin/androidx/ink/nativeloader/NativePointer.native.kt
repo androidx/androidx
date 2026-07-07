@@ -19,16 +19,16 @@ package androidx.ink.nativeloader
 import androidx.annotation.RestrictTo
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.ref.createCleaner
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @OptIn(ExperimentalNativeApi::class)
+@InkInternalOnlyApi
 actual public class NativePointer
 actual constructor(
     pointerAlloc: () -> Long, // Must not be retained
     pointerFree: (Long) -> Unit, // Must not capture a reference to this instance
-) : ReadOnlyProperty<Any, Long> {
+) {
 
     private val pointerWrapper = PointerWrapper(pointerFree)
 
@@ -50,7 +50,7 @@ actual constructor(
         }
     }
 
-    actual override operator fun getValue(thisRef: Any, property: KProperty<*>): Long =
+    actual public operator fun getValue(thisRef: Any, property: KProperty<*>): Long =
         pointerWrapper.pointer
 }
 

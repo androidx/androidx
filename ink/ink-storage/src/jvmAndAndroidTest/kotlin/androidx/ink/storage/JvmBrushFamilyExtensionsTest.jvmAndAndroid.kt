@@ -22,6 +22,7 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.IntegralNode
 import androidx.ink.brush.behavior.OutOfRange
@@ -42,6 +43,7 @@ import kotlin.test.Test
  * this just covers basic plumbing, the tests for detailed error behavior are in the KMP-common
  * tests.
  */
+@OptIn(ExperimentalInkBrushCompatibilityApi::class)
 class JvmBrushFamilyExtensionsTest {
 
     private val textureId1: String = "texture_id_1"

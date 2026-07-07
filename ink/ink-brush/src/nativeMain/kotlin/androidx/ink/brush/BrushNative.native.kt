@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushNative_computeComposeColorLong
 import androidx.ink.nativeloader.cinterop.BrushNative_create
 import androidx.ink.nativeloader.cinterop.BrushNative_free
@@ -25,7 +26,7 @@ import androidx.ink.nativeloader.cinterop.BrushNative_newCopyOfBrushFamily
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BrushNative {
     actual fun create(
         familyNativePointer: Long,

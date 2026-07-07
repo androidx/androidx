@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.NoiseNodeNative_create
 import androidx.ink.nativeloader.cinterop.NoiseNodeNative_getBasePeriod
 import androidx.ink.nativeloader.cinterop.NoiseNodeNative_getSeed
@@ -23,7 +24,7 @@ import androidx.ink.nativeloader.cinterop.NoiseNodeNative_getVaryOverInt
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object NoiseNodeNative {
     actual fun create(seed: Int, varyOver: Int, basePeriod: Float): Long =
         NoiseNodeNative_create(

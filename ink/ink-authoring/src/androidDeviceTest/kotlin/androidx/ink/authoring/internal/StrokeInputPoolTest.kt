@@ -18,8 +18,9 @@ package androidx.ink.authoring.internal
 
 import android.graphics.Matrix
 import android.view.MotionEvent
-import androidx.ink.authoring.testing.MultiTouchInputBuilder
+import androidx.ink.authoring.testing.MultiTouchInputCreator
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.StrokeInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(InkInternalOnlyApi::class)
 class StrokeInputPoolTest {
 
     @Test
@@ -113,7 +115,7 @@ class StrokeInputPoolTest {
         val gestureStartTime = 3000L
 
         val pointerIdsToStrokeInputs = mutableMapOf<Int, MutableList<StrokeInput>>()
-        MultiTouchInputBuilder(
+        MultiTouchInputCreator(
                 pointerCount = 2,
                 toolType = MotionEvent.TOOL_TYPE_FINGER,
                 historyIncrements = 3,

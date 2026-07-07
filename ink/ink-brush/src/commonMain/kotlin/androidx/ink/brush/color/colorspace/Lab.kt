@@ -19,9 +19,11 @@ package androidx.ink.brush.color.colorspace
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.fastCoerceIn
 import androidx.ink.brush.color.packFloats
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.math.cbrt
 
 /** Implementation of the CIE L*a*b* color space. Its PCS is CIE XYZ with a white point of D50. */
+@InkInternalOnlyApi
 internal class Lab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id) {
 
     override val isWideGamut: Boolean

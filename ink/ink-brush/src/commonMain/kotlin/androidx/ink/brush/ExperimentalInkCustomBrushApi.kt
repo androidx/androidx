@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.ink.authoring
+package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 
 /**
- * Marks declarations that are are part of the **experimental** Ink Latency Data API. These
- * declarations may (or may not) be changed, deprecated, or removed in the near future, or the
+ * Marks declarations that are are an **experimental** part of the Ink brush customization API.
+ * These declarations may (or may not) be changed, deprecated, or removed in the near future, or the
  * semantics of their behavior may change in some way that may break some code.
  *
  * You can opt in to using APIs in your code by marking your declaration with `@OptIn` passing the
- * opt-in requirement annotation as its argument: `@OptIn(ExperimentalLatencyDataApi::class)`.
+ * opt-in requirement annotation as its argument: `@OptIn(ExperimentalInkCustomBrushApi::class)`.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @MustBeDocumented
 @Retention(value = AnnotationRetention.BINARY)
 @Target(
@@ -43,4 +42,5 @@ import androidx.annotation.RestrictTo
     AnnotationTarget.TYPEALIAS,
 )
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-public annotation class ExperimentalLatencyDataApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+public annotation class ExperimentalInkCustomBrushApi

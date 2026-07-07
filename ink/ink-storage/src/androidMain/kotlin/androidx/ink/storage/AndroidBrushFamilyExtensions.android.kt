@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.Version
 import java.io.ByteArrayOutputStream
@@ -82,6 +83,7 @@ public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureB
  * @receiver The [List] of [BrushFamily] objects to encode.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
     textureBitmapStore: TextureBitmapStore,
@@ -129,6 +131,7 @@ public fun BrushFamily.Companion.decode(
  *   message, or any of the corresponding [BrushFamily]s are invalid.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 public fun BrushFamily.Companion.decodeMultiple(
     input: InputStream,
     maxVersion: Version,
@@ -138,6 +141,7 @@ public fun BrushFamily.Companion.decodeMultiple(
 
 /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 @SuppressWarnings("ExecutorRegistration")
 public fun BrushFamily.Companion.decodeMultiple(
     input: InputStream,
@@ -236,6 +240,7 @@ public object AndroidBrushFamilySerialization {
      *   [TextureBitmapStore] that always returns `null`.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @Throws(IOException::class)
     public fun encodeMultiple(
@@ -268,6 +273,7 @@ public object AndroidBrushFamilySerialization {
      *   proto message, or any of the corresponding [BrushFamily]s are invalid.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @SuppressWarnings("ExecutorRegistration")
     @JvmStatic
     @Throws(IOException::class)
@@ -279,6 +285,7 @@ public object AndroidBrushFamilySerialization {
 
     /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @SuppressWarnings("ExecutorRegistration")
     @JvmStatic
     public fun decodeMultiple(

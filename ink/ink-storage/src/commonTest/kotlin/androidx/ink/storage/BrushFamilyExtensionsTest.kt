@@ -22,6 +22,7 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.IntegralNode
@@ -43,7 +44,7 @@ import okio.IOException
 import okio.buffer
 import okio.use
 
-@OptIn(ExperimentalEncodingApi::class)
+@OptIn(ExperimentalEncodingApi::class, ExperimentalInkBrushCompatibilityApi::class)
 class BrushFamilyExtensionsTest {
 
     private val notGzippedBytes = byteArrayOf(0)

@@ -23,8 +23,8 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InkInProgressShape
 import androidx.ink.authoring.InkInProgressShapeRenderer
 import androidx.ink.brush.Brush
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
 import org.mockito.kotlin.mock
 
 /** An [Activity] to support [CanvasInProgressStrokesRenderHelperV33]. */
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
 @SuppressLint("UseSdkSuppress") // SdkSuppress is on the test class.
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {

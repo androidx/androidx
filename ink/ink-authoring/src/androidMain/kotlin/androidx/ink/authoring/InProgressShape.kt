@@ -53,7 +53,7 @@ import androidx.ink.strokes.StrokeInputBatch
  *   immutable data.
  * @param CompletedShapeT A type that represents the completed form of this [InProgressShape].
  */
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any> {
 
     /**

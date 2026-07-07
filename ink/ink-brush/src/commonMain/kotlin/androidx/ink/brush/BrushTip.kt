@@ -21,6 +21,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.geometry.AngleDegreesFloat
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmStatic
 
@@ -45,7 +46,10 @@ import kotlin.jvm.JvmStatic
  *
  * The default parameters produce a static circular tip shape, with diameter equal to the [Brush]
  * size and no color shift.
+ *
+ * @sample androidx.ink.brush.samples.createParallelogramBrushTip
  */
+@OptIn(InkInternalOnlyApi::class)
 public class BrushTip
 private constructor(
     nativeAlloc: () -> Long,
@@ -53,7 +57,8 @@ private constructor(
     behaviors: List<BrushBehavior>? = null,
 ) {
     /** A handle to the underlying native [BrushTip] object. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, BrushTipNative::free)
 
     /**
@@ -376,7 +381,9 @@ private constructor(
         @JvmStatic public fun builder(): Builder = Builder()
 
         /** Construct a [BrushTip], taking a callback that heap-allocates a native `BrushTip`. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): BrushTip = BrushTip(nativeAlloc)
     }
 }

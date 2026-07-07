@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_create
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getAngleRangeEnd
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getAngleRangeStart
@@ -25,7 +26,7 @@ import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getTargetInt
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object PolarTargetNodeNative {
     actual fun create(
         polarTarget: Int,

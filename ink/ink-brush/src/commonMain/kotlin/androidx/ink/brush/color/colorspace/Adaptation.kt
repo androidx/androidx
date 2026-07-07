@@ -17,6 +17,7 @@
 package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * List of adaptation matrices that can be used for chromatic adaptation using the von Kries
@@ -45,12 +46,15 @@ import androidx.annotation.RestrictTo
  * @see ColorSpace.connect
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public abstract class Adaptation private constructor(internal val transform: FloatArray) {
+    @InkInternalOnlyApi
     public companion object {
         /**
          * Bradford chromatic adaptation transform, as defined in the CIECAM97s color appearance
          * model.
          */
+        @Suppress("MissingJvmstatic") // Internal-only API
         public val Bradford: Adaptation =
             object :
                 Adaptation(
@@ -70,6 +74,7 @@ public abstract class Adaptation private constructor(internal val transform: Flo
             }
 
         /** von Kries chromatic adaptation transform. */
+        @Suppress("MissingJvmstatic") // Internal-only API
         public val VonKries: Adaptation =
             object :
                 Adaptation(
@@ -91,6 +96,7 @@ public abstract class Adaptation private constructor(internal val transform: Flo
         /**
          * CIECAT02 chromatic adaption transform, as defined in the CIECAM02 color appearance model.
          */
+        @Suppress("MissingJvmstatic") // Internal-only API
         public val Ciecat02: Adaptation =
             object :
                 Adaptation(

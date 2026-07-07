@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
@@ -35,6 +36,7 @@ import kotlin.jvm.JvmStatic
  * input path. This class has the [update] method for that purpose, rather than being immutable.
  */
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F

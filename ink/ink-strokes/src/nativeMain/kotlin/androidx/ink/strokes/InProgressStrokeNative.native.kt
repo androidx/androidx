@@ -19,12 +19,14 @@ package androidx.ink.strokes
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableVec
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_changesWithTime
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_clear
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_create
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_enqueueInputs
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_finishInput
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_free
+import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getBaseAnimationPhase
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getBrushCoatCount
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getInput
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getInputCount
@@ -53,7 +55,7 @@ import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 internal actual object InProgressStrokeNative {
     actual fun create(): Long = InProgressStrokeNative_create()
 
@@ -146,6 +148,9 @@ internal actual object InProgressStrokeNative {
             )
         }
     }
+
+    actual fun getBaseAnimationPhase(nativePointer: Long): Float =
+        InProgressStrokeNative_getBaseAnimationPhase(nativePointer)
 
     actual fun getBrushCoatCount(nativePointer: Long): Int =
         InProgressStrokeNative_getBrushCoatCount(nativePointer)

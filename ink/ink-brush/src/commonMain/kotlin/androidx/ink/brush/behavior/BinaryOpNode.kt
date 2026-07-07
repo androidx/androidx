@@ -17,9 +17,11 @@
 package androidx.ink.brush.behavior
 
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
 /** A [ValueNode] that combines two other values with a binary operation. */
+@OptIn(InkInternalOnlyApi::class)
 public class BinaryOpNode
 private constructor(
     nativeAlloc: () -> Long,

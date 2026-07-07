@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmStatic
 
 /**
@@ -26,6 +27,7 @@ import kotlin.jvm.JvmStatic
  * offsetN`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public class MeshAttributeUnpackingParams(
     // The val components below is a defensive copy of this parameter.
     @Size(min = 1, max = 4) components: List<ComponentUnpackingParams>
@@ -53,6 +55,7 @@ public class MeshAttributeUnpackingParams(
         }
     }
 
+    @InkInternalOnlyApi
     public companion object {
 
         /** Create a [MeshAttributeUnpackingParams] for a single-component attribute. */

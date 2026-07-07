@@ -19,8 +19,10 @@ package androidx.ink.brush.color.colorspace
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.fastCoerceIn
 import androidx.ink.brush.color.packFloats
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /** Implementation of the CIE XYZ color space. Assumes the white point is D50. */
+@InkInternalOnlyApi
 internal class Xyz(name: String, id: Int) : ColorSpace(name, ColorModel.Xyz, id) {
 
     override val isWideGamut: Boolean

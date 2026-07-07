@@ -16,7 +16,7 @@
 
 package androidx.ink.authoring.latency.aggregators
 
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 26) // Required for `kotlin.time.Duration`
 class FixedProbabilityLatencyAggregatorTest {

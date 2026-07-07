@@ -73,6 +73,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
+    samples(project(":ink:ink-brush:ink-brush-samples"))
     usePlatformSpecificCacheForJvmTests = true
 }
 

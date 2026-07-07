@@ -16,9 +16,11 @@
 
 @file:JvmMultifileClass
 @file:JvmName("StrokeInputBatchExtensions")
+@file:OptIn(InkInternalOnlyApi::class)
 
 package androidx.ink.storage
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInputBatch
 import kotlin.jvm.JvmMultifileClass

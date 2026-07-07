@@ -23,6 +23,7 @@ import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.PointerProperties
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * Builds MotionEvents on demand to simulate 2 to 5 streams of input traveling over time from
@@ -51,9 +52,10 @@ import androidx.annotation.VisibleForTesting
  * is not available per pointer. Similarly, the presence or absence of optional stylus fields like
  * pressure/tilt/orientation cannot differ per pointer.
  */
-@VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public class MultiTouchInputBuilder(
+@VisibleForTesting
+@InkInternalOnlyApi
+public class MultiTouchInputCreator(
     private val pointerCount: Int = 2,
     private val pointerId: IntArray = IntArray(pointerCount) { 9000 + it },
     private val toolType: Int = MotionEvent.TOOL_TYPE_FINGER,
@@ -139,7 +141,7 @@ public class MultiTouchInputBuilder(
             arrayOfPointerProperties.add(
                 PointerProperties().apply {
                     id = pointerId[p]
-                    toolType = this@MultiTouchInputBuilder.toolType
+                    toolType = this@MultiTouchInputCreator.toolType
                 }
             )
             arrayOfPointerCoords.add(
@@ -303,12 +305,14 @@ public class MultiTouchInputBuilder(
          * Example: zoomFactor = 2 will make all strokes appear twice their original size. Strokes
          * will be larger on the screen and less of the canvas will be shown.
          */
+        @JvmStatic
+        @JvmOverloads
         public fun pinchOutWithFactor(
             centerX: Float,
             centerY: Float,
             zoomFactor: Float = 2F,
-        ): MultiTouchInputBuilder =
-            MultiTouchInputBuilder(
+        ): MultiTouchInputCreator =
+            MultiTouchInputCreator(
                 pointerCount = 2,
                 startX = floatArrayOf(centerX - 100F, centerX + 100F),
                 startY = floatArrayOf(centerY, centerY),
@@ -328,12 +332,14 @@ public class MultiTouchInputBuilder(
          * Example: zoomFactor = 0.5 will make all strokes appear half their original size. Strokes
          * will be smaller on the screen and more of the canvas will be shown.
          */
+        @JvmStatic
+        @JvmOverloads
         public fun pinchInWithFactor(
             centerX: Float,
             centerY: Float,
             zoomFactor: Float = 0.5F,
-        ): MultiTouchInputBuilder =
-            MultiTouchInputBuilder(
+        ): MultiTouchInputCreator =
+            MultiTouchInputCreator(
                 pointerCount = 2,
                 startX = floatArrayOf(centerX - 100F, centerX + 100F),
                 startY = floatArrayOf(centerY, centerY),
@@ -352,11 +358,12 @@ public class MultiTouchInputBuilder(
          * Creates a stream of MotionEvents for a two-finger gesture such that the canvas rotates 90
          * degrees clockwise centered about ([centerX], [centerY]).
          */
+        @JvmStatic
         public fun rotate90DegreesClockwise(
             centerX: Float,
             centerY: Float,
-        ): MultiTouchInputBuilder =
-            MultiTouchInputBuilder(
+        ): MultiTouchInputCreator =
+            MultiTouchInputCreator(
                 pointerCount = 2,
                 startX = floatArrayOf(centerX - 50F, centerX + 50),
                 startY = floatArrayOf(centerY - 50F, centerY + 50F),

@@ -28,6 +28,7 @@ import kotlin.test.Test
  * Trivial tests for stock brushes. These don't do much since they don't exercise rendering, but
  * they do ensure that the native code loading works as expected.
  */
+@OptIn(ExperimentalInkCustomBrushApi::class)
 class StockBrushesTest {
 
     @Test

@@ -20,7 +20,7 @@ import android.graphics.Matrix
 import androidx.annotation.UiThread
 
 /** Called to render a [CompletedShapeT] instance to an [android.graphics.Canvas]. */
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 public interface CompletedShapeRenderer<in CompletedShapeT : Any> {
     @UiThread
     public fun draw(

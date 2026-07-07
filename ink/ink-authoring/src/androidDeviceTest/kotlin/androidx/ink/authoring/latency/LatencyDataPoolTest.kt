@@ -18,7 +18,7 @@ package androidx.ink.authoring.latency
 
 import android.os.Build
 import android.view.MotionEvent
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -27,7 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalLatencyDataApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class LatencyDataPoolTest {

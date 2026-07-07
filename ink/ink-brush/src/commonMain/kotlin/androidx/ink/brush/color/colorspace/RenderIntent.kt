@@ -17,6 +17,7 @@
 package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmInline
 
 /**
@@ -26,9 +27,12 @@ import kotlin.jvm.JvmInline
  *
  * @see ColorSpace.connect
  */
-@JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@JvmInline
+@InkInternalOnlyApi
+@Suppress("ValueClassDefinition") // Internal-only API
 public value class RenderIntent internal constructor(@Suppress("unused") internal val value: Int) {
+    @InkInternalOnlyApi
     public companion object {
         /**
          * Compresses the source gamut into the destination gamut. This render intent affects all
@@ -37,12 +41,14 @@ public value class RenderIntent internal constructor(@Suppress("unused") interna
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Perceptual: RenderIntent = RenderIntent(0)
 
         /**
          * Similar to the [Absolute] render intent, this render intent matches the closest color in
          * the destination gamut but makes adjustments for the destination white point.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Relative: RenderIntent = RenderIntent(1)
 
         /**
@@ -51,6 +57,7 @@ public value class RenderIntent internal constructor(@Suppress("unused") interna
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Saturation: RenderIntent = RenderIntent(2)
 
         /**
@@ -58,6 +65,7 @@ public value class RenderIntent internal constructor(@Suppress("unused") interna
          * the destination gamut are mapped to the closest possible color within the gamut of the
          * destination color space (they are clipped).
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Absolute: RenderIntent = RenderIntent(3)
     }
 

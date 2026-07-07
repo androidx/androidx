@@ -21,7 +21,9 @@ package androidx.ink.storage
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.Version
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import java.io.IOException
@@ -79,6 +81,7 @@ public fun BrushFamily.Companion.decode(
  * [BrushFamily].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
     textureIdToPngBytes: TexturePngBytesLookup? = null,
@@ -102,6 +105,7 @@ public fun List<BrushFamily>.encodeMultiple(
  *   message, or any of the corresponding [BrushFamily]s are invalid.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkBrushCompatibilityApi
 @Throws(IOException::class)
 public fun BrushFamily.Companion.decodeMultiple(
     input: InputStream,
@@ -222,6 +226,7 @@ public object BrushFamilySerialization {
      * [BrushFamily].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
@@ -244,6 +249,7 @@ public object BrushFamilySerialization {
      * [BrushFamily].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
@@ -271,6 +277,7 @@ public object BrushFamilySerialization {
      *   proto message, or any of the corresponding [BrushFamily]s are invalid.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
@@ -282,6 +289,7 @@ public object BrushFamilySerialization {
 
     /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @Throws(IOException::class)
     public fun decodeMultiple(
@@ -308,6 +316,7 @@ public object BrushFamilySerialization {
      *   proto message, or any of the corresponding [BrushFamily]s are invalid.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
@@ -319,6 +328,7 @@ public object BrushFamilySerialization {
 
     /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @Throws(IOException::class)
     public fun decodeMultiple(
@@ -328,6 +338,7 @@ public object BrushFamilySerialization {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object BrushFamilySerializationNative {
     init {
         NativeLoader.load()
@@ -392,6 +403,7 @@ actual internal object BrushFamilySerializationNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object MultipleBrushFamiliesNative {
     init {
         NativeLoader.load()

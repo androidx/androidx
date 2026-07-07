@@ -83,5 +83,5 @@ internal class ConcurrentIntervalQueue(val numPreallocatedIntervals: Int) {
     }
 
     /** A span of time between two nanosecond timestamps with a common time base. */
-    data class Interval(var startNanos: Long = Long.MIN_VALUE, var endNanos: Long = Long.MIN_VALUE)
+    class Interval(var startNanos: Long = Long.MIN_VALUE, var endNanos: Long = Long.MIN_VALUE)
 }

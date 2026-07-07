@@ -17,6 +17,7 @@
 package androidx.ink.strokes
 
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendBatch
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendSingle
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_clear
@@ -40,7 +41,7 @@ import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object StrokeInputBatchNative {
     actual fun create(): Long = StrokeInputBatchNative_create()
 
@@ -92,7 +93,7 @@ actual internal object StrokeInputBatchNative {
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object MutableStrokeInputBatchNative {
     actual fun clear(nativePointer: Long) {
         MutableStrokeInputBatchNative_clear(nativePointer)

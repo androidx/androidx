@@ -47,7 +47,7 @@ import androidx.annotation.WorkerThread
  *   in a more optimized form. A standard, pure Ink implementation would use
  *   [androidx.ink.strokes.Stroke] for this.
  */
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 public interface ShapeWorkflow<
     in ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,

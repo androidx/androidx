@@ -16,13 +16,16 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 /** Tests [ImmutableStrokeInputBatch] and [MutableStrokeInputBatch]. */
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 class StrokeInputBatchTest {
 
     private val builder = MutableStrokeInputBatch()

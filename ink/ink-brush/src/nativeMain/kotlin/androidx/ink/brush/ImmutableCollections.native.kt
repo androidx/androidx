@@ -17,8 +17,10 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 actual public object ImmutableCollections {
     actual public fun <T> unmodifiableList(size: Int, indexToValue: (Int) -> T): List<T> =
         List(size, indexToValue)

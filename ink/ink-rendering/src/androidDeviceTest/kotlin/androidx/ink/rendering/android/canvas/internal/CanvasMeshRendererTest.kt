@@ -27,11 +27,13 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TilingTexture
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.toArgb
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
@@ -57,6 +59,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 class CanvasMeshRendererTest {
 
     private val simplePaint = BrushPaint()

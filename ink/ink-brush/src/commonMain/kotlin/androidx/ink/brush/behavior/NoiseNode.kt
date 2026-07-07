@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
+
 /** A [ValueNode] that produces a smooth random function. */
+@OptIn(InkInternalOnlyApi::class)
 public class NoiseNode private constructor(nativeAlloc: () -> Long) :
     ValueNode(nativeAlloc, emptyList()) {
 

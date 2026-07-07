@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.view.View
 import androidx.core.view.ViewCompat
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.rendering.android.canvas.StrokeDrawScope
 
@@ -55,6 +56,7 @@ import androidx.ink.rendering.android.canvas.StrokeDrawScope
  * }
  * ```
  */
+@OptIn(InkInternalOnlyApi::class)
 public class ViewStrokeRenderer(
     private val canvasStrokeRenderer: CanvasStrokeRenderer,
     private val view: View,
@@ -129,7 +131,9 @@ public class ViewStrokeRenderer(
                 ViewCompat.transformMatrixToGlobal(view, it)
             }
         require(viewToScreenTransform.isAffine) { "View to screen transform must be affine." }
-        val scope = recycledDrawScopes.removeFirstOrNull() ?: StrokeDrawScope(canvasStrokeRenderer)
+        val scope =
+            recycledDrawScopes.removeFirstOrNull()
+                ?: StrokeDrawScope.withRenderer(canvasStrokeRenderer)
         scope.onDrawStart(viewToScreenTransform, canvas)
         return scope
     }

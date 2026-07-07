@@ -19,6 +19,7 @@
 
 package androidx.ink.storage
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import androidx.ink.strokes.ImmutableStrokeInputBatch
@@ -114,6 +115,7 @@ public object StrokeInputBatchSerialization {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object StrokeInputBatchSerializationNative {
     init {
         NativeLoader.load()

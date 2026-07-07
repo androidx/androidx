@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 
 /** Trivial test for native loading. */
 @RunWith(AndroidJUnit4::class)
+@OptIn(InkInternalOnlyApi::class)
 class NativeLoaderSmokeTest {
 
     @Test

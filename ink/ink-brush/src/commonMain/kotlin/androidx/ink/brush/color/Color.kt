@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("ColorKt")
+@file:OptIn(InkInternalOnlyApi::class)
 
 package androidx.ink.brush.color
 
@@ -24,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.colorspace.ColorSpace
 import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.brush.color.colorspace.connect
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
 import kotlin.math.max
@@ -108,9 +110,13 @@ import kotlin.math.min
  * values are however typically in the `[0..1]` range for RGB colors. Please refer to the
  * documentation of the various [color spaces][ColorSpaces] for the exact ranges.
  */
-@JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public value class Color(public val value: ULong) {
+@JvmInline
+@InkInternalOnlyApi
+@Suppress("ValueClassDefinition")
+public value class Color
+@Suppress("ValueClassUsageFromConstructor")
+constructor(@property:Suppress("ValueClassUsageWithoutJvmName") public val value: ULong) {
     /**
      * Returns this color's color space.
      *
@@ -126,6 +132,7 @@ public value class Color(public val value: ULong) {
      * @param colorSpace The destination color space, cannot be null
      * @return A non-null color instance in the specified color space
      */
+    @Suppress("ValueClassUsageWithoutJvmName")
     public fun convert(colorSpace: ColorSpace): Color {
         // If the destination color space is the same as this color's color space,
         // the connector we get will be the identity connector
@@ -223,6 +230,7 @@ public value class Color(public val value: ULong) {
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace] of
      * the returned [Color] is the same as this [colorSpace].
      */
+    @Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName")
     public fun copy(
         alpha: Float = this.alpha,
         red: Float = this.red,
@@ -248,37 +256,48 @@ public value class Color(public val value: ULong) {
         return "Color($red, $green, $blue, $alpha, ${colorSpace.name})"
     }
 
+    @InkInternalOnlyApi
     public companion object {
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Black: Color = Color(0xFF000000.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val DarkGray: Color = Color(0xFF444444.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Gray: Color = Color(0xFF888888.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val LightGray: Color = Color(0xFFCCCCCC.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val White: Color = Color(0xFFFFFFFF.toInt())
 
-        public val Red: Color = Color(0xFFFF0000.toInt())
+        @Suppress("ValueClassUsageWithoutJvmName") public val Red: Color = Color(0xFFFF0000.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Green: Color = Color(0xFF00FF00.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Blue: Color = Color(0xFF0000FF.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Yellow: Color = Color(0xFFFFFF00.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Cyan: Color = Color(0xFF00FFFF.toInt())
 
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Magenta: Color = Color(0xFFFF00FF.toInt())
 
-        public val Transparent: Color = Color(0x00000000)
+        @Suppress("ValueClassUsageWithoutJvmName") public val Transparent: Color = Color(0x00000000)
 
         /**
          * Because Color is an inline class, this represents an unset value without having to box
          * the Color. It will be treated as [Transparent] when drawn. A Color can compare with
-         * [Unspecified] for equality or use [isUnspecified] to check for the unset value or
-         * [isSpecified] for any color that isn't [Unspecified].
+         * [Unspecified] for equality.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Unspecified: Color = Color(0f, 0f, 0f, 0f, ColorSpaces.Unspecified)
     }
 }
@@ -298,6 +317,8 @@ public value class Color(public val value: ULong) {
  *   [ColorSpace.MIN_ID].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName") // Internal-only API
+@InkInternalOnlyApi
 public fun Color(
     red: Float,
     green: Float,
@@ -386,6 +407,8 @@ internal fun UncheckedColor(
  * @return A non-null instance of {@link Color}
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
+@Suppress("ValueClassUsageWithoutJvmName")
 public fun Color(@ColorInt color: Int): Color {
     return Color(color.toULong() shl 32)
 }
@@ -401,6 +424,8 @@ public fun Color(@ColorInt color: Int): Color {
  * @return A non-null instance of {@link Color}
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName")
+@InkInternalOnlyApi
 public fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
@@ -422,24 +447,19 @@ public fun Color(
  * @return An ARGB color in the sRGB color space
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 @ColorInt
+@Suppress("ValueClassUsageWithoutJvmName")
 public fun Color.toArgb(): Int {
     return (convert(ColorSpaces.Srgb).value shr 32).toInt()
 }
 
-/** `false` when this is [Color.Unspecified]. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public inline val Color.isSpecified: Boolean
-    get() = value != Color.Unspecified.value
-
-/** `true` when this is [Color.Unspecified]. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public inline val Color.isUnspecified: Boolean
-    get() = value == Color.Unspecified.value
-
 /**
- * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result
- * is returned.
+ * If this color is not [Color.Unspecified] then this is returned, otherwise [block] is executed and
+ * its result is returned.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
+@InkInternalOnlyApi
+@Suppress("ValueClassUsageWithoutJvmName")
+public inline fun Color.takeOrElse(block: () -> Color): Color =
+    if (value != Color.Unspecified.value) this else block()

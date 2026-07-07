@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_create
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_free
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getColorFunctionCount
@@ -64,7 +65,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BrushPaintNative {
     actual fun create(
         textureLayerNativePointers: LongArray,
@@ -127,7 +128,7 @@ actual internal object TextureLayerNative {
         TextureLayerNative_getBlendModeInt(nativePointer)
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object TilingTextureNative {
     actual fun create(
         clientTextureId: String,
@@ -187,7 +188,7 @@ actual internal object TilingTextureNative {
         TilingTextureNative_getWrapYInt(nativePointer)
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object StampingTextureNative {
     actual fun create(
         clientTextureId: String,
@@ -224,7 +225,7 @@ actual internal object StampingTextureNative {
         StampingTextureNative_getAnimationDurationMillis(nativePointer)
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object ColorFunctionNative {
     actual fun createOpacityMultiplier(multiplier: Float): Long =
         ColorFunctionNative_createOpacityMultiplier(

@@ -104,7 +104,7 @@ import androidx.input.motionprediction.MotionEventPredictor
  *   shape.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 public class ShapeGestureCallback<ShapeSpecT : Any>(
     private val inProgressShapesView: InProgressShapesView<ShapeSpecT, *, *>,
     public var shapeSpecForNewShapes: ShapeSpecT,
@@ -240,6 +240,7 @@ public class ShapeGestureCallback<ShapeSpecT : Any>(
  *   stroke.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkCustomShapeWorkflowApi
 public class StrokeGestureCallback(
     private val inProgressStrokesView: InProgressStrokesView,
     public var brushForNewStrokes: Brush,

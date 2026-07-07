@@ -18,11 +18,13 @@ package androidx.ink.brush.behavior
 
 import androidx.ink.brush.ImmutableCollections.unmodifiableSet
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * A [ValueNode] for filtering out a branch of a behavior graph unless this stroke's tool type is in
  * the specified set.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class ToolTypeFilterNode
 private constructor(
     nativeAlloc: () -> Long,

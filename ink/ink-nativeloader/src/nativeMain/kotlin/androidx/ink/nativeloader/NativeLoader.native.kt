@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 
 /** No-op native code loader implementation for Kotlin-native. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InkInternalOnlyApi
 actual public object NativeLoader {
     actual public fun load() {
         // No-op, native code is used via cinterop.

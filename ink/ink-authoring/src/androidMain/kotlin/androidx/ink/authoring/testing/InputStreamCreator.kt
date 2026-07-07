@@ -23,6 +23,7 @@ import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.PointerProperties
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * Helper to build MotionEvents on demand to simulate a stream of input traveling over time from
@@ -40,12 +41,13 @@ import androidx.annotation.VisibleForTesting
  * If deterministic line rendering is needed for a test, best is to dispatch input with fixed
  * timestamps directly to the InProgressStroke using its own input format.
  *
- * Consider if you can use [MultiTouchInputBuilder] instead with pointerCount=1, since as we
+ * Consider if you can use [MultiTouchInputCreator] instead with pointerCount=1, since as we
  * continue to generalize that utility there may not be much need to maintain this separately.
  */
-@VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public class InputStreamBuilder(
+@VisibleForTesting
+@InkInternalOnlyApi
+public class InputStreamCreator(
     private val streamToolType: Int = MotionEvent.TOOL_TYPE_STYLUS,
     private val buttons: Int = 0,
     private val pointerId: Int = 0,
@@ -196,6 +198,8 @@ public class InputStreamBuilder(
          * Creates a stylus line of 3 motion events, designed to be called with [runInputStreamWith]
          * or the sequence [runWithDownEvent], [runWithMoveEvent], [runWithUpEvent].
          */
+        @JvmStatic
+        @JvmOverloads
         public fun stylusLine(
             startX: Float,
             startY: Float,
@@ -203,8 +207,8 @@ public class InputStreamBuilder(
             endY: Float,
             endWithCancel: Boolean = false,
             pointerId: Int = 1,
-        ): InputStreamBuilder =
-            InputStreamBuilder(
+        ): InputStreamCreator =
+            InputStreamCreator(
                 streamToolType = MotionEvent.TOOL_TYPE_STYLUS,
                 pointerId = pointerId,
                 startX = startX,
@@ -219,14 +223,16 @@ public class InputStreamBuilder(
          * [runInputStreamWith] or the sequence [runWithDownEvent], [runWithMoveEvent], and
          * [runWithUpEvent].
          */
+        @JvmStatic
+        @JvmOverloads
         public fun fingerLine(
             startX: Float,
             startY: Float,
             endX: Float,
             endY: Float,
             endWithCancel: Boolean = false,
-        ): InputStreamBuilder =
-            InputStreamBuilder(
+        ): InputStreamCreator =
+            InputStreamCreator(
                 streamToolType = MotionEvent.TOOL_TYPE_FINGER,
                 pointerId = 1,
                 startX = startX,
@@ -241,6 +247,8 @@ public class InputStreamBuilder(
          * [runInputStreamWith] or the sequence [runWithDownEvent], [runWithMoveEvent], and
          * [runWithUpEvent].
          */
+        @JvmStatic
+        @JvmOverloads
         public fun mouseLine(
             buttons: Int,
             startX: Float,
@@ -248,8 +256,8 @@ public class InputStreamBuilder(
             endX: Float,
             endY: Float,
             endWithCancel: Boolean = false,
-        ): InputStreamBuilder =
-            InputStreamBuilder(
+        ): InputStreamCreator =
+            InputStreamCreator(
                 streamToolType = MotionEvent.TOOL_TYPE_MOUSE,
                 buttons = buttons,
                 pointerId = 1,
@@ -260,6 +268,7 @@ public class InputStreamBuilder(
                 cancel = endWithCancel,
             )
 
+        @JvmStatic
         public fun scrollWheel(scrollHorz: Float, scrollVert: Float, block: (MotionEvent) -> Unit) {
             val event: MotionEvent =
                 obtainWithDefaults(

@@ -57,7 +57,7 @@ public class MutableTriangle(
         return this
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableTriangle = ImmutableTriangle(this.p0, this.p1, this.p2)
 
     /**

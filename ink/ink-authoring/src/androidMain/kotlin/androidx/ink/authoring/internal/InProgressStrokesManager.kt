@@ -24,8 +24,8 @@ import androidx.annotation.Size
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.ShapeWorkflow
@@ -60,7 +60,7 @@ import java.util.concurrent.atomic.AtomicReference
  * synchronization depends on HWUI frames while user inputs may happen multiple times per HWUI frame
  * without a guaranteed order.
  */
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
 internal class InProgressStrokesManager<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
@@ -1526,7 +1526,7 @@ internal class InProgressStrokesManager<
     private sealed interface Action
 
     /** Represents the data passed to [startStroke]. */
-    private data class StartAction<ShapeSpecT>(
+    private class StartAction<ShapeSpecT>(
         val strokeInput: StrokeInput,
         val strokeId: InProgressStrokeId,
         val motionEventToStrokeTransform: Matrix,
@@ -1539,7 +1539,7 @@ internal class InProgressStrokesManager<
      * Represents the data passed to [addToStroke]. This is meant to be overwritten for recycling
      * purposes, so it is not immutable like the less frequent start/finish actions.
      */
-    private data class AddAction(
+    private class AddAction(
         val realInputs: MutableStrokeInputBatch = MutableStrokeInputBatch(),
         val predictedInputs: MutableStrokeInputBatch = MutableStrokeInputBatch(),
         var strokeId: InProgressStrokeId = InProgressStrokeId.create(),
@@ -1568,7 +1568,7 @@ internal class InProgressStrokesManager<
     }
 
     /** Represents the data passed to [finishStroke]. */
-    private data class FinishAction(
+    private class FinishAction(
         val strokeInput: StrokeInput?,
         val strokeId: InProgressStrokeId,
         /**
@@ -1585,14 +1585,11 @@ internal class InProgressStrokesManager<
     private object AnimationFrameAction : Action
 
     /** Represents the data passed to [cancelStroke]. */
-    private data class CancelAction(
-        val strokeId: InProgressStrokeId,
-        val latencyData: LatencyData,
-    ) : Action
+    private class CancelAction(val strokeId: InProgressStrokeId, val latencyData: LatencyData) :
+        Action
 
     /** Represents an update to [motionEventToViewTransform]. */
-    private data class MotionEventToViewTransformAction(val motionEventToViewTransform: Matrix) :
-        Action
+    private class MotionEventToViewTransformAction(val motionEventToViewTransform: Matrix) : Action
 
     /**
      * Represents a request to clear the data of a stroke cohort being handed off by
@@ -1651,7 +1648,7 @@ internal class InProgressStrokesManager<
      * @param finishedCohort The finished strokes (which cannot be empty), with map iteration order
      *   in stroke z-order, from back to front.
      */
-    private data class Finished<CompletedShapeT : Any>(
+    private class Finished<CompletedShapeT : Any>(
         @Size(min = 1) val finishedCohort: List<FinishedStroke<CompletedShapeT>>
     ) : ClaimStrokesToHandOffResult {
         init {

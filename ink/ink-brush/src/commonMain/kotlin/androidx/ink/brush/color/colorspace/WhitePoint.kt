@@ -18,6 +18,7 @@ package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * Class for constructing white points used in [RGB][Rgb] color space. The value is stored in the
@@ -26,6 +27,8 @@ import androidx.annotation.Size
  * @see Illuminant
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
+@Suppress("DataClassDefinition") // Internal-only API
 public data class WhitePoint(val x: Float, val y: Float) {
     /** Illuminant for CIE XYZ white point */
     public constructor(x: Float, y: Float, z: Float) : this(x, y, z, x + y + z)

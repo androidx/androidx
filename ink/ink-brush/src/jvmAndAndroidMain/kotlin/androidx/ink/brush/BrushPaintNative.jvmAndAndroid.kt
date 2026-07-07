@@ -16,11 +16,13 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 /** Singleton wrapper around BrushPaint native JNI calls. */
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object BrushPaintNative {
     init {
         NativeLoader.load()
@@ -59,6 +61,7 @@ actual internal object BrushPaintNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object TextureLayerNative {
     init {
         NativeLoader.load()
@@ -72,6 +75,7 @@ actual internal object TextureLayerNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object TilingTextureNative {
     init {
         NativeLoader.load()
@@ -114,6 +118,7 @@ actual internal object TilingTextureNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object StampingTextureNative {
     init {
         NativeLoader.load()
@@ -141,6 +146,7 @@ actual internal object StampingTextureNative {
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object ColorFunctionNative {
     init {
         NativeLoader.load()

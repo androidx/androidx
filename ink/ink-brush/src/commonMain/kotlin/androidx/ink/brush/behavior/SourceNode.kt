@@ -17,10 +17,12 @@
 package androidx.ink.brush.behavior
 
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 /** A [ValueNode] that gets data from the stroke input batch. */
+@OptIn(InkInternalOnlyApi::class)
 public class SourceNode private constructor(nativeAlloc: () -> Long) :
     ValueNode(nativeAlloc, emptyList()) {
 

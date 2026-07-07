@@ -25,6 +25,7 @@ import android.widget.RelativeLayout
 import androidx.ink.brush.Brush
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.rendering.android.canvas.TestColors
 import androidx.ink.rendering.test.R
@@ -32,6 +33,7 @@ import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
 
 /** An [Activity] to support [ViewStrokeRendererTest]. */
+@OptIn(InkInternalOnlyApi::class)
 class ViewStrokeRendererTestActivity : Activity() {
     private val strokeRenderer = CanvasStrokeRenderer.create()
 

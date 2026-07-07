@@ -137,7 +137,8 @@ public abstract class Segment internal constructor() {
      * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun toImmutable(): ImmutableSegment
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract fun toImmutable(): ImmutableSegment
 
     /**
      * Compares this [Segment] with [other], and returns true if both [start] points are considered

@@ -20,12 +20,14 @@ package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.pow
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public object ColorSpaces {
     internal val SrgbPrimaries = floatArrayOf(0.640f, 0.330f, 0.300f, 0.600f, 0.150f, 0.060f)
     internal val Ntsc1953Primaries = floatArrayOf(0.67f, 0.33f, 0.21f, 0.71f, 0.14f, 0.08f)

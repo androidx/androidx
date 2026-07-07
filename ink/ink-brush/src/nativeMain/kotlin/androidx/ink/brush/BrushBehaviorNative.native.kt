@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_createFromOrderedNodes
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_free
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_getDeveloperComment
@@ -28,7 +29,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BrushBehaviorNative {
     actual fun createFromOrderedNodes(
         orderdNodeNativePointers: LongArray,

@@ -28,7 +28,9 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
@@ -48,7 +50,12 @@ import java.util.concurrent.TimeUnit
  * [startStroke], but if that declarative style specification is not rich enough and instead some
  * more detailed programmatic logic is necessary, consider using [InProgressShapesView] instead.
  */
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkAnimationApi::class,
+    ExperimentalInkLatencyDataApi::class,
+    ExperimentalInkCustomShapeWorkflowApi::class,
+)
 @UiThread
 public class InProgressStrokesView
 @JvmOverloads
@@ -75,19 +82,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /**
-     * Force the HWUI-based high latency implementation to be used under the hood, even if the
-     * system supports low latency inking.
-     *
-     * This must be set to its desired value before the first call to [startStroke] or [eagerInit].
-     */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
-    @Suppress("DEPRECATION") // Usage of deprecated InProgressShapesView API
-    public var useHighLatencyRenderHelper: Boolean by
-        inProgressShapesView::useHighLatencyRenderHelper
-
-    /**
      * Set a minimum delay from when the user finishes a stroke until rendering is handed off to the
      * client's dry layer via [InProgressStrokesFinishedListener.onStrokesFinished]. This value
      * would ideally be long enough that quick subsequent strokes - such as for fast handwriting -
@@ -96,9 +90,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *
      * If handoff is ever needed as soon as safely possible, call [requestHandoff].
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public var handoffDebounceTimeMs: Long by inProgressShapesView::handoffDebounceTimeMs
+    internal var handoffDebounceTimeMs: Long by inProgressShapesView::handoffDebounceTimeMs
 
     /**
      * [TextureBitmapStore] used to create the [CanvasStrokeRenderer].
@@ -176,7 +168,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * (since allocation may trigger the garbage collector).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalLatencyDataApi
+    @ExperimentalInkLatencyDataApi
     public fun getLatencyDataCallback(): LatencyDataCallback? =
         inProgressShapesView.getLatencyDataCallback()
 
@@ -187,7 +179,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * See [getLatencyDataCallback]
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalLatencyDataApi
+    @ExperimentalInkLatencyDataApi
     public fun setLatencyDataCallback(value: LatencyDataCallback?): Unit =
         inProgressShapesView.setLatencyDataCallback(value)
 
@@ -485,6 +477,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * subsequent strokes.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkHandoffApi
     public fun requestHandoff(): Unit = inProgressShapesView.requestHandoff()
 
     internal fun canSynchronouslyWaitForFlush(): Boolean =
@@ -517,6 +510,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   return value.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkHandoffApi
     @JvmOverloads
     public fun flush(
         timeout: Long,
@@ -535,6 +529,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * circumstances.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkHandoffApi
     @VisibleForTesting
     public fun sync(timeout: Long, timeoutUnit: TimeUnit): Unit =
         inProgressShapesView.sync(timeout, timeoutUnit)
