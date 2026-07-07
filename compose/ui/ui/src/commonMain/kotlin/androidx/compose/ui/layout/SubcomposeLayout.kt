@@ -1504,24 +1504,59 @@ private val UnspecifiedSlotId = Any()
 @JvmInline
 private value class SLOperation(val value: Int) {
     companion object {
-        val CancelPausedPrecomposition = SLOperation(0)
-        val ReuseForceSyncDeactivation = SLOperation(1)
-        val ReuseScheduleOutOfFrameDeactivation = SLOperation(2)
-        val ReuseSyncDeactivation = SLOperation(3)
-        val ReuseDeactivationViaHost = SLOperation(4)
-        val TookFromPrecomposeMap = SLOperation(5)
-        val Subcompose = SLOperation(6)
-        val SubcomposeNew = SLOperation(7)
-        val SubcomposePausable = SLOperation(8)
-        val SubcomposeForceReuse = SLOperation(9)
-        val DeactivateOutOfFrame = SLOperation(10)
-        val DeactivateOutOfFrameCancelled = SLOperation(11)
-        val SlotToReusedFromOnDeactivate = SLOperation(12)
-        val SlotToReusedFromOnReuse = SLOperation(13)
-        val Reused = SLOperation(14)
-        val ResumePaused = SLOperation(15)
-        val PausePaused = SLOperation(16)
-        val ApplyPaused = SLOperation(17)
+        val CancelPausedPrecomposition
+            get() = SLOperation(0)
+
+        val ReuseForceSyncDeactivation
+            get() = SLOperation(1)
+
+        val ReuseScheduleOutOfFrameDeactivation
+            get() = SLOperation(2)
+
+        val ReuseSyncDeactivation
+            get() = SLOperation(3)
+
+        val ReuseDeactivationViaHost
+            get() = SLOperation(4)
+
+        val TookFromPrecomposeMap
+            get() = SLOperation(5)
+
+        val Subcompose
+            get() = SLOperation(6)
+
+        val SubcomposeNew
+            get() = SLOperation(7)
+
+        val SubcomposePausable
+            get() = SLOperation(8)
+
+        val SubcomposeForceReuse
+            get() = SLOperation(9)
+
+        val DeactivateOutOfFrame
+            get() = SLOperation(10)
+
+        val DeactivateOutOfFrameCancelled
+            get() = SLOperation(11)
+
+        val SlotToReusedFromOnDeactivate
+            get() = SLOperation(12)
+
+        val SlotToReusedFromOnReuse
+            get() = SLOperation(13)
+
+        val Reused
+            get() = SLOperation(14)
+
+        val ResumePaused
+            get() = SLOperation(15)
+
+        val PausePaused
+            get() = SLOperation(16)
+
+        val ApplyPaused
+            get() = SLOperation(17)
     }
 }
 
