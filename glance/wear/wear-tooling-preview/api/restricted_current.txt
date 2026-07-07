@@ -9,6 +9,18 @@ package androidx.glance.wear.tooling.preview {
     property public kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values;
   }
 
+  public final class RectangularAllWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RectangularAllWidgetPreviewParams();
+  }
+
+  public final class RectangularLargeWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RectangularLargeWidgetPreviewParams();
+  }
+
+  public final class RectangularSmallWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public RectangularSmallWidgetPreviewParams();
+  }
+
   public final class RoundAllWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
     ctor public RoundAllWidgetPreviewParams();
   }
