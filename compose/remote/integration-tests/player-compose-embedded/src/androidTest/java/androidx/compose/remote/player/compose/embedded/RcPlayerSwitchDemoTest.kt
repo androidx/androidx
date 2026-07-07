@@ -61,7 +61,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +75,6 @@ class RcPlayerSwitchDemoTest {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
-    @Ignore("Disable until ScreenshotTestRule is fixed for applications")
     @Test
     fun switchWidgetDemo() {
         rule.mainClock.autoAdvance = false
