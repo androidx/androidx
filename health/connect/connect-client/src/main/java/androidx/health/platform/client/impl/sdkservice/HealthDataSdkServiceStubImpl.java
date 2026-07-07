@@ -15,6 +15,9 @@
  */
 package androidx.health.platform.client.impl.sdkservice;
 
+import static androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME;
+import static androidx.health.platform.client.utils.SignatureVerification.isTargetSignatureValid;
+
 import static java.util.Arrays.stream;
 
 import android.content.Context;
@@ -34,8 +37,7 @@ import java.util.concurrent.Executor;
 final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
     private static final String TAG = HealthDataSdkServiceStubImpl.class.getSimpleName();
 
-    @VisibleForTesting
-    static final String ALLOWED_PACKAGE_NAME = "com.google.android.apps.healthdata";
+    @VisibleForTesting static final String ALLOWED_PACKAGE_NAME = DEFAULT_PROVIDER_PACKAGE_NAME;
 
     private final Context mContext;
     private final Executor mExecutor;
@@ -115,6 +117,10 @@ final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
 
         if (!ALLOWED_PACKAGE_NAME.equals(packageName)) {
             throw new SecurityException("Not allowed!");
+        }
+
+        if (!isTargetSignatureValid(mContext.getPackageManager(), packageName)) {
+            throw new SecurityException("Not allowed! Signature validation failed.");
         }
     }
 }
