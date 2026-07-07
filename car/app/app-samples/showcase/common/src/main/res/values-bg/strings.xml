@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Място за съобщение.\nОще текст на втория ред."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Демонстрация на шаблон за кратки съобщения"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Демонстрация на шаблона, разделена на секции"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Демонстрация на сбит елемент"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Демонстрация на активираната функция за бърз преход по азбучен ред за елементи, разделени на секции"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Секция с бутон за избор"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Превключване на секцията"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Демонстрация на крайно изображение и действия"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Демонстрация на чип"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демонстрация на лентата за напредъка"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Демонстрация на заглавка на секция"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Демонстрация на секцията „На фокус“"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демонстрация на шаблон за панел"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демонстрация на шаблон за списък с места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Преглед на места"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демонстрации на карти със съдържание"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демонстрация на карта с шаблон за съобщения"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демонстрация на карта с шаблон на решетка"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

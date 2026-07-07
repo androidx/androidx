@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tin nhắn vào đây.\nThêm văn bản ở dòng thứ hai."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Bản minh hoạ mẫu tin nhắn ngắn"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Bản minh hoạ mẫu mục theo phần"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Bản minh hoạ mục thu gọn"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Bản minh hoạ đã bật tính năng AlphaJump cho mục theo phần"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Phần nút chọn"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Phần bật tắt"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Kết thúc bản minh hoạ hình ảnh và thao tác"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Bản minh hoạ khối"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Bản minh hoạ thanh tiến trình"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Bản minh hoạ tiêu đề mục"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Bản minh hoạ cho phần Tiêu điểm"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bản demo ngăn mẫu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Bản demo mẫu danh sách địa điểm"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Bản minh hoạ bản đồ có nội dung"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Bản minh hoạ bản đồ có mẫu thông báo"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Bản minh hoạ bản đồ có mẫu lưới"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

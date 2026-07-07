@@ -230,6 +230,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private OnScrollChangeListener mOnScrollChangeListener;
 
+    private boolean mIsScrollToTopEnabled = true;
+
     @VisibleForTesting
     final DifferentialMotionFlingTargetImpl mDifferentialMotionFlingTarget =
             new DifferentialMotionFlingTargetImpl();
@@ -266,6 +268,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         setFillViewport(a.getBoolean(0, false));
 
         a.recycle();
+
+        final TypedArray b = context.obtainStyledAttributes(attrs, R.styleable.NestedScrollView,
+                defStyleAttr, 0);
+        ViewCompat.saveAttributeDataForStyleable(this,
+                context, R.styleable.NestedScrollView, attrs, b, defStyleAttr, 0);
+        setScrollToTopEnabled(
+                b.getBoolean(R.styleable.NestedScrollView_isScrollToTopEnabled, true));
+        b.recycle();
 
         mParentHelper = new NestedScrollingParentHelper(this);
         mChildHelper = new NestedScrollingChildHelper(this);
@@ -1904,6 +1914,45 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     // This should be considered private, it is package private to avoid a synthetic ancestor.
     void smoothScrollTo(int x, int y, int scrollDurationMs, boolean withNestedScrolling) {
         smoothScrollBy(x - getScrollX(), y - getScrollY(), scrollDurationMs, withNestedScrolling);
+    }
+
+    /**
+     * Sets whether this NestedScrollView should consume system-level scroll-to-top events.
+     * <p>
+     * When set to true (default), this view will scroll to the top when a system trigger
+     * occurs, provided the view is currently scrolled down.
+     *
+     * @param enabled true to enable scroll-to-top behavior, false to disable.
+     */
+    public void setScrollToTopEnabled(boolean enabled) {
+        mIsScrollToTopEnabled = enabled;
+    }
+
+    /**
+     * Indicates whether this NestedScrollView allows system-level scroll-to-top event consumption.
+     *
+     * @return True if scroll-to-top consumption is enabled, false otherwise.
+     */
+    public boolean isScrollToTopEnabled() {
+        return mIsScrollToTopEnabled;
+    }
+
+    /**
+     * Called when a scroll-to-top command is received.
+     *
+     * @param x The x-coordinate of the scroll-to-top command, in the coordinate
+     *          space of this view.
+     * @return true if the event was consumed and should not be propagated to other
+     * potential handlers.
+     */
+    @SuppressWarnings("MissingOverride")
+    public boolean onScrollToTop(int x) {
+        if (mIsScrollToTopEnabled && canScrollVertically(-1)) {
+            smoothScrollTo(getScrollX(), 0);
+            return true;
+        }
+
+        return false;
     }
 
     /**

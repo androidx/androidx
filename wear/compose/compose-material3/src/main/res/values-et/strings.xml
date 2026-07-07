@@ -38,6 +38,7 @@
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Kuu"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Aasta"</string>
     <string name="wear_m3c_date_picker_heading" msgid="1824308273028674826">"Kerige kuupäeva määramiseks"</string>
+    <string name="wear_m3c_date_picker_content_description" msgid="3105311900321115237">"%1$s, %2$d"</string>
     <string name="wear_m3c_picker_click_to_adjust_hint" msgid="167976024035966099">"Korrigeerige väärtust"</string>
     <string name="wear_m3c_picker_click_to_select_hint" msgid="7994498880084699884">"Valige väärtus"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Kinnita"</string>
@@ -48,4 +49,10 @@
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Loobu"</string>
     <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"Vt telefoni"</string>
     <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"Telefoni vaatamise ikooni"</string>
+    <string name="wear_m3c_capital_on_state_description" msgid="2318453447890695352">"SEES"</string>
+    <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"VÄLJAS"</string>
+    <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"märgitud"</string>
+    <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"märkimata"</string>
+    <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"Liigutage sõrmi kaks korda kokku, et teha toiming %s"</string>
+    <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"Tehke randme pööramise liigutus, et teha toiming %s"</string>
 </resources>

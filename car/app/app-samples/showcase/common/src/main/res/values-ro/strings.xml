@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Introdu mesajul aici.\nMai mult text pe al doilea rând."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrație cu șablon pentru mesaj scurt"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstrație cu șablon pentru elemente cu secțiuni"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstrație cu element compact"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Versiune demonstrativă cu opțiunea AlphaJump activată pentru elemente cu secțiuni"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secțiune cu butoane radio"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Comută secțiunea"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Încheie versiunea demonstrativă cu imagini și acțiuni"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Versiune demonstrativă a cipului"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Versiune demonstrativă a barei de progres"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstrație cu antetul secțiunii"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstrație cu secțiunea În centrul atenției"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiește locații"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrații cu hartă cu conținut"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrație cu șablon pentru hartă cu mesaj"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrație cu șablon pentru hartă cu grilă"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

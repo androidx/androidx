@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Pesan akan muncul di sini.\nTeks lainnya ada di baris kedua."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo Template Pesan Singkat"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo Template Item dengan Bagian"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo Item Ringkas"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo dengan AlphaJump diaktifkan untuk Item dengan Bagian"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Bagian Tombol Pilihan"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Beralih Bagian"</string>
@@ -244,6 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demo Gambar dan Tindakan Akhir"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Demo Chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo Status Progres"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demo Header Bagian"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo Bagian Sorotan"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo Template Panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo Template Daftar Tempat"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Jelajahi Tempat"</string>
@@ -381,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo Peta Dengan Konten"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo Peta Dengan Template Pesan"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo Peta Dengan Template Petak"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

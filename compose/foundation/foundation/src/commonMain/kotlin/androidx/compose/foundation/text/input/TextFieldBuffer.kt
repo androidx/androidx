@@ -572,6 +572,7 @@ internal constructor(
         val end = range.end
         // We treat it as replace the original text with newly styled text.
         changeTracker.trackChange(start, end, end - start, false)
+
         return requireTextFieldBuffer()
             .addStyle<T>(
                 annotation,
