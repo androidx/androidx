@@ -42,6 +42,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation
+import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.compose.embedded.modifier.background
 import androidx.compose.remote.player.compose.embedded.modifier.border
@@ -67,8 +68,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 
 @Composable
@@ -135,9 +141,41 @@ private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
 private fun Modifier.semantics(op: CoreSemantics): Modifier {
     val contentDescriptionId = op.getContentDescriptionIdReflection()
     val contentDescription = contentDescriptionId?.let { rememberRemoteStringAsState(it).value }
-    return if (contentDescription != null) {
-        this.semantics { this.contentDescription = contentDescription }
-    } else {
-        this
+    val text = op.mTextId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
+
+    if (contentDescription == null && text == null && op.mRole == null) return this
+
+    val properties: SemanticsPropertyReceiver.() -> Unit = {
+        if (contentDescription != null) {
+            this.contentDescription = contentDescription
+        }
+
+        if (text != null) {
+            this.text = AnnotatedString(text)
+        }
+
+        op.mRole?.let { this.role = it.toComposeRole() }
+    }
+    return when (op.mMode) {
+        AccessibleComponent.Mode.SET -> this.semantics(properties = properties)
+        AccessibleComponent.Mode.CLEAR_AND_SET -> this.clearAndSetSemantics(properties = properties)
+        AccessibleComponent.Mode.MERGE ->
+            this.semantics(mergeDescendants = true, properties = properties)
+    }
+}
+
+private fun AccessibleComponent.Role.toComposeRole(): androidx.compose.ui.semantics.Role {
+    return when (this) {
+        AccessibleComponent.Role.BUTTON -> androidx.compose.ui.semantics.Role.Button
+        AccessibleComponent.Role.CHECKBOX -> androidx.compose.ui.semantics.Role.Checkbox
+        AccessibleComponent.Role.SWITCH -> androidx.compose.ui.semantics.Role.Switch
+        AccessibleComponent.Role.RADIO_BUTTON -> androidx.compose.ui.semantics.Role.RadioButton
+        AccessibleComponent.Role.TAB -> androidx.compose.ui.semantics.Role.Tab
+        AccessibleComponent.Role.IMAGE -> androidx.compose.ui.semantics.Role.Image
+        AccessibleComponent.Role.DROPDOWN_LIST -> androidx.compose.ui.semantics.Role.DropdownList
+        // No direct Compose Role equivalents; Button is the closest interactive fallback.
+        AccessibleComponent.Role.PICKER -> androidx.compose.ui.semantics.Role.Button
+        AccessibleComponent.Role.CAROUSEL -> androidx.compose.ui.semantics.Role.Button
+        else -> androidx.compose.ui.semantics.Role.Button
     }
 }
