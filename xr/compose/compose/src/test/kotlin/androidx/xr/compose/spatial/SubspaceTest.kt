@@ -2121,6 +2121,267 @@ class SubspaceTest {
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
+    fun followingSubspace_whenUserTurnsAndXTracked_tracksPitch() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = true,
+                            isRotationYTracked = false,
+                            isRotationZTracked = false,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            // Even though pitching up while turned 90 deg rotates around world Z, user-centric
+            // Euler angle tracking correctly registers pitch while ignoring yaw and roll.
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 0F, roll = 0F)
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUserTurnsAndXNotTracked_ignoresPitch() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = false,
+                            isRotationYTracked = true,
+                            isRotationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation =
+                Quaternion.fromEulerAngles(
+                    pitch = 0F,
+                    yaw = fakeArDevice.devicePose.rotation.eulerAngles.y,
+                    roll = fakeArDevice.devicePose.rotation.eulerAngles.z,
+                )
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUserTurnsAndYTracked_tracksYaw() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = false,
+                            isRotationYTracked = true,
+                            isRotationZTracked = false,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation =
+                Quaternion.fromEulerAngles(
+                    pitch = 0F,
+                    yaw = fakeArDevice.devicePose.rotation.eulerAngles.y,
+                    roll = 0F,
+                )
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUserTurnsAndYNotTracked_ignoresYaw() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = true,
+                            isRotationYTracked = false,
+                            isRotationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation =
+                Quaternion.fromEulerAngles(
+                    pitch = fakeArDevice.devicePose.rotation.eulerAngles.x,
+                    yaw = 0F,
+                    roll = fakeArDevice.devicePose.rotation.eulerAngles.z,
+                )
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUserTurnsAndZTracked_tracksRoll() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = false,
+                            isRotationYTracked = false,
+                            isRotationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation =
+                Quaternion.fromEulerAngles(
+                    pitch = 0F,
+                    yaw = 0F,
+                    roll = fakeArDevice.devicePose.rotation.eulerAngles.z,
+                )
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUserTurnsAndZNotTracked_ignoresRoll() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = true,
+                            isRotationYTracked = true,
+                            isRotationZTracked = false,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+
+            // User turns left 90 degrees (yaw = 90), looks up 45 degrees (pitch = 45), and rolls
+            // head 30 degrees (roll = 30).
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 45F, yaw = 90F, roll = 30F)
+            rotateDevice(fakeRuntime, offsetRotation, durationMs = 1000L)
+
+            val currentRotation = assertExistenceAndGetNodeWorldPose("FollowingSubspace").rotation
+            val expectedRotation =
+                Quaternion.fromEulerAngles(
+                    pitch = fakeArDevice.devicePose.rotation.eulerAngles.x,
+                    yaw = fakeArDevice.devicePose.rotation.eulerAngles.y,
+                    roll = 0F,
+                )
+
+            assertThat(currentRotation.x).isWithin(1e-5f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1e-5f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1e-5f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1e-5f).of(expectedRotation.w)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenTrackedDimensionsChange_MatchedDimensionsChange() =
