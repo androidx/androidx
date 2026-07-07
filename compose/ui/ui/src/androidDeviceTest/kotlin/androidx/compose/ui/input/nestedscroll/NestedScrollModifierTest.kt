@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -1686,6 +1687,59 @@ class NestedScrollModifierTest {
         assertThat(innerDispatcher.calculateNestedScrollScope()?.isActive).isFalse()
         assertThat(innerDispatcher.scope).isNotEqualTo(coroutineScope)
         assertThat(innerDispatcher.scope).isNull()
+    }
+
+    @Test
+    fun unattachedDispatcher_coroutineScopeOrNull() {
+        val dispatcher = NestedScrollDispatcher()
+        assertThat(dispatcher.coroutineScopeOrNull()).isNull()
+
+        var attachModifier by mutableStateOf(true)
+        rule.setContent {
+            Box(
+                modifier =
+                    if (attachModifier) {
+                        Modifier.nestedScroll(
+                            dispatcher = dispatcher,
+                            connection = object : NestedScrollConnection {},
+                        )
+                    } else {
+                        Modifier
+                    }
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(dispatcher.coroutineScopeOrNull()).isNotNull()
+        assertThat(dispatcher.coroutineScopeOrNull()?.isActive).isTrue()
+
+        attachModifier = false
+        rule.waitForIdle()
+        assertThat(dispatcher.coroutineScopeOrNull()?.isActive).isFalse()
+    }
+
+    // b/505343254
+    @Test
+    fun nestedScroll_touchInputWithoutUp_doesNotCrash() {
+        val parentConnection = object : NestedScrollConnection {}
+        val listState = LazyListState()
+        rule.setContent {
+            Box(Modifier.nestedScroll(parentConnection)) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.size(100.dp).testTag(mainLayoutTag),
+                ) {
+                    items(100) { Box(Modifier.size(50.dp)) }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput {
+            down(center)
+            moveBy(Offset(0f, -400f))
+        }
+
+        assertThat(listState.firstVisibleItemIndex).isGreaterThan(0)
     }
 }
 
