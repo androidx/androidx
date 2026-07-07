@@ -93,6 +93,7 @@ dependencies {
     docs(project(":compose:remote:remote-player-view"))
     docs(project(":compose:remote:remote-tooling-preview"))
     docs(project(":compose:remote:remote-testing"))
+    docs(project(":concurrent:concurrent"))
     docs(project(":core:locationbutton:locationbutton"))
     docs(project(":core:locationbutton:locationbutton-compose"))
     docs(project(":core:locationbutton:locationbutton-testing"))
