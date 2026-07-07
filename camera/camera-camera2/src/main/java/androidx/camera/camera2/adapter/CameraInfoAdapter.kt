@@ -144,7 +144,7 @@ constructor(
     override fun getLensFacing(): @CameraSelector.LensFacing Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
-    @androidx.annotation.OptIn(ExperimentalLensFacing::class)
+    @OptIn(ExperimentalLensFacing::class)
     override fun isExternalCamera(): Boolean {
         return lensFacing == CameraSelector.LENS_FACING_EXTERNAL ||
             cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
@@ -164,7 +164,7 @@ constructor(
             .unwrapAs<CameraCharacteristics>()
     }
 
-    @androidx.annotation.OptIn(ExperimentalLensFacing::class)
+    @OptIn(ExperimentalLensFacing::class)
     private fun getCameraSelectorLensFacing(lensFacingInt: Int): @CameraSelector.LensFacing Int {
         return when (lensFacingInt) {
             CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
@@ -312,9 +312,22 @@ constructor(
         cameraProperties.metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]
             ?.toSet() ?: emptySet()
 
-    @androidx.annotation.OptIn(ExperimentalZeroShutterLag::class)
+    private val zslIntersectionSizes: List<Size> =
+        ZslUtil.computeZslIntersectionSizes(
+            cameraProperties.metadata,
+            android.graphics.ImageFormat.PRIVATE,
+        )
+
+    @OptIn(ExperimentalZeroShutterLag::class)
     override fun isZslSupported(): Boolean {
         return isPrivateReprocessingSupported && DeviceQuirks[ZslDisablerQuirk::class.java] == null
+    }
+
+    override fun canSupportZsl(sizes: List<Size>): Boolean {
+        if (!isZslSupported) {
+            return false
+        }
+        return sizes.any { it in zslIntersectionSizes }
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {
