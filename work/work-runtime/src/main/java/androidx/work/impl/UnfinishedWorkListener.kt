@@ -20,8 +20,8 @@ import android.content.Context
 import androidx.work.Configuration
 import androidx.work.Logger
 import androidx.work.impl.background.systemalarm.RescheduleReceiver
-import androidx.work.impl.utils.PackageManagerHelper
 import androidx.work.impl.utils.isDefaultProcess
+import androidx.work.impl.utils.setReceiverEnabled
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -62,11 +62,7 @@ internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
             .conflate()
             .distinctUntilChanged()
             .onEach { hasUnfinishedWork ->
-                PackageManagerHelper.setComponentEnabled(
-                    appContext,
-                    RescheduleReceiver::class.java,
-                    hasUnfinishedWork,
-                )
+                setReceiverEnabled(appContext, RescheduleReceiver::class.java, hasUnfinishedWork)
             }
             .launchIn(this)
     }
