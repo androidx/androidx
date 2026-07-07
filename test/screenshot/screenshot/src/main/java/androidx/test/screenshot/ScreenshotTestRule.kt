@@ -82,7 +82,14 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
     val deviceOutputDirectory
         get() =
             File(
-                InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir,
+                // The test process runs as the target package, which cannot create directories
+                // under the instrumentation package's external storage when the two differ (as
+                // they do for application modules). Fall back to the target context, whose
+                // external cache the process can always write.
+                InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir
+                    ?: InstrumentationRegistry.getInstrumentation()
+                        .getTargetContext()
+                        .externalCacheDir,
                 "androidx_screenshots",
             )
 
@@ -139,16 +146,24 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
     }
 
     private fun fetchExpectedImage(goldenIdentifier: String): Bitmap? {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
-
-        try {
-            context.assets.open(goldenIdentifierResolver(goldenIdentifier)).use {
-                return BitmapFactory.decodeStream(it)
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        // Library modules self-instrument, so the golden assets (packed into the androidTest APK
+        // by addGoldenImageAssets()) are visible through the target context. Application modules
+        // install a *separate* test APK that instruments the app under test — there the target
+        // context is the app, which has no golden assets, so fall back to the instrumentation
+        // (test APK) context.
+        val contexts =
+            listOf(instrumentation.targetContext.applicationContext, instrumentation.context)
+        for (context in contexts) {
+            try {
+                context.assets.open(goldenIdentifierResolver(goldenIdentifier)).use {
+                    return BitmapFactory.decodeStream(it)
+                }
+            } catch (e: FileNotFoundException) {
+                // Not in this context's assets; try the next one.
             }
-        } catch (e: FileNotFoundException) {
-            // Golden not present
-            return null
         }
+        return null
     }
 
     /**
