@@ -1590,4 +1590,33 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
             this.latitude = latitude
             this.longitude = longitude
         }
+
+    @Test
+    fun recorder_retainsRecording_duringSourceReconfiguration() {
+        // Arrange: Start a recording
+        val outputOptions = createFileOutputOptions()
+        val recorder = createRecorder()
+        val recording =
+            recordingSession.createRecording(recorder = recorder, outputOptions = outputOptions)
+
+        recording.startAndVerify()
+
+        // Act: Simulate source reconfiguration
+        recorder.onSourceStateChanged(VideoOutput.SourceState.CONFIGURING)
+
+        // Trigger pipeline reset
+        recorder.sendSurfaceRequest()
+
+        // Verify that no Finalize event has been received
+        recording.verifyNoFinalize(timeoutMs = 2000)
+
+        // Clear current status events
+        recording.clearEvents()
+
+        // Ensure recording is still alive
+        recording.verifyStatus(statusCount = 3)
+
+        // Stop the recording and verify it completed successfully
+        recording.stopAndVerify()
+    }
 }

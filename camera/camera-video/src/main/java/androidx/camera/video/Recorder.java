@@ -581,6 +581,7 @@ public final class Recorder implements VideoOutput {
     ScheduledFuture<?> mSourceNonStreamingTimeout = null;
     // The Recorder has to be reset first before being configured again.
     private boolean mNeedsResetBeforeNextStart = false;
+    private boolean mRetainRecordingOnReconfiguring = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull VideoEncoderSession mVideoEncoderSession;
     private @Nullable VideoEncoderConfig mVideoEncoderConfig = null;
@@ -1307,7 +1308,14 @@ public final class Recorder implements VideoOutput {
             return;
         }
 
-        if (newState == SourceState.INACTIVE) {
+        if (newState == SourceState.CONFIGURING) {
+            if (mInProgressRecording != null) {
+                mRetainRecordingOnReconfiguring = true;
+            }
+        } else if (newState == SourceState.INACTIVE) {
+            // Reset the retain recording flag. If INACTIVE is triggered (e.g. by unbind) during
+            // an active reconfiguration, we must stop retaining the recording to avoid hanging.
+            mRetainRecordingOnReconfiguring = false;
             if (mActiveSurface == null) {
                 if (mSetupVideoTask != null) {
                     mSetupVideoTask.cancelFailedRetry();
@@ -1322,9 +1330,7 @@ public final class Recorder implements VideoOutput {
                 // and be serviced after the Recorder is reset when receiving the previous
                 // surface request complete callback.
                 mNeedsResetBeforeNextStart = true;
-                if (mInProgressRecording != null && !mInProgressRecording.isPersistent()) {
-                    // Stop the in progress recording with "source inactive" error if it's not a
-                    // persistent recording.
+                if (mInProgressRecording != null && !shouldRetainRecording()) {
                     onInProgressRecordingInternalError(mInProgressRecording, ERROR_SOURCE_INACTIVE,
                             null);
                 }
@@ -1378,10 +1384,10 @@ public final class Recorder implements VideoOutput {
                         throw new AssertionError("In-progress recording does not match the active"
                                 + " recording. Unable to reset encoder.");
                     }
-                    // If there's an active persistent recording, reset the Recorder directly.
+                    // If the active recording should be retained, reset the Recorder directly.
                     // Otherwise, stop the recording first then release the Recorder at
                     // onRecordingFinalized().
-                    if (isPersistentRecordingInProgress()) {
+                    if (shouldRetainRecording()) {
                         shouldReset = true;
                     } else {
                         shouldStop = true;
@@ -1491,13 +1497,11 @@ public final class Recorder implements VideoOutput {
             safeToCloseVideoEncoder().addListener(() -> {
                 if (request.isServiced()
                         || (mVideoEncoderSession.isConfiguredSurfaceRequest(request)
-                        && !isPersistentRecordingInProgress())) {
-                    // Ignore the surface request if it's already serviced. Or the video encoder
-                    // session is already configured, unless there's a persistent recording is
-                    // running. Or the task has been completed.
+                        && !shouldRetainRecording())) {
                     Logger.w(TAG, "Ignore the SurfaceRequest " + request + " isServiced: "
                             + request.isServiced() + " VideoEncoderSession: " + mVideoEncoderSession
-                            + " has been configured with a persistent in-progress recording.");
+                            + " is already configured and the active recording does not need to "
+                            + "be retained.");
                     return;
                 }
                 VideoEncoderSession videoEncoderSession =
@@ -1558,8 +1562,9 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    boolean isPersistentRecordingInProgress() {
-        return mInProgressRecording != null && mInProgressRecording.isPersistent();
+    boolean shouldRetainRecording() {
+        return mInProgressRecording != null
+                && (mInProgressRecording.isPersistent() || mRetainRecordingOnReconfiguring);
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1594,9 +1599,7 @@ public final class Recorder implements VideoOutput {
 
                         mVideoEncoderSessionToRelease = videoEncoderSession;
                         setLatestSurface(null);
-                        // Only reset video if the in-progress recording is persistent.
-                        requestReset(ERROR_SOURCE_INACTIVE, null,
-                                isPersistentRecordingInProgress());
+                        requestReset(ERROR_SOURCE_INACTIVE, null, shouldRetainRecording());
                     }
 
                     @Override
@@ -1611,7 +1614,7 @@ public final class Recorder implements VideoOutput {
     void onConfigured() {
         RecordingRecord recordingToStart = null;
         RecordingRecord pendingRecordingToFinalize = null;
-        boolean continuePersistentRecording = false;
+        boolean continueRecording = false;
         @VideoRecordError int error = ERROR_NONE;
         Throwable errorCause = null;
         boolean recordingPaused = false;
@@ -1629,10 +1632,10 @@ public final class Recorder implements VideoOutput {
                     recordingPaused = true;
                     // Fall-through
                 case RECORDING:
-                    Preconditions.checkState(isPersistentRecordingInProgress(),
-                            "Unexpectedly invoke onConfigured() when there's a non-persistent "
-                                    + "in-progress recording");
-                    continuePersistentRecording = true;
+                    Preconditions.checkState(shouldRetainRecording(),
+                            "Unexpectedly invoke onConfigured() when the active recording "
+                                    + "should not be retained");
+                    continueRecording = true;
                     break;
                 case CONFIGURING:
                     setState(State.IDLING);
@@ -1663,7 +1666,7 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        if (continuePersistentRecording) {
+        if (continueRecording) {
             updateEncoderCallbacks(mInProgressRecording, true);
             mVideoEncoder.start();
             if (mShouldSendResumeEvent) {
@@ -1681,6 +1684,7 @@ public final class Recorder implements VideoOutput {
         } else if (pendingRecordingToFinalize != null) {
             finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
         }
+        mRetainRecordingOnReconfiguring = false;
     }
 
     private static boolean isSameRecording(@NonNull Recording activeRecording,
@@ -2008,7 +2012,7 @@ public final class Recorder implements VideoOutput {
                                 "The Recorder doesn't support recording with audio");
                     }
                     try {
-                        if (!mInProgressRecording.isPersistent() || mAudioEncoder == null) {
+                        if (!shouldRetainRecording() || mAudioEncoder == null) {
                             setupAudio(recordingToStart);
                         }
                         setAudioState(AudioState.ENABLED);
@@ -2277,10 +2281,9 @@ public final class Recorder implements VideoOutput {
                     public void onFailure(@NonNull Throwable t) {
                         Preconditions.checkState(mInProgressRecording != null,
                                 "In-progress recording shouldn't be null");
-                        // If a persistent recording requires reconfiguring the video encoder,
-                        // the previous encoder future has to be canceled without finalizing the
-                        // in-progress recording.
-                        if (!mInProgressRecording.isPersistent()) {
+                        // If the active recording should be retained, the previous encoder future
+                        // has to be canceled without finalizing the recording.
+                        if (!shouldRetainRecording()) {
                             Logger.d(TAG, "Encodings end with error: " + t);
                             finalizeInProgressRecording(mMuxer == null ? ERROR_NO_VALID_DATA
                                     : ERROR_ENCODING_FAILED, t);
@@ -2298,7 +2301,7 @@ public final class Recorder implements VideoOutput {
             @NonNull RecordingRecord recording) {
         // If the video encoder has been released, we should stop writing data to the muxer.
         // This prevents MuxerExceptions and prevents triggering stopInternal() which would
-        // incorrectly stop a persistent recording. See b/480772922.
+        // incorrectly stop a recording that should be kept. See b/480772922.
         if (mVideoEncoder == null) {
             Logger.d(TAG, "Ignore the video data since the video encoder has been released.");
             return;
@@ -2388,7 +2391,7 @@ public final class Recorder implements VideoOutput {
             @NonNull RecordingRecord recording) {
         // If the audio encoder has been released, we should stop writing data to the muxer.
         // This prevents MuxerExceptions and prevents triggering stopInternal() which would
-        // incorrectly stop a persistent recording. See b/480772922.
+        // incorrectly stop a recording that should be kept. See b/480772922.
         if (mAudioEncoder == null) {
             Logger.d(TAG, "Ignore the audio data since the audio encoder has been released.");
             return;
@@ -2482,10 +2485,9 @@ public final class Recorder implements VideoOutput {
             if (isAudioEnabled()) {
                 mAudioEncoder.start();
             }
-            // If a persistent recording is resumed immediately after the VideoCapture is rebound
-            // to a camera, it's possible that the encoder hasn't been created yet. Then the
-            // encoder will be started once it's initialized. So only start the encoder when it's
-            // not null.
+            // If the recording is resumed while the video encoder is being reconfigured,
+            // it's possible that the encoder hasn't been created yet. Then the encoder will
+            // be started once it's initialized. So only start the encoder when it's not null.
             if (mVideoEncoder != null) {
                 mVideoEncoder.start();
                 mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.resume(
@@ -2576,6 +2578,7 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void reset() {
+        mRetainRecordingOnReconfiguring = false;
         if (mAudioEncoder != null) {
             Logger.d(TAG, "Releasing audio encoder.");
             mAudioEncoder.release();
@@ -2623,7 +2626,7 @@ public final class Recorder implements VideoOutput {
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    if (isPersistentRecordingInProgress()) {
+                    if (shouldRetainRecording()) {
                         shouldConfigure = false;
                         break;
                     }
@@ -2822,6 +2825,7 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void onRecordingFinalized(@NonNull RecordingRecord finalizedRecording) {
+        mRetainRecordingOnReconfiguring = false;
         boolean needsReset = false;
         boolean startRecordingPaused = false;
         RecordingRecord recordingToStart = null;

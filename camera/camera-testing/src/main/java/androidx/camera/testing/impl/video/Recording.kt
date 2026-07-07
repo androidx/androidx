@@ -181,6 +181,19 @@ internal constructor(
         }
     }
 
+    public fun verifyNoFinalize(timeoutMs: Long = 2000L) {
+        var finalized = false
+        try {
+            listener.verifyEvent(Finalize::class.java, timeoutMs = timeoutMs)
+            finalized = true
+        } catch (_: AssertionError) {
+            // Timeout is expected
+        }
+        if (finalized) {
+            throw AssertionError("Finalize event was unexpectedly received.")
+        }
+    }
+
     public fun pause(): Recording {
         recording.pause()
         return this
