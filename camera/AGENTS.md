@@ -10,6 +10,8 @@
   `settings.gradle`.
 - **File Management**: When moving files, use `git mv` to keep version control history.
 - **Git Commits**: Do not make a git commit unless specifically requested.
+- **Scoping Builds**: Always use `PROJECT_PREFIX` to speed up Gradle configuration, e.g.,
+  `PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble`.
 
 ## Development Workflow & Refactoring:
 
@@ -33,19 +35,50 @@
 
 CameraX involves complex hardware interactions, making robust testing essential.
 
+> [!IMPORTANT]
+> Whenever you modify code or tests, you **MUST** ensure that the library
+> compiles successfully and all related tests pass. Never submit untested code.
+
+### Recommended Testing Workflow
+1. **Compilation**: Ensure the code and tests compile successfully. You can
+   compile the entire CameraX project tests and debug APKs at once using:
+   `./gradlew -p camera assembleAndroidTest assembleDebug`
+   Alternatively, use `PROJECT_PREFIX` to scope compilation to specific
+   modules to save time.
+2. **Local Verification**: Run **Host Tests (Robolectric)** for modified modules to quickly verify logic.
+3. **Integration Verification**: If changes affect camera session configuration, lifecycle, or usecase combinations:
+   - If a physical device/emulator is connected, run **Device Tests**.
+   - Otherwise, run **Firebase Test Lab (FTL)** tests on virtual devices to verify integration.
+4. **Code Quality & Formatting**:
+   - Format any modified Kotlin (`.kt`) files using `ktfmt` (see General Instructions).
+   - Run **Lint** (`./gradlew <project>:lint`) before committing.
+
 - **Assertion Library**: Use the Google **Truth** library for fluent and readable assertions.
   Avoid using traditional JUnit `assert*` methods or Hamcrest matchers.
 - **Fakes vs. Mocks**: Prioritize the use of fakes and test doubles (e.g., those provided in
   `camera-testing`) over mocking frameworks like Mockito to ensure more reliable and
   maintainable tests.
-- **Host Tests**: Run JVM-based unit tests using `./gradlew <project>:test` (e.g.,
-  `./gradlew :camera:camera-core:test`). This is the preferred task as it automatically
-  maps to the available build variant (e.g., `release` for libraries, `debug` for apps)
-  without redundant execution.
-- **Task Discovery**: If unsure of the correct test task, use `./gradlew <project>:tasks --all | grep test`
-  to identify available variants.
+- **Host Tests (Robolectric)**: Run JVM-based unit/Robolectric tests using
+  `./gradlew <project>:test` (e.g., `./gradlew :camera:camera-core:test`). To
+  run a specific test class or method, use the `--tests` flag:
+  `./gradlew :camera:camera-core:test --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"`.
+- **Task Discovery**: If unsure of the correct test task, use
+  `./gradlew <project>:tasks --all | grep test` to identify available variants.
 - **Device Tests**: Run instrumented tests on a connected device using
   `./gradlew <project>:connectedCheck`.
+- **Firebase Test Lab (FTL) Tests**: If you do not have a physical device
+  connected, you can run instrumented tests on virtual devices in FTL.
+  - Discover FTL tasks: `./gradlew <project>:tasks --all | grep ftl` (e.g.,
+    `ftlpixel2api30debugAndroidTest` for apps, or `releaseAndroidTest` variants
+    for libraries).
+  - Run a specific test in FTL:
+    `./gradlew <project>:<ftlTask> --className <packageName>.<ClassName>#<methodName>`.
+  - Example:
+    ```bash
+    PROJECT_PREFIX=:camera:integration-tests:camera-testapp-core \
+    ./gradlew :camera:integration-tests:camera-testapp-core:ftlpixel2api30debugAndroidTest \
+    --className androidx.camera.integration.core.StreamSharingTest#recordingCanProceedAfterSiblingUnbind
+    ```
 - **Testing Libraries**: Utilize `camera-testing`, `camera-common-testing`, and
   `camera-camera2-pipe-testing` for writing robust fakes.
 - **Log Management**: To prevent context bloat from excessive tool output, run large test suites
