@@ -69,7 +69,9 @@ value class CornerRadius(val packedValue: Long) {
          *
          * You can use [CornerRadius.Zero] with [RoundRect] to have right-angle corners.
          */
-        @Stable val Zero: CornerRadius = CornerRadius(0x0L)
+        @Stable
+        val Zero: CornerRadius
+            get() = CornerRadius(0x0L)
     }
 
     /** Whether this corner radius is 0 in x, y, or both. */
