@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.graphics
 
+import android.os.Build
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import java.util.WeakHashMap
 
 @Deprecated(
     message = "Use android.graphics.Canvas directly instead",
@@ -67,6 +69,15 @@ internal class AndroidCanvas() : Canvas {
     private var srcRect: android.graphics.Rect? = null
 
     private var dstRect: android.graphics.Rect? = null
+
+    // On a software backed canvas below API 29, drawVertices requires a colors array of the
+    // same size as the number of values in positions array but Vertices API requires the Colors
+    // array to have the size equal to the actual number of vertices, resulting in a crash.
+    // This maintains a map to the newly allocated colors array (padded to match the required size)
+    // when calling drawVertices as long as the corresponding Vertices instance is in use, to avoid
+    // reallocating and copy operations.
+    // TODO: Remove when the minimum API supported is 29 or greater.
+    private var paddedColorBufferMap: WeakHashMap<Vertices, IntArray>? = null
 
     /** @see Canvas.save */
     override fun save() {
@@ -356,7 +367,18 @@ internal class AndroidCanvas() : Canvas {
             0, // TODO(njawad) figure out proper vertOffset)
             vertices.textureCoordinates,
             0, // TODO(njawad) figure out proper texOffset)
-            vertices.colors,
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                    this.nativeCanvas.isHardwareAccelerated
+            ) {
+                vertices.colors
+            } else {
+                val map =
+                    paddedColorBufferMap
+                        ?: WeakHashMap<Vertices, IntArray>().also { paddedColorBufferMap = it }
+                map[vertices]
+                    ?: vertices.colors.copyOf(vertices.positions.size).also { map[vertices] = it }
+            },
             0, // TODO(njawad) figure out proper colorOffset)
             vertices.indices,
             0, // TODO(njawad) figure out proper indexOffset)
