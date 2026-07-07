@@ -76,7 +76,7 @@ public sealed interface SpaceRequestResult {
 }
 
 /**
- * Request that the system places the application into home space mode.
+ * Request that the system place the application into home space.
  *
  * In home space, the visible space may be shared with other applications; however, applications in
  * home space will have their spatial capabilities and physical bounds limited.
@@ -86,9 +86,9 @@ public sealed interface SpaceRequestResult {
  * device does not support XR spaces, it will resume immediately with
  * [SpaceRequestResult.Unsupported].
  *
- * Note: Because Full Space Mode and Home Space Mode changes are OS-level system changes, the space
- * switch cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the
- * bounds listener but does not interrupt the ongoing space change. If [requestFullSpace] or
+ * Note: Because full space and home space changes are OS-level system changes, the space switch
+ * cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the bounds
+ * listener but does not interrupt the ongoing space change. If [requestFullSpace] or
  * `requestHomeSpace` is called again before this request completes, the coroutine suspended on this
  * call will be cancelled with a `CancellationException`.
  *
@@ -102,7 +102,7 @@ public suspend fun ComponentActivity.requestHomeSpace(): SpaceRequestResult =
     requestSpaceMode(Space.Home)
 
 /**
- * Request that the system places the application into full space mode.
+ * Request that the system place the application into full space.
  *
  * In full space, this application will be the only application in the visible space, its spatial
  * capabilities will be expanded, and its physical bounds will expand to fill the entire virtual
@@ -113,9 +113,9 @@ public suspend fun ComponentActivity.requestHomeSpace(): SpaceRequestResult =
  * device does not support XR spaces, it will resume immediately with
  * [SpaceRequestResult.Unsupported].
  *
- * Note: Because Full Space Mode and Home Space Mode changes are OS-level system changes, the space
- * switch cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the
- * bounds listener but does not interrupt the ongoing space change. If `requestFullSpace` or
+ * Note: Because full space and home space changes are OS-level system changes, the space switch
+ * cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the bounds
+ * listener but does not interrupt the ongoing space change. If `requestFullSpace` or
  * [requestHomeSpace] is called again before this request completes, the coroutine suspended on this
  * call will be cancelled with a `CancellationException`.
  *
