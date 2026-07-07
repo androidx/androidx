@@ -148,6 +148,7 @@ private fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTa
         // We separately validate that this list is correct in
         val shadowTask = task as? ShadowJar
         if (shadowTask != null) {
+            @Suppress("EagerGradleConfiguration")
             val configurations =
                 configurations.filter { conf -> shadowTask.configurations.contains(conf) }
             return configurations.map { conf -> conf.name }
