@@ -51,18 +51,22 @@ import java.util.Map;
 /**
  * Validates that the calling package is authorized to connect to a {@link CarAppService}.
  *
- * <p>Host are expected to either hold <code>android.car.permission.TEMPLATE_RENDERER</code>
- * privileged permission, or be included in the allow-listed set of hosts, identified by their
- * signatures.
+ * <p>On automotive devices, hosts are expected to either hold
+ * {@code android.car.permission.TEMPLATE_RENDERER} privileged permission, or be included
+ * in the allow-listed set of hosts, identified by their signatures. On non-automotive devices,
+ * the {@code android.car.permission.TEMPLATE_RENDERER} permission is not checked, and
+ * hosts must be allow-listed by signatures using
+ * {@link HostValidator.Builder#addAllowedHost(String, String)} or
+ * {@link HostValidator.Builder#addAllowedHosts(int)}.
  *
  * @see HostValidator.Builder
  */
 public final class HostValidator {
     /**
      * System permission used to identify valid hosts (only used by hosts running on Android API
-     * level 31 or later). Other hosts must be allow-listed using
+     * level 31 or later on automotive devices). Other hosts must be allow-listed using
      * {@link HostValidator.Builder#addAllowedHost(String, String)} or
-     * {@link HostValidator.Builder#addAllowedHosts(int)}
+     * {@link HostValidator.Builder#addAllowedHosts(int)}.
      */
     public static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission"
             + ".TEMPLATE_RENDERER";
@@ -71,12 +75,15 @@ public final class HostValidator {
     private final boolean mAllowAllHosts;
     private final Map<String, Pair<Integer, Boolean>> mCallerChecked = new HashMap<>();
     private final @Nullable PackageManager mPackageManager;
+    private final boolean mIsAutomotiveDevice;
 
     HostValidator(@Nullable PackageManager packageManager,
             @NonNull Map<String, List<String>> allowedHosts, boolean allowAllHosts) {
         mPackageManager = packageManager;
         mAllowedHosts = allowedHosts;
         mAllowAllHosts = allowAllHosts;
+        mIsAutomotiveDevice = packageManager != null && packageManager.hasSystemFeature(
+                PackageManager.FEATURE_AUTOMOTIVE);
     }
 
     /**
@@ -171,7 +178,8 @@ public final class HostValidator {
                     + "UID " + uid);
         }
 
-        boolean hasPermission = hasPermissionGranted(packageInfo, TEMPLATE_RENDERER_PERMISSION);
+        boolean hasPermission = mIsAutomotiveDevice
+                && hasPermissionGranted(packageInfo, TEMPLATE_RENDERER_PERMISSION);
         boolean isAllowListed = isAllowListed(hostPackageName, signatures);
 
         // Validate

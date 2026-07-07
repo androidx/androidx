@@ -85,6 +85,7 @@ public class HostValidatorTest {
         when(context.getPackageManager()).thenReturn(mPackageManager);
         mHostValidatorBuilder = new HostValidator.Builder(context);
         when(context.getResources()).thenReturn(mResources);
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)).thenReturn(false);
     }
 
     @Test
@@ -161,6 +162,7 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_hostHoldingPermission_accepted() {
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)).thenReturn(true);
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE,
                 TEMPLATE_RENDERER_PERMISSION);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
@@ -168,6 +170,17 @@ public class HostValidatorTest {
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
+    }
+
+    @Test
+    public void isValidHost_hostHoldingPermission_notAutomotive_rejected() {
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE,
+                TEMPLATE_RENDERER_PERMISSION);
+        HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
+
+        HostValidator hostValidator = mHostValidatorBuilder.build();
+
+        assertThat(hostValidator.isValidHost(hostInfo)).isFalse();
     }
 
     @Test(expected = IllegalStateException.class)
