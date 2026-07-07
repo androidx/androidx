@@ -18,20 +18,27 @@ package androidx.health.platform.client.impl.ipc.internal;
 
 import static android.os.Looper.getMainLooper;
 
+import static androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME;
+import static androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_RELEASE_CERT_SHA256;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -50,10 +57,8 @@ import org.robolectric.annotation.Config;
 @Config(sdk = {Config.TARGET_SDK})
 public class ServiceConnectionTest {
 
-    @Rule
-    public final MockitoRule mocks = MockitoJUnit.rule();
-    @Mock
-    private IBinder mBinder;
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+    @Mock private IBinder mBinder;
 
     private final FakeExecutionTracker mTracker = new FakeExecutionTracker();
     private final FakeConnectionCallback mConnectionCallback = new FakeConnectionCallback();
@@ -91,12 +96,10 @@ public class ServiceConnectionTest {
         QueueOperation queueOperation =
                 new QueueOperation() {
                     @Override
-                    public void execute(IBinder binder) throws RemoteException {
-                    }
+                    public void execute(IBinder binder) throws RemoteException {}
 
                     @Override
-                    public void setException(Throwable exception) {
-                    }
+                    public void setException(Throwable exception) {}
 
                     @Override
                     public QueueOperation trackExecution(ExecutionTracker tracker) {
@@ -152,8 +155,8 @@ public class ServiceConnectionTest {
     public void registerListener_serviceNotConnected_bindsService() {
         FakeQueueOperation registerListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
 
         mConnection.registerListener(new ListenerKey("listener_key"), registerListenerOperation);
         shadowOf(getMainLooper()).idle();
@@ -164,9 +167,10 @@ public class ServiceConnectionTest {
     @Test
     public void enqueueOperation_unbindableService_throwsRemoteException() {
         shadowOf((Application) getApplicationContext())
-                .declareComponentUnbindable(new ComponentName(mClientConfiguration.getPackageName(),
-                        mClientConfiguration.getClientName()
-                ));
+                .declareComponentUnbindable(
+                        new ComponentName(
+                                mClientConfiguration.getPackageName(),
+                                mClientConfiguration.getClientName()));
 
         FakeQueueOperation queueOperation = new FakeQueueOperation(mClientConfiguration);
 
@@ -180,9 +184,10 @@ public class ServiceConnectionTest {
     @Test
     public void clearConnection_failQueuedOperation() {
         SettableFuture<Void> settableFuture = SettableFuture.create();
-        FakeQueueOperation queueOperation = new FakeQueueOperation(
-                new ConnectionConfiguration("package", "clientName", "bindAction",
-                        mVersionOperation));
+        FakeQueueOperation queueOperation =
+                new FakeQueueOperation(
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
 
         mConnection.enqueue(queueOperation);
         mConnection.clearConnection(new RemoteException());
@@ -199,8 +204,8 @@ public class ServiceConnectionTest {
         shadowOf(getMainLooper()).idle();
         FakeQueueOperation registerListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
 
         mConnection.registerListener(new ListenerKey("listener_key"), registerListenerOperation);
         shadowOf(getMainLooper()).idle();
@@ -212,12 +217,11 @@ public class ServiceConnectionTest {
     public void unregisterListener_serviceNotConnected_bindsService() {
         FakeQueueOperation unregisterListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
 
         mConnection.unregisterListener(
-                new ListenerKey("listener_key"),
-                unregisterListenerOperation);
+                new ListenerKey("listener_key"), unregisterListenerOperation);
         shadowOf(getMainLooper()).idle();
 
         assertThat(mConnectionCallback.mOnConnectedCalled).isTrue();
@@ -230,12 +234,11 @@ public class ServiceConnectionTest {
         shadowOf(getMainLooper()).idle();
         FakeQueueOperation unregisterListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
 
         mConnection.unregisterListener(
-                new ListenerKey("listener_key"),
-                unregisterListenerOperation);
+                new ListenerKey("listener_key"), unregisterListenerOperation);
         shadowOf(getMainLooper()).idle();
 
         assertThat(unregisterListenerOperation.isExecuted()).isTrue();
@@ -246,8 +249,8 @@ public class ServiceConnectionTest {
         mConnection.connect();
         FakeQueueOperation registerListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
         mConnection.registerListener(new ListenerKey("listener_key"), registerListenerOperation);
         registerListenerOperation.mExecuted = false;
         shadowOf(getMainLooper()).idle();
@@ -261,8 +264,8 @@ public class ServiceConnectionTest {
     public void maybeReconnect_reconnectsRegisteredListener() {
         FakeQueueOperation registerListenerOperation =
                 new FakeQueueOperation(
-                        new ConnectionConfiguration("package", "clientName", "bindAction",
-                                mVersionOperation));
+                        new ConnectionConfiguration(
+                                "package", "clientName", "bindAction", mVersionOperation));
         mConnection.registerListener(new ListenerKey("listener_key"), registerListenerOperation);
         shadowOf(getMainLooper()).idle();
         mConnection.clearConnection(null);
@@ -282,6 +285,69 @@ public class ServiceConnectionTest {
         mConnection.flushQueue();
 
         assertThat(mVersionOperation.mWasExecuted).isTrue();
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void onServiceConnected_defaultProvider_signatureMatches_callsCallback() {
+        Context mockContext = mock(Context.class);
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        when(mockContext.getPackageManager()).thenReturn(mockPackageManager);
+        when(mockPackageManager.hasSigningCertificate(
+                        DEFAULT_PROVIDER_PACKAGE_NAME,
+                        DEFAULT_PROVIDER_RELEASE_CERT_SHA256,
+                        PackageManager.CERT_INPUT_SHA256))
+                .thenReturn(true);
+
+        ServiceConnection connection =
+                new ServiceConnection(
+                        mockContext, mClientConfiguration, mTracker, mConnectionCallback);
+
+        connection.onServiceConnected(
+                new ComponentName(DEFAULT_PROVIDER_PACKAGE_NAME, "package.ClassName"), mBinder);
+
+        assertThat(mConnectionCallback.mOnConnectedCalled).isTrue();
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void onServiceConnected_defaultProvider_signatureMismatch_doesNotCallCallback() {
+        Context mockContext = mock(Context.class);
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        when(mockContext.getPackageManager()).thenReturn(mockPackageManager);
+        when(mockPackageManager.hasSigningCertificate(
+                        DEFAULT_PROVIDER_PACKAGE_NAME,
+                        DEFAULT_PROVIDER_RELEASE_CERT_SHA256,
+                        PackageManager.CERT_INPUT_SHA256))
+                .thenReturn(false);
+
+        ServiceConnection connection =
+                new ServiceConnection(
+                        mockContext, mClientConfiguration, mTracker, mConnectionCallback);
+
+        connection.onServiceConnected(
+                new ComponentName(DEFAULT_PROVIDER_PACKAGE_NAME, "package.ClassName"), mBinder);
+
+        assertThat(mConnectionCallback.mOnConnectedCalled).isFalse();
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.O)
+    public void onServiceConnected_defaultProvider_sdkTooLow_doesNotCallCallback() {
+        Context mockContext = mock(Context.class);
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        when(mockContext.getPackageManager()).thenReturn(mockPackageManager);
+
+        ServiceConnection connection =
+                new ServiceConnection(
+                        mockContext, mClientConfiguration, mTracker, mConnectionCallback);
+
+        connection.onServiceConnected(
+                new ComponentName(DEFAULT_PROVIDER_PACKAGE_NAME, "package.ClassName"), mBinder);
+
+        assertThat(mConnectionCallback.mOnConnectedCalled).isFalse();
     }
 
     private static class FakeConnectionCallback implements ServiceConnection.Callback {
@@ -351,8 +417,7 @@ public class ServiceConnectionTest {
         }
 
         @Override
-        public void setException(Throwable exception) {
-        }
+        public void setException(Throwable exception) {}
 
         @Override
         public QueueOperation trackExecution(ExecutionTracker tracker) {

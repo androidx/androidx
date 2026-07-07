@@ -63,6 +63,7 @@ import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
 
@@ -83,7 +84,7 @@ internal constructor(
     ) : this(
         delegate = HealthDataService.getClient(context, providerPackageName),
         features =
-            if (providerPackageName == HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME) {
+            if (providerPackageName == DEFAULT_PROVIDER_PACKAGE_NAME) {
                 HealthConnectFeaturesApkImpl(context, providerPackageName)
             } else {
                 HealthConnectFeaturesUnavailableImpl
