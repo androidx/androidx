@@ -5641,6 +5641,42 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_box_withTransformationModifier_NaN_scale_doesNotCrash() {
+        FloatProp scaleX = FloatProp.newBuilder().setValue(Float.NaN).build();
+        FloatProp scaleY = FloatProp.newBuilder().setValue(Float.NaN).build();
+        ModifiersProto.Transformation transformation =
+                ModifiersProto.Transformation.newBuilder()
+                        .setScaleX(scaleX)
+                        .setScaleY(scaleY)
+                        .build();
+
+        ContainerDimension boxWidth =
+                ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
+        ContainerDimension boxHeight =
+                ContainerDimension.newBuilder().setLinearDimension(dp(120.f).build()).build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(boxWidth)
+                                        .setHeight(boxHeight)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setTransformation(transformation)
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+
+        // NaN should fall back to 1.0f
+        assertThat(box.getScaleX()).isEqualTo(1.0f);
+        assertThat(box.getScaleY()).isEqualTo(1.0f);
+    }
+
+
+    @Test
     public void inflate_box_wrapAndExpandSize_withPivotTransformationModifier() {
         PivotDimension pivotX = PivotDimension.newBuilder().setOffsetDp(dp(30.f)).build();
         PivotDimension pivotY =
