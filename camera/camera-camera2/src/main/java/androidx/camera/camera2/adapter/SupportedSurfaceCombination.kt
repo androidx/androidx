@@ -47,6 +47,7 @@ import androidx.camera.camera2.internal.StreamUseCaseUtil
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPreviewStabilization
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery.Companion.createSessionConfigBuilder
 import androidx.camera.core.featuregroup.impl.feature.FpsRangeFeature
@@ -54,6 +55,7 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.FrameRates.FRAME_RATE_UNLIMITED
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
@@ -135,6 +137,9 @@ public class SupportedSurfaceCombination(
     private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
     private val dynamicRangeResolver: DynamicRangeResolver = DynamicRangeResolver(cameraMetadata)
     private val highSpeedResolver: HighSpeedResolver = HighSpeedResolver(cameraMetadata)
+
+    private val zslIntersectionSizes: List<Size> =
+        ZslUtil.computeZslIntersectionSizes(cameraMetadata, ImageFormat.PRIVATE)
 
     init {
         checkCapabilities()
@@ -384,6 +389,7 @@ public class SupportedSurfaceCombination(
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *   found. This may be due to no available output size or no available surface combination.
      */
+    @androidx.annotation.OptIn(androidx.camera.core.ExperimentalZeroShutterLag::class)
     public fun getSuggestedStreamSpecifications(
         cameraMode: Int,
         attachedSurfaces: List<AttachedSurfaceInfo>,
@@ -403,12 +409,42 @@ public class SupportedSurfaceCombination(
             )
         // Filter out unsupported sizes for high-speed at the beginning to ensure correct
         // resolution selection later. High-speed session requires all surface sizes to be the same.
-        val filteredNewUseCaseConfigsSupportedSizeMap =
+        var filteredNewUseCaseConfigsSupportedSizeMap =
             if (isHighSpeedOn) {
                 highSpeedResolver.filterCommonSupportedSizes(newUseCaseConfigsSupportedSizeMap)
             } else {
                 newUseCaseConfigsSupportedSizeMap
             }
+
+        val isZslOn =
+            StreamUseCaseUtil.containsZslUseCase(
+                attachedSurfaces,
+                newUseCaseConfigsSupportedSizeMap.keys.toList(),
+            )
+
+        val zslIntersection = zslIntersectionSizes
+        if (zslIntersection.isNotEmpty() && isZslOn) {
+            filteredNewUseCaseConfigsSupportedSizeMap =
+                filteredNewUseCaseConfigsSupportedSizeMap.mapValues { (useCaseConfig, sizes) ->
+                    val isZsl =
+                        useCaseConfig is ImageCaptureConfig &&
+                            useCaseConfig.hasCaptureMode() &&
+                            useCaseConfig.captureMode ==
+                                ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG &&
+                            !useCaseConfig.isZslDisabled(false)
+
+                    if (isZsl) {
+                        val filteredSizes = sizes.filter { zslIntersection.contains(it) }
+                        if (filteredSizes.isNotEmpty()) {
+                            filteredSizes
+                        } else {
+                            sizes
+                        }
+                    } else {
+                        sizes
+                    }
+                }
+        }
 
         val newUseCaseConfigs = filteredNewUseCaseConfigsSupportedSizeMap.keys.toList()
 

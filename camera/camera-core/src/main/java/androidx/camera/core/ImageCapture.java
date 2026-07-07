@@ -521,6 +521,21 @@ public final class ImageCapture extends UseCase {
             }
         }
 
+        // Disable ZSL if it's not supported by the camera with the given UseCaseConfig.
+        boolean isZslDisabled = Boolean.TRUE.equals(
+                builder.getMutableConfig().retrieveOption(OPTION_ZSL_DISABLED, false));
+        if (!isZslDisabled) {
+            Rect sensorRect = cameraInfo.getSensorRect();
+            Size activeArraySize = new Size(sensorRect.width(), sensorRect.height());
+            SupportedOutputSizesSorter sorter = new SupportedOutputSizesSorter(cameraInfo,
+                    activeArraySize);
+            List<Size> sortedSizes = sorter.getSortedSupportedOutputSizes(
+                    builder.getUseCaseConfig());
+            if (!cameraInfo.canSupportZsl(sortedSizes)) {
+                builder.getMutableConfig().insertOption(OPTION_ZSL_DISABLED, true);
+            }
+        }
+
         return builder.getUseCaseConfig();
     }
 

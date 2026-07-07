@@ -38,6 +38,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
+import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -235,6 +236,17 @@ public interface CameraInfoInternal extends CameraInfo {
             }
         }
         return filteredFrameRates;
+    }
+
+    /**
+     * Checks whether ZSL can be supported with the given list of sizes.
+     *
+     * @param sizes a list of sizes
+     * @return true if ZSL can be supported, false otherwise
+     */
+    @OptIn(markerClass = ExperimentalZeroShutterLag.class)
+    default boolean canSupportZsl(@NonNull List<Size> sizes) {
+        return isZslSupported();
     }
 
     /**
