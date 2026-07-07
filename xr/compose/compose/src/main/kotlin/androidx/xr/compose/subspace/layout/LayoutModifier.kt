@@ -25,6 +25,7 @@ import androidx.xr.compose.unit.VolumeConstraints
  *
  * @param measure function that defines the measurement and placement logic.
  */
+@ExperimentalSpatialLayoutModifierApi
 public fun SubspaceModifier.layout(
     measure: SubspaceMeasureScope.(SubspaceMeasurable, VolumeConstraints) -> SubspaceMeasureResult
 ): SubspaceModifier = this then LayoutElement(measure)
