@@ -1735,8 +1735,8 @@ package androidx.xr.compose.unit {
     method public static int constrainDepth(androidx.xr.compose.unit.VolumeConstraints, int depth);
     method public static int constrainHeight(androidx.xr.compose.unit.VolumeConstraints, int height);
     method public static int constrainWidth(androidx.xr.compose.unit.VolumeConstraints, int width);
-    method public static androidx.xr.compose.unit.VolumeConstraints offset(androidx.xr.compose.unit.VolumeConstraints, optional int horizontal, optional int vertical, optional int depth, optional boolean resetMins);
-    method @BytecodeOnly public static androidx.xr.compose.unit.VolumeConstraints! offset$default(androidx.xr.compose.unit.VolumeConstraints!, int, int, int, boolean, int, Object!);
+    method public static androidx.xr.compose.unit.VolumeConstraints offset(androidx.xr.compose.unit.VolumeConstraints, optional int horizontal, optional int vertical, optional int depth);
+    method @BytecodeOnly public static androidx.xr.compose.unit.VolumeConstraints! offset$default(androidx.xr.compose.unit.VolumeConstraints!, int, int, int, int, Object!);
   }
 
 }
