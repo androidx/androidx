@@ -1305,6 +1305,7 @@ package androidx.car.app.model {
     method public java.util.List<androidx.car.app.model.Action!> getBelowActions();
     method public androidx.car.app.model.BannerElement? getLeadingElement();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method public androidx.car.app.model.CarProgressBar? getProgressBar();
     method public androidx.car.app.model.BannerStyle? getStyle();
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
@@ -1321,6 +1322,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Banner.Builder setLeadingIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setLeadingImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method public androidx.car.app.model.Banner.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
     method public androidx.car.app.model.Banner.Builder setStyle(androidx.car.app.model.BannerStyle);
     method public androidx.car.app.model.Banner.Builder setSubtitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Banner.Builder setSubtitle(CharSequence);
