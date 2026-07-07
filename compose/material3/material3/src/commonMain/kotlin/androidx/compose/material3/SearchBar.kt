@@ -396,6 +396,7 @@ fun TopSearchBar(
  *   will not automatically react to scrolling.
  */
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
+@ExperimentalMaterial3Api
 @Composable
 fun AppBarWithSearch(
     state: SearchBarState,
@@ -1855,6 +1856,7 @@ object SearchBarDefaults {
      * @param appBarNavigationIconColor the color used for the app bar navigation icon
      * @param appBarActionIconColor the color used for the app bar action icons
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun appBarWithSearchColors(
         searchBarColors: SearchBarColors = colors(),
@@ -2777,6 +2779,7 @@ class SearchBarColors(
  * @param appBarNavigationIconColor the color used for the app bar navigation icon
  * @param appBarActionIconColor the color used for the app bar action icons
  */
+@ExperimentalMaterial3Api
 @Immutable
 class AppBarWithSearchColors(
     val searchBarColors: SearchBarColors,
