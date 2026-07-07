@@ -498,6 +498,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (getAttachedStreamSpec() == null || mSurfaceRequest != null) {
             return;
         }
+        setSourceState(VideoOutput.SourceState.CONFIGURING);
         StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
@@ -887,6 +888,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return;
         }
 
+        setSourceState(VideoOutput.SourceState.CONFIGURING);
         clearPipeline();
         mSessionConfigBuilder = createPipeline(
                 (VideoCaptureConfig<T>) getCurrentConfig(),
