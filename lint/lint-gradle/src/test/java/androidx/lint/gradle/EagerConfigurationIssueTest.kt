@@ -103,6 +103,32 @@ class EagerConfigurationIssueTest :
     }
 
     @Test
+    fun `Test usage of ConfigurationContainer#filter`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.Project
+
+                fun configure(project: Project) {
+                    project.configurations.filter { true }
+                }
+                """
+                    .trimIndent()
+            )
+
+        val expected =
+            """
+            src/test.kt:4: Error: Avoid using method filter [EagerGradleConfiguration]
+                project.configurations.filter { true }
+                                       ~~~~~~
+            1 error
+            """
+                .trimIndent()
+
+        check(input).expect(expected)
+    }
+
+    @Test
     fun `Test usage of unrelated create method`() {
         val input =
             kotlin(

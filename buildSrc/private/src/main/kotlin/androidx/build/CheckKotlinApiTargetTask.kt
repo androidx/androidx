@@ -38,6 +38,7 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
     @get:Input
     val allDependencies: Provider<List<Pair<String, String>>> =
         project.provider {
+            @Suppress("EagerGradleConfiguration")
             project.configurations
                 .filter(project::shouldVerifyConfiguration)
                 .filter { it.isCanBeResolved && it.isPublished() }

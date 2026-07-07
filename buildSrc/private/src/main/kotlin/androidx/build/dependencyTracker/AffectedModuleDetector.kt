@@ -139,6 +139,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                 val projectGraph = ProjectGraph(rootProject)
                 val dependencyMap = mutableMapOf<String, MutableSet<String>>()
                 rootProject.subprojects.forEach { project ->
+                    @Suppress("EagerGradleConfiguration")
                     project.configurations.forEach { config ->
                         config.dependencies.filterIsInstance<ProjectDependency>().forEach {
                             dependency ->

@@ -146,7 +146,7 @@ internal val STUBS =
                 fun withType(type: Class<S>)
             }
 
-            interface NamedDomainObjectContainer<T> {
+            interface NamedDomainObjectContainer<T> : Collection<T> {
                 fun create(name: String): T
                 fun register(name: String): Provider<T>
             }
