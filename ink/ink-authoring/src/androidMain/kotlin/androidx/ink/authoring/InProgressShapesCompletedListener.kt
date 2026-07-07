@@ -22,7 +22,7 @@ import androidx.annotation.UiThread
  * Notifies the client app when a [CompletedShapeT] (or more than one) has been completed on
  * [InProgressShapesView].
  */
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 @UiThread
 public interface InProgressShapesCompletedListener<CompletedShapeT : Any> {
     /**

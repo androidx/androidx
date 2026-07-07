@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmOverloads
 
@@ -40,9 +41,11 @@ import kotlin.jvm.JvmOverloads
  * however, from the perspective of a caller, its properties do not change over the course of its
  * lifetime. The entire object is thread-safe.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class PartitionedMesh private constructor(nativeAlloc: () -> Long) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, PartitionedMeshNative::free)
 
     /**
@@ -102,6 +105,7 @@ public class PartitionedMesh private constructor(nativeAlloc: () -> Long) {
 
     /** Returns the [MeshFormat] used for each [Mesh] in the specified render group. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public fun renderGroupFormat(@IntRange(from = 0) groupIndex: Int): MeshFormat {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
             "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
@@ -116,6 +120,7 @@ public class PartitionedMesh private constructor(nativeAlloc: () -> Long) {
      * in the span should be rendered on bottom; the last mesh should be rendered on top).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public fun renderGroupMeshes(@IntRange(from = 0) groupIndex: Int): List<Mesh> {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
             "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
@@ -503,7 +508,9 @@ public class PartitionedMesh private constructor(nativeAlloc: () -> Long) {
          * Construct a [PartitionedMesh], taking a callback that heap-allocates and returns a
          * pointer to a C++ `PartitionedMesh`.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): PartitionedMesh =
             PartitionedMesh(nativeAlloc)
     }

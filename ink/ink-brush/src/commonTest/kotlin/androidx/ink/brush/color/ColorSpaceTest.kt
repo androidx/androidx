@@ -31,6 +31,7 @@ import androidx.ink.brush.color.colorspace.TransferParameters
 import androidx.ink.brush.color.colorspace.WhitePoint
 import androidx.ink.brush.color.colorspace.adapt
 import androidx.ink.brush.color.colorspace.connect
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -43,6 +44,7 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@OptIn(InkInternalOnlyApi::class)
 class ColorSpaceTest {
 
     @Test

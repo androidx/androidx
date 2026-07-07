@@ -6,8 +6,16 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.ink:ink-brush>
-abstract fun interface androidx.ink.brush.color.colorspace/DoubleFunction { // androidx.ink.brush.color.colorspace/DoubleFunction|null[0]
-    abstract fun invoke(kotlin/Double): kotlin/Double // androidx.ink.brush.color.colorspace/DoubleFunction.invoke|invoke(kotlin.Double){}[0]
+open annotation class androidx.ink.brush/ExperimentalInkAnimationApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkAnimationApi|null[0]
+    constructor <init>() // androidx.ink.brush/ExperimentalInkAnimationApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.ink.brush/ExperimentalInkBrushCompatibilityApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkBrushCompatibilityApi|null[0]
+    constructor <init>() // androidx.ink.brush/ExperimentalInkBrushCompatibilityApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.ink.brush/ExperimentalInkCustomBrushApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkCustomBrushApi|null[0]
+    constructor <init>() // androidx.ink.brush/ExperimentalInkCustomBrushApi.<init>|<init>(){}[0]
 }
 
 abstract class androidx.ink.brush.behavior/EasingFunction { // androidx.ink.brush.behavior/EasingFunction|null[0]
@@ -94,62 +102,19 @@ abstract class androidx.ink.brush.behavior/EasingFunction { // androidx.ink.brus
         final object Companion // androidx.ink.brush.behavior/EasingFunction.Steps.Companion|null[0]
     }
 
-    final object Companion { // androidx.ink.brush.behavior/EasingFunction.Companion|null[0]
-        final fun copyAndWrapNative(kotlin/Long): androidx.ink.brush.behavior/EasingFunction // androidx.ink.brush.behavior/EasingFunction.Companion.copyAndWrapNative|copyAndWrapNative(kotlin.Long){}[0]
-    }
+    final object Companion // androidx.ink.brush.behavior/EasingFunction.Companion|null[0]
 }
 
 abstract class androidx.ink.brush.behavior/Node { // androidx.ink.brush.behavior/Node|null[0]
     final val inputs // androidx.ink.brush.behavior/Node.inputs|{}inputs[0]
         final fun <get-inputs>(): kotlin.collections/List<androidx.ink.brush.behavior/ValueNode> // androidx.ink.brush.behavior/Node.inputs.<get-inputs>|<get-inputs>(){}[0]
-    final val nativePointer // androidx.ink.brush.behavior/Node.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush.behavior/Node.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
 
-    final object Companion { // androidx.ink.brush.behavior/Node.Companion|null[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>, kotlin/Int, kotlin.collections/ArrayDeque<androidx.ink.brush.behavior/ValueNode>): androidx.ink.brush.behavior/Node // androidx.ink.brush.behavior/Node.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>;kotlin.Int;kotlin.collections.ArrayDeque<androidx.ink.brush.behavior.ValueNode>){}[0]
-    }
+    final object Companion // androidx.ink.brush.behavior/Node.Companion|null[0]
 }
 
 abstract class androidx.ink.brush.behavior/TerminalNode : androidx.ink.brush.behavior/Node // androidx.ink.brush.behavior/TerminalNode|null[0]
 
 abstract class androidx.ink.brush.behavior/ValueNode : androidx.ink.brush.behavior/Node // androidx.ink.brush.behavior/ValueNode|null[0]
-
-abstract class androidx.ink.brush.color.colorspace/Adaptation { // androidx.ink.brush.color.colorspace/Adaptation|null[0]
-    final object Companion { // androidx.ink.brush.color.colorspace/Adaptation.Companion|null[0]
-        final val Bradford // androidx.ink.brush.color.colorspace/Adaptation.Companion.Bradford|{}Bradford[0]
-            final fun <get-Bradford>(): androidx.ink.brush.color.colorspace/Adaptation // androidx.ink.brush.color.colorspace/Adaptation.Companion.Bradford.<get-Bradford>|<get-Bradford>(){}[0]
-        final val Ciecat02 // androidx.ink.brush.color.colorspace/Adaptation.Companion.Ciecat02|{}Ciecat02[0]
-            final fun <get-Ciecat02>(): androidx.ink.brush.color.colorspace/Adaptation // androidx.ink.brush.color.colorspace/Adaptation.Companion.Ciecat02.<get-Ciecat02>|<get-Ciecat02>(){}[0]
-        final val VonKries // androidx.ink.brush.color.colorspace/Adaptation.Companion.VonKries|{}VonKries[0]
-            final fun <get-VonKries>(): androidx.ink.brush.color.colorspace/Adaptation // androidx.ink.brush.color.colorspace/Adaptation.Companion.VonKries.<get-VonKries>|<get-VonKries>(){}[0]
-    }
-}
-
-abstract class androidx.ink.brush.color.colorspace/ColorSpace { // androidx.ink.brush.color.colorspace/ColorSpace|null[0]
-    constructor <init>(kotlin/String, androidx.ink.brush.color.colorspace/ColorModel) // androidx.ink.brush.color.colorspace/ColorSpace.<init>|<init>(kotlin.String;androidx.ink.brush.color.colorspace.ColorModel){}[0]
-    constructor <init>(kotlin/String, androidx.ink.brush.color.colorspace/ColorModel, kotlin/Int) // androidx.ink.brush.color.colorspace/ColorSpace.<init>|<init>(kotlin.String;androidx.ink.brush.color.colorspace.ColorModel;kotlin.Int){}[0]
-
-    abstract val isWideGamut // androidx.ink.brush.color.colorspace/ColorSpace.isWideGamut|{}isWideGamut[0]
-        abstract fun <get-isWideGamut>(): kotlin/Boolean // androidx.ink.brush.color.colorspace/ColorSpace.isWideGamut.<get-isWideGamut>|<get-isWideGamut>(){}[0]
-    final val componentCount // androidx.ink.brush.color.colorspace/ColorSpace.componentCount|{}componentCount[0]
-        final fun <get-componentCount>(): kotlin/Int // androidx.ink.brush.color.colorspace/ColorSpace.componentCount.<get-componentCount>|<get-componentCount>(){}[0]
-    final val model // androidx.ink.brush.color.colorspace/ColorSpace.model|{}model[0]
-        final fun <get-model>(): androidx.ink.brush.color.colorspace/ColorModel // androidx.ink.brush.color.colorspace/ColorSpace.model.<get-model>|<get-model>(){}[0]
-    final val name // androidx.ink.brush.color.colorspace/ColorSpace.name|{}name[0]
-        final fun <get-name>(): kotlin/String // androidx.ink.brush.color.colorspace/ColorSpace.name.<get-name>|<get-name>(){}[0]
-    open val isSrgb // androidx.ink.brush.color.colorspace/ColorSpace.isSrgb|{}isSrgb[0]
-        open fun <get-isSrgb>(): kotlin/Boolean // androidx.ink.brush.color.colorspace/ColorSpace.isSrgb.<get-isSrgb>|<get-isSrgb>(){}[0]
-
-    abstract fun fromXyz(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/ColorSpace.fromXyz|fromXyz(kotlin.FloatArray){}[0]
-    abstract fun getMaxValue(kotlin/Int): kotlin/Float // androidx.ink.brush.color.colorspace/ColorSpace.getMaxValue|getMaxValue(kotlin.Int){}[0]
-    abstract fun getMinValue(kotlin/Int): kotlin/Float // androidx.ink.brush.color.colorspace/ColorSpace.getMinValue|getMinValue(kotlin.Int){}[0]
-    abstract fun toXyz(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/ColorSpace.toXyz|toXyz(kotlin.FloatArray){}[0]
-    final fun fromXyz(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/FloatArray // androidx.ink.brush.color.colorspace/ColorSpace.fromXyz|fromXyz(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    final fun toXyz(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/FloatArray // androidx.ink.brush.color.colorspace/ColorSpace.toXyz|toXyz(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    open fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/ColorSpace.equals|equals(kotlin.Any?){}[0]
-    open fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/ColorSpace.hashCode|hashCode(){}[0]
-    open fun toString(): kotlin/String // androidx.ink.brush.color.colorspace/ColorSpace.toString|toString(){}[0]
-}
 
 final class androidx.ink.brush.behavior/BinaryOpNode : androidx.ink.brush.behavior/ValueNode { // androidx.ink.brush.behavior/BinaryOpNode|null[0]
     constructor <init>(androidx.ink.brush.behavior/BinaryOpNode.BinaryOp, androidx.ink.brush.behavior/ValueNode, androidx.ink.brush.behavior/ValueNode) // androidx.ink.brush.behavior/BinaryOpNode.<init>|<init>(androidx.ink.brush.behavior.BinaryOpNode.BinaryOp;androidx.ink.brush.behavior.ValueNode;androidx.ink.brush.behavior.ValueNode){}[0]
@@ -517,94 +482,6 @@ final class androidx.ink.brush.behavior/ToolTypeFilterNode : androidx.ink.brush.
     final fun toString(): kotlin/String // androidx.ink.brush.behavior/ToolTypeFilterNode.toString|toString(){}[0]
 }
 
-final class androidx.ink.brush.color.colorspace/Rgb : androidx.ink.brush.color.colorspace/ColorSpace { // androidx.ink.brush.color.colorspace/Rgb|null[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, androidx.ink.brush.color.colorspace/TransferParameters) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;androidx.ink.brush.color.colorspace.TransferParameters){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, androidx.ink.brush.color.colorspace/WhitePoint, androidx.ink.brush.color.colorspace/TransferParameters) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;androidx.ink.brush.color.colorspace.WhitePoint;androidx.ink.brush.color.colorspace.TransferParameters){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, androidx.ink.brush.color.colorspace/WhitePoint, kotlin/Double) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;androidx.ink.brush.color.colorspace.WhitePoint;kotlin.Double){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, androidx.ink.brush.color.colorspace/WhitePoint, kotlin/FloatArray?, androidx.ink.brush.color.colorspace/DoubleFunction, androidx.ink.brush.color.colorspace/DoubleFunction, kotlin/Float, kotlin/Float, androidx.ink.brush.color.colorspace/TransferParameters?, kotlin/Int) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;androidx.ink.brush.color.colorspace.WhitePoint;kotlin.FloatArray?;androidx.ink.brush.color.colorspace.DoubleFunction;androidx.ink.brush.color.colorspace.DoubleFunction;kotlin.Float;kotlin.Float;androidx.ink.brush.color.colorspace.TransferParameters?;kotlin.Int){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, androidx.ink.brush.color.colorspace/WhitePoint, kotlin/Function1<kotlin/Double, kotlin/Double>, kotlin/Function1<kotlin/Double, kotlin/Double>, kotlin/Float, kotlin/Float) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;androidx.ink.brush.color.colorspace.WhitePoint;kotlin.Function1<kotlin.Double,kotlin.Double>;kotlin.Function1<kotlin.Double,kotlin.Double>;kotlin.Float;kotlin.Float){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, kotlin/Double) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;kotlin.Double){}[0]
-    constructor <init>(kotlin/String, kotlin/FloatArray, kotlin/Function1<kotlin/Double, kotlin/Double>, kotlin/Function1<kotlin/Double, kotlin/Double>) // androidx.ink.brush.color.colorspace/Rgb.<init>|<init>(kotlin.String;kotlin.FloatArray;kotlin.Function1<kotlin.Double,kotlin.Double>;kotlin.Function1<kotlin.Double,kotlin.Double>){}[0]
-
-    final val eotf // androidx.ink.brush.color.colorspace/Rgb.eotf|{}eotf[0]
-        final fun <get-eotf>(): kotlin/Function1<kotlin/Double, kotlin/Double> // androidx.ink.brush.color.colorspace/Rgb.eotf.<get-eotf>|<get-eotf>(){}[0]
-    final val isSrgb // androidx.ink.brush.color.colorspace/Rgb.isSrgb|{}isSrgb[0]
-        final fun <get-isSrgb>(): kotlin/Boolean // androidx.ink.brush.color.colorspace/Rgb.isSrgb.<get-isSrgb>|<get-isSrgb>(){}[0]
-    final val isWideGamut // androidx.ink.brush.color.colorspace/Rgb.isWideGamut|{}isWideGamut[0]
-        final fun <get-isWideGamut>(): kotlin/Boolean // androidx.ink.brush.color.colorspace/Rgb.isWideGamut.<get-isWideGamut>|<get-isWideGamut>(){}[0]
-    final val oetf // androidx.ink.brush.color.colorspace/Rgb.oetf|{}oetf[0]
-        final fun <get-oetf>(): kotlin/Function1<kotlin/Double, kotlin/Double> // androidx.ink.brush.color.colorspace/Rgb.oetf.<get-oetf>|<get-oetf>(){}[0]
-    final val transferParameters // androidx.ink.brush.color.colorspace/Rgb.transferParameters|{}transferParameters[0]
-        final fun <get-transferParameters>(): androidx.ink.brush.color.colorspace/TransferParameters? // androidx.ink.brush.color.colorspace/Rgb.transferParameters.<get-transferParameters>|<get-transferParameters>(){}[0]
-    final val whitePoint // androidx.ink.brush.color.colorspace/Rgb.whitePoint|{}whitePoint[0]
-        final fun <get-whitePoint>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Rgb.whitePoint.<get-whitePoint>|<get-whitePoint>(){}[0]
-
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/Rgb.equals|equals(kotlin.Any?){}[0]
-    final fun fromLinear(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.fromLinear|fromLinear(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    final fun fromLinear(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.fromLinear|fromLinear(kotlin.FloatArray){}[0]
-    final fun fromXyz(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.fromXyz|fromXyz(kotlin.FloatArray){}[0]
-    final fun getInverseTransform(): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getInverseTransform|getInverseTransform(){}[0]
-    final fun getInverseTransform(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getInverseTransform|getInverseTransform(kotlin.FloatArray){}[0]
-    final fun getMaxValue(kotlin/Int): kotlin/Float // androidx.ink.brush.color.colorspace/Rgb.getMaxValue|getMaxValue(kotlin.Int){}[0]
-    final fun getMinValue(kotlin/Int): kotlin/Float // androidx.ink.brush.color.colorspace/Rgb.getMinValue|getMinValue(kotlin.Int){}[0]
-    final fun getPrimaries(): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getPrimaries|getPrimaries(){}[0]
-    final fun getPrimaries(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getPrimaries|getPrimaries(kotlin.FloatArray){}[0]
-    final fun getTransform(): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getTransform|getTransform(){}[0]
-    final fun getTransform(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.getTransform|getTransform(kotlin.FloatArray){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/Rgb.hashCode|hashCode(){}[0]
-    final fun toLinear(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.toLinear|toLinear(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    final fun toLinear(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.toLinear|toLinear(kotlin.FloatArray){}[0]
-    final fun toXyz(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Rgb.toXyz|toXyz(kotlin.FloatArray){}[0]
-}
-
-final class androidx.ink.brush.color.colorspace/TransferParameters { // androidx.ink.brush.color.colorspace/TransferParameters|null[0]
-    constructor <init>(kotlin/Double, kotlin/Double, kotlin/Double, kotlin/Double, kotlin/Double, kotlin/Double = ..., kotlin/Double = ...) // androidx.ink.brush.color.colorspace/TransferParameters.<init>|<init>(kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double){}[0]
-
-    final val a // androidx.ink.brush.color.colorspace/TransferParameters.a|{}a[0]
-        final fun <get-a>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.a.<get-a>|<get-a>(){}[0]
-    final val b // androidx.ink.brush.color.colorspace/TransferParameters.b|{}b[0]
-        final fun <get-b>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.b.<get-b>|<get-b>(){}[0]
-    final val c // androidx.ink.brush.color.colorspace/TransferParameters.c|{}c[0]
-        final fun <get-c>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.c.<get-c>|<get-c>(){}[0]
-    final val d // androidx.ink.brush.color.colorspace/TransferParameters.d|{}d[0]
-        final fun <get-d>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.d.<get-d>|<get-d>(){}[0]
-    final val e // androidx.ink.brush.color.colorspace/TransferParameters.e|{}e[0]
-        final fun <get-e>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.e.<get-e>|<get-e>(){}[0]
-    final val f // androidx.ink.brush.color.colorspace/TransferParameters.f|{}f[0]
-        final fun <get-f>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.f.<get-f>|<get-f>(){}[0]
-    final val gamma // androidx.ink.brush.color.colorspace/TransferParameters.gamma|{}gamma[0]
-        final fun <get-gamma>(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.gamma.<get-gamma>|<get-gamma>(){}[0]
-
-    final fun component1(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component1|component1(){}[0]
-    final fun component2(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component2|component2(){}[0]
-    final fun component3(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component3|component3(){}[0]
-    final fun component4(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component4|component4(){}[0]
-    final fun component5(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component5|component5(){}[0]
-    final fun component6(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component6|component6(){}[0]
-    final fun component7(): kotlin/Double // androidx.ink.brush.color.colorspace/TransferParameters.component7|component7(){}[0]
-    final fun copy(kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ...): androidx.ink.brush.color.colorspace/TransferParameters // androidx.ink.brush.color.colorspace/TransferParameters.copy|copy(kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/TransferParameters.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/TransferParameters.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.ink.brush.color.colorspace/TransferParameters.toString|toString(){}[0]
-}
-
-final class androidx.ink.brush.color.colorspace/WhitePoint { // androidx.ink.brush.color.colorspace/WhitePoint|null[0]
-    constructor <init>(kotlin/Float, kotlin/Float) // androidx.ink.brush.color.colorspace/WhitePoint.<init>|<init>(kotlin.Float;kotlin.Float){}[0]
-    constructor <init>(kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.brush.color.colorspace/WhitePoint.<init>|<init>(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-
-    final val x // androidx.ink.brush.color.colorspace/WhitePoint.x|{}x[0]
-        final fun <get-x>(): kotlin/Float // androidx.ink.brush.color.colorspace/WhitePoint.x.<get-x>|<get-x>(){}[0]
-    final val y // androidx.ink.brush.color.colorspace/WhitePoint.y|{}y[0]
-        final fun <get-y>(): kotlin/Float // androidx.ink.brush.color.colorspace/WhitePoint.y.<get-y>|<get-y>(){}[0]
-
-    final fun component1(): kotlin/Float // androidx.ink.brush.color.colorspace/WhitePoint.component1|component1(){}[0]
-    final fun component2(): kotlin/Float // androidx.ink.brush.color.colorspace/WhitePoint.component2|component2(){}[0]
-    final fun copy(kotlin/Float = ..., kotlin/Float = ...): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/WhitePoint.copy|copy(kotlin.Float;kotlin.Float){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/WhitePoint.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/WhitePoint.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.ink.brush.color.colorspace/WhitePoint.toString|toString(){}[0]
-}
-
 final class androidx.ink.brush/Brush { // androidx.ink.brush/Brush|null[0]
     constructor <init>(androidx.ink.brush/BrushFamily, kotlin/Float, kotlin/Float) // androidx.ink.brush/Brush.<init>|<init>(androidx.ink.brush.BrushFamily;kotlin.Float;kotlin.Float){}[0]
 
@@ -616,10 +493,6 @@ final class androidx.ink.brush/Brush { // androidx.ink.brush/Brush|null[0]
         final fun <get-epsilon>(): kotlin/Float // androidx.ink.brush/Brush.epsilon.<get-epsilon>|<get-epsilon>(){}[0]
     final val family // androidx.ink.brush/Brush.family|{}family[0]
         final fun <get-family>(): androidx.ink.brush/BrushFamily // androidx.ink.brush/Brush.family.<get-family>|<get-family>(){}[0]
-    final val internalColor // androidx.ink.brush/Brush.internalColor|{}internalColor[0]
-        final fun <get-internalColor>(): androidx.ink.brush.color/Color // androidx.ink.brush/Brush.internalColor.<get-internalColor>|<get-internalColor>(){}[0]
-    final val nativePointer // androidx.ink.brush/Brush.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/Brush.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
     final val size // androidx.ink.brush/Brush.size|{}size[0]
         final fun <get-size>(): kotlin/Float // androidx.ink.brush/Brush.size.<get-size>|<get-size>(){}[0]
 
@@ -646,7 +519,6 @@ final class androidx.ink.brush/Brush { // androidx.ink.brush/Brush|null[0]
         final fun builder(): androidx.ink.brush/Brush.Builder // androidx.ink.brush/Brush.Companion.builder|builder(){}[0]
         final fun createWithColorIntArgb(androidx.ink.brush/BrushFamily, kotlin/Int, kotlin/Float, kotlin/Float): androidx.ink.brush/Brush // androidx.ink.brush/Brush.Companion.createWithColorIntArgb|createWithColorIntArgb(androidx.ink.brush.BrushFamily;kotlin.Int;kotlin.Float;kotlin.Float){}[0]
         final fun createWithColorLong(androidx.ink.brush/BrushFamily, kotlin/Long, kotlin/Float, kotlin/Float): androidx.ink.brush/Brush // androidx.ink.brush/Brush.Companion.createWithColorLong|createWithColorLong(androidx.ink.brush.BrushFamily;kotlin.Long;kotlin.Float;kotlin.Float){}[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/Brush // androidx.ink.brush/Brush.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
     }
 }
 
@@ -656,8 +528,6 @@ final class androidx.ink.brush/BrushBehavior { // androidx.ink.brush/BrushBehavi
 
     final val developerComment // androidx.ink.brush/BrushBehavior.developerComment|{}developerComment[0]
         final fun <get-developerComment>(): kotlin/String // androidx.ink.brush/BrushBehavior.developerComment.<get-developerComment>|<get-developerComment>(){}[0]
-    final val nativePointer // androidx.ink.brush/BrushBehavior.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushBehavior.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
     final val terminalNodes // androidx.ink.brush/BrushBehavior.terminalNodes|{}terminalNodes[0]
         final fun <get-terminalNodes>(): kotlin.collections/List<androidx.ink.brush.behavior/TerminalNode> // androidx.ink.brush/BrushBehavior.terminalNodes.<get-terminalNodes>|<get-terminalNodes>(){}[0]
 
@@ -665,9 +535,7 @@ final class androidx.ink.brush/BrushBehavior { // androidx.ink.brush/BrushBehavi
     final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushBehavior.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.ink.brush/BrushBehavior.toString|toString(){}[0]
 
-    final object Companion { // androidx.ink.brush/BrushBehavior.Companion|null[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushBehavior // androidx.ink.brush/BrushBehavior.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
-    }
+    final object Companion // androidx.ink.brush/BrushBehavior.Companion|null[0]
 }
 
 final class androidx.ink.brush/BrushCoat { // androidx.ink.brush/BrushCoat|null[0]
@@ -675,8 +543,6 @@ final class androidx.ink.brush/BrushCoat { // androidx.ink.brush/BrushCoat|null[
     constructor <init>(androidx.ink.brush/BrushTip = ..., kotlin.collections/List<androidx.ink.brush/BrushPaint> = ...) // androidx.ink.brush/BrushCoat.<init>|<init>(androidx.ink.brush.BrushTip;kotlin.collections.List<androidx.ink.brush.BrushPaint>){}[0]
     constructor <init>(androidx.ink.brush/BrushTip, androidx.ink.brush/BrushPaint) // androidx.ink.brush/BrushCoat.<init>|<init>(androidx.ink.brush.BrushTip;androidx.ink.brush.BrushPaint){}[0]
 
-    final val nativePointer // androidx.ink.brush/BrushCoat.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushCoat.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
     final val paintPreferences // androidx.ink.brush/BrushCoat.paintPreferences|{}paintPreferences[0]
         final fun <get-paintPreferences>(): kotlin.collections/List<androidx.ink.brush/BrushPaint> // androidx.ink.brush/BrushCoat.paintPreferences.<get-paintPreferences>|<get-paintPreferences>(){}[0]
     final val tip // androidx.ink.brush/BrushCoat.tip|{}tip[0]
@@ -685,7 +551,6 @@ final class androidx.ink.brush/BrushCoat { // androidx.ink.brush/BrushCoat|null[
     final fun copy(androidx.ink.brush/BrushTip = ..., kotlin.collections/List<androidx.ink.brush/BrushPaint> = ...): androidx.ink.brush/BrushCoat // androidx.ink.brush/BrushCoat.copy|copy(androidx.ink.brush.BrushTip;kotlin.collections.List<androidx.ink.brush.BrushPaint>){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushCoat.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushCoat.hashCode|hashCode(){}[0]
-    final fun isCompatibleWithMeshFormat(androidx.ink.geometry/MeshFormat): kotlin/Boolean // androidx.ink.brush/BrushCoat.isCompatibleWithMeshFormat|isCompatibleWithMeshFormat(androidx.ink.geometry.MeshFormat){}[0]
     final fun toBuilder(): androidx.ink.brush/BrushCoat.Builder // androidx.ink.brush/BrushCoat.toBuilder|toBuilder(){}[0]
     final fun toString(): kotlin/String // androidx.ink.brush/BrushCoat.toString|toString(){}[0]
 
@@ -700,38 +565,24 @@ final class androidx.ink.brush/BrushCoat { // androidx.ink.brush/BrushCoat|null[
 
     final object Companion { // androidx.ink.brush/BrushCoat.Companion|null[0]
         final fun builder(): androidx.ink.brush/BrushCoat.Builder // androidx.ink.brush/BrushCoat.Companion.builder|builder(){}[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushCoat // androidx.ink.brush/BrushCoat.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
     }
 }
 
 final class androidx.ink.brush/BrushFamily { // androidx.ink.brush/BrushFamily|null[0]
     constructor <init>(androidx.ink.brush/BrushTip = ..., androidx.ink.brush/BrushPaint = ..., androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...) // androidx.ink.brush/BrushFamily.<init>|<init>(androidx.ink.brush.BrushTip;androidx.ink.brush.BrushPaint;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
-    constructor <init>(androidx.ink.brush/BrushTip = ..., androidx.ink.brush/BrushPaint = ..., androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ..., kotlin/String = ...) // androidx.ink.brush/BrushFamily.<init>|<init>(androidx.ink.brush.BrushTip;androidx.ink.brush.BrushPaint;androidx.ink.brush.BrushFamily.InputModel;kotlin.String;kotlin.String){}[0]
     constructor <init>(kotlin.collections/List<androidx.ink.brush/BrushCoat>, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...) // androidx.ink.brush/BrushFamily.<init>|<init>(kotlin.collections.List<androidx.ink.brush.BrushCoat>;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
-    constructor <init>(kotlin.collections/List<androidx.ink.brush/BrushCoat>, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ..., kotlin/String = ...) // androidx.ink.brush/BrushFamily.<init>|<init>(kotlin.collections.List<androidx.ink.brush.BrushCoat>;androidx.ink.brush.BrushFamily.InputModel;kotlin.String;kotlin.String){}[0]
 
-    final val clientBrushFamilyId // androidx.ink.brush/BrushFamily.clientBrushFamilyId|{}clientBrushFamilyId[0]
-        final fun <get-clientBrushFamilyId>(): kotlin/String // androidx.ink.brush/BrushFamily.clientBrushFamilyId.<get-clientBrushFamilyId>|<get-clientBrushFamilyId>(){}[0]
     final val coats // androidx.ink.brush/BrushFamily.coats|{}coats[0]
         final fun <get-coats>(): kotlin.collections/List<androidx.ink.brush/BrushCoat> // androidx.ink.brush/BrushFamily.coats.<get-coats>|<get-coats>(){}[0]
     final val developerComment // androidx.ink.brush/BrushFamily.developerComment|{}developerComment[0]
         final fun <get-developerComment>(): kotlin/String // androidx.ink.brush/BrushFamily.developerComment.<get-developerComment>|<get-developerComment>(){}[0]
-    final val hasFallbacks // androidx.ink.brush/BrushFamily.hasFallbacks|{}hasFallbacks[0]
-        final fun <get-hasFallbacks>(): kotlin/Boolean // androidx.ink.brush/BrushFamily.hasFallbacks.<get-hasFallbacks>|<get-hasFallbacks>(){}[0]
     final val inputModel // androidx.ink.brush/BrushFamily.inputModel|{}inputModel[0]
         final fun <get-inputModel>(): androidx.ink.brush/BrushFamily.InputModel // androidx.ink.brush/BrushFamily.inputModel.<get-inputModel>|<get-inputModel>(){}[0]
-    final val nativePointer // androidx.ink.brush/BrushFamily.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushFamily.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
-    final val textureAnimationLoopDurationMillis // androidx.ink.brush/BrushFamily.textureAnimationLoopDurationMillis|{}textureAnimationLoopDurationMillis[0]
-        final fun <get-textureAnimationLoopDurationMillis>(): kotlin/Long // androidx.ink.brush/BrushFamily.textureAnimationLoopDurationMillis.<get-textureAnimationLoopDurationMillis>|<get-textureAnimationLoopDurationMillis>(){}[0]
 
     final fun calculateMinimumRequiredVersion(): androidx.ink.brush/Version // androidx.ink.brush/BrushFamily.calculateMinimumRequiredVersion|calculateMinimumRequiredVersion(){}[0]
     final fun copy(androidx.ink.brush/BrushCoat, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(androidx.ink.brush.BrushCoat;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
-    final fun copy(androidx.ink.brush/BrushCoat, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(androidx.ink.brush.BrushCoat;androidx.ink.brush.BrushFamily.InputModel;kotlin.String;kotlin.String){}[0]
     final fun copy(androidx.ink.brush/BrushTip, androidx.ink.brush/BrushPaint, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(androidx.ink.brush.BrushTip;androidx.ink.brush.BrushPaint;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
-    final fun copy(androidx.ink.brush/BrushTip, androidx.ink.brush/BrushPaint, androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(androidx.ink.brush.BrushTip;androidx.ink.brush.BrushPaint;androidx.ink.brush.BrushFamily.InputModel;kotlin.String;kotlin.String){}[0]
     final fun copy(kotlin.collections/List<androidx.ink.brush/BrushCoat> = ..., androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(kotlin.collections.List<androidx.ink.brush.BrushCoat>;androidx.ink.brush.BrushFamily.InputModel;kotlin.String){}[0]
-    final fun copy(kotlin.collections/List<androidx.ink.brush/BrushCoat> = ..., androidx.ink.brush/BrushFamily.InputModel = ..., kotlin/String = ..., kotlin/String = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.copy|copy(kotlin.collections.List<androidx.ink.brush.BrushCoat>;androidx.ink.brush.BrushFamily.InputModel;kotlin.String;kotlin.String){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushFamily.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushFamily.hashCode|hashCode(){}[0]
     final fun toBuilder(): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.toBuilder|toBuilder(){}[0]
@@ -764,7 +615,6 @@ final class androidx.ink.brush/BrushFamily { // androidx.ink.brush/BrushFamily|n
         constructor <init>() // androidx.ink.brush/BrushFamily.Builder.<init>|<init>(){}[0]
 
         final fun build(): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.Builder.build|build(){}[0]
-        final fun setClientBrushFamilyId(kotlin/String): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.Builder.setClientBrushFamilyId|setClientBrushFamilyId(kotlin.String){}[0]
         final fun setCoat(androidx.ink.brush/BrushCoat): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.Builder.setCoat|setCoat(androidx.ink.brush.BrushCoat){}[0]
         final fun setCoats(kotlin.collections/List<androidx.ink.brush/BrushCoat>): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.Builder.setCoats|setCoats(kotlin.collections.List<androidx.ink.brush.BrushCoat>){}[0]
         final fun setDeveloperComment(kotlin/String): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.Builder.setDeveloperComment|setDeveloperComment(kotlin.String){}[0]
@@ -773,7 +623,6 @@ final class androidx.ink.brush/BrushFamily { // androidx.ink.brush/BrushFamily|n
 
     final object Companion { // androidx.ink.brush/BrushFamily.Companion|null[0]
         final fun builder(): androidx.ink.brush/BrushFamily.Builder // androidx.ink.brush/BrushFamily.Companion.builder|builder(){}[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushFamily // androidx.ink.brush/BrushFamily.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
     }
 }
 
@@ -782,48 +631,17 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
 
     final val colorFunctions // androidx.ink.brush/BrushPaint.colorFunctions|{}colorFunctions[0]
         final fun <get-colorFunctions>(): kotlin.collections/List<androidx.ink.brush/BrushPaint.ColorFunction> // androidx.ink.brush/BrushPaint.colorFunctions.<get-colorFunctions>|<get-colorFunctions>(){}[0]
-    final val nativePointer // androidx.ink.brush/BrushPaint.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushPaint.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
     final val selfOverlap // androidx.ink.brush/BrushPaint.selfOverlap|{}selfOverlap[0]
         final fun <get-selfOverlap>(): androidx.ink.brush/SelfOverlap // androidx.ink.brush/BrushPaint.selfOverlap.<get-selfOverlap>|<get-selfOverlap>(){}[0]
     final val textureLayers // androidx.ink.brush/BrushPaint.textureLayers|{}textureLayers[0]
         final fun <get-textureLayers>(): kotlin.collections/List<androidx.ink.brush/BrushPaint.TextureLayer> // androidx.ink.brush/BrushPaint.textureLayers.<get-textureLayers>|<get-textureLayers>(){}[0]
 
-    final fun applyColorFunctions(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.applyColorFunctions|applyColorFunctions(androidx.ink.brush.color.Color){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.hashCode|hashCode(){}[0]
-    final fun isCompatibleWithMeshFormat(androidx.ink.geometry/MeshFormat): kotlin/Boolean // androidx.ink.brush/BrushPaint.isCompatibleWithMeshFormat|isCompatibleWithMeshFormat(androidx.ink.geometry.MeshFormat){}[0]
     final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.toString|toString(){}[0]
 
     abstract class ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction|null[0]
         final fun transformColorIntArgb(kotlin/Int): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.transformColorIntArgb|transformColorIntArgb(kotlin.Int){}[0]
-        open fun transformComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.transformComposeColor|transformComposeColor(androidx.ink.brush.color.Color){}[0]
-
-        final class HueOffset : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset|null[0]
-            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.<init>|<init>(kotlin.Float){}[0]
-
-            final val offsetDegrees // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.offsetDegrees|{}offsetDegrees[0]
-                final fun <get-offsetDegrees>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.offsetDegrees.<get-offsetDegrees>|<get-offsetDegrees>(){}[0]
-
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.hashCode|hashCode(){}[0]
-            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.toString|toString(){}[0]
-
-            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.HueOffset.Companion|null[0]
-        }
-
-        final class LuminosityOffset : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset|null[0]
-            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.<init>|<init>(kotlin.Float){}[0]
-
-            final val offset // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.offset|{}offset[0]
-                final fun <get-offset>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.offset.<get-offset>|<get-offset>(){}[0]
-
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.hashCode|hashCode(){}[0]
-            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.toString|toString(){}[0]
-
-            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.LuminosityOffset.Companion|null[0]
-        }
 
         final class OpacityMultiplier : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier|null[0]
             constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.<init>|<init>(kotlin.Float){}[0]
@@ -834,7 +652,6 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
             final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.equals|equals(kotlin.Any?){}[0]
             final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.hashCode|hashCode(){}[0]
             final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.toString|toString(){}[0]
-            final fun transformComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.transformComposeColor|transformComposeColor(androidx.ink.brush.color.Color){}[0]
 
             final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.OpacityMultiplier.Companion|null[0]
         }
@@ -844,44 +661,23 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
                 final fun <get-colorIntArgb>(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.colorIntArgb.<get-colorIntArgb>|<get-colorIntArgb>(){}[0]
             final val colorLong // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.colorLong|{}colorLong[0]
                 final fun <get-colorLong>(): kotlin/Long // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.colorLong.<get-colorLong>|<get-colorLong>(){}[0]
-            final val internalColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.internalColor|{}internalColor[0]
-                final fun <get-internalColor>(): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.internalColor.<get-internalColor>|<get-internalColor>(){}[0]
 
             final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.equals|equals(kotlin.Any?){}[0]
             final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.hashCode|hashCode(){}[0]
             final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.toString|toString(){}[0]
-            final fun transformComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush.color/Color // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.transformComposeColor|transformComposeColor(androidx.ink.brush.color.Color){}[0]
 
             final object Companion { // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion|null[0]
                 final fun withColorIntArgb(kotlin/Int): androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion.withColorIntArgb|withColorIntArgb(kotlin.Int){}[0]
                 final fun withColorLong(kotlin/Long): androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion.withColorLong|withColorLong(kotlin.Long){}[0]
-                final fun withComposeColor(androidx.ink.brush.color/Color): androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor // androidx.ink.brush/BrushPaint.ColorFunction.ReplaceColor.Companion.withComposeColor|withComposeColor(androidx.ink.brush.color.Color){}[0]
             }
         }
 
-        final class SaturationMultiplier : androidx.ink.brush/BrushPaint.ColorFunction { // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier|null[0]
-            constructor <init>(kotlin/Float) // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.<init>|<init>(kotlin.Float){}[0]
-
-            final val multiplier // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.multiplier|{}multiplier[0]
-                final fun <get-multiplier>(): kotlin/Float // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.multiplier.<get-multiplier>|<get-multiplier>(){}[0]
-
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.hashCode|hashCode(){}[0]
-            final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.toString|toString(){}[0]
-
-            final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.SaturationMultiplier.Companion|null[0]
-        }
-
-        final object Companion { // androidx.ink.brush/BrushPaint.ColorFunction.Companion|null[0]
-            final fun wrapNative(kotlin/Int, kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushPaint.ColorFunction // androidx.ink.brush/BrushPaint.ColorFunction.Companion.wrapNative|wrapNative(kotlin.Int;kotlin.Function0<kotlin.Long>){}[0]
-        }
+        final object Companion // androidx.ink.brush/BrushPaint.ColorFunction.Companion|null[0]
     }
 
     abstract class TextureLayer { // androidx.ink.brush/BrushPaint.TextureLayer|null[0]
         final val blendMode // androidx.ink.brush/BrushPaint.TextureLayer.blendMode|{}blendMode[0]
             final fun <get-blendMode>(): androidx.ink.brush/BrushPaint.TextureLayer.BlendMode // androidx.ink.brush/BrushPaint.TextureLayer.blendMode.<get-blendMode>|<get-blendMode>(){}[0]
-        final val mappingInt // androidx.ink.brush/BrushPaint.TextureLayer.mappingInt|{}mappingInt[0]
-            final fun <get-mappingInt>(): kotlin/Int // androidx.ink.brush/BrushPaint.TextureLayer.mappingInt.<get-mappingInt>|<get-mappingInt>(){}[0]
 
         final class BlendMode { // androidx.ink.brush/BrushPaint.TextureLayer.BlendMode|null[0]
             final fun toString(): kotlin/String // androidx.ink.brush/BrushPaint.TextureLayer.BlendMode.toString|toString(){}[0]
@@ -938,33 +734,16 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
             }
         }
 
-        final object Companion { // androidx.ink.brush/BrushPaint.TextureLayer.Companion|null[0]
-            final val MAPPING_STAMPING // androidx.ink.brush/BrushPaint.TextureLayer.Companion.MAPPING_STAMPING|{}MAPPING_STAMPING[0]
-                final fun <get-MAPPING_STAMPING>(): kotlin/Int // androidx.ink.brush/BrushPaint.TextureLayer.Companion.MAPPING_STAMPING.<get-MAPPING_STAMPING>|<get-MAPPING_STAMPING>(){}[0]
-            final val MAPPING_TILING // androidx.ink.brush/BrushPaint.TextureLayer.Companion.MAPPING_TILING|{}MAPPING_TILING[0]
-                final fun <get-MAPPING_TILING>(): kotlin/Int // androidx.ink.brush/BrushPaint.TextureLayer.Companion.MAPPING_TILING.<get-MAPPING_TILING>|<get-MAPPING_TILING>(){}[0]
-
-            final fun wrapNative(kotlin/Int, kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushPaint.TextureLayer // androidx.ink.brush/BrushPaint.TextureLayer.Companion.wrapNative|wrapNative(kotlin.Int;kotlin.Function0<kotlin.Long>){}[0]
-        }
+        final object Companion // androidx.ink.brush/BrushPaint.TextureLayer.Companion|null[0]
     }
 
     final class StampingTexture : androidx.ink.brush/BrushPaint.TextureLayer { // androidx.ink.brush/BrushPaint.StampingTexture|null[0]
         constructor <init>(kotlin/String, androidx.ink.brush/BrushPaint.TextureLayer.BlendMode = ...) // androidx.ink.brush/BrushPaint.StampingTexture.<init>|<init>(kotlin.String;androidx.ink.brush.BrushPaint.TextureLayer.BlendMode){}[0]
-        constructor <init>(kotlin/String, androidx.ink.brush/BrushPaint.TextureLayer.BlendMode = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Long = ...) // androidx.ink.brush/BrushPaint.StampingTexture.<init>|<init>(kotlin.String;androidx.ink.brush.BrushPaint.TextureLayer.BlendMode;kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Long){}[0]
 
-        final val animationColumns // androidx.ink.brush/BrushPaint.StampingTexture.animationColumns|{}animationColumns[0]
-            final fun <get-animationColumns>(): kotlin/Int // androidx.ink.brush/BrushPaint.StampingTexture.animationColumns.<get-animationColumns>|<get-animationColumns>(){}[0]
-        final val animationDurationMillis // androidx.ink.brush/BrushPaint.StampingTexture.animationDurationMillis|{}animationDurationMillis[0]
-            final fun <get-animationDurationMillis>(): kotlin/Long // androidx.ink.brush/BrushPaint.StampingTexture.animationDurationMillis.<get-animationDurationMillis>|<get-animationDurationMillis>(){}[0]
-        final val animationFrames // androidx.ink.brush/BrushPaint.StampingTexture.animationFrames|{}animationFrames[0]
-            final fun <get-animationFrames>(): kotlin/Int // androidx.ink.brush/BrushPaint.StampingTexture.animationFrames.<get-animationFrames>|<get-animationFrames>(){}[0]
-        final val animationRows // androidx.ink.brush/BrushPaint.StampingTexture.animationRows|{}animationRows[0]
-            final fun <get-animationRows>(): kotlin/Int // androidx.ink.brush/BrushPaint.StampingTexture.animationRows.<get-animationRows>|<get-animationRows>(){}[0]
         final val clientTextureId // androidx.ink.brush/BrushPaint.StampingTexture.clientTextureId|{}clientTextureId[0]
             final fun <get-clientTextureId>(): kotlin/String // androidx.ink.brush/BrushPaint.StampingTexture.clientTextureId.<get-clientTextureId>|<get-clientTextureId>(){}[0]
 
         final fun copy(kotlin/String = ..., androidx.ink.brush/BrushPaint.TextureLayer.BlendMode = ...): androidx.ink.brush/BrushPaint.StampingTexture // androidx.ink.brush/BrushPaint.StampingTexture.copy|copy(kotlin.String;androidx.ink.brush.BrushPaint.TextureLayer.BlendMode){}[0]
-        final fun copy(kotlin/String = ..., androidx.ink.brush/BrushPaint.TextureLayer.BlendMode = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Long = ...): androidx.ink.brush/BrushPaint.StampingTexture // androidx.ink.brush/BrushPaint.StampingTexture.copy|copy(kotlin.String;androidx.ink.brush.BrushPaint.TextureLayer.BlendMode;kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Long){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush/BrushPaint.StampingTexture.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.ink.brush/BrushPaint.StampingTexture.hashCode|hashCode(){}[0]
         final fun toBuilder(): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.toBuilder|toBuilder(){}[0]
@@ -972,17 +751,12 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
 
         final class Builder { // androidx.ink.brush/BrushPaint.StampingTexture.Builder|null[0]
             final fun build(): androidx.ink.brush/BrushPaint.StampingTexture // androidx.ink.brush/BrushPaint.StampingTexture.Builder.build|build(){}[0]
-            final fun setAnimationColumns(kotlin/Int): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setAnimationColumns|setAnimationColumns(kotlin.Int){}[0]
-            final fun setAnimationDurationMillis(kotlin/Long): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setAnimationDurationMillis|setAnimationDurationMillis(kotlin.Long){}[0]
-            final fun setAnimationFrames(kotlin/Int): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setAnimationFrames|setAnimationFrames(kotlin.Int){}[0]
-            final fun setAnimationRows(kotlin/Int): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setAnimationRows|setAnimationRows(kotlin.Int){}[0]
             final fun setBlendMode(androidx.ink.brush/BrushPaint.TextureLayer.BlendMode): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setBlendMode|setBlendMode(androidx.ink.brush.BrushPaint.TextureLayer.BlendMode){}[0]
             final fun setClientTextureId(kotlin/String): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Builder.setClientTextureId|setClientTextureId(kotlin.String){}[0]
         }
 
         final object Companion { // androidx.ink.brush/BrushPaint.StampingTexture.Companion|null[0]
             final fun builder(): androidx.ink.brush/BrushPaint.StampingTexture.Builder // androidx.ink.brush/BrushPaint.StampingTexture.Companion.builder|builder(){}[0]
-            final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushPaint.StampingTexture // androidx.ink.brush/BrushPaint.StampingTexture.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
         }
     }
 
@@ -1046,13 +820,10 @@ final class androidx.ink.brush/BrushPaint { // androidx.ink.brush/BrushPaint|nul
 
         final object Companion { // androidx.ink.brush/BrushPaint.TilingTexture.Companion|null[0]
             final fun builder(): androidx.ink.brush/BrushPaint.TilingTexture.Builder // androidx.ink.brush/BrushPaint.TilingTexture.Companion.builder|builder(){}[0]
-            final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushPaint.TilingTexture // androidx.ink.brush/BrushPaint.TilingTexture.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
         }
     }
 
-    final object Companion { // androidx.ink.brush/BrushPaint.Companion|null[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushPaint // androidx.ink.brush/BrushPaint.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
-    }
+    final object Companion // androidx.ink.brush/BrushPaint.Companion|null[0]
 }
 
 final class androidx.ink.brush/BrushTip { // androidx.ink.brush/BrushTip|null[0]
@@ -1062,8 +833,6 @@ final class androidx.ink.brush/BrushTip { // androidx.ink.brush/BrushTip|null[0]
         final fun <get-behaviors>(): kotlin.collections/List<androidx.ink.brush/BrushBehavior> // androidx.ink.brush/BrushTip.behaviors.<get-behaviors>|<get-behaviors>(){}[0]
     final val cornerRounding // androidx.ink.brush/BrushTip.cornerRounding|{}cornerRounding[0]
         final fun <get-cornerRounding>(): kotlin/Float // androidx.ink.brush/BrushTip.cornerRounding.<get-cornerRounding>|<get-cornerRounding>(){}[0]
-    final val nativePointer // androidx.ink.brush/BrushTip.nativePointer|{}nativePointer[0]
-        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.brush/BrushTip.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
     final val particleGapDistanceScale // androidx.ink.brush/BrushTip.particleGapDistanceScale|{}particleGapDistanceScale[0]
         final fun <get-particleGapDistanceScale>(): kotlin/Float // androidx.ink.brush/BrushTip.particleGapDistanceScale.<get-particleGapDistanceScale>|<get-particleGapDistanceScale>(){}[0]
     final val particleGapDurationMillis // androidx.ink.brush/BrushTip.particleGapDurationMillis|{}particleGapDurationMillis[0]
@@ -1103,14 +872,10 @@ final class androidx.ink.brush/BrushTip { // androidx.ink.brush/BrushTip|null[0]
 
     final object Companion { // androidx.ink.brush/BrushTip.Companion|null[0]
         final fun builder(): androidx.ink.brush/BrushTip.Builder // androidx.ink.brush/BrushTip.Companion.builder|builder(){}[0]
-        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.brush/BrushTip // androidx.ink.brush/BrushTip.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
     }
 }
 
 final class androidx.ink.brush/InputToolType { // androidx.ink.brush/InputToolType|null[0]
-    final val value // androidx.ink.brush/InputToolType.value|{}value[0]
-        final fun <get-value>(): kotlin/Int // androidx.ink.brush/InputToolType.value.<get-value>|<get-value>(){}[0]
-
     final fun toString(): kotlin/String // androidx.ink.brush/InputToolType.toString|toString(){}[0]
 
     final object Companion { // androidx.ink.brush/InputToolType.Companion|null[0]
@@ -1122,8 +887,6 @@ final class androidx.ink.brush/InputToolType { // androidx.ink.brush/InputToolTy
             final fun <get-TOUCH>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.TOUCH.<get-TOUCH>|<get-TOUCH>(){}[0]
         final val UNKNOWN // androidx.ink.brush/InputToolType.Companion.UNKNOWN|{}UNKNOWN[0]
             final fun <get-UNKNOWN>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.UNKNOWN.<get-UNKNOWN>|<get-UNKNOWN>(){}[0]
-
-        final fun fromInt(kotlin/Int): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.fromInt|fromInt(kotlin.Int){}[0]
     }
 }
 
@@ -1159,186 +922,7 @@ final class androidx.ink.brush/Version : kotlin/Comparable<androidx.ink.brush/Ve
     }
 }
 
-final value class androidx.ink.brush.color.colorspace/ColorModel { // androidx.ink.brush.color.colorspace/ColorModel|null[0]
-    final val componentCount // androidx.ink.brush.color.colorspace/ColorModel.componentCount|{}componentCount[0]
-        final fun <get-componentCount>(): kotlin/Int // androidx.ink.brush.color.colorspace/ColorModel.componentCount.<get-componentCount>|<get-componentCount>(){}[0]
-
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/ColorModel.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/ColorModel.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.ink.brush.color.colorspace/ColorModel.toString|toString(){}[0]
-
-    final object Companion { // androidx.ink.brush.color.colorspace/ColorModel.Companion|null[0]
-        final val Cmyk // androidx.ink.brush.color.colorspace/ColorModel.Companion.Cmyk|{}Cmyk[0]
-            final fun <get-Cmyk>(): androidx.ink.brush.color.colorspace/ColorModel // androidx.ink.brush.color.colorspace/ColorModel.Companion.Cmyk.<get-Cmyk>|<get-Cmyk>(){}[0]
-        final val Lab // androidx.ink.brush.color.colorspace/ColorModel.Companion.Lab|{}Lab[0]
-            final fun <get-Lab>(): androidx.ink.brush.color.colorspace/ColorModel // androidx.ink.brush.color.colorspace/ColorModel.Companion.Lab.<get-Lab>|<get-Lab>(){}[0]
-        final val Rgb // androidx.ink.brush.color.colorspace/ColorModel.Companion.Rgb|{}Rgb[0]
-            final fun <get-Rgb>(): androidx.ink.brush.color.colorspace/ColorModel // androidx.ink.brush.color.colorspace/ColorModel.Companion.Rgb.<get-Rgb>|<get-Rgb>(){}[0]
-        final val Xyz // androidx.ink.brush.color.colorspace/ColorModel.Companion.Xyz|{}Xyz[0]
-            final fun <get-Xyz>(): androidx.ink.brush.color.colorspace/ColorModel // androidx.ink.brush.color.colorspace/ColorModel.Companion.Xyz.<get-Xyz>|<get-Xyz>(){}[0]
-    }
-}
-
-final value class androidx.ink.brush.color.colorspace/RenderIntent { // androidx.ink.brush.color.colorspace/RenderIntent|null[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color.colorspace/RenderIntent.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color.colorspace/RenderIntent.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.ink.brush.color.colorspace/RenderIntent.toString|toString(){}[0]
-
-    final object Companion { // androidx.ink.brush.color.colorspace/RenderIntent.Companion|null[0]
-        final val Absolute // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Absolute|{}Absolute[0]
-            final fun <get-Absolute>(): androidx.ink.brush.color.colorspace/RenderIntent // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Absolute.<get-Absolute>|<get-Absolute>(){}[0]
-        final val Perceptual // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Perceptual|{}Perceptual[0]
-            final fun <get-Perceptual>(): androidx.ink.brush.color.colorspace/RenderIntent // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Perceptual.<get-Perceptual>|<get-Perceptual>(){}[0]
-        final val Relative // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Relative|{}Relative[0]
-            final fun <get-Relative>(): androidx.ink.brush.color.colorspace/RenderIntent // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Relative.<get-Relative>|<get-Relative>(){}[0]
-        final val Saturation // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Saturation|{}Saturation[0]
-            final fun <get-Saturation>(): androidx.ink.brush.color.colorspace/RenderIntent // androidx.ink.brush.color.colorspace/RenderIntent.Companion.Saturation.<get-Saturation>|<get-Saturation>(){}[0]
-    }
-}
-
-final value class androidx.ink.brush.color/Color { // androidx.ink.brush.color/Color|null[0]
-    constructor <init>(kotlin/ULong) // androidx.ink.brush.color/Color.<init>|<init>(kotlin.ULong){}[0]
-
-    final val alpha // androidx.ink.brush.color/Color.alpha|{}alpha[0]
-        final fun <get-alpha>(): kotlin/Float // androidx.ink.brush.color/Color.alpha.<get-alpha>|<get-alpha>(){}[0]
-    final val blue // androidx.ink.brush.color/Color.blue|{}blue[0]
-        final fun <get-blue>(): kotlin/Float // androidx.ink.brush.color/Color.blue.<get-blue>|<get-blue>(){}[0]
-    final val colorSpace // androidx.ink.brush.color/Color.colorSpace|{}colorSpace[0]
-        final fun <get-colorSpace>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color/Color.colorSpace.<get-colorSpace>|<get-colorSpace>(){}[0]
-    final val green // androidx.ink.brush.color/Color.green|{}green[0]
-        final fun <get-green>(): kotlin/Float // androidx.ink.brush.color/Color.green.<get-green>|<get-green>(){}[0]
-    final val red // androidx.ink.brush.color/Color.red|{}red[0]
-        final fun <get-red>(): kotlin/Float // androidx.ink.brush.color/Color.red.<get-red>|<get-red>(){}[0]
-    final val value // androidx.ink.brush.color/Color.value|{}value[0]
-        final fun <get-value>(): kotlin/ULong // androidx.ink.brush.color/Color.value.<get-value>|<get-value>(){}[0]
-
-    final fun convert(androidx.ink.brush.color.colorspace/ColorSpace): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.convert|convert(androidx.ink.brush.color.colorspace.ColorSpace){}[0]
-    final fun copy(kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.copy|copy(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.color/Color.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.ink.brush.color/Color.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.ink.brush.color/Color.toString|toString(){}[0]
-    final inline fun component1(): kotlin/Float // androidx.ink.brush.color/Color.component1|component1(){}[0]
-    final inline fun component2(): kotlin/Float // androidx.ink.brush.color/Color.component2|component2(){}[0]
-    final inline fun component3(): kotlin/Float // androidx.ink.brush.color/Color.component3|component3(){}[0]
-    final inline fun component4(): kotlin/Float // androidx.ink.brush.color/Color.component4|component4(){}[0]
-    final inline fun component5(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color/Color.component5|component5(){}[0]
-
-    final object Companion { // androidx.ink.brush.color/Color.Companion|null[0]
-        final val Black // androidx.ink.brush.color/Color.Companion.Black|{}Black[0]
-            final fun <get-Black>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Black.<get-Black>|<get-Black>(){}[0]
-        final val Blue // androidx.ink.brush.color/Color.Companion.Blue|{}Blue[0]
-            final fun <get-Blue>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Blue.<get-Blue>|<get-Blue>(){}[0]
-        final val Cyan // androidx.ink.brush.color/Color.Companion.Cyan|{}Cyan[0]
-            final fun <get-Cyan>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Cyan.<get-Cyan>|<get-Cyan>(){}[0]
-        final val DarkGray // androidx.ink.brush.color/Color.Companion.DarkGray|{}DarkGray[0]
-            final fun <get-DarkGray>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.DarkGray.<get-DarkGray>|<get-DarkGray>(){}[0]
-        final val Gray // androidx.ink.brush.color/Color.Companion.Gray|{}Gray[0]
-            final fun <get-Gray>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Gray.<get-Gray>|<get-Gray>(){}[0]
-        final val Green // androidx.ink.brush.color/Color.Companion.Green|{}Green[0]
-            final fun <get-Green>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Green.<get-Green>|<get-Green>(){}[0]
-        final val LightGray // androidx.ink.brush.color/Color.Companion.LightGray|{}LightGray[0]
-            final fun <get-LightGray>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.LightGray.<get-LightGray>|<get-LightGray>(){}[0]
-        final val Magenta // androidx.ink.brush.color/Color.Companion.Magenta|{}Magenta[0]
-            final fun <get-Magenta>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Magenta.<get-Magenta>|<get-Magenta>(){}[0]
-        final val Red // androidx.ink.brush.color/Color.Companion.Red|{}Red[0]
-            final fun <get-Red>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Red.<get-Red>|<get-Red>(){}[0]
-        final val Transparent // androidx.ink.brush.color/Color.Companion.Transparent|{}Transparent[0]
-            final fun <get-Transparent>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Transparent.<get-Transparent>|<get-Transparent>(){}[0]
-        final val Unspecified // androidx.ink.brush.color/Color.Companion.Unspecified|{}Unspecified[0]
-            final fun <get-Unspecified>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Unspecified.<get-Unspecified>|<get-Unspecified>(){}[0]
-        final val White // androidx.ink.brush.color/Color.Companion.White|{}White[0]
-            final fun <get-White>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.White.<get-White>|<get-White>(){}[0]
-        final val Yellow // androidx.ink.brush.color/Color.Companion.Yellow|{}Yellow[0]
-            final fun <get-Yellow>(): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color.Companion.Yellow.<get-Yellow>|<get-Yellow>(){}[0]
-    }
-}
-
-open class androidx.ink.brush.color.colorspace/Connector { // androidx.ink.brush.color.colorspace/Connector|null[0]
-    final val destination // androidx.ink.brush.color.colorspace/Connector.destination|{}destination[0]
-        final fun <get-destination>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/Connector.destination.<get-destination>|<get-destination>(){}[0]
-    final val renderIntent // androidx.ink.brush.color.colorspace/Connector.renderIntent|{}renderIntent[0]
-        final fun <get-renderIntent>(): androidx.ink.brush.color.colorspace/RenderIntent // androidx.ink.brush.color.colorspace/Connector.renderIntent.<get-renderIntent>|<get-renderIntent>(){}[0]
-    final val source // androidx.ink.brush.color.colorspace/Connector.source|{}source[0]
-        final fun <get-source>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/Connector.source.<get-source>|<get-source>(){}[0]
-
-    final fun transform(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Connector.transform|transform(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
-    open fun transform(kotlin/FloatArray): kotlin/FloatArray // androidx.ink.brush.color.colorspace/Connector.transform|transform(kotlin.FloatArray){}[0]
-}
-
-final object androidx.ink.brush.color.colorspace/ColorSpaces { // androidx.ink.brush.color.colorspace/ColorSpaces|null[0]
-    final val Aces // androidx.ink.brush.color.colorspace/ColorSpaces.Aces|{}Aces[0]
-        final fun <get-Aces>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Aces.<get-Aces>|<get-Aces>(){}[0]
-    final val Acescg // androidx.ink.brush.color.colorspace/ColorSpaces.Acescg|{}Acescg[0]
-        final fun <get-Acescg>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Acescg.<get-Acescg>|<get-Acescg>(){}[0]
-    final val AdobeRgb // androidx.ink.brush.color.colorspace/ColorSpaces.AdobeRgb|{}AdobeRgb[0]
-        final fun <get-AdobeRgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.AdobeRgb.<get-AdobeRgb>|<get-AdobeRgb>(){}[0]
-    final val Bt2020 // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020|{}Bt2020[0]
-        final fun <get-Bt2020>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020.<get-Bt2020>|<get-Bt2020>(){}[0]
-    final val Bt2020Hlg // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020Hlg|{}Bt2020Hlg[0]
-        final fun <get-Bt2020Hlg>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020Hlg.<get-Bt2020Hlg>|<get-Bt2020Hlg>(){}[0]
-    final val Bt2020Pq // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020Pq|{}Bt2020Pq[0]
-        final fun <get-Bt2020Pq>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Bt2020Pq.<get-Bt2020Pq>|<get-Bt2020Pq>(){}[0]
-    final val Bt709 // androidx.ink.brush.color.colorspace/ColorSpaces.Bt709|{}Bt709[0]
-        final fun <get-Bt709>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Bt709.<get-Bt709>|<get-Bt709>(){}[0]
-    final val CieLab // androidx.ink.brush.color.colorspace/ColorSpaces.CieLab|{}CieLab[0]
-        final fun <get-CieLab>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/ColorSpaces.CieLab.<get-CieLab>|<get-CieLab>(){}[0]
-    final val CieXyz // androidx.ink.brush.color.colorspace/ColorSpaces.CieXyz|{}CieXyz[0]
-        final fun <get-CieXyz>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/ColorSpaces.CieXyz.<get-CieXyz>|<get-CieXyz>(){}[0]
-    final val DciP3 // androidx.ink.brush.color.colorspace/ColorSpaces.DciP3|{}DciP3[0]
-        final fun <get-DciP3>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.DciP3.<get-DciP3>|<get-DciP3>(){}[0]
-    final val DisplayP3 // androidx.ink.brush.color.colorspace/ColorSpaces.DisplayP3|{}DisplayP3[0]
-        final fun <get-DisplayP3>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.DisplayP3.<get-DisplayP3>|<get-DisplayP3>(){}[0]
-    final val ExtendedSrgb // androidx.ink.brush.color.colorspace/ColorSpaces.ExtendedSrgb|{}ExtendedSrgb[0]
-        final fun <get-ExtendedSrgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.ExtendedSrgb.<get-ExtendedSrgb>|<get-ExtendedSrgb>(){}[0]
-    final val LinearExtendedSrgb // androidx.ink.brush.color.colorspace/ColorSpaces.LinearExtendedSrgb|{}LinearExtendedSrgb[0]
-        final fun <get-LinearExtendedSrgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.LinearExtendedSrgb.<get-LinearExtendedSrgb>|<get-LinearExtendedSrgb>(){}[0]
-    final val LinearSrgb // androidx.ink.brush.color.colorspace/ColorSpaces.LinearSrgb|{}LinearSrgb[0]
-        final fun <get-LinearSrgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.LinearSrgb.<get-LinearSrgb>|<get-LinearSrgb>(){}[0]
-    final val Ntsc1953 // androidx.ink.brush.color.colorspace/ColorSpaces.Ntsc1953|{}Ntsc1953[0]
-        final fun <get-Ntsc1953>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Ntsc1953.<get-Ntsc1953>|<get-Ntsc1953>(){}[0]
-    final val Oklab // androidx.ink.brush.color.colorspace/ColorSpaces.Oklab|{}Oklab[0]
-        final fun <get-Oklab>(): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/ColorSpaces.Oklab.<get-Oklab>|<get-Oklab>(){}[0]
-    final val ProPhotoRgb // androidx.ink.brush.color.colorspace/ColorSpaces.ProPhotoRgb|{}ProPhotoRgb[0]
-        final fun <get-ProPhotoRgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.ProPhotoRgb.<get-ProPhotoRgb>|<get-ProPhotoRgb>(){}[0]
-    final val SmpteC // androidx.ink.brush.color.colorspace/ColorSpaces.SmpteC|{}SmpteC[0]
-        final fun <get-SmpteC>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.SmpteC.<get-SmpteC>|<get-SmpteC>(){}[0]
-    final val Srgb // androidx.ink.brush.color.colorspace/ColorSpaces.Srgb|{}Srgb[0]
-        final fun <get-Srgb>(): androidx.ink.brush.color.colorspace/Rgb // androidx.ink.brush.color.colorspace/ColorSpaces.Srgb.<get-Srgb>|<get-Srgb>(){}[0]
-
-    final fun match(kotlin/FloatArray, androidx.ink.brush.color.colorspace/TransferParameters): androidx.ink.brush.color.colorspace/ColorSpace? // androidx.ink.brush.color.colorspace/ColorSpaces.match|match(kotlin.FloatArray;androidx.ink.brush.color.colorspace.TransferParameters){}[0]
-}
-
-final object androidx.ink.brush.color.colorspace/Illuminant { // androidx.ink.brush.color.colorspace/Illuminant|null[0]
-    final val A // androidx.ink.brush.color.colorspace/Illuminant.A|{}A[0]
-        final fun <get-A>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.A.<get-A>|<get-A>(){}[0]
-    final val B // androidx.ink.brush.color.colorspace/Illuminant.B|{}B[0]
-        final fun <get-B>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.B.<get-B>|<get-B>(){}[0]
-    final val C // androidx.ink.brush.color.colorspace/Illuminant.C|{}C[0]
-        final fun <get-C>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.C.<get-C>|<get-C>(){}[0]
-    final val D50 // androidx.ink.brush.color.colorspace/Illuminant.D50|{}D50[0]
-        final fun <get-D50>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.D50.<get-D50>|<get-D50>(){}[0]
-    final val D55 // androidx.ink.brush.color.colorspace/Illuminant.D55|{}D55[0]
-        final fun <get-D55>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.D55.<get-D55>|<get-D55>(){}[0]
-    final val D60 // androidx.ink.brush.color.colorspace/Illuminant.D60|{}D60[0]
-        final fun <get-D60>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.D60.<get-D60>|<get-D60>(){}[0]
-    final val D65 // androidx.ink.brush.color.colorspace/Illuminant.D65|{}D65[0]
-        final fun <get-D65>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.D65.<get-D65>|<get-D65>(){}[0]
-    final val D75 // androidx.ink.brush.color.colorspace/Illuminant.D75|{}D75[0]
-        final fun <get-D75>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.D75.<get-D75>|<get-D75>(){}[0]
-    final val E // androidx.ink.brush.color.colorspace/Illuminant.E|{}E[0]
-        final fun <get-E>(): androidx.ink.brush.color.colorspace/WhitePoint // androidx.ink.brush.color.colorspace/Illuminant.E.<get-E>|<get-E>(){}[0]
-}
-
-final object androidx.ink.brush/ImmutableCollections { // androidx.ink.brush/ImmutableCollections|null[0]
-    final fun <#A1: kotlin/Any?> unmodifiableList(kotlin.collections/List<#A1>): kotlin.collections/List<#A1> // androidx.ink.brush/ImmutableCollections.unmodifiableList|unmodifiableList(kotlin.collections.List<0:0>){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> unmodifiableList(kotlin/Int, kotlin/Function1<kotlin/Int, #A1>): kotlin.collections/List<#A1> // androidx.ink.brush/ImmutableCollections.unmodifiableList|unmodifiableList(kotlin.Int;kotlin.Function1<kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> unmodifiableSet(kotlin.collections/Set<#A1>): kotlin.collections/Set<#A1> // androidx.ink.brush/ImmutableCollections.unmodifiableSet|unmodifiableSet(kotlin.collections.Set<0:0>){0§<kotlin.Any?>}[0]
-}
-
 final object androidx.ink.brush/StockBrushes { // androidx.ink.brush/StockBrushes|null[0]
-    final val predictionFadeOutBehavior // androidx.ink.brush/StockBrushes.predictionFadeOutBehavior|{}predictionFadeOutBehavior[0]
-        final fun <get-predictionFadeOutBehavior>(): androidx.ink.brush/BrushBehavior // androidx.ink.brush/StockBrushes.predictionFadeOutBehavior.<get-predictionFadeOutBehavior>|<get-predictionFadeOutBehavior>(){}[0]
-
     final fun dashedLine(androidx.ink.brush/StockBrushes.DashedLineVersion = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/StockBrushes.dashedLine|dashedLine(androidx.ink.brush.StockBrushes.DashedLineVersion){}[0]
     final fun emojiHighlighter(kotlin/String, kotlin/Boolean = ..., androidx.ink.brush/SelfOverlap = ..., androidx.ink.brush/StockBrushes.EmojiHighlighterVersion = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/StockBrushes.emojiHighlighter|emojiHighlighter(kotlin.String;kotlin.Boolean;androidx.ink.brush.SelfOverlap;androidx.ink.brush.StockBrushes.EmojiHighlighterVersion){}[0]
     final fun highlighter(androidx.ink.brush/SelfOverlap = ..., androidx.ink.brush/StockBrushes.HighlighterVersion = ...): androidx.ink.brush/BrushFamily // androidx.ink.brush/StockBrushes.highlighter|highlighter(androidx.ink.brush.SelfOverlap;androidx.ink.brush.StockBrushes.HighlighterVersion){}[0]
@@ -1400,22 +984,3 @@ final object androidx.ink.brush/StockBrushes { // androidx.ink.brush/StockBrushe
         }
     }
 }
-
-final object androidx.ink.brush/TextureAnimationProgressHelper { // androidx.ink.brush/TextureAnimationProgressHelper|null[0]
-    final fun calculateAnimationProgress(kotlin/Long, androidx.ink.brush/BrushFamily): kotlin/Float // androidx.ink.brush/TextureAnimationProgressHelper.calculateAnimationProgress|calculateAnimationProgress(kotlin.Long;androidx.ink.brush.BrushFamily){}[0]
-    final fun calculateAnimationProgress(kotlin/Long, kotlin/Long): kotlin/Float // androidx.ink.brush/TextureAnimationProgressHelper.calculateAnimationProgress|calculateAnimationProgress(kotlin.Long;kotlin.Long){}[0]
-    final fun getAnimationDurationMillis(androidx.ink.brush/BrushFamily): kotlin/Long // androidx.ink.brush/TextureAnimationProgressHelper.getAnimationDurationMillis|getAnimationDurationMillis(androidx.ink.brush.BrushFamily){}[0]
-}
-
-final val androidx.ink.brush.color/isSpecified // androidx.ink.brush.color/isSpecified|@androidx.ink.brush.color.Color{}isSpecified[0]
-    final inline fun (androidx.ink.brush.color/Color).<get-isSpecified>(): kotlin/Boolean // androidx.ink.brush.color/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.ink.brush.color.Color(){}[0]
-final val androidx.ink.brush.color/isUnspecified // androidx.ink.brush.color/isUnspecified|@androidx.ink.brush.color.Color{}isUnspecified[0]
-    final inline fun (androidx.ink.brush.color/Color).<get-isUnspecified>(): kotlin/Boolean // androidx.ink.brush.color/isUnspecified.<get-isUnspecified>|<get-isUnspecified>@androidx.ink.brush.color.Color(){}[0]
-
-final fun (androidx.ink.brush.color.colorspace/ColorSpace).androidx.ink.brush.color.colorspace/adapt(androidx.ink.brush.color.colorspace/WhitePoint, androidx.ink.brush.color.colorspace/Adaptation = ...): androidx.ink.brush.color.colorspace/ColorSpace // androidx.ink.brush.color.colorspace/adapt|adapt@androidx.ink.brush.color.colorspace.ColorSpace(androidx.ink.brush.color.colorspace.WhitePoint;androidx.ink.brush.color.colorspace.Adaptation){}[0]
-final fun (androidx.ink.brush.color.colorspace/ColorSpace).androidx.ink.brush.color.colorspace/connect(androidx.ink.brush.color.colorspace/ColorSpace = ..., androidx.ink.brush.color.colorspace/RenderIntent = ...): androidx.ink.brush.color.colorspace/Connector // androidx.ink.brush.color.colorspace/connect|connect@androidx.ink.brush.color.colorspace.ColorSpace(androidx.ink.brush.color.colorspace.ColorSpace;androidx.ink.brush.color.colorspace.RenderIntent){}[0]
-final fun (androidx.ink.brush.color/Color).androidx.ink.brush.color/toArgb(): kotlin/Int // androidx.ink.brush.color/toArgb|toArgb@androidx.ink.brush.color.Color(){}[0]
-final fun androidx.ink.brush.color/Color(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float = ..., androidx.ink.brush.color.colorspace/ColorSpace = ...): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color|Color(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.ink.brush.color.colorspace.ColorSpace){}[0]
-final fun androidx.ink.brush.color/Color(kotlin/Int): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color|Color(kotlin.Int){}[0]
-final fun androidx.ink.brush.color/Color(kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Int = ...): androidx.ink.brush.color/Color // androidx.ink.brush.color/Color|Color(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
-final inline fun (androidx.ink.brush.color/Color).androidx.ink.brush.color/takeOrElse(kotlin/Function0<androidx.ink.brush.color/Color>): androidx.ink.brush.color/Color // androidx.ink.brush.color/takeOrElse|takeOrElse@androidx.ink.brush.color.Color(kotlin.Function0<androidx.ink.brush.color.Color>){}[0]

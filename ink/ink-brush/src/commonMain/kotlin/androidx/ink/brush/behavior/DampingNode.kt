@@ -16,10 +16,13 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
+
 /**
  * A [ValueNode] that damps changes in an input value, causing the output value to slowly follow
  * changes in the input value over a specified time or distance.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class DampingNode
 private constructor(
     nativeAlloc: () -> Long,

@@ -16,12 +16,13 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.ResponseNodeNative_create
 import androidx.ink.nativeloader.cinterop.ResponseNodeNative_getResponseCurvePointer
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object ResponseNodeNative {
     actual fun create(easingFunctionNativePointer: Long): Long =
         ResponseNodeNative_create(

@@ -17,8 +17,10 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 expect public object ImmutableCollections {
     /**
      * Same as the List constructor, but guarantees the returned list is immutable on JVM when

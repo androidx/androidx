@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -45,9 +46,11 @@ import kotlin.jvm.JvmStatic
  * Specific stock brushes may see minor tweaks and bug-fixes when the library is upgraded, but will
  * avoid major changes in behavior.
  */
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @ExperimentalInkCustomBrushApi
     @JvmStatic
     public val predictionFadeOutBehavior: BrushBehavior by lazy {
         BrushBehavior.wrapNative { StockBrushesNative.createPredictionFadeOutBehavior() }

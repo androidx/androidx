@@ -16,6 +16,7 @@
 
 package androidx.ink.storage
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchSerializationNative_createFromProto
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchSerializationNative_encode
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
@@ -23,6 +24,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.usePinned
 
+@OptIn(InkInternalOnlyApi::class)
 actual internal object StrokeInputBatchSerializationNative {
 
     actual fun createFromProto(decompressedBytes: ByteArray, size: Int): Long =

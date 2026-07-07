@@ -16,12 +16,13 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.InterpolationNodeNative_create
 import androidx.ink.nativeloader.cinterop.InterpolationNodeNative_getInterpolationInt
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object InterpolationNodeNative {
     actual fun create(interpolation: Int): Long =
         InterpolationNodeNative_create(

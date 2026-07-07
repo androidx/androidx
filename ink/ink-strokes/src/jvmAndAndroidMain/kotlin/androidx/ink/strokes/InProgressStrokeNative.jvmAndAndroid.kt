@@ -18,10 +18,12 @@ package androidx.ink.strokes
 
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableVec
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 internal actual object InProgressStrokeNative {
     init {
         NativeLoader.load()
@@ -77,6 +79,8 @@ internal actual object InProgressStrokeNative {
 
     @UsedByNative
     actual external fun getAndOverwriteInput(nativePointer: Long, input: StrokeInput, index: Int)
+
+    @UsedByNative actual external fun getBaseAnimationPhase(nativePointer: Long): Float
 
     @UsedByNative actual external fun getBrushCoatCount(nativePointer: Long): Int
 

@@ -18,6 +18,7 @@ package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
@@ -25,9 +26,11 @@ import kotlin.jvm.JvmStatic
  * The type of input tool used in producing `androidx.ink.strokes.StrokeInput`, used by
  * `BrushBehavior` to define when a behavior is applicable.
  */
+@OptIn(InkInternalOnlyApi::class)
 public class InputToolType
 private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val value: Int,
     private val name: String,
 ) {
@@ -46,7 +49,8 @@ private constructor(
          * ToolType from JNI.
          */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
         public fun fromInt(value: Int): InputToolType =
             checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid InputToolType value: $value" }
 

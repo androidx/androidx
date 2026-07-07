@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(InkInternalOnlyApi::class)
+
 package androidx.ink.brush
 
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.colorspace.ColorSpace as ComposeColorSpace
 import androidx.ink.brush.color.colorspace.ColorSpaces as ComposeColorSpaces
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmStatic
 

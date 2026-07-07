@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:JvmName("InProgressStrokeExtensions")
+
 package androidx.ink.strokes
 
 import androidx.annotation.GuardedBy
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
@@ -43,7 +46,8 @@ internal val inProgressStrokesReferencedByBuffers = WeakHashMap<ByteBuffer, InPr
  * [InProgressStroke.updateShape]. Continuing to use it after that point will result in incorrect
  * and possibly undefined behavior.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun InProgressStroke.getRawVertexBuffer(
     @IntRange(from = 0) coatIndex: Int,
     partitionIndex: Int,
@@ -76,7 +80,8 @@ public fun InProgressStroke.getRawVertexBuffer(
  * [InProgressStroke.updateShape]. Continuing to use it after that point will result in incorrect
  * and possibly undefined behavior.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun InProgressStroke.getRawTriangleIndexBuffer(
     @IntRange(from = 0) coatIndex: Int,
     partitionIndex: Int,
@@ -108,6 +113,7 @@ public fun InProgressStroke.getRawTriangleIndexBuffer(
 }
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 private object JvmInProgressStrokeNative {
     init {
         NativeLoader.load()

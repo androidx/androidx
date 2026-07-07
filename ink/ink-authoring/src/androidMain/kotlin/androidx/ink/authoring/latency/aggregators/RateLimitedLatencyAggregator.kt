@@ -18,7 +18,7 @@ package androidx.ink.authoring.latency.aggregators
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.ConcurrentIntervalQueue
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
 import java.util.concurrent.Executor
@@ -53,7 +53,7 @@ import kotlinx.coroutines.runBlocking
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public class RateLimitedLatencyAggregator
 private constructor(private val implementationHelper: ImplementationHelper) : LatencyAggregator {
 
@@ -79,6 +79,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
 
     public override fun job(): Job = implementationHelper.job
 
+    @ExperimentalInkLatencyDataApi
     public companion object {
         /**
          * Returns a new [RateLimitedLatencyAggregator]. For use by Kotlin clients. [callback] will
@@ -90,6 +91,8 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          * @param callback The callback with which to report samples.
          */
         @JvmStatic
+        @JvmName("createFromDuration")
+        @Suppress("ExecutorRegistration") // Takes a CoroutineScope instead
         public fun create(
             period: Duration,
             scope: CoroutineScope,

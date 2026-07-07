@@ -22,8 +22,10 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.Float
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
@@ -35,6 +37,7 @@ import kotlin.jvm.JvmStatic
  * can be considered an instance of a [BrushFamily] with a particular color, [size], and an extra
  * parameter controlling visual fidelity, called [epsilon].
  */
+@OptIn(InkInternalOnlyApi::class)
 public class Brush
 private constructor(
     nativeAlloc: () -> Long,
@@ -43,7 +46,8 @@ private constructor(
 ) {
 
     /** A handle to the underlying native [Brush] object. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, BrushNative::free)
 
     public val family: BrushFamily =
@@ -52,14 +56,18 @@ private constructor(
             // Otherwise, copy it from the native object.
             ?: BrushFamily.wrapNative { BrushNative.newCopyOfBrushFamily(nativePointer) }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Suppress("HiddenTypeParameter", "ValueClassUsageWithoutJvmName") // Internal API.
-    public val internalColor: ComposeColor =
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    @get:JvmName("getInternalComposeColorLong")
+    // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
+    // getters, and just applies to the backing field if there is one).`
+    public val internalColor: ComposeColor by lazy {
         // Caching this because the native call is slow. Still doing the round-trip on construction
         // to
         // ensure this is exercised by tests and that deserialized brushes are consistent with newly
         // constructed brushes.
         ComposeColor(BrushNative.computeComposeColorLong(nativePointer).toULong())
+    }
 
     /**
      * The overall thickness of strokes created with a given brush, in the same units as the stroke
@@ -397,7 +405,9 @@ private constructor(
         private val DEFAULT_COMPOSE_COLOR = ComposeColor.Black
 
         /** Construct a [Brush], taking a callback that heap-allocates a C++ `Brush`. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): Brush = Brush(nativeAlloc)
 
         /**

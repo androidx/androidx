@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_create
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_free
@@ -39,7 +40,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BrushFamilyNative {
     actual fun create(
         coatNativePointers: LongArray,
@@ -89,7 +90,7 @@ actual internal object BrushFamilyNative {
         BrushFamilyNative_newCopyOfInputModel(nativePointer)
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object InputModelNative {
     actual fun createNoParametersModel(type: Int): Long =
         InputModelNative_createNoParametersModel(type)

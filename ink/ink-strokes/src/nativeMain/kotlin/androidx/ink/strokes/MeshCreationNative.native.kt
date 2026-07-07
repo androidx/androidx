@@ -16,11 +16,12 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.MeshCreationNative_createClosedShapeFromStrokeInputBatch
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object MeshCreationNative {
     actual fun createClosedShapeFromStrokeInputBatch(strokeInputBatchNativePointer: Long): Long =
         MeshCreationNative_createClosedShapeFromStrokeInputBatch(

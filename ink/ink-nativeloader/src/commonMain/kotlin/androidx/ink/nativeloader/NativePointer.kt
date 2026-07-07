@@ -17,7 +17,6 @@
 package androidx.ink.nativeloader
 
 import androidx.annotation.RestrictTo
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 /**
@@ -40,9 +39,10 @@ import kotlin.reflect.KProperty
  * @throws IllegalStateException if [pointerAlloc] returns 0.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 expect public class NativePointer(
     pointerAlloc: () -> Long, // Must not be retained
     pointerFree: (Long) -> Unit, // Must not capture a reference to this instance
-) : ReadOnlyProperty<Any, Long> {
-    override fun getValue(thisRef: Any, property: KProperty<*>): Long
+) {
+    public operator fun getValue(thisRef: Any, property: KProperty<*>): Long
 }

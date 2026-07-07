@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 
 /** Native code loader for Android. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InkInternalOnlyApi
 actual public object NativeLoader {
     private var loaded = false
 

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+@file:JvmName("StrokeTestHelper")
+
 package androidx.ink.strokes.testing
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -29,7 +33,8 @@ import kotlin.jvm.JvmOverloads
  */
 @JvmOverloads
 @VisibleForTesting
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun buildStrokeInputBatchFromPoints(
     points: FloatArray,
     toolType: InputToolType = InputToolType.STYLUS,

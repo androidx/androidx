@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
 
+@OptIn(ExperimentalInkAnimationApi::class)
 class TextureAnimationProgressHelperTest {
 
     @Test

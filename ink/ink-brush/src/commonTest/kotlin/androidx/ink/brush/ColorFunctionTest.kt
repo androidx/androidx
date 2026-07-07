@@ -18,11 +18,13 @@ package androidx.ink.brush
 
 import androidx.ink.brush.BrushPaint.ColorFunction
 import androidx.ink.brush.color.Color as ComposeColor
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.kruth.assertThat
 import kotlin.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(InkInternalOnlyApi::class)
 class ColorFunctionTest {
 
     @Test

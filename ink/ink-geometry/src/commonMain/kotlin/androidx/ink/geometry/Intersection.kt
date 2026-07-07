@@ -16,12 +16,14 @@
 
 package androidx.ink.geometry
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmStatic
 
 /**
  * Contains functions for intersection of ink geometry classes. For Kotlin callers, these are
  * available as extension functions on the geometry classes themselves.
  */
+@OptIn(InkInternalOnlyApi::class)
 public object Intersection {
 
     /**

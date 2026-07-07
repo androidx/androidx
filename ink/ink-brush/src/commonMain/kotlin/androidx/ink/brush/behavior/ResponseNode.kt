@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
+
 /** A [ValueNode] that maps an input value through a response curve. */
+@OptIn(InkInternalOnlyApi::class)
 public class ResponseNode
 private constructor(
     nativeAlloc: () -> Long,

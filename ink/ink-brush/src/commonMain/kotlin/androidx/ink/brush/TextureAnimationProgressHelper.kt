@@ -33,6 +33,7 @@ import kotlin.jvm.JvmStatic
  * TODO: b/267164444 - Support texture layers within the same coat having different animation specs.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkAnimationApi
 public object TextureAnimationProgressHelper {
 
     /**

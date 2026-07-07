@@ -21,6 +21,7 @@ import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.brush.behavior.Node
 import androidx.ink.brush.behavior.TerminalNode
 import androidx.ink.brush.behavior.ValueNode
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmOverloads
 
@@ -57,7 +58,10 @@ import kotlin.jvm.JvmOverloads
  * Note that the accumulated tip shape property modifiers may be adjusted by the implementation
  * before being applied: The rates of change of shape properties may be constrained to keep them
  * from changing too rapidly with respect to distance traveled from one input to the next.
+ *
+ * @sample androidx.ink.brush.samples.createPressureToSizeBehavior
  */
+@OptIn(InkInternalOnlyApi::class)
 public class BrushBehavior
 private constructor(
     nativeAlloc: () -> Long,
@@ -66,7 +70,8 @@ private constructor(
     developerComment: String? = null,
 ) {
     /** A handle to the underlying native [BrushBehavior] object. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, BrushBehaviorNative::free)
 
     /** An immutable list of the targets that this [BrushBehavior] affects. */
@@ -166,7 +171,9 @@ private constructor(
         /**
          * Construct a [BrushBehavior], taking a callback that heap-allocates a C++ `BrushBehavior`.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): BrushBehavior {
             return BrushBehavior(nativeAlloc)
         }

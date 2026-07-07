@@ -17,6 +17,7 @@
 package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
  * Defines the parameters for the ICC parametric curve type 4, as defined in ICC.1:2004-10, section
@@ -35,6 +36,8 @@ import androidx.annotation.RestrictTo
  * * The function is positive and increasing
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
+@Suppress("DataClassDefinition") // Internal-only API
 public data class TransferParameters(
     /** Value g in the equation of the EOTF described above. */
     val gamma: Double,

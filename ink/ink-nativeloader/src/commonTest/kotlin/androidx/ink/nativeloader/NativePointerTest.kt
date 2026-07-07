@@ -22,6 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.TimeoutCancellationException
 
+@OptIn(InkInternalOnlyApi::class)
 class NativePointerTest {
 
     @Test

@@ -20,7 +20,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.ConcurrentIntervalQueue
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
 import java.util.concurrent.Executor
@@ -62,7 +62,7 @@ import kotlinx.coroutines.runBlocking
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public class PercentileLatencyAggregator
 private constructor(private val implementationHelper: ImplementationHelper) : LatencyAggregator {
 
@@ -100,6 +100,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     internal fun numLatePercentileListAllocations() =
         implementationHelper.numLatePercentileListAllocations
 
+    @ExperimentalInkLatencyDataApi
     public companion object {
         /**
          * Returns a new [PercentileLatencyAggregator]. For use by Kotlin clients. [callback] will
@@ -118,6 +119,8 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          * @param callback The [Callback] with which to report latency percentiles.
          */
         @JvmStatic
+        @JvmName("createFromDuration")
+        @Suppress("ExecutorRegistration") // Takes a CouroutineScope instead
         public fun create(
             window: Duration,
             percentiles: List<Float>,

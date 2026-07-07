@@ -25,6 +25,7 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.IntegralNode
@@ -47,6 +48,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalInkBrushCompatibilityApi::class)
 class AndroidBrushFamilyExtensionsTest {
 
     private val textureId1: String = "texture_id_1"

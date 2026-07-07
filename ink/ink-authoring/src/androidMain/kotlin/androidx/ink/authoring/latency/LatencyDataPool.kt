@@ -20,7 +20,7 @@ import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.UiThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import kotlin.collections.ArrayDeque
 import kotlin.collections.MutableCollection
@@ -32,7 +32,7 @@ import kotlin.collections.MutableCollection
  * need, in order to avoid new allocations during latency-sensitive interactive use of the client
  * app.
  */
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 @UiThread
 internal class LatencyDataPool(numPreAllocatedInstances: Int = 100) {
     private val pool = ArrayDeque<LatencyData>(numPreAllocatedInstances)

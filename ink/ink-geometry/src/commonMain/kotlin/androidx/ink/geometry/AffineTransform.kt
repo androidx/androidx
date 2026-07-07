@@ -55,16 +55,22 @@ import kotlin.math.abs
  * this.
  */
 public abstract class AffineTransform internal constructor() {
+    /** Value in the first row, first column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m00: Float
+    /** Value in the first row, second column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m10: Float
+    /** Value in the first row, third column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m20: Float
+    /** Value in the second row, first column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m01: Float
+    /** Value in the second row, second column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m11: Float
+    /** Value in the second row, third column of the transform matrix. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m21: Float
 
@@ -72,7 +78,7 @@ public abstract class AffineTransform internal constructor() {
      * Returns an immutable equivalent of this object. This will return itself if called on an
      * immutable instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableAffineTransform
 
     /**

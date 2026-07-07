@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("ColorSpaceUtils")
+@file:OptIn(InkInternalOnlyApi::class)
+
 package androidx.ink.brush.color.colorspace
 
 import androidx.annotation.IntRange
@@ -20,6 +24,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.Size
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.packFloats
+import androidx.ink.nativeloader.InkInternalOnlyApi
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.math.abs
 import kotlin.math.pow
@@ -86,7 +92,10 @@ import kotlin.math.withSign
  * @see Adaptation
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-public abstract class ColorSpace(
+@InkInternalOnlyApi
+public abstract class ColorSpace
+@Suppress("ValueClassUsageFromConstructor")
+constructor(
     /**
      * Returns the name of this color space. The name is never null and contains always at least 1
      * character.
@@ -119,7 +128,7 @@ public abstract class ColorSpace(
      * @see ColorModel
      * @see componentCount
      */
-    public val model: ColorModel,
+    @property:Suppress("ValueClassUsageWithoutJvmName") public val model: ColorModel,
 
     /**
      * The ID of this color space. Positive IDs match the color spaces enumerated in [ColorSpaces].
@@ -127,6 +136,7 @@ public abstract class ColorSpace(
      */
     internal val id: Int,
 ) {
+    @Suppress("ValueClassUsageFromConstructor")
     public constructor(name: String, model: ColorModel) : this(name, model, MIN_ID)
 
     /**
@@ -392,6 +402,8 @@ private fun createConnector(
  * @return A non-null connector between the two specified color spaces
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
+@Suppress("ValueClassUsageWithoutJvmName")
 public fun ColorSpace.connect(
     destination: ColorSpace = ColorSpaces.Srgb,
     intent: RenderIntent = RenderIntent.Perceptual,
@@ -422,6 +434,7 @@ public fun ColorSpace.connect(
  * @see Adaptation
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 @JvmOverloads
 public fun ColorSpace.adapt(
     whitePoint: WhitePoint,

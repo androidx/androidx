@@ -34,6 +34,7 @@ import androidx.ink.geometry.MutableVec
 import androidx.ink.geometry.PartitionedMesh
 import androidx.ink.geometry.outlinesToPath
 import androidx.ink.geometry.populateOutlines
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
@@ -51,6 +52,7 @@ import java.util.WeakHashMap
  * unlikely to be cached mesh data in common, the easiest solution to thread safety is to have two
  * different instances of this object.
  */
+@OptIn(InkInternalOnlyApi::class)
 internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitmapStore { null }) :
     CanvasStrokeCoatRenderer {
 
@@ -299,7 +301,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         val cachedPathData = coatIndexToCachedPathData[coatIndex]
         if (
             cachedPathData != null &&
-                cachedPathData.version == inProgressStroke.version &&
+                cachedPathData.version == inProgressStroke.getVersion() &&
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ||
                     cachedPathData.strokeToScreenTransform == strokeToScreenTransform)
         ) {
@@ -321,7 +323,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             path.transform(strokeToScreenTransform)
         }
-        return InProgressPathData(inProgressStroke.version, strokeToScreenTransform, path)
+        return InProgressPathData(inProgressStroke.getVersion(), strokeToScreenTransform, path)
     }
 
     /** Create a new [Path] for the given [InProgressStroke]. */

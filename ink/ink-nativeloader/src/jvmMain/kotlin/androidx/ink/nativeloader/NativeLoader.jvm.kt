@@ -27,6 +27,7 @@ import java.util.Locale
  * Supporting both in a single loader is helpful because Android code is run on JVM for Android host
  * tests.
  */
+@InkInternalOnlyApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 actual public object NativeLoader {
     private var loaded = false
