@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
+
 /** A [ValueNode] that integrates an input value over time or distance. */
+@OptIn(InkInternalOnlyApi::class)
 public class IntegralNode
 private constructor(
     nativeAlloc: () -> Long,

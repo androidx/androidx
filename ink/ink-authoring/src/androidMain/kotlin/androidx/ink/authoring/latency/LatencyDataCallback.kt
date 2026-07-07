@@ -18,10 +18,10 @@ package androidx.ink.authoring.latency
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public fun interface LatencyDataCallback {
     /** A callback invoked once per input event to send [LatencyData] to a client. */
     @UiThread public fun onLatencyData(latency: LatencyData): Unit

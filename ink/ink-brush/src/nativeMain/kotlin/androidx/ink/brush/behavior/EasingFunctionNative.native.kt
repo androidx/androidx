@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.EasingFunctionNative_createCopyOf
 import androidx.ink.nativeloader.cinterop.EasingFunctionNative_createCubicBezier
 import androidx.ink.nativeloader.cinterop.EasingFunctionNative_createLinear
@@ -38,7 +39,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object EasingFunctionNative {
 
     actual fun createCopyOf(otherEasingFunctionNativePointer: Long): Long =

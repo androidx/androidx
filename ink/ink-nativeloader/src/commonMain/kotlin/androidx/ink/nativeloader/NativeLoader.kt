@@ -18,7 +18,8 @@ package androidx.ink.nativeloader
 
 import androidx.annotation.RestrictTo
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 expect public object NativeLoader {
     public fun load()
 }

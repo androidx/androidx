@@ -17,10 +17,12 @@
 package androidx.ink.geometry
 
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 actual internal object MeshNative {
     init {
         NativeLoader.load()

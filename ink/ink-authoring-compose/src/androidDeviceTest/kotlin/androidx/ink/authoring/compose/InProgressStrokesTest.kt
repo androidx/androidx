@@ -24,11 +24,12 @@ import androidx.annotation.ColorInt
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
-import androidx.ink.authoring.testing.InputStreamBuilder
-import androidx.ink.authoring.testing.MultiTouchInputBuilder
+import androidx.ink.authoring.testing.InputStreamCreator
+import androidx.ink.authoring.testing.MultiTouchInputCreator
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.StockBrushes.MarkerVersion
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -48,6 +49,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@OptIn(InkInternalOnlyApi::class)
 class InProgressStrokesTest {
 
     @get:Rule
@@ -66,7 +68,7 @@ class InProgressStrokesTest {
     @Test
     fun downEvent_showsStrokeWithNoCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {
@@ -95,7 +97,7 @@ class InProgressStrokesTest {
     @Test
     fun downAndMoveEvents_showsStrokeWithNoCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {
@@ -125,7 +127,7 @@ class InProgressStrokesTest {
     @Test
     fun downAndUpEvents_sendsCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {
@@ -155,7 +157,7 @@ class InProgressStrokesTest {
     @Test
     fun downAndMoveAndUpEvents_sendsCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {
@@ -186,7 +188,7 @@ class InProgressStrokesTest {
     @Test
     fun downAndMoveEvents_withNonIdentityTransforms_showsStrokeWithNoCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {
@@ -218,7 +220,7 @@ class InProgressStrokesTest {
     @Test
     fun downAndConsumedMoveEvents_cancelsStrokeWithNoCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 consumeMoveTouchEventOfPointerNumber = 0,
@@ -249,7 +251,7 @@ class InProgressStrokesTest {
     @Test
     fun twoSimultaneousStrokesDownAndMoveAndFinish_oneCallbackWithBothStrokes() {
         val inputStream =
-            MultiTouchInputBuilder.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
+            MultiTouchInputCreator.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
         var usedFirstBrush = false
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
@@ -280,7 +282,7 @@ class InProgressStrokesTest {
     @Test
     fun twoSimultaneousStrokesDownAndMove_moveOfFirstConsumed_showsSecondStrokeWithNoCallback() {
         val inputStream =
-            MultiTouchInputBuilder.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
+            MultiTouchInputCreator.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
         var usedFirstBrush = false
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
@@ -320,7 +322,7 @@ class InProgressStrokesTest {
     @Test
     fun twoSimultaneousStrokesDownAndMove_moveOfSecondConsumed_showsFirstStrokeWithNoCallback() {
         val inputStream =
-            MultiTouchInputBuilder.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
+            MultiTouchInputCreator.rotate90DegreesClockwise(centerX = 200F, centerY = 300F)
         var usedFirstBrush = false
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
@@ -360,7 +362,7 @@ class InProgressStrokesTest {
     @Test
     fun downEvent_withMaskPath_showsMaskedStrokeWithNoCallback() {
         val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+            InputStreamCreator.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
         activityScenarioRule.scenario.onActivity { activity ->
             activity.init(
                 nextBrush = {

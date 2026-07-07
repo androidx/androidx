@@ -22,6 +22,7 @@ import androidx.graphics.path.PathIterator
 import androidx.graphics.path.PathSegment
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,6 +35,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@OptIn(InkInternalOnlyApi::class)
 class AndroidGraphicsConversionExtensionsEmulatorTest {
     @Test
     fun outlinesToPath_returnsCorrectListOfpath() {

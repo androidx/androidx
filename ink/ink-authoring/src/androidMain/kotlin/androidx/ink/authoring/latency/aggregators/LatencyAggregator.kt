@@ -18,7 +18,7 @@ package androidx.ink.authoring.latency.aggregators
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import kotlinx.coroutines.Job
 
 /**
@@ -36,7 +36,7 @@ import kotlinx.coroutines.Job
  * `job().cancelAndJoin()`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public interface LatencyAggregator {
     /**
      * Inserts a latency measurement between [startNanos] and [endNanos] into the pool of values to

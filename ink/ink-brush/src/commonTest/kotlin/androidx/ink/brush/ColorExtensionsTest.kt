@@ -18,10 +18,12 @@ package androidx.ink.brush
 
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.colorspace.ColorSpaces as ComposeColorSpaces
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(InkInternalOnlyApi::class)
 class ColorExtensionsTest {
     @Test
     fun composeColorToColorInInkSupportedColorSpace_withSupportedColorSpace_returnsSameColor() {

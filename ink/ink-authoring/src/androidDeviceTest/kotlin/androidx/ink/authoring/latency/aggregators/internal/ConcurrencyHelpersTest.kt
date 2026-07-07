@@ -16,7 +16,7 @@
 
 package androidx.ink.authoring.latency.aggregators.internal
 
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.seconds
@@ -29,7 +29,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 internal class ConcurrencyHelpersTest {
     private val testDispatcher = UnconfinedTestDispatcher()

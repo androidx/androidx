@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.ToolTypeFilterNodeNative_create
 import androidx.ink.nativeloader.cinterop.ToolTypeFilterNodeNative_getMouseEnabled
 import androidx.ink.nativeloader.cinterop.ToolTypeFilterNodeNative_getStylusEnabled
@@ -24,7 +25,7 @@ import androidx.ink.nativeloader.cinterop.ToolTypeFilterNodeNative_getUnknownEna
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object ToolTypeFilterNodeNative {
     actual fun create(
         mouseEnabled: Boolean,

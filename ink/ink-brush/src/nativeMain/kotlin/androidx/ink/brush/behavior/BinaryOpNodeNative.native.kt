@@ -16,12 +16,13 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BinaryOpNodeNative_create
 import androidx.ink.nativeloader.cinterop.BinaryOpNodeNative_getOperationInt
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object BinaryOpNodeNative {
     actual fun create(operation: Int): Long =
         BinaryOpNodeNative_create(

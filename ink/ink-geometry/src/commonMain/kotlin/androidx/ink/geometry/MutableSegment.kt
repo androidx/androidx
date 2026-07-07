@@ -52,7 +52,7 @@ public class MutableSegment(override var start: MutableVec, override var end: Mu
         return this
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableSegment = ImmutableSegment(this.start, this.end)
 
     override fun equals(other: Any?): Boolean =

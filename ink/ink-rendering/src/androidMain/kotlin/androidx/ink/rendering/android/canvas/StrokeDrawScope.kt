@@ -19,6 +19,7 @@ package androidx.ink.rendering.android.canvas
 import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.Stroke
 
 /**
@@ -28,9 +29,7 @@ import androidx.ink.strokes.Stroke
  * [android.view.View]. Use this scope by calling its [drawStroke] function.
  */
 // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-public class StrokeDrawScope
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(private val renderer: CanvasStrokeRenderer) {
+public class StrokeDrawScope private constructor(private val renderer: CanvasStrokeRenderer) {
 
     /**
      * Pre-allocated value updated in [onDrawStart] holding a transform from the
@@ -77,7 +76,8 @@ constructor(private val renderer: CanvasStrokeRenderer) {
     private val localToScreenTransform = Matrix()
 
     /** Overwrite this object for reuse. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public fun onDrawStart(canvasToScreenTransform: Matrix, newCanvas: Canvas) {
         canvas = newCanvas
         with(initialCanvasToScreenTransform) {
@@ -100,5 +100,14 @@ constructor(private val renderer: CanvasStrokeRenderer) {
             postConcat(initialCanvasToScreenTransform)
         }
         renderer.draw(canvas, stroke, localToScreenTransform)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @JvmStatic
+        public fun withRenderer(renderer: CanvasStrokeRenderer): StrokeDrawScope =
+            StrokeDrawScope(renderer)
     }
 }

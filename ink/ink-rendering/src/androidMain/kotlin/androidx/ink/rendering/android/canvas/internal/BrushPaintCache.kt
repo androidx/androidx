@@ -32,6 +32,7 @@ import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.StrokeInput
 import java.util.WeakHashMap
 
@@ -44,6 +45,7 @@ import java.util.WeakHashMap
  *   set when using an API that expects a color to be uniformly applied by the Paint, instead of
  *   providing per-vertex-modified colors to the draw call.
  */
+@OptIn(InkInternalOnlyApi::class)
 internal class BrushPaintCache(
     val textureStore: TextureBitmapStore,
     /**

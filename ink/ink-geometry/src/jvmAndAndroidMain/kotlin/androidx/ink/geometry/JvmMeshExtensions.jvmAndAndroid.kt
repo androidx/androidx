@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:JvmName("JvmMeshExtensions")
+
 package androidx.ink.geometry
 
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -31,6 +34,7 @@ import java.util.WeakHashMap
  */
 @VisibleForTesting
 @GuardedBy("meshesReferencedByBuffers")
+@OptIn(InkInternalOnlyApi::class)
 internal val meshesReferencedByBuffers = WeakHashMap<ByteBuffer, Mesh>()
 
 /**
@@ -41,7 +45,8 @@ internal val meshesReferencedByBuffers = WeakHashMap<ByteBuffer, Mesh>()
  * data access should go through other methods on [Mesh], which more cleanly hide details of the
  * packed format.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun Mesh.getRawVertexBuffer(): ByteBuffer =
     (JvmMeshNative.createUnsafelyMutableMeshOwnedRawVertexBuffer(nativePointer)
             ?: ByteBuffer.allocateDirect(0))
@@ -68,7 +73,8 @@ public fun Mesh.getRawVertexBuffer(): ByteBuffer =
  *
  * The data type of each triangle index is **unsigned** 16-bit [UShort].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public fun Mesh.getRawTriangleIndexBuffer(): ShortBuffer =
     (JvmMeshNative.createUnsafelyMutableMeshOwnedRawTriangleIndexBuffer(nativePointer)
             ?: ByteBuffer.allocateDirect(0))

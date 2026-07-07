@@ -16,11 +16,13 @@
 
 package androidx.ink.geometry
 
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.kruth.assertThat
 import java.util.WeakHashMap
 import kotlin.test.Test
 import kotlin.test.assertFails
 
+@OptIn(InkInternalOnlyApi::class)
 class JvmMeshTest {
 
     @Test

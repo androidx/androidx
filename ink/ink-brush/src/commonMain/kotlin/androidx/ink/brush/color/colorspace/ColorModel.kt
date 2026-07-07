@@ -20,6 +20,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.packInts
 import androidx.ink.brush.color.unpackInt1
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmInline
 
 /**
@@ -27,8 +28,10 @@ import kotlin.jvm.JvmInline
  * tuples of numbers. A common color model is the [RGB][Rgb] color model which defines a color as
  * represented by a tuple of 3 numbers (red, green and blue).
  */
-@JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@JvmInline
+@InkInternalOnlyApi
+@Suppress("ValueClassDefinition")
 public value class ColorModel
 internal constructor(
     /**
@@ -48,29 +51,34 @@ internal constructor(
             return unpackInt1(packedValue)
         }
 
+    @InkInternalOnlyApi
     public companion object {
         /**
          * The RGB model is a color model with 3 components that refer to the three additive
          * primiaries: red, green and blue.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Rgb: ColorModel = ColorModel(packInts(3, 0))
 
         /**
          * The XYZ model is a color model with 3 components that are used to model human color
          * vision on a basic sensory level.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Xyz: ColorModel = ColorModel(packInts(3, 1))
 
         /**
          * The Lab model is a color model with 3 components used to describe a color space that is
          * more perceptually uniform than XYZ.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Lab: ColorModel = ColorModel(packInts(3, 2))
 
         /**
          * The CMYK model is a color model with 4 components that refer to four inks used in color
          * printing: cyan, magenta, yellow and black (or key). CMYK is a subtractive color model.
          */
+        @Suppress("ValueClassUsageWithoutJvmName")
         public val Cmyk: ColorModel = ColorModel(packInts(4, 3))
     }
 

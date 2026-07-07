@@ -19,7 +19,7 @@ package androidx.ink.authoring.latency
 import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.RestrictTo
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 
 /**
@@ -29,14 +29,13 @@ import androidx.ink.authoring.InProgressStrokeId
  * since system boot, except for deep sleep time.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public class LatencyData {
 
     /**
      * The type of input event being tracked. See [strokeAction] for a potentially more relevant
      * alternative.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var eventAction: EventAction = EventAction.UNKNOWN
 
     /**
@@ -45,7 +44,6 @@ public class LatencyData {
      * [strokeAction] is often much more relevant to track as a dimension affecting performance
      * compared to [eventAction].
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokeAction: StrokeAction = StrokeAction.UNKNOWN
 
     /**
@@ -58,7 +56,6 @@ public class LatencyData {
      * logged directly. It can be used as part of client-side aggregation logic to associate
      * [LatencyData] events with one another.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokeId: InProgressStrokeId = UNKNOWN_STROKE_ID
 
     /**
@@ -71,7 +68,7 @@ public class LatencyData {
      * MOVE and PREDICTED_MOVE [EventAction]s are batched separately by Android, so the [batchSize]
      * for real and predicted inputs received at the same time are independent.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var batchSize: Int = Int.MIN_VALUE
+    public var batchSize: Int = Int.MIN_VALUE
 
     /**
      * The index of this input event in the batch: 0 <= [batchIndex] < [batchSize]. Index 0
@@ -84,7 +81,7 @@ public class LatencyData {
      * MOVE and PREDICTED_MOVE [EventAction]s are batched separately by Android, so the [batchIndex]
      * for real and predicted inputs received at the same time are independent.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var batchIndex: Int = Int.MIN_VALUE
+    public var batchIndex: Int = Int.MIN_VALUE
 
     /**
      * Nanosecond timestamp of when the low-level input driver recorded the user input. For
@@ -93,7 +90,7 @@ public class LatencyData {
      * Android versions, only millisecond precision is available, and therefore any calculations
      * based on this value should be considered to have only millisecond accuracy.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var osDetectsEvent: Long = Long.MIN_VALUE
+    public var osDetectsEvent: Long = Long.MIN_VALUE
 
     public val isOsDetectsEventSet: Boolean
         get() = osDetectsEvent != Long.MIN_VALUE
@@ -105,7 +102,6 @@ public class LatencyData {
      * [androidx.ink.authoring.InProgressStrokesView.finishStroke], or
      * [androidx.ink.authoring.InProgressStrokesView.cancelStroke].
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewGetsAction: Long = Long.MIN_VALUE
 
     public val isStrokesViewGetsActionSet: Boolean
@@ -115,7 +111,6 @@ public class LatencyData {
      * Nanosecond timestamp of when [androidx.ink.authoring.InProgressStrokesView] finishes all
      * geometry generation and renderer draw calls.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewFinishesDrawCalls: Long = Long.MIN_VALUE
 
     /**
@@ -123,7 +118,6 @@ public class LatencyData {
      * user. The nature of this estimate depends on the graphics backend, but this field is meant to
      * be comparable across graphics backends.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var estimatedPixelPresentationTime: Long = Long.MIN_VALUE
 
     public val canvasFrontBufferStrokesRenderHelperData: CanvasFrontBufferStrokesRenderHelperData =
@@ -139,7 +133,6 @@ public class LatencyData {
          * to the Hardware Composer, all layers are composited together, and the display scan
          * finishes.
          */
-        @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public var finishesDrawCalls: Long = Long.MIN_VALUE
 
         public val isFinishesDrawCallsSet: Boolean
@@ -161,7 +154,6 @@ public class LatencyData {
          * Nanosecond timestamp of when the render helper finishes draw calls to the
          * [android.view.View]. The updated appearance will be visible in the next animation frame.
          */
-        @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public var finishesDrawCalls: Long = Long.MIN_VALUE
 
         public override fun toString(): String {
@@ -174,8 +166,7 @@ public class LatencyData {
     }
 
     /** Resets all fields to their default values. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun reset() {
+    internal fun reset() {
         strokeAction = StrokeAction.UNKNOWN
         eventAction = EventAction.UNKNOWN
         strokeId = UNKNOWN_STROKE_ID
@@ -274,6 +265,7 @@ public class LatencyData {
         }
     }
 
+    @ExperimentalInkLatencyDataApi
     public companion object {
         @JvmField public val UNKNOWN_STROKE_ID: InProgressStrokeId = InProgressStrokeId.create()
     }

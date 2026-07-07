@@ -39,14 +39,15 @@ import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.toKString
 
 @OptIn(ExperimentalForeignApi::class)
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public val throwForNonOkStatusCallback:
     CPointer<CFunction<(COpaquePointer?, Int, CPointer<ByteVar>?) -> Unit>> =
     staticCFunction({ _, statusCode, statusString ->
         NativeExceptionHandling.throwForNonOkStatus(statusCode, statusString?.toKString() ?: "")
     })
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object StatusNative {
     actual fun statusCodeOk(): Int = StatusNative_statusCodeOk()
 

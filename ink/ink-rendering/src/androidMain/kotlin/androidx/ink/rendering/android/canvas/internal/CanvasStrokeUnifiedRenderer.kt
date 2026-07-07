@@ -22,6 +22,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
@@ -38,6 +39,7 @@ import androidx.ink.strokes.Stroke
  *   [androidx.ink.brush.BrushCoat.paintPreferences] and [androidx.ink.brush.BrushPaint.selfOverlap]
  *   instead.
  */
+@OptIn(ExperimentalInkAnimationApi::class)
 internal class CanvasStrokeUnifiedRenderer(
     private val textureStore: TextureBitmapStore = TextureBitmapStore { null },
     forcePathRendering: Boolean,

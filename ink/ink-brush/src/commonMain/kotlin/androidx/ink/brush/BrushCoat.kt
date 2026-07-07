@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.Size
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.geometry.MeshFormat
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -32,7 +33,10 @@ import kotlin.jvm.JvmStatic
  * [BrushCoat]s can be combined within a single brush; when a stroke drawn by a multi-coat brush is
  * rendered, each coat of ink will be drawn entirely atop the previous coat, even if the stroke
  * crosses over itself, as though each coat were painted in its entirety one at a time.
+ *
+ * @sample androidx.ink.brush.samples.createBrushCoatWithPaintFallback
  */
+@OptIn(InkInternalOnlyApi::class)
 public class BrushCoat
 private constructor(
     nativeAlloc: () -> Long,
@@ -40,7 +44,8 @@ private constructor(
     paintPreferences: List<BrushPaint>? = null,
 ) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, BrushCoatNative::free)
 
     /** The tip used to apply the paint. */
@@ -133,7 +138,8 @@ private constructor(
      * Whether the brush can be supported by the attributes in the given [MeshFormat]. For use in
      * Stroke.copy to determine if mesh regeneration is needed when the brush is changed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public fun isCompatibleWithMeshFormat(meshFormat: MeshFormat): Boolean {
         return BrushCoatNative.isCompatibleWithMeshFormat(nativePointer, meshFormat.nativePointer)
     }
@@ -197,7 +203,9 @@ private constructor(
         @JvmStatic public fun builder(): Builder = Builder()
 
         /** Construct a [BrushCoat], taking a callback that heap-allocates a C++ `BrushCoat`. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): BrushCoat = BrushCoat(nativeAlloc)
     }
 }

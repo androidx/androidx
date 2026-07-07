@@ -18,6 +18,7 @@ package androidx.ink.strokes
 
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import androidx.kruth.assertThat
 import java.nio.ByteOrder
@@ -31,6 +32,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 /** Unit tests for JVM-specific extensions to [InProgressStroke]. */
+@OptIn(InkInternalOnlyApi::class)
 class JvmInProgressStrokeTest {
 
     private fun makeStartAndExtendStroke() =

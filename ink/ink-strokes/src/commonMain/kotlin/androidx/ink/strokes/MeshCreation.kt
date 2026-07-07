@@ -19,6 +19,7 @@
 package androidx.ink.strokes
 
 import androidx.ink.geometry.PartitionedMesh
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmName
 
 /**
@@ -50,6 +51,7 @@ import kotlin.jvm.JvmName
  *   0 but can still be used for hit testing via intersection.
  * @receiver The [StrokeInputBatch] to create a closed shape from.
  */
+@OptIn(InkInternalOnlyApi::class)
 public fun StrokeInputBatch.createClosedShape(): PartitionedMesh {
     return PartitionedMesh.wrapNative {
         MeshCreationNative.createClosedShapeFromStrokeInputBatch(this.nativePointer)

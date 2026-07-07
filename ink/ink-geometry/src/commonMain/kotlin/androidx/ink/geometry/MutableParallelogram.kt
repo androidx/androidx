@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.atan2
 
@@ -26,6 +27,7 @@ import kotlin.math.atan2
  * [width], [height], [rotationDegrees], and [skew].
  */
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 public class MutableParallelogram
 private constructor(
     override var center: MutableVec,
@@ -44,7 +46,7 @@ private constructor(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableParallelogram =
         ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
             center.toImmutable(),
@@ -84,8 +86,9 @@ private constructor(
      */
     public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO_DEGREES, 0f)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @UsedByNative
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public fun setCenterDimensionsRotationInDegreesAndSkew(
         centerX: Float,
         centerY: Float,

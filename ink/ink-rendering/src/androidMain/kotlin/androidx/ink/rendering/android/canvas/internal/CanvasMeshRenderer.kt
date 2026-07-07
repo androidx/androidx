@@ -31,6 +31,7 @@ import androidx.annotation.Size
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableObjectLongMap
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
@@ -41,6 +42,7 @@ import androidx.ink.geometry.MeshAttributeUnpackingParams
 import androidx.ink.geometry.MeshFormat
 import androidx.ink.geometry.getRawTriangleIndexBuffer
 import androidx.ink.geometry.getRawVertexBuffer
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import androidx.ink.strokes.InProgressStroke
@@ -60,6 +62,7 @@ import java.util.WeakHashMap
  * different instances of this object.
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 internal class CanvasMeshRenderer(
     textureStore: TextureBitmapStore = TextureBitmapStore { null },
     /** Monotonic time with a non-epoch zero time. */
@@ -472,38 +475,39 @@ internal class CanvasMeshRenderer(
         var numTextureAnimationRowsName = INVALID_NAME
         var numTextureAnimationColumnsName = INVALID_NAME
 
-        for ((id, name, unpackingIndex) in
-            obtainShaderMetadata(meshFormat, isPacked).uniformMetadata) {
-            when (id) {
+        for (metadata in obtainShaderMetadata(meshFormat, isPacked).uniformMetadata) {
+            when (metadata.id) {
                 UniformId.OBJECT_TO_CANVAS_LINEAR_COMPONENT ->
-                    objectToCanvasLinearComponentUniformName = name
-                UniformId.BRUSH_COLOR -> colorUniformName = name
+                    objectToCanvasLinearComponentUniformName = metadata.name
+                UniformId.BRUSH_COLOR -> colorUniformName = metadata.name
                 UniformId.POSITION_UNPACKING_TRANSFORM -> {
                     check(isPacked) {
                         "Unpacking transform uniform is only supported for packed meshes."
                     }
-                    positionUnpackingParamsUniformName = name
-                    positionAttributeIndex = unpackingIndex
+                    positionUnpackingParamsUniformName = metadata.name
+                    positionAttributeIndex = metadata.unpackingAttributeIndex
                 }
                 UniformId.SIDE_DERIVATIVE_UNPACKING_TRANSFORM -> {
                     check(isPacked) {
                         "Unpacking transform uniform is only supported for packed meshes."
                     }
-                    sideDerivativeUnpackingParamsUniformName = name
-                    sideDerivativeAttributeIndex = unpackingIndex
+                    sideDerivativeUnpackingParamsUniformName = metadata.name
+                    sideDerivativeAttributeIndex = metadata.unpackingAttributeIndex
                 }
                 UniformId.FORWARD_DERIVATIVE_UNPACKING_TRANSFORM -> {
                     check(isPacked) {
                         "Unpacking transform uniform is only supported for packed meshes."
                     }
-                    forwardDerivativeUnpackingParamsUniformName = name
-                    forwardDerivativeAttributeIndex = unpackingIndex
+                    forwardDerivativeUnpackingParamsUniformName = metadata.name
+                    forwardDerivativeAttributeIndex = metadata.unpackingAttributeIndex
                 }
-                UniformId.TEXTURE_MAPPING -> textureMappingName = name
-                UniformId.TEXTURE_ANIMATION_PROGRESS -> textureAnimationProgressName = name
-                UniformId.NUM_TEXTURE_ANIMATION_FRAMES -> numTextureAnimationFramesName = name
-                UniformId.NUM_TEXTURE_ANIMATION_ROWS -> numTextureAnimationRowsName = name
-                UniformId.NUM_TEXTURE_ANIMATION_COLUMNS -> numTextureAnimationColumnsName = name
+                UniformId.TEXTURE_MAPPING -> textureMappingName = metadata.name
+                UniformId.TEXTURE_ANIMATION_PROGRESS -> textureAnimationProgressName = metadata.name
+                UniformId.NUM_TEXTURE_ANIMATION_FRAMES ->
+                    numTextureAnimationFramesName = metadata.name
+                UniformId.NUM_TEXTURE_ANIMATION_ROWS -> numTextureAnimationRowsName = metadata.name
+                UniformId.NUM_TEXTURE_ANIMATION_COLUMNS ->
+                    numTextureAnimationColumnsName = metadata.name
             }
         }
         // Color and object-to-canvas uniforms are required for all meshes.
@@ -601,7 +605,7 @@ internal class CanvasMeshRenderer(
             cachedMeshDatas != null && cachedMeshDatas.size == inProgressStroke.getBrushCoatCount()
         ) {
             val inProgressMeshData = cachedMeshDatas[coatIndex]
-            if (inProgressMeshData.version == inProgressStroke.version) {
+            if (inProgressMeshData.version == inProgressStroke.getVersion()) {
                 return inProgressMeshData
             }
         }
@@ -622,7 +626,7 @@ internal class CanvasMeshRenderer(
                             add(createAndroidMesh(inProgressStroke, coatIndex, meshIndex))
                         }
                     }
-                add(InProgressMeshData(inProgressStroke.version, androidMeshes))
+                add(InProgressMeshData(inProgressStroke.getVersion(), androidMeshes))
             }
         }
 
@@ -852,8 +856,8 @@ internal class CanvasMeshRenderer(
      * Contains the [android.graphics.Mesh] data for an [InProgressStroke], along with metadata used
      * to verify if that data is still valid.
      */
-    private data class InProgressMeshData(
-        /** If this does not match [InProgressStroke.version], the data is invalid. */
+    private class InProgressMeshData(
+        /** If this does not match [InProgressStroke.getVersion], the data is invalid. */
         val version: Long,
         /**
          * At each index, the [android.graphics.Mesh] for the corresponding partition index of the
@@ -876,12 +880,12 @@ internal class CanvasMeshRenderer(
         private const val EVICTION_SCAN_PERIOD_MS = 2000
 
         /** All the metadata about values sent to the shader for a given mesh. Used for caching. */
-        internal data class ShaderMetadata(
+        internal class ShaderMetadata(
             val meshSpecification: MeshSpecification,
             val uniformMetadata: List<UniformMetadata>,
         )
 
-        internal data class UniformMetadata(
+        internal class UniformMetadata(
             val id: UniformId,
             val name: String,
             val unpackingAttributeIndex: Int,
@@ -1096,6 +1100,7 @@ internal class CanvasMeshRenderer(
 
 /** Singleton wrapper around native JNI calls. */
 @UsedByNative
+@OptIn(InkInternalOnlyApi::class)
 internal object CanvasMeshRendererNative {
     init {
         NativeLoader.load()

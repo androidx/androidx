@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
 class StrokeGestureCallbackTest() : InProgressStrokesViewTestBase() {
 
     @Test

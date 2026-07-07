@@ -21,8 +21,8 @@ import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.Stroke
 
 /** Internal implementation of [ShapeWorkflow] for constructing Ink's standard [Stroke]. */
-@ExperimentalCustomShapeWorkflowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkCustomShapeWorkflowApi
 public class InkShapeWorkflow(customRendererFactory: () -> CanvasStrokeRenderer) :
     ShapeWorkflow<Brush, InkInProgressShape, Stroke> {
 

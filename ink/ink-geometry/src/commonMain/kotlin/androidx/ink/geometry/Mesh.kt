@@ -19,6 +19,7 @@ package androidx.ink.geometry
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 
 /**
@@ -33,6 +34,7 @@ import androidx.ink.nativeloader.NativePointer
  * utility.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@InkInternalOnlyApi
 public class Mesh private constructor(pointerAlloc: () -> Long) {
 
     /**
@@ -40,7 +42,7 @@ public class Mesh private constructor(pointerAlloc: () -> Long) {
      * owned solely by this JVM [Mesh] object. The C++ `Mesh` object is cheap to copy because
      * internally it keeps a `shared_ptr` to its (immutable) data.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(pointerAlloc, MeshNative::free)
 
     public val format: MeshFormat =
@@ -99,24 +101,17 @@ public class Mesh private constructor(pointerAlloc: () -> Long) {
     }
 
     /** Declared primarily as a target for extension functions. */
+    @InkInternalOnlyApi
     public companion object {
         // The maximum number of components in [MeshAttributeUnpackingParams].
         internal const val MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS = 4
-
-        /**
-         * Construct a [Mesh], taking a callback that heap-allocates and returns a pointer to a C++
-         * `Mesh`.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun wrapNative(pointerAlloc: () -> Long): Mesh = Mesh(pointerAlloc)
 
         /**
          * Construct a [Mesh] by copying the heap-allocated `Mesh` at the given native pointer.
          *
          * @param otherNativePointer The native pointer to a C++ `Mesh` to copy.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun copyFromNative(otherNativePointer: Long): Mesh = Mesh {
+        internal fun copyFromNative(otherNativePointer: Long): Mesh = Mesh {
             MeshNative.newCopy(otherNativePointer)
         }
     }

@@ -20,7 +20,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
 import java.util.concurrent.Executor
 import kotlin.collections.ArrayDeque
@@ -72,7 +72,7 @@ import kotlinx.coroutines.sync.withLock
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalLatencyDataApi
+@ExperimentalInkLatencyDataApi
 public class HistogramLatencyAggregator
 private constructor(private val implementationHelper: ImplementationHelper) : LatencyAggregator {
 
@@ -102,6 +102,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     @VisibleForTesting
     internal fun numLateHistogramAllocations() = implementationHelper.numLateHistogramAllocations
 
+    @ExperimentalInkLatencyDataApi
     public companion object {
         /**
          * Returns a new [HistogramLatencyAggregator]. For use by Kotlin clients. [callback] will be
@@ -120,6 +121,8 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          * @param callback The [Callback] with which to report the histogram.
          */
         @JvmStatic
+        @JvmName("createFromDuration")
+        @Suppress("ExecutorRegistration") // Takes a CouroutineScope instead
         public fun create(
             window: Duration,
             inclusiveLowerBoundsNanos: List<Long>,

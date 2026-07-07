@@ -34,11 +34,18 @@ import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.brush.behavior.ToolTypeFilterNode
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkBrushCompatibilityApi::class,
+    ExperimentalInkAnimationApi::class,
+    ExperimentalInkCustomBrushApi::class,
+)
 class BrushFamilyTest {
     @Test
     fun brushFamilyNativePointers_cleanedUpWhenOutOfScope() {

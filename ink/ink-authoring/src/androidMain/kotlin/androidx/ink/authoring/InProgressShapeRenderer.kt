@@ -19,7 +19,7 @@ package androidx.ink.authoring
 import android.graphics.Canvas
 import android.graphics.Matrix
 
-@ExperimentalCustomShapeWorkflowApi
+@ExperimentalInkCustomShapeWorkflowApi
 /** Implement this interface to render an [InProgressShape]. */
 public interface InProgressShapeRenderer<in InProgressShapeT : InProgressShape<*, *>> {
     /**

@@ -38,7 +38,7 @@ private constructor(
     override val skew: Float,
 ) : Parallelogram() {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableParallelogram = this
 
     override fun equals(other: Any?): Boolean =

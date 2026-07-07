@@ -18,6 +18,7 @@ package androidx.ink.authoring.testing
 
 import android.graphics.PointF
 import android.view.MotionEvent
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Correspondence
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(InkInternalOnlyApi::class)
 class MultiTouchInputBuilderTest {
 
     @Test
@@ -106,7 +108,7 @@ class MultiTouchInputBuilderTest {
         val actualOrientations = mutableListOf<MutableList<Float>>()
         val actualTilts = mutableListOf<MutableList<Float>>()
 
-        MultiTouchInputBuilder(
+        MultiTouchInputCreator(
                 pointerCount = 1,
                 toolType = MotionEvent.TOOL_TYPE_STYLUS,
                 historyIncrements = 2,
@@ -213,7 +215,7 @@ class MultiTouchInputBuilderTest {
         val actualTimes = mutableListOf<Long>()
         val actualToolTypesForPointerIds = mutableMapOf<Int, MutableList<Int?>>()
         val actualPositionsForPointerIds = mutableMapOf<Int, MutableList<PointF?>>()
-        MultiTouchInputBuilder.pinchOutWithFactor(400F, 500F).runGestureWith {
+        MultiTouchInputCreator.pinchOutWithFactor(400F, 500F).runGestureWith {
             actualActionsAndPointerIds.add(
                 Pair(
                     it.actionMasked,
@@ -320,7 +322,7 @@ class MultiTouchInputBuilderTest {
         val actualTimes = mutableListOf<Long>()
         val actualToolTypesForPointerIds = mutableMapOf<Int, MutableList<Int?>>()
         val actualPositionsForPointerIds = mutableMapOf<Int, MutableList<PointF?>>()
-        MultiTouchInputBuilder.pinchInWithFactor(400F, 500F).runGestureWith {
+        MultiTouchInputCreator.pinchInWithFactor(400F, 500F).runGestureWith {
             actualActionsAndPointerIds.add(
                 Pair(
                     it.actionMasked,
@@ -427,7 +429,7 @@ class MultiTouchInputBuilderTest {
         val actualTimes = mutableListOf<Long>()
         val actualToolTypesForPointerIds = mutableMapOf<Int, MutableList<Int?>>()
         val actualPositionsForPointerIds = mutableMapOf<Int, MutableList<PointF?>>()
-        MultiTouchInputBuilder.rotate90DegreesClockwise(400F, 500F).runGestureWith {
+        MultiTouchInputCreator.rotate90DegreesClockwise(400F, 500F).runGestureWith {
             actualActionsAndPointerIds.add(
                 Pair(
                     it.actionMasked,

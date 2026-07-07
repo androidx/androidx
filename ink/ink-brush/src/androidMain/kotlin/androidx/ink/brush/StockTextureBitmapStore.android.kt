@@ -24,11 +24,11 @@ import androidx.annotation.RestrictTo
  * A [TextureBitmapStore] that automatically loads texture bitmaps for [StockBrushes].
  *
  * Pass this to your stroke renderer (e.g.
- * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer] and/or
- * [androidx.ink.authoring.InProgressStrokesView]) to give it access to the textures.
+ * `androidx.ink.rendering.android.canvas.CanvasStrokeRenderer` and/or
+ * `androidx.ink.authoring.InProgressStrokesView`) to give it access to the textures.
  */
-// Not public until we're actually publishing stock brushes with stock textures.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkCustomBrushApi
 public class StockTextureBitmapStore(private val resources: Resources) : TextureBitmapStore {
     private val idToBitmap = mutableMapOf<String, Bitmap>()
 

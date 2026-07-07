@@ -18,7 +18,9 @@ package androidx.ink.strokes
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -32,9 +34,11 @@ import kotlin.jvm.JvmOverloads
  * for data that cannot change, or a [MutableStrokeInputBatch] for data that is meant to be modified
  * or incrementally built.
  */
+@OptIn(InkInternalOnlyApi::class)
 public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> Long) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, StrokeInputBatchNative::free)
 
     /** Number of [StrokeInput] objects in the batch. */
@@ -104,6 +108,7 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
      * each other.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
     public fun getBaseAnimationPhase(): Float =
         StrokeInputBatchNative.getBaseAnimationPhase(nativePointer)
@@ -126,7 +131,7 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
         return outStrokeInput
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableStrokeInputBatch
 
     // Declared as a target for extension functions.
@@ -140,14 +145,16 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
 public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Long) :
     StrokeInputBatch(nativeAlloc) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun toImmutable(): ImmutableStrokeInputBatch = this
 
     public override fun toString(): String = "ImmutableStrokeInputBatch(size=$size)"
 
     public companion object {
         /** Wrap a native `ink::StrokeInputBatch` with an [ImmutableStrokeInputBatch]. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        @Suppress("MissingJvmstatic") // Internal-only API
         public fun wrapNative(nativeAlloc: () -> Long): ImmutableStrokeInputBatch {
             return ImmutableStrokeInputBatch(nativeAlloc)
         }
@@ -183,6 +190,7 @@ public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Lo
  * 7) The [StrokeInput.toolType] and [StrokeInput.strokeUnitLengthCm] values must be the same across
  *    all inputs.
  */
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::create) {
 
     public fun clear(): Unit = MutableStrokeInputBatchNative.clear(nativePointer)
@@ -346,12 +354,13 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
      * they will still maintain the same relative phases.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
     public fun setBaseAnimationPhase(
         @FloatRange(from = 0.0, to = 1.0, toInclusive = false) phase: Float
     ): Unit = MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun toImmutable(): ImmutableStrokeInputBatch =
         if (isEmpty() && getNoiseSeed() == 0 && getBaseAnimationPhase() == 0.0f) {
             ImmutableStrokeInputBatch.EMPTY
