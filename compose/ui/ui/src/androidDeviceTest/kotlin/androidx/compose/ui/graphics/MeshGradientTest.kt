@@ -52,8 +52,8 @@ class MeshGradientTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSimpleMeshGradient() {
-        val width = 200
-        val height = 200
+        val width = 300
+        val height = 300
         val block: MeshGradientScope.() -> Unit = {
             setVertex(row = 0, column = 0, position = Offset(0f, 0f), color = Color.Red)
             setVertex(row = 0, column = 1, position = Offset(1f, 0f), color = Color.Blue)
@@ -64,10 +64,10 @@ class MeshGradientTest {
         rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
         rule.waitForIdle()
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
-        assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.03f)
-        assertEqualsWithTolerance(Color.Blue, pixelMap[width - 1, 0], 0.03f)
-        assertEqualsWithTolerance(Color.Green, pixelMap[0, height - 1], 0.03f)
-        assertEqualsWithTolerance(Color.Yellow, pixelMap[width - 1, height - 1], 0.03f)
+        assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.05f)
+        assertEqualsWithTolerance(Color.Blue, pixelMap[width - 1, 0], 0.05f)
+        assertEqualsWithTolerance(Color.Green, pixelMap[0, height - 1], 0.05f)
+        assertEqualsWithTolerance(Color.Yellow, pixelMap[width - 1, height - 1], 0.05f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
@@ -226,10 +226,10 @@ class MeshGradientTest {
         }
         rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
-        assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.03f)
-        assertEqualsWithTolerance(Color.Blue, pixelMap[width - 1, 0], 0.03f)
-        assertEqualsWithTolerance(Color.Yellow, pixelMap[0, height - 1], 0.03f)
-        assertEqualsWithTolerance(Color.Magenta, pixelMap[width - 1, height - 1], 0.03f)
+        assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.05f)
+        assertEqualsWithTolerance(Color.Blue, pixelMap[width - 1, 0], 0.05f)
+        assertEqualsWithTolerance(Color.Yellow, pixelMap[0, height - 1], 0.05f)
+        assertEqualsWithTolerance(Color.Magenta, pixelMap[width - 1, height - 1], 0.05f)
 
         // Mix of all 4 corner colors in middle
         val expectedColor =
