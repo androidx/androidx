@@ -54,7 +54,9 @@ public interface VideoOutput {
         /** The video frame producer is active but is not producing frames. */
         ACTIVE_NON_STREAMING,
         /** The video frame producer is inactive. */
-        INACTIVE
+        INACTIVE,
+        /** The video frame producer is undergoing configuration. */
+        CONFIGURING
     }
 
     /**
