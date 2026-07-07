@@ -5636,8 +5636,8 @@ HSPLandroidx/compose/runtime/EffectsKt;->LaunchedEffect(Ljava/lang/Object;Lkotli
 HSPLandroidx/compose/runtime/EffectsKt;->SideEffect(Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
 HSPLandroidx/compose/runtime/EffectsKt;->access$getInternalDisposableEffectScope$p()Landroidx/compose/runtime/DisposableEffectScope;
 HSPLandroidx/compose/runtime/EffectsKt;->createCompositionCoroutineScope(Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;)Lkotlinx/coroutines/CoroutineScope;
+PLandroidx/compose/runtime/ExitedCompositionCancellationException;-><init>()V
 Landroidx/compose/runtime/FloatState;
-PLandroidx/compose/runtime/ForgottenCoroutineScopeException;-><init>()V
 Landroidx/compose/runtime/GapComposer;
 HSPLandroidx/compose/runtime/GapComposer;-><clinit>()V
 HSPLandroidx/compose/runtime/GapComposer;-><init>(Landroidx/compose/runtime/Applier;Landroidx/compose/runtime/CompositionContext;Landroidx/compose/runtime/SlotTable;Ljava/util/Set;Landroidx/compose/runtime/changelist/ChangeList;Landroidx/compose/runtime/changelist/ChangeList;Landroidx/compose/runtime/CompositionObserverHolder;Landroidx/compose/runtime/CompositionImpl;)V
@@ -5869,7 +5869,6 @@ HSPLandroidx/compose/runtime/LazyValueHolder;-><clinit>()V
 HSPLandroidx/compose/runtime/LazyValueHolder;-><init>(Lkotlin/jvm/functions/Function0;)V
 HSPLandroidx/compose/runtime/LazyValueHolder;->getCurrent()Ljava/lang/Object;
 HSPLandroidx/compose/runtime/LazyValueHolder;->readValue(Landroidx/compose/runtime/PersistentCompositionLocalMap;)Ljava/lang/Object;
-PLandroidx/compose/runtime/LeftCompositionCancellationException;-><init>()V
 Landroidx/compose/runtime/LongState;
 Landroidx/compose/runtime/MonotonicFrameClock;
 HSPLandroidx/compose/runtime/MonotonicFrameClock;-><clinit>()V
