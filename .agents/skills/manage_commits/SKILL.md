@@ -173,8 +173,60 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
     ```bash
     repo upload --cbr -t .
     ```
-    *Note*: `--cbr` uploads the current branch, `-t` sets the Gerrit topic to the branch name, and `.` specifies the project in the current directory.
-  - If the above command fails or requires interactive prompts, prompt the issue to the user immediately, and ask the user for their answer.
+    *Note*: `--cbr` uploads the current branch, and `.` specifies the project in the current directory.
+    *Tip*: The command may prompt interactively to run hook scripts. You can automate this bypass using either `yes yes | repo upload --cbr -t .` or using the native flags `repo upload --verify -y --cbr -t .`.
+  - **Topic (`-t`) Nuances**:
+    - The `-t` flag sets the Gerrit topic to the local branch name.
+    - **Cross-Repo Linking (Screenshot Goldens, Prebuilts, etc.)**: Use `-t` (sharing the same topic name) to link code changes in `frameworks/support` with related changes in other repositories (such as `support-goldens` or `prebuilts`) to ensure presubmits run them together and they are submitted as a single unit.
+    - **Stacked CLs**: Do not use `-t` on more than one CL in a stacked chain (multiple dependent CLs). Stacked CLs already accomplish dependency tracking automatically and can be tested and submitted incrementally.
+  - **Fallback**: If the above command fails or requires interactive prompts, **do not attempt to proceed interactively**. Report the issue to the user immediately. Agents cannot handle interactive prompts from `repo upload`.
 
 Once uploaded successfully, present the Gerrit URL to the user and explain that Treehugger presubmit checks will run automatically on the Gerrit change page.
+
+### 6. Presubmit Triggering & Monitoring
+
+After committing changes locally, the agent should coordinate verification and upload:
+
+- **Pre-Upload Verification**:
+  - Always check if the modified files are formatted correctly using the `ktCheckFile --format` task (or standard `ktFormat` as described in Step 2) to avoid formatting failures.
+  - **Pre-run Presubmits**: Run `./development/validate_changes.sh` to catch common issues before uploading.
+    ```bash
+    ./development/validate_changes.sh
+    ```
+  - Ask the user if they want to run local unit/instrumentation tests. Use the `run_tests` skill to identify and run Gradle tasks.
+  - If public APIs have changed, suggest running the `api_review` skill to update API signature files and review guidelines compliance.
+  - **Ask for Presubmits**: Ask the user if they want to start presubmit checks and have you monitor the results.
+    - If **yes**, use the CLI option to trigger presubmits immediately upon upload:
+      ```bash
+      repo upload --cbr -o label=Presubmit-Ready+1
+      ```
+    - If **no** (or if you already uploaded without the option), run upload normally:
+      ```bash
+      repo upload --cbr
+      ```
+      You can later trigger it manually in the Gerrit UI by voting `Presubmit-Ready+1`.
+    - **Note on Interactive Prompts**: The upload command can block on interactive verification hooks or upload confirmation prompts. If automating the execution, you should either type "yes" when prompted, or prefix the command using `yes yes | repo upload ...` to bypass them.
+
+- **Post-Upload Monitoring**:
+  - A helper script `.agents/skills/manage_commits/scripts/watch_gerrit.py` is available to automate polling and monitoring Gerrit presubmits.
+  - **Why to run**: To automate tracking the build status of your CL without checking the Gerrit webpage repeatedly, and automatically trigger presubmits if not already active.
+  - **How to run**:
+    To monitor the current branch:
+    ```bash
+    .agents/skills/manage_commits/scripts/watch_gerrit.py
+    ```
+    To watch a specific CL number or Change-Id:
+    ```bash
+    .agents/skills/manage_commits/scripts/watch_gerrit.py <cl_number_or_change_id>
+    ```
+  - **Options**:
+    - `-p <patchset_number>`: Watch a specific patchset (defaults to current).
+    - `-i <interval_seconds>`: Custom polling interval (defaults to 180s).
+    - `--trigger`: Automatically trigger presubmits without prompting.
+    - `--no-trigger`: Only monitor status without triggering.
+    - `-c`, `--comments`: Watch for reviewer comments (enabled by default). Use `--no-comments` to disable.
+  - **Comment Handling Strategy**: `watch_gerrit.py` monitors both presubmit status and reviewer comments by default. When watching changes or when comments arrive, prompt the user to choose a strategy: (1) don't monitor comments, (2) report to user, (3) fix simple obvious comments, or (4) address all comments automatically.
+  - **Checking results**: The script exits with `0` on success (`Presubmit-Verified+1`), `1` on build failure, or `2` if a new patchset is uploaded (superseded).
+  - If a presubmit check fails, review the failures, diagnose them (using the `auto-repair` or `sponge` skills), and report findings.
+
 
