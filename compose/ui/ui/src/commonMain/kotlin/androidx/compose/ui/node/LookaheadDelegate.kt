@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableObjectIntMapOf
@@ -209,7 +210,7 @@ internal abstract class LookaheadCapablePlaceable :
 
     private fun getOrCreateRulerScope(ruler: Ruler): ResettableRulerScope =
         rulerScopes
-            .getOrPut(ruler) { ResettableRulerScope() }
+            .getOrPut(ruler) { ResettableRulerScope(ruler) }
             .also { it.coordinatesAccessed = false }
 
     private fun addRulerReader(layoutNode: LayoutNode, ruler: Ruler) {
@@ -352,12 +353,7 @@ internal abstract class LookaheadCapablePlaceable :
                                 rulerScope.positionOnScreen = positionOnScreen
                                 rulerScope.coordinatesAccessed = false
                                 if (reevaluate) {
-                                    rulerValues?.remove(ruler)
-                                    val layoutNodes = rulerReaders?.get(ruler)
-                                    if (layoutNodes != null) {
-                                        notifyRulerValueChange(layoutNodes)
-                                        layoutNodes.clear()
-                                    }
+                                    resetSingleRulerRead(ruler)
                                 }
                             }
                         }
@@ -424,6 +420,7 @@ internal abstract class LookaheadCapablePlaceable :
     // we can give each provide its own RulerScope and invalidation scope.
     fun resetProvidedRulers() {
         rulerValues?.clear()
+        _rulerScopes?.forEachValue { rulerScope -> rulerScope.providedRulers?.clear() }
         val rulerReaders = rulerReaders ?: return
         rulerReaders.forEachValue { notifyRulerValueChange(it) }
         rulerReaders.clear()
@@ -452,11 +449,20 @@ internal abstract class LookaheadCapablePlaceable :
     }
 
     private fun resetSingleRulerRead(ruler: Ruler) {
+        rulerValues?.remove(ruler)
         val layoutNodes = rulerReaders?.get(ruler)
         if (layoutNodes != null) {
-            rulerValues?.remove(ruler)
             notifyRulerValueChange(layoutNodes)
             layoutNodes.clear()
+        }
+
+        val scope = _rulerScopes?.get(ruler)
+        val providedRulers = scope?.providedRulers
+        if (providedRulers != null) {
+            while (providedRulers.isNotEmpty()) {
+                val dependency = providedRulers.removeAt(providedRulers.size - 1)
+                resetSingleRulerRead(dependency)
+            }
         }
     }
 
@@ -487,10 +493,12 @@ internal abstract class LookaheadCapablePlaceable :
             }
     }
 
-    internal inner class ResettableRulerScope : RulerScope {
+    internal inner class ResettableRulerScope(val requestedRuler: Ruler? = null) : RulerScope {
         var coordinatesAccessed = false
         var positionOnScreen = IntOffset.Max
         var size = IntSize.Zero
+        var providedRulers: MutableObjectList<Ruler>? = null
+            private set
 
         override val coordinates: LayoutCoordinates
             get() {
@@ -506,10 +514,24 @@ internal abstract class LookaheadCapablePlaceable :
 
         override fun Ruler.provides(value: Float) {
             this@LookaheadCapablePlaceable.provideRulerValue(this, value)
+            if (requestedRuler != null && this != requestedRuler) {
+                val list =
+                    providedRulers ?: MutableObjectList<Ruler>(2).also { providedRulers = it }
+                if (!list.contains(this)) {
+                    list += this
+                }
+            }
         }
 
         override fun VerticalRuler.providesRelative(value: Float) {
             this@LookaheadCapablePlaceable.provideRelativeRulerValue(this, value)
+            if (requestedRuler != null && this != requestedRuler) {
+                val list =
+                    providedRulers ?: MutableObjectList<Ruler>(2).also { providedRulers = it }
+                if (!list.contains(this)) {
+                    list += this
+                }
+            }
         }
 
         override val density: Float

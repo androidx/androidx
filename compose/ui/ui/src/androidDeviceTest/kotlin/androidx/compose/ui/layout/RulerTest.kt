@@ -672,6 +672,311 @@ class RulerTest(val useIndividualRulers: Boolean) {
             }
         }
 
+    @Test
+    fun sideEffectRulersInvalidate() {
+        if (!useIndividualRulers) return
+
+        var stateValue by mutableFloatStateOf(10f)
+        var readValue1 = 0f
+        var readValue2 = 0f
+
+        val ruler1 = verticalRuler
+        val ruler2 = horizontalRuler
+
+        rule.setContent {
+            Box(
+                Modifier.layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(
+                        p.width,
+                        p.height,
+                        isRulerProvided = { it == ruler1 || it == ruler2 },
+                        rulerProvider = { ruler ->
+                            ruler1.provides(stateValue)
+                            ruler2.provides(stateValue)
+                        },
+                    ) {
+                        p.place(0, 0)
+                    }
+                }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue1 = ruler1.current(0f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue2 = ruler2.current(0f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue1).isEqualTo(10f)
+        assertThat(readValue2).isEqualTo(10f)
+
+        stateValue = 20f
+        rule.waitForIdle()
+
+        assertThat(readValue1).isEqualTo(20f)
+        assertThat(readValue2).isEqualTo(20f)
+    }
+
+    @Test
+    fun sideEffectRulersInvalidate_coordinateChange() {
+        if (!useIndividualRulers) return
+
+        var offset by mutableStateOf(0)
+        var readValue1 = 0f
+        var readValue2 = 0f
+
+        val ruler1 = verticalRuler
+        val ruler2 = horizontalRuler
+
+        rule.setContent {
+            Box(
+                Modifier.offset { IntOffset(offset, 0) }
+                    .layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(
+                            p.width,
+                            p.height,
+                            isRulerProvided = { it == ruler1 || it == ruler2 },
+                            rulerProvider = { ruler ->
+                                ruler1.provides(coordinates.positionInParent().x)
+                                ruler2.provides(coordinates.positionInParent().x)
+                            },
+                        ) {
+                            p.place(0, 0)
+                        }
+                    }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue1 = ruler1.current(0f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue2 = ruler2.current(0f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue1).isEqualTo(0f)
+        assertThat(readValue2).isEqualTo(0f)
+
+        offset = 10
+        rule.waitForIdle()
+
+        assertThat(readValue1).isEqualTo(10f)
+        assertThat(readValue2).isEqualTo(10f)
+    }
+
+    @Test
+    fun nestedSideEffectRulersInvalidate() {
+        if (!useIndividualRulers) return
+
+        var stateValue by mutableFloatStateOf(10f)
+        var stateValue2 by mutableFloatStateOf(10f)
+        var readA by mutableStateOf(false)
+        var readB by mutableStateOf(false)
+        var readC by mutableStateOf(false)
+        var readValueA = 0f
+        var readValueB = 0f
+        var readValueC = 0f
+
+        val rulerA = verticalRuler
+        val rulerB = horizontalRuler
+        val rulerC = VerticalRuler()
+
+        rule.setContent {
+            Box(
+                Modifier.layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(
+                        p.width,
+                        p.height,
+                        isRulerProvided = { it == rulerA || it == rulerB || it == rulerC },
+                        rulerProvider = { ruler ->
+                            if (ruler == rulerA) {
+                                rulerA.provides(stateValue)
+                                rulerB.provides(stateValue)
+                            } else if (ruler == rulerB || ruler == rulerC) {
+                                rulerB.provides(stateValue2)
+                                rulerC.provides(stateValue2)
+                            }
+                        },
+                    ) {
+                        p.place(0, 0)
+                    }
+                }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            if (readA) {
+                                readValueA = rulerA.current(0f)
+                            }
+                            p.place(0, 0)
+                        }
+                    }
+                )
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            if (readB) {
+                                readValueB = rulerB.current(0f)
+                            }
+                            p.place(0, 0)
+                        }
+                    }
+                )
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            if (readC) {
+                                readValueC = rulerC.current(0f)
+                            }
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // 1. Read A. (Provides A=10, B=10)
+        readA = true
+        rule.waitForIdle()
+        assertThat(readValueA).isEqualTo(10f)
+
+        // 2. Stop reading A, invalidate A (stateValue = 20)
+        readA = false
+        stateValue = 20f
+        rule.waitForIdle()
+
+        // 3. Read B. B is not in values, runs B's provider (provides B=10, C=10)
+        readB = true
+        rule.waitForIdle()
+        assertThat(readValueB).isEqualTo(10f)
+
+        // 4. Stop reading B, read C. C is in values (10)
+        readB = false
+        readC = true
+        rule.waitForIdle()
+        assertThat(readValueC).isEqualTo(10f)
+
+        // 5. Read A again. A's provider runs (provides A=20, B=20)
+        readA = true
+        rule.waitForIdle()
+        assertThat(readValueA).isEqualTo(20f)
+
+        // 6. Invalidate A again (stateValue = 30) -> should invalidate A, B, C
+        stateValue = 30f
+        // 7. Change B's provider state (stateValue2 = 40)
+        stateValue2 = 40f
+        rule.waitForIdle()
+
+        // 8. Verify C is updated to 40 (meaning it was invalidated and re-evaluated)
+        assertThat(readValueC).isEqualTo(40f)
+    }
+
+    @Test
+    fun circularDependencyWithNaN_doesNotStackOverflow() {
+        if (!useIndividualRulers) return
+
+        val rulerA = verticalRuler
+        val rulerB = horizontalRuler
+
+        var readValueA = 0f
+        var readValueB = 0f
+        var readA by mutableStateOf(false)
+        var readB by mutableStateOf(false)
+        var stateValue by mutableFloatStateOf(10f)
+
+        rule.setContent {
+            Box(
+                Modifier.layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(
+                        p.width,
+                        p.height,
+                        isRulerProvided = { it == rulerA || it == rulerB },
+                        rulerProvider = { ruler ->
+                            if (ruler == rulerA) {
+                                rulerA.provides(stateValue)
+                                rulerB.provides(Float.NaN)
+                            } else if (ruler == rulerB) {
+                                rulerB.provides(Float.NaN)
+                                rulerA.provides(stateValue)
+                            }
+                        },
+                    ) {
+                        p.place(0, 0)
+                    }
+                }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            if (readA) {
+                                readValueA = rulerA.current(0f)
+                            }
+                            p.place(0, 0)
+                        }
+                    }
+                )
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            if (readB) {
+                                readValueB = rulerB.current(0f)
+                            }
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // 1. Read A to register A's provider and side-effects
+        readA = true
+        rule.waitForIdle()
+
+        // 2. Read B to register B's provider and side-effects (runs because B is NaN)
+        readB = true
+        rule.waitForIdle()
+
+        // 3. Trigger invalidation. Under the buggy implementation, this causes StackOverflowError.
+        stateValue = 20f
+        rule.waitForIdle()
+    }
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "useIndividualRulers={0}")
