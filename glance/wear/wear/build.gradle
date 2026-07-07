@@ -79,7 +79,7 @@ android {
     namespace = "androidx.glance.wear"
     compileSdk { version = release(37) }
     defaultConfig {
-        minSdk { version = release(33) }
+        minSdk { version = release(29) }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 }
