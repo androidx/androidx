@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.RichTimePickerDialog
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -218,7 +217,7 @@ fun TimePickerSwitchableSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -261,7 +260,7 @@ fun RichTimePickerSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -304,7 +303,7 @@ fun RichTimeInputSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -371,7 +370,7 @@ fun RichTimePickerSwitchableSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
