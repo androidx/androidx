@@ -47,6 +47,7 @@ import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchOperation;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.loom.LoomManager;
@@ -113,7 +114,14 @@ public class CoreDocument implements Serializable {
     private static final int DEFAULT_FEATURE_PRIORITY_FIX = 1;
     private static final int DEFAULT_FEATURE_LT_RESIZE = 1;
     private static final int DEFAULT_FEATURE_ARRAY_LISTENERS = 1;
+    public static final int OPTIMIZATION_NONE = 0;
+    public static final int OPTIMIZATION_MEASURE_CACHE = 1;
+    public static final int OPTIMIZATION_LAYOUT_BOUNDARIES = 2;
+    public static final int OPTIMIZATION_ALL =
+            OPTIMIZATION_MEASURE_CACHE | OPTIMIZATION_LAYOUT_BOUNDARIES;
+
     private static final int DEFAULT_FEATURE_MEASURE_VERSION = LayoutManager.DEFAULT_MEASURE_TYPE;
+    private static final int DEFAULT_FEATURE_OPTIMIZATION_LEVEL = OPTIMIZATION_ALL;
     private static final int DEFAULT_FEATURE_TOUCH_VERSION = LayoutManager.DEFAULT_TOUCH_VERSION;
     private static final int DEFAULT_DENSITY_BEHAVIOR = DENSITY_BEHAVIOR_LEGACY;
 
@@ -268,6 +276,60 @@ public class CoreDocument implements Serializable {
     /** Returns a version number that is monotonically increasing. */
     public static int getDocumentApiLevel() {
         return DOCUMENT_API_LEVEL;
+    }
+
+    private static int sOptimizationLevel = OPTIMIZATION_ALL;
+
+    /** Set the global layout optimization level (bitmask of OPTIMIZATION_* flags). */
+    public static void setOptimizationLevel(int mask) {
+        sOptimizationLevel = mask;
+        ComponentMeasure.setMeasureCacheEnabled((mask & OPTIMIZATION_MEASURE_CACHE) != 0);
+        Component.setRelayoutBoundaryEnabled((mask & OPTIMIZATION_LAYOUT_BOUNDARIES) != 0);
+    }
+
+    /** Get the global layout optimization level. */
+    public static int getOptimizationLevel() {
+        return sOptimizationLevel;
+    }
+
+    /** Returns whether relayout boundary optimizations are enabled. */
+    public static boolean isRelayoutBoundaryEnabled() {
+        return Component.isRelayoutBoundaryEnabled();
+    }
+
+    /** Enable or disable relayout boundary optimizations globally. */
+    public static void setRelayoutBoundaryEnabled(boolean enabled) {
+        if (enabled) {
+            sOptimizationLevel |= OPTIMIZATION_LAYOUT_BOUNDARIES;
+        } else {
+            sOptimizationLevel &= ~OPTIMIZATION_LAYOUT_BOUNDARIES;
+        }
+        Component.setRelayoutBoundaryEnabled(enabled);
+    }
+
+    /** Returns whether component measure constraint caching is enabled. */
+    public static boolean isMeasureCacheEnabled() {
+        return ComponentMeasure.isMeasureCacheEnabled();
+    }
+
+    /** Enable or disable component measure constraint caching globally. */
+    public static void setMeasureCacheEnabled(boolean enabled) {
+        if (enabled) {
+            sOptimizationLevel |= OPTIMIZATION_MEASURE_CACHE;
+        } else {
+            sOptimizationLevel &= ~OPTIMIZATION_MEASURE_CACHE;
+        }
+        ComponentMeasure.setMeasureCacheEnabled(enabled);
+    }
+
+    /** Set the measure policy version (0 = Legacy, 1 = Modern). */
+    public void setMeasureVersion(int version) {
+        mMeasureVersion = version;
+    }
+
+    /** Get the current measure policy version. */
+    public int getMeasureVersion() {
+        return mMeasureVersion;
     }
 
     @Nullable
@@ -821,6 +883,9 @@ public class CoreDocument implements Serializable {
         if (featureId == Header.FEATURE_MEASURE_VERSION) {
             return mHeader.getInt(featureId, DEFAULT_FEATURE_MEASURE_VERSION);
         }
+        if (featureId == Header.FEATURE_OPTIMIZATION_LEVEL) {
+            return mHeader.getInt(featureId, DEFAULT_FEATURE_OPTIMIZATION_LEVEL);
+        }
         if (featureId == Header.FEATURE_TOUCH_VERSION) {
             return mHeader.getInt(featureId, DEFAULT_FEATURE_TOUCH_VERSION);
         }
@@ -1241,6 +1306,10 @@ public class CoreDocument implements Serializable {
         mUseFeatureLTResize = useFeature(Header.FEATURE_LT_RESIZE);
 
         mMeasureVersion = featureIntValue(Header.FEATURE_MEASURE_VERSION);
+        int optLevel = featureIntValue(Header.FEATURE_OPTIMIZATION_LEVEL);
+        if (optLevel != -1) {
+            setOptimizationLevel(optLevel);
+        }
         mTouchVersion = featureIntValue(Header.FEATURE_TOUCH_VERSION);
         mDensityBehavior = featureIntValue(Header.DOC_DENSITY_BEHAVIOR);
         mBitmapMemory = 0;
@@ -1989,8 +2058,18 @@ public class CoreDocument implements Serializable {
         if (mRootLayoutComponent != null) {
             context.mWidth = maxWidth;
             context.mHeight = maxHeight;
-            mRootLayoutComponent.invalidateMeasure();
-            mRootLayoutComponent.measure(context, minWidth, maxWidth, minHeight, maxHeight);
+
+            boolean rootDirty = mRootLayoutComponent.mNeedsMeasure
+                    || maxWidth != mRootLayoutComponent.getWidth()
+                    || maxHeight != mRootLayoutComponent.getHeight();
+
+            if (rootDirty) {
+                mRootLayoutComponent.invalidateMeasure();
+                mRootLayoutComponent.measure(context, minWidth, maxWidth, minHeight, maxHeight);
+            } else {
+                mRootLayoutComponent.performPartialLayoutPass(context);
+            }
+
             if ((getHeight() != h || getWidth() != w) && mLayoutCallback != null) {
                 mLayoutCallback.onRequestLayout();
             }

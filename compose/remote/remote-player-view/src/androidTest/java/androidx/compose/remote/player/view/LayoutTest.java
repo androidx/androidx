@@ -3350,8 +3350,8 @@ public class LayoutTest {
         ops1.add(new TestComponentNeedsMeasure(5, false));
         ops1.add(new TestComponentNeedsMeasure(6, false));
         ops1.add(new TestComponentResizeOperation(4).setSize(180, 160));
-        ops1.add(new TestRootNeedsMeasure(1, true));
-        ops1.add(new TestComponentNeedsMeasure(1, true));
+        ops1.add(new TestRootNeedsMeasure(1, false));
+        ops1.add(new TestComponentNeedsMeasure(1, false));
         ops1.add(new TestComponentNeedsMeasure(2, false));
         ops1.add(new TestComponentNeedsMeasure(3, true));
         ops1.add(new TestComponentNeedsMeasure(4, true));

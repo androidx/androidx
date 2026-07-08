@@ -152,6 +152,9 @@ public class Header extends Operation implements RemoteComposeOperation {
      */
     public static final short DOC_DENSITY_BEHAVIOR = 27;
 
+    /** Specify layout optimization level: 0 = none, 1 = partial, 2 = all */
+    public static final short FEATURE_OPTIMIZATION_LEVEL = 28;
+
     /** The object is an integer */
     private static final short DATA_TYPE_INT = 0;
 
@@ -183,6 +186,7 @@ public class Header extends Operation implements RemoteComposeOperation {
         FEATURE_ARRAY_LISTENERS,
         FEATURE_CLICK_VERSION,
         DOC_DENSITY_BEHAVIOR,
+        FEATURE_OPTIMIZATION_LEVEL,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -202,7 +206,8 @@ public class Header extends Operation implements RemoteComposeOperation {
         "LT_RESIZE",
         "ARRAY_LISTENERS",
         "CLICK_VERSION",
-        "DENSITY_BEHAVIOR"
+        "DENSITY_BEHAVIOR",
+        "OPTIMIZATION_LEVEL"
     };
 
     /**
@@ -255,6 +260,14 @@ public class Header extends Operation implements RemoteComposeOperation {
             this.mDensity = getFloat(DOC_DENSITY_AT_GENERATION, 1);
             this.mProfiles = getInt(DOC_PROFILES, 0);
         }
+    }
+
+    /** Put a feature or property into the header. */
+    public void put(short key, @NonNull Object value) {
+        if (mProperties == null) {
+            mProperties = new IntMap<>();
+        }
+        mProperties.put(key, value);
     }
 
     public int getProfiles() {
