@@ -29,9 +29,10 @@ import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
-import kotlin.coroutines.Continuation
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -217,7 +218,7 @@ internal constructor(
 
     override val state: StateFlow<State> = _state.asStateFlow()
 
-    private var persistContinuation: Continuation<UUID>? = null
+    private val persistContinuationRef = AtomicReference<CancellableContinuation<UUID>?>(null)
 
     /**
      * Stores this [Anchor] in local storage for cross-session use.
@@ -234,7 +235,17 @@ internal constructor(
         }
         runtimeAnchor.persist()
         // Suspend the coroutine until the anchor is persisted.
-        return suspendCancellableCoroutine { persistContinuation = it }
+        return suspendCancellableCoroutine { continuation ->
+            if (persistContinuationRef.compareAndSet(null, continuation)) {
+                continuation.invokeOnCancellation {
+                    persistContinuationRef.compareAndSet(continuation, null)
+                }
+            } else {
+                continuation.resumeWithException(
+                    IllegalStateException("Persist already in progress")
+                )
+            }
+        }
     }
 
     /** Detaches this anchor. This anchor will no longer be updated or tracked. */
@@ -260,22 +271,20 @@ internal constructor(
 
     override suspend fun update() {
         _state.emit(State(runtimeAnchor.trackingState.toTrackingState(), runtimeAnchor.pose))
-        if (persistContinuation == null) {
-            return
-        }
+        val continuation = persistContinuationRef.get() ?: return
         when (runtimeAnchor.persistenceState) {
             RuntimeAnchor.PersistenceState.PENDING -> {
                 // Do nothing while we wait for the anchor to be persisted.
             }
             RuntimeAnchor.PersistenceState.PERSISTED -> {
-                persistContinuation?.resume(runtimeAnchor.uuid!!)
-                persistContinuation = null
+                if (persistContinuationRef.compareAndSet(continuation, null)) {
+                    continuation.resume(checkNotNull(runtimeAnchor.uuid))
+                }
             }
             RuntimeAnchor.PersistenceState.NOT_PERSISTED -> {
-                persistContinuation?.resumeWithException(
-                    RuntimeException("Anchor was not persisted.")
-                )
-                persistContinuation = null
+                if (persistContinuationRef.compareAndSet(continuation, null)) {
+                    continuation.resumeWithException(RuntimeException("Anchor was not persisted."))
+                }
             }
         }
     }

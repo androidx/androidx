@@ -43,6 +43,8 @@ internal class OpenXrAnchor(
     loadedUuid: UUID? = null,
 ) : ExportableAnchor, Updatable {
 
+    private val lock = ReentrantLock()
+
     override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
 
     override var pose: Pose = Pose()
@@ -52,14 +54,16 @@ internal class OpenXrAnchor(
         private set
 
     @GuardedBy("lock")
-    override var persistenceState: Anchor.PersistenceState = Anchor.PersistenceState.NOT_PERSISTED
+    override var persistenceState =
+        if (loadedUuid == null) Anchor.PersistenceState.NOT_PERSISTED
+        else Anchor.PersistenceState.PERSISTED
+        get() = lock.withLock { field }
         private set
 
     @GuardedBy("lock")
     override var uuid: UUID? = loadedUuid
+        get() = lock.withLock { field }
         private set
-
-    private val lock = ReentrantLock()
 
     override fun persist() {
         lock.withLock {
