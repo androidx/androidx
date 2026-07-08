@@ -18,6 +18,7 @@ package androidx.glance.wear.parcel
 
 import android.content.Context
 import android.os.Bundle
+import androidx.collection.IntSet
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -35,14 +36,14 @@ internal object WearWidgetCapture {
     internal suspend fun capture(
         context: Context,
         creationDisplayInfo: RemoteCreationDisplayInfo,
+        supportedOperations: IntSet,
         content: @Composable @RemoteComposable () -> Unit,
     ): WearWidgetRawContent {
         val remoteDocument =
             captureSingleRemoteDocument(
                 context = context,
                 creationDisplayInfo = creationDisplayInfo,
-                // TODO: b/526716195 - Use Host's supported operations
-                profile = GlanceWearProfiles.wearWidgets(),
+                profile = GlanceWearProfiles.wearWidgets(supportedOperations),
                 content = content,
             )
         return WearWidgetRawContent(

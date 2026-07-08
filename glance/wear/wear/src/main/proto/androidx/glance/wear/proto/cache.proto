@@ -18,7 +18,6 @@ syntax = "proto3";
 
 package androidx.glance.wear.proto;
 
-
 // The spec for a widget container.
 message WidgetContainerSpecProto {
   // The width of the content area in dp.
@@ -35,6 +34,18 @@ message WidgetContainerSpecProto {
 
   // The corner radius of the container in dp
   float corner_radius_dp = 5;
+
+  // The set of operations supported by the Host.
+  repeated CachedPlayerOperation renderer_supported_operations = 6;
+
+  // The major version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_major = 7;
+
+  // The minor version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_minor = 8;
+
+  // The revision version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_revision = 9;
 }
 
 // A cache of widget container specs, keyed by container type.
@@ -47,5 +58,10 @@ message WearWidgetCacheProto {
 
   // The cached association between service class name and widget class name.
   map<string, string> service_to_widget_name = 3;
+}
+
+// An operation supported by the Remote Compose player / renderer, cached as part of the container spec.
+message CachedPlayerOperation {
+  uint32 op_code = 1;
 }
 
