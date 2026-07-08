@@ -121,15 +121,19 @@ abstract class BaseKtfmtTask : DefaultTask() {
         if (getInputFiles().files.isEmpty()) return
         val outputStream = ByteArrayOutputStream()
         val errorStream = ByteArrayOutputStream()
-        execOperations.javaexec { javaExecSpec ->
-            javaExecSpec.standardOutput = outputStream
-            javaExecSpec.errorOutput = errorStream
-            javaExecSpec.mainClass.set(MainClass)
-            javaExecSpec.classpath = ktfmtClasspath
-            javaExecSpec.args = getArgsList(format = format)
-            javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-            overrideDirectory?.let { javaExecSpec.workingDir = it }
-        }
+        val result =
+            execOperations.javaexec { javaExecSpec ->
+                javaExecSpec.standardOutput = outputStream
+                javaExecSpec.errorOutput = errorStream
+                javaExecSpec.mainClass.set(MainClass)
+                javaExecSpec.classpath = ktfmtClasspath
+                javaExecSpec.args = getArgsList(format = format)
+                javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+                overrideDirectory?.let { javaExecSpec.workingDir = it }
+                // Ignore exit value to allow printing the process's error stream before asserting a
+                // successful exit value.
+                javaExecSpec.isIgnoreExitValue = true
+            }
 
         // https://github.com/facebook/ktfmt/blob/9830466327b72879808b0d6266d2cc69ef0197b2/core/src/main/java/com/facebook/ktfmt/cli/Main.kt#L168
         // Info messages are printed to error, filter these out to avoid stderr clutter.
@@ -148,6 +152,8 @@ abstract class BaseKtfmtTask : DefaultTask() {
         if (output.isNotEmpty()) {
             error(processOutput(output))
         }
+
+        result.assertNormalExitValue()
     }
 
     open fun processOutput(output: String): String =
