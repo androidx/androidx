@@ -496,12 +496,14 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
          * Starts animating immediately (accounting for any initial delay), irrespective of focus
          * state.
          */
-        val Immediately = MarqueeAnimationMode(0)
+        val Immediately
+            get() = MarqueeAnimationMode(0)
 
         /**
          * Only animates while the marquee has focus or a node in the marquee's content has focus.
          */
-        val WhileFocused = MarqueeAnimationMode(1)
+        val WhileFocused
+            get() = MarqueeAnimationMode(1)
     }
 }
 

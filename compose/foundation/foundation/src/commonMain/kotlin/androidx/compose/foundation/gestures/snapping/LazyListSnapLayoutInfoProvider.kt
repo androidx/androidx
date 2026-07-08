@@ -128,11 +128,14 @@ internal value class FinalSnappingItem
 internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
 
-        val ClosestItem: FinalSnappingItem = FinalSnappingItem(0)
+        val ClosestItem: FinalSnappingItem
+            get() = FinalSnappingItem(0)
 
-        val NextItem: FinalSnappingItem = FinalSnappingItem(1)
+        val NextItem: FinalSnappingItem
+            get() = FinalSnappingItem(1)
 
-        val PreviousItem: FinalSnappingItem = FinalSnappingItem(2)
+        val PreviousItem: FinalSnappingItem
+            get() = FinalSnappingItem(2)
     }
 }
 
