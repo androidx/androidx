@@ -200,14 +200,19 @@ private fun rememberAndroidExternalSurfaceState(): AndroidExternalSurfaceState {
 value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
     companion object {
         /** The [Surface]'s window layer is positioned behind the parent window. */
-        val Behind = AndroidExternalSurfaceZOrder(0)
+        val Behind
+            get() = AndroidExternalSurfaceZOrder(0)
+
         /**
          * The [Surface]'s window layer is positioned behind the parent window but above other
          * [Surface] window layers marked [Behind].
          */
-        val MediaOverlay = AndroidExternalSurfaceZOrder(1)
+        val MediaOverlay
+            get() = AndroidExternalSurfaceZOrder(1)
+
         /** The [Surface]'s window layer is positioned above the parent window. */
-        val OnTop = AndroidExternalSurfaceZOrder(2)
+        val OnTop
+            get() = AndroidExternalSurfaceZOrder(2)
     }
 }
 

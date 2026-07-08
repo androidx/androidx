@@ -150,13 +150,15 @@ internal value class TextHighlightType private constructor(private val value: In
          * A highlight which previews the text range which would be selected by an ongoing stylus
          * handwriting select gesture.
          */
-        val HandwritingSelectPreview = TextHighlightType(0)
+        val HandwritingSelectPreview
+            get() = TextHighlightType(0)
 
         /**
          * A highlight which previews the text range which would be deleted by an ongoing stylus
          * handwriting delete gesture.
          */
-        val HandwritingDeletePreview = TextHighlightType(1)
+        val HandwritingDeletePreview
+            get() = TextHighlightType(1)
     }
 }
 

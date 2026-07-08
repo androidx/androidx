@@ -79,21 +79,25 @@ value class ExpandPolicy private constructor(private val flag: Int) {
          * The range will not expand when text is inserted at its boundaries. Text inserted exactly
          * at the start or end will be placed outside the range.
          */
-        val InsideOnly = ExpandPolicy(0b0000)
+        val InsideOnly
+            get() = ExpandPolicy(0b0000)
 
         /**
          * The range will expand when text is inserted at its start boundary. Text inserted exactly
          * at the start will be included in the range.
          */
-        val AtStart = ExpandPolicy(FLAG_EXPAND_START)
+        val AtStart
+            get() = ExpandPolicy(FLAG_EXPAND_START)
 
         /**
          * The range will expand when text is inserted at its end boundary. Text inserted exactly at
          * the end will be included in the range.
          */
-        val AtEnd = ExpandPolicy(FLAG_EXPAND_END)
+        val AtEnd
+            get() = ExpandPolicy(FLAG_EXPAND_END)
 
         /** The range will expand when text is inserted at either of its boundaries. */
-        val AtBoth = ExpandPolicy(FLAG_EXPAND_START or FLAG_EXPAND_END)
+        val AtBoth
+            get() = ExpandPolicy(FLAG_EXPAND_START or FLAG_EXPAND_END)
     }
 }

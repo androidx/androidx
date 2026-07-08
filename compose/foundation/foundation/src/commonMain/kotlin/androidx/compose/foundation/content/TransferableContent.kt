@@ -55,18 +55,21 @@ internal constructor(
              * Indicates that the [TransferableContent] originates from the soft keyboard (also
              * known as input method editor or IME)
              */
-            val Keyboard = Source(0)
+            val Keyboard
+                get() = Source(0)
 
             /**
              * Indicates that the [TransferableContent] was passed on by the system drag and drop.
              */
-            val DragAndDrop = Source(1)
+            val DragAndDrop
+                get() = Source(1)
 
             /**
              * Indicates that the [TransferableContent] comes from the clipboard via paste. (e.g.
              * "Paste" action in the floating action menu or "Ctrl+V" key combination)
              */
-            val Clipboard = Source(2)
+            val Clipboard
+                get() = Source(2)
         }
 
         override fun toString(): String =

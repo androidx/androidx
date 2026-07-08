@@ -45,6 +45,7 @@ internal value class InlineDensity private constructor(private val packedValue: 
     }
 
     companion object {
-        val Unspecified = InlineDensity(Float.NaN, Float.NaN)
+        val Unspecified
+            get() = InlineDensity(Float.NaN, Float.NaN)
     }
 }
