@@ -24,10 +24,10 @@ package androidx.xr.compose.subspace.layout
  * way. Implementations of this interface are responsible for determining if they can and should
  * adjust the provided layout parameters.
  *
- * When the layout system processes modifiers, if a modifier implements ParentLayoutParamsModifier`,
- * its `adjustParams` method will be called with an object that implements
- * [ParentLayoutParamsAdjustable]. This object typically represents the layout parameters of the
- * child composable being laid out.
+ * When the layout system processes modifiers, if a modifier implements
+ * `ParentLayoutParamsModifier`, its `adjustParams` method will be called with an object that
+ * implements [ParentLayoutParamsAdjustable]. This object typically represents the layout parameters
+ * of the child composable being laid out.
  *
  * ```
  * An example modifier node that sets a specific property on TargetLayoutParams.
