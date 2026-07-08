@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import android.content.Context
 import android.graphics.Rect
 import android.graphics.Region
 import android.os.Build
@@ -30,6 +31,7 @@ import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFIN
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -156,6 +158,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -223,6 +226,118 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(info.isVisibleToUser).isTrue()
             assertThat(info.isImportantForAccessibility).isTrue()
         }
+    }
+
+    @Test
+    fun testAccessibilityStateTransition_affectsNodeInfo() {
+        // Trigger UiAutomation to enable system accessibility
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        assertThat(uiAutomation).isNotNull()
+
+        lateinit var view: AndroidComposeView
+        rule.setContent {
+            view = LocalView.current as AndroidComposeView
+            Box(
+                Modifier.size(10.dp).semantics {
+                    testTag = tag
+                    contentDescription = "test"
+                }
+            )
+        }
+        val provider = view.accessibilityNodeProvider
+        val callback = view.composeViewContext.callback
+
+        // Verify that system accessibility is indeed enabled now
+        val am =
+            view.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        assertThat(am.isEnabled).isTrue()
+
+        // 1. Force disable accessibility in our cache
+        rule.runOnIdle {
+            callback.onAccessibilityStateChanged(false)
+            callback.onTouchExplorationStateChanged(false)
+        }
+
+        // Requesting invalid ID should return non-null empty info (Assistant workaround)
+        val emptyInfo = rule.runOnIdle { provider.createAccessibilityNodeInfo(InvalidId) }
+        assertThat(emptyInfo).isNotNull()
+        assertThat(emptyInfo!!.contentDescription).isNull()
+
+        // 2. Enable accessibility in our cache
+        rule.runOnIdle {
+            callback.onAccessibilityStateChanged(true)
+            callback.onTouchExplorationStateChanged(true)
+        }
+
+        // Requesting invalid ID should now return null (standard behavior when enabled)
+        val nullInfo = rule.runOnIdle { provider.createAccessibilityNodeInfo(InvalidId) }
+        assertThat(nullInfo).isNull()
+    }
+
+    @Test
+    fun testTouchExplorationTriggersAccessibilityFocus() {
+        // Trigger UiAutomation to enable system accessibility
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        assertThat(uiAutomation).isNotNull()
+
+        lateinit var view: AndroidComposeView
+        rule.setContent {
+            view = LocalView.current as AndroidComposeView
+            Box(Modifier.size(10.dp).semantics { testTag = tag })
+        }
+        val provider = view.accessibilityNodeProvider
+        val callback = view.composeViewContext.callback
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Ensure system accessibility is enabled (via UiAutomation)
+        val am =
+            view.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        assertThat(am.isEnabled).isTrue()
+
+        // 1. Initially, disable touch exploration (but keep accessibility enabled)
+        rule.runOnIdle {
+            callback.onAccessibilityStateChanged(true)
+            callback.onTouchExplorationStateChanged(false)
+        }
+
+        // Verify node is not focused initially
+        val infoInitially = rule.runOnIdle { view.createAccessibilityNodeInfo(virtualViewId) }
+        assertThat(infoInitially.isAccessibilityFocused).isFalse()
+
+        // Requesting accessibility focus should FAIL
+        val focusedInitially =
+            rule.runOnIdle {
+                provider.performAction(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS,
+                    null,
+                )
+            }
+        assertThat(focusedInitially).isFalse()
+
+        val infoAfterFailedFocus =
+            rule.runOnIdle { view.createAccessibilityNodeInfo(virtualViewId) }
+        assertThat(infoAfterFailedFocus.isAccessibilityFocused).isFalse()
+
+        // 2. Enable touch exploration
+        rule.runOnIdle { callback.onTouchExplorationStateChanged(true) }
+
+        // Requesting accessibility focus should SUCCEED
+        val focusedAfter =
+            rule.runOnIdle {
+                provider.performAction(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS,
+                    null,
+                )
+            }
+        assertThat(focusedAfter).isTrue()
+
+        // Verify node IS focused now
+        val infoAfterSuccessFocus =
+            rule.runOnIdle { view.createAccessibilityNodeInfo(virtualViewId) }
+        assertThat(infoAfterSuccessFocus.isAccessibilityFocused).isTrue()
     }
 
     @Test

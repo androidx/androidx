@@ -116,4 +116,13 @@ object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isPropagateHideFromAccessibilityToMergingChildrenEnabled: Boolean = true
+
+    /**
+     * This flag enables performance improvements in accessibility, such as caching accessibility
+     * state and deferring listener registration.
+     */
+    // TODO: remove me b/529420099
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAccessibilityPerformanceEnabled: Boolean = true
 }

@@ -16,14 +16,18 @@
 
 package androidx.compose.ui.platform
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
 import android.annotation.SuppressLint
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
@@ -77,6 +81,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
  *
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  */
+@OptIn(ExperimentalComposeUiApi::class)
 class ComposeViewContext
 private constructor(
     composeViewContext: ComposeViewContext?,
@@ -200,6 +205,41 @@ private constructor(
             AndroidAccessibilityManager(view.context)
         }
 
+    private var _isAccessibilityEnabled: Boolean = false
+    internal val isAccessibilityEnabled: Boolean
+        get() =
+            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
+                // b/504834104 saw accessibility being called when the state wasn't enabled. This
+                // indicates that the onAccessibilityChanged() was not received before the
+                // AccessibilityManager's state changed, so we must double-check here
+                _isAccessibilityEnabled && accessibilityManager.accessibilityManager.isEnabled
+            } else {
+                accessibilityManager.accessibilityManager.isEnabled
+            }
+
+    private var _isTouchExplorationEnabled: Boolean = false
+    internal val isTouchExplorationEnabled: Boolean
+        get() =
+            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
+                _isTouchExplorationEnabled
+            } else {
+                accessibilityManager.accessibilityManager.isTouchExplorationEnabled
+            }
+
+    private var _enabledServices: List<AccessibilityServiceInfo>? = null
+    internal val enabledServices: List<AccessibilityServiceInfo>
+        get() =
+            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
+                _enabledServices
+                    ?: accessibilityManager.accessibilityManager
+                        .getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
+                        .also { _enabledServices = it }
+            } else {
+                accessibilityManager.accessibilityManager.getEnabledAccessibilityServiceList(
+                    FEEDBACK_ALL_MASK
+                )
+            }
+
     private var _uriHandler: AndroidUriHandler? =
         if (matchesContext) {
             composeViewContext!!.uriHandler
@@ -306,6 +346,21 @@ private constructor(
         }
     }
 
+    /**
+     * Handler used to add and remove the callable that is in charge of binder calls to the
+     * AccessibilityManager. While it is still on the UI thread (for now), it isn't during the
+     * crucial time of View creation.
+     */
+    private var handler: Handler? = null
+
+    /**
+     * `true` when the AccessibilityManager is listening or `false` when not listening. When a
+     * [ComposeViewContext] has called [stopObserving] quickly after calling [startObserving], we
+     * can avoid posting the callback removing the listener. This is important for benchmarks that
+     * operate extremely quickly.
+     */
+    private var hasAccessibilityListener = false
+
     private var _soundEffect: SoundEffect? = null
     @OptIn(ExperimentalComposeUiApi::class)
     internal val soundEffect: SoundEffect
@@ -322,37 +377,7 @@ private constructor(
      * A single callback that handles observing configuration changes, memory calls, window focus
      * changes, and [view] attach state changes.
      */
-    private val callback =
-        object :
-            ComponentCallbacks2,
-            ViewTreeObserver.OnWindowFocusChangeListener,
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onConfigurationChanged(configuration: Configuration) {
-                this@ComposeViewContext.onConfigurationChanged(configuration)
-            }
-
-            @Deprecated("This callback is superseded by onTrimMemory")
-            override fun onLowMemory() {
-                imageVectorCache.clear()
-                resourceIdCache.clear()
-            }
-
-            override fun onTrimMemory(level: Int) {
-                imageVectorCache.clear()
-                resourceIdCache.clear()
-            }
-
-            override fun onWindowFocusChanged(hasFocus: Boolean) {
-                windowInfo.isWindowFocused = hasFocus
-            }
-
-            override fun onGlobalLayout() {
-                if (pendingWindowInfoUpdate) {
-                    pendingWindowInfoUpdate = false
-                    windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
-                }
-            }
-        }
+    internal val callback = ComposeViewContextCallback()
 
     /**
      * Called when an AndroidComposeView is attached to the window. This will start observation if
@@ -395,6 +420,13 @@ private constructor(
         view.viewTreeObserver.addOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.addOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false
+        if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
+            val am = accessibilityManager.accessibilityManager
+            _isAccessibilityEnabled = am.isEnabled
+            _isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
+            handler = view.handler
+            handler?.post(callback)
+        }
     }
 
     /** Stop observing configuration changes and window changes. */
@@ -404,6 +436,14 @@ private constructor(
         view.viewTreeObserver.removeOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.removeOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false
+        if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
+            if (hasAccessibilityListener) {
+                handler?.post(callback)
+            } else {
+                handler?.removeCallbacks(callback)
+            }
+            handler = null
+        }
     }
 
     /**
@@ -497,6 +537,10 @@ private constructor(
         }
     }
 
+    private fun resetEnabledAccessibilityServiceList() {
+        _enabledServices = null
+    }
+
     /** Provide common CompositionLocals. */
     @SuppressLint("NullAnnotationGroup")
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
@@ -564,6 +608,68 @@ private constructor(
                 } else {
                     ProvideCommonCompositionLocals(owner = owner, content = content)
                 }
+            }
+        }
+    }
+
+    internal inner class ComposeViewContextCallback :
+        Runnable,
+        ComponentCallbacks2,
+        ViewTreeObserver.OnWindowFocusChangeListener,
+        ViewTreeObserver.OnGlobalLayoutListener,
+        AccessibilityManager.AccessibilityStateChangeListener,
+        AccessibilityManager.TouchExplorationStateChangeListener {
+        override fun onConfigurationChanged(configuration: Configuration) {
+            this@ComposeViewContext.onConfigurationChanged(configuration)
+        }
+
+        @Deprecated("This callback is superseded by onTrimMemory")
+        override fun onLowMemory() {
+            imageVectorCache.clear()
+            resourceIdCache.clear()
+        }
+
+        override fun onTrimMemory(level: Int) {
+            imageVectorCache.clear()
+            resourceIdCache.clear()
+        }
+
+        override fun onWindowFocusChanged(hasFocus: Boolean) {
+            windowInfo.isWindowFocused = hasFocus
+        }
+
+        override fun onAccessibilityStateChanged(enabled: Boolean) {
+            _isAccessibilityEnabled = enabled
+            if (enabled) resetEnabledAccessibilityServiceList()
+        }
+
+        override fun onTouchExplorationStateChanged(enabled: Boolean) {
+            _isTouchExplorationEnabled = enabled
+            if (enabled && _isAccessibilityEnabled) resetEnabledAccessibilityServiceList()
+        }
+
+        override fun run() {
+            val am = accessibilityManager.accessibilityManager
+            if (viewCount > 0) {
+                hasAccessibilityListener = true
+                _isAccessibilityEnabled = am.isEnabled
+                _isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
+                if (_isAccessibilityEnabled) {
+                    resetEnabledAccessibilityServiceList()
+                }
+                am.addAccessibilityStateChangeListener(this)
+                am.addTouchExplorationStateChangeListener(this)
+            } else {
+                hasAccessibilityListener = false
+                am.removeAccessibilityStateChangeListener(this)
+                am.removeTouchExplorationStateChangeListener(this)
+            }
+        }
+
+        override fun onGlobalLayout() {
+            if (pendingWindowInfoUpdate) {
+                pendingWindowInfoUpdate = false
+                windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
             }
         }
     }
