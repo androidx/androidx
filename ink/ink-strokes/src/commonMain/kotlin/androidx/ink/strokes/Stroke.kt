@@ -17,6 +17,7 @@
 package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.WorkerThread
 import androidx.ink.brush.Brush
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
@@ -173,24 +174,79 @@ private constructor(
     }
 
     /**
-     * Erases the [eraserShape] from this stroke and returns the remaining fragments.
+     * Subtracts [maskShape] from this stroke and returns the remaining portion as a new [Stroke].
      *
-     * Each resulting stroke retains the original [inputs] and [brush], but has a newly computed
-     * [shape] representing the portion remaining after erasure.
+     * The returned stroke has a newly computed [shape] representing the shape after subtraction,
+     * but retains the original [inputs] and [brush]. The stroke can have its brush color updated
+     * (with [copy]), but modifying other properties (like brush size) will revert the stroke to its
+     * original shape and undo the subtraction. The stroke may be empty or contain disconnected
+     * geometry -- to separate disconnected regions into independent [Stroke] instances, call
+     * [split].
      *
-     * @param eraserShape A [PartitionedMesh] representing the geometric region to be erased.
-     * @param eraserTransform The [AffineTransform] from eraser coordinates to world coordinates.
-     * @param strokeTransform The [AffineTransform] from stroke coordinates to world coordinates.
-     * @return The set of [Stroke] fragments remaining after the erasure.
+     * Note that [subtract] can be a computationally expensive geometric operation, and should
+     * generally be performed on a background (worker) thread to avoid blocking the UI thread.
+     *
+     * @param maskShape A [PartitionedMesh] representing the geometric region to be subtracted.
+     * @param maskToWorldTransform The [AffineTransform] from mask coordinates to world coordinates.
+     * @param strokeToWorldTransform The [AffineTransform] from stroke coordinates to world
+     *   coordinates.
+     * @return The [Stroke] remaining after the subtraction.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @ExperimentalInkEraserApi
-    public fun partialErase(
-        eraserShape: PartitionedMesh,
-        eraserTransform: AffineTransform,
-        strokeTransform: AffineTransform,
-    ): Set<Stroke> =
-        MultipleStrokes.createWithPartialErase(this, eraserShape, eraserTransform, strokeTransform)
+    @WorkerThread
+    public fun subtract(
+        maskShape: PartitionedMesh,
+        maskToWorldTransform: AffineTransform,
+        strokeToWorldTransform: AffineTransform,
+    ): Stroke =
+        Stroke.wrapNative(brush) {
+            StrokeNative.createWithSubtract(
+                nativePointer,
+                maskShape.nativePointer,
+                maskToWorldTransform.m00,
+                maskToWorldTransform.m10,
+                maskToWorldTransform.m20,
+                maskToWorldTransform.m01,
+                maskToWorldTransform.m11,
+                maskToWorldTransform.m21,
+                strokeToWorldTransform.m00,
+                strokeToWorldTransform.m10,
+                strokeToWorldTransform.m20,
+                strokeToWorldTransform.m01,
+                strokeToWorldTransform.m11,
+                strokeToWorldTransform.m21,
+            )
+        }
+
+    /**
+     * Splits this stroke into a set of spatially disconnected [Stroke]s.
+     *
+     * Two regions of the stroke are considered disconnected if they are further than [tolerance]
+     * distance apart, applying the given [strokeToWorldTransform].
+     *
+     * The [tolerance] parameter is useful to prevent the over-splitting of strokes. This helps
+     * maintain continuity in strokes that inherently contain geometric gaps (such as particle
+     * brushes), or in solid strokes where minor unintentional gaps are introduced (for example by
+     * glancing erases). For splitting a stroke that has been partially erased (with [subtract]) by
+     * eraser strokes, it may be natural to set [tolerance] to the size of the eraser brush.
+     *
+     * Each resulting stroke has a new shape representing its portion, but retains the original
+     * [inputs] and [brush]. Each returned stroke can have its brush color updated (with brush
+     * [copy]), but modifying other properties (like brush size) will revert the stroke to the shape
+     * of the original stroke.
+     *
+     * Note that [split] can be a computationally expensive geometric operation, and should
+     * generally be performed on a background (worker) thread to avoid blocking the UI thread.
+     *
+     * @param strokeToWorldTransform The [AffineTransform] from stroke coordinates to world
+     *   coordinates.
+     * @param tolerance The maximum distance in world coordinates between two points to consider
+     *   them connected.
+     */
+    @ExperimentalInkEraserApi
+    @WorkerThread
+    public fun split(strokeToWorldTransform: AffineTransform, tolerance: Float): Set<Stroke> =
+        MultipleStrokes.createWithSplit(this, strokeToWorldTransform, tolerance)
 
     public companion object {
         /** Construct a [Stroke] from an unowned heap-allocated native pointer to a C++ `Stroke`. */
@@ -218,6 +274,23 @@ internal expect object StrokeNative {
      */
     fun newShallowCopyOfShape(nativePointer: Long): Long
 
+    fun createWithSubtract(
+        targetStrokePointer: Long,
+        maskShapePointer: Long,
+        maskA: Float,
+        maskB: Float,
+        maskC: Float,
+        maskD: Float,
+        maskE: Float,
+        maskF: Float,
+        strokeA: Float,
+        strokeB: Float,
+        strokeC: Float,
+        strokeD: Float,
+        strokeE: Float,
+        strokeF: Float,
+    ): Long
+
     fun free(nativePointer: Long)
 }
 
@@ -240,28 +313,21 @@ private constructor(private val brush: Brush, pointerAlloc: () -> Long) {
     }
 
     companion object {
-        fun createWithPartialErase(
+        fun createWithSplit(
             targetStroke: Stroke,
-            eraserShape: PartitionedMesh,
-            eraserTransform: AffineTransform,
-            strokeTransform: AffineTransform,
+            transform: AffineTransform,
+            tolerance: Float,
         ): Set<Stroke> =
             MultipleStrokes(targetStroke.brush) {
-                    MultipleStrokesNative.createWithPartialErase(
+                    MultipleStrokesNative.createWithSplit(
                         targetStroke.nativePointer,
-                        eraserShape.nativePointer,
-                        eraserTransform.m00,
-                        eraserTransform.m10,
-                        eraserTransform.m20,
-                        eraserTransform.m01,
-                        eraserTransform.m11,
-                        eraserTransform.m21,
-                        strokeTransform.m00,
-                        strokeTransform.m10,
-                        strokeTransform.m20,
-                        strokeTransform.m01,
-                        strokeTransform.m11,
-                        strokeTransform.m21,
+                        transform.m00,
+                        transform.m10,
+                        transform.m20,
+                        transform.m01,
+                        transform.m11,
+                        transform.m21,
+                        tolerance,
                     )
                 }
                 .releaseStrokes()
@@ -270,21 +336,15 @@ private constructor(private val brush: Brush, pointerAlloc: () -> Long) {
 
 internal expect object MultipleStrokesNative {
 
-    fun createWithPartialErase(
+    fun createWithSplit(
         targetStrokePointer: Long,
-        eraserShapePointer: Long,
-        eraserA: Float,
-        eraserB: Float,
-        eraserC: Float,
-        eraserD: Float,
-        eraserE: Float,
-        eraserF: Float,
-        strokeA: Float,
-        strokeB: Float,
-        strokeC: Float,
-        strokeD: Float,
-        strokeE: Float,
-        strokeF: Float,
+        transformA: Float,
+        transformB: Float,
+        transformC: Float,
+        transformD: Float,
+        transformE: Float,
+        transformF: Float,
+        tolerance: Float,
     ): Long
 
     fun getStrokeCount(nativePointer: Long): Int

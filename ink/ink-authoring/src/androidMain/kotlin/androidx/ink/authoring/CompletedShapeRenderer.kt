@@ -22,12 +22,26 @@ import androidx.annotation.UiThread
 /** Called to render a [CompletedShapeT] instance to an [android.graphics.Canvas]. */
 @ExperimentalInkCustomShapeWorkflowApi
 public interface CompletedShapeRenderer<in CompletedShapeT : Any> {
+
+    /**
+     * Draw an instance of [CompletedShapeT] to a [Canvas].
+     *
+     * @param canvas The output [Canvas] to draw to.
+     * @param shape The object to be drawn.
+     * @param strokeToScreenTransform The full transform that has already been applied to the
+     *   [Canvas] in order to draw this object. Most implementations do not need to use this data,
+     *   but it is provided for certain rare circumstances (such as analytical anti-aliasing) that
+     *   require it.
+     * @param animatorClockStateMillis The current timestamp to be used for animation calculations.
+     *   Note that the animation timing may not proceed at the same rate as system elapsed time - it
+     *   will by default, but may be paused and resumed, or sped up, or slowed down.
+     */
     @UiThread
     public fun draw(
         canvas: Canvas,
         shape: CompletedShapeT,
         strokeToScreenTransform: Matrix,
-        systemElapsedTimeMillis: Long,
+        animatorClockStateMillis: Long,
     )
 
     /**

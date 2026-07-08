@@ -20,9 +20,9 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
-import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.geometry.Box
 import androidx.ink.geometry.BoxAccumulator
+import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
@@ -62,7 +62,11 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
 
     private var startSystemElapsedTimeMillis = Long.MIN_VALUE
 
-    /** The most recent value passed to [update]. Acts as the current time for all calculations. */
+    /**
+     * The most recent value passed to [update]. Acts as the current time for all calculations.
+     *
+     * TODO(b/512471476): Use a `StrokePaintAnimator` instead.
+     */
     internal var lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
         private set
 
@@ -84,11 +88,22 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
         }
-        inProgressStroke.start(brush = shapeSpec, noiseSeed = noiseSeed)
+        // TODO(b/512471476): Get clock state from a `StrokePaintAnimator` instead of using
+        // `systemElapsedTimeMillis`.
+        val animatorClockStateMillis = systemElapsedTimeMillis
+        val baseAnimationPhase =
+            StrokePaintAnimator.calculateBasePhaseForNewStroke(
+                clockStateMillis = animatorClockStateMillis,
+                animationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis,
+            )
+        inProgressStroke.start(
+            brush = shapeSpec,
+            noiseSeed = noiseSeed,
+            baseAnimationPhase = baseAnimationPhase,
+        )
         startSystemElapsedTimeMillis = systemElapsedTimeMillis
         shapeChangesWithTime = inProgressStroke.changesWithTime()
-        textureAnimationDurationMillis =
-            TextureAnimationProgressHelper.getAnimationDurationMillis(shapeSpec.family)
+        textureAnimationDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis
     }
 
     override fun enqueueInputs(realInputs: StrokeInputBatch, predictedInputs: StrokeInputBatch) {

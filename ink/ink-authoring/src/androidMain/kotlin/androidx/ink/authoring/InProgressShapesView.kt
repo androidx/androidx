@@ -865,7 +865,11 @@ private class FinishedShapesView<CompletedShapeT : Any>(
     /** The raw timestamp used for animation progress calculations. */
     private var animationFrameElapsedTimeMillis = 0L
 
-    /** Registered just while the view is attached to update [animationFrameElapsedTimeMillis]. */
+    /**
+     * Registered just while the view is attached to update [animationFrameElapsedTimeMillis].
+     *
+     * TODO(b/512471476): Use a `StrokePaintAnimator` instead.
+     */
     private val choreographerCallback: Choreographer.FrameCallback =
         Choreographer.FrameCallback { frameTimeNanos ->
             animationFrameElapsedTimeMillis = frameTimeNanos / 1_000_000
@@ -907,7 +911,7 @@ private class FinishedShapesView<CompletedShapeT : Any>(
                     canvas,
                     finishedStroke.stroke,
                     finishedStroke.strokeToViewTransform,
-                    systemElapsedTimeMillis = animationFrameElapsedTimeMillis,
+                    animatorClockStateMillis = animationFrameElapsedTimeMillis,
                 )
                 if (renderer.changesWithTime(finishedStroke.stroke)) {
                     scheduleNextFrameImmediately = true
