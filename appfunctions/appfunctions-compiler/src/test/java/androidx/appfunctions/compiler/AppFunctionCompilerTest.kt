@@ -54,6 +54,30 @@ class AppFunctionCompilerTest {
             expectGeneratedResourceFileName = "app_level_app_functions.xml",
             goldenFileName = "xml/globalSignature_app_level_app_functions.xml",
         )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "${'$'}GlobalSignature_AppFunctionAdapter.kt",
+            goldenFileName = "adapter/${'$'}GlobalSignature_AppFunctionAdapter.KT",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_withSerializable_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/SerializableSignature.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/serializableSignature_app_level_app_functions.xml",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "${'$'}SerializableSignature_AppFunctionAdapter.kt",
+            goldenFileName = "adapter/${'$'}SerializableSignature_AppFunctionAdapter.KT",
+        )
     }
 
     @Test

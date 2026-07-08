@@ -151,6 +151,27 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionSchemaMetadata")
     val APP_FUNCTION_PARAMETER_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionParameterMetadata")
+
+    object AppFunctionParameterSpecClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionParameterSpec")
+        const val PROPERTY_NAME = "name"
+        const val PROPERTY_IS_REQUIRED = "isRequired"
+        const val PROPERTY_TYPE = "type"
+        const val PROPERTY_IS_NULLABLE = "isNullable"
+        const val PROPERTY_OBJECT_QUALIFIED_NAME = "objectQualifiedName"
+        const val PROPERTY_ITEM_TYPE = "itemType"
+        const val PROPERTY_ITEM_QUALIFIED_NAME = "itemQualifiedName"
+    }
+
+    object AppFunctionResponseSpecClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionResponseSpec")
+        const val PROPERTY_TYPE = "type"
+        const val PROPERTY_IS_NULLABLE = "isNullable"
+        const val PROPERTY_OBJECT_QUALIFIED_NAME = "objectQualifiedName"
+        const val PROPERTY_ITEM_TYPE = "itemType"
+        const val PROPERTY_ITEM_QUALIFIED_NAME = "itemQualifiedName"
+    }
+
     val APP_FUNCTION_DATA_TYPE_METADATA =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionDataTypeMetadata")
     val APP_FUNCTION_DEPRECATION_METADATA_CLASS =
@@ -217,6 +238,40 @@ object IntrospectionHelper {
         }
     }
 
+    object HandleAppFunctionRequestClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "HandleAppFunctionRequest")
+        const val FUNCTION_IDENTIFIER_PROPERTY_NAME = "functionIdentifier"
+        const val APP_FUNCTION_PROPERTY_NAME = "appFunction"
+    }
+
+    object SuspendingAppFunctionClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "SuspendingAppFunction")
+    }
+
+    object AppFunctionAdapterClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAdapter")
+
+        object GetFunctionIdMethod {
+            const val METHOD_NAME = "getFunctionId"
+        }
+
+        object AdaptMethod {
+            const val METHOD_NAME = "adapt"
+            const val INSTANCE_PARAM_NAME = "instance"
+        }
+
+        object WithExtractedArgumentsMethod {
+            const val METHOD_NAME = "withExtractedArguments"
+            const val REQUEST_PARAM_NAME = "request"
+            const val BLOCK_PARAM_NAME = "block"
+        }
+
+        object ToExecuteAppFunctionResponseMethod {
+            const val METHOD_NAME = "toExecuteAppFunctionResponse"
+            const val RESULT_PARAM_NAME = "result"
+        }
+    }
+
     object AppFunctionServiceClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionService")
 
@@ -264,6 +319,18 @@ object IntrospectionHelper {
     object ExecuteAppFunctionResponseClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionResponse")
         val SUCCESS_CLASS_NAME = CLASS_NAME.nestedClass("Success")
+    }
+
+    object AppFunctionAdapterHelperClass {
+        object UnsafeGetParameterValueMethod {
+            val METHOD_NAME =
+                MemberName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "unsafeGetParameterValue")
+        }
+
+        object UnsafeBuildReturnValueMethod {
+            val METHOD_NAME =
+                MemberName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "unsafeBuildReturnValue")
+        }
     }
 
     object ServiceInternalHelper {
