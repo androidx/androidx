@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-@file:JvmName("A2uiFunctionKt")
+package androidx.a2ui.model.catalog.functions
 
-package androidx.a2ui.model.catalog
+import java.util.Locale
 
-/** Represents a function supported by A2UI including its definition and implementation. */
-public interface A2uiFunction {
-    /** The definition of the function. */
-    public val definition: A2uiFunctionDefinition
+/** Resolves the current [Locale]. */
+public fun interface A2uiLocaleProvider {
 
-    /**
-     * Executes the function logic.
-     *
-     * @param args The statically resolved arguments. All dynamic properties should be resolved by
-     *   the DynamicEvaluator before populating this argument.
-     * @return The raw evaluated result.
-     */
-    public fun execute(args: Map<String, Any>): Any?
+    /** Returns the resolved [Locale]. */
+    public fun getLocale(): Locale
+
+    public companion object {
+        /** Default provider using the current system locale. */
+        @JvmField
+        public val Default: A2uiLocaleProvider = A2uiLocaleProvider { Locale.getDefault() }
+    }
 }

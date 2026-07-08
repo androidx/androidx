@@ -28,14 +28,22 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
+    implementation(project(":core:core"))
+    implementation(project(":core:core-ktx"))
+    implementation(project(":core:core-i18n"))
     implementation(libs.kotlinSerializationJson)
 
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.truth)
     testImplementation(libs.guavaTestlib)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
 }
 android {
     namespace = "androidx.a2ui.model"
+    compileSdk { version = release(37) }
+
 }
 androidx {
     name = "A2UI model"
