@@ -35,8 +35,14 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
+import androidx.xr.scenecore.testing.InteractableComponentTester
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -217,6 +223,120 @@ class InteractionPolicyTest {
         composeTestRule.onNodeWithTag("button").performClick()
         // After enabled, recompose Component should be attached.
         assertSingleInteractableComponentExist()
+    }
+
+    @Test
+    fun interactionPolicy_touchDownOnChild_ignoresEventsUntilTouchUp() {
+        composeTestRule.configureFakeSession()
+        val events = mutableListOf<SpatialInputEvent>()
+        composeTestRule.setContent {
+            Subspace {
+                SpatialExternalSurface(
+                    modifier = SubspaceModifier.testTag("surface"),
+                    stereoMode = StereoMode.SideBySide,
+                    interactionPolicy =
+                        object : InteractionPolicy {
+                            override val isEnabled = true
+
+                            override fun onInputEvent(event: SpatialInputEvent) {
+                                events.add(event)
+                            }
+                        },
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
+                }
+            }
+        }
+
+        val surfaceNode = composeTestRule.onSubspaceNodeWithTag("surface").fetchSemanticsNode()
+        val component =
+            requireNotNull(surfaceNode.components).first { it is InteractableComponent }
+                as InteractableComponent
+        val tester = SceneCoreTestRule().createTester<InteractableComponentTester>(component)
+        val surfaceEntity = checkNotNull(surfaceNode.semanticsEntity)
+        val childEntity =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+
+        // 1. Touch DOWN on childEntity -> should be ignored
+        val downOnChild =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                100L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.DOWN,
+                listOf(InputEvent.HitInfo(childEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(downOnChild)
+        composeTestRule.waitForIdle()
+
+        // 2. Touch MOVE over surfaceEntity -> should be ignored because touch DOWN was on
+        // childEntity
+        val moveOverSurface =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                101L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.MOVE,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(moveOverSurface)
+        composeTestRule.waitForIdle()
+
+        // 3. Touch UP on surfaceEntity -> should be ignored, resetting ignore state
+        val upOnSurface =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                102L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.UP,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(upOnSurface)
+        composeTestRule.waitForIdle()
+
+        assertTrue(events.isEmpty())
+
+        // 4. Touch DOWN on surfaceEntity -> should NOT be ignored
+        val downOnSurface =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                200L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.DOWN,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(downOnSurface)
+        composeTestRule.waitForIdle()
+
+        assertEquals(1, events.size)
+        assertEquals(InputEvent.Action.DOWN, events[0].action)
+
+        // 5. Touch UP on surfaceEntity -> should NOT be ignored
+        val upOnSurface2 =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                201L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.UP,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(upOnSurface2)
+        composeTestRule.waitForIdle()
+
+        assertEquals(2, events.size)
+        assertEquals(InputEvent.Action.UP, events[1].action)
     }
 
     private fun assertSingleInteractableComponentExist(
