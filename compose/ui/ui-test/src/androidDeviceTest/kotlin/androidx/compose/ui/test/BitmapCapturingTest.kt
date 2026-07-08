@@ -16,10 +16,13 @@
 
 package androidx.compose.ui.test
 
+import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -418,6 +421,31 @@ class BitmapCapturingTest(val config: TestConfig) {
         }
     }
 
+    @Test
+    fun captureToImage_timesOut_whenRedrawExceedsDefaultTimeout() {
+        lateinit var slowView: SlowDrawView
+        setContent { SlowDrawingBox(onCreated = { slowView = it }) }
+        rule.waitForIdle()
+        slowView.shouldDelay = true
+
+        assertThrows(ComposeTimeoutException::class.java) {
+            rule.onNodeWithTag(rootTag).captureToImage()
+        }
+    }
+
+    @Test
+    fun captureToImage_succeeds_whenCustomTimeoutExceedsRedrawDelay() {
+        lateinit var slowView: SlowDrawView
+        setContent { SlowDrawingBox(onCreated = { slowView = it }) }
+        rule.waitForIdle()
+        slowView.shouldDelay = true
+
+        rule
+            .onNodeWithTag(rootTag)
+            .captureToImage(timeoutMillis = 3_500)
+            .assertContainsColor(Color.Red)
+    }
+
     private fun Dp.toPixel(density: Density) = this.value * density.density
 
     private fun expectedColorProvider(pos: IntOffset): Color {
@@ -479,5 +507,47 @@ class BitmapCapturingTest(val config: TestConfig) {
             is CustomComposeHostActivity -> activity.setContent(content)
             else -> rule.setContent(content)
         }
+    }
+
+    private class SlowDrawView(context: Context) :
+        View(context), android.view.ViewTreeObserver.OnPreDrawListener {
+        var delayMillis = 3_000L
+        @Volatile var shouldDelay = false
+
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+            viewTreeObserver.addOnPreDrawListener(this)
+        }
+
+        override fun onDetachedFromWindow() {
+            super.onDetachedFromWindow()
+            viewTreeObserver.removeOnPreDrawListener(this)
+        }
+
+        @Suppress("BanThreadSleep")
+        override fun onPreDraw(): Boolean {
+            if (shouldDelay) {
+                shouldDelay = false
+                Thread.sleep(delayMillis)
+            }
+            return true
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            canvas.drawColor(android.graphics.Color.RED)
+        }
+    }
+
+    @Composable
+    private fun SlowDrawingBox(tag: String = rootTag, onCreated: (SlowDrawView) -> Unit) {
+        AndroidView(
+            factory = { context ->
+                SlowDrawView(context).apply {
+                    setWillNotDraw(false)
+                    onCreated(this)
+                }
+            },
+            modifier = Modifier.testTag(tag).size(100.dp),
+        )
     }
 }

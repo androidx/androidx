@@ -55,25 +55,52 @@ import kotlin.math.roundToInt
  * @throws IllegalArgumentException if an attempt is made to capture a bitmap of a dialog before
  *   API 28.
  */
-@OptIn(ExperimentalTestApi::class)
+@Deprecated(
+    message = "Use captureToImage with explicit timeoutMillis instead.",
+    level = DeprecationLevel.HIDDEN,
+)
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
+    return captureToImage(timeoutMillis = 2_000)
+}
+
+/**
+ * Captures the underlying semantics node's surface into an [ImageBitmap].
+ *
+ * This can be used to capture nodes in a normal composable, as well as across multiple roots.
+ * Popups and Dialogs (if API >= 28) are specific cases of this, where they can be captured together
+ * with their anchor.
+ *
+ * For example, selecting the root node (via `onRoot()`) when a popup or dialog is present will
+ * detect multiple roots. In this scenario, the resulting image is cropped to the combined bounding
+ * box of all nodes across the different roots. If a Dialog is present among the roots, the image is
+ * cropped to the window's visible display frame.
+ *
+ * @param timeoutMillis The maximum time (in ms) to wait for the drawing to complete. Default is
+ *   2000 ms.
+ * @throws IllegalArgumentException if an attempt is made to capture a bitmap of a dialog before
+ *   API 28.
+ * @throws ComposeTimeoutException if drawing does not complete within [timeoutMillis].
+ */
+@OptIn(ExperimentalTestApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+fun SemanticsNodeInteraction.captureToImage(timeoutMillis: Long = 2_000): ImageBitmap {
     val nodes = fetchSemanticsNodes(atLeastOneRootRequired = true).selectedNodes
     require(nodes.isNotEmpty()) { "Failed to capture a node to bitmap." }
 
     if (nodes.size > 1) {
-        return processMultiWindowScreenshot(nodes, testContext)
+        return processMultiWindowScreenshot(nodes, testContext, timeoutMillis)
     }
 
     val node = nodes.single()
 
     // Popups and Surface Views are in a different window; use the multi-window screenshot mechanism
     if (node.isInsidePopup || node.hasIntersectingSurfaceView()) {
-        return processMultiWindowScreenshot(listOf(node), testContext)
+        return processMultiWindowScreenshot(listOf(node), testContext, timeoutMillis)
     }
 
     val windowToUse = node.getDialogWindow() ?: node.view.context.getActivityWindow()
-    return windowToUse.captureRegionToImage(testContext, node.getBoundsInWindow())
+    return windowToUse.captureRegionToImage(testContext, node.getBoundsInWindow(), timeoutMillis)
 }
 
 /**
@@ -89,9 +116,10 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
 private fun processMultiWindowScreenshot(
     nodes: List<SemanticsNode>,
     testContext: TestContext,
+    timeoutMillis: Long,
 ): ImageBitmap {
     val rootViews = nodes.map { it.view }.distinct()
-    rootViews.forEach { it.forceRedraw(testContext) }
+    rootViews.forEach { it.forceRedraw(testContext, timeoutMillis) }
 
     val combinedBitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
 
