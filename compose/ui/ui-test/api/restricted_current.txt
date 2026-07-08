@@ -54,7 +54,9 @@ package androidx.compose.ui.test {
   }
 
   public final class AndroidImageHelpers_androidKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.ImageBitmap captureToImage(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @BytecodeOnly @Deprecated @RequiresApi(26) public static androidx.compose.ui.graphics.ImageBitmap! captureToImage(androidx.compose.ui.test.SemanticsNodeInteraction!);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.ImageBitmap captureToImage(androidx.compose.ui.test.SemanticsNodeInteraction, optional long timeoutMillis);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.ImageBitmap! captureToImage$default(androidx.compose.ui.test.SemanticsNodeInteraction!, long, int, Object!);
   }
 
   public final class AssertionsKt {
