@@ -38,13 +38,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ScrollbarWithLazyColumnSample() {
     val state = rememberLazyListState()
+    val scrollIndicatorState = state.scrollIndicatorState
+    val scrollbarModifier =
+        if (scrollIndicatorState != null) {
+            Modifier.scrollbar(scrollIndicatorState, orientation = Orientation.Vertical)
+        } else {
+            Modifier
+        }
 
-    LazyColumn(
-        state = state,
-        modifier =
-            Modifier.fillMaxSize()
-                .scrollbar(state.scrollIndicatorState, orientation = Orientation.Vertical),
-    ) {
+    LazyColumn(state = state, modifier = Modifier.fillMaxSize().then(scrollbarModifier)) {
         items(100) { index ->
             Text(
                 text = "Item $index",
@@ -58,12 +60,19 @@ fun ScrollbarWithLazyColumnSample() {
 @Composable
 fun ScrollbarWithVerticalScrollSample() {
     val state = rememberScrollState()
+    val scrollIndicatorState = state.scrollIndicatorState
+    val scrollbarModifier =
+        if (scrollIndicatorState != null) {
+            Modifier.scrollbar(scrollIndicatorState, orientation = Orientation.Vertical)
+        } else {
+            Modifier
+        }
 
     Column(
         modifier =
             Modifier.fillMaxSize()
                 // Chain before verticalScroll so the scrollbar doesn't scroll with content.
-                .scrollbar(state.scrollIndicatorState, orientation = Orientation.Vertical)
+                .then(scrollbarModifier)
                 .verticalScroll(state)
     ) {
         repeat(100) { index ->
