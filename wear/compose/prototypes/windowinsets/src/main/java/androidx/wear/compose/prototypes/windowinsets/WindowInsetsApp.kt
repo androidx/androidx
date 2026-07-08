@@ -29,9 +29,13 @@ import kotlinx.serialization.Serializable
 sealed interface Screen : NavKey {
     @Serializable data object Menu : Screen
 
-    @Serializable data object ScaffoldDemo : Screen
+    @Serializable data object GlobalStatusBarSandbox : Screen
 
-    @Serializable data object NoScaffoldDemo : Screen
+    @Serializable data object HorizontalPager : Screen
+
+    @Serializable data object VerticalPager : Screen
+
+    @Serializable data object SelfRenderedSandbox : Screen
 }
 
 @Composable
@@ -47,12 +51,22 @@ fun WindowInsetsApp() {
             entryProvider {
                 entry<Screen.Menu> { MenuScreen(backStack = backStack) }
 
-                entry<Screen.ScaffoldDemo> {
-                    ScaffoldDemoScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                entry<Screen.GlobalStatusBarSandbox> {
+                    GlobalStatusBarSandboxScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
                 }
 
-                entry<Screen.NoScaffoldDemo> {
-                    NoScaffoldDemoScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                entry<Screen.HorizontalPager> {
+                    HorizontalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.VerticalPager> {
+                    VerticalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.SelfRenderedSandbox> {
+                    SelfRenderedSandboxScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
             },
     )

@@ -28,7 +28,7 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <!-- GSSB Enablement Flag -->
+        <!-- GSB Enablement Flag -->
         <meta-data
             android:name="com.google.wear.ENABLE_GLOBAL_STATUS_BAR"
             android:value="true"
