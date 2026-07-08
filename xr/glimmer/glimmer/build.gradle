@@ -29,11 +29,15 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.runtime:runtime:1.10.0")
-    api("androidx.compose.ui:ui:1.10.0")
-    api("androidx.compose.foundation:foundation:1.10.0")
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:runtime:runtime"))
     api("androidx.annotation:annotation:1.9.1")
 
+    // Force tests to occur against Foundation ToT, even we pin Glimmer's main Foundation dependency
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
@@ -51,7 +55,7 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer"
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     defaultConfig {
         testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
     }

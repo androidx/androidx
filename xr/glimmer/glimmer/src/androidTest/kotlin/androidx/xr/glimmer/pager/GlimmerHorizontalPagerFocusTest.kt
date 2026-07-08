@@ -205,7 +205,8 @@ class GlimmerHorizontalPagerFocusTest(private val config: GlimmerPagerParamConfi
             assertThat(page0FocusEvents[1].isFocused).isTrue()
             assertThat(page0FocusEvents[2].isFocused).isFalse()
 
-            assertThat(page1FocusEvents).isEmpty()
+            assertThat(page1FocusEvents).hasSize(1)
+            assertThat(page1FocusEvents[0].isFocused).isFalse()
 
             assertThat(page2FocusEvents).hasSize(2)
             assertThat(page2FocusEvents[0].isFocused).isFalse()
@@ -220,12 +221,10 @@ class GlimmerHorizontalPagerFocusTest(private val config: GlimmerPagerParamConfi
 
         rule.onNodeWithTag("Page 1").assertIsFocused()
         rule.runOnIdle {
-            assertThat(page0FocusEvents).hasSize(1)
-            assertThat(page0FocusEvents[0].isFocused).isFalse()
+            assertThat(page0FocusEvents).isEmpty()
 
-            assertThat(page1FocusEvents).hasSize(2)
-            assertThat(page1FocusEvents[0].isFocused).isFalse()
-            assertThat(page1FocusEvents[1].isFocused).isTrue()
+            assertThat(page1FocusEvents).hasSize(1)
+            assertThat(page1FocusEvents[0].isFocused).isTrue()
 
             assertThat(page2FocusEvents).hasSize(1)
             assertThat(page2FocusEvents[0].isFocused).isFalse()
@@ -415,9 +414,8 @@ class GlimmerHorizontalPagerFocusTest(private val config: GlimmerPagerParamConfi
 
         rule.onNodeWithTag("Page 0").assertIsFocused()
         rule.runOnIdle {
-            assertThat(page0FocusEvents).hasSize(2)
-            assertThat(page0FocusEvents[0].isFocused).isFalse()
-            assertThat(page0FocusEvents[1].isFocused).isTrue()
+            assertThat(page0FocusEvents).hasSize(1)
+            assertThat(page0FocusEvents[0].isFocused).isTrue()
 
             assertThat(page1FocusEvents).hasSize(1)
             assertThat(page1FocusEvents[0].isFocused).isFalse()
@@ -575,7 +573,8 @@ class GlimmerHorizontalPagerFocusTest(private val config: GlimmerPagerParamConfi
             assertThat(page0FocusEvents).hasSize(1)
             assertThat(page0FocusEvents[0].isFocused).isFalse()
 
-            assertThat(page1FocusEvents).isEmpty()
+            assertThat(page1FocusEvents).hasSize(1)
+            assertThat(page1FocusEvents[0].isFocused).isFalse()
 
             assertThat(page2FocusEvents).hasSize(2)
             assertThat(page2FocusEvents[0].isFocused).isFalse()
