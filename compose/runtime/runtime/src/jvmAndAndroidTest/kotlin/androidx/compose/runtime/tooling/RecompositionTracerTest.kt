@@ -29,8 +29,8 @@ import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -172,11 +172,11 @@ class RecompositionTracerTest {
     ) = compositionTest {
         val listener = MockTraceEventListener()
         val tracer = RecompositionTracer(listener)
-        val job = launch(start = CoroutineStart.UNDISPATCHED) { tracer.runTracing() }
+        val handle = tracer.installTracing(currentCoroutineContext())
         try {
             block(listener)
         } finally {
-            job.cancel()
+            handle.cancel()
         }
     }
 
@@ -609,6 +609,27 @@ class RecompositionTracerTest {
                 ),
             )
         }
+
+    @Test
+    fun recompositionTracerRegisteredAfterInstallReturns() = compositionTest {
+        val listener = MockTraceEventListener()
+        val tracer = RecompositionTracer(listener)
+        val coroutineContext = testCoroutineScheduler + currentCoroutineContext().job
+        val handle = tracer.installTracing(coroutineContext)
+        try {
+            // Important for the test: no suspend / scheduler advance until the end of try block
+            val state = mutableStateOf(false)
+            var scope: RecomposeScope? = null
+            compose {
+                scope = currentRecomposeScope
+                state.value
+            }
+
+            assertEvents(listener.events, listOf(TraceEvent.StateRead(scope!!, state.asString())))
+        } finally {
+            handle.cancel()
+        }
+    }
 }
 
 @Composable

@@ -1450,7 +1450,7 @@ package androidx.compose.runtime.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public final class RecompositionTracer {
     ctor public RecompositionTracer(androidx.compose.runtime.tooling.RecompositionTracer.TraceCollector traceCollector);
-    method public suspend Object? runTracing(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.compose.runtime.CancellationHandle installTracing(kotlin.coroutines.CoroutineContext coroutineContext);
   }
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public static interface RecompositionTracer.TraceCollector {

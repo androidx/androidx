@@ -19,6 +19,7 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterMapOf
+import androidx.compose.runtime.CancellationHandle
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.compose.runtime.RecomposeScope
@@ -36,7 +37,11 @@ import androidx.compose.runtime.snapshots.tooling.observeSnapshots
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
-import kotlinx.coroutines.coroutineScope
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 private val _nextFlowId = AtomicLong(0)
 
@@ -102,54 +107,73 @@ internal constructor(private val traceEventListener: TraceEventListener) {
         public fun isEnabled(): Boolean
     }
 
-    /** Registers and runs recomposition tracing until cancelled. */
-    public suspend fun runTracing() {
-        coroutineScope {
-            val observer = RecompositionFlowObserver(traceEventListener)
-            val snapshotObserverHandle =
-                Snapshot.observeSnapshots(
-                    object : SnapshotObserver {
-                        val instanceObservers =
-                            SnapshotInstanceObservers(writeObserver = observer::onStateWrite)
+    /**
+     * Installs recomposition tracing.
+     *
+     * Registers observers and starts recording events using the caller's coroutine context. The
+     * method returns after the recomposer observer is installed.
+     *
+     * @param coroutineContext context to run the observer in
+     * @return a [CancellationHandle] to stop tracing and dispose of registered observers
+     */
+    public fun installTracing(coroutineContext: CoroutineContext): CancellationHandle {
+        val observer = RecompositionFlowObserver(traceEventListener)
+        val observerJob = runRecomposerObserver(coroutineContext, observer)
+        val snapshotObserverHandle =
+            Snapshot.observeSnapshots(
+                object : SnapshotObserver {
+                    val instanceObservers =
+                        SnapshotInstanceObservers(writeObserver = observer::onStateWrite)
 
-                        override fun onPreCreate(
-                            parent: Snapshot?,
-                            readonly: Boolean,
-                        ): SnapshotInstanceObservers = instanceObservers
-                    }
-                )
-            val writeObserverHandle = Snapshot.registerGlobalWriteObserver(observer::onStateWrite)
-            try {
-                runRecomposerObserver(observer)
-            } finally {
-                snapshotObserverHandle.dispose()
-                writeObserverHandle.dispose()
-                observer.close()
-            }
+                    override fun onPreCreate(
+                        parent: Snapshot?,
+                        readonly: Boolean,
+                    ): SnapshotInstanceObservers = instanceObservers
+                }
+            )
+        val writeObserverHandle = Snapshot.registerGlobalWriteObserver(observer::onStateWrite)
+
+        return CancellationHandle {
+            observerJob.cancel()
+            snapshotObserverHandle.dispose()
+            writeObserverHandle.dispose()
+            observer.close()
         }
     }
 
-    private suspend fun runRecomposerObserver(observer: RecompositionFlowObserver) {
-        val recomposerObservers = mutableMapOf<RecomposerInfo, CompositionObserverHandle?>()
-        try {
-            Recomposer.runningRecomposers.collect { running ->
-                running.forEach { recomposer ->
-                    if (recomposer !in recomposerObservers) {
-                        recomposerObservers[recomposer] = recomposer.observe(observer)
+    private fun runRecomposerObserver(
+        coroutineContext: CoroutineContext,
+        observer: RecompositionFlowObserver,
+    ): Job {
+        // This job should not be attached to the current context through structured concurrency, as
+        // it is a background collection job that is not attached to anything else.
+        val observerJob = Job()
+
+        // Starting UNDISPATCHED to process the first value immediately
+        CoroutineScope(coroutineContext + observerJob).launch(start = CoroutineStart.UNDISPATCHED) {
+            val recomposerObservers = mutableMapOf<RecomposerInfo, CompositionObserverHandle?>()
+            try {
+                Recomposer.runningRecomposers.collect { running ->
+                    running.forEach { recomposer ->
+                        if (recomposer !in recomposerObservers) {
+                            recomposerObservers[recomposer] = recomposer.observe(observer)
+                        }
+                    }
+                    val currentIterator = recomposerObservers.entries.iterator()
+                    while (currentIterator.hasNext()) {
+                        val (obs, handle) = currentIterator.next()
+                        if (obs !in running) {
+                            handle?.dispose()
+                            currentIterator.remove()
+                        }
                     }
                 }
-                val currentIterator = recomposerObservers.entries.iterator()
-                while (currentIterator.hasNext()) {
-                    val (obs, handle) = currentIterator.next()
-                    if (obs !in running) {
-                        handle?.dispose()
-                        currentIterator.remove()
-                    }
-                }
+            } finally {
+                recomposerObservers.values.forEach { it?.dispose() }
             }
-        } finally {
-            recomposerObservers.values.forEach { it?.dispose() }
         }
+
+        return observerJob
     }
 
     /** Receives recomposition flow events. */
@@ -268,9 +292,9 @@ internal constructor(private val traceEventListener: TraceEventListener) {
     }
 }
 
-// TraceCollector uses List<Long> to encodes flows in the API to highlight immutability and avoid
-// dependency on LongList. The class below is optimized to avoid boxing/unboxing as much as
-// possible.
+// TraceCollector uses List<Long> to encode flows in the API to match consumers
+// (such as androidx.tracing). Since the adapter will have to box flows regardless, we can avoid
+// additional boxing when crossing this boundary.
 // It still boxes every flow id once, but that effectively pre-allocates those values when passing
 // them along to androidx.tracing and allows using `ScatterMap#compute` to avoid extra lookups.
 // The tracing is expected to be a heavy operation because of stack trace capture anyways, so using
