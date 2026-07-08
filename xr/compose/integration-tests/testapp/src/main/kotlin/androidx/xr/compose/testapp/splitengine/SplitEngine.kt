@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
-
 package androidx.xr.compose.testapp.splitengine
 
 import android.annotation.SuppressLint
@@ -66,8 +64,6 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GltfAnimation
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
@@ -322,7 +318,7 @@ class SplitEngine : ComponentActivity() {
                     }
 
                     if (glimmerModel.value != null) {
-                        ApiButton("Play\nGlimmer", modifier) {
+                        ApiButton("Show\nGlimmer", modifier) {
                             if (glimmerEntity.value == null) {
                                 glimmerEntity.value =
                                     GltfModelEntity.create(
@@ -332,10 +328,6 @@ class SplitEngine : ComponentActivity() {
                                         session.scene.activitySpace,
                                     )
                             }
-                            glimmerEntity.value!!
-                                .getAnimations()
-                                .firstOrNull()
-                                ?.start(GltfAnimationStartOptions(shouldLoop = false))
                         }
                     }
                 }
@@ -348,9 +340,6 @@ class SplitEngine : ComponentActivity() {
         val dragonModel = remember { mutableStateOf<GltfModel?>(null) }
         val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
         var isChecked by remember { mutableStateOf(false) } // State for the switch
-        val dragonAnimationState = remember {
-            androidx.compose.runtime.mutableStateOf(GltfAnimation.AnimationState.STOPPED)
-        }
         val scope = rememberCoroutineScope()
 
         Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
@@ -404,48 +393,7 @@ class SplitEngine : ComponentActivity() {
         if (dragonEntity.value != null) {
             Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    ApiText(text = "Split-Engine APIs - Animation")
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        val modifier = Modifier.weight(1F)
-                        ApiButton("Animate Dragon Entity", modifier) {
-                            dragonEntity.value!!
-                                .getAnimations()
-                                .find { it.name == "Fast_Flying" }
-                                ?.start(GltfAnimationStartOptions(shouldLoop = false))
-                        }
-                        ApiButton("Loop Animate Dragon Entity", modifier) {
-                            val fastFlyingAnim =
-                                dragonEntity.value!!.getAnimations().find {
-                                    it.name == "Fast_Flying"
-                                }
-                            fastFlyingAnim?.start(GltfAnimationStartOptions(shouldLoop = true))
-
-                            dragonAnimationState.value =
-                                fastFlyingAnim?.animationState
-                                    ?: GltfAnimation.AnimationState.STOPPED
-                        }
-                        ApiButton("Stop Animate Dragon Entity", modifier) {
-                            dragonEntity.value!!.getAnimations().forEach { anim ->
-                                if (anim.animationState == GltfAnimation.AnimationState.PLAYING) {
-                                    anim.stop()
-                                }
-                            }
-                            dragonAnimationState.value = GltfAnimation.AnimationState.STOPPED
-                        }
-                    }
-                }
-            }
-
-            Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    ApiText(text = "Split Engine APIs - Setting & Animation State")
+                    ApiText(text = "Split Engine APIs - Settings")
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -485,19 +433,6 @@ class SplitEngine : ComponentActivity() {
                                 }
                             },
                             modifier = Modifier.weight(1f),
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        val stateValue = dragonAnimationState.value.toString()
-                        Text(
-                            text = "Animation State: $stateValue",
-                            modifier = Modifier.weight(1f),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
