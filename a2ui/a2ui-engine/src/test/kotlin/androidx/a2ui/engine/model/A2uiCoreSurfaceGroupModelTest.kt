@@ -309,7 +309,7 @@ class A2uiCoreSurfaceGroupModelTest {
 
         override fun get(path: A2uiDataPath): Any? = null
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }
@@ -321,7 +321,7 @@ class A2uiCoreSurfaceGroupModelTest {
 
         override fun reportError(id: String, exception: A2uiException) {}
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }

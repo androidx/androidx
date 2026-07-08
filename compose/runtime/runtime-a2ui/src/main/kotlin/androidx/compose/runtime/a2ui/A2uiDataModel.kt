@@ -139,7 +139,7 @@ internal class A2uiDataModel : A2uiCoreDataModel {
         return current
     }
 
-    override fun dispose() {
+    override fun close() {
         updateLock.withLock { rootState.value = null }
         Snapshot.sendApplyNotifications()
     }

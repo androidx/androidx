@@ -339,7 +339,7 @@ class A2uiComponentStateTest {
 
                     override fun reportError(id: String, exception: A2uiException) {}
 
-                    override fun dispose() {}
+                    override fun close() {}
                 }
             val surface = createSurfaceModel(registry = invalidRegistry)
 

@@ -59,14 +59,14 @@ package androidx.a2ui.engine.model {
 
 package androidx.a2ui.engine.platform {
 
-  public interface A2uiCoreComponentRegistry {
-    method public void dispose();
+  public interface A2uiCoreComponentRegistry extends java.lang.AutoCloseable {
+    method public void close();
     method public void reportError(String id, androidx.a2ui.model.protocol.A2uiException exception);
     method public void update(java.util.List<androidx.a2ui.model.protocol.A2uiComponentPayload> components);
   }
 
-  public interface A2uiCoreDataModel {
-    method public void dispose();
+  public interface A2uiCoreDataModel extends java.lang.AutoCloseable {
+    method public void close();
     method public operator Object? get(androidx.a2ui.model.protocol.A2uiDataPath path);
     method public void update(androidx.a2ui.model.protocol.A2uiDataPath path, Object? value);
   }

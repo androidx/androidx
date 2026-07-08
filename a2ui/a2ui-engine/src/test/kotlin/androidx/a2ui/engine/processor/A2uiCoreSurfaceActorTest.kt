@@ -466,7 +466,7 @@ class A2uiCoreSurfaceActorTest {
 
         override fun get(path: A2uiDataPath): Any? = updates[path.normalizedPath]
 
-        override fun dispose() {}
+        override fun close() {}
     }
 
     private class TestComponentRegistry : A2uiCoreComponentRegistry {
@@ -478,6 +478,6 @@ class A2uiCoreSurfaceActorTest {
 
         override fun reportError(id: String, exception: A2uiException) {}
 
-        override fun dispose() {}
+        override fun close() {}
     }
 }
