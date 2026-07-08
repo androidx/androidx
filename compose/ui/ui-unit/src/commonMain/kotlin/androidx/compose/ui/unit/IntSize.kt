@@ -76,7 +76,8 @@ value class IntSize @PublishedApi internal constructor(val packedValue: Long) {
 
     companion object {
         /** IntSize with a zero (0) width and height. */
-        val Zero = IntSize(0L)
+        val Zero
+            get() = IntSize(0L)
     }
 }
 

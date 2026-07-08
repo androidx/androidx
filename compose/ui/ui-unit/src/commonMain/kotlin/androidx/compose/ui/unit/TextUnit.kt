@@ -55,9 +55,14 @@ value class TextUnitType(internal val type: Long) {
     }
 
     companion object {
-        val Unspecified = TextUnitType(UNIT_TYPE_UNSPECIFIED)
-        val Sp = TextUnitType(UNIT_TYPE_SP)
-        val Em = TextUnitType(UNIT_TYPE_EM)
+        val Unspecified
+            get() = TextUnitType(UNIT_TYPE_UNSPECIFIED)
+
+        val Sp
+            get() = TextUnitType(UNIT_TYPE_SP)
+
+        val Em
+            get() = TextUnitType(UNIT_TYPE_EM)
     }
 }
 
