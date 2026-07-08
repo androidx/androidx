@@ -17,7 +17,6 @@
 package androidx.build.binarycompatibilityvalidator
 
 import androidx.build.AndroidXMultiplatformExtension
-import androidx.build.HAS_CINTEROP_ATTRIBUTE
 import androidx.build.Version
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
@@ -28,8 +27,7 @@ import androidx.build.checkapi.shouldWriteVersionedApiFile
 import androidx.build.getDistributionDirectory
 import androidx.build.getLibraryClasspath
 import androidx.build.getSupportRootFolder
-import androidx.build.hasCInterop
-import androidx.build.hasCInteropDependency
+import androidx.build.isKlibCrossCompilationEnabled
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.metalava.UpdateApiTask
 import androidx.build.multiplatformExtension
@@ -89,18 +87,6 @@ class BinaryCompatibilityValidation(
                     it.dependsOn(updateAll)
                 }
             }
-
-            val hasCInterop = kotlinMultiplatformExtension.hasCInterop()
-            kotlinMultiplatformExtension.nativeTargets().forEach { target ->
-                listOf(target.apiElementsConfigurationName, target.runtimeElementsConfigurationName)
-                    .forEach { configName ->
-                        project.configurations
-                            .matching { it.name == configName }
-                            .configureEach { config ->
-                                config.attributes.attribute(HAS_CINTEROP_ATTRIBUTE, hasCInterop)
-                            }
-                    }
-            }
         }
 
     private fun configureKlibTasks(
@@ -120,21 +106,21 @@ class BinaryCompatibilityValidation(
         val klibDumpDir = project.layout.buildDirectory.dir(KLIB_DUMPS_DIRECTORY)
         val klibDumpFile = klibDumpDir.map { it.file(CURRENT_API_FILE_NAME) }
 
-        val hasCInterop = kotlinMultiplatformExtension.hasCInterop()
-        val hasCInteropProperty =
+        // A project can only build/validate its ABI on the current host when all of its targets are
+        // supported there, or when the unsupported (Apple) targets can be cross-compiled. The
+        // latter
+        // is exactly what `kotlin.native.enableKlibsCrossCompilation` controls; it is disabled when
+        // the project, or one of its dependencies (including a prebuilt one), uses C-interop.
+        val cannotCrossCompileProperty =
             project.objects
                 .property(Boolean::class.javaObjectType)
-                .value(
-                    project.hasCInteropDependency().map { hasCInteropDependency ->
-                        hasCInterop || hasCInteropDependency
-                    }
-                )
+                .value(project.isKlibCrossCompilationEnabled().map { enabled -> !enabled })
         val generateAbi =
             project.generateAbiTask(
                 klibDumpFile,
                 abiToolsClasspath,
                 kotlinMultiplatformExtension.hasUnsupportedTargets(),
-                hasCInteropProperty,
+                cannotCrossCompileProperty,
             )
         val generatedAndMergedApiFile: Provider<RegularFileProperty> =
             generateAbi.map { it.abiFile }
@@ -262,7 +248,7 @@ class BinaryCompatibilityValidation(
         mergeFile: Provider<RegularFile>,
         runtimeClasspath: FileCollection,
         hasUnsupportedTargets: Boolean,
-        hasCInteropProperty: Property<Boolean>,
+        cannotCrossCompileProperty: Property<Boolean>,
     ) =
         project.tasks.register(GENERATE_NAME, GenerateAbiTask::class.java) {
             // This only affects the external process launched by this task,
@@ -289,7 +275,7 @@ class BinaryCompatibilityValidation(
                 runHostCompatibilityChecks(
                     projectPath,
                     hasUnsupportedTargets,
-                    hasCInteropProperty.get(),
+                    cannotCrossCompileProperty.get(),
                 )
             }
         }
@@ -311,15 +297,15 @@ private fun KotlinMultiplatformExtension.hasUnsupportedTargets(): Boolean {
 private fun runHostCompatibilityChecks(
     projectPath: String,
     hasUnsupportedTargets: Boolean,
-    hasCInterop: Boolean,
+    cannotCrossCompile: Boolean,
 ) {
     if (!hasUnsupportedTargets) {
         // running on mac, or project has no mac targets. No further checks necessary
         return
     }
-    if (hasCInterop) {
-        // It's impossible to run these tasks on the current host, because they require cinterop
-        // so cross compilation is not an option
+    if (cannotCrossCompile) {
+        // It's impossible to run these tasks on the current host, because the unsupported targets
+        // use cinterop and so cannot be cross-compiled here.
         throw GradleException(
             """
             Project $projectPath uses cinterop (or depends on a project that uses cinterop) and cannot be compiled on the current host (${HostManager.host}).
