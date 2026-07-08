@@ -62,7 +62,9 @@ value class Velocity internal constructor(private val packedValue: Long) {
          *
          * This can be used to represent the origin of a coordinate space.
          */
-        @Stable val Zero = Velocity(0x0L)
+        @Stable
+        val Zero
+            get() = Velocity(0x0L)
     }
 
     /**

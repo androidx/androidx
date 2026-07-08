@@ -100,16 +100,22 @@ constructor(val value: Float) : Comparable<Dp> {
          * A dimension used to represent a hairline drawing element. Hairline elements take up no
          * space, but will draw a single pixel, independent of the device's resolution and density.
          */
-        @Stable val Hairline = Dp(0f)
+        @Stable
+        val Hairline
+            get() = Dp(0f)
 
         /** Infinite dp dimension. */
-        @Stable val Infinity = Dp(Float.POSITIVE_INFINITY)
+        @Stable
+        val Infinity
+            get() = Dp(Float.POSITIVE_INFINITY)
 
         /**
          * Constant that means unspecified Dp. Instead of comparing a [Dp] value to this constant,
          * consider using [isSpecified] and [isUnspecified] instead.
          */
-        @Stable val Unspecified = Dp(Float.NaN)
+        @Stable
+        val Unspecified
+            get() = Dp(Float.NaN)
     }
 }
 
@@ -265,14 +271,16 @@ value class DpOffset(val packedValue: Long) {
 
     companion object {
         /** A [DpOffset] with 0 DP [x] and 0 DP [y] values. */
-        val Zero = DpOffset(0x0L)
+        val Zero
+            get() = DpOffset(0x0L)
 
         /**
          * Represents an offset whose [x] and [y] are unspecified. This is usually a replacement for
          * `null` when a primitive value is desired. Access to [x] or [y] on an unspecified offset
          * is not allowed.
          */
-        val Unspecified = DpOffset(0x7fc00000_7fc00000L)
+        val Unspecified
+            get() = DpOffset(0x7fc00000_7fc00000L)
     }
 }
 
@@ -371,14 +379,16 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
 
     companion object {
         /** A [DpSize] with 0 DP [width] and 0 DP [height] values. */
-        val Zero = DpSize(0x0L)
+        val Zero
+            get() = DpSize(0x0L)
 
         /**
          * A size whose [width] and [height] are unspecified. This is usually a replacement for
          * `null` when a primitive value is desired. Access to [width] or [height] on an unspecified
          * size is not allowed.
          */
-        val Unspecified = DpSize(0x7fc00000_7fc00000L)
+        val Unspecified
+            get() = DpSize(0x7fc00000_7fc00000L)
     }
 }
 
