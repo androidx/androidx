@@ -253,10 +253,12 @@ public class ArcAnimationSpec<T>(
 public value class StartOffsetType private constructor(internal val value: Int) {
     public companion object {
         /** Delays the start of the animation. */
-        public val Delay: StartOffsetType = StartOffsetType(-1)
+        public val Delay: StartOffsetType
+            get() = StartOffsetType(-1)
 
         /** Fast forwards the animation to a given play time, and starts it immediately. */
-        public val FastForward: StartOffsetType = StartOffsetType(1)
+        public val FastForward: StartOffsetType
+            get() = StartOffsetType(1)
     }
 }
 
