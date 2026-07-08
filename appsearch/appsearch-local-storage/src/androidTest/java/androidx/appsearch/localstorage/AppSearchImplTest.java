@@ -11488,6 +11488,81 @@ public class AppSearchImplTest {
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    public void testWipeoutAccount_removeByAccountName_whenAccountIdIsMissing() throws Exception {
+        // Setup: set a schema with account property and create an account.
+        AppSearchSchema email = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("account",
+                        AppSearchAccount.SCHEMA_TYPE)
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+
+        InternalSetSchemaResponse internalSetSchemaResponse =
+                mAppSearchImpl.setSchema(
+                        "package",
+                        "database",
+                        ImmutableList.of(email, AppSearchAccount.SCHEMA),
+                        /*visibilityConfigs=*/ Collections.emptyList(),
+                        /*accountPropertyPaths=*/ ImmutableMap.of("Email",
+                                ImmutableSet.of("account")),
+                        /* forceOverride= */ false,
+                        /* version= */ 0,
+                        /* setSchemaStatsBuilder= */ null,
+                        /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        Account account = new Account("accountName", "accountType");
+        mAppSearchImpl.updateAccountStore(ImmutableSet.of(account),
+                /*renamedAccounts=*/ImmutableMap.of());
+
+        // Put a document with account property that only has AccountName and AccountType,
+        // but NO AccountId.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace", "id", "Email")
+                        .setPropertyDocument("account",
+                                new AppSearchAccount.Builder("namespace", "account1")
+                                        .setAccountType("accountType")
+                                        .setAccountName("accountName")
+                                        .build())
+                        .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+
+        // Verify the document exists
+        GenericDocument outDocument = mAppSearchImpl.getDocument(
+                "package",
+                "database",
+                "namespace",
+                "id",
+                /*typePropertyPaths=*/ Collections.emptyMap(),
+                /*callStatsBuilder=*/ null);
+        assertThat(outDocument).isEqualTo(document);
+
+        // Remove account. Because accountId was missing in the document, removal must fall back
+        // to matching by accountName. In the old buggy code, this would query by accountId
+        // and fail to remove the document.
+        mAppSearchImpl.updateAccountStore(/*allExistingAccounts=*/ImmutableSet.of(),
+                /*renamedAccounts=*/ImmutableMap.of());
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.getDocument(
+                        "package",
+                        "database",
+                        "namespace",
+                        "id",
+                        /*typePropertyPaths=*/ Collections.emptyMap(),
+                        /*callStatsBuilder=*/ null));
+        assertThat(e.getMessage()).endsWith("not found.");
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
     public void testWipeoutAccount_removeSpecialAccountName() throws Exception {
         // Setup: set a schema with account property and create an account.
         AppSearchSchema email = new AppSearchSchema.Builder("Email")

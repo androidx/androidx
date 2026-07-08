@@ -373,10 +373,33 @@ public class AccountStoreTest {
                 + "OR ((nested.accountProperty2.accountType:(\"com.example.type1\")) "
                 + "AND (nested.accountProperty2.accountId:(\"accountId1\")))) "
                 + "OR ((accountProperty1.accountType:(\"com.example.type2\")) "
-                + "AND (accountProperty1.accountId:(\"user2@example.com\")))) "
+                + "AND (accountProperty1.accountName:(\"user2@example.com\")))) "
                 + "OR ((nested.accountProperty2.accountType:(\"com.example.type2\")) "
-                + "AND (nested.accountProperty2.accountId:(\"user2@example.com\"))))";
+                + "AND (nested.accountProperty2.accountName:(\"user2@example.com\"))))";
 
         assertThat(expectedQueryString).isEqualTo(query);
+    }
+
+    @Test
+    public void testBuildRemovalQuery_missingAccountId_usesAccountNameProperty() {
+        // Create an account without an account ID (only name and type).
+        AccountProto deletedProto = AccountToProtoConverter.toAccountProto(
+                new AppSearchAccount.Builder(NAMESPACE, ID)
+                        .setAccountType(TEST_ACCOUNT_TYPE_1)
+                        .setAccountName(TEST_ACCOUNT_NAME_1)
+                        .build());
+
+        Set<AccountProto> deletedAccounts = ImmutableSet.of(deletedProto);
+        Set<String> propertyPaths = ImmutableSet.of(ACCOUNT_PROPERTY_PATH_1);
+
+        String query = AccountStore.buildRemovalQuery(deletedAccounts, propertyPaths);
+
+        // When accountId is missing, the removal query must restrict on PROPERTY_ACCOUNT_NAME
+        // (accountName) rather than PROPERTY_ACCOUNT_ID (accountId).
+        String expectedQueryString =
+                "((accountProperty1.accountType:(\"com.example.type1\")) "
+                        + "AND (accountProperty1.accountName:(\"user1@example.com\")))";
+
+        assertThat(query).isEqualTo(expectedQueryString);
     }
 }

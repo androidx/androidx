@@ -428,7 +428,7 @@ public class AccountStore {
                     accountName.setVerbatim(true);
                     perAccountNode = new AndNode(perAccountNode, new PropertyRestrictNode(
                             getFullAccountPropertyPath(accountPropertyPath,
-                                    AppSearchAccount.PROPERTY_ACCOUNT_ID),
+                                    AppSearchAccount.PROPERTY_ACCOUNT_NAME),
                             accountName));
                 }
                 if (finalNode == null) {
