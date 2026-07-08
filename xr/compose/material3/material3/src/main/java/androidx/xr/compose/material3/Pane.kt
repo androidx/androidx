@@ -28,12 +28,14 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldValue
 import androidx.compose.runtime.Composable
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.animation.AnimatedSpatialVisibility
+import androidx.xr.compose.subspace.animation.ExperimentalSpatialAnimationApi
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 
 @OptIn(
     ExperimentalMaterial3AdaptiveComponentOverrideApi::class,
     ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalSpatialAnimationApi::class,
 )
 @ExperimentalMaterial3XrApi
 internal object XrAnimatedPaneOverride : AnimatedPaneOverride {

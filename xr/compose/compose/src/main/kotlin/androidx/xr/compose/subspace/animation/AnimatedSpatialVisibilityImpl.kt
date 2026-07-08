@@ -43,6 +43,7 @@ import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.animation.SpatialTransitionDefaults.DefaultAlphaAnimationSpec
 import androidx.xr.compose.subspace.animation.SpatialTransitionDefaults.DefaultSlideAnimationSpec
 import androidx.xr.compose.subspace.draw.alpha
+import androidx.xr.compose.subspace.layout.ExperimentalSpatialLayoutModifierApi
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
@@ -50,6 +51,7 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.layout
+import androidx.xr.compose.unit.ExperimentalSpatialVolumeOffsetApi
 import androidx.xr.compose.unit.IntVolumeOffset
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
@@ -57,6 +59,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import kotlin.math.max
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialLayoutModifierApi::class)
 @Composable
 @SubspaceComposable
 internal fun <T> AnimatedSpatialVisibilityImpl(
@@ -90,7 +93,7 @@ internal fun <T> AnimatedSpatialVisibilityImpl(
     )
 }
 
-@OptIn(ExperimentalTransitionApi::class)
+@OptIn(ExperimentalTransitionApi::class, ExperimentalSpatialAnimationApi::class)
 @Composable
 @SubspaceComposable
 private fun <T> AnimatedSpatialEnterExitImpl(
@@ -142,6 +145,7 @@ private fun <T> AnimatedSpatialEnterExitImpl(
     }
 }
 
+@OptIn(ExperimentalSpatialAnimationApi::class)
 private class AnimatedSpatialEnterExitMeasurePolicy() : SubspaceMeasurePolicy {
     override fun SubspaceMeasureScope.measure(
         measurables: List<SubspaceMeasurable>,
@@ -164,6 +168,7 @@ private class AnimatedSpatialEnterExitMeasurePolicy() : SubspaceMeasurePolicy {
     }
 }
 
+@OptIn(ExperimentalSpatialAnimationApi::class)
 @Composable
 internal fun Transition<EnterExitState>.createModifier(
     enter: SpatialEnterTransition,
@@ -172,6 +177,7 @@ internal fun Transition<EnterExitState>.createModifier(
     return fadeAnimationModifier(enter, exit).then(slideAnimationModifier(enter, exit))
 }
 
+@OptIn(ExperimentalSpatialAnimationApi::class)
 @Composable
 private fun Transition<EnterExitState>.fadeAnimationModifier(
     activeEnter: SpatialEnterTransition,
@@ -204,6 +210,11 @@ private fun Transition<EnterExitState>.fadeAnimationModifier(
     return SubspaceModifier.alpha(alpha)
 }
 
+@OptIn(
+    ExperimentalSpatialAnimationApi::class,
+    ExperimentalSpatialLayoutModifierApi::class,
+    ExperimentalSpatialVolumeOffsetApi::class,
+)
 @Composable
 private fun Transition<EnterExitState>.slideAnimationModifier(
     activeEnter: SpatialEnterTransition,
@@ -275,6 +286,7 @@ private fun Transition<EnterExitState>.slideAnimationModifier(
 }
 
 // This converts Boolean visible to EnterExitState
+@OptIn(ExperimentalSpatialAnimationApi::class)
 @Composable
 private fun <T> Transition<T>.targetEnterExit(
     visible: (T) -> Boolean,
@@ -300,6 +312,7 @@ private fun <T> Transition<T>.targetEnterExit(
 private val Transition<EnterExitState>.exitFinished
     get() = currentState == EnterExitState.PostExit && targetState == EnterExitState.PostExit
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialVolumeOffsetApi::class)
 private val IntVolumeOffsetToVector: TwoWayConverter<IntVolumeOffset, AnimationVector3D> =
     TwoWayConverter(
         { AnimationVector3D(it.x.toFloat(), it.y.toFloat(), it.z.toFloat()) },

@@ -23,6 +23,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
+import androidx.xr.compose.unit.ExperimentalSpatialVolumeOffsetApi
 import androidx.xr.compose.unit.IntVolumeOffset
 import androidx.xr.compose.unit.IntVolumeSize
 
@@ -41,6 +42,7 @@ import androidx.xr.compose.unit.IntVolumeSize
  *
  * @see EnterTransition
  */
+@ExperimentalSpatialAnimationApi
 @Immutable
 public sealed class SpatialEnterTransition {
     internal abstract val data: SpatialTransitionData
@@ -90,6 +92,7 @@ public sealed class SpatialEnterTransition {
  *
  * @see ExitTransition
  */
+@ExperimentalSpatialAnimationApi
 @Immutable
 public sealed class SpatialExitTransition {
     internal abstract val data: SpatialTransitionData
@@ -127,15 +130,18 @@ public sealed class SpatialExitTransition {
 /** ********************* Below are internal classes and methods ***************** */
 @Immutable internal data class Fade(val alpha: Float, val animationSpec: FiniteAnimationSpec<Float>)
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialVolumeOffsetApi::class)
 @Immutable
 internal data class Slide(
     val slideOffset: Density.(fullSize: IntVolumeSize) -> IntVolumeOffset,
     val animationSpec: FiniteAnimationSpec<IntVolumeOffset>,
 )
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialVolumeOffsetApi::class)
 @Immutable
 internal data class SpatialTransitionData(val fade: Fade? = null, val slide: Slide? = null)
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialVolumeOffsetApi::class)
 private fun SpatialTransitionData.merge(other: SpatialTransitionData): SpatialTransitionData {
     return SpatialTransitionData(fade = other.fade ?: fade, slide = other.slide ?: slide)
 }
