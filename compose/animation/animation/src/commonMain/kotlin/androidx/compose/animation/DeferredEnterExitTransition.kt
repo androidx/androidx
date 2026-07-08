@@ -360,16 +360,23 @@ internal class SharedMutableTransformState {
         catchUpTransformOrigin.snapTo(initialTransformOrigin)
         if (mutationPhase == MutationPhase.MutatingPendingCatchUp) {
             mutationPhase = MutationPhase.MutatingCatchingUp
-        }
 
-        coroutineScope {
-            if (transformScope.isAlphaMutated) launch { catchUpAlpha.animateTo(initialManualAlpha) }
-            if (transformScope.isScaleMutated) launch { catchUpScale.animateTo(initialManualScale) }
-            if (transformScope.isOffsetMutated)
-                launch { catchUpSlide.animateTo(initialManualSlide) }
-            if (transformScope.isVeilMutated) launch { catchUpVeil.animateTo(initialManualVeil) }
-            if (transformScope.isTransformOriginMutated)
-                launch { catchUpTransformOrigin.animateTo(initialManualTransformOrigin) }
+            coroutineScope {
+                if (transformScope.isAlphaMutated)
+                    launch { catchUpAlpha.animateTo(initialManualAlpha) }
+                if (transformScope.isScaleMutated)
+                    launch { catchUpScale.animateTo(initialManualScale) }
+                if (transformScope.isOffsetMutated)
+                    launch { catchUpSlide.animateTo(initialManualSlide) }
+                if (transformScope.isVeilMutated)
+                    launch { catchUpVeil.animateTo(initialManualVeil) }
+                if (transformScope.isTransformOriginMutated)
+                    launch { catchUpTransformOrigin.animateTo(initialManualTransformOrigin) }
+            }
+
+            if (mutationPhase == MutationPhase.MutatingCatchingUp) {
+                mutationPhase = MutationPhase.Mutating
+            }
         }
     }
 
@@ -470,9 +477,13 @@ internal class SharedMutableTransformState {
         val isMutated = isMutating && transformScope.isAlphaMutated
         val combined =
             when {
-                isMutated && mutationPhase == MutationPhase.MutatingCatchingUp ->
+                isMutated &&
+                    mutationPhase == MutationPhase.MutatingCatchingUp &&
+                    catchUpAlpha.isRunning ->
                     catchUpAlpha.value + (transformScope.alpha - initialManualAlpha)
-                isMutated && mutationPhase == MutationPhase.Mutating -> transformScope.alpha
+                isMutated &&
+                    (mutationPhase == MutationPhase.MutatingCatchingUp ||
+                        mutationPhase == MutationPhase.Mutating) -> transformScope.alpha
                 else -> transitionValue
             }
 
@@ -488,9 +499,13 @@ internal class SharedMutableTransformState {
         val isMutated = isMutating && transformScope.isScaleMutated
         val combined =
             when {
-                isMutated && mutationPhase == MutationPhase.MutatingCatchingUp ->
+                isMutated &&
+                    mutationPhase == MutationPhase.MutatingCatchingUp &&
+                    catchUpScale.isRunning ->
                     catchUpScale.value + (transformScope.scale - initialManualScale)
-                isMutated && mutationPhase == MutationPhase.Mutating -> transformScope.scale
+                isMutated &&
+                    (mutationPhase == MutationPhase.MutatingCatchingUp ||
+                        mutationPhase == MutationPhase.Mutating) -> transformScope.scale
                 else -> transitionValue
             }
 
@@ -529,9 +544,13 @@ internal class SharedMutableTransformState {
         val isMutated = isMutating && transformScope.isOffsetMutated
         val combined =
             when {
-                isMutated && mutationPhase == MutationPhase.MutatingCatchingUp ->
+                isMutated &&
+                    mutationPhase == MutationPhase.MutatingCatchingUp &&
+                    catchUpSlide.isRunning ->
                     catchUpSlide.value + (transformScope.offset - initialManualSlide)
-                isMutated && mutationPhase == MutationPhase.Mutating -> transformScope.offset
+                isMutated &&
+                    (mutationPhase == MutationPhase.MutatingCatchingUp ||
+                        mutationPhase == MutationPhase.Mutating) -> transformScope.offset
                 else -> transitionValue
             }
 
