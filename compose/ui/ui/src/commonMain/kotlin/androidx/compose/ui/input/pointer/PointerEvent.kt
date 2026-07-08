@@ -229,19 +229,24 @@ value class PointerType private constructor(private val value: Int) {
 
     companion object {
         /** An unknown device type or the device type isn't relevant. */
-        val Unknown = PointerType(0)
+        val Unknown
+            get() = PointerType(0)
 
         /** Touch (finger) input. */
-        val Touch = PointerType(1)
+        val Touch
+            get() = PointerType(1)
 
         /** A mouse pointer. */
-        val Mouse = PointerType(2)
+        val Mouse
+            get() = PointerType(2)
 
         /** A stylus. */
-        val Stylus = PointerType(3)
+        val Stylus
+            get() = PointerType(3)
 
         /** An eraser or an inverted stylus. */
-        val Eraser = PointerType(4)
+        val Eraser
+            get() = PointerType(4)
     }
 }
 
@@ -250,16 +255,20 @@ value class PointerType private constructor(private val value: Int) {
 value class PointerEventType private constructor(internal val value: Int) {
     companion object {
         /** An unknown reason for the event. */
-        val Unknown = PointerEventType(0)
+        val Unknown
+            get() = PointerEventType(0)
 
         /** A button on the device was pressed or a new pointer was detected. */
-        val Press = PointerEventType(1)
+        val Press
+            get() = PointerEventType(1)
 
         /** A button on the device was released or a pointer was raised. */
-        val Release = PointerEventType(2)
+        val Release
+            get() = PointerEventType(2)
 
         /** The cursor or one or more touch pointers was moved. */
-        val Move = PointerEventType(3)
+        val Move
+            get() = PointerEventType(3)
 
         /**
          * The cursor has entered the input region. This will only be sent after the cursor is
@@ -269,7 +278,8 @@ value class PointerEventType private constructor(internal val value: Int) {
          * to entering the input region. The [Enter] event will be sent when the button is released
          * inside the input region.
          */
-        val Enter = PointerEventType(4)
+        val Enter
+            get() = PointerEventType(4)
 
         /**
          * A cursor device or elevated stylus exited the input region. This will only follow an
@@ -278,50 +288,58 @@ value class PointerEventType private constructor(internal val value: Int) {
          * input region, then a button is pressed, then the cursor exits and reenters, [Enter],
          * [Exit], and [Enter] will be received.
          */
-        val Exit = PointerEventType(5)
+        val Exit
+            get() = PointerEventType(5)
 
         /**
          * A scroll event was sent. This can happen, for example, due to a mouse scroll wheel. This
          * event indicates that the [PointerInputChange.scrollDelta]'s [Offset] is non-zero.
          */
-        val Scroll = PointerEventType(6)
+        val Scroll
+            get() = PointerEventType(6)
 
         /**
          * A scale started. This can happen, for example, due to a trackpad gesture recognized by
          * the platform. Such a gesture will start with an event of [ScaleStart], followed by some
          * number of [ScaleChange]s, and finally a [ScaleEnd].
          */
-        val ScaleStart = PointerEventType(7)
+        val ScaleStart
+            get() = PointerEventType(7)
 
         /**
          * An intermediate scale move. This can happen, for example, due to a trackpad gesture
          * recognized by the platform. This event indicates that the
          * [PointerInputChange.scaleFactor]'s [Offset] may be different from 1.
          */
-        val ScaleChange = PointerEventType(8)
+        val ScaleChange
+            get() = PointerEventType(8)
 
         /**
          * A scale ended. This can happen, for example, due to a trackpad gesture recognized by the
          * platform.
          */
-        val ScaleEnd = PointerEventType(9)
+        val ScaleEnd
+            get() = PointerEventType(9)
 
         /**
          * A pan started. This can happen, for example, due to a trackpad gesture recognized by the
          * platform. Such a gesture will start with an event type of [PanStart], followed by some
          * number of [PanMove]s, and finally a [PanEnd]
          */
-        val PanStart = PointerEventType(10)
+        val PanStart
+            get() = PointerEventType(10)
 
         /**
          * An intermediate pan move. This can happen, for example, due to a trackpad gesture
          * recognized by the platform. This event indicates that the
          * [PointerInputChange.panOffset]'s [Offset] may be non-zero.
          */
-        val PanMove = PointerEventType(11)
+        val PanMove
+            get() = PointerEventType(11)
 
         /** A pan ended. This can happen, for example, due to a trackpad gesture. */
-        val PanEnd = PointerEventType(12)
+        val PanEnd
+            get() = PointerEventType(12)
     }
 
     override fun toString(): String =

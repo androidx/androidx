@@ -56,7 +56,8 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
     companion object {
 
         /** Bounded [BlurredEdgeTreatment] that clips content bounds to a rectangular shape */
-        val Rectangle = BlurredEdgeTreatment(RectangleShape)
+        val Rectangle
+            get() = BlurredEdgeTreatment(RectangleShape)
 
         /**
          * Do not clip the blur result to the boundaries of the original content. Sampling of pixels
@@ -67,7 +68,8 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
          *
          * @see TileMode.Decal
          */
-        val Unbounded = BlurredEdgeTreatment(null)
+        val Unbounded
+            get() = BlurredEdgeTreatment(null)
     }
 }
 

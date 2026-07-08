@@ -91,32 +91,43 @@ interface BeyondBoundsLayout {
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items
              * before the current bounds.
              */
-            val Before = LayoutDirection(1)
+            val Before
+                get() = LayoutDirection(1)
+
             /**
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items
              * after the current bounds.
              */
-            val After = LayoutDirection(2)
+            val After
+                get() = LayoutDirection(2)
+
             /**
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items to
              * the left of the current bounds.
              */
-            val Left = LayoutDirection(3)
+            val Left
+                get() = LayoutDirection(3)
+
             /**
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items to
              * the right of the current bounds.
              */
-            val Right = LayoutDirection(4)
+            val Right
+                get() = LayoutDirection(4)
+
             /**
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items
              * above the current bounds.
              */
-            val Above = LayoutDirection(5)
+            val Above
+                get() = LayoutDirection(5)
+
             /**
              * Direction used in [BeyondBoundsLayout.layout] to request the layout of extra items
              * below the current bounds.
              */
-            val Below = LayoutDirection(6)
+            val Below
+                get() = LayoutDirection(6)
         }
 
         override fun toString(): String =
