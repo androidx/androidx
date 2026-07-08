@@ -319,4 +319,74 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
             ops,
         )
     }
+
+    @Test
+    fun testResize_collapsibleRowConstrained() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    collapsibleRow(
+                        Modifier.fillMaxSize().padding(8).background(Color.RED),
+                        horizontal = ColumnLayout.START,
+                        vertical = ColumnLayout.TOP,
+                    ) {
+                        box(
+                            Modifier.height(100)
+                                .horizontalWeight(1f)
+                                .widthIn(100f, Float.MAX_VALUE)
+                                .background(Color.GREEN)
+                        )
+                        box(Modifier.size(100).background(Color.BLUE))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(150, 600),
+                CaptureComponentTree(),
+                ResizeDocument(1200, 600),
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            600,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "CollapsibleRowConstrained",
+            ops,
+        )
+    }
+
+    @Test
+    fun testResize_collapsibleColumnConstrained() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    collapsibleColumn(
+                        Modifier.fillMaxSize().padding(8).background(Color.RED),
+                        horizontal = ColumnLayout.START,
+                        vertical = ColumnLayout.TOP,
+                    ) {
+                        box(
+                            Modifier.width(100)
+                                .verticalWeight(1f)
+                                .heightIn(100f, Float.MAX_VALUE)
+                                .background(Color.GREEN)
+                        )
+                        box(Modifier.size(100).background(Color.BLUE))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(1000, 150),
+                CaptureComponentTree(),
+                ResizeDocument(1000, 1200),
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "CollapsibleColumnConstrained",
+            ops,
+        )
+    }
 }
