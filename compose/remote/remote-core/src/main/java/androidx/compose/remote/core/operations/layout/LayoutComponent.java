@@ -381,6 +381,7 @@ public class LayoutComponent extends Component {
                 mGraphicsLayerModifier = (GraphicsLayerModifierOperation) op;
             } else if (op instanceof AnimationSpec) {
                 mAnimationSpec = (AnimationSpec) op;
+                mAnimationId = mAnimationSpec.getAnimationId();
             } else if (op instanceof ScrollDelegate) {
                 ScrollDelegate scrollDelegate = (ScrollDelegate) op;
                 if (scrollDelegate.handlesHorizontalScroll()) {

@@ -70,73 +70,73 @@ ROOT [-2:-1] = [0.0, 0.0, 1000.0, 1000.0] VISIBLE
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
 SNAPSHOT = 0
-ROOT [-2:-1] = [0.0, 0.0, 1129.2213, 1193.8319] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 1129.2213, 1193.8319] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 1155.077, 1232.6155] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 1155.077, 1232.6155] VISIBLE
     MODIFIERS
-    BOX [-5:-1] = [514.6106, 409.41595, 100.0, 100.0] VISIBLE
+    BOX [-5:-1] = [527.5385, 428.80774, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
-    ROW [-6:-1] = [0.0, 509.41595, 1129.2213, 75.0] VISIBLE
+    ROW [-6:-1] = [0.0, 528.80774, 1155.077, 75.0] VISIBLE
       MODIFIERS
-      BOX [-8:-1] = [477.11066, 12.5, 50.0, 50.0] VISIBLE
+      BOX [-8:-1] = [490.0385, 12.5, 50.0, 50.0] VISIBLE
         MODIFIERS
           WIDTH = 50.0
           HEIGHT = 50.0
           BACKGROUND = [0.0, 0.0, 50.0, 50.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-      BOX [-9:-1] = [527.1106, 0.0, 75.0, 75.0] VISIBLE
+      BOX [-9:-1] = [540.0385, 0.0, 75.0, 75.0] VISIBLE
         MODIFIERS
           WIDTH = 75.0
           HEIGHT = 75.0
           BACKGROUND = [0.0, 0.0, 75.0, 75.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-      BOX [-10:-1] = [602.1106, 12.5, 50.0, 50.0] VISIBLE
+      BOX [-10:-1] = [615.0385, 12.5, 50.0, 50.0] VISIBLE
         MODIFIERS
           WIDTH = 50.0
           HEIGHT = 50.0
           BACKGROUND = [0.0, 0.0, 50.0, 50.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-11:-1] = [514.6106, 584.41595, 100.0, 100.0] VISIBLE
+    BOX [-11:-1] = [527.5385, 603.80774, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [0.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-12:-1] = [514.6106, 684.41595, 100.0, 100.0] VISIBLE
+    BOX [-12:-1] = [527.5385, 703.80774, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
 SNAPSHOT = 150
-ROOT [-2:-1] = [0.0, 0.0, 1198.817, 1298.2256] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 1198.817, 1298.2256] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 1200.0, 1300.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 1200.0, 1300.0] VISIBLE
     MODIFIERS
-    BOX [-5:-1] = [549.4085, 461.61276, 100.0, 100.0] VISIBLE
+    BOX [-5:-1] = [550.0, 462.5, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
-    ROW [-6:-1] = [0.0, 561.61273, 1198.817, 75.0] VISIBLE
+    ROW [-6:-1] = [0.0, 562.5, 1200.0, 75.0] VISIBLE
       MODIFIERS
-      BOX [-8:-1] = [511.9085, 12.5, 50.0, 50.0] VISIBLE
+      BOX [-8:-1] = [512.5, 12.5, 50.0, 50.0] VISIBLE
         MODIFIERS
           WIDTH = 50.0
           HEIGHT = 50.0
           BACKGROUND = [0.0, 0.0, 50.0, 50.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-      BOX [-9:-1] = [561.9085, 0.0, 75.0, 75.0] VISIBLE
+      BOX [-9:-1] = [562.5, 0.0, 75.0, 75.0] VISIBLE
         MODIFIERS
           WIDTH = 75.0
           HEIGHT = 75.0
           BACKGROUND = [0.0, 0.0, 75.0, 75.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-      BOX [-10:-1] = [636.9085, 12.5, 50.0, 50.0] VISIBLE
+      BOX [-10:-1] = [637.5, 12.5, 50.0, 50.0] VISIBLE
         MODIFIERS
           WIDTH = 50.0
           HEIGHT = 50.0
           BACKGROUND = [0.0, 0.0, 50.0, 50.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-11:-1] = [549.4085, 636.6128, 100.0, 100.0] VISIBLE
+    BOX [-11:-1] = [550.0, 637.5, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
         BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [0.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-12:-1] = [549.4085, 736.6128, 100.0, 100.0] VISIBLE
+    BOX [-12:-1] = [550.0, 737.5, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0
         HEIGHT = 100.0
