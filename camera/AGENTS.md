@@ -35,50 +35,11 @@
 
 CameraX involves complex hardware interactions, making robust testing essential.
 
-> [!IMPORTANT]
-> Whenever you modify code or tests, you **MUST** ensure that the library
-> compiles successfully and all related tests pass. Never submit untested code.
-
-### Recommended Testing Workflow
-1. **Compilation**: Ensure the code and tests compile successfully. You can
-   compile the entire CameraX project tests and debug APKs at once using:
-   `./gradlew -p camera assembleAndroidTest assembleDebug`
-   Alternatively, use `PROJECT_PREFIX` to scope compilation to specific
-   modules to save time.
-2. **Local Verification**: Run **Host Tests (Robolectric)** for modified modules to quickly verify logic.
-3. **Integration Verification**: If changes affect camera session configuration, lifecycle, or usecase combinations:
-   - If a physical device/emulator is connected, run **Device Tests**.
-   - Otherwise, run **Firebase Test Lab (FTL)** tests on virtual devices to verify integration.
-4. **Code Quality & Formatting**:
-   - Format any modified Kotlin (`.kt`) files using `ktfmt` (see General Instructions).
-   - Run **Lint** (`./gradlew <project>:lint`) before committing.
-
 - **Assertion Library**: Use the Google **Truth** library for fluent and readable assertions.
   Avoid using traditional JUnit `assert*` methods or Hamcrest matchers.
 - **Fakes vs. Mocks**: Prioritize the use of fakes and test doubles (e.g., those provided in
   `camera-testing`) over mocking frameworks like Mockito to ensure more reliable and
   maintainable tests.
-- **Host Tests (Robolectric)**: Run JVM-based unit/Robolectric tests using
-  `./gradlew <project>:test` (e.g., `./gradlew :camera:camera-core:test`). To
-  run a specific test class or method, use the `--tests` flag:
-  `./gradlew :camera:camera-core:test --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"`.
-- **Task Discovery**: If unsure of the correct test task, use
-  `./gradlew <project>:tasks --all | grep test` to identify available variants.
-- **Device Tests**: Run instrumented tests on a connected device using
-  `./gradlew <project>:connectedCheck`.
-- **Firebase Test Lab (FTL) Tests**: If you do not have a physical device
-  connected, you can run instrumented tests on virtual devices in FTL.
-  - Discover FTL tasks: `./gradlew <project>:tasks --all | grep ftl` (e.g.,
-    `ftlpixel2api30debugAndroidTest` for apps, or `releaseAndroidTest` variants
-    for libraries).
-  - Run a specific test in FTL:
-    `./gradlew <project>:<ftlTask> --className <packageName>.<ClassName>#<methodName>`.
-  - Example:
-    ```bash
-    PROJECT_PREFIX=:camera:integration-tests:camera-testapp-core \
-    ./gradlew :camera:integration-tests:camera-testapp-core:ftlpixel2api30debugAndroidTest \
-    --className androidx.camera.integration.core.StreamSharingTest#recordingCanProceedAfterSiblingUnbind
-    ```
 - **Testing Libraries**: Utilize `camera-testing`, `camera-common-testing`, and
   `camera-camera2-pipe-testing` for writing robust fakes.
 - **Log Management**: To prevent context bloat from excessive tool output, run large test suites
@@ -89,6 +50,103 @@ CameraX involves complex hardware interactions, making robust testing essential.
   (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
   tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
   SDK levels.
+
+## Skill: CameraX Troubleshooting & Code Verification
+
+### Use when:
+- Modifying existing CameraX functionality or fixing bugs.
+- Writing new CameraX code or adding new integration tests.
+- Troubleshooting test failures or device-specific issues.
+
+> [!IMPORTANT]
+> Whenever you modify code or tests, you **MUST** ensure that the library
+> compiles successfully and all related tests pass. Never submit untested code.
+
+### Workflow:
+
+#### 1. Research & Context Gathering (Before Modifying Code)
+- **Read Documentation & API Contracts**: Carefully read the JavaDoc and API contracts of
+  the class/interface you are modifying. Understand the design intent and constraints.
+- **Analyze Existing Code & Style**: Reference existing implementations in the same module.
+  Observe the coding style, threading model, and check for any "intentional" workarounds (e.g.,
+  device-specific workarounds or deprecation usage) that must be preserved.
+- **API Change Check**: Verify if your change introduces public API modifications. Remember:
+  - Do not introduce public API changes in a bug fix CL.
+  - If a new API is necessary, mark it `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a
+    `TODO` with a bug ID to make it public in the next alpha.
+- **Reference Existing Tests**: Search for existing tests targeting the component you are
+  modifying. They serve as "Case Studies" for how the component is expected to behave and how to
+  verify it. Key directories:
+  - `camera/integration-tests/coretestapp/src/androidTest/`
+  - `camera/camera-core/src/androidTest/`
+  - `camera/camera-camera2/src/androidTest/`
+  - `camera/camera-video/src/androidTest/`
+
+#### 2. Verification Plan (Writing Tests)
+- **Headless Execution**:
+  - Use `FakeLifecycleOwner` instead of `ActivityScenarioRule` to avoid activity-lifecycle
+    race conditions, unless testing UI controllers (`CameraController`, `PreviewView`).
+  - Transition the lifecycle to active using `fakeLifecycleOwner.startAndResume()` to trigger
+    camera output.
+  - For `Preview` headless tests, use `SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()`
+    to simulate a UI surface and prevent frame buffer stalls.
+- **Main Thread Requirements**:
+  - Ensure lifecycle binding (`bindToLifecycle`, `unbindAll`) and surface provider
+    interactions are executed on the Main thread (using `runBlocking(Dispatchers.Main) { ... }`).
+- **Anti-Flakiness & Synchronization**:
+  - **NEVER use `Thread.sleep()`**. Use `CountDownLatch` or event listeners (`VideoRecordEvent`
+    for video) to await state changes (e.g., wait for `VideoRecordEvent.Status` to confirm
+    active recording).
+- **Hardware & Capability Checks**:
+  - Check lens support: `CameraUtil.hasCameraWithLensFacing(lensFacing)`. Use
+    `Assume.assumeTrue` to skip if unsupported.
+  - Check video capabilities: `Recorder.getVideoCapabilities(cameraInfo)` before running
+    video tests.
+- **Combinatorial & Lifecycle Stress**:
+  - Test sequence of calls, subsets, and conditional bindings to ensure isolated stability.
+  - Simulate background/foreground transitions using `fakeLifecycleOwner.pauseAndStop()` and
+    `startAndResume()` to verify pipeline recovery.
+
+#### 3. Execution & Validation
+- **Local Compile Check**: Compile the entire CameraX project tests and debug APKs using:
+  ```bash
+  ./gradlew -p camera assembleAndroidTest assembleDebug
+  ```
+  Alternatively, use `PROJECT_PREFIX` to scope compilation to specific modules to save time:
+  ```bash
+  PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble
+  ```
+- **Local Test Run**:
+  - **Host Tests (Robolectric)**: Run JVM-based tests using `./gradlew <project>:test`.
+    To run a specific test class or method, use the `--tests` flag:
+    ```bash
+    ./gradlew :camera:camera-core:test --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"
+    ```
+  - **Device Tests**: Run instrumented tests on a connected device using:
+    ```bash
+    ./gradlew <project>:connectedCheck
+    ```
+- **FTL Run (if no device connected)**:
+  - Discover FTL tasks for your project: `./gradlew <project>:tasks --all | grep ftl` (e.g.,
+    `ftlpixel2api30debugAndroidTest` for apps, or `releaseAndroidTest` variants for libraries).
+  - Run a specific test in FTL using `--className`:
+    ```bash
+    PROJECT_PREFIX=:camera:integration-tests:camera-testapp-core \
+    ./gradlew :camera:integration-tests:camera-testapp-core:ftlpixel2api30debugAndroidTest \
+    --className androidx.camera.integration.core.StreamSharingTest#recordingCanProceedAfterSiblingUnbind
+    ```
+- **Code Quality**: Format modified Kotlin files using `ktfmt` (see General Instructions) and run
+  Lint before committing:
+  ```bash
+  ./gradlew <project>:lint
+  ```
+
+#### 4. Troubleshooting Unit Test Leaks (Robolectric)
+- **Symptom**: `IllegalStateException: Camera surface session should only fail with request cancellation. Instead failed due to: FutureGarbageCollectedException: The completer object was garbage collected...`
+- **Root Cause**: A test binds a UseCase to a `FakeCamera` (or real camera) but does not properly detach it before the test finishes. This leaves the camera session active and leaks internal `DeferrableSurface` termination futures. When GC runs in subsequent tests, these leaked futures are collected, throwing exceptions in unrelated tests.
+- **Solution**: Always ensure proper cleanup in `@After` / `tearDown()` block of your test class:
+  - If using `FakeCamera` directly, call `camera.detachUseCases(listOf(useCase))` before unbinding the use case.
+  - Ensure the main looper is idled after cleanup: `shadowOf(getMainLooper()).idle()`.
 
 ## Git Commit Messages
 
