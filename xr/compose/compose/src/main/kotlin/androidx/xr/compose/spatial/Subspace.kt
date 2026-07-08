@@ -138,40 +138,6 @@ public fun Subspace(
 ) {
     Subspace(
         modifier = modifier,
-        allowUnboundedSubspace = false,
-        subspaceRootNode = LocalSubspaceRootNode.current,
-        content = content,
-    )
-}
-
-/**
- * Create a 3D area that the app can render spatial content into.
- *
- * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
- * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
- *   be applied, allowing the Subspace to be infinite. Unbounded Subspaces are considered unsafe
- *   because they can lead to poor performance or even a crash as the content expands to the maximum
- *   volume constraint size. In addition, content placed too far away may not be visible to the
- *   user. Defaults to false, providing a safe, bounded space within the system's recommended
- *   content box.
- * @param content The 3D content to render within this Subspace.
- */
-@Deprecated(
-    message =
-        "The allowUnboundedSubspace parameter is deprecated. To achieve unbounded behavior, use the requiredSizeIn modifier instead.",
-    replaceWith = ReplaceWith("Subspace(modifier, content)"),
-)
-@Composable
-@ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
-public fun Subspace(
-    modifier: SubspaceModifier = SubspaceModifier,
-    allowUnboundedSubspace: Boolean,
-    content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
-) {
-    Subspace(
-        modifier = modifier,
-        allowUnboundedSubspace = allowUnboundedSubspace,
         subspaceRootNode = LocalSubspaceRootNode.current,
         content = content,
     )
@@ -193,8 +159,7 @@ public fun Subspace(
 @ComposableOpenTarget(index = -1)
 private fun Subspace(
     modifier: SubspaceModifier,
-    allowUnboundedSubspace: Boolean,
-    subspaceRootNode: Entity? = LocalSubspaceRootNode.current,
+    subspaceRootNode: Entity?,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     // If not in XR, do nothing
@@ -244,12 +209,7 @@ private fun Subspace(
     LaunchedEffect(subspaceRootNode) { subspaceRootNode?.let { subspaceRoot.parent = it } }
 
     scene.setContent {
-        val finalModifier =
-            if (allowUnboundedSubspace) {
-                modifier
-            } else {
-                SubspaceModifier.recommendedSizeIfUnbounded().then(modifier)
-            }
+        val finalModifier = SubspaceModifier.recommendedSizeIfUnbounded().then(modifier)
         SpatialBox(modifier = finalModifier, content = content)
     }
 }
@@ -517,12 +477,7 @@ public fun FollowingSubspace(
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
     if (target is AnchorTarget && behavior == FollowBehavior.Tight) {
-        Subspace(
-            modifier = modifier,
-            subspaceRootNode = target.anchorSpace,
-            allowUnboundedSubspace = false,
-            content = content,
-        )
+        Subspace(modifier = modifier, subspaceRootNode = target.anchorSpace, content = content)
         return
     }
 
@@ -569,11 +524,7 @@ public fun FollowingSubspace(
     val offsetPose = getInitialSubspaceOffset(target)
     val density = LocalDensity.current
 
-    Subspace(
-        modifier = modifier,
-        allowUnboundedSubspace = false,
-        subspaceRootNode = subspaceRootNode,
-    ) {
+    Subspace(modifier = modifier, subspaceRootNode = subspaceRootNode) {
         SpatialBox(
             modifier =
                 SubspaceModifier.offset(
