@@ -28,11 +28,9 @@ import androidx.build.getBuildInfoDirectory
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.getHeadShaProvider
-import androidx.build.hasCInterop
-import androidx.build.hasCInteropDependency
+import androidx.build.isKlibCrossCompilationEnabled
 import androidx.build.jetpad.LibraryBuildInfoFile
 import androidx.build.kotlinExtensionOrNull
-import androidx.build.multiplatformExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.google.common.annotations.VisibleForTesting
 import com.google.gson.GsonBuilder
@@ -367,17 +365,21 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 
 private fun createBuildTargetProvider(
     hasApplePlatform: Boolean,
-    hasCInterop: Boolean,
-    hasCInteropDependency: Provider<Boolean>,
-): Provider<String> {
-    return hasCInteropDependency.map { hasCInteropDep ->
-        if (hasApplePlatform && (hasCInterop || hasCInteropDep)) {
-            "androidx_multiplatform_mac"
-        } else {
-            "androidx"
-        }
+    crossCompilationEnabled: Provider<Boolean>,
+): Provider<String> =
+    crossCompilationEnabled.map { enabled -> computeBuildTarget(hasApplePlatform, enabled) }
+
+/**
+ * Selects the build target for a project based on whether it targets an Apple platform and whether
+ * its Apple targets can be cross-compiled on a non-Mac host.
+ */
+@VisibleForTesting
+fun computeBuildTarget(hasApplePlatform: Boolean, crossCompilationEnabled: Boolean): String =
+    if (hasApplePlatform && !crossCompilationEnabled) {
+        "androidx_multiplatform_mac"
+    } else {
+        "androidx"
     }
-}
 
 // Tasks that create a json files of a project's variant's dependencies
 fun Project.addCreateLibraryBuildInfoFileTasks(
@@ -390,19 +392,19 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
         configure<PublishingExtension> {
 
             /**
-             * Select the appropriate target based on if the project targets any Apple platforms
+             * Select the appropriate target based on whether the project targets any Apple platform
+             * and whether its Apple targets can be cross-compiled on a non-Mac host.
              *
-             * If the project targets any Apple platform then the project can only be built on the
-             * 'androidx_multiplatform_mac' target. Otherwise the 'androidx' build target is used.
+             * A project targeting an Apple platform can only be built on the 'androidx' target when
+             * it and all its dependencies do not use C-interop. For projects using C-interop, KLIB
+             * cross-compilation is disabled for it via
+             * `kotlin.native.enableKlibsCrossCompilation=false`
              */
-            val hasCInterop = project.multiplatformExtension?.hasCInterop() == true
-            val hasCInteropDependency = project.hasCInteropDependency()
             val hasApplePlatform = hasApplePlatform(androidXKmpExtension.supportedPlatforms)
             val buildTarget =
                 createBuildTargetProvider(
                     hasApplePlatform = hasApplePlatform,
-                    hasCInterop = hasCInterop,
-                    hasCInteropDependency = hasCInteropDependency,
+                    crossCompilationEnabled = project.isKlibCrossCompilationEnabled(),
                 )
 
             // Unfortunately, dependency information is only available through internal API
