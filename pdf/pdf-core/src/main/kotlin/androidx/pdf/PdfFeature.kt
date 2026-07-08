@@ -34,6 +34,7 @@ public value class PdfFeature private constructor(public val value: Int) {
         public val LINKS: PdfFeature = PdfFeature(4)
         public val TEXT_EXTRACTION: PdfFeature = PdfFeature(5)
         public val IMAGE_EXTRACTION: PdfFeature = PdfFeature(6)
+        public val SIGNATURE_HANDLING: PdfFeature = PdfFeature(7)
     }
 
     override fun toString(): String {
@@ -45,6 +46,7 @@ public value class PdfFeature private constructor(public val value: Int) {
             LINKS -> "LINKS"
             TEXT_EXTRACTION -> "TEXT_EXTRACTION"
             IMAGE_EXTRACTION -> "IMAGE_EXTRACTION"
+            SIGNATURE_HANDLING -> "SIGNATURE_HANDLING"
             else -> "UNKNOWN"
         }
     }
