@@ -52,16 +52,20 @@ value class IndirectPointerEventType private constructor(internal val value: Int
     companion object {
 
         /** An unknown reason for the event. */
-        val Unknown = IndirectPointerEventType(0)
+        val Unknown
+            get() = IndirectPointerEventType(0)
 
         /** A pressed gesture as started. */
-        val Press = IndirectPointerEventType(1)
+        val Press
+            get() = IndirectPointerEventType(1)
 
         /** A pressed gesture has finished. */
-        val Release = IndirectPointerEventType(2)
+        val Release
+            get() = IndirectPointerEventType(2)
 
         /** A change has happened during a press gesture. */
-        val Move = IndirectPointerEventType(3)
+        val Move
+            get() = IndirectPointerEventType(3)
     }
 
     override fun toString(): String =
@@ -88,13 +92,16 @@ private constructor(internal val value: Int) {
     companion object {
 
         /** No coordinate axes specified for movement. */
-        val None = IndirectPointerEventPrimaryDirectionalMotionAxis(0)
+        val None
+            get() = IndirectPointerEventPrimaryDirectionalMotionAxis(0)
 
         /** X coordinate axis specified as the primary movement axis. */
-        val X = IndirectPointerEventPrimaryDirectionalMotionAxis(1)
+        val X
+            get() = IndirectPointerEventPrimaryDirectionalMotionAxis(1)
 
         /** Y coordinate axis specified as the primary movement axis. */
-        val Y = IndirectPointerEventPrimaryDirectionalMotionAxis(2)
+        val Y
+            get() = IndirectPointerEventPrimaryDirectionalMotionAxis(2)
     }
 }
 

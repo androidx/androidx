@@ -36,20 +36,23 @@ value class Focusability private constructor(private val value: Int) {
          * This focus target can always gain focus. This should be used for components that can be
          * focused regardless of input device / system state, such as text fields.
          */
-        val Always = Focusability(1)
+        val Always
+            get() = Focusability(1)
 
         /**
          * Focusability of this focus target will be defined by the system. This should be used for
          * clickable components such as buttons and checkboxes: these components should only gain
          * focus when they are used with certain types of input devices, such as keyboard / d-pad.
          */
-        val SystemDefined = Focusability(0)
+        val SystemDefined
+            get() = Focusability(0)
 
         /**
          * This focus target can not gain focus. This should be used for disabled components /
          * components that are currently not interactive.
          */
-        val Never = Focusability(2)
+        val Never
+            get() = Focusability(2)
     }
 
     override fun toString() =

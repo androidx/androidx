@@ -113,20 +113,23 @@ value class KeyEventType internal constructor(@Suppress("unused") private val va
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val Unknown: KeyEventType = KeyEventType(0)
+        val Unknown: KeyEventType
+            get() = KeyEventType(0)
 
         /**
          * Type of KeyEvent sent when the user lifts their finger off a key on the keyboard.
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val KeyUp: KeyEventType = KeyEventType(1)
+        val KeyUp: KeyEventType
+            get() = KeyEventType(1)
 
         /**
          * Type of KeyEvent sent when the user presses down their finger on a key on the keyboard.
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val KeyDown: KeyEventType = KeyEventType(2)
+        val KeyDown: KeyEventType
+            get() = KeyEventType(2)
     }
 }
