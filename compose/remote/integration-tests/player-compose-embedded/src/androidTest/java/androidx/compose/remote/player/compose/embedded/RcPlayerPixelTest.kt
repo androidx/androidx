@@ -22,13 +22,19 @@ import android.graphics.Color as AndroidColor
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -36,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
@@ -95,7 +102,7 @@ class RcPlayerPixelTest {
                 )
             }
         }
-        val px = bmp.getPixel((50 * d).toInt(), (50 * d).toInt())
+        val px = bmp.getPixel(50, 50)
         assert(AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60) {
             "Expected pure red, got #${Integer.toHexString(px)}"
         }
@@ -119,7 +126,7 @@ class RcPlayerPixelTest {
                 drawImage(remoteBitmap, RemoteOffset(0f.rf, 0f.rf), null)
             }
         }
-        val px = bmp.getPixel((10 * d).toInt(), (10 * d).toInt())
+        val px = bmp.getPixel(10, 10)
         assert(AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60) {
             "Lazily-decoded bitmap should render red, got #${Integer.toHexString(px)}"
         }
@@ -147,7 +154,7 @@ class RcPlayerPixelTest {
                 drawImage(offscreen, RemoteOffset(0f.rf, 0f.rf), null)
             }
         }
-        val px = bmp.getPixel((50 * d).toInt(), (50 * d).toInt())
+        val px = bmp.getPixel(50, 50)
         assert(AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60) {
             "Offscreen-rendered bitmap should blit red to screen, got #${Integer.toHexString(px)}"
         }
@@ -172,8 +179,8 @@ class RcPlayerPixelTest {
                 }
             }
         }
-        val inside = bmp.getPixel((25 * d).toInt(), (25 * d).toInt())
-        val outside = bmp.getPixel((75 * d).toInt(), (75 * d).toInt())
+        val inside = bmp.getPixel(25, 25)
+        val outside = bmp.getPixel(75, 75)
         val insideIsRed = AndroidColor.red(inside) > 200 && AndroidColor.green(inside) < 60
         val outsideIsRed = AndroidColor.red(outside) > 200 && AndroidColor.green(outside) < 60
         assert(insideIsRed) { "Inside clip should be red, got #${Integer.toHexString(inside)}" }
@@ -211,9 +218,9 @@ class RcPlayerPixelTest {
                 )
             }
         }
-        val y = (50 * d).toInt()
-        val left = bmp.getPixel((10 * d).toInt(), y)
-        val right = bmp.getPixel((90 * d).toInt(), y)
+        val y = 50
+        val left = bmp.getPixel(10, y)
+        val right = bmp.getPixel(90, y)
         assert(AndroidColor.red(left) > AndroidColor.blue(left)) {
             "gradient left should be red-dominant, got #${Integer.toHexString(left)}"
         }
@@ -242,8 +249,8 @@ class RcPlayerPixelTest {
                 }
             }
         }
-        val inside = bmp.getPixel((25 * d).toInt(), (25 * d).toInt())
-        val outside = bmp.getPixel((75 * d).toInt(), (75 * d).toInt())
+        val inside = bmp.getPixel(25, 25)
+        val outside = bmp.getPixel(75, 75)
         val insideIsRed = AndroidColor.red(inside) > 200 && AndroidColor.green(inside) < 60
         val outsideIsRed = AndroidColor.red(outside) > 200 && AndroidColor.green(outside) < 60
         assert(insideIsRed) {
@@ -276,7 +283,7 @@ class RcPlayerPixelTest {
             }
         }
         fun isRed(x: Int): Boolean {
-            val px = bmp.getPixel((x * d).toInt(), (50 * d).toInt())
+            val px = bmp.getPixel(x, 50)
             return AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60
         }
         assert(isRed(10)) { "stripe 0 (index 0) should be red" }
@@ -305,7 +312,7 @@ class RcPlayerPixelTest {
                 writer.drawRect(0f, 0f, 100f, 100f, paint)
             }
         }
-        val px = bmp.getPixel((50 * d).toInt(), (50 * d).toInt())
+        val px = bmp.getPixel(50, 50)
         assert(AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60) {
             "WriteToDocument raw drawRect should render red, got #${Integer.toHexString(px)}"
         }
@@ -347,9 +354,70 @@ class RcPlayerPixelTest {
                 )
             }
         }
-        val px = bmp.getPixel((50 * d).toInt(), (50 * d).toInt())
+        val px = bmp.getPixel(50, 50)
         assert(px == AndroidColor.RED) {
             "Expected RED color at (50, 50), but found ${Integer.toHexString(px)}"
         }
+    }
+
+    @Test
+    fun roundedClipRectActuallyClipsAndUpdatesReactively() {
+        val d = rule.density.density
+        val document = runBlocking {
+            captureRule.captureDocument(context = rule.activity) {
+                val radius = rememberNamedRemoteFloat("radius") { 0f.rf }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .clip(RemoteRoundedCornerShape(radius))
+                            .background(Color.Red.rc)
+                )
+            }
+        }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document, autoUpdate = true)
+            }
+        }
+        rule.waitForIdle()
+
+        // 1. Initially radius is 0f, so the corner (3, 3) must be RED (not clipped).
+        fun isRed(x: Int, y: Int): Boolean {
+            val bmp = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+            val px = bmp.getPixel((x * d).toInt(), (y * d).toInt())
+            return AndroidColor.red(px) > 180 && AndroidColor.green(px) < 80
+        }
+        assert(isRed(3, 3)) { "Initially, corner (3,3) should be red" }
+
+        // 2. Update the variable to 40f.
+        val radiusId = document.getVariableIdByName("USER:radius")
+        document.remoteComposeState.overrideFloat(radiusId, 40f)
+        rule.waitForIdle()
+
+        // 3. Now the corner (3, 3) must be empty (clipped).
+        assert(!isRed(3, 3)) {
+            "After updating radius to 40f, corner (3,3) should be empty (clipped)"
+        }
+        assert(isRed(50, 3)) { "But the top-center (50,3) should still be red" }
+    }
+
+    private fun findVariableId(ops: List<Operation>, name: String): Int? {
+        for (op in ops) {
+            if (op is NamedVariable && op.mVarName == name) {
+                return op.mVarId
+            }
+            if (op is Container) {
+                findVariableId(op.list, name)?.let {
+                    return it
+                }
+            }
+        }
+        return null
+    }
+
+    private fun CoreDocument.getVariableIdByName(name: String): Int {
+        return findVariableId(getOperations(), name)
+            ?: throw IllegalArgumentException("Named variable not found: $name")
     }
 }

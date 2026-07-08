@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -34,8 +35,10 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier as Modif
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
@@ -52,10 +55,14 @@ import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Modifier as ComposeModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -79,9 +86,16 @@ class RcPlayerSwitchDemoTest {
     fun switchWidgetDemo() {
         rule.mainClock.autoAdvance = false
         rule.setContent {
-            val document = rememberRemoteDocument { SwitchWidgetDemo() }
+            val widthPx = with(LocalDensity.current) { 360.dp.toPx() }
+            val heightPx = with(LocalDensity.current) { 240.dp.toPx() }
+            val document =
+                rememberRemoteDocument(
+                    createCreationDisplayInfo(width = widthPx.toInt(), height = heightPx.toInt())
+                ) {
+                    SwitchWidgetDemo()
+                }
 
-            Box(modifier = androidx.compose.ui.Modifier.size(200.dp)) {
+            Box(modifier = ComposeModifier.size(360.dp, 240.dp)) {
                 document.value?.let { RcPlayer(document = it) }
             }
         }
@@ -89,6 +103,37 @@ class RcPlayerSwitchDemoTest {
         rule.mainClock.advanceTimeBy(100)
 
         rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "switchWidgetDemo")
+    }
+
+    @Test
+    fun switchWidgetDemo_toggledStateC() {
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            val widthPx = with(LocalDensity.current) { 360.dp.toPx() }
+            val heightPx = with(LocalDensity.current) { 240.dp.toPx() }
+            val document =
+                rememberRemoteDocument(
+                    createCreationDisplayInfo(width = widthPx.toInt(), height = heightPx.toInt())
+                ) {
+                    SwitchWidgetDemo()
+                }
+
+            Box(modifier = ComposeModifier.size(360.dp, 240.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+        rule.mainClock.advanceTimeBy(100)
+
+        // Toggle State C switch to Off.
+        rule.onNodeWithContentDescription("State C").performClick()
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "switchWidgetDemo_toggledStateC")
     }
 
     // Copy of the SwitchWidgetDemo and related functions from SwitchWidget.kt
@@ -149,11 +194,14 @@ class RcPlayerSwitchDemoTest {
 
     @Composable
     @RemoteComposable
-    fun SwitchWidget(value: MutableRemoteEnum<SwitchState>) {
-        val modifier =
+    fun SwitchWidget(value: MutableRemoteEnum<SwitchState>, description: String? = null) {
+        var modifier =
             Modifier.clickable(
                 valueChange(remoteState = value.remoteInt, updatedValue = (value.remoteInt + 1) % 2)
             )
+        if (description != null) {
+            modifier = modifier.semantics { contentDescription = description.rs }
+        }
 
         RemoteBox(
             modifier = Modifier.padding(4.rdp),
@@ -182,7 +230,7 @@ class RcPlayerSwitchDemoTest {
     ) {
         Row(modifier = modifier, verticalAlignment = RemoteAlignment.CenterVertically) {
             RemoteText(label)
-            SwitchWidget(state)
+            SwitchWidget(state, description = label)
             RemoteText("State value is ")
             RemoteText(state.toRemoteString { it.name.rs })
         }

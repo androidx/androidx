@@ -249,6 +249,11 @@ internal fun mapBlendMode(mode: Int): androidx.compose.ui.graphics.BlendMode =
         else -> androidx.compose.ui.graphics.BlendMode.SrcOver
     }
 
+private fun resolvePaintFloat(bits: Int, read: RemoteContext): Float {
+    val value = Float.fromBits(bits)
+    return resolveFloat(value, value, read)
+}
+
 internal fun updatePaintFromBundle(
     bundle: PaintBundle,
     paintState: ComposeLocalPaint,
@@ -407,10 +412,10 @@ internal fun updatePaintFromBundle(
 
                 when (gradientType) {
                     0 -> { // LINEAR_GRADIENT
-                        val startX = Float.fromBits(array[i++])
-                        val startY = Float.fromBits(array[i++])
-                        val endX = Float.fromBits(array[i++])
-                        val endY = Float.fromBits(array[i++])
+                        val startX = resolvePaintFloat(array[i++], read)
+                        val startY = resolvePaintFloat(array[i++], read)
+                        val endX = resolvePaintFloat(array[i++], read)
+                        val endY = resolvePaintFloat(array[i++], read)
                         val tileMode = array[i++]
                         val start = Offset(startX, startY)
                         val end = Offset(endX, endY)
@@ -443,9 +448,9 @@ internal fun updatePaintFromBundle(
                         }
                     }
                     1 -> { // RADIAL_GRADIENT
-                        val centerX = Float.fromBits(array[i++])
-                        val centerY = Float.fromBits(array[i++])
-                        val radius = Float.fromBits(array[i++])
+                        val centerX = resolvePaintFloat(array[i++], read)
+                        val centerY = resolvePaintFloat(array[i++], read)
+                        val radius = resolvePaintFloat(array[i++], read)
                         val tileMode = array[i++]
                         val center = Offset(centerX, centerY)
                         val tm = mapTileMode(tileMode)
@@ -476,8 +481,8 @@ internal fun updatePaintFromBundle(
                         }
                     }
                     2 -> { // SWEEP_GRADIENT
-                        val centerX = Float.fromBits(array[i++])
-                        val centerY = Float.fromBits(array[i++])
+                        val centerX = resolvePaintFloat(array[i++], read)
+                        val centerY = resolvePaintFloat(array[i++], read)
                         val center = Offset(centerX, centerY)
                         if (colorsList.size >= 2 && centerX.isFinite() && centerY.isFinite()) {
                             paintState.brush =
