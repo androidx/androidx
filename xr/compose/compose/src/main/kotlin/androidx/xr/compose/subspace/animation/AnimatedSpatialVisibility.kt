@@ -48,6 +48,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
  * @see SpatialExitTransition
  * @see AnimatedSpatialVisibilityScope
  */
+@ExperimentalSpatialAnimationApi
 @Composable
 @SubspaceComposable
 public fun AnimatedSpatialVisibility(
@@ -81,6 +82,7 @@ public fun AnimatedSpatialVisibility(
  * @see SpatialExitTransition
  * @see AnimatedSpatialVisibilityScope
  */
+@ExperimentalSpatialAnimationApi
 @Composable
 @SubspaceComposable
 public fun AnimatedSpatialVisibility(
@@ -117,6 +119,7 @@ public fun AnimatedSpatialVisibility(
  * @see SpatialExitTransition
  * @see AnimatedSpatialVisibilityScope
  */
+@ExperimentalSpatialAnimationApi
 @Composable
 @SubspaceComposable
 public fun <T> Transition<T>.AnimatedSpatialVisibility(
@@ -143,6 +146,7 @@ public fun <T> Transition<T>.AnimatedSpatialVisibility(
  *
  * @see AnimatedVisibilityScope
  */
+@ExperimentalSpatialAnimationApi
 public class AnimatedSpatialVisibilityScope
 internal constructor(override val transition: Transition<EnterExitState>) :
     AnimatedVisibilityScope {

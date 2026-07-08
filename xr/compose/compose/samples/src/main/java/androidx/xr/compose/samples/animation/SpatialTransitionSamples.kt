@@ -26,9 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.animation.AnimatedSpatialVisibility
+import androidx.xr.compose.subspace.animation.ExperimentalSpatialAnimationApi
 import androidx.xr.compose.subspace.animation.SpatialTransitions
+import androidx.xr.compose.unit.ExperimentalSpatialVolumeOffsetApi
 import androidx.xr.compose.unit.IntVolumeOffset
 
+@OptIn(ExperimentalSpatialAnimationApi::class)
 @Sampled
 @Composable
 fun SpatialFade() {
@@ -49,6 +52,7 @@ fun SpatialFade() {
     }
 }
 
+@OptIn(ExperimentalSpatialAnimationApi::class, ExperimentalSpatialVolumeOffsetApi::class)
 @Sampled
 @Composable
 fun SpatialSlide() {

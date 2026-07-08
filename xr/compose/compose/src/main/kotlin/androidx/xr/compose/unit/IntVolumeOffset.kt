@@ -26,6 +26,7 @@ import androidx.compose.runtime.Immutable
  *   negative values point downwards.
  * @property z The offset along the z-axis.
  */
+@ExperimentalSpatialVolumeOffsetApi
 @Immutable
 public class IntVolumeOffset(public val x: Int, public val y: Int, public val z: Int) {
 

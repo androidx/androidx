@@ -22,10 +22,13 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.unit.ExperimentalSpatialVolumeOffsetApi
 import androidx.xr.compose.unit.IntVolumeOffset
 import androidx.xr.compose.unit.IntVolumeSize
 
 /** Public transition spec APIs for use with [AnimatedSpatialVisibility]. */
+@OptIn(ExperimentalSpatialVolumeOffsetApi::class)
+@ExperimentalSpatialAnimationApi
 public object SpatialTransitions {
     /**
      * This fades in the content of the transition, from the specified starting alpha (i.e.
@@ -304,6 +307,8 @@ public object SpatialTransitions {
 }
 
 /** Defaults for use with [SpatialTransitions]. */
+@OptIn(ExperimentalSpatialVolumeOffsetApi::class)
+@ExperimentalSpatialAnimationApi
 public object SpatialTransitionDefaults {
     /** The default [SpatialEnterTransition] used by [SpatialTransitions]. */
     public val DefaultEnter: SpatialEnterTransition =
