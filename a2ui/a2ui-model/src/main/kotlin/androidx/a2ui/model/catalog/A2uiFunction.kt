@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("A2uiFunctionImplementationKt")
+@file:JvmName("A2uiFunctionKt")
 
 package androidx.a2ui.model.catalog
 

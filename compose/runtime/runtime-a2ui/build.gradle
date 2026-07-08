@@ -51,6 +51,7 @@ android {
     defaultConfig {
         minSdk { version = release(24) }
     }
+    compileSdk { version = release(37) }
 }
 
 androidx {
