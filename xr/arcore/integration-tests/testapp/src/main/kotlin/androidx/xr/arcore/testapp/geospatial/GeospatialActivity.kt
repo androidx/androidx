@@ -281,7 +281,7 @@ class GeospatialActivity : ComponentActivity() {
                             poseResult.pose.longitude,
                         )
                 } catch (e: Exception) {
-                    logAndShowToast("checkVpsAvailability failed: $e", e)
+                    w("JetpackXR", "checkVpsAvailability failed: $e", e)
                     vpsAvailability = null
                 }
             }
