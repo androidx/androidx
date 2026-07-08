@@ -368,29 +368,37 @@ public class ProtoLayoutDynamicDataPipeline {
                 for (Map.Entry<String, ExitTransition> animatingNode : animatingNodes.entrySet()) {
                     View associatedView = parentView.findViewWithTag(animatingNode.getKey());
                     if (associatedView != null) {
-                        AnimationSet animationSet =
-                                mExitAnimationInflator.apply(
-                                        checkNotNull(animatingNode.getValue()), associatedView);
-                        if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
-                            QuotaAwareAnimationSet quotaAwareAnimationSet =
-                                    new QuotaAwareAnimationSet(
-                                            animationSet,
-                                            mPipeline.mAnimationQuotaManager,
-                                            associatedView,
-                                            () -> {
-                                                if (wrappedOnEnd != null) {
-                                                    mExitAnimationsCounter--;
-                                                    if (mExitAnimationsCounter == 0) {
-                                                        mPipeline.mExitAnimations.clear();
-                                                        wrappedOnEnd.run();
+                        try {
+                            AnimationSet animationSet =
+                                    mExitAnimationInflator.apply(
+                                            checkNotNull(animatingNode.getValue()), associatedView);
+                            if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
+                                QuotaAwareAnimationSet quotaAwareAnimationSet =
+                                        new QuotaAwareAnimationSet(
+                                                animationSet,
+                                                mPipeline.mAnimationQuotaManager,
+                                                associatedView,
+                                                () -> {
+                                                    if (wrappedOnEnd != null) {
+                                                        mExitAnimationsCounter--;
+                                                        if (mExitAnimationsCounter == 0) {
+                                                            mPipeline.mExitAnimations.clear();
+                                                            wrappedOnEnd.run();
+                                                        }
                                                     }
-                                                }
-                                            });
-                            quotaAwareAnimationSet.tryStartAnimation(
-                                    () -> {
-                                        mExitAnimationsCounter++;
-                                        mPipeline.mExitAnimations.add(quotaAwareAnimationSet);
-                                    });
+                                                });
+                                quotaAwareAnimationSet.tryStartAnimation(
+                                        () -> {
+                                            mExitAnimationsCounter++;
+                                            mPipeline.mExitAnimations.add(quotaAwareAnimationSet);
+                                        });
+                            }
+                        } catch (RuntimeException e) {
+                            Log.e(
+                                    TAG,
+                                    "Failed to create exit animation for node "
+                                            + animatingNode.getKey(),
+                                    e);
                         }
                     }
                 }
@@ -535,18 +543,26 @@ public class ProtoLayoutDynamicDataPipeline {
             for (Map.Entry<String, EnterTransition> animatingNode : animatingNodes.entrySet()) {
                 View associatedView = parentView.findViewWithTag(animatingNode.getKey());
                 if (associatedView != null) {
-                    AnimationSet animationSet =
-                            mEnterAnimationInflator.apply(
-                                    checkNotNull(animatingNode.getValue()), associatedView);
+                    try {
+                        AnimationSet animationSet =
+                                mEnterAnimationInflator.apply(
+                                        checkNotNull(animatingNode.getValue()), associatedView);
 
-                    if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
-                        QuotaAwareAnimationSet quotaAwareAnimationSet =
-                                new QuotaAwareAnimationSet(
-                                        animationSet,
-                                        mPipeline.mAnimationQuotaManager,
-                                        associatedView);
-                        quotaAwareAnimationSet.tryStartAnimation(
-                                () -> mPipeline.mEnterAnimations.add(quotaAwareAnimationSet));
+                        if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
+                            QuotaAwareAnimationSet quotaAwareAnimationSet =
+                                    new QuotaAwareAnimationSet(
+                                            animationSet,
+                                            mPipeline.mAnimationQuotaManager,
+                                            associatedView);
+                            quotaAwareAnimationSet.tryStartAnimation(
+                                    () -> mPipeline.mEnterAnimations.add(quotaAwareAnimationSet));
+                        }
+                    } catch (RuntimeException e) {
+                        Log.e(
+                                TAG,
+                                "Failed to create enter animation for node "
+                                        + animatingNode.getKey(),
+                                e);
                     }
                 }
             }
