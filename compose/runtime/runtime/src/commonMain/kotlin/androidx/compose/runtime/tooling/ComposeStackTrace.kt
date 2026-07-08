@@ -45,7 +45,8 @@ import kotlin.jvm.JvmInline
 public value class ComposeStackTraceMode private constructor(private val value: Int) {
     public companion object {
         /** No stack trace information will be collected. */
-        public val None: ComposeStackTraceMode = ComposeStackTraceMode(0)
+        public val None: ComposeStackTraceMode
+            get() = ComposeStackTraceMode(0)
 
         /**
          * Collects a stack trace with group keys. This stack trace can be deobfuscated with the
@@ -65,7 +66,8 @@ public value class ComposeStackTraceMode private constructor(private val value: 
          *     ...
          * ```
          */
-        public val GroupKeys: ComposeStackTraceMode = ComposeStackTraceMode(1)
+        public val GroupKeys: ComposeStackTraceMode
+            get() = ComposeStackTraceMode(1)
 
         /**
          * Collects a stack trace based on source information embedded by Compose compiler. When
@@ -91,7 +93,8 @@ public value class ComposeStackTraceMode private constructor(private val value: 
          *     ...
          * ```
          */
-        public val SourceInformation: ComposeStackTraceMode = ComposeStackTraceMode(2)
+        public val SourceInformation: ComposeStackTraceMode
+            get() = ComposeStackTraceMode(2)
 
         /** [GroupKeys] when app is minified, or [None] otherwise. */
         public val Auto: ComposeStackTraceMode
