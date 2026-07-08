@@ -808,8 +808,10 @@ package androidx.xr.compose.subspace.layout {
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy public static androidx.xr.compose.subspace.layout.MovePolicy! anchor$default(androidx.xr.compose.subspace.layout.MovePolicy.Companion!, java.util.Set!, java.util.Set!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.xr.compose.subspace.layout.MovePolicy custom(optional boolean scaleWithDistance, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit> onMove);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.MovePolicy! custom$default(androidx.xr.compose.subspace.layout.MovePolicy.Companion!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-    method public androidx.xr.compose.subspace.layout.MovePolicy default(optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMove);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.MovePolicy! default$default(androidx.xr.compose.subspace.layout.MovePolicy.Companion!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.layout.MovePolicy getDefault();
+    method public androidx.xr.compose.subspace.layout.MovePolicy system(optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMove);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.MovePolicy! system$default(androidx.xr.compose.subspace.layout.MovePolicy.Companion!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    property public androidx.xr.compose.subspace.layout.MovePolicy Default;
   }
 
   public final class OffsetKt {

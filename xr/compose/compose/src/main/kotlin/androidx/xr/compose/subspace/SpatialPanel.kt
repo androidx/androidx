@@ -206,7 +206,7 @@ public class AnchorPolicy(
  */
 @Deprecated(
     message =
-        "Use SubspaceModifier.movable(movePolicy = MovePolicy.default()) or SubspaceModifier.movable(movePolicy = MovePolicy.custom()) on the Composable's modifier instead."
+        "Use SubspaceModifier.movable(movePolicy = MovePolicy.system()) or SubspaceModifier.movable(movePolicy = MovePolicy.custom()) on the Composable's modifier instead."
 )
 @Suppress("DEPRECATION")
 public class MovePolicy(

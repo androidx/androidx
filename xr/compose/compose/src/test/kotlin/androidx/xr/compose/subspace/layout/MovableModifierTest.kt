@@ -98,11 +98,11 @@ class MovableModifierTest {
     // ========================================================================
 
     @Test
-    fun policyDefault_createsSystemMovableComponent() {
+    fun policySystem_createsSystemMovableComponent() {
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
-                    SubspaceModifier.testTag("panel").movable(movePolicy = MovePolicy.default())
+                    SubspaceModifier.testTag("panel").movable(movePolicy = MovePolicy.system())
                 ) {
                     Text(text = "Panel")
                 }
@@ -112,7 +112,7 @@ class MovableModifierTest {
     }
 
     @Test
-    fun policyDefault_scaleWithDistance_passedCorrectly() {
+    fun policySystem_scaleWithDistance_passedCorrectly() {
         val scalesInZ = mutableListOf<Boolean>()
         composeTestRule.configureFakeSessionWithWatch { _, scaleInZ, _ -> scalesInZ.add(scaleInZ) }
 
@@ -120,7 +120,7 @@ class MovableModifierTest {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
-                        .movable(movePolicy = MovePolicy.default(scaleWithDistance = false))
+                        .movable(movePolicy = MovePolicy.system(scaleWithDistance = false))
                 ) {}
             }
         }

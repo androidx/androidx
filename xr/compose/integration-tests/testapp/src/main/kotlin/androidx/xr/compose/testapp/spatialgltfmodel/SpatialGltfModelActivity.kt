@@ -470,7 +470,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
                             MovePolicy.custom(scaleWithDistance = false, onMove = customMovement)
                     )
             } else {
-                modifier.movable(movePolicy = MovePolicy.default(scaleWithDistance = false))
+                modifier.movable(movePolicy = MovePolicy.system(scaleWithDistance = false))
             }
 
         SpatialGltfModel(state = dragonModelState, modifier = movementModifier) {

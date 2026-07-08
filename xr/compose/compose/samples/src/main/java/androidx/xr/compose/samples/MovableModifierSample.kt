@@ -41,7 +41,7 @@ import androidx.xr.runtime.math.Quaternion
 @Composable
 public fun BasicMovableSample() {
     SpatialPanel(
-        modifier = SubspaceModifier.movable(enabled = true, movePolicy = MovePolicy.default())
+        modifier = SubspaceModifier.movable(enabled = true, movePolicy = MovePolicy.system())
     ) {
         Text("The user can move me around!")
     }

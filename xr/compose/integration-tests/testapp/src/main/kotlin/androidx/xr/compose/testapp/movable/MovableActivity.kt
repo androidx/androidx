@@ -236,7 +236,7 @@ class MovableActivity : ComponentActivity() {
                     .fillMaxWidth()
                     .movable(
                         movePolicy =
-                            MovePolicy.default(
+                            MovePolicy.system(
                                 onMove = { event ->
                                     if (event.type == SpatialMoveEventType.Start) {
                                         isDragging = true
