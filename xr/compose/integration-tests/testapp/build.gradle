@@ -38,6 +38,13 @@ android {
     }
 }
 
+androidx {
+    deviceTests {
+        enabled = false
+    }
+}
+
+
 dependencies {
     // Project dependencies
     implementation(project(":compose:material3:material3"))
