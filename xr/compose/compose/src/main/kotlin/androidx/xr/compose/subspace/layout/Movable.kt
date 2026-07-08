@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ import kotlinx.coroutines.asExecutor
  * There are some limitations that should be considered when using this modifier:
  * 1) the draggable UI controls of nested composables using the [movable] modifier may conflict with
  *    each other.
- * 2) Attaching multiple [movable] modifiers with auto-applying policies (like [MovePolicy.default])
+ * 2) Attaching multiple [movable] modifiers with auto-applying policies (like [MovePolicy.system])
  *    to the same element will compound the movement distance, since each modifier independently
  *    applies the drag offset upon release.
  *
@@ -71,19 +71,22 @@ import kotlinx.coroutines.asExecutor
  *   keeps the composable at its last dragged position. Removing the modifier entirely resets the
  *   composable to its original layout position.
  * @param movePolicy The [MovePolicy] that dictates how movement transformations are calculated and
- *   applied. Defaults to [MovePolicy.default].
+ *   applied. Defaults to [MovePolicy.Default].
  *
  *     @sample androidx.xr.compose.samples.BasicMovableSample
  *     @sample androidx.xr.compose.samples.CustomMovableSample
  */
 public fun SubspaceModifier.movable(
     enabled: Boolean = true,
-    movePolicy: MovePolicy = MovePolicy.default(),
+    movePolicy: MovePolicy = MovePolicy.Default,
 ): SubspaceModifier = this.then(MovableElement(enabled = enabled, movePolicy = movePolicy))
 
 /** Defines the behavior and configuration for movement applied by the [movable] modifier. */
 public sealed interface MovePolicy {
     public companion object {
+
+        /** The default system-handled move policy. */
+        public val Default: MovePolicy = system()
 
         /**
          * A policy that delegates the pose transformation entirely to the system.
@@ -106,10 +109,10 @@ public sealed interface MovePolicy {
          *   [SpatialMoveEvent] which will contain a [Pose]. The [Pose] contained in this event is
          *   the sum of all previous events in the move gesture.
          */
-        public fun default(
+        public fun system(
             scaleWithDistance: Boolean = true,
             onMove: ((SpatialMoveEvent) -> Unit)? = null,
-        ): MovePolicy = DefaultMovePolicy(scaleWithDistance = scaleWithDistance, onMove = onMove)
+        ): MovePolicy = SystemMovePolicy(scaleWithDistance = scaleWithDistance, onMove = onMove)
 
         /**
          * A policy that accepts move events and reports the calculated pose updates via a callback,
@@ -119,7 +122,7 @@ public sealed interface MovePolicy {
          * the target [Pose] based on input, but does not automatically apply it to the associated
          * layout. The developer is responsible for consuming the [onMove] event and applying the
          * result (e.g., by updating a state backed by [SubspaceModifier.offset]). Using this policy
-         * has higher latency than [default].
+         * has higher latency than [system].
          *
          * @param scaleWithDistance true if this composable should scale in size when moved in
          *   depth. When enabled, the subspace element will grow if pushed away from the user or
@@ -169,7 +172,7 @@ public sealed interface MovePolicy {
     }
 }
 
-internal data class DefaultMovePolicy(
+internal data class SystemMovePolicy(
     val scaleWithDistance: Boolean,
     val onMove: ((SpatialMoveEvent) -> Unit)?,
 ) : MovePolicy
@@ -268,7 +271,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     }
 
     internal fun updateNode(enabled: Boolean, movePolicy: MovePolicy) {
-        // Check if the underlying type of the policy changed (e.g., Default to Custom)
+        // Check if the underlying type of the policy changed (e.g., System to Custom)
         val policyTypeChanged = this.movePolicy::class != movePolicy::class
 
         // Only require a component recreation if the type changed, or if structural properties
@@ -278,9 +281,9 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val componentUpdateNeeded =
             policyTypeChanged ||
                 when (movePolicy) {
-                    is DefaultMovePolicy -> {
+                    is SystemMovePolicy -> {
                         movePolicy.scaleWithDistance !=
-                            (this.movePolicy as DefaultMovePolicy).scaleWithDistance
+                            (this.movePolicy as SystemMovePolicy).scaleWithDistance
                     }
                     is CustomMovePolicy -> {
                         movePolicy.scaleWithDistance !=
@@ -336,11 +339,11 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         check(component == null) { "MovableComponent already enabled." }
 
         when (movePolicy) {
-            is DefaultMovePolicy -> {
+            is SystemMovePolicy -> {
                 component =
                     MovableComponent.createSystemMovable(
                             session = session,
-                            scaleInZ = (movePolicy as DefaultMovePolicy).scaleWithDistance,
+                            scaleInZ = (movePolicy as SystemMovePolicy).scaleWithDistance,
                         )
                         .also { it.addMoveListener(MainExecutor, this) }
             }
@@ -452,7 +455,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         previousPose = initialPose
         previousScale = initialScale
         when (val policy = movePolicy) {
-            is DefaultMovePolicy -> {
+            is SystemMovePolicy -> {
                 layoutNode?.markSystemMoveOngoing(true)
                 policy.onMove?.invoke(event)
             }
@@ -484,7 +487,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             )
 
         when (val policy = movePolicy) {
-            is DefaultMovePolicy -> {
+            is SystemMovePolicy -> {
                 updatePoseOnMoveEvent(
                     parentFromDraggedNodeMeters = currentPose,
                     scale = currentScale,
@@ -524,7 +527,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             )
 
         when (val policy = movePolicy) {
-            is DefaultMovePolicy -> {
+            is SystemMovePolicy -> {
                 updatePoseOnMoveEvent(parentFromDraggedNodeMeters = finalPose, scale = finalScale)
                 policy.onMove?.invoke(event)
                 layoutNode?.markSystemMoveOngoing(false)
@@ -853,7 +856,7 @@ private class DeprecatedCustomMovableNode(
 @Deprecated(
     message =
         "This signature is deprecated. The movement behavior is now configured via MovePolicy. " +
-            "For default system-handled movement, use movable(movePolicy = MovePolicy.default(...)). " +
+            "For default system-handled movement, use movable(movePolicy = MovePolicy.system(...)). " +
             "For custom movement where you manually apply the resulting pose, use movable(movePolicy = MovePolicy.custom(...))."
 )
 public fun SubspaceModifier.movable(
