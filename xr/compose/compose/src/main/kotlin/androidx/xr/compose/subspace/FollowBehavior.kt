@@ -630,6 +630,7 @@ public class TrackedDimensions(
  * A FollowTarget can be used with [androidx.xr.compose.spatial.FollowingSubspace] to have a set of
  * content follow a target such as an anchor or AR device.
  */
+@ExperimentalFollowingSubspaceApi
 public sealed interface FollowTarget {
     public companion object {
         /**
@@ -655,11 +656,13 @@ public sealed interface FollowTarget {
     }
 }
 
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal interface FollowTargetFlow : FollowTarget {
     val poseUpdates: Flow<Pose>
 }
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     // Distance to stay away from the target when following it.
     val offset: Pose = DEFAULT_OFFSET
@@ -701,6 +704,7 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
  * This implementation is designed to be constructed directly from an existing [AnchorSpace]
  * instance provided by the developer.
  */
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
     private val pose: Pose
         get() = anchorSpace.getPose(Space.ACTIVITY)
