@@ -1574,7 +1574,6 @@ private fun TimeInputImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TimeScrollImpl(
     modifier: Modifier,
