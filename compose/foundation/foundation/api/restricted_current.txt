@@ -159,6 +159,7 @@ package androidx.compose.foundation {
     property public boolean isClearNestedScrollCoroutineScopeFixEnabled;
     property public boolean isDragNodeOffsetDoubleCountingFixEnabled;
     property public boolean isDraggableVelocityTrackerFixEnabled;
+    property public boolean isDraggableZeroDeltaConsumptionEnabled;
     property public boolean isInheritedTextStyleEnabled;
     property public boolean isInteractionSoundEffectOnClickEnabled;
     property public boolean isLinkMinimumTouchTargetSizeZeroEnabled;
@@ -180,6 +181,7 @@ package androidx.compose.foundation {
     field public static boolean isClearNestedScrollCoroutineScopeFixEnabled;
     field public static boolean isDragNodeOffsetDoubleCountingFixEnabled;
     field public static boolean isDraggableVelocityTrackerFixEnabled;
+    field public static boolean isDraggableZeroDeltaConsumptionEnabled;
     field public static boolean isInheritedTextStyleEnabled;
     field public static boolean isInteractionSoundEffectOnClickEnabled;
     field public static boolean isLinkMinimumTouchTargetSizeZeroEnabled;
