@@ -75,7 +75,7 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
 
 @Preview
 @Composable
-private fun SwitchWidgetOnStatePreview() = RemoteContentPreview { SwitchWidgetOnState() }
+fun SwitchWidgetOnStatePreview() = RemoteContentPreview { SwitchWidgetOnState() }
 
 @Composable
 @RemoteComposable
@@ -99,7 +99,7 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
 
 @Preview
 @Composable
-private fun SwitchWidgetOffStatePreview() = RemoteContentPreview { SwitchWidgetOffState() }
+fun SwitchWidgetOffStatePreview() = RemoteContentPreview { SwitchWidgetOffState() }
 
 @Composable
 @RemoteComposable
@@ -216,6 +216,6 @@ fun SwitchWidgetDemo() {
 val RemoteEnum<SwitchState>.visibility: RemoteInt
     get() = toRemoteInt { it.visibility }
 
-@Preview
+@Preview(widthDp = 400, heightDp = 800)
 @Composable
-private fun SwitchWidgetDemoPreview() = RemoteContentPreview { SwitchWidgetDemo() }
+fun SwitchWidgetDemoPreview() = RemoteContentPreview { SwitchWidgetDemo() }
