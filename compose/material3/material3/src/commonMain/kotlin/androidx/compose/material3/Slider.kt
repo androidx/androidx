@@ -439,12 +439,7 @@ fun Slider(
  */
 @Deprecated(
     "Maintained for binary compatibility. Use the version with topToBottom instead.",
-    replaceWith =
-        ReplaceWith(
-            "VerticalSlider(state, modifier, enabled, !reverseDirection, colors, " +
-                "interactionSource, thumb, track)"
-        ),
-    level = DeprecationLevel.WARNING,
+    level = DeprecationLevel.HIDDEN,
 )
 @ExperimentalMaterial3ExpressiveApi
 @JvmName("VerticalSlider")
