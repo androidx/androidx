@@ -28,12 +28,9 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.TimeText
 
 @Composable
 fun MenuScreen(backStack: NavBackStack<NavKey>) {
@@ -54,45 +51,90 @@ fun MenuScreen(backStack: NavBackStack<NavKey>) {
         }
         item {
             Button(
-                onClick = { backStack.add(Screen.ScaffoldDemo) },
+                onClick = { backStack.add(Screen.GlobalStatusBarSandbox) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Scaffold Demo") },
+                label = { Text("Global Status Bar Sandbox") },
             )
         }
         item {
             Button(
-                onClick = { backStack.add(Screen.NoScaffoldDemo) },
+                onClick = { backStack.add(Screen.HorizontalPager) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("No Scaffold Demo") },
+                label = { Text("Horizontal Pager") },
+            )
+        }
+        item {
+            Button(
+                onClick = { backStack.add(Screen.VerticalPager) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Vertical Pager") },
+            )
+        }
+        item {
+            Button(
+                onClick = { backStack.add(Screen.SelfRenderedSandbox) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Self Rendered Sandbox") },
             )
         }
     }
 }
 
+/**
+ * Placeholder screen for the Global Status Bar Sandbox demo.
+ *
+ * TODO: Add Global Status Bar demo content and transition tests later.
+ */
 @Composable
-fun ScaffoldDemoScreen(onBack: () -> Unit) {
-    // Scaffold is local ONLY to this screen
-    AppScaffold(timeText = { TimeText() }) {
-        val scrollState = rememberScalingLazyListState()
-        ScreenScaffold(scrollState = scrollState) { contentPadding ->
-            ScalingLazyColumn(
-                state = scrollState,
-                contentPadding = contentPadding,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                item { Text("Inside Scaffold Screen") }
-                item { Button(onClick = onBack, label = { Text("Back") }) }
-                items(20) { index -> Text("Scroll Item $index") }
-            }
+fun GlobalStatusBarSandboxScreen(onBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Placeholder Screen")
+            Button(onClick = onBack, label = { Text("Back") })
         }
     }
 }
 
+/**
+ * Placeholder screen for the Horizontal Pager demo.
+ *
+ * TODO: Add horizontal pager demo content and transitions later.
+ */
 @Composable
-fun NoScaffoldDemoScreen(onBack: () -> Unit) {
+fun HorizontalPagerScreen(onBack: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("No Scaffold Screen")
+            Text(text = "Placeholder Screen")
+            Button(onClick = onBack, label = { Text("Back") })
+        }
+    }
+}
+
+/**
+ * Placeholder screen for the Vertical Pager demo.
+ *
+ * TODO: Add vertical pager demo content and transitions later.
+ */
+@Composable
+fun VerticalPagerScreen(onBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Placeholder Screen")
+            Button(onClick = onBack, label = { Text("Back") })
+        }
+    }
+}
+
+/**
+ * Placeholder screen for the Self-Rendered Sandbox demo.
+ *
+ * TODO: Add self-rendered status bar demo content later.
+ */
+@Composable
+fun SelfRenderedSandboxScreen(onBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Placeholder Screen")
             Button(onClick = onBack, label = { Text("Back") })
         }
     }
