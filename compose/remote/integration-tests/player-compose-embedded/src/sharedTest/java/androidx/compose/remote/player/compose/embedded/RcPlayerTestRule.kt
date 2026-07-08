@@ -20,17 +20,19 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
+import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.runBlocking
-import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -38,17 +40,16 @@ import org.junit.runners.model.Statement
 /**
  * A [TestRule] for testing the embedded player (`RcPlayer`).
  *
- * Combines [ComposeContentTestRule] and [RemoteCaptureTestRule] to simplify capturing a Remote
- * Compose document and setting it on [RcPlayer].
+ * Uses [RemoteBaseContentTestRule] to set Remote Compose content and renders it via [RcPlayer].
  */
-class RcPlayerTestRule(val composeRule: ComposeContentTestRule = createComposeRule()) : TestRule {
+class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseContentTestRule()) :
+    TestRule by baseRule, ComposeContentTestRule by baseRule {
 
-    val captureRule = RemoteCaptureTestRule()
-
-    private val chain = RuleChain.outerRule(captureRule).around(composeRule)
+    val composeRule: ComposeContentTestRule
+        get() = baseRule.composeTestRule
 
     override fun apply(base: Statement, description: Description): Statement =
-        chain.apply(base, description)
+        baseRule.apply(base, description)
 
     /**
      * Captures a remote document from [content] and sets it on [RcPlayer].
@@ -56,20 +57,67 @@ class RcPlayerTestRule(val composeRule: ComposeContentTestRule = createComposeRu
      * @return The captured [CoreDocument].
      */
     fun setRemoteContent(
-        width: Dp = 100.dp,
-        height: Dp = 100.dp,
         autoUpdate: Boolean = false,
-        context: Context = ApplicationProvider.getApplicationContext(),
+        remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
+            createCreationDisplayInfo(
+                context = ApplicationProvider.getApplicationContext(),
+                size =
+                    run {
+                        val context = ApplicationProvider.getApplicationContext<Context>()
+                        val density = context.resources.displayMetrics.density
+                        Size(100f * density, 100f * density)
+                    },
+            ),
+        playComposableWrapper: @Composable (composable: @Composable () -> Unit) -> Unit =
+            { content ->
+                Box(
+                    modifier =
+                        Modifier.size(
+                            remoteCreationDisplayInfo.widthDp,
+                            remoteCreationDisplayInfo.heightDp,
+                        )
+                ) {
+                    content()
+                }
+            },
         content: @Composable @RemoteComposable () -> Unit,
     ): CoreDocument {
-        val document = runBlocking {
-            captureRule.captureDocument(context = context, content = content)
+        var createdDocument: CoreDocument? = null
+
+        baseRule.setContent(
+            creation =
+                object : RemoteBaseContentTestRule.Creation {
+                    @Composable
+                    override fun rememberRemoteDocument(
+                        composable: @RemoteComposable @Composable () -> Unit
+                    ): MutableState<CoreDocument?> {
+                        return rememberRemoteDocument(
+                            creationDisplayInfo = remoteCreationDisplayInfo,
+                            content = composable,
+                        )
+                    }
+                },
+            player =
+                object : RemoteBaseContentTestRule.Player {
+                    @Composable
+                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                        RcPlayer(document = coreDocument, autoUpdate = autoUpdate)
+                    }
+                },
+            size =
+                Size(
+                    remoteCreationDisplayInfo.widthDp.value,
+                    remoteCreationDisplayInfo.heightDp.value,
+                ),
+            playComposableWrapper = playComposableWrapper,
+            onCoreDocumentCreated = { doc -> createdDocument = doc },
+            composable = content,
+        )
+
+        while (createdDocument == null) {
+            waitForIdle()
+            mainClock.advanceTimeByFrame()
         }
-        composeRule.setContent {
-            Box(modifier = Modifier.size(width, height)) {
-                RcPlayer(document = document, autoUpdate = autoUpdate)
-            }
-        }
-        return document
+        return createdDocument!!
     }
 }

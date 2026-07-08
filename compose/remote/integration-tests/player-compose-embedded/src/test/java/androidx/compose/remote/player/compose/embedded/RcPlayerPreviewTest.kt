@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardDefault
 import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,8 +50,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteAppCardPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(context = context, content = { RemoteAppCardDefault() })
@@ -112,8 +114,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteButtonEnabledPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -168,8 +170,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteCardDefaultPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -222,8 +224,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteCompactButtonWithIconPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -277,8 +279,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteButtonGroupThreeButtonsPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -332,8 +334,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteTitleCardDefaultPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -386,8 +388,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteCircularProgressEnabledPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -441,8 +443,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteTextButtonEnabledPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -496,8 +498,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteIconDefaultPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -550,8 +552,8 @@ class RcPlayerPreviewTest {
 
     @Test
     fun testRemoteIconButtonEnabledPreview() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
