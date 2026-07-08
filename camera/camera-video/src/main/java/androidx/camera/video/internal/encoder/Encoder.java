@@ -60,7 +60,26 @@ public interface Encoder {
      * released. It can call {@link #pause} to pause the encoding after started. If the encoder is
      * in paused state, then calling this method will resume the encoding.
      */
-    void start();
+    default void start() {
+        start(NO_TIMESTAMP);
+    }
+
+    /**
+     * Starts the encoder with an expected start time.
+     *
+     * <p>If the encoder is not started yet, it will first trigger
+     * {@link EncoderCallback#onEncodeStart}. Then continually invoke the
+     * {@link EncoderCallback#onEncodedData} callback until the encoder is paused, stopped or
+     * released. It can call {@link #pause} to pause the encoding after started. If the encoder is
+     * in paused state, then calling this method will resume the encoding from the given start
+     * timestamp.
+     *
+     * <p>Use {@link #start()} to start the encoder without specifying expected start time and let
+     * the Encoder to decide.
+     *
+     * @param expectedStartTimeUs The desired start time.
+     */
+    void start(long expectedStartTimeUs);
 
     /**
      * Stops the encoder.
@@ -71,7 +90,9 @@ public interface Encoder {
      * {@link EncoderCallback#onEncodeStop()} is sent. {@link #start} can be called to start
      * another encoding session.
      */
-    void stop();
+    default void stop() {
+        stop(NO_TIMESTAMP);
+    }
 
     /**
      * Stops the encoder with an expected stop time.
@@ -95,7 +116,23 @@ public interface Encoder {
      * Once the encoder is paused, it will drop the input data until {@link #start} is invoked
      * again.
      */
-    void pause();
+    default void pause() {
+        pause(NO_TIMESTAMP);
+    }
+
+    /**
+     * Pauses the encoder with an expected pause time.
+     *
+     * <p>{@code pause} only work between {@link #start} and {@link #stop}.
+     * Once the encoder is paused at the expected pause time, it will drop the input data until
+     * {@link #start} is invoked again.
+     *
+     * <p>Use {@link #pause()} to pause the encoder without specifying expected pause time and let
+     * the Encoder to decide.
+     *
+     * @param expectedPauseTimeUs The desired pause time.
+     */
+    void pause(long expectedPauseTimeUs);
 
     /**
      * Releases the encoder.
