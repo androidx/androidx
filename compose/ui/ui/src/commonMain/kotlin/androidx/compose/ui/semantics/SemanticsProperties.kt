@@ -781,7 +781,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * This element is a button control. Associated semantics properties for accessibility:
          * [SemanticsProperties.Disabled], [SemanticsActions.OnClick]
          */
-        val Button = Role(0)
+        val Button
+            get() = Role(0)
 
         /**
          * This element is a Checkbox which is a component that represents two states (checked /
@@ -789,7 +790,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val Checkbox = Role(1)
+        val Checkbox
+            get() = Role(1)
 
         /**
          * This element is a Switch which is a two state toggleable component that provides on/off
@@ -797,7 +799,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val Switch = Role(2)
+        val Switch
+            get() = Role(2)
 
         /**
          * This element is a RadioButton which is a component to represent two states, selected and
@@ -805,7 +808,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val RadioButton = Role(3)
+        val RadioButton
+            get() = Role(3)
 
         /**
          * This element is a Tab which represents a single page of content using a text label and/or
@@ -813,19 +817,22 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * properties for accessibility: [SemanticsProperties.Disabled],
          * [SemanticsProperties.StateDescription], [SemanticsActions.OnClick]
          */
-        val Tab = Role(4)
+        val Tab
+            get() = Role(4)
 
         /**
          * This element is an image. Associated semantics properties for accessibility:
          * [SemanticsProperties.ContentDescription]
          */
-        val Image = Role(5)
+        val Image
+            get() = Role(5)
 
         /**
          * This element is associated with a drop down menu. Associated semantics properties for
          * accessibility: [SemanticsActions.OnClick]
          */
-        val DropdownList = Role(6)
+        val DropdownList
+            get() = Role(6)
 
         /**
          * This element is a value picker. It should support the following accessibility actions to
@@ -840,7 +847,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * These actions allow accessibility services to interact with this node programmatically on
          * behalf of users, facilitating navigation within sets of selectable values.
          */
-        val ValuePicker = Role(7)
+        val ValuePicker
+            get() = Role(7)
 
         /**
          * This element is a Carousel. This means that even if Pager actions are added, this element
@@ -850,7 +858,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsActions.PageUp],[SemanticsActions.PageDown],[SemanticsActions.PageLeft],
          * [SemanticsActions.PageRight]
          */
-        val Carousel = Role(8)
+        val Carousel
+            get() = Role(8)
     }
 
     override fun toString() =
@@ -881,13 +890,15 @@ value class LiveRegionMode private constructor(@Suppress("unused") private val v
          * Live region mode specifying that accessibility services should announce changes to this
          * node.
          */
-        val Polite = LiveRegionMode(0)
+        val Polite
+            get() = LiveRegionMode(0)
 
         /**
          * Live region mode specifying that accessibility services should interrupt ongoing speech
          * to immediately announce changes to this node.
          */
-        val Assertive = LiveRegionMode(1)
+        val Assertive
+            get() = LiveRegionMode(1)
     }
 
     override fun toString() =

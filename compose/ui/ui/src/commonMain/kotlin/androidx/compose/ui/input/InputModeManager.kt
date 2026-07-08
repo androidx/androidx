@@ -53,10 +53,12 @@ value class InputMode internal constructor(@Suppress("unused") private val value
 
     companion object {
         /** The system is put into [Touch] mode when a user touches the screen. */
-        val Touch = InputMode(1)
+        val Touch
+            get() = InputMode(1)
 
         /** The system is put into [Keyboard] mode when a user presses a hardware key. */
-        val Keyboard = InputMode(2)
+        val Keyboard
+            get() = InputMode(2)
     }
 }
 

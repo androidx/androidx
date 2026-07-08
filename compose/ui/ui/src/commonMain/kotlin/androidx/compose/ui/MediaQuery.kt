@@ -120,20 +120,23 @@ interface UiMediaScope {
              * devices, or when the window does not span across a hinge or fold (such as in
              * split-screen mode on a single panel).
              */
-            val Flat = Posture(0)
+            val Flat
+                get() = Posture(0)
 
             /**
              * Represents a device in a semi-open state, similar to a laptop. The window spans
              * across a horizontal fold or hinge, splitting the display area into two logical parts.
              */
-            val Tabletop = Posture(1)
+            val Tabletop
+                get() = Posture(1)
 
             /**
              * Represents a device in a semi-open state, folded similarly to an open book. The
              * window spans across a vertical fold or hinge, splitting the display area into two
              * logical parts.
              */
-            val Book = Posture(2)
+            val Book
+                get() = Posture(2)
         }
     }
 
@@ -155,16 +158,20 @@ interface UiMediaScope {
              * Represents a pointing device with high precision, such as a mouse, trackpad, or
              * stylus.
              */
-            val Fine = PointerPrecision(0)
+            val Fine
+                get() = PointerPrecision(0)
 
             /** Represents a pointing device with limited precision, such as a touchscreen. */
-            val Coarse = PointerPrecision(1)
+            val Coarse
+                get() = PointerPrecision(1)
 
             /** Represents a pointing device with low precision, such as a joystick. */
-            val Blunt = PointerPrecision(2)
+            val Blunt
+                get() = PointerPrecision(2)
 
             /** Indicates that no pointing device is available. */
-            val None = PointerPrecision(3)
+            val None
+                get() = PointerPrecision(3)
         }
     }
 
@@ -182,10 +189,12 @@ interface UiMediaScope {
 
         companion object {
             /** Represents a physical hardware keyboard. */
-            val Physical = KeyboardKind(0)
+            val Physical
+                get() = KeyboardKind(0)
 
             /** Represents an on-screen virtual keyboard (IME). */
-            val Virtual = KeyboardKind(1)
+            val Virtual
+                get() = KeyboardKind(1)
 
             /**
              * Indicates that no keyboard is currently available for input.
@@ -193,7 +202,8 @@ interface UiMediaScope {
              * This state occurs when no physical keyboard is connected to the device, and the
              * on-screen software keyboard (IME) is currently hidden or closed.
              */
-            val None = KeyboardKind(2)
+            val None
+                get() = KeyboardKind(2)
         }
     }
 
@@ -214,16 +224,19 @@ interface UiMediaScope {
              * Represents a device used within close range, such as a handheld phone, tablet,
              * laptop, or desktop monitor. This is the default for most personal devices.
              */
-            val Near = ViewingDistance(0)
+            val Near
+                get() = ViewingDistance(0)
 
             /**
              * Represents a device positioned slightly further away, such as an automotive device,
              * or a tablet in a dock mode.
              */
-            val Medium = ViewingDistance(1)
+            val Medium
+                get() = ViewingDistance(1)
 
             /** Represents a device viewed from a significant distance, such as a television. */
-            val Far = ViewingDistance(2)
+            val Far
+                get() = ViewingDistance(2)
         }
     }
 }

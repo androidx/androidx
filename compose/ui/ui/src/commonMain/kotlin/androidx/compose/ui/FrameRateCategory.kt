@@ -29,9 +29,14 @@ import kotlin.jvm.JvmInline
 @JvmInline
 value class FrameRateCategory private constructor(internal val value: Float) {
     companion object {
-        val Default = FrameRateCategory(Float.NaN)
-        val Normal = FrameRateCategory(-3f)
-        val High = FrameRateCategory(-4f)
+        val Default
+            get() = FrameRateCategory(Float.NaN)
+
+        val Normal
+            get() = FrameRateCategory(-3f)
+
+        val High
+            get() = FrameRateCategory(-4f)
     }
 
     override fun toString(): String {
