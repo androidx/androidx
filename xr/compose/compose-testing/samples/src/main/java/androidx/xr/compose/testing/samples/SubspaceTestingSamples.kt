@@ -52,7 +52,7 @@ public fun subspacePanelRenderedAndInteractive() {
     composeTestRule
         .onSubspaceNodeWithTag("spatialPanel")
         .assertExists()
-        .assertPositionInRootIsEqualTo(0.toDp(), 0.toDp(), 0.toDp())
+        .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
 
     // Interact with the 2D Compose node nested within the Spatial container
     composeTestRule.onNodeWithText("Increment").performClick()
@@ -76,8 +76,8 @@ public fun subspaceNodeMatcherProperties() {
         .onSubspaceNodeWithTag("myPanel")
         .assertExists()
         .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
-        .assertWidthIsEqualTo(100.toDp())
-        .assertHeightIsEqualTo(100.toDp())
+        .assertWidthIsEqualTo(100.dp)
+        .assertHeightIsEqualTo(100.dp)
 }
 
 @Sampled

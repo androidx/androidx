@@ -368,18 +368,19 @@ class SubspaceTest {
 
     @Test
     fun subspace_withFillMaxSizeAndHigherDensity_respectsConstraints() {
+        val higherDensity = 2f
         var density: Density? = null
         configureSessionWithRecommendedBox()
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(2f)) {
+            CompositionLocalProvider(LocalDensity provides Density(higherDensity)) {
                 density = LocalDensity.current
                 Subspace { SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {} }
             }
         }
 
         assertNotNull(density)
-        assertThat(density.density).isEqualTo(2f)
+        assertThat(density.density).isEqualTo(higherDensity)
         val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
 
         val expectedWidthPx =
@@ -394,17 +395,12 @@ class SubspaceTest {
             DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
                 session.scene.virtualPixelDensity
             )
+
         composeTestRule
             .onSubspaceNodeWithTag("box")
-            .assertWidthIsEqualTo(
-                with(composeTestRule.density) { expectedWidthPx.toFloat().toDp() }
-            )
-            .assertHeightIsEqualTo(
-                with(composeTestRule.density) { expectedHeightPx.toFloat().toDp() }
-            )
-            .assertDepthIsEqualTo(
-                with(composeTestRule.density) { expectedDepthPx.toFloat().toDp() }
-            )
+            .assertWidthIsEqualTo((expectedWidthPx / higherDensity).dp)
+            .assertHeightIsEqualTo((expectedHeightPx / higherDensity).dp)
+            .assertDepthIsEqualTo((expectedDepthPx / higherDensity).dp)
     }
 
     @Test
@@ -2185,11 +2181,13 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_withFillMaxSizeAndHigherDensity_respectsConstraints() {
+        val higherDensity = 2f
         composeTestRule.session = configureSessionWithDeviceTrackingMode()
         val session = assertNotNull(composeTestRule.session)
         var density: Density? = null
+
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(2f)) {
+            CompositionLocalProvider(LocalDensity provides Density(higherDensity)) {
                 density = LocalDensity.current
                 FollowingSubspace(
                     target = FollowTarget.ArDevice(session),
@@ -2201,7 +2199,8 @@ class SubspaceTest {
         }
 
         assertNotNull(density)
-        assertThat(density.density).isEqualTo(2f)
+        assertThat(density.density).isEqualTo(higherDensity)
+
         val expectedWidthPx =
             DefaultTestRecommendedBoxSize.WIDTH_METERS.roundMetersToPx(
                 session.scene.virtualPixelDensity
@@ -2214,17 +2213,12 @@ class SubspaceTest {
             DefaultTestRecommendedBoxSize.DEPTH_METERS.roundMetersToPx(
                 session.scene.virtualPixelDensity
             )
+
         composeTestRule
             .onSubspaceNodeWithTag("box")
-            .assertWidthIsEqualTo(
-                with(composeTestRule.density) { expectedWidthPx.toFloat().toDp() }
-            )
-            .assertHeightIsEqualTo(
-                with(composeTestRule.density) { expectedHeightPx.toFloat().toDp() }
-            )
-            .assertDepthIsEqualTo(
-                with(composeTestRule.density) { expectedDepthPx.toFloat().toDp() }
-            )
+            .assertWidthIsEqualTo((expectedWidthPx / higherDensity).dp)
+            .assertHeightIsEqualTo((expectedHeightPx / higherDensity).dp)
+            .assertDepthIsEqualTo((expectedDepthPx / higherDensity).dp)
     }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
