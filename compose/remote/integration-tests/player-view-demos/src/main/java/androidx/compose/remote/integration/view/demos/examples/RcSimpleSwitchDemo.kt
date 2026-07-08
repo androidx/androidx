@@ -111,8 +111,8 @@ fun RcSimpleSwitchDemo(): RemoteComposeContext {
     }
 }
 
-@Preview
+@Preview(widthDp = 400, heightDp = 800)
 @Composable
-private fun RcSimpleSwitchDemoPreview() {
+fun RcSimpleSwitchDemoPreview() {
     RemoteDocumentPreview(RcSimpleSwitchDemo())
 }
