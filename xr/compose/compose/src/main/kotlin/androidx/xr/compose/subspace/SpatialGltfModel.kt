@@ -18,17 +18,12 @@ package androidx.xr.compose.subspace
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.annotation.RawRes
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RememberObserver
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,20 +46,13 @@ import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.GltfAnimation
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.scene
 import java.nio.file.Path
 import java.util.Collections
-import java.util.function.Consumer
 import kotlin.math.roundToInt
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
-import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -146,8 +134,8 @@ private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : Re
 /**
  * A state object that can be hoisted to observe and control a [SpatialGltfModel].
  *
- * A `SpatialGltfModelState` can be used to query loading and animation status, and to start or stop
- * animations on the associated `SpatialGltfModel`.
+ * A `SpatialGltfModelState` can be used to query loading status on the associated
+ * `SpatialGltfModel`.
  *
  * To create and remember a `SpatialGltfModelState`, use [rememberSpatialGltfModelState]. If a
  * `SpatialGltfModelState` instance is manually created using the constructor then the caller needs
@@ -188,26 +176,7 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
 
     private val _nodes: SnapshotStateList<GltfModelNode> = mutableStateListOf()
 
-    /**
-     * The animations defined in the glTF model.
-     *
-     * Each animation can be controlled individually and multiple animations may be playing at one
-     * time as long as those animations affect different parts of the model.
-     *
-     * @sample androidx.xr.compose.samples.SpatialGltfModelAnimationSample
-     */
-    @ExperimentalSpatialGltfAnimationApi
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun getAnimations(): List<SpatialGltfModelAnimation> =
-        Collections.unmodifiableList(_animations)
-
-    @kotlin.OptIn(ExperimentalSpatialGltfAnimationApi::class)
-    private val _animations: SnapshotStateList<SpatialGltfModelAnimation> = mutableStateListOf()
-
-    @kotlin.OptIn(
-        ExperimentalSpatialGltfAnimationApi::class,
-        androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
-    )
+    // TODO (b/527562998) - Re-add the glTF animation APIs after Beta 1.0
     internal suspend fun load(session: Session, coreModelEntity: CoreModelEntity) {
         try {
             _status.value = SpatialGltfModelStatus.Loading
@@ -222,13 +191,6 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
             _nodes.clear()
             _nodes.addAll(coreModelEntity.nodes)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                _animations.clear()
-                _animations.addAll(
-                    coreModelEntity.animations?.fastMap(::SpatialGltfModelAnimation) ?: emptyList()
-                )
-            }
-
             _status.value = SpatialGltfModelStatus.Loaded
         } catch (throwable: Throwable) {
             if (throwable is CancellationException) throw throwable
@@ -236,11 +198,8 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
         }
     }
 
-    @kotlin.OptIn(ExperimentalSpatialGltfAnimationApi::class)
     override fun close() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            _animations.fastForEach { it.close() }
-        }
+        // Reserved for future cleanup
     }
 }
 
@@ -430,219 +389,5 @@ private class SpatialGltfModelMeasurePolicy(private val modelSize: IntVolumeSize
 
     override fun hashCode(): Int {
         return modelSize.hashCode()
-    }
-}
-
-/**
- * An animation that is attached to a glTF model.
- *
- * This may be used to inspect or control the state of this animation.
- */
-@RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalSpatialGltfAnimationApi
-@kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
-public class SpatialGltfModelAnimation internal constructor(private val animation: GltfAnimation) :
-    AutoCloseable {
-
-    private val stateListener: Consumer<GltfAnimation.AnimationState> =
-        Consumer<GltfAnimation.AnimationState> { state ->
-                _animationState.value = AnimationState.fromSceneCoreAnimationState(state)
-            }
-            .also { animation.addAnimationStateListener(it) }
-
-    /** The current animation state of the [SpatialGltfModelAnimation]. */
-    @JvmInline
-    public value class AnimationState private constructor(private val value: Int) {
-        override fun toString(): String =
-            when (this) {
-                Playing -> "Playing"
-                Stopped -> "Stopped"
-                Paused -> "Paused"
-                else -> "Unknown"
-            }
-
-        public companion object {
-            /** The animation is currently playing. */
-            public val Playing: AnimationState = AnimationState(0)
-
-            /** The animation is currently stopped. */
-            public val Stopped: AnimationState = AnimationState(1)
-
-            /** The animation is currently paused. */
-            public val Paused: AnimationState = AnimationState(2)
-
-            internal fun fromSceneCoreAnimationState(
-                state: GltfAnimation.AnimationState
-            ): AnimationState =
-                when (state) {
-                    GltfAnimation.AnimationState.PLAYING -> Playing
-                    GltfAnimation.AnimationState.PAUSED -> Paused
-                    GltfAnimation.AnimationState.STOPPED -> Stopped
-                    else -> Stopped
-                }
-        }
-    }
-
-    /**
-     * The current playing state of this animation.
-     *
-     * This is backed by a snapshot [State] object that is updated whenever the animation state
-     * changes and may trigger recomposition.
-     *
-     * @see AnimationState
-     */
-    public val animationState: AnimationState
-        get() = _animationState.value
-
-    private val _animationState: MutableState<AnimationState> =
-        mutableStateOf(AnimationState.fromSceneCoreAnimationState(animation.animationState))
-
-    /**
-     * The name of this animation or null if the animation does not have a name.
-     *
-     * The name is not guaranteed to be unique across all animations.
-     */
-    public val name: String?
-        get() = animation.name
-
-    /** The duration of this animation. */
-    public val duration: Duration
-        get() = animation.duration.toKotlinDuration()
-
-    /**
-     * Sets the playback speed for this animation.
-     *
-     * The speed multiplier determines the playback rate:
-     * * **1.0**: Normal speed.
-     * * **> 1.0**: Faster playback.
-     * * **> 0.0 and < 1.0**: Slower playback (e.g., 0.5 is half speed).
-     * * **0.0**: Freezes the animation at the current frame while keeping it active (unlike
-     *   pausing).
-     * * **< 0.0**: Plays the animation in reverse.
-     *
-     * Note: This call is only valid during the [AnimationState.Playing] and [AnimationState.Paused]
-     * states. Calling this method while in the [AnimationState.Stopped] state will have no effect.
-     */
-    public var playbackSpeed: Float
-        get() = _playbackSpeed.floatValue
-        set(value) {
-            // Update immediately if the animation is playing or paused; otherwise, store the speed
-            // to be updated on the next call to start or loop.
-            val sceneCoreState = animation.animationState
-            if (
-                sceneCoreState == GltfAnimation.AnimationState.PLAYING ||
-                    sceneCoreState == GltfAnimation.AnimationState.PAUSED
-            ) {
-                animation.setSpeed(value)
-            }
-
-            _playbackSpeed.floatValue = value
-        }
-
-    private val _playbackSpeed: MutableFloatState = mutableFloatStateOf(1.0f)
-
-    private var seekStartTime: Duration = 0.seconds
-
-    /**
-     * Starts playing this animation. The animation will play once and stop once it reaches its
-     * duration.
-     *
-     * This transitions the animation state to [AnimationState.Playing].
-     *
-     * If the animation is already looping, calling this will start the animation again but it won't
-     * loop when the animation is over.
-     */
-    public fun start() {
-        animation.start(
-            options =
-                GltfAnimationStartOptions(
-                    shouldLoop = false,
-                    speed = playbackSpeed,
-                    seekStartTime = seekStartTime.toJavaDuration(),
-                )
-        )
-    }
-
-    /**
-     * Starts playing this animation. The animation will play and repeat from the beginning when it
-     * reaches its duration.
-     *
-     * This transitions the animation state to [AnimationState.Playing].
-     *
-     * If the animation is already playing, calling this will start the animation again but it will
-     * now loop instead of ending when the animation is over.
-     */
-    public fun loop() {
-        animation.start(
-            options =
-                GltfAnimationStartOptions(
-                    shouldLoop = true,
-                    speed = playbackSpeed,
-                    seekStartTime = seekStartTime.toJavaDuration(),
-                )
-        )
-    }
-
-    /**
-     * Stops this animation.
-     *
-     * This resets the playback time to 0 and transitions the animation state to
-     * [AnimationState.Stopped]. If this animation is not currently playing or pausing, this method
-     * has no effect.
-     */
-    public fun stop() {
-        animation.stop()
-    }
-
-    /**
-     * Pauses this animation.
-     *
-     * This freezes the animation at the current frame and transitions the animation state to
-     * [AnimationState.Paused]. Use [start] to continue playback.
-     *
-     * Note: Calling [start] or [loop] while in the [AnimationState.Paused] state will resume the
-     * animation from the current frame. To reset the animation, call stop() or seekTo(0.seconds).
-     */
-    public fun pause() {
-        animation.pause()
-    }
-
-    /**
-     * Resumes this animation.
-     *
-     * This continues the animation from the point where it was paused and transitions the animation
-     * state to [AnimationState.Playing].
-     *
-     * Note: Calling [resume] while in the [AnimationState.Playing] and [AnimationState.Stopped]
-     * state will have no effect.
-     */
-    public fun resume() {
-        animation.resume()
-    }
-
-    /**
-     * Seeks the animation to a specific time offset from the start of the animation.
-     *
-     * If the [animationState] of the animation is [AnimationState.Stopped], this will set the start
-     * time of the animation that will take effect when the animation is played next. The state of
-     * glTF will not update until the next time [start] or [loop] is called.
-     *
-     * @param time The offset from the beginning of the animation. It must be greater than or equal
-     *   to zero. If [time] is larger than the duration of the animation, the duration of the
-     *   animation will be used instead.
-     * @throws IllegalArgumentException if [time] is negative.
-     */
-    public fun seekTo(time: Duration) {
-        require(!time.isNegative()) { "time must be non-negative" }
-
-        if (animation.animationState == GltfAnimation.AnimationState.STOPPED) {
-            seekStartTime = time
-        } else {
-            animation.seekTo(time.toJavaDuration())
-        }
-    }
-
-    override fun close() {
-        animation.removeAnimationStateListener(stateListener)
     }
 }
