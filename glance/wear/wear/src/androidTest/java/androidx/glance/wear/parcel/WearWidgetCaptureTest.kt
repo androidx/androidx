@@ -56,6 +56,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
 import androidx.glance.wear.GlanceWearProfiles
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -119,7 +120,13 @@ class WearWidgetCaptureTest {
             val context = LocalContext.current
             val data = remember { mutableStateOf<WearWidgetRawContent?>(null) }
             LaunchedEffect(Unit) {
-                data.value = WearWidgetCapture.capture(context, creationDisplayInfo, content)
+                data.value =
+                    WearWidgetCapture.capture(
+                        context,
+                        creationDisplayInfo,
+                        RendererVersion.DEFAULT_SUPPORTED_OPERATIONS,
+                        content,
+                    )
             }
 
             Column {

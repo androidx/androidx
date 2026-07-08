@@ -55,4 +55,13 @@ message WearWidgetRequestProto {
   // The revision version of the Wear Tiles/Widgets renderer. This corresponds
   // to `0` in `1.6.0`.
   uint32 renderer_version_revision = 11;
+
+  // The set of operations supported by the Host.
+  repeated PlayerOperation renderer_supported_operations = 12;
+}
+
+// An operation code used by the Remote Compose player.
+message PlayerOperation {
+  // The operation code describing the operation.
+  uint32 op_code = 1;
 }

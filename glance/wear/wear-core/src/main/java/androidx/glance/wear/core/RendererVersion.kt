@@ -23,6 +23,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.IntSet
+import androidx.collection.buildIntSet
 import androidx.collection.intSetOf
 
 /**
@@ -244,4 +245,19 @@ public data class RendererVersion(
         @VisibleForTesting internal val PL_RENDERER_INITIAL_VERSION = RendererVersion(1, 0, 0)
         private const val TAG = "RendererVersion"
     }
+}
+
+/** Maps [IntSet] to a [List], using the provided function to transform each element. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun <T> IntSet.mapToList(transform: (Int) -> T): List<T> = buildList {
+    this@mapToList.forEach { add(transform(it)) }
+}
+
+/**
+ * Creates an [IntSet] from a given [List], using the provided function to extract the integer value
+ * from each element.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun <T> List<T>.toIntSet(crossinline getOpCode: (T) -> Int): IntSet = buildIntSet {
+    this@toIntSet.forEach { add(getOpCode(it)) }
 }

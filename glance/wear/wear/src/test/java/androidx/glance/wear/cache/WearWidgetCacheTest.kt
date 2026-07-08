@@ -16,8 +16,10 @@
 
 package androidx.glance.wear.cache
 
+import androidx.collection.intSetOf
 import androidx.datastore.core.DataStoreFactory
 import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
 import com.google.common.truth.Truth.assertThat
@@ -66,6 +68,41 @@ class WearWidgetCacheTest {
             cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_LARGE, INSTANCE_ID_1)
 
         assertThat(restoredParams).isEqualTo(params)
+    }
+
+    @Test
+    fun setAndGetWidgetParams_withCustomRendererVersionAndSupportedOps_restoresValue() = runTest {
+        val customVersion =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_1,
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 100f,
+                heightDp = 200f,
+                horizontalPaddingDp = 10f,
+                verticalPaddingDp = 20f,
+                cornerRadiusDp = 5f,
+                rendererVersion =
+                    RendererVersion(
+                        major = 3,
+                        minor = 8,
+                        revision = 2,
+                        supportedOperations = intSetOf(10, 20, 30),
+                    ),
+            )
+
+        cacheUnderTest.update { setWidgetParams(customVersion) }
+        val restoredParams =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_LARGE, INSTANCE_ID_1)
+
+        assertThat(restoredParams).isEqualTo(customVersion)
+        assertThat(restoredParams.rendererVersion.major).isEqualTo(3)
+        assertThat(restoredParams.rendererVersion.minor).isEqualTo(8)
+        assertThat(restoredParams.rendererVersion.revision).isEqualTo(2)
+        val restoredOps =
+            mutableListOf<Int>().apply {
+                restoredParams.rendererVersion.supportedOperations.forEach { add(it) }
+            }
+        assertThat(restoredOps).containsExactly(10, 20, 30)
     }
 
     @Test
