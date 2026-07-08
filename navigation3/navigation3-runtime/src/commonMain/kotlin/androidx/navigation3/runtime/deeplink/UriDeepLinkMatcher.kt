@@ -138,6 +138,28 @@ private val EXPECTED_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+\\-.]*:")
  *     - Request: `#section_123`
  *     - Extracted values: None extracted.
  *
+ * **Note on Non-Primitive Arguments** [T] that contain non-primitive argument type, such as the
+ * Profile class below:
+ * ```kotlin
+ * data class User(val name: String, val age: Int)
+ * data class Profile(user: User, id: Int): NavKey
+ * ```
+ *
+ * is supported by default if the matching [DeepLinkRequest] contains a flattened map of arguments:
+ * ```kotlin
+ * val deeplinkUri = DeepLinkUri("www.nav3example.com/profile?name=john&age=25&id=1234")
+ * ```
+ *
+ * The flattened map of arguments must NOT contain repeated param names with different types. For
+ * example the duplicated name "id" where the User id is a String and the Profile id is an Int can
+ * lead to unpredictable mismatches during matching:
+ * ```kotlin
+ * data class User(val id: String, val name: String)
+ * data class Profile(user: User, id: Int): NavKey
+ * ```
+ *
+ * If duplicate names have the same type, they will be populated with the same value.
+ *
  * @param uriPattern The [DeepLinkUri] containing the uri pattern that this matcher supports.
  * @param serializer The serializer to instantiate an instance of [T]
  * @param filters an optional list of filters to filter a [DeepLinkRequest] when matching
