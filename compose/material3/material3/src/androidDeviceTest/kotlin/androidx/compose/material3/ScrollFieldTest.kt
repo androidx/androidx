@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ScrollFieldTest {
 
     @get:Rule val rule = createComposeRule()

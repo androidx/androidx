@@ -175,7 +175,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun RichDialog(displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Picker) {
         RichTimePickerDialog(
@@ -199,7 +199,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun RichScrollDialog(
         displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Scroll

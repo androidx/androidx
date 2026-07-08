@@ -37,7 +37,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ScrollFieldScreenshotTest() {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -65,7 +64,6 @@ class ScrollFieldScreenshotTest() {
 
     private val ScrollFieldTestTag = "scrollField"
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun TestContent() {
         val itemCount = 100

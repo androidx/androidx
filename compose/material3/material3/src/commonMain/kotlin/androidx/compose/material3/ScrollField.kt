@@ -56,7 +56,6 @@ private const val InfinitePageCount = 100_000
  * @param pagerState the underlying [PagerState] used to handle the scroll logic.
  * @param itemCount the total number of unique items available in the scroll field.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Stable
 class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) {
     /**
@@ -111,7 +110,6 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
  * @param index the initial selected index of the scroll field.
  * @return a [ScrollFieldState] that can be used to control or observe the scroll field.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
     val initialPage =
@@ -139,7 +137,6 @@ fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
  *   ScrollField in different states.
  * @param field the composable used to render each item in the wheel.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ScrollField(
     state: ScrollFieldState,
@@ -180,7 +177,6 @@ fun ScrollField(
 }
 
 /** Represents the colors used by a [ScrollField] in different states. */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class ScrollFieldColors(
     val containerColor: Color,
@@ -220,7 +216,6 @@ class ScrollFieldColors(
 }
 
 /** Object to hold defaults used by [ScrollField]. */
-@ExperimentalMaterial3ExpressiveApi
 @Stable
 object ScrollFieldDefaults {
     /**

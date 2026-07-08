@@ -492,7 +492,6 @@ object TimePickerDialogDefaults {
      * @param modifier the [Modifier] to be applied to this title
      * @param displayMode the current display mode of the time picker
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     fun Title(displayMode: TimePickerDisplayMode, modifier: Modifier = Modifier) {
         val titleRes =

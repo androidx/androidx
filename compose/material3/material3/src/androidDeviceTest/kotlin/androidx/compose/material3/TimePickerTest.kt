@@ -1066,7 +1066,6 @@ class TimePickerTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun richTimeInput_keyboardInput_valid() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -1092,7 +1091,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(4)
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun richTimeInput_keyboardInput_switchAmPm() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -1107,7 +1105,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(22)
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun richTimeInput_keyboardInput_maintainsPm() {
         val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
@@ -1123,7 +1120,6 @@ class TimePickerTest {
         rule.runOnIdle { assertThat(state.isPm).isTrue() }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun timeScroll_userOverride_updates() {
         val state = TimePickerState(initialHour = 11, initialMinute = 30, is24Hour = false)
