@@ -22,12 +22,15 @@ import android.view.MotionEvent
 actual value class TrackpadButton(val buttonId: Int) {
     actual companion object {
         /** The left trackpad button */
-        actual val Primary = TrackpadButton(MotionEvent.BUTTON_PRIMARY)
+        actual val Primary
+            get() = TrackpadButton(MotionEvent.BUTTON_PRIMARY)
 
         /** The right trackpad button */
-        actual val Secondary = TrackpadButton(MotionEvent.BUTTON_SECONDARY)
+        actual val Secondary
+            get() = TrackpadButton(MotionEvent.BUTTON_SECONDARY)
 
         /** The middle trackpad button */
-        actual val Tertiary = TrackpadButton(MotionEvent.BUTTON_TERTIARY)
+        actual val Tertiary
+            get() = TrackpadButton(MotionEvent.BUTTON_TERTIARY)
     }
 }

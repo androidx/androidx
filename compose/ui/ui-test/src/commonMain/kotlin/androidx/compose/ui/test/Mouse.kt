@@ -24,8 +24,11 @@ package androidx.compose.ui.test
 @kotlin.jvm.JvmInline
 value class ScrollWheel private constructor(val value: Int) {
     companion object {
-        val Horizontal = ScrollWheel(0)
-        val Vertical = ScrollWheel(1)
+        val Horizontal
+            get() = ScrollWheel(0)
+
+        val Vertical
+            get() = ScrollWheel(1)
     }
 }
 
