@@ -114,8 +114,8 @@ public object HealthData {
      */
     public val isHeartRateBpmAvailable: RemoteBoolean =
         heartRateAccuracy
-            .isGreaterThanOrEqual(HEART_RATE_ACCURACY_LOW)
-            .and(heartRateAccuracy.isLessThanOrEqual(HEART_RATE_ACCURACY_HIGH))
+            .isGreaterThanOrEqualTo(HEART_RATE_ACCURACY_LOW)
+            .and(heartRateAccuracy.isLessThanOrEqualTo(HEART_RATE_ACCURACY_HIGH))
 
     /**
      * The total step count over a day.

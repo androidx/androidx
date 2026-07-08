@@ -137,7 +137,7 @@ fun DogeCalendar(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
 
             // Check if we should be visible: current time is within [start, start + interval]
             val isVisible =
-                loopTime.isGreaterThanOrEqual(start.rf) and
+                loopTime.isGreaterThanOrEqualTo(start.rf) and
                     loopTime.isLessThan((start + interval).rf)
             val icon = icons[index % icons.size]
 
