@@ -211,7 +211,7 @@ class CanvasInProgressStrokesRenderHelperV33Test {
 
             verify(mockCallback, times(1)).onDraw()
             verify(mockRenderer, times(1))
-                .draw(any(), any<InProgressStroke>(), any<Matrix>(), any<Float>())
+                .draw(any(), any<InProgressStroke>(), any<Matrix>(), any<Long>())
             verify(mockCallback, times(1)).onDrawComplete()
         }
     }

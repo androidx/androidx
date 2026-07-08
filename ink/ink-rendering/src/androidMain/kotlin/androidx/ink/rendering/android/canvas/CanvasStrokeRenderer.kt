@@ -18,7 +18,6 @@ package androidx.ink.rendering.android.canvas
 
 import android.graphics.Canvas
 import android.graphics.Matrix
-import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
@@ -82,8 +81,7 @@ import androidx.ink.strokes.Stroke
 public interface CanvasStrokeRenderer {
 
     /**
-     * Render a single [stroke] on the provided [canvas]. If [stroke] has animated textures, then
-     * this will use a default animation progress value of zero.
+     * Render a single [stroke] on the provided [canvas].
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -99,13 +97,13 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-    ): Unit = draw(canvas, stroke, strokeToScreenTransform, 0f)
+    ): Unit = draw(canvas, stroke, strokeToScreenTransform, 0L)
 
     /**
      * Render a single [stroke] on the provided [canvas], using the specified
-     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
-     * any. Renderer implementations that don't support animated textures may ignore the
-     * [textureAnimationProgress] argument.
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any. Renderer
+     * implementations that don't support animated textures may ignore the
+     * [animatorClockStateMillis] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -123,12 +121,11 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     )
 
     /**
-     * Render a single [stroke] on the provided [canvas]. If [stroke] has animated textures, then
-     * this will use a default animation progress value of zero.
+     * Render a single [stroke] on the provided [canvas].
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -141,13 +138,13 @@ public interface CanvasStrokeRenderer {
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix): Unit =
-        draw(canvas, stroke, strokeToScreenTransform, 0f)
+        draw(canvas, stroke, strokeToScreenTransform, 0L)
 
     /**
      * Render a single [stroke] on the provided [canvas], using the specified
-     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
-     * any. Renderer implementations that don't support animated textures may ignore the
-     * [textureAnimationProgress] argument.
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any. Renderer
+     * implementations that don't support animated textures may ignore the
+     * [animatorClockStateMillis] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -165,12 +162,11 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     )
 
     /**
-     * Render a single [inProgressStroke] on the provided [canvas]. If [inProgressStroke] has
-     * animated textures, then this will use a default animation progress value of zero.
+     * Render a single [inProgressStroke] on the provided [canvas].
      *
      * The [strokeToScreenTransform] should represent the complete transformation from stroke
      * coordinates to the canvas, modulo translation. This transform will not be applied to the
@@ -182,13 +178,13 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0f)
+    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
-     * any. Renderer implementations that don't support animated textures may ignore the
-     * [textureAnimationProgress] argument.
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any. Renderer
+     * implementations that don't support animated textures may ignore the
+     * [animatorClockStateMillis] argument.
      *
      * The [strokeToScreenTransform] should represent the complete transformation from stroke
      * coordinates to the canvas, modulo translation. This transform will not be applied to the
@@ -203,12 +199,11 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     )
 
     /**
-     * Render a single [inProgressStroke] on the provided [canvas]. If [inProgressStroke] has
-     * animated textures, then this will use a default animation progress value of zero.
+     * Render a single [inProgressStroke] on the provided [canvas].
      *
      * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
      * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
@@ -220,13 +215,13 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0f)
+    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
-     * any. Renderer implementations that don't support animated textures may ignore the
-     * [textureAnimationProgress] argument.
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any. Renderer
+     * implementations that don't support animated textures may ignore the
+     * [animatorClockStateMillis] argument.
      *
      * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
      * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
@@ -241,7 +236,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     )
 
     public companion object {

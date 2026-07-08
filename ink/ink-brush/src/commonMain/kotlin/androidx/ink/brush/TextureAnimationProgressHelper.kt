@@ -16,7 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmStatic
@@ -37,66 +36,21 @@ import kotlin.jvm.JvmStatic
 public object TextureAnimationProgressHelper {
 
     /**
-     * Returns the progress value in [0, 1) for the animation specified by [brushFamily] at the
-     * timestamp [systemElapsedTimeMillis], which on Android is in the
-     * `android.os.SystemClock.uptimeMillis` time base, and typically comes from
-     * `android.view.Choreographer.FrameCallback.doFrame`. If [brushFamily] does not support
-     * animation, then a progress value of 0 will be returned.
-     */
-    @JvmStatic
-    @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-    public fun calculateAnimationProgress(
-        systemElapsedTimeMillis: Long,
-        brushFamily: BrushFamily,
-    ): Float =
-        calculateAnimationProgress(systemElapsedTimeMillis, getAnimationDurationMillis(brushFamily))
-
-    /**
-     * Returns the progress value in [0, 1) for an animation with duration [animationDurationMillis]
-     * at the timestamp [systemElapsedTimeMillis], which on Android is in the
-     * `android.os.SystemClock.uptimeMillis` time base, and typically comes from
-     * `android.view.Choreographer.FrameCallback.doFrame`. If [animationDurationMillis] is 0, then a
-     * progress value of 0 will be returned.
-     */
-    @JvmStatic
-    @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-    public fun calculateAnimationProgress(
-        systemElapsedTimeMillis: Long,
-        animationDurationMillis: Long,
-    ): Float {
-        if (animationDurationMillis == 0L) {
-            return 0F
-        }
-        // This is mostly equivalent to:
-        // (shape.lastUpdateSystemElapsedTimeMillis / textureAnimationDurationMillis.toFloat()) % 1f
-        // But doing the modulo operation first, before any conversion to float, avoids significant
-        // loss
-        // of precision, since the system uptime in practice can be much larger than the animation
-        // duration.
-        return (systemElapsedTimeMillis % animationDurationMillis) /
-            animationDurationMillis.toFloat()
-    }
-
-    /**
-     * Extract the first non-zero animation duration from a [BrushFamily]. If it does not support
+     * Extract the first non-zero animation duration from a [BrushPaint]. If it does not support
      * animation, then a duration of 0 will be returned.
      */
     @JvmStatic
-    @IntRange(from = 0)
-    public fun getAnimationDurationMillis(brushFamily: BrushFamily): Long {
-        for (coat in brushFamily.coats) {
-            for (paintPreference in coat.paintPreferences) {
-                for (textureLayer in paintPreference.textureLayers) {
-                    when (textureLayer) {
-                        is BrushPaint.StampingTexture -> {
-                            if (textureLayer.animationFrames > 1) {
-                                return textureLayer.animationDurationMillis
-                            }
-                        }
+    @IntRange(from = 0, to = 1 shl 24)
+    public fun getAnimationDurationMillis(brushPaint: BrushPaint): Long {
+        for (textureLayer in brushPaint.textureLayers) {
+            when (textureLayer) {
+                is BrushPaint.StampingTexture -> {
+                    if (textureLayer.animationFrames > 1) {
+                        return textureLayer.animationDurationMillis
                     }
                 }
             }
         }
-        return 0
+        return 0L
     }
 }

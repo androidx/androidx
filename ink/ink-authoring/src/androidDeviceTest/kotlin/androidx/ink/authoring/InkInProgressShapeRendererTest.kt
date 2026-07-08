@@ -79,7 +79,12 @@ class InkInProgressShapeRendererTest {
         shape.update(shapeDurationMillis = 140)
         shapeRenderer.draw(canvas, shape, identityTransform)
         verify(canvasStrokeRenderer)
-            .draw(canvas, shape.inProgressStroke, identityTransform, textureAnimationProgress = 0F)
+            .draw(
+                canvas,
+                shape.inProgressStroke,
+                identityTransform,
+                animatorClockStateMillis = 240L,
+            )
 
         // 100ms + 260ms = 360ms - half of the looped 240ms animation duration
         shape.update(shapeDurationMillis = 260)
@@ -89,7 +94,7 @@ class InkInProgressShapeRendererTest {
                 canvas,
                 shape.inProgressStroke,
                 identityTransform,
-                textureAnimationProgress = 0.5F,
+                animatorClockStateMillis = 360L,
             )
 
         // 100ms + 320ms = 420ms - 3/4 of the looped 240ms animation duration
@@ -101,7 +106,7 @@ class InkInProgressShapeRendererTest {
                 canvas,
                 shape.inProgressStroke,
                 identityTransform,
-                textureAnimationProgress = 0.75F,
+                animatorClockStateMillis = 420L,
             )
     }
 }

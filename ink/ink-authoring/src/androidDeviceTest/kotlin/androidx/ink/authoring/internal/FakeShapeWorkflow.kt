@@ -60,7 +60,7 @@ internal class FakeShapeWorkflow :
                 canvas: Canvas,
                 shape: ImmutableStrokeInputBatch,
                 strokeToScreenTransform: Matrix,
-                systemElapsedTimeMillis: Long,
+                animatorClockStateMillis: Long,
             ) {}
         }
 }
