@@ -25,7 +25,10 @@ internal value class AnimatedVisibilityState private constructor(val value: Stri
     override fun toString() = value
 
     companion object {
-        val Enter = AnimatedVisibilityState("Enter")
-        val Exit = AnimatedVisibilityState("Exit")
+        val Enter
+            get() = AnimatedVisibilityState("Enter")
+
+        val Exit
+            get() = AnimatedVisibilityState("Exit")
     }
 }
