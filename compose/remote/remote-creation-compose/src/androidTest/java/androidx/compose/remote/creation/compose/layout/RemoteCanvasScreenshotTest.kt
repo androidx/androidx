@@ -220,4 +220,45 @@ class RemoteCanvasScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun remoteCanvas_drawPath_addArc() {
+        val width = 300
+        val height = 300
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    width,
+                    height,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
+                val path = remotePath {
+                    // Arc 1: 0 to 90 degrees
+                    addArc(10f.rf, 10f.rf, 90f.rf, 90f.rf, 0f.rf, 90f.rf)
+                    // Arc 2: 90 to 270 degrees (sweep 180)
+                    addArc(110f.rf, 10f.rf, 190f.rf, 90f.rf, 90f.rf, 180f.rf)
+                    // Arc 3: -45 to 45 degrees
+                    addArc(210f.rf, 10f.rf, 290f.rf, 90f.rf, -45f.rf, 90f.rf)
+
+                    // Arc 4: Oval vertical
+                    addArc(10f.rf, 110f.rf, 70f.rf, 210f.rf, 0f.rf, 270f.rf)
+                    // Arc 5: Full circle
+                    addArc(110f.rf, 110f.rf, 190f.rf, 190f.rf, 0f.rf, 360f.rf)
+                    // Arc 6: Long sweep (e.g. 540 degrees)
+                    addArc(210f.rf, 110f.rf, 290f.rf, 190f.rf, 45f.rf, 540f.rf)
+                }
+
+                val paint = RemotePaint {
+                    color = Color.Cyan.rc
+                    style = PaintingStyle.Stroke
+                    strokeWidth = 3f.rf
+                }
+                drawPath(path, paint)
+            }
+        }
+    }
 }

@@ -83,17 +83,40 @@ internal fun List<RemotePathNode>.toRemotePath(
                 }
 
                 is AddArc -> {
-                    with(creationState) {
-                        target.addArc(
-                            node.left.floatId,
-                            node.top.floatId,
-                            node.right.floatId,
-                            node.bottom.floatId,
-                            node.startAngle.floatId,
-                            node.sweepAngle.floatId,
-                            true,
-                        )
-                    }
+                    // We convert the arc to bezier segments because RemotePath does not
+                    // have a direct arc drawing command.
+                    val radiusX = (node.right - node.left) / 2f.rf
+                    val radiusY = (node.bottom - node.top) / 2f.rf
+                    val centerX = node.left + radiusX
+                    val centerY = node.top + radiusY
+                    val start = toRad(node.startAngle)
+                    val sweep = toRad(node.sweepAngle)
+                    val end = start + sweep
+                    val startX = centerX + radiusX * cos(start)
+                    val startY = centerY + radiusY * sin(start)
+                    val endX = centerX + radiusX * cos(end)
+                    val endY = centerY + radiusY * sin(end)
+
+                    target.moveTo(startX, startY)
+                    arcToBezier(
+                        target,
+                        centerX,
+                        centerY,
+                        radiusX,
+                        radiusY,
+                        startX,
+                        startY,
+                        0f.rf,
+                        start,
+                        sweep,
+                        creationState,
+                    )
+                    currentX = endX
+                    currentY = endY
+                    ctrlX = currentX
+                    ctrlY = currentY
+                    segmentX = startX
+                    segmentY = startY
                 }
 
                 is RelativeMoveTo -> {
