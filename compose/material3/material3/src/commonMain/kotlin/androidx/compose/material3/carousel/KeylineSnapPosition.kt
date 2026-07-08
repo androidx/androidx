@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.carousel
 
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import kotlin.math.roundToInt
 
@@ -86,5 +87,42 @@ internal fun KeylineSnapPosition(pageSize: CarouselPageSize): SnapPosition =
             itemCount: Int,
         ): Int {
             return getSnapPositionOffset(pageSize.strategy, itemIndex, itemCount)
+        }
+    }
+
+/** A custom [BringIntoViewSpec] that always uses keylines to fulfill bring into view requests. */
+internal fun CarouselBringIntoViewSpec(state: CarouselState, pageSize: CarouselPageSize) =
+    object : BringIntoViewSpec {
+        override fun calculateScrollDistance(
+            offset: Float,
+            size: Float,
+            containerSize: Float,
+        ): Float {
+            // Find the item index we're bringing into view so we can calculate the correct snap
+            // offset based on the keyline list.
+            val layoutInfo = state.pagerState.layoutInfo
+            val referencePage = layoutInfo.visiblePagesInfo.firstOrNull()
+            return if (referencePage != null) {
+                val pageSizeWithSpacing = layoutInfo.pageSize + layoutInfo.pageSpacing
+                if (pageSizeWithSpacing <= 0) {
+                    return super.calculateScrollDistance(offset, size, containerSize)
+                }
+                val targetIndex =
+                    (referencePage.index + (offset - referencePage.offset) / pageSizeWithSpacing)
+                        .roundToInt()
+                        .coerceIn(0, state.pagerState.pageCount - 1)
+                val targetOffset =
+                    referencePage.offset + (targetIndex - referencePage.index) * pageSizeWithSpacing
+                val snapOffset =
+                    getSnapPositionOffset(
+                            pageSize.strategy,
+                            targetIndex,
+                            state.pagerState.pageCount,
+                        )
+                        .toFloat()
+                targetOffset - snapOffset
+            } else {
+                super.calculateScrollDistance(offset, size, containerSize)
+            }
         }
     }
