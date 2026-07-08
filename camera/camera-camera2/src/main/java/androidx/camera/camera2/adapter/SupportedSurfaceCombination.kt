@@ -434,12 +434,7 @@ public class SupportedSurfaceCombination(
                             !useCaseConfig.isZslDisabled(false)
 
                     if (isZsl) {
-                        val filteredSizes = sizes.filter { zslIntersection.contains(it) }
-                        if (filteredSizes.isNotEmpty()) {
-                            filteredSizes
-                        } else {
-                            sizes
-                        }
+                        sizes.filter { zslIntersection.contains(it) }
                     } else {
                         sizes
                     }
