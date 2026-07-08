@@ -16,18 +16,21 @@
 
 package androidx.ink.strokes
 
-import androidx.ink.nativeloader.cinterop.MultipleStrokesNative_createWithPartialErase
+import androidx.ink.nativeloader.InkInternalOnlyApi
+import androidx.ink.nativeloader.cinterop.MultipleStrokesNative_createWithSplit
 import androidx.ink.nativeloader.cinterop.MultipleStrokesNative_free
 import androidx.ink.nativeloader.cinterop.MultipleStrokesNative_getStrokeCount
 import androidx.ink.nativeloader.cinterop.MultipleStrokesNative_releaseStroke
 import androidx.ink.nativeloader.cinterop.StrokeNative_createWithBrushAndInputs
 import androidx.ink.nativeloader.cinterop.StrokeNative_createWithBrushInputsAndShape
+import androidx.ink.nativeloader.cinterop.StrokeNative_createWithSubtract
 import androidx.ink.nativeloader.cinterop.StrokeNative_free
 import androidx.ink.nativeloader.cinterop.StrokeNative_newShallowCopyOfInputs
 import androidx.ink.nativeloader.cinterop.StrokeNative_newShallowCopyOfShape
+import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 internal actual object StrokeNative {
     actual fun createWithBrushAndInputs(brushNativePointer: Long, inputs: Long): Long =
         StrokeNative_createWithBrushAndInputs(brushNativePointer, inputs)
@@ -45,20 +48,16 @@ internal actual object StrokeNative {
         StrokeNative_newShallowCopyOfShape(nativePointer)
 
     actual fun free(nativePointer: Long) = StrokeNative_free(nativePointer)
-}
 
-@OptIn(ExperimentalForeignApi::class)
-internal actual object MultipleStrokesNative {
-
-    actual fun createWithPartialErase(
+    actual fun createWithSubtract(
         targetStrokePointer: Long,
-        eraserShapePointer: Long,
-        eraserA: Float,
-        eraserB: Float,
-        eraserC: Float,
-        eraserD: Float,
-        eraserE: Float,
-        eraserF: Float,
+        maskShapePointer: Long,
+        maskA: Float,
+        maskB: Float,
+        maskC: Float,
+        maskD: Float,
+        maskE: Float,
+        maskF: Float,
         strokeA: Float,
         strokeB: Float,
         strokeC: Float,
@@ -66,21 +65,48 @@ internal actual object MultipleStrokesNative {
         strokeE: Float,
         strokeF: Float,
     ): Long =
-        MultipleStrokesNative_createWithPartialErase(
+        StrokeNative_createWithSubtract(
             targetStrokePointer,
-            eraserShapePointer,
-            eraserA,
-            eraserB,
-            eraserC,
-            eraserD,
-            eraserE,
-            eraserF,
+            maskShapePointer,
+            maskA,
+            maskB,
+            maskC,
+            maskD,
+            maskE,
+            maskF,
             strokeA,
             strokeB,
             strokeC,
             strokeD,
             strokeE,
             strokeF,
+        )
+}
+
+@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
+internal actual object MultipleStrokesNative {
+
+    actual fun createWithSplit(
+        targetStrokePointer: Long,
+        transformA: Float,
+        transformB: Float,
+        transformC: Float,
+        transformD: Float,
+        transformE: Float,
+        transformF: Float,
+        tolerance: Float,
+    ): Long =
+        MultipleStrokesNative_createWithSplit(
+            jni_env_pass_through = null,
+            targetStrokePointer,
+            transformA,
+            transformB,
+            transformC,
+            transformD,
+            transformE,
+            transformF,
+            tolerance,
+            throwForNonOkStatusCallback,
         )
 
     actual fun getStrokeCount(nativePointer: Long): Int =

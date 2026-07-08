@@ -18,14 +18,13 @@ package androidx.ink.brush
 
 import androidx.kruth.assertThat
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalInkAnimationApi::class)
 class TextureAnimationProgressHelperTest {
 
     @Test
     fun getAnimationDurationMillis_whenNoTextureLayers_returnsZeroDuration() {
-        assertThat(TextureAnimationProgressHelper.getAnimationDurationMillis(BrushFamily()))
+        assertThat(TextureAnimationProgressHelper.getAnimationDurationMillis(BrushPaint()))
             .isEqualTo(0L)
     }
 
@@ -33,7 +32,7 @@ class TextureAnimationProgressHelperTest {
     fun getAnimationDurationMillis_whenTextureLayersAreNotAnimated_returnsZeroDuration() {
         assertThat(
                 TextureAnimationProgressHelper.getAnimationDurationMillis(
-                    brushFamilyWithNonAnimatedTextureLayers
+                    brushPaintWithNonAnimatedTextureLayers
                 )
             )
             .isEqualTo(0L)
@@ -43,179 +42,34 @@ class TextureAnimationProgressHelperTest {
     fun getAnimationDurationMillis_whenHasAnimation_returnsCorrectDuration() {
         assertThat(
                 TextureAnimationProgressHelper.getAnimationDurationMillis(
-                    animatedBrushFamily(12345L)
+                    animatedBrushPaint(12345L)
                 )
             )
             .isEqualTo(12345L)
     }
 
-    @Test
-    fun calculateAnimationProgressFromDurationValue_whenSystemTimeZero_returnsZeroProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    systemElapsedTimeMillis = 0L,
-                    animationDurationMillis = 12345L,
-                )
-            )
-            .isEqualTo(0F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromDurationValue_whenAnimationDurationZero_returnsZeroProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    systemElapsedTimeMillis = 12345L,
-                    animationDurationMillis = 0L,
-                )
-            )
-            .isEqualTo(0F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromDurationValue_whenSystemTimeAndAnimationDurationNotZero_returnsCorrectProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 5 days: multiple of 240ms animation duration
-                    systemElapsedTimeMillis = 5.days.inWholeMilliseconds,
-                    animationDurationMillis = 240L,
-                )
-            )
-            .isEqualTo(0F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 5 days + 24 milliseconds: 24ms into an animation cycle of 240ms
-                    systemElapsedTimeMillis = 5.days.inWholeMilliseconds + 24L,
-                    animationDurationMillis = 240L,
-                )
-            )
-            .isEqualTo(0.1F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 30 days: multiple of 240ms animation duration
-                    systemElapsedTimeMillis = 30.days.inWholeMilliseconds,
-                    animationDurationMillis = 240L,
-                )
-            )
-            .isEqualTo(0F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 30 days + 24 milliseconds: 24ms into an animation cycle of 240ms
-                    systemElapsedTimeMillis = 30.days.inWholeMilliseconds + 24L,
-                    animationDurationMillis = 240L,
-                )
-            )
-            .isEqualTo(0.1F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromBrushFamily_whenSystemTimeZero_returnsZeroProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    systemElapsedTimeMillis = 0L,
-                    brushFamily = animatedBrushFamily(12345L),
-                )
-            )
-            .isEqualTo(0F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromBrushFamily_whenNoTextureLayers_returnsZeroProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    systemElapsedTimeMillis = 12345L,
-                    brushFamily = BrushFamily(),
-                )
-            )
-            .isEqualTo(0F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromBrushFamily_whenTextureLayersAreNotAnimated_returnsZeroProgress() {
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    systemElapsedTimeMillis = 12345L,
-                    brushFamily = brushFamilyWithNonAnimatedTextureLayers,
-                )
-            )
-            .isEqualTo(0F)
-    }
-
-    @Test
-    fun calculateAnimationProgressFromBrushFamily_whenSystemTimeNotZero_returnsCorrectProgress() {
-        val animatedBrushFamily = animatedBrushFamily(240L)
-
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 5 days: multiple of 240ms animation duration
-                    systemElapsedTimeMillis = 5.days.inWholeMilliseconds,
-                    brushFamily = animatedBrushFamily,
-                )
-            )
-            .isEqualTo(0F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 5 days + 24 milliseconds: 24ms into an animation cycle of 240ms
-                    systemElapsedTimeMillis = 5.days.inWholeMilliseconds + 24L,
-                    brushFamily = animatedBrushFamily,
-                )
-            )
-            .isEqualTo(0.1F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 30 days: multiple of 240ms animation duration
-                    systemElapsedTimeMillis = 30.days.inWholeMilliseconds,
-                    brushFamily = animatedBrushFamily,
-                )
-            )
-            .isEqualTo(0F)
-        assertThat(
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    // 30 days + 24 milliseconds: 24ms into an animation cycle of 240ms
-                    systemElapsedTimeMillis = 30.days.inWholeMilliseconds + 24L,
-                    brushFamily = animatedBrushFamily,
-                )
-            )
-            .isEqualTo(0.1F)
-    }
-
-    private fun animatedBrushFamily(animationDurationMillis: Long) =
-        BrushFamily(
-            coats =
+    private fun animatedBrushPaint(animationDurationMillis: Long) =
+        BrushPaint(
+            textureLayers =
                 listOf(
-                    BrushCoat(
-                        paint =
-                            BrushPaint(
-                                textureLayers =
-                                    listOf(
-                                        BrushPaint.StampingTexture(
-                                            clientTextureId = "foo",
-                                            animationFrames = 2,
-                                            animationRows = 1,
-                                            animationColumns = 2,
-                                            animationDurationMillis = animationDurationMillis,
-                                        )
-                                    )
-                            )
+                    BrushPaint.StampingTexture(
+                        clientTextureId = "foo",
+                        animationFrames = 2,
+                        animationRows = 1,
+                        animationColumns = 2,
+                        animationDurationMillis = animationDurationMillis,
                     )
                 )
         )
 
-    private val brushFamilyWithNonAnimatedTextureLayers =
-        BrushFamily(
-            coats =
+    private val brushPaintWithNonAnimatedTextureLayers =
+        BrushPaint(
+            textureLayers =
                 listOf(
-                    BrushCoat(
-                        paint =
-                            BrushPaint(
-                                textureLayers =
-                                    listOf(
-                                        BrushPaint.StampingTexture(
-                                            clientTextureId = "foo",
-                                            animationFrames = 1,
-                                            animationDurationMillis = 12345L,
-                                        )
-                                    )
-                            )
+                    BrushPaint.StampingTexture(
+                        clientTextureId = "foo",
+                        animationFrames = 1,
+                        animationDurationMillis = 12345L,
                     )
                 )
         )

@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
+import kotlin.math.roundToLong
 
 /**
  * Controls animated paint textures for rendered strokes. Typically a single [StrokePaintAnimator]
@@ -210,26 +211,32 @@ public class StrokePaintAnimator public constructor() {
             }
 
         /**
-         * Given a stroke's base phase and its whole-stroke animation duration, returns the phase
-         * value the stroke should have at the animator's current clock state.
+         * Given a stroke's base phase and its whole-stroke animation duration, and the animation
+         * duration for a particular brush paint in that stroke, returns the phase value the paint
+         * should have at the animator's current clock state.
          *
-         * If `animationLoopDurationMillis` is zero, indicating that the stroke is not animated,
-         * then this method returns zero.
+         * If `paintAnimationLoopDurationMillis` is zero, indicating that the paint is not animated,
+         * then this method returns zero. Otherwise, `strokeAnimationLoopDurationMillis` must be a
+         * multiple of `paintAnimationLoopDurationMillis`.
          */
         @JvmStatic
         @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-        public fun calculateCurrentPhaseForStroke(
+        public fun calculateCurrentPhaseForPaint(
             clockStateMillis: Long,
-            @IntRange(from = 0, to = 1 shl 24) animationLoopDurationMillis: Long,
-            @FloatRange(from = 0.0, to = 1.0, toInclusive = false) basePhase: Float,
-        ): Float =
-            if (animationLoopDurationMillis == 0L) {
-                0.0f
-            } else {
-                (clockStateMillis + (basePhase * animationLoopDurationMillis.toFloat()).toLong())
-                    .mod(animationLoopDurationMillis)
-                    .toFloat() / animationLoopDurationMillis.toFloat()
+            @IntRange(from = 0, to = 1 shl 24) strokeAnimationLoopDurationMillis: Long,
+            @IntRange(from = 0, to = 1 shl 24) paintAnimationLoopDurationMillis: Long,
+            @FloatRange(from = 0.0, to = 1.0, toInclusive = false) strokeBasePhase: Float,
+        ): Float {
+            require(strokeAnimationLoopDurationMillis >= paintAnimationLoopDurationMillis)
+            if (paintAnimationLoopDurationMillis == 0L) {
+                return 0.0f
             }
+            require(strokeAnimationLoopDurationMillis.mod(paintAnimationLoopDurationMillis) == 0L)
+            return (clockStateMillis +
+                    (strokeBasePhase * strokeAnimationLoopDurationMillis.toDouble()).roundToLong())
+                .mod(paintAnimationLoopDurationMillis)
+                .toFloat() / paintAnimationLoopDurationMillis.toFloat()
+        }
     }
 }
 

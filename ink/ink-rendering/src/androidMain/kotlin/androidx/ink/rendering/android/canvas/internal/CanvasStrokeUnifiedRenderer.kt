@@ -23,10 +23,12 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
+import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 
@@ -64,21 +66,21 @@ internal class CanvasStrokeUnifiedRenderer(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, stroke, scratchAffineTransformMatrix, textureAnimationProgress)
+        draw(canvas, stroke, scratchAffineTransformMatrix, animatorClockStateMillis)
     }
 
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         assertIsAffine(strokeToScreenTransform)
         for (coatIndex in 0 until stroke.shape.getRenderGroupCount()) {
-            drawCoat(canvas, stroke, coatIndex, strokeToScreenTransform, textureAnimationProgress)
+            drawCoat(canvas, stroke, coatIndex, strokeToScreenTransform, animatorClockStateMillis)
         }
     }
 
@@ -87,11 +89,11 @@ internal class CanvasStrokeUnifiedRenderer(
         stroke: Stroke,
         coatIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         // Try to render each paint option on each renderer until there's a match.
-        for (paintPreferenceIndex in
-            0 until stroke.brush.family.coats[coatIndex].paintPreferences.size) {
+        val coat = stroke.brush.family.coats[coatIndex]
+        for (paintPreferenceIndex in 0 until coat.paintPreferences.size) {
             for (lazyRenderer in rendererPreferences) {
                 if (
                     lazyRenderer.value.canDraw(
@@ -101,6 +103,16 @@ internal class CanvasStrokeUnifiedRenderer(
                         paintPreferenceIndex = paintPreferenceIndex,
                     )
                 ) {
+                    val paint = coat.paintPreferences[paintPreferenceIndex]
+                    val textureAnimationProgress =
+                        StrokePaintAnimator.calculateCurrentPhaseForPaint(
+                            clockStateMillis = animatorClockStateMillis,
+                            strokeAnimationLoopDurationMillis =
+                                stroke.brush.family.textureAnimationLoopDurationMillis,
+                            paintAnimationLoopDurationMillis =
+                                TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
+                            strokeBasePhase = stroke.inputs.getBaseAnimationPhase(),
+                        )
                     lazyRenderer.value.draw(
                         canvas = canvas,
                         stroke = stroke,
@@ -123,17 +135,17 @@ internal class CanvasStrokeUnifiedRenderer(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, inProgressStroke, scratchAffineTransformMatrix, textureAnimationProgress)
+        draw(canvas, inProgressStroke, scratchAffineTransformMatrix, animatorClockStateMillis)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         assertIsAffine(strokeToScreenTransform)
         val brush = checkNotNull(inProgressStroke.brush)
@@ -144,7 +156,7 @@ internal class CanvasStrokeUnifiedRenderer(
                 brush,
                 coatIndex,
                 strokeToScreenTransform,
-                textureAnimationProgress,
+                animatorClockStateMillis,
             )
         }
     }
@@ -155,10 +167,11 @@ internal class CanvasStrokeUnifiedRenderer(
         brush: Brush,
         coatIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        animatorClockStateMillis: Long,
     ) {
         // Try to render each paint option on each renderer until it's successful.
-        for (paintPreferenceIndex in 0 until brush.family.coats[coatIndex].paintPreferences.size) {
+        val coat = brush.family.coats[coatIndex]
+        for (paintPreferenceIndex in 0 until coat.paintPreferences.size) {
             for (lazyRenderer in rendererPreferences) {
                 if (
                     lazyRenderer.value.canDraw(
@@ -168,6 +181,16 @@ internal class CanvasStrokeUnifiedRenderer(
                         paintPreferenceIndex = paintPreferenceIndex,
                     )
                 ) {
+                    val paint = coat.paintPreferences[paintPreferenceIndex]
+                    val textureAnimationProgress =
+                        StrokePaintAnimator.calculateCurrentPhaseForPaint(
+                            clockStateMillis = animatorClockStateMillis,
+                            strokeAnimationLoopDurationMillis =
+                                brush.family.textureAnimationLoopDurationMillis,
+                            paintAnimationLoopDurationMillis =
+                                TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
+                            strokeBasePhase = inProgressStroke.getBaseAnimationPhase(),
+                        )
                     lazyRenderer.value.draw(
                         canvas = canvas,
                         inProgressStroke = inProgressStroke,

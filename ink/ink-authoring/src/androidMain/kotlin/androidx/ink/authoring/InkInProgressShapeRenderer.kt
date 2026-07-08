@@ -20,7 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.OpenForTesting
 import androidx.ink.brush.ExperimentalInkAnimationApi
-import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 
 /**
@@ -41,11 +40,7 @@ internal open class InkInProgressShapeRenderer(
             canvas = canvas,
             inProgressStroke = shape.inProgressStroke,
             strokeToScreenTransform = strokeToScreenTransform,
-            textureAnimationProgress =
-                TextureAnimationProgressHelper.calculateAnimationProgress(
-                    shape.lastUpdateSystemElapsedTimeMillis,
-                    textureAnimationDurationMillis,
-                ),
+            animatorClockStateMillis = shape.lastUpdateSystemElapsedTimeMillis,
         )
     }
 }
