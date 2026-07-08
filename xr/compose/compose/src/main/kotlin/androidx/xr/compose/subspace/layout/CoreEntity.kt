@@ -226,6 +226,11 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
 
     override fun toString(): String = "CoreEntity(entity=$entity)"
 
+    /** Returns true if this CoreEntity wraps the given SceneCore [Entity]. */
+    fun isUnderlyingEntityEqualTo(otherEntity: Entity?): Boolean {
+        return entity != null && entity == otherEntity
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

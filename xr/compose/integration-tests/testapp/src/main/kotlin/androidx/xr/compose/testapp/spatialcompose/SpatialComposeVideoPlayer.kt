@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -1004,10 +1005,8 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             // Offset avoids depth perception issues when playing stereoscopic video.
             Orbiter(position = ContentEdge.Bottom, offset = 48.dp) {
                 Button(
-                    onClick = {
-                        if (isPaused) exoPlayer?.play() else exoPlayer?.pause()
-                        isPaused = !isPaused
-                    }
+                    modifier = Modifier.width(150.dp),
+                    onClick = { if (isPaused) exoPlayer?.play() else exoPlayer?.pause() },
                 ) {
                     Text(text = if (isPaused) "Play" else "Pause")
                 }
