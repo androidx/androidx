@@ -16,6 +16,7 @@
 
 package androidx.glance.wear.core
 
+import androidx.collection.intSetOf
 import androidx.glance.wear.parcel.WearWidgetRequestParcel
 import androidx.glance.wear.proto.WearWidgetRequestProto
 import com.google.common.truth.Truth.assertThat
@@ -454,5 +455,55 @@ class WearWidgetParamsTest {
             )
 
         assertThat(params1).isNotEqualTo(params2)
+    }
+
+    @Test
+    fun fromParcel_matchesOriginalParams_withSupportedOperations() {
+        val originalParams =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("ns", 123),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 200.5f,
+                heightDp = 300.25f,
+                horizontalPaddingDp = 9f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+                rendererVersion = RendererVersion(2, 5, 3, supportedOperations = intSetOf(1, 2, 3)),
+            )
+
+        val parcel = originalParams.toParcel()
+        val restoredParams = WearWidgetParams.fromParcel(parcel)
+
+        assertThat(restoredParams).isEqualTo(originalParams)
+        val restoredOps =
+            mutableListOf<Int>().apply {
+                restoredParams.rendererVersion.supportedOperations.forEach { add(it) }
+            }
+        assertThat(restoredOps).containsExactly(1, 2, 3)
+    }
+
+    @Test
+    fun fromParcel_fallsBackToDefaultSupportedOperations_whenOpsNotSent() {
+        val payloadWithoutOps =
+            WearWidgetRequestProto(
+                    id = 123,
+                    id_namespace = "ns",
+                    container_type = ContainerInfo.CONTAINER_TYPE_SMALL,
+                    width_dp = 200.5f,
+                    height_dp = 300.25f,
+                    horizontal_padding_dp = 9f,
+                    vertical_padding_dp = 8f,
+                    corner_radius_dp = 16f,
+                    renderer_version_major = 1,
+                    renderer_version_minor = 6,
+                    renderer_version_revision = 0,
+                )
+                .encode()
+        val parcel = WearWidgetRequestParcel().apply { payload = payloadWithoutOps }
+
+        val restoredParams = WearWidgetParams.fromParcel(parcel)
+
+        assertThat(restoredParams.rendererVersion.supportedOperations)
+            .isEqualTo(RendererVersion.DEFAULT_SUPPORTED_OPERATIONS)
     }
 }

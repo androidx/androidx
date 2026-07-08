@@ -24,8 +24,12 @@ import androidx.datastore.core.IOException
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.core.mapToList
+import androidx.glance.wear.core.toIntSet
+import androidx.glance.wear.proto.CachedPlayerOperation
 import androidx.glance.wear.proto.WearWidgetCacheProto
 import androidx.glance.wear.proto.WidgetContainerSpecProto
 import java.io.InputStream
@@ -91,6 +95,25 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
                 horizontalPaddingDp = specProto.horizontal_padding_dp,
                 verticalPaddingDp = specProto.vertical_padding_dp,
                 cornerRadiusDp = specProto.corner_radius_dp,
+                rendererVersion =
+                    run {
+                        val supportedOps =
+                            if (specProto.renderer_supported_operations.isNotEmpty()) {
+                                specProto.renderer_supported_operations.toIntSet { it.op_code }
+                            } else {
+                                RendererVersion.DEFAULT_SUPPORTED_OPERATIONS
+                            }
+                        if (specProto.renderer_version_major == 0) {
+                            RendererVersion(supportedOperations = supportedOps)
+                        } else {
+                            RendererVersion(
+                                major = specProto.renderer_version_major,
+                                minor = specProto.renderer_version_minor,
+                                revision = specProto.renderer_version_revision,
+                                supportedOperations = supportedOps,
+                            )
+                        }
+                    },
             )
         } ?: throw WidgetCacheMissException("No params found for container type $containerType")
     }
@@ -153,6 +176,13 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
                     horizontal_padding_dp = params.horizontalPaddingDp,
                     vertical_padding_dp = params.verticalPaddingDp,
                     corner_radius_dp = params.cornerRadiusDp,
+                    renderer_version_major = params.rendererVersion.major,
+                    renderer_version_minor = params.rendererVersion.minor,
+                    renderer_version_revision = params.rendererVersion.revision,
+                    renderer_supported_operations =
+                        params.rendererVersion.supportedOperations.mapToList {
+                            CachedPlayerOperation(it)
+                        },
                 )
         }
 

@@ -19,6 +19,7 @@ package androidx.glance.wear.core
 import androidx.annotation.Dimension
 import androidx.annotation.RestrictTo
 import androidx.glance.wear.parcel.WearWidgetRequestParcel
+import androidx.glance.wear.proto.PlayerOperation
 import androidx.glance.wear.proto.WearWidgetRequestProto
 import java.util.Objects
 
@@ -76,6 +77,8 @@ public constructor(
                 renderer_version_major = rendererVersion.major,
                 renderer_version_minor = rendererVersion.minor,
                 renderer_version_revision = rendererVersion.revision,
+                renderer_supported_operations =
+                    rendererVersion.supportedOperations.mapToList { PlayerOperation(it) },
             )
         return WearWidgetRequestParcel().apply { payload = requestProto.encode() }
     }
@@ -131,6 +134,14 @@ public constructor(
                             major = requestProto.renderer_version_major,
                             minor = requestProto.renderer_version_minor,
                             revision = requestProto.renderer_version_revision,
+                            supportedOperations =
+                                if (requestProto.renderer_supported_operations.isNotEmpty()) {
+                                    requestProto.renderer_supported_operations.toIntSet {
+                                        it.op_code
+                                    }
+                                } else {
+                                    RendererVersion.DEFAULT_SUPPORTED_OPERATIONS
+                                },
                         )
                     },
             )
