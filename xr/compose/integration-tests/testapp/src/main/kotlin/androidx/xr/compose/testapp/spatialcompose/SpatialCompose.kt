@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-@file:kotlin.OptIn(
-    androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
-    androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi::class,
-)
-
 package androidx.xr.compose.testapp.spatialcompose
 
 import android.content.Intent
@@ -116,8 +111,6 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GltfAnimation.AnimationState
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
@@ -457,10 +450,6 @@ class SpatialCompose : ComponentActivity() {
         val session = LocalSession.current ?: return
         val dragonModel = remember(session) { mutableStateOf<GltfModel?>(null) }
         val dragonEntity = remember(session) { mutableStateOf<GltfModelEntity?>(null) }
-
-        val dragonAnimationState = remember {
-            androidx.compose.runtime.mutableStateOf(AnimationState.STOPPED)
-        }
         var entitySize by remember { mutableStateOf(FloatSize3d(1f, 1f, 1f)) }
 
         // Actions to run once.
@@ -470,38 +459,14 @@ class SpatialCompose : ComponentActivity() {
 
             dragonEntity.value =
                 GltfModelEntity.create(
-                    session,
-                    dragonModel.value!!,
-                    Pose(Vector3(1.0f, 0.0f, 0.0f), Quaternion.Identity),
-                    parent = session.scene.activitySpace,
-                )
-
-            dragonEntity.value?.let { entity ->
-                val animation = entity.getAnimations().find { it.name == "Fast_Flying" }
-                animation?.start(GltfAnimationStartOptions(shouldLoop = true))
-                dragonAnimationState.value = animation?.animationState ?: AnimationState.STOPPED
-            }
-        }
-
-        // Actions to run continuously.
-        LaunchedEffect(dragonEntity.value) {
-            val entity = dragonEntity.value
-            if (entity != null) {
-                val animation = entity.getAnimations().find { it.name == "Fast_Flying" }
-                while (true) {
-                    val currentState = animation?.animationState ?: AnimationState.STOPPED
-
-                    // 1. Update the animation state on every frame.
-                    dragonAnimationState.value = currentState
-
-                    // 2. Only calculate the bounding box if the animation is actually playing.
-                    if (currentState == AnimationState.PLAYING) {
+                        session,
+                        dragonModel.value!!,
+                        Pose(Vector3(1.0f, 0.0f, 0.0f), Quaternion.Identity),
+                        parent = session.scene.activitySpace,
+                    )
+                    .also { entity ->
                         entitySize = entity.getGltfModelBoundingBox().halfExtents.times(2f)
                     }
-
-                    delay(16L)
-                }
-            }
         }
 
         if (dragonEntity.value != null) {

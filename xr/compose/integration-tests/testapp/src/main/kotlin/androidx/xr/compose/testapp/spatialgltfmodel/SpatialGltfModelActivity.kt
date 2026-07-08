@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-@file:kotlin.OptIn(
-    androidx.xr.scenecore.ExperimentalGltfAnimationApi::class,
-    androidx.xr.compose.subspace.ExperimentalSpatialGltfAnimationApi::class,
-)
-
 package androidx.xr.compose.testapp.spatialgltfmodel
 
 import android.annotation.SuppressLint
@@ -42,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
@@ -71,9 +65,6 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialGltfModel
-import androidx.xr.compose.subspace.SpatialGltfModelAnimation
-import androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState.Companion.Paused
-import androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState.Companion.Playing
 import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialGltfModelState
 import androidx.xr.compose.subspace.SpatialMainPanel
@@ -103,8 +94,6 @@ import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.scene
 import java.nio.file.Paths
-import kotlin.math.roundToLong
-import kotlin.time.Duration.Companion.milliseconds
 
 class SpatialGltfModelActivity : ComponentActivity() {
 
@@ -220,122 +209,6 @@ class SpatialGltfModelActivity : ComponentActivity() {
                                 Text("Select a node", color = Color.Gray)
                             }
                         }
-                    }
-                }
-
-                // Animation List & Animation Controls
-                Row(Modifier.weight(1f)) {
-                    Column(Modifier.weight(0.4f).fillMaxSize()) {
-                        Text(
-                            "Animations (${state.animations.size})",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        LazyColumn(
-                            Modifier.fillMaxWidth()
-                                .weight(1f)
-                                .background(Color.LightGray.copy(alpha = 0.1f))
-                        ) {
-                            itemsIndexed(state.animations) { ix, animation ->
-                                val isSelected = state.selectedAnimation == animation
-                                val displayName = animation.name ?: "Animation $ix"
-                                val playingText =
-                                    when (animation.animationState) {
-                                        Playing,
-                                        Paused -> " (${animation.animationState})"
-                                        else -> ""
-                                    }
-                                Text(
-                                    text = "$displayName$playingText",
-                                    fontSize = 14.sp,
-                                    fontWeight =
-                                        if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    modifier =
-                                        Modifier.fillMaxWidth()
-                                            .clickable {
-                                                if (state.selectedAnimation != animation) {
-                                                    state.selectedAnimation?.stop()
-                                                }
-                                                state.selectedAnimation = animation
-                                            }
-                                            .background(
-                                                if (isSelected) Color.Blue.copy(alpha = 0.2f)
-                                                else Color.Transparent
-                                            )
-                                            .padding(8.dp),
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.width(16.dp))
-
-                    Column(Modifier.weight(0.6f).fillMaxSize()) {
-                        val animation = state.selectedAnimation
-                        if (animation != null) {
-                            AnimationControls(animation)
-                        } else {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("Select an animation", color = Color.Gray)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun AnimationControls(animation: SpatialGltfModelAnimation) {
-        var seekStartTime by remember(animation) { mutableStateOf(0.milliseconds) }
-
-        LaunchedEffect(seekStartTime) { animation.seekTo(seekStartTime) }
-
-        Column(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
-            Text("Animation Controls", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-
-            LazyColumn {
-                item {
-                    SliderRow(
-                        label = "Speed",
-                        value = animation.playbackSpeed,
-                        min = -2f,
-                        max = 2f,
-                        onValueChange = { animation.playbackSpeed = it },
-                    )
-                }
-                item {
-                    SliderRow(
-                        label = "Seek to (ms)",
-                        value = seekStartTime.inWholeMilliseconds.toFloat(),
-                        min = 0f,
-                        max = animation.duration.inWholeMilliseconds.toFloat(),
-                        onValueChange = { seekStartTime = it.roundToLong().milliseconds },
-                    )
-                }
-                item {
-                    if (animation.animationState != Playing) {
-                        Button(
-                            onClick = {
-                                animation.start()
-                                seekStartTime = 0.milliseconds
-                            }
-                        ) {
-                            Text("Play")
-                        }
-                        Spacer(Modifier.width(8.dp))
-                        Button(
-                            onClick = {
-                                animation.loop()
-                                seekStartTime = 0.milliseconds
-                            }
-                        ) {
-                            Text("Play Looping")
-                        }
-                    } else {
-                        Button(onClick = { animation.stop() }) { Text("Stop") }
-                        Spacer(Modifier.width(8.dp))
-                        Button(onClick = { animation.pause() }) { Text("Pause") }
                     }
                 }
             }
@@ -537,12 +410,8 @@ class SpatialGltfModelActivity : ComponentActivity() {
         val nodes: List<GltfModelNode>
             get() = dragonModelState?.nodes ?: emptyList()
 
-        val animations: List<SpatialGltfModelAnimation>
-            get() = dragonModelState?.getAnimations() ?: emptyList()
-
         var selectedNode by mutableStateOf<GltfModelNode?>(null)
 
-        var selectedAnimation by mutableStateOf<SpatialGltfModelAnimation?>(null)
         var useRotation by mutableStateOf(false)
         var showArrows by mutableStateOf(false)
 
