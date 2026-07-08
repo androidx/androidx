@@ -19,6 +19,7 @@ package androidx.build.vscode
 import androidx.build.BuildEnvironment
 import androidx.build.ProjectLayoutType
 import androidx.build.ide.ManagedIdeTask
+import androidx.build.ide.installVSCodeExtensions
 import java.io.File
 import java.net.URI
 import org.gradle.api.GradleException
@@ -42,15 +43,9 @@ fun Project.configureVSCodeTask(task: ManagedIdeTask) {
         vsCodeVersionProvider.map { version -> "vscode-$version-${task.osName}.$ext" }
     )
 
+    val vscodePlatform = task.vscodePlatform
     task.archiveUrl.convention(
         vsCodeVersionProvider.map { version ->
-            val vscodePlatform =
-                when (task.osName) {
-                    "mac_arm" -> "darwin-arm64"
-                    "mac" -> "darwin"
-                    "linux" -> "linux-x64"
-                    else -> throw GradleException("Unsupported OS: ${task.osName}")
-                }
             "https://update.code.visualstudio.com/$version/$vscodePlatform/stable"
         }
     )
@@ -75,9 +70,6 @@ fun Project.configureVSCodeTask(task: ManagedIdeTask) {
     )
 
     task.provisionAction.set {
-        userDataDir.get().asFile.mkdirs()
-        extensionsDir.get().asFile.mkdirs()
-
         val jdkPath =
             it.providers.environmentVariable(BuildEnvironment.ANDROIDX_JDK21).orNull
                 ?: throw GradleException(
@@ -97,6 +89,12 @@ fun Project.configureVSCodeTask(task: ManagedIdeTask) {
             }
             """
                 .trimIndent()
+        )
+
+        it.installVSCodeExtensions(
+            extensionsDir = extensionsDir.get().asFile.apply { mkdirs() },
+            userDataDir = userDataDir.get().asFile.apply { mkdirs() },
+            extensionIds = listOf("jetbrains.kotlin-server", "vscjava.vscode-gradle"),
         )
     }
 }
@@ -121,3 +119,12 @@ abstract class LatestVSCodeVersionSource : ValueSource<String, ValueSourceParame
         }
     }
 }
+
+private val ManagedIdeTask.vscodePlatform: String
+    get() =
+        when (osName) {
+            "mac_arm" -> "darwin-arm64"
+            "mac" -> "darwin"
+            "linux" -> "linux-x64"
+            else -> throw GradleException("Unsupported OS: $osName")
+        }
