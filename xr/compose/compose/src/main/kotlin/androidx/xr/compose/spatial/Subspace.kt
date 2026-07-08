@@ -538,11 +538,13 @@ public fun FollowingSubspace(
     }
 }
 
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 private fun getInitialSubspaceOffset(target: FollowTarget): Pose {
     return if (target is ArDeviceTarget) target.offset else Pose.Identity
 }
 
 @Composable
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 private fun rememberRecenterSignal(
     session: Session,
     target: FollowTarget,
@@ -579,7 +581,7 @@ private fun rememberRecenterSignal(
 }
 
 /** Validates the configuration for [FollowingSubspace]. */
-@ExperimentalFollowingSubspaceApi
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 private fun validateFollowingSubspaceConfiguration(
     target: FollowTarget,
     behavior: FollowBehavior,
