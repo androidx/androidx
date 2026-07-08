@@ -40,6 +40,12 @@ android {
     }
 }
 
+androidx {
+    deviceTests {
+        enabled = false
+    }
+}
+
 dependencies {
     implementation(project(":xr:assets"))
     implementation(project(":xr:compose:material3:material3"))
