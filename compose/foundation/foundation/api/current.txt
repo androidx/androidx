@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.compose.foundation {
 
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class AndroidComposeFoundationFlags {
+    property public boolean isOverscrollPixelRoundingEnabled;
+    field public static final androidx.compose.foundation.AndroidComposeFoundationFlags INSTANCE;
+    field public static boolean isOverscrollPixelRoundingEnabled;
+  }
+
   public interface AndroidExternalSurfaceScope {
     method public void onSurface(kotlin.jvm.functions.Function5<? super androidx.compose.foundation.SurfaceCoroutineScope,? super android.view.Surface,? super java.lang.Integer,? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onSurface);
   }

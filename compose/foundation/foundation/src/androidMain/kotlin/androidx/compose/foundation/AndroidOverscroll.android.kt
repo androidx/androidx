@@ -218,7 +218,13 @@ private class StretchOverscrollNode(
             drawContent()
             return
         }
-        val maxElevation = MaxSupportedElevation.toPx()
+        @OptIn(ExperimentalFoundationApi::class)
+        val maxElevation =
+            if (AndroidComposeFoundationFlags.isOverscrollPixelRoundingEnabled) {
+                MaxSupportedElevation.roundToPx().toFloat()
+            } else {
+                MaxSupportedElevation.toPx()
+            }
         var needsInvalidate = false
         with(edgeEffectWrapper) {
             val shouldDrawVerticalStretch = shouldDrawVerticalStretch()
