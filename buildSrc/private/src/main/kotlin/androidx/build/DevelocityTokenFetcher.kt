@@ -37,7 +37,7 @@ internal fun Project.fetchDevelocityKeysIfNeeded() {
     // User does not have remote cache enabled, so we will not have access to GCP
     if (System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE") !in setOf("gcp", "true")) return
 
-    val keys = File("${System.getenv("GRADLE_USER_HOME")}/develocity/keys.properties")
+    val keys = File(gradle.gradleUserHomeDir, "develocity/keys.properties")
 
     // User already has the keys
     if (keys.exists()) {
