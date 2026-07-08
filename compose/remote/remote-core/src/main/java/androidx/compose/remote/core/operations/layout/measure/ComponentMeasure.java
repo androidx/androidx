@@ -48,10 +48,27 @@ public class ComponentMeasure {
         mHasCache = true;
     }
 
+    /** Clear the cached constraints for this component. */
+    public void clearCache() {
+        mHasCache = false;
+    }
+
+    public static boolean sEnableMeasureCache = true;
+
+    /** Returns whether measure caching is enabled. */
+    public static boolean isMeasureCacheEnabled() {
+        return sEnableMeasureCache;
+    }
+
+    /** Enable or disable measure caching globally. */
+    public static void setMeasureCacheEnabled(boolean enabled) {
+        sEnableMeasureCache = enabled;
+    }
+
     /** Check if component has cached constraints matching specified parameters. */
     public boolean hasCachedConstraints(
             float minWidth, float maxWidth, float minHeight, float maxHeight) {
-        if (!mHasCache) {
+        if (!sEnableMeasureCache || !mHasCache) {
             return false;
         }
 

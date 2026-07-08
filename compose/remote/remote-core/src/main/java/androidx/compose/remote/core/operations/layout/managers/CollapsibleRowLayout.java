@@ -231,11 +231,9 @@ public class CollapsibleRowLayout extends RowLayout {
 
     @Override
     public void internalLayoutMeasure(@NonNull PaintContext context, @NonNull MeasurePass measure) {
-        // if needed, take care of weight calculations
-        super.internalLayoutMeasure(context, measure);
-        // Check again for visibility
         ComponentMeasure m = measure.get(this);
         computeVisibleChildren(context, m.getW(), m.getH(), false, measure, null);
+        super.internalLayoutMeasure(context, measure);
     }
 
     private void computeVisibleChildren(
@@ -251,9 +249,12 @@ public class CollapsibleRowLayout extends RowLayout {
         float currentMaxWidth = maxWidth;
         boolean hasPriorities = false;
         for (Component c : mChildrenComponents) {
-            if (!measure.contains(c.getComponentId())) {
+            if (c.mNeedsMeasure || !measure.contains(c.getComponentId())) {
                 // No need to remeasure here if already done
                 if (c instanceof CollapsibleRowLayout) {
+                    c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
+                } else if (c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getWidthModifier().hasWeight()) {
                     c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
                 } else {
                     c.measure(context, 0f, Float.MAX_VALUE, 0f, maxHeight, measure);
