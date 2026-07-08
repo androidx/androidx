@@ -1,0 +1,103 @@
+// Signature format: 4.0
+package androidx.compose.material3.ripple {
+
+  public final class RippleKt {
+    method public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource interactionSource, kotlin.jvm.functions.Function0<androidx.compose.material3.ripple.RippleNodeConfiguration> rippleNodeConfiguration);
+  }
+
+  @androidx.compose.runtime.Immutable public final class RippleNodeConfiguration {
+    ctor @KotlinOnly public RippleNodeConfiguration(boolean isBounded, androidx.compose.ui.unit.Dp radius, androidx.compose.ui.graphics.ColorProducer color, androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration pressConfiguration, androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration focusConfiguration, androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration hoverConfiguration, androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration dragConfiguration);
+    ctor @BytecodeOnly public RippleNodeConfiguration(boolean, float, androidx.compose.ui.graphics.ColorProducer!, androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration!, androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration!, androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration!, androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ColorProducer getColor();
+    method @InaccessibleFromKotlin public androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration getDragConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration getFocusConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration getHoverConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration getPressConfiguration();
+    method @BytecodeOnly public float getRadius-D9Ej5fM();
+    method @InaccessibleFromKotlin public boolean isBounded();
+    property public androidx.compose.ui.graphics.ColorProducer color;
+    property public androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration dragConfiguration;
+    property public androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration focusConfiguration;
+    property public androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration hoverConfiguration;
+    property public boolean isBounded;
+    property public androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration pressConfiguration;
+    property public androidx.compose.ui.unit.Dp radius;
+  }
+
+  public static sealed nonexhaustive interface RippleNodeConfiguration.DragConfiguration {
+  }
+
+  public static final class RippleNodeConfiguration.DragConfiguration.None implements androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration {
+    field public static final androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration.None INSTANCE;
+  }
+
+  public static final class RippleNodeConfiguration.DragConfiguration.Opacity implements androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration {
+    ctor public RippleNodeConfiguration.DragConfiguration.Opacity(@FloatRange(from=0.0, to=1.0) float alpha);
+    method @InaccessibleFromKotlin public float getAlpha();
+    property public float alpha;
+  }
+
+  public static sealed nonexhaustive interface RippleNodeConfiguration.FocusConfiguration {
+  }
+
+  public static final class RippleNodeConfiguration.FocusConfiguration.InsetRing implements androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration {
+    ctor @KotlinOnly public RippleNodeConfiguration.FocusConfiguration.InsetRing(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.unit.Dp outerStrokeInset, androidx.compose.ui.unit.Dp outerStrokeWidth, androidx.compose.ui.graphics.ColorProducer outerStrokeColor, androidx.compose.ui.unit.Dp innerStrokeInset, androidx.compose.ui.unit.Dp innerStrokeWidth, androidx.compose.ui.graphics.ColorProducer innerStrokeColor, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> focusingAnimationSpec, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> unfocusingAnimationSpec);
+    ctor @BytecodeOnly public RippleNodeConfiguration.FocusConfiguration.InsetRing(androidx.compose.ui.graphics.Shape!, float, float, androidx.compose.ui.graphics.ColorProducer!, float, float, androidx.compose.ui.graphics.ColorProducer!, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> getFocusingAnimationSpec();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ColorProducer getInnerStrokeColor();
+    method @BytecodeOnly public float getInnerStrokeInset-D9Ej5fM();
+    method @BytecodeOnly public float getInnerStrokeWidth-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ColorProducer getOuterStrokeColor();
+    method @BytecodeOnly public float getOuterStrokeInset-D9Ej5fM();
+    method @BytecodeOnly public float getOuterStrokeWidth-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getShape();
+    method @InaccessibleFromKotlin public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> getUnfocusingAnimationSpec();
+    property public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> focusingAnimationSpec;
+    property public androidx.compose.ui.graphics.ColorProducer innerStrokeColor;
+    property public androidx.compose.ui.unit.Dp innerStrokeInset;
+    property public androidx.compose.ui.unit.Dp innerStrokeWidth;
+    property public androidx.compose.ui.graphics.ColorProducer outerStrokeColor;
+    property public androidx.compose.ui.unit.Dp outerStrokeInset;
+    property public androidx.compose.ui.unit.Dp outerStrokeWidth;
+    property public androidx.compose.ui.graphics.Shape shape;
+    property public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> unfocusingAnimationSpec;
+  }
+
+  public static final class RippleNodeConfiguration.FocusConfiguration.None implements androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration {
+    field public static final androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration.None INSTANCE;
+  }
+
+  public static final class RippleNodeConfiguration.FocusConfiguration.Opacity implements androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration {
+    ctor public RippleNodeConfiguration.FocusConfiguration.Opacity(@FloatRange(from=0.0, to=1.0) float alpha);
+    method @InaccessibleFromKotlin public float getAlpha();
+    property public float alpha;
+  }
+
+  public static sealed nonexhaustive interface RippleNodeConfiguration.HoverConfiguration {
+  }
+
+  public static final class RippleNodeConfiguration.HoverConfiguration.None implements androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration {
+    field public static final androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration.None INSTANCE;
+  }
+
+  public static final class RippleNodeConfiguration.HoverConfiguration.Opacity implements androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration {
+    ctor public RippleNodeConfiguration.HoverConfiguration.Opacity(@FloatRange(from=0.0, to=1.0) float alpha);
+    method @InaccessibleFromKotlin public float getAlpha();
+    property public float alpha;
+  }
+
+  public static sealed nonexhaustive interface RippleNodeConfiguration.PressConfiguration {
+  }
+
+  public static final class RippleNodeConfiguration.PressConfiguration.None implements androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration {
+    field public static final androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration.None INSTANCE;
+  }
+
+  public static final class RippleNodeConfiguration.PressConfiguration.Opacity implements androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration {
+    ctor public RippleNodeConfiguration.PressConfiguration.Opacity(@FloatRange(from=0.0, to=1.0) float alpha);
+    method @InaccessibleFromKotlin public float getAlpha();
+    property public float alpha;
+  }
+
+}
+

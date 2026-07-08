@@ -23,8 +23,8 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material3.internal.ripple.RippleNodeConfig
-import androidx.compose.material3.internal.ripple.createRippleModifierNode
+import androidx.compose.material3.ripple.RippleNodeConfiguration
+import androidx.compose.material3.ripple.createRippleModifierNode
 import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -712,6 +712,158 @@ private class DelegatingThemeAwareRippleNode(
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
     private var rippleNode: DelegatableNode? = null
 
+    // Cache variables for RippleNodeConfig and its component objects
+    private var cachedRippleConfiguration: RippleConfiguration? = null
+    private var cachedRippleThemeConfiguration: RippleThemeConfiguration? = null
+    private var cachedMotionScheme: MotionScheme? = null
+
+    private var cachedRippleNodeConfiguration: RippleNodeConfiguration? = null
+
+    // Calculation lambdas for the RippleConfiguration
+    private val calculateColor = ColorProducer {
+        val userDefinedColor = color()
+        if (userDefinedColor.isSpecified) {
+            userDefinedColor
+        } else {
+            // If this is null, the ripple will be removed, so this should always be non-null in
+            // normal use
+            val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+            if (rippleConfiguration?.color?.isSpecified == true) {
+                rippleConfiguration.color
+            } else {
+                currentValueOf(LocalContentColor)
+            }
+        }
+    }
+    private val calculateOuterStrokeColor = ColorProducer {
+        val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+
+        if (rippleConfiguration?.focus is RippleConfiguration.Focus.InsetRing) {
+            rippleConfiguration.focus.outerStrokeColor
+        } else {
+            currentValueOf(MaterialTheme.LocalMaterialTheme).colorScheme.secondary
+        }
+    }
+    private val calculateInnerStrokeColor = ColorProducer {
+        val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+
+        if (rippleConfiguration?.focus is RippleConfiguration.Focus.InsetRing) {
+            rippleConfiguration.focus.innerStrokeColor
+        } else {
+            currentValueOf(MaterialTheme.LocalMaterialTheme).colorScheme.onSecondary
+        }
+    }
+
+    private val calculateRippleNodeConfiguration = {
+        val motionScheme = currentValueOf(MaterialTheme.LocalMaterialTheme).motionScheme
+        val rippleThemeConfiguration = currentValueOf(LocalRippleThemeConfiguration)
+
+        // If this is null, the ripple will be removed, so this should always be non-null in
+        // normal use
+        val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+
+        val currentCachedRippleNodeConfiguration = cachedRippleNodeConfiguration
+
+        // Simple caching: we pull out all immutable objects that could change the resulting
+        // ripple node config. If we have a cached ripple node config and none of the immutable
+        // inputs changed, we can just keep using the cached ripple node config.
+        // Otherwise, we recreate the ripple node config and all of its components.
+        // Note that for some inputs (shape, bounded, radius, enabled***Indication) we recreate
+        // the entire node, so we don't have to worry about comparing those inputs.
+        if (
+            currentCachedRippleNodeConfiguration != null &&
+                cachedRippleThemeConfiguration == rippleThemeConfiguration &&
+                cachedRippleConfiguration == rippleConfiguration &&
+                cachedMotionScheme == motionScheme
+        ) {
+            currentCachedRippleNodeConfiguration
+        } else {
+            val pressConfiguration =
+                if (enablePressIndication) {
+                    RippleNodeConfiguration.PressConfiguration.Opacity(
+                        rippleConfiguration?.rippleAlpha?.pressedAlpha
+                            ?: StateTokens.PressedStateLayerOpacity
+                    )
+                } else {
+                    RippleNodeConfiguration.PressConfiguration.None
+                }
+
+            val focusConfiguration =
+                if (enableFocusIndication) {
+                    when (val focusTheme = rippleThemeConfiguration.focus) {
+                        is RippleThemeConfiguration.Focus.Opacity -> {
+                            val focusedAlpha =
+                                rippleConfiguration?.rippleAlpha?.focusedAlpha
+                                    ?: StateTokens.FocusStateLayerOpacity
+                            RippleNodeConfiguration.FocusConfiguration.Opacity(focusedAlpha)
+                        }
+                        is RippleThemeConfiguration.Focus.InsetRing -> {
+                            val outerStrokeInset = focusTheme.outerStrokeInset
+                            val outerStrokeWidth = focusTheme.outerStrokeWidth
+                            val innerStrokeInset = focusTheme.innerStrokeInset
+                            val innerStrokeWidth = focusTheme.innerStrokeWidth
+                            val focusingAnimationSpec = motionScheme.fastSpatialSpec<Float>()
+                            val unfocusingAnimationSpec = motionScheme.fastEffectsSpec<Float>()
+
+                            RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                                shape = focusRingShape,
+                                outerStrokeInset = outerStrokeInset,
+                                outerStrokeWidth = outerStrokeWidth,
+                                outerStrokeColor = calculateOuterStrokeColor,
+                                innerStrokeInset = innerStrokeInset,
+                                innerStrokeWidth = innerStrokeWidth,
+                                innerStrokeColor = calculateInnerStrokeColor,
+                                focusingAnimationSpec = focusingAnimationSpec,
+                                unfocusingAnimationSpec = unfocusingAnimationSpec,
+                            )
+                        }
+                        else -> error("Unknown focus ripple theme configuration")
+                    }
+                } else {
+                    RippleNodeConfiguration.FocusConfiguration.None
+                }
+
+            val hoverConfiguration =
+                if (enableHoverIndication) {
+                    RippleNodeConfiguration.HoverConfiguration.Opacity(
+                        rippleConfiguration?.rippleAlpha?.hoveredAlpha
+                            ?: StateTokens.HoverStateLayerOpacity
+                    )
+                } else {
+                    RippleNodeConfiguration.HoverConfiguration.None
+                }
+
+            val dragConfiguration =
+                if (enableDragIndication) {
+                    RippleNodeConfiguration.DragConfiguration.Opacity(
+                        rippleConfiguration?.rippleAlpha?.draggedAlpha
+                            ?: StateTokens.DraggedStateLayerOpacity
+                    )
+                } else {
+                    RippleNodeConfiguration.DragConfiguration.None
+                }
+
+            val newConfig =
+                RippleNodeConfiguration(
+                    isBounded = bounded,
+                    radius = radius,
+                    color = calculateColor,
+                    pressConfiguration = pressConfiguration,
+                    focusConfiguration = focusConfiguration,
+                    hoverConfiguration = hoverConfiguration,
+                    dragConfiguration = dragConfiguration,
+                )
+
+            // Update the caches
+            cachedRippleNodeConfiguration = newConfig
+            cachedRippleThemeConfiguration = rippleThemeConfiguration
+            cachedRippleConfiguration = rippleConfiguration
+            cachedMotionScheme = motionScheme
+
+            newConfig
+        }
+    }
+
     override fun onAttach() {
         updateConfiguration()
     }
@@ -737,120 +889,11 @@ private class DelegatingThemeAwareRippleNode(
     }
 
     private fun attachNewRipple() {
-        val calculateColor = ColorProducer {
-            val userDefinedColor = color()
-            if (userDefinedColor.isSpecified) {
-                userDefinedColor
-            } else {
-                // If this is null, the ripple will be removed, so this should always be non-null in
-                // normal use
-                val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-                if (rippleConfiguration?.color?.isSpecified == true) {
-                    rippleConfiguration.color
-                } else {
-                    currentValueOf(LocalContentColor)
-                }
-            }
-        }
-        val calculateOuterStrokeColor = ColorProducer {
-            val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-
-            if (rippleConfiguration?.focus is RippleConfiguration.Focus.InsetRing) {
-                rippleConfiguration.focus.outerStrokeColor
-            } else {
-                currentValueOf(MaterialTheme.LocalMaterialTheme).colorScheme.secondary
-            }
-        }
-        val calculateInnerStrokeColor = ColorProducer {
-            val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-
-            if (rippleConfiguration?.focus is RippleConfiguration.Focus.InsetRing) {
-                rippleConfiguration.focus.innerStrokeColor
-            } else {
-                currentValueOf(MaterialTheme.LocalMaterialTheme).colorScheme.onSecondary
-            }
-        }
-
-        val calculateRippleNodeConfig = {
-            val motionScheme = currentValueOf(MaterialTheme.LocalMaterialTheme).motionScheme
-            val rippleThemeConfiguration = currentValueOf(LocalRippleThemeConfiguration)
-
-            // If this is null, the ripple will be removed, so this should always be non-null in
-            // normal use
-            val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-
-            RippleNodeConfig(
-                press =
-                    if (enablePressIndication) {
-                        @Suppress("DEPRECATION")
-                        RippleNodeConfig.Press.Opacity(
-                            rippleConfiguration?.rippleAlpha?.pressedAlpha
-                                ?: StateTokens.PressedStateLayerOpacity
-                        )
-                    } else {
-                        RippleNodeConfig.Press.None
-                    },
-                focus =
-                    if (enableFocusIndication) {
-                        when (rippleThemeConfiguration.focus) {
-                            is RippleThemeConfiguration.Focus.Opacity ->
-                                @Suppress("DEPRECATION")
-                                RippleNodeConfig.Focus.Opacity(
-                                    rippleConfiguration?.rippleAlpha?.focusedAlpha
-                                        ?: StateTokens.FocusStateLayerOpacity
-                                )
-                            is RippleThemeConfiguration.Focus.InsetRing ->
-                                RippleNodeConfig.Focus.InsetRing(
-                                    shape = focusRingShape,
-                                    outerStrokeInset =
-                                        rippleThemeConfiguration.focus.outerStrokeInset,
-                                    outerStrokeWidth =
-                                        rippleThemeConfiguration.focus.outerStrokeWidth,
-                                    outerStrokeColor = calculateOuterStrokeColor,
-                                    innerStrokeInset =
-                                        rippleThemeConfiguration.focus.innerStrokeInset,
-                                    innerStrokeWidth =
-                                        rippleThemeConfiguration.focus.innerStrokeWidth,
-                                    innerStrokeColor = calculateInnerStrokeColor,
-                                    focusingAnimationSpec = motionScheme.fastSpatialSpec(),
-                                    unfocusingAnimationSpec = motionScheme.fastEffectsSpec(),
-                                )
-                            else -> error("Unknown focus ripple theme configuration")
-                        }
-                    } else {
-                        RippleNodeConfig.Focus.None
-                    },
-                hover =
-                    if (enableHoverIndication) {
-                        @Suppress("DEPRECATION")
-                        RippleNodeConfig.Hover.Opacity(
-                            rippleConfiguration?.rippleAlpha?.hoveredAlpha
-                                ?: StateTokens.HoverStateLayerOpacity
-                        )
-                    } else {
-                        RippleNodeConfig.Hover.None
-                    },
-                drag =
-                    if (enableDragIndication) {
-                        @Suppress("DEPRECATION")
-                        RippleNodeConfig.Drag.Opacity(
-                            rippleConfiguration?.rippleAlpha?.draggedAlpha
-                                ?: StateTokens.DraggedStateLayerOpacity
-                        )
-                    } else {
-                        RippleNodeConfig.Drag.None
-                    },
-            )
-        }
-
         rippleNode =
             delegate(
                 createRippleModifierNode(
                     interactionSource = interactionSource,
-                    bounded = bounded,
-                    radius = radius,
-                    color = calculateColor,
-                    rippleNodeConfig = calculateRippleNodeConfig,
+                    rippleNodeConfiguration = calculateRippleNodeConfiguration,
                 )
             )
     }
