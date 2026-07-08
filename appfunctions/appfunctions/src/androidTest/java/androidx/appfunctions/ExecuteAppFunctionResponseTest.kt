@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
@@ -117,7 +118,7 @@ class ExecuteAppFunctionResponseTest {
         val uriGrant =
             AppFunctionUriGrant(
                 uri = android.net.Uri.parse("content://com.example/1"),
-                modeFlags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                modeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION,
             )
         val appFunctionData =
             AppFunctionData.Builder(
@@ -140,8 +141,7 @@ class ExecuteAppFunctionResponseTest {
         assertThat(platformUriGrants).hasSize(1)
         assertThat(platformUriGrants[0].uri)
             .isEqualTo(android.net.Uri.parse("content://com.example/1"))
-        assertThat(platformUriGrants[0].modeFlags)
-            .isEqualTo(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        assertThat(platformUriGrants[0].modeFlags).isEqualTo(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
     private fun assumeAppFunctionExtensionLibraryAvailable() {
