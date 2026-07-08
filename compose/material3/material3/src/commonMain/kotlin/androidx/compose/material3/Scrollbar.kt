@@ -64,8 +64,7 @@ import kotlinx.coroutines.launch
  * [androidx.compose.foundation.verticalScroll], see:
  *
  * @sample androidx.compose.material3.samples.ScrollbarWithVerticalScrollSample
- * @param state the [ScrollIndicatorState] that represents the scroll state. If null, the scrollbar
- *   will not be drawn.
+ * @param state the [ScrollIndicatorState] that represents the scroll state.
  * @param orientation the orientation of the scrollbar.
  * @param thumbColor the color of the scrollbar thumb.
  * @param trackColor the color of the scrollbar track.
@@ -84,7 +83,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun Modifier.scrollbar(
-    state: ScrollIndicatorState?,
+    state: ScrollIndicatorState,
     orientation: Orientation,
     thumbColor: Color = ScrollbarDefaults.thumbColor,
     trackColor: Color = Color.Transparent,
@@ -98,7 +97,6 @@ fun Modifier.scrollbar(
     mainAxisTrackInset: Dp = ScrollbarDefaults.MainAxisTrackInset,
     crossAxisTrackInset: Dp = ScrollbarDefaults.CrossAxisTrackInset,
 ): Modifier {
-    if (state == null) return this
     require(thumbMaxLengthFraction in 0f..1f) { "thumbMaxLengthFraction must be between 0f and 1f" }
     return this.then(
         ScrollbarElement(

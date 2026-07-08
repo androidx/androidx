@@ -112,7 +112,7 @@ internal class ScrollbarTestCase(
     @Composable
     override fun MeasuredContent() {
         val scrollbarModifier =
-            if (hasScrollbar) {
+            if (hasScrollbar && scrollIndicatorState != null) {
                 baseModifier.scrollbar(
                     state = scrollIndicatorState,
                     orientation = Orientation.Vertical,
