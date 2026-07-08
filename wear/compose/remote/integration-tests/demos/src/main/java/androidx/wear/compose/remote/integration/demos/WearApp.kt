@@ -42,11 +42,15 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteButtonGro
 import androidx.wear.compose.remote.integration.demos.components.RemoteCardDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteCircularProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteCompactButtonDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator10Demo
+import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator3Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTextButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTextDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTitleCardDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteVerticalPageIndicator10Demo
+import androidx.wear.compose.remote.integration.demos.components.RemoteVerticalPageIndicator3Demo
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -125,6 +129,18 @@ fun WearApp(
                     RemoteTitleCardDemos()
                 }
                 composable(route = Screen.RemoteTextDemosScreen.route) { RemoteTextDemos() }
+                composable(route = Screen.RemoteHorizontalPageIndicator3DemoScreen.route) {
+                    RemoteHorizontalPageIndicator3Demo()
+                }
+                composable(route = Screen.RemoteHorizontalPageIndicator10DemoScreen.route) {
+                    RemoteHorizontalPageIndicator10Demo()
+                }
+                composable(route = Screen.RemoteVerticalPageIndicator3DemoScreen.route) {
+                    RemoteVerticalPageIndicator3Demo()
+                }
+                composable(route = Screen.RemoteVerticalPageIndicator10DemoScreen.route) {
+                    RemoteVerticalPageIndicator10Demo()
+                }
             }
         }
     }
