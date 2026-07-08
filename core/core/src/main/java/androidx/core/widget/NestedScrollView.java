@@ -164,6 +164,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * mScroller.isFinished() (flinging begins when the user lifts their finger).
      */
     private boolean mIsBeingDragged = false;
+    private boolean mIsTracingDrag = false;
 
     /**
      * Determines speed during touch scrolling
@@ -793,6 +794,22 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
+    private void beginDragTrace() {
+        if (!mIsTracingDrag) {
+            androidx.core.os.TraceCompat.beginAsyncSection(
+                    "NestedScrollView#drag", System.identityHashCode(this));
+            mIsTracingDrag = true;
+        }
+    }
+
+    private void endDragTrace() {
+        if (mIsTracingDrag) {
+            androidx.core.os.TraceCompat.endAsyncSection(
+                    "NestedScrollView#drag", System.identityHashCode(this));
+            mIsTracingDrag = false;
+        }
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         if (disallowIntercept) {
@@ -848,6 +865,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (yDiff > mTouchSlop
                         && (getNestedScrollAxes() & ViewCompat.SCROLL_AXIS_VERTICAL) == 0) {
                     mIsBeingDragged = true;
+                    beginDragTrace();
                     mLastMotionY = y;
                     initVelocityTrackerIfNotExists();
                     mVelocityTracker.addMovement(ev);
@@ -864,6 +882,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 final int y = (int) ev.getY();
                 if (!inChild((int) ev.getX(), y)) {
                     mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
+                    if (mIsBeingDragged) {
+                        beginDragTrace();
+                    } else {
+                        endDragTrace();
+                    }
                     recycleVelocityTracker();
                     break;
                 }
@@ -886,6 +909,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 */
                 mScroller.computeScrollOffset();
                 mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
+                if (mIsBeingDragged) {
+                    beginDragTrace();
+                } else {
+                    endDragTrace();
+                }
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
                 break;
             }
@@ -894,6 +922,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             case MotionEvent.ACTION_UP:
                 /* Release the drag */
                 mIsBeingDragged = false;
+                endDragTrace();
                 mActivePointerId = INVALID_POINTER;
                 recycleVelocityTracker();
                 if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0, getScrollRange())) {
@@ -976,6 +1005,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         parent.requestDisallowInterceptTouchEvent(true);
                     }
                     mIsBeingDragged = true;
+                    beginDragTrace();
                     if (deltaY > 0) {
                         deltaY -= mTouchSlop;
                     } else {
@@ -1058,6 +1088,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private void endTouchDrag() {
         mActivePointerId = INVALID_POINTER;
         mIsBeingDragged = false;
+        endDragTrace();
 
         recycleVelocityTracker();
         stopNestedScroll(ViewCompat.TYPE_TOUCH);
