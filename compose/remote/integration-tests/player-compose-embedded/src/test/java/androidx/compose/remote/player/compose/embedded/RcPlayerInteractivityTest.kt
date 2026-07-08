@@ -90,6 +90,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -113,8 +114,8 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun testButtonClickTogglesVisibility() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             // A clickable button that flips a state to GONE, and a target box (carrying an explicit
             // semantics contentDescription so it is query-able) whose visibility is driven by that
@@ -202,8 +203,8 @@ class RcPlayerInteractivityTest {
     // evaluated only once at setup and would never have updated.
     @Test
     fun integerExpressionDrivesVisibilityReactively() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -283,8 +284,8 @@ class RcPlayerInteractivityTest {
     // computed once at setup and never updated.
     @Test
     fun derivedTextUpdatesReactively() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -342,8 +343,8 @@ class RcPlayerInteractivityTest {
     // the intermediate directly.
     @Test
     fun chainedDerivedValueUpdatesReactively() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -407,8 +408,8 @@ class RcPlayerInteractivityTest {
     // an appearance animation's initial value with its target on first evaluation.
     @Test
     fun testAnimationSupport() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -488,8 +489,8 @@ class RcPlayerInteractivityTest {
     // its t=0 snapshot.)
     @Test
     fun testTimeDrivenSizeAnimates() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -566,8 +567,8 @@ class RcPlayerInteractivityTest {
     // played.)
     @Test
     fun everyOperatorDrivesLayoutEndToEnd() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val renderedTags = mutableListOf<String>()
 
             val documentBytes =
@@ -674,8 +675,8 @@ class RcPlayerInteractivityTest {
     // min-constrained box around a tiny child grows to ~min.
     @Test
     fun dimensionConstraintsClampMeasuredSize() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -745,8 +746,8 @@ class RcPlayerInteractivityTest {
     // on one row in the 300dp flow, so this discriminates the behavior.)
     @Test
     fun flowLayoutWrapsAtMaxItemsInEachRow() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 captureSingleRemoteDocument(
@@ -812,8 +813,8 @@ class RcPlayerInteractivityTest {
     // callback).
     @Test
     fun hostNamedActionInvokesCallback() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -865,8 +866,8 @@ class RcPlayerInteractivityTest {
     // no priority modifiers every child defaults to Float.MAX_VALUE, so the tie drops the last one.
     @Test
     fun collapsibleColumnDropsOverflowingChildren() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -917,8 +918,8 @@ class RcPlayerInteractivityTest {
     // 100dp box, a 200dp child doesn't fit and a 50dp child does, so only the 50dp child is shown.
     @Test
     fun fitBoxDisplaysTheChildThatFits() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -971,8 +972,8 @@ class RcPlayerInteractivityTest {
     // root.
     @Test
     fun rootContentDescriptionLabelsThePlayer() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
@@ -1011,8 +1012,8 @@ class RcPlayerInteractivityTest {
     // scroll).
     @Test
     fun scrollPublishesPositionToBoundVariable() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,

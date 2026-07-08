@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -91,6 +92,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
 import java.io.ByteArrayInputStream
 import kotlin.OptIn
+import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -115,8 +117,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteTextRenders() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -155,7 +157,7 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawWithContent() {
-        kotlinx.coroutines.runBlocking {
+        runBlocking {
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
                     .captureSingleRemoteDocument(
@@ -199,7 +201,7 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testNamedColors() {
-        kotlinx.coroutines.runBlocking {
+        runBlocking {
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
                     .captureSingleRemoteDocument(
@@ -242,7 +244,7 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawRect() {
-        kotlinx.coroutines.runBlocking {
+        runBlocking {
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
                     .captureSingleRemoteDocument(
@@ -291,8 +293,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawBitmap() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
             bitmap.eraseColor(android.graphics.Color.RED)
             val imageBitmap = bitmap.asImageBitmap()
@@ -340,8 +342,8 @@ class RcPlayerPrimitivesTest {
     fun testDrawBitmapInt() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
                 val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
                 bitmap.eraseColor(android.graphics.Color.RED)
 
@@ -390,8 +392,8 @@ class RcPlayerPrimitivesTest {
     fun testDrawBitmapScaled() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
                 val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
                 bitmap.eraseColor(android.graphics.Color.RED)
 
@@ -450,8 +452,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawLine() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -502,8 +504,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawOval() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -552,8 +554,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawPath() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val path = RemotePath("M 0 0 L 100 100")
 
             val documentBytes =
@@ -604,8 +606,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawRoundRect() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -655,8 +657,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawSector() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -708,8 +710,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawTextOnPath() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val path = RemotePath("M 0 50 L 100 50")
             val remoteString =
                 androidx.compose.remote.creation.compose.state.RemoteString("Hello Path")
@@ -764,8 +766,8 @@ class RcPlayerPrimitivesTest {
     @Ignore("DRAW_TEXT_ON_CIRCLE is commented out in Operations.java")
     @Test
     fun testDrawTextOnCircle() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val remoteString =
                 androidx.compose.remote.creation.compose.state.RemoteString("Hello Circle")
 
@@ -820,8 +822,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawText() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val remoteString =
                 androidx.compose.remote.creation.compose.state.RemoteString("Hello Text")
 
@@ -873,8 +875,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawAnchoredText() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val remoteString =
                 androidx.compose.remote.creation.compose.state.RemoteString("Hello Anchor")
 
@@ -932,8 +934,8 @@ class RcPlayerPrimitivesTest {
     fun testDrawBitmapFontText() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
 
                 val documentBytes =
                     androidx.compose.remote.creation.compose.capture
@@ -981,8 +983,8 @@ class RcPlayerPrimitivesTest {
     fun testDrawBitmapFontTextOnPath() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
                 val path = RemotePath("M 0 50 L 100 50")
 
                 val documentBytes =
@@ -1039,8 +1041,8 @@ class RcPlayerPrimitivesTest {
     fun testDrawBitmapTextAnchored() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
 
                 val documentBytes =
                     androidx.compose.remote.creation.compose.capture
@@ -1094,8 +1096,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawToBitmap() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val bitmap =
                 android.graphics.Bitmap.createBitmap(
                     10,
@@ -1156,8 +1158,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDrawTweenPath() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val path1 = RemotePath("M 0 0 L 100 100")
             val path2 = RemotePath("M 0 100 L 100 0")
 
@@ -1212,8 +1214,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutRoot() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1250,8 +1252,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutContent() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1294,8 +1296,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutFitBox() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1336,8 +1338,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutRow() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1380,8 +1382,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutCollapsibleRow() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1424,8 +1426,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutFlow() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1469,8 +1471,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutColumn() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1513,8 +1515,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutCollapsibleColumn() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1560,8 +1562,8 @@ class RcPlayerPrimitivesTest {
     fun testLayoutText() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
 
                 val documentBytes =
                     androidx.compose.remote.creation.compose.capture
@@ -1626,8 +1628,8 @@ class RcPlayerPrimitivesTest {
     fun testLayoutTextStyle() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
-            kotlinx.coroutines.runBlocking {
-                val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            runBlocking {
+                val context = ApplicationProvider.getApplicationContext<Context>()
 
                 val documentBytes =
                     androidx.compose.remote.creation.compose.capture
@@ -1708,8 +1710,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutState() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val checked = androidx.compose.remote.creation.compose.state.RemoteBoolean(true)
 
             val documentBytes =
@@ -1753,8 +1755,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testLayoutImage() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val bitmap =
                 android.graphics.Bitmap.createBitmap(
                     10,
@@ -1803,8 +1805,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierWidth() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1847,8 +1849,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierHeight() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1891,8 +1893,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierWidthIn() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1935,8 +1937,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierHeightIn() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -1979,8 +1981,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierCollapsiblePriority() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2024,8 +2026,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierBackground() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2070,8 +2072,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierBorder() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2122,8 +2124,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierPadding() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2166,8 +2168,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierClick() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val emptyAction = androidx.compose.remote.creation.compose.action.combinedAction()
 
             val documentBytes =
@@ -2212,8 +2214,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierMultiClick() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val emptyAction = androidx.compose.remote.creation.compose.action.combinedAction()
 
             val documentBytes =
@@ -2263,8 +2265,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierTouchDown() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val emptyAction = androidx.compose.remote.creation.compose.action.combinedAction()
 
             val documentBytes =
@@ -2308,8 +2310,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierTouchUp() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val emptyAction = androidx.compose.remote.creation.compose.action.combinedAction()
             val dummyDownAction =
                 androidx.compose.remote.creation.compose.action.hostAction(
@@ -2361,8 +2363,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierTouchCancel() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val emptyAction = androidx.compose.remote.creation.compose.action.combinedAction()
             val dummyDownAction =
                 androidx.compose.remote.creation.compose.action.hostAction(
@@ -2414,8 +2416,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierVisibility() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             // RemoteCompose visibility is GONE=0, VISIBLE=1 (not Android View 0/4/8).
             val visibleState =
                 androidx.compose.remote.creation.compose.state.RemoteInt(
@@ -2463,8 +2465,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierOffset() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2507,8 +2509,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierZIndex() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2551,8 +2553,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierGraphicsLayer() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2596,8 +2598,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierScroll() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2641,8 +2643,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierMarquee() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2685,8 +2687,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierRipple() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2729,8 +2731,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testModifierAlignBy() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2775,8 +2777,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDataFloat() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2820,8 +2822,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testAnimatedFloat() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2866,8 +2868,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDataInt() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val invisibleState =
                 androidx.compose.remote.creation.compose.state.RemoteInt(1) // INVISIBLE
 
@@ -2912,8 +2914,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testIntegerExpression() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -2960,8 +2962,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testDataLong() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3007,8 +3009,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testColorExpressions() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3057,8 +3059,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testTextSize() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3105,8 +3107,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintColor() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3167,8 +3169,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testStrokeWidth() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3229,8 +3231,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteIconTint() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3289,8 +3291,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testStrokeCap() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3351,8 +3353,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintStyle() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3409,8 +3411,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testShader() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3479,8 +3481,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testImageFilterQuality() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3541,8 +3543,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintAlpha() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3605,8 +3607,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintColorFilter() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3670,8 +3672,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintAntiAlias() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3728,8 +3730,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testStrokeJoin() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3791,8 +3793,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintTypeface() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3846,8 +3848,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testPaintBlendMode() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3907,8 +3909,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testColorId() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -3968,8 +3970,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testColorFilterId() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4034,8 +4036,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testClearColorFilter() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4112,8 +4114,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testShaderMatrix() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4191,8 +4193,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testFontAxis() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4246,8 +4248,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testTexture() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4299,8 +4301,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteColumnWeight() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4361,8 +4363,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testBlendMode() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4415,8 +4417,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteCardLayoutReproduction() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val shape =
                 androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape(20.rdp)
 
@@ -4471,8 +4473,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteButtonLayoutReproduction() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture
@@ -4546,8 +4548,8 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteButtonFromMaterial3() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
                 androidx.compose.remote.creation.compose.capture

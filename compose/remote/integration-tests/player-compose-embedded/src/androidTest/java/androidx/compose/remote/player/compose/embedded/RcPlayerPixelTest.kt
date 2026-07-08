@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
 import androidx.activity.ComponentActivity
@@ -51,6 +52,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,11 +69,8 @@ class RcPlayerPixelTest {
 
     /** Renders [content] in a 100dp player box at top-start and rasterizes the content view. */
     private fun renderPlayerToBitmap(content: @Composable @RemoteComposable () -> Unit): Bitmap {
-        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val document =
-            kotlinx.coroutines.runBlocking {
-                captureRule.captureDocument(context = ctx, content = content)
-            }
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking { captureRule.captureDocument(context = ctx, content = content) }
         rule.setContent {
             Box(modifier = Modifier.size(100.dp).testTag("player")) {
                 RcPlayer(document = document, autoUpdate = false)
