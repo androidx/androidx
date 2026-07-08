@@ -200,14 +200,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         val allHostTests = project.tasks.register("allHostTests")
         // copy host side test results to DIST
         project.tasks.withType(AbstractTestTask::class.java) { task ->
-            // Exclude tests that need android devices.
-            if (
-                !task.name.contains("androidTest", ignoreCase = true) &&
-                    !task.name.contains("connected", ignoreCase = true) &&
-                    !task.name.contains("device", ignoreCase = true)
-            ) {
-                configureTestTask(project, task, allHostTests, androidXExtension)
-            }
+            configureTestTask(project, task, allHostTests, androidXExtension)
         }
 
         project.configureTaskTimeouts()
