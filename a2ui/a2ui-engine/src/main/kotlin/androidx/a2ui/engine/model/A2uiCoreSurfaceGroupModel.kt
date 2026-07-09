@@ -49,8 +49,8 @@ public class A2uiCoreSurfaceGroupModel internal constructor() {
     }
 
     /**
-     * Adds a surface model. If a surface with the same ID already exists, it will be replaced and
-     * disposed.
+     * Adds a surface model. If a surface with the same ID already exists, an exception will be
+     * thrown.
      *
      * To prevent resource race conditions, this method MUST be called from a context that
      * guarantees sequential execution for any given surface ID.
@@ -58,21 +58,8 @@ public class A2uiCoreSurfaceGroupModel internal constructor() {
      * @param surface The [A2uiCoreSurfaceModel] to add.
      */
     internal fun add(surface: A2uiCoreSurfaceModel) {
-        var existingSurface: A2uiCoreSurfaceModel? = null
-        _activeSurfaces.update { current ->
-            existingSurface = null
-            buildList(current.size + 1) {
-                for (item in current) {
-                    if (item.id == surface.id) {
-                        existingSurface = item
-                    } else {
-                        add(item)
-                    }
-                }
-                add(surface)
-            }
-        }
-        existingSurface?.dispose()
+        require(getSurface(surface.id) == null) { "Surface '${surface.id}' already exists." }
+        _activeSurfaces.update { current -> current + surface }
     }
 
     /**
