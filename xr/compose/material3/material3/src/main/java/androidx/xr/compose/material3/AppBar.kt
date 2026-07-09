@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.XrSingleRowTopAppBarOverride.SingleRowTopAppBar
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 
 /** [SingleRowTopAppBarOverride] that uses the XR-specific [SingleRowTopAppBar]. */
 @ExperimentalMaterial3XrApi
@@ -59,7 +59,7 @@ public val DefaultSingleRowTopAppBarOrbiterProperties: HorizontalOrbiterProperti
     HorizontalOrbiterProperties(
         position = ContentEdge.Horizontal.Top,
         offset = XrSingleRowTopAppBarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterHorizontally,
         shape = XrTokens.ContainerShape,
     )
@@ -96,7 +96,7 @@ public val DefaultTwoRowsTopAppBarOrbiterProperties: HorizontalOrbiterProperties
     HorizontalOrbiterProperties(
         position = ContentEdge.Horizontal.Top,
         offset = XrTwoRowsTopAppBarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterHorizontally,
         shape = XrTokens.ContainerShape,
     )
