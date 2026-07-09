@@ -30,7 +30,7 @@ dependencies {
 
     implementation(project(":core:core"))
     implementation(project(":core:core-ktx"))
-    implementation(project(":core:core-i18n"))
+    implementation("androidx.core:core-i18n:1.0.0")
     implementation(libs.kotlinSerializationJson)
 
     testImplementation(libs.kotlinTest)
