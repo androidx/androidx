@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.CONTENT_CHANGE_TYPE_CHECKED
@@ -3267,6 +3268,42 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             val view = rule.createAndroidComposeView(coroutineContext = Dispatchers.Main)
             val delegate = AndroidComposeViewAccessibilityDelegateCompat(view)
             delegate.onViewDetachedFromWindow(view)
+        }
+    }
+
+    @Test
+    fun onViewDetachedFromWindow_runnableExitsEarly_whenDetached() {
+        rule.runOnUiThread {
+            // 1. Create a real view (naturally detached, so isAttachedToWindow is false)
+            val view = rule.createAndroidComposeView(coroutineContext = Dispatchers.Main)
+            val delegate = AndroidComposeViewAccessibilityDelegateCompat(view)
+
+            // Set up event interception
+            val dispatchedEvents = mutableListOf<AccessibilityEvent>()
+            delegate.accessibilityForceEnabledForTesting = true
+            delegate.onSendAccessibilityEvent = {
+                dispatchedEvents.add(it)
+                false
+            }
+
+            // 2. Populate the tree with a node containing semantics to force a change
+            val childNode = LayoutNode()
+            childNode.modifier = Modifier.semantics { text = AnnotatedString("Changed Text") }
+            view.root.insertAt(0, childNode)
+
+            // 3. Retrieve the private semanticsChangeChecker runnable via reflection
+            val checkerField =
+                AndroidComposeViewAccessibilityDelegateCompat::class
+                    .java
+                    .getDeclaredField("semanticsChangeChecker")
+            checkerField.isAccessible = true
+            val semanticsChangeChecker = checkerField.get(delegate) as Runnable
+
+            // 4. Run the checker directly
+            semanticsChangeChecker.run()
+
+            // 5. Assert that no events were sent.
+            assertThat(dispatchedEvents).isEmpty()
         }
     }
 

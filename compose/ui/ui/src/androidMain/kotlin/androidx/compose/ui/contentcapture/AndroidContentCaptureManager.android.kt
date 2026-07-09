@@ -147,6 +147,10 @@ internal class AndroidContentCaptureManager(
 
     private val contentCaptureChangeChecker = Runnable {
         if (!isEnabled) return@Runnable
+        if (!view.isAttachedToWindow) {
+            checkingForSemanticsChanges = false
+            return@Runnable
+        }
 
         trace("ContentCapture:changeChecker") {
             // TODO(mnuzen): there might be a case where `view.measureAndLayout()` is called twice

@@ -19,6 +19,7 @@ package androidx.compose.ui.contentcapture
 import android.os.Build
 import android.os.Bundle
 import android.util.LongSparseArray
+import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.translation.TranslationRequestValue
 import android.view.translation.TranslationResponseValue
@@ -78,9 +79,12 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.atLeast
 import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doReturnConsecutively
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
@@ -850,6 +854,51 @@ class ContentCaptureTest {
             val manager =
                 AndroidContentCaptureManager(view = view, onContentCaptureSession = { null })
             manager.onViewDetachedFromWindow(view)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun onViewDetachedFromWindow_runnableExitsEarly_whenDetached() {
+        rule.runOnUiThread {
+            val rawView = rule.createAndroidComposeView(coroutineContext = Dispatchers.Main)
+            val view = spy(rawView)
+
+            // Stub isAttachedToWindow to return true initially
+            doReturn(true).whenever(view).isAttachedToWindow
+
+            val mockSession = mock<ContentCaptureSessionWrapper>()
+            val manager =
+                AndroidContentCaptureManager(view = view, onContentCaptureSession = { mockSession })
+
+            // Trigger onStart to initialize the session so isEnabled is true
+            manager.onStart(mock())
+
+            // Trigger attach
+            manager.onViewAttachedToWindow(view)
+
+            // Trigger semantics change which posts the checker
+            manager.onSemanticsChange()
+
+            // Retrieve the private contentCaptureChangeChecker runnable via reflection
+            val checkerField =
+                AndroidContentCaptureManager::class
+                    .java
+                    .getDeclaredField("contentCaptureChangeChecker")
+            checkerField.isAccessible = true
+            val contentCaptureChangeChecker = checkerField.get(manager) as Runnable
+
+            // Simulate detachment by stubbing isAttachedToWindow to false
+            doReturn(false).whenever(view).isAttachedToWindow
+
+            // Reset spy view invocations
+            clearInvocations(view)
+
+            // Run the checker (simulating looper execution)
+            contentCaptureChangeChecker.run()
+
+            // Verify that view.measureAndLayout() was never called (exited early)
+            verify(view, never()).measureAndLayout()
         }
     }
 }
