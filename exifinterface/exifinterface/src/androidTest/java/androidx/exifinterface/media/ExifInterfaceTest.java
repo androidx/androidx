@@ -547,7 +547,7 @@ public class ExifInterfaceTest {
     // https://issuetracker.google.com/342697059
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = 24) // Parsing the large image causes OOM on API 23 FTL emulators.
+    @SdkSuppress(minSdkVersion = 25) // Parsing the large image causes OOM on API 24 FTL emulators.
     public void testWebpWithoutExifHeight8192px() throws Throwable {
         File imageFile =
                 copyFromResourceToFile(
