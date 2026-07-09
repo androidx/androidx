@@ -308,7 +308,7 @@ public class SandboxedPdfDocument(
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
-        val parcelableOperations = editsDraft.getOperationsSortedByPage().map { it.toParcelable() }
+        val parcelableOperations = editsDraft.operations.map { it.toParcelable() }
 
         return batchPdfAnnotationsProcessor.process(parcelableOperations) { appliedBatchEdits ->
             appliedBatchEdits.forEach { appliedEdit ->

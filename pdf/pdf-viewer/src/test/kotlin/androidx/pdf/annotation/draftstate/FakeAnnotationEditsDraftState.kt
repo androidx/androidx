@@ -64,7 +64,11 @@ class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
     }
 
     override fun getModificationsSnapshot(): EditsDraft {
-        TODO("Not yet implemented")
+        val builder = androidx.pdf.MutableEditsDraft()
+        drafts.values.forEach { pageMap ->
+            pageMap.values.forEach { annotation -> builder.insert(annotation) }
+        }
+        return builder.toEditsDraft()
     }
 
     override fun clear() {
