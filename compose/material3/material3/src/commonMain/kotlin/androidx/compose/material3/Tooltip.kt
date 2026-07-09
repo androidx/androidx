@@ -1438,16 +1438,27 @@ internal fun TooltipScope.PlainTooltipInternal(
     )
 }
 
-internal val SpacingBetweenTooltipAndAnchor = 4.dp
-internal val TooltipMinHeight = 24.dp
-internal val TooltipMinWidth = 40.dp
-private val PlainTooltipVerticalPadding = 4.dp
-private val PlainTooltipHorizontalPadding = 8.dp
+internal val SpacingBetweenTooltipAndAnchor
+    get() = 4.dp
+internal val TooltipMinHeight
+    get() = 24.dp
+internal val TooltipMinWidth
+    get() = 40.dp
+private val PlainTooltipVerticalPadding
+    get() = 4.dp
+private val PlainTooltipHorizontalPadding
+    get() = 8.dp
 internal val PlainTooltipContentPadding =
     PaddingValues(PlainTooltipHorizontalPadding, PlainTooltipVerticalPadding)
-internal val RichTooltipHorizontalPadding = 16.dp
-internal val HeightToSubheadFirstLine = 28.dp
-private val HeightFromSubheadToTextFirstLine = 24.dp
-private val TextBottomPadding = 16.dp
-internal val ActionLabelMinHeight = 36.dp
-internal val ActionLabelBottomPadding = 8.dp
+internal val RichTooltipHorizontalPadding
+    get() = 16.dp
+internal val HeightToSubheadFirstLine
+    get() = 28.dp
+private val HeightFromSubheadToTextFirstLine
+    get() = 24.dp
+private val TextBottomPadding
+    get() = 16.dp
+internal val ActionLabelMinHeight
+    get() = 36.dp
+internal val ActionLabelBottomPadding
+    get() = 8.dp

@@ -2607,15 +2607,19 @@ private fun KeyEvent.isDirectionBackwards(isRtl: Boolean): Boolean =
 private fun KeyEvent.isDirectionForward(isRtl: Boolean): Boolean =
     if (isRtl) isDirectionLeft else isDirectionRight
 
-internal val RecommendedSizeForAccessibility = 48.dp
-internal val MonthYearHeight = 56.dp
-internal val DatePickerHorizontalPadding = 12.dp
+internal val RecommendedSizeForAccessibility
+    get() = 48.dp
+internal val MonthYearHeight
+    get() = 56.dp
+internal val DatePickerHorizontalPadding
+    get() = 12.dp
 internal val DatePickerModeTogglePadding = PaddingValues(end = 12.dp, bottom = 12.dp)
 
 private val DatePickerTitlePadding = PaddingValues(start = 24.dp, end = 12.dp, top = 16.dp)
 private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
 
-private val YearsVerticalPadding = 16.dp
+private val YearsVerticalPadding
+    get() = 16.dp
 
 private const val MaxCalendarRows = 6
 private const val YearsInRow: Int = 3

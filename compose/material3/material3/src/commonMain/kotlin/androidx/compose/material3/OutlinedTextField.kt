@@ -588,4 +588,5 @@ internal fun Modifier.outlineCutout(
         }
     }
 
-private val OutlinedTextFieldInnerPadding = 4.dp
+private val OutlinedTextFieldInnerPadding
+    get() = 4.dp

@@ -1170,4 +1170,5 @@ private const val IndicatorLayoutIdTag: String = "indicator"
 private const val IconLayoutIdTag: String = "icon"
 private const val LabelLayoutIdTag: String = "label"
 
-private val IndicatorVerticalOffset: Dp = 12.dp
+private val IndicatorVerticalOffset: Dp
+    get() = 12.dp

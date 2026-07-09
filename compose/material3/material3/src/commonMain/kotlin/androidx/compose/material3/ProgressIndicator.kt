@@ -1033,17 +1033,21 @@ internal val linearIndeterminateSecondLineTailAnimationSpec
 
 // Width is given in the spec but not defined as a token.
 /*@VisibleForTesting*/
-internal val LinearIndicatorWidth = 240.dp
+internal val LinearIndicatorWidth
+    get() = 240.dp
 
 /*@VisibleForTesting*/
-internal val LinearIndicatorHeight = LinearProgressIndicatorTokens.Height
+internal val LinearIndicatorHeight
+    get() = LinearProgressIndicatorTokens.Height
 
-internal val StopIndicatorTrailingSpace = 6.dp
+internal val StopIndicatorTrailingSpace
+    get() = 6.dp
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
 /*@VisibleForTesting*/
-internal val CircularIndicatorDiameter = CircularProgressIndicatorTokens.Size
+internal val CircularIndicatorDiameter
+    get() = CircularProgressIndicatorTokens.Size
 
 // Indeterminate linear indicator transition specs
 

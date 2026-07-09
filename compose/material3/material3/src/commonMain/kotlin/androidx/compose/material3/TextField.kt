@@ -837,4 +837,5 @@ internal class IndicatorLineNode(
 
 /** Padding from text field top to label top, and from input field bottom to text field bottom */
 /*@VisibleForTesting*/
-internal val TextFieldWithLabelVerticalPadding = 8.dp
+internal val TextFieldWithLabelVerticalPadding
+    get() = 8.dp

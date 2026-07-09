@@ -123,9 +123,12 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
 private fun PointerEvent.isPointerUp(pointerId: PointerId): Boolean =
     changes.fastFirstOrNull { it.id == pointerId }?.pressed != true
 
-private val mouseSlop = 0.125.dp
-private val defaultTouchSlop = 18.dp // The default touch slop on Android devices
-private val mouseToTouchSlopRatio = mouseSlop / defaultTouchSlop
+private val mouseSlop
+    get() = 0.125.dp
+private val defaultTouchSlop // The default touch slop on Android devices
+    get() = 18.dp
+private val mouseToTouchSlopRatio
+    get() = mouseSlop / defaultTouchSlop
 
 internal fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float {
     return when (pointerType) {

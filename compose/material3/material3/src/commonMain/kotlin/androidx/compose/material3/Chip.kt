@@ -4281,7 +4281,8 @@ private fun inputChipPadding(
 }
 
 /** The padding between the elements in the chip. */
-private val HorizontalElementsPadding = 8.dp
+private val HorizontalElementsPadding
+    get() = 8.dp
 
 private val DefaultHorizontalArrangement = ChipArrangement(SuggestionChipDefaults.HorizontalSpacing)
 
@@ -4289,4 +4290,5 @@ private val DefaultHorizontalArrangement = ChipArrangement(SuggestionChipDefault
  * Max width for a chip. This is required to allow animations with Row and have expected behavior in
  * the case where the chip is within a scrolling container.
  */
-private val maxChipWidth = 1000.dp
+private val maxChipWidth
+    get() = 1000.dp

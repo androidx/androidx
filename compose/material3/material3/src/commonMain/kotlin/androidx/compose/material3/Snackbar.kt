@@ -600,13 +600,23 @@ object SnackbarDefaults {
         @Composable get() = SnackbarTokens.IconColor.value
 }
 
-private val ContainerMaxWidth = 600.dp
-private val HeightToFirstLine = 30.dp
-private val HorizontalSpacing = 16.dp
-private val HorizontalSpacingButtonSide = 8.dp
-private val SeparateButtonExtraY = 2.dp
-private val LegacySnackbarVerticalPadding = 6.dp
-private val TextEndExtraSpacing = 8.dp
-private val LongButtonVerticalOffset = 12.dp
-private val SnackbarVerticalPadding = 14.dp
-private val ActionButtonBottomPadding = 4.dp
+private val ContainerMaxWidth
+    get() = 600.dp
+private val HeightToFirstLine
+    get() = 30.dp
+private val HorizontalSpacing
+    get() = 16.dp
+private val HorizontalSpacingButtonSide
+    get() = 8.dp
+private val SeparateButtonExtraY
+    get() = 2.dp
+private val LegacySnackbarVerticalPadding
+    get() = 6.dp
+private val TextEndExtraSpacing
+    get() = 8.dp
+private val LongButtonVerticalOffset
+    get() = 12.dp
+private val SnackbarVerticalPadding
+    get() = 14.dp
+private val ActionButtonBottomPadding
+    get() = 4.dp

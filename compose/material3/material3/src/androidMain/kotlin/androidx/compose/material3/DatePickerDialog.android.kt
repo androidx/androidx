@@ -182,5 +182,7 @@ actual fun DatePickerDialog(
 }
 
 private val DialogButtonsPadding = PaddingValues(bottom = 8.dp, end = 6.dp)
-private val DialogButtonsMainAxisSpacing = 8.dp
-private val DialogButtonsCrossAxisSpacing = 8.dp
+private val DialogButtonsMainAxisSpacing
+    get() = 8.dp
+private val DialogButtonsCrossAxisSpacing
+    get() = 8.dp

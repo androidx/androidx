@@ -25,8 +25,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 
-@VisibleForTesting internal val HorizontalSemanticsBoundsPadding: Dp = 10.dp
-@VisibleForTesting internal val VerticalSemanticsBoundsPadding: Dp = 10.dp
+@VisibleForTesting
+internal val HorizontalSemanticsBoundsPadding: Dp
+    get() = 10.dp
+@VisibleForTesting
+internal val VerticalSemanticsBoundsPadding: Dp
+    get() = 10.dp
 
 /**
  * Increases the semantics bounds horizontally by [HorizontalSemanticsBoundsPadding] in order to

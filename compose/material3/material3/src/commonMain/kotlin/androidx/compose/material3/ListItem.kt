@@ -1970,9 +1970,12 @@ private fun Modifier.zIndexLambda(zIndex: FloatProducer): Modifier =
         layout(placeable.width, placeable.height) { placeable.place(0, 0, zIndex = zIndex()) }
     }
 
-internal val InteractiveListStartPadding = ListTokens.ItemLeadingSpace
-internal val InteractiveListEndPadding = ListTokens.ItemTrailingSpace
-internal val InteractiveListInternalSpacing = ListTokens.ItemBetweenSpace
+internal val InteractiveListStartPadding
+    get() = ListTokens.ItemLeadingSpace
+internal val InteractiveListEndPadding
+    get() = ListTokens.ItemTrailingSpace
+internal val InteractiveListInternalSpacing
+    get() = ListTokens.ItemBetweenSpace
 
 /**
  * How tall a list item (excluding padding) needs to be before internal content is top-aligned

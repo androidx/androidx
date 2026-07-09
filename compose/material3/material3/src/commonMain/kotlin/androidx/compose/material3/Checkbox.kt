@@ -956,6 +956,9 @@ constructor(
 private const val SnapAnimationDelay = 100
 
 // TODO(b/188529841): Update the padding and size when the Checkbox spec is finalized.
-private val CheckboxDefaultPadding = 2.dp
-private val CheckboxSize = 20.dp
-private val RadiusSize = 2.dp
+private val CheckboxDefaultPadding
+    get() = 2.dp
+private val CheckboxSize
+    get() = 20.dp
+private val RadiusSize
+    get() = 2.dp

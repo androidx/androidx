@@ -4006,9 +4006,12 @@ private fun rememberTouchExplorationService() =
 /*@VisibleForTesting*/
 internal val TopTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
 
-private val MediumTitleBottomPadding = 24.dp
-private val LargeTitleBottomPadding = 28.dp
-private val TopAppBarHorizontalPadding = 4.dp
+private val MediumTitleBottomPadding
+    get() = 24.dp
+private val LargeTitleBottomPadding
+    get() = 28.dp
+private val TopAppBarHorizontalPadding
+    get() = 4.dp
 
 // A title inset when the App-Bar is a Medium or Large one. Also used to size a spacer when the
 // navigation icon is missing.

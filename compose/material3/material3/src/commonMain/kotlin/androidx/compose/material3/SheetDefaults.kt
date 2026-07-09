@@ -785,4 +785,5 @@ internal fun Modifier.verticalScaleDown(state: SheetState) = graphicsLayer {
 internal val BottomSheetAnimationSpec: AnimationSpec<Float> =
     tween(durationMillis = 300, easing = FastOutSlowInEasing)
 
-private val DragHandleVerticalPadding = 22.dp
+private val DragHandleVerticalPadding
+    get() = 22.dp

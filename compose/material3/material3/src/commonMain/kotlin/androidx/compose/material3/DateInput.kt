@@ -442,4 +442,5 @@ internal val InputTextFieldPadding = PaddingValues(start = 24.dp, end = 24.dp, t
 
 // An optional padding that will only be added to the bottom of the date input text field when it's
 // not showing an error message.
-private val InputTextNonErroneousBottomPadding = 16.dp
+private val InputTextNonErroneousBottomPadding
+    get() = 16.dp

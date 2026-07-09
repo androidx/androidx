@@ -844,7 +844,8 @@ private fun Modifier.interactionZIndex(checked: Boolean, interactionCount: State
     }
 
 private const val CheckedZIndexFactor = 5f
-private val IconSpacing = 8.dp
+private val IconSpacing
+    get() = 8.dp
 
 private class SingleChoiceSegmentedButtonScopeWrapper(scope: RowScope) :
     SingleChoiceSegmentedButtonRowScope, RowScope by scope
