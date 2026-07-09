@@ -175,10 +175,12 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
     ```
     *Note*: `--cbr` uploads the current branch, and `.` specifies the project in the current directory.
     *Tip*: The command may prompt interactively to run hook scripts. You can automate this bypass using either `yes yes | repo upload --cbr -t .` or using the native flags `repo upload --verify -y --cbr -t .`.
-  - **Topic (`-t`) Nuances**:
+  - **Topic (`-t`) Nuances & Rules**:
     - The `-t` flag sets the Gerrit topic to the local branch name.
-    - **Cross-Repo Linking (Screenshot Goldens, Prebuilts, etc.)**: Use `-t` (sharing the same topic name) to link code changes in `frameworks/support` with related changes in other repositories (such as `support-goldens` or `prebuilts`) to ensure presubmits run them together and they are submitted as a single unit.
-    - **Stacked CLs**: Do not use `-t` on more than one CL in a stacked chain (multiple dependent CLs). Stacked CLs already accomplish dependency tracking automatically and can be tested and submitted incrementally.
+    - **Cross-Repo Linking (Screenshot Goldens, Prebuilts, etc.)**: Use topics (by passing `-t` during `repo upload` to share the same topic name) to link CLs across repositories (e.g., `platform/frameworks/support` and `platform/frameworks/support-goldens`). This ensures they run presubmits together and are submitted together.
+    - **Presubmits**: Presubmit verification for any single CL in a topic acts as the presubmit for all of them.
+    - **Same-Repo Changes (Stacked CLs)**: Do NOT use topics to group multiple code changes within the same repository. Instead, those changes should be stacked (dependent commits). Stacked CLs automatically track dependencies and can be tested/submitted incrementally.
+    - **Retaining Topics**: When a topic is set on a CL, any updates/amends uploaded to that CL must retain the same topic.
   - **Fallback**: If the above command fails or requires interactive prompts, **do not attempt to proceed interactively**. Report the issue to the user immediately. Agents cannot handle interactive prompts from `repo upload`.
 
 Once uploaded successfully, present the Gerrit URL to the user and explain that Treehugger presubmit checks will run automatically on the Gerrit change page.
