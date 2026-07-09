@@ -1727,7 +1727,7 @@ protected constructor(
                     velocityVector = forcedInitialVelocity
                 }
             }
-            updateAnimation(initialValue, isInterrupted = !isFinished)
+            updateAnimation(initialValue, isInterrupted = !isFinished && forcedInitialValue == null)
             isFinished = resetSnapValue == ResetAnimationSnap
             // This is needed because the target change could happen during a transition
             if (resetSnapValue >= 0f) {
