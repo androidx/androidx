@@ -360,6 +360,7 @@ fun LazyRow(
  * items.
  *
  * @sample androidx.compose.foundation.samples.LazyColumnSample
+ * @sample androidx.compose.foundation.samples.LazyColumnWithLazyRowsSample
  * @param modifier the modifier to apply to this layout.
  * @param state the state object to be used to control or observe the list's state.
  * @param contentPadding a padding around the whole content. This will add padding for the. content
