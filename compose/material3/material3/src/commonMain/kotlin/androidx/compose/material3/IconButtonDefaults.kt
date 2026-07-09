@@ -1204,17 +1204,20 @@ object IconButtonDefaults {
             /*
              * This configuration is recommended for small screens.
              */
-            val Narrow = IconButtonWidthOption(0)
+            val Narrow
+                get() = IconButtonWidthOption(0)
 
             /*
              * This configuration is recommended for medium width screens.
              */
-            val Uniform = IconButtonWidthOption(1)
+            val Uniform
+                get() = IconButtonWidthOption(1)
 
             /*
              * This configuration is recommended for wide screens.
              */
-            val Wide = IconButtonWidthOption(2)
+            val Wide
+                get() = IconButtonWidthOption(2)
         }
 
         override fun toString() =

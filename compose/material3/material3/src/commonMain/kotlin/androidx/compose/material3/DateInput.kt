@@ -367,13 +367,16 @@ internal value class InputIdentifier internal constructor(internal val value: In
 
     companion object {
         /** Single date input */
-        val SingleDateInput = InputIdentifier(0)
+        val SingleDateInput
+            get() = InputIdentifier(0)
 
         /** A start date input */
-        val StartDateInput = InputIdentifier(1)
+        val StartDateInput
+            get() = InputIdentifier(1)
 
         /** An end date input */
-        val EndDateInput = InputIdentifier(2)
+        val EndDateInput
+            get() = InputIdentifier(2)
     }
 
     override fun toString() =

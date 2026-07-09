@@ -350,10 +350,12 @@ value class DisplayMode internal constructor(internal val value: Int) {
 
     companion object {
         /** Date picker mode */
-        val Picker = DisplayMode(0)
+        val Picker
+            get() = DisplayMode(0)
 
         /** Date text input mode */
-        val Input = DisplayMode(1)
+        val Input
+            get() = DisplayMode(1)
     }
 
     override fun toString() =

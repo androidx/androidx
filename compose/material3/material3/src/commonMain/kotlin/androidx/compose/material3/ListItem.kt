@@ -1233,13 +1233,16 @@ private value class ListItemType private constructor(private val lines: Int) :
 
     companion object {
         /** One line list item */
-        val OneLine = ListItemType(1)
+        val OneLine
+            get() = ListItemType(1)
 
         /** Two line list item */
-        val TwoLine = ListItemType(2)
+        val TwoLine
+            get() = ListItemType(2)
 
         /** Three line list item */
-        val ThreeLine = ListItemType(3)
+        val ThreeLine
+            get() = ListItemType(3)
 
         internal operator fun invoke(
             hasOverline: Boolean,

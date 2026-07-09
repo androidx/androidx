@@ -452,7 +452,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          *
          * An anchor of this type will open the menu with focus.
          */
-        val PrimaryNotEditable = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
+        val PrimaryNotEditable
+            get() = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
 
         /**
          * An editable primary anchor of the dropdown menu, such as a text field that allows user
@@ -461,7 +462,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * An anchor of this type will open the menu without focus in order to preserve focus on the
          * soft keyboard (IME).
          */
-        val PrimaryEditable = ExposedDropdownMenuAnchorType("PrimaryEditable")
+        val PrimaryEditable
+            get() = ExposedDropdownMenuAnchorType("PrimaryEditable")
 
         /**
          * A secondary anchor of the dropdown menu that lives alongside an editable primary anchor,
@@ -471,7 +473,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * focus. Otherwise, the menu is opened without focus in order to preserve focus on the soft
          * keyboard (IME).
          */
-        val SecondaryEditable = ExposedDropdownMenuAnchorType("SecondaryEditable")
+        val SecondaryEditable
+            get() = ExposedDropdownMenuAnchorType("SecondaryEditable")
     }
 
     override fun toString(): String = name
