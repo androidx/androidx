@@ -146,7 +146,8 @@ private class SizeAnimationModifierElement(
     }
 }
 
-internal val InvalidSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+internal val InvalidSize
+    get() = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 internal val IntSize.isValid: Boolean
     get() = this != InvalidSize
 
