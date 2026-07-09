@@ -819,22 +819,28 @@ value class TooltipAnchorPosition private constructor(private val value: Int) {
 
     companion object {
         /** Places the tooltip above the anchor */
-        val Above = TooltipAnchorPosition(1)
+        val Above
+            get() = TooltipAnchorPosition(1)
 
         /** Places the tooltip below the anchor */
-        val Below = TooltipAnchorPosition(2)
+        val Below
+            get() = TooltipAnchorPosition(2)
 
         /** Places the tooltip on the left of the anchor */
-        val Left = TooltipAnchorPosition(3)
+        val Left
+            get() = TooltipAnchorPosition(3)
 
         /** Places the tooltip on the right of the anchor */
-        val Right = TooltipAnchorPosition(4)
+        val Right
+            get() = TooltipAnchorPosition(4)
 
         /** Places the tooltip at the start of the anchor */
-        val Start = TooltipAnchorPosition(5)
+        val Start
+            get() = TooltipAnchorPosition(5)
 
         /** Places the tooltip at the end of the anchor */
-        val End = TooltipAnchorPosition(6)
+        val End
+            get() = TooltipAnchorPosition(6)
     }
 }
 

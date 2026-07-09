@@ -3804,7 +3804,9 @@ internal value class SliderRange(val packedValue: Long) {
          * Represents an unspecified [SliderRange] value, usually a replacement for `null` when a
          * primitive value is desired.
          */
-        @Stable val Unspecified = SliderRange(Float.NaN, Float.NaN)
+        @Stable
+        val Unspecified
+            get() = SliderRange(Float.NaN, Float.NaN)
     }
 
     /** String representation of the [SliderRange] */

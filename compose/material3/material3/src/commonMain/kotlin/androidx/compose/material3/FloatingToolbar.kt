@@ -1324,10 +1324,12 @@ value class FloatingToolbarHorizontalFabPosition
 internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** Position FAB at the start of the toolbar. */
-        val Start = FloatingToolbarHorizontalFabPosition(0)
+        val Start
+            get() = FloatingToolbarHorizontalFabPosition(0)
 
         /** Position FAB at the end of the toolbar. */
-        val End = FloatingToolbarHorizontalFabPosition(1)
+        val End
+            get() = FloatingToolbarHorizontalFabPosition(1)
     }
 
     override fun toString(): String {
@@ -1349,10 +1351,12 @@ value class FloatingToolbarVerticalFabPosition
 internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** Position FAB at the top of the toolbar. */
-        val Top = FloatingToolbarVerticalFabPosition(0)
+        val Top
+            get() = FloatingToolbarVerticalFabPosition(0)
 
         /** Position FAB at the bottom of the toolbar. */
-        val Bottom = FloatingToolbarVerticalFabPosition(1)
+        val Bottom
+            get() = FloatingToolbarVerticalFabPosition(1)
     }
 
     override fun toString(): String {
@@ -1539,16 +1543,20 @@ value class FloatingToolbarExitDirection
 internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** FloatingToolbar exits towards the bottom of the screen */
-        val Bottom = FloatingToolbarExitDirection(0)
+        val Bottom
+            get() = FloatingToolbarExitDirection(0)
 
         /** FloatingToolbar exits towards the top of the screen */
-        val Top = FloatingToolbarExitDirection(1)
+        val Top
+            get() = FloatingToolbarExitDirection(1)
 
         /** FloatingToolbar exits towards the start of the screen */
-        val Start = FloatingToolbarExitDirection(2)
+        val Start
+            get() = FloatingToolbarExitDirection(2)
 
         /** FloatingToolbar exits towards the end of the screen */
-        val End = FloatingToolbarExitDirection(3)
+        val End
+            get() = FloatingToolbarExitDirection(3)
     }
 
     override fun toString(): String {
