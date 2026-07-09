@@ -80,10 +80,8 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"pro minuty"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"pro hodinu"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Přepnout na režim zadávání textu"</string>
-    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Přepnout na režim posouvání"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Přepnout na režim hodin"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Vyberte čas"</string>
-    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Vyberte čas"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Zadejte čas"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Minuta musí být 0–59"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Hodina musí být 1–12"</string>
