@@ -1445,6 +1445,7 @@ package androidx.xr.compose.subspace.node {
   public sealed nonexhaustive interface SubspaceSemanticsInfo {
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> getChildrenInfo();
     method @InaccessibleFromKotlin public default java.util.List<androidx.xr.scenecore.Component>? getComponents();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.xr.compose.subspace.node.SubspaceSemanticsInfo? getParentInfo();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPoseInRoot();
@@ -1456,6 +1457,7 @@ package androidx.xr.compose.subspace.node {
     method @InaccessibleFromKotlin public default boolean isRoot();
     property public abstract java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> childrenInfo;
     property public default java.util.List<androidx.xr.scenecore.Component>? components;
+    property public abstract androidx.compose.ui.unit.Density density;
     property public default boolean isRoot;
     property public abstract androidx.xr.compose.subspace.node.SubspaceSemanticsInfo? parentInfo;
     property public abstract androidx.xr.runtime.math.Pose pose;
