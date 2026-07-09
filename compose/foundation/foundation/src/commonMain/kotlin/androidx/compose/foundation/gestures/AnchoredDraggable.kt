@@ -1711,7 +1711,8 @@ private class DefaultDraggableAnchors<T>(
     }
 }
 
-internal val AnchoredDraggableMinFlingVelocity = 125.dp
+internal val AnchoredDraggableMinFlingVelocity
+    get() = 125.dp
 
 private const val ConfigurationMovedToModifier =
     "This constructor of " +

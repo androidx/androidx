@@ -429,7 +429,8 @@ private class DecayApproachAnimation(private val decayAnimationSpec: DecayAnimat
     }
 }
 
-internal val MinFlingVelocityDp = 400.dp
+internal val MinFlingVelocityDp
+    get() = 400.dp
 internal const val NoDistance = 0f
 internal const val NoVelocity = 0f
 

@@ -667,7 +667,8 @@ private val DefaultTextFieldDecorator = TextFieldDecorator { it() }
  *
  * This value is adopted from Android platform's TextView implementation.
  */
-private val MinTouchTargetSizeForHandles = DpSize(40.dp, 40.dp)
+private val MinTouchTargetSizeForHandles
+    get() = DpSize(40.dp, 40.dp)
 
 /**
  * Basic composable that enables users to edit text via hardware or software keyboard, but provides

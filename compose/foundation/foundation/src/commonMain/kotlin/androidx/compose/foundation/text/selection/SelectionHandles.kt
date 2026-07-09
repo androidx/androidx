@@ -33,8 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.PopupPositionProvider
 
-internal val HandleWidth = 25.dp
-internal val HandleHeight = 25.dp
+internal val HandleWidth
+    get() = 25.dp
+internal val HandleHeight
+    get() = 25.dp
 
 /**
  * [SelectionHandleInfo]s for the nodes representing selection handles. These nodes are in popup
