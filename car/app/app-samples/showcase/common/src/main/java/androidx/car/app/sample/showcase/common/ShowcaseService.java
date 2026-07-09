@@ -19,9 +19,11 @@ package androidx.car.app.sample.showcase.common;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.CarAppService;
 import androidx.car.app.Session;
 import androidx.car.app.SessionInfo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.validation.HostValidator;
 
 import org.jspecify.annotations.NonNull;
@@ -37,6 +39,7 @@ public final class ShowcaseService extends CarAppService {
     public static final String SHARED_PREF_KEY = "ShowcasePrefs";
     public static final String PRE_SEED_KEY = "PreSeed";
     public static final String LOADING_KEY = "LoadingKey";
+    public static final String APP_THEME_KEY = "AppThemeKey";
 
     // Intent actions for notification actions in car and phone
     public static final String INTENT_ACTION_NAVIGATE =
@@ -49,6 +52,17 @@ public final class ShowcaseService extends CarAppService {
     /** Creates a deep link URI with the given deep link action. */
     public static @NonNull Uri createDeepLinkUri(@NonNull String deepLinkAction) {
         return Uri.fromParts(ShowcaseSession.URI_SCHEME, ShowcaseSession.URI_HOST, deepLinkAction);
+    }
+
+    @Override
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public int getAppTheme() {
+        android.content.SharedPreferences prefs =
+                getSharedPreferences(SHARED_PREF_KEY, android.content.Context.MODE_PRIVATE);
+        boolean useAppTheme = prefs.getBoolean(APP_THEME_KEY, false);
+        return useAppTheme
+                ? androidx.car.app.theme.CarAppTheme.APP_THEME
+                : androidx.car.app.theme.CarAppTheme.SYSTEM_THEME;
     }
 
     @Override
