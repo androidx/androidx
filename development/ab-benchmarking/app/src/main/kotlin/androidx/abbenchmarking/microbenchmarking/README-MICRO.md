@@ -55,7 +55,7 @@ Here is an example that compares the `main` branch against a feature branch name
 To measure the impact of the very last commit on the current branch, you can compare `HEAD` with its parent, `HEAD~1`.
 
 ```bash
-./gradlew :app:runMicrobenchmark run --args="HEAD~1 HEAD compose:ui:ui-benchmark androidx.compose.ui.benchmark.accessibility.AccessibilityBenchmark --run_count 3 --iteration_count 1500 --serial emulator-5554"
+./gradlew :app:runMicrobenchmark --args="HEAD~1 HEAD compose:ui:ui-benchmark androidx.compose.ui.benchmark.accessibility.AccessibilityBenchmark --run_count 3 --iteration_count 1500 --serial emulator-5554"
 ```
 
 ### Comparing a Single Benchmark Method
