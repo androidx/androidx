@@ -226,7 +226,11 @@ class CarouselItemScopeTest {
                     sizeState = size.toPx()
                     minSizeState = minSize.toPx()
                     maxSizeState = maxSize.toPx()
-                    maskRectState = maskRect.toRect()
+                    val rect = maskRect.toRect()
+                    maskLeftState = rect.left
+                    maskTopState = rect.top
+                    maskRightState = rect.right
+                    maskBottomState = rect.bottom
                 }
             }
         )
