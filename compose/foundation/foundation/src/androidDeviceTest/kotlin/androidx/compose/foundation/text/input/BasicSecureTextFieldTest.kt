@@ -505,7 +505,11 @@ internal class BasicSecureTextFieldTest {
         }
 
         rule.waitForIdle()
-
+        // The appearance of the context menu is an asynchronous platform-level operation.
+        // waitForIdle() only waits for Compose's internal state. This explicit wait is required
+        // because registering the visibility settings observers alters main thread timing,
+        // preventing the test from relying on implicit execution order.
+        rule.waitUntil(2000) { spyTextActionModeCallback.menu != null }
         val menu = assertNotNull(spyTextActionModeCallback.menu)
         val actualLabels = menu.items().map { it.title }
 
@@ -745,41 +749,6 @@ internal class BasicSecureTextFieldTest {
     }
 
     @Test
-    fun contentObserver_registersAndUnregistersOnBackgroundThread() = testSystemShowPassword {
-        val shouldCompose = mutableStateOf(true)
-        val backgroundExecutor = Executors.newSingleThreadExecutor()
-        onDestroy { backgroundExecutor.shutdown() }
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextFieldContentObserverRegistrationExecutor provides backgroundExecutor
-            ) {
-                if (shouldCompose.value) {
-                    BasicSecureTextField(rememberTextFieldState())
-                }
-            }
-        }
-
-        rule.waitUntil(5000) { registerCount == 1 }
-        assertThat(registerThread).isNotEqualTo(Looper.getMainLooper().thread)
-
-        shouldCompose.value = false
-        rule.mainClock.advanceTimeByFrame()
-        rule.waitForIdle()
-
-        rule.waitUntil(5000) { unregisterCount == 1 }
-        assertThat(unregisterThread).isNotEqualTo(Looper.getMainLooper().thread)
-    }
-
-    @Test
-    fun contentObserver_registersOnMainThreadByDefault() = testSystemShowPassword {
-        rule.setContent { BasicSecureTextField(rememberTextFieldState()) }
-
-        rule.waitForIdle()
-        assertRegistrationCount(1)
-        assertThat(registerThread).isEqualTo(Looper.getMainLooper().thread)
-    }
-
-    @Test
     fun paste_viaCtrlV_revealLastTyped_immediatelyHidesPassword() = testSystemShowPassword {
         lateinit var clipboard: Clipboard
         inputMethodInterceptor.setContent {
@@ -940,6 +909,41 @@ internal class BasicSecureTextFieldTest {
             rule.mainClock.advanceTimeBy(1400)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("**")
         }
+    }
+
+    @Test
+    fun contentObserver_registersAndUnregistersOnBackgroundThread() = testSystemShowPassword {
+        val shouldCompose = mutableStateOf(true)
+        val backgroundExecutor = Executors.newSingleThreadExecutor()
+        onDestroy { backgroundExecutor.shutdown() }
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalTextFieldContentObserverRegistrationExecutor provides backgroundExecutor
+            ) {
+                if (shouldCompose.value) {
+                    BasicSecureTextField(rememberTextFieldState())
+                }
+            }
+        }
+
+        rule.waitUntil(5000) { registerCount == 1 }
+        assertThat(registerThread).isNotEqualTo(Looper.getMainLooper().thread)
+
+        shouldCompose.value = false
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.waitUntil(5000) { unregisterCount == 1 }
+        assertThat(unregisterThread).isNotEqualTo(Looper.getMainLooper().thread)
+    }
+
+    @Test
+    fun contentObserver_registersOnMainThreadByDefault() = testSystemShowPassword {
+        rule.setContent { BasicSecureTextField(rememberTextFieldState()) }
+
+        rule.waitForIdle()
+        assertRegistrationCount(1)
+        assertThat(registerThread).isEqualTo(Looper.getMainLooper().thread)
     }
 
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {

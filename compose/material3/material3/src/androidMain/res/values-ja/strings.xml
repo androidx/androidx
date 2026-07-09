@@ -80,10 +80,8 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"（分単位）"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"（時間単位）"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"テキスト入力モードに切り替える"</string>
-    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"スクロール モードに切り替え"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"時計モードに切り替える"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"時刻の選択"</string>
-    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"時間の選択"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"時刻の入力"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"分は 0～59 の範囲で指定してください"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"時間は 1～12 の範囲で指定してください"</string>

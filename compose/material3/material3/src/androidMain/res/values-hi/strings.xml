@@ -80,10 +80,8 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"मिनट के लिए"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"घंटे के लिए"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"टेक्स्ट इनपुट मोड पर स्विच करें"</string>
-    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"स्क्रोल मोड पर स्विच करें"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"क्लॉक मोड पर स्विच करें"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"समय चुनें"</string>
-    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"समय चुनें"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"समय डालें"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"यह 0-59 मिनट के बीच हो"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"यह 1-12 घंटे के बीच हो"</string>

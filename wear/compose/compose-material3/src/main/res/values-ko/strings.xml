@@ -55,10 +55,4 @@
     <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"선택되지 않음"</string>
     <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"손가락 두 번 모으기 동작을 다음으로 설정: %s"</string>
     <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"손목 돌리기 동작을 다음으로 설정: %s"</string>
-    <!-- no translation found for one_handed_gesture_alert_dialog_dismiss_action_accessibility_text (7126315562625092176) -->
-    <skip />
-    <!-- no translation found for one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text (8406889962733668861) -->
-    <skip />
-    <!-- no translation found for one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text (372111398123161696) -->
-    <skip />
 </resources>
