@@ -170,7 +170,6 @@ fun HorizontalUncontainedCarouselSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

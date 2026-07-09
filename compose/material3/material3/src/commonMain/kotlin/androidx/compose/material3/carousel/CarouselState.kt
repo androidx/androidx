@@ -320,7 +320,10 @@ internal class CarouselItemDrawInfoImpl : CarouselItemDrawInfo {
     var sizeState by mutableFloatStateOf(0f)
     var minSizeState by mutableFloatStateOf(0f)
     var maxSizeState by mutableFloatStateOf(0f)
-    var maskRectState by mutableStateOf(Rect.Zero)
+    var maskLeftState by mutableFloatStateOf(0f)
+    var maskTopState by mutableFloatStateOf(0f)
+    var maskRightState by mutableFloatStateOf(0f)
+    var maskBottomState by mutableFloatStateOf(0f)
 
     override val size: Float
         get() = sizeState
@@ -331,6 +334,22 @@ internal class CarouselItemDrawInfoImpl : CarouselItemDrawInfo {
     override val maxSize: Float
         get() = maxSizeState
 
+    private var cachedRect = Rect.Zero
+
     override val maskRect: Rect
-        get() = maskRectState
+        get() {
+            val left = maskLeftState
+            val top = maskTopState
+            val right = maskRightState
+            val bottom = maskBottomState
+            if (
+                left != cachedRect.left ||
+                    top != cachedRect.top ||
+                    right != cachedRect.right ||
+                    bottom != cachedRect.bottom
+            ) {
+                cachedRect = Rect(left, top, right, bottom)
+            }
+            return cachedRect
+        }
 }
