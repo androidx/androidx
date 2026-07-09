@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -179,7 +180,10 @@ internal constructor(
     private val minSampleSize: Int =
         when (strategy) {
             Strategy.Impulse -> 2
-            Strategy.Lsq2 -> 3
+            Strategy.Lsq2 -> {
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (ComposeUiFlags.isVelocityTrackerMinSampleSizeFixEnabled) 2 else 3
+            }
         }
 
     /**
