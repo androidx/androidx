@@ -17,6 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.ui.Modifier
@@ -96,5 +97,67 @@ class LiveEditRegressionTests {
 
         composeTestRule.waitForIdle()
         assertFalse("should recover from error state", errorState)
+    }
+
+    /**
+     * An error thrown while recomposing the content of a subcomposition (here a
+     * [BoxWithConstraints], which composes its content in a child composition) must not permanently
+     * wedge the *parent* (root) composition once the error is fixed and reloaded.
+     */
+    @Test
+    @MediumTest
+    fun errorInBoxWithConstraints() {
+        val shouldThrow = mutableStateOf(false)
+        val reloadTick = mutableStateOf("iteration=0")
+        var boxErrored = false
+        var observedButtonClicked = false
+
+        composeTestRule.setContent {
+            // The root observes 'reloadTick' so it recomposes on every simulated reload.
+            reloadTick.value
+            var buttonClicked by remember { mutableStateOf(false) }
+            // The root observes 'buttonClicked'. If this observation survives, the button toggles
+            // it.
+            observedButtonClicked = buttonClicked
+            Column {
+                Button(
+                    modifier = Modifier.testTag("button"),
+                    onClick = { buttonClicked = !buttonClicked },
+                ) {}
+                BoxWithConstraints {
+                    boxErrored = shouldThrow.value
+                    if (boxErrored) error("boom in BoxWithConstraints subcomposition")
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        assertFalse("no error initially", boxErrored)
+
+        // Bump the tick the root observes so it recomposes in the same frame as the reload.
+        composeTestRule.runOnUiThread {
+            shouldThrow.value = true
+            reloadTick.value = "iteration=1"
+            invalidateGroupsWithKey(-1)
+        }
+        composeTestRule.waitForIdle()
+        assertTrue("subcomposition should have thrown", boxErrored)
+
+        // "Fix the error and reload".
+        composeTestRule.runOnUiThread {
+            shouldThrow.value = false
+            reloadTick.value = "iteration=2"
+            invalidateGroupsWithKey(-1)
+        }
+        composeTestRule.waitForIdle()
+
+        // The UI must be interactive again: clicking the button toggles 'buttonClicked', which must
+        // recompose the root scope observing it.
+        composeTestRule.onNodeWithTag("button").performClick()
+        composeTestRule.waitForIdle()
+        assertTrue(
+            "root must still observe 'buttonClicked' after recovering from a subcomposition error " +
+                "(the click should have toggled it)",
+            observedButtonClicked,
+        )
     }
 }
