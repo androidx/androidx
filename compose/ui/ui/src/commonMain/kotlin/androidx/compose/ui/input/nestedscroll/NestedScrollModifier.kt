@@ -125,24 +125,31 @@ class NestedScrollDispatcher {
      *
      * **Note:** this scope is retrieved from the parent nestedScroll participants, unless the node
      * knows its parent (which is usually after first composition commits), this will throw
-     * [IllegalStateException].
+     * [IllegalStateException]. Use [coroutineScopeOrNull] to safely retrieve this scope.
      *
      * @throws IllegalStateException when this field is accessed before the [nestedScroll] modifier
      *   with this [NestedScrollDispatcher] provided knows its nested scroll parent. Should be safe
      *   to access after the initial composition commits.
      */
     val coroutineScope: CoroutineScope
-        /**
-         * @throws IllegalStateException when this field is accessed before the [nestedScroll]
-         *   modifier with this [NestedScrollDispatcher] provided knows its nested scroll parent.
-         *   Should be safe to access after the initial composition commits.
-         */
         get() =
             calculateNestedScrollScope.invoke()
                 ?: throw IllegalStateException(
                     "in order to access nested coroutine scope you need to attach dispatcher to the " +
                         "`Modifier.nestedScroll` first."
                 )
+
+    /**
+     * Returns [coroutineScope] if it is available, otherwise returns `null`.
+     *
+     * There might be situations when the component that is dispatching preFling or postFling to
+     * parent can be disposed together with its scope, so it's recommended to launch nested fling
+     * dispatch using this scope to prevent abrupt scrolling user experience.
+     *
+     * If this dispatcher is not attached to a node tree or if it was later detached, this will
+     * return `null`.
+     */
+    fun coroutineScopeOrNull(): CoroutineScope? = calculateNestedScrollScope.invoke()
 
     /**
      * Parent to be set when attached to nested scrolling chain. `null` is valid and means there no
