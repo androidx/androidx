@@ -321,25 +321,29 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
          * Position FAB at the bottom of the screen at the start, above the [NavigationBar] (if it
          * exists)
          */
-        val Start = FabPosition(0)
+        val Start
+            get() = FabPosition(0)
 
         /**
          * Position FAB at the bottom of the screen in the center, above the [NavigationBar] (if it
          * exists)
          */
-        val Center = FabPosition(1)
+        val Center
+            get() = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [NavigationBar] (if it
          * exists)
          */
-        val End = FabPosition(2)
+        val End
+            get() = FabPosition(2)
 
         /**
          * Position FAB at the bottom of the screen at the end, overlaying the [NavigationBar] (if
          * it exists)
          */
-        val EndOverlay = FabPosition(3)
+        val EndOverlay
+            get() = FabPosition(3)
     }
 
     override fun toString(): String {

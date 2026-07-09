@@ -489,13 +489,16 @@ internal class CarouselPageSize(
 internal value class CarouselAlignment private constructor(internal val value: Int) {
     companion object {
         /** Start aligned carousels place focal items at the start/top of the container */
-        val Start = CarouselAlignment(-1)
+        val Start
+            get() = CarouselAlignment(-1)
 
         /** Center aligned carousels place focal items in the middle of the container */
-        val Center = CarouselAlignment(0)
+        val Center
+            get() = CarouselAlignment(0)
 
         /** End aligned carousels place focal items at the end/bottom of the container */
-        val End = CarouselAlignment(1)
+        val End
+            get() = CarouselAlignment(1)
     }
 }
 
