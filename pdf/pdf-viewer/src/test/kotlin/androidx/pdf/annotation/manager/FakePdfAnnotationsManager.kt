@@ -30,6 +30,12 @@ class FakePdfAnnotationsManager : PdfAnnotationsManager {
             .map { KeyedPdfAnnotation(it.key, it.value) }
     }
 
+    override suspend fun clearAppliedEdits(appliedCount: Int) {
+        val keysToRemove =
+            storage.entries.sortedBy { it.value.pageNum }.take(appliedCount).map { it.key }
+        keysToRemove.forEach { storage.remove(it) }
+    }
+
     override suspend fun getAnnotationModifications(): EditsDraft {
         TODO("Not yet implemented")
     }
