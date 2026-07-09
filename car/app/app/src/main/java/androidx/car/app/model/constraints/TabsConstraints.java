@@ -34,11 +34,28 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TabsConstraints {
     private static final int MAXIMUM_ALLOWED_TABS = 4;
+    private static final int MAXIMUM_ALLOWED_TABS_API_9 = 5;
     private static final int MINIMUM_REQUIRED_TABS = 2;
 
+    /**
+     * Constraints for Car API levels 8 and below.
+     *
+     * <p>Allows a maximum of 4 tabs.
+     */
     public static final @NonNull TabsConstraints DEFAULT =
             new TabsConstraints.Builder()
                     .setMaxTabs(MAXIMUM_ALLOWED_TABS)
+                    .setMinTabs(MINIMUM_REQUIRED_TABS)
+                    .build();
+
+    /**
+     * Constraints for Car API levels 9 and above.
+     *
+     * <p>Allows a maximum of 5 tabs.
+     */
+    public static final @NonNull TabsConstraints API_9 =
+            new TabsConstraints.Builder()
+                    .setMaxTabs(MAXIMUM_ALLOWED_TABS_API_9)
                     .setMinTabs(MINIMUM_REQUIRED_TABS)
                     .build();
 

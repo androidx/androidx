@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.TestUtils;
+import androidx.car.app.model.constraints.TabsConstraints;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Rule;
@@ -34,6 +35,9 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** Tests for {@link TabTemplate}. */
 @RunWith(RobolectricTestRunner.class)
@@ -134,7 +138,7 @@ public class TabTemplateTest {
     }
 
     @Test
-    public void createInstance_moreThanFourTabs_Throws() {
+    public void createInstance_moreThanFiveTabs_Throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -145,6 +149,7 @@ public class TabTemplateTest {
                                 .addTab(getTab("TAB_3", "ID_3"))
                                 .addTab(getTab("TAB_4", "ID_4"))
                                 .addTab(getTab("TAB_5", "ID_5"))
+                                .addTab(getTab("TAB_6", "ID_6"))
                                 .setTabContents(TAB_CONTENTS)
                                 .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
                                 .build());
@@ -348,6 +353,22 @@ public class TabTemplateTest {
     }
 
     @Test
+    public void createInstance_fiveTabs_valid() {
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .addTab(getTab("TAB_3", "ID_3"))
+                .addTab(getTab("TAB_4", "ID_4"))
+                .addTab(getTab("TAB_5", "ID_5"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .build();
+
+        assertEquals(template.getTabs().size(), 5);
+    }
+
+    @Test
     public void copy_createsEquivalentInstance() {
         TabTemplate template1 = new TabTemplate.Builder(mMockTabCallback)
                 .setHeaderAction(Action.APP_ICON)
@@ -379,6 +400,37 @@ public class TabTemplateTest {
                 .setTabContents(TAB_CONTENTS)
                 .setActiveTabContentId("ID_3")
                 .build();
+    }
+
+    @Test
+    public void tabsConstraints_default_moreThanFourTabs_Throws() {
+        List<Tab> tabs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            tabs.add(getTab("TAB_" + i, "ID_" + i));
+        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> TabsConstraints.DEFAULT.validateOrThrow(tabs, "ID_0"));
+    }
+
+    @Test
+    public void tabsConstraints_api9_fiveTabs_valid() {
+        List<Tab> tabs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            tabs.add(getTab("TAB_" + i, "ID_" + i));
+        }
+        TabsConstraints.API_9.validateOrThrow(tabs, "ID_0");
+    }
+
+    @Test
+    public void tabsConstraints_api9_moreThanFiveTabs_Throws() {
+        List<Tab> tabs = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            tabs.add(getTab("TAB_" + i, "ID_" + i));
+        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> TabsConstraints.API_9.validateOrThrow(tabs, "ID_0"));
     }
 
     private static Tab getTab(String title, String contentId) {
