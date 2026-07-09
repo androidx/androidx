@@ -18,18 +18,23 @@
 
 package androidx.compose.remote.player.compose.embedded.modifier
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
-import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.readDataReflection
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 internal fun Modifier.clipRect(op: ClipRectModifierOperation): Modifier {
@@ -38,20 +43,57 @@ internal fun Modifier.clipRect(op: ClipRectModifierOperation): Modifier {
 
 @Composable
 internal fun Modifier.roundedClipRect(op: RoundedClipRectModifierOperation): Modifier {
-    val density = LocalDensity.current.density
-    val document = LocalCoreDocument.current
     val data = op.readDataReflection()
-    val topStartPx = rememberRemoteFloatAsState(data.x1Value).value
-    val topEndPx = rememberRemoteFloatAsState(data.y1Value).value
-    val bottomEndPx = rememberRemoteFloatAsState(data.y2Value).value
-    val bottomStartPx = rememberRemoteFloatAsState(data.x2Value).value
+    val topStartPx = rememberRemoteFloatAsState(data.x1Value)
+    val topEndPx = rememberRemoteFloatAsState(data.y1Value)
+    val bottomEndPx = rememberRemoteFloatAsState(data.y2Value)
+    val bottomStartPx = rememberRemoteFloatAsState(data.x2Value)
 
     return this.clip(
-        RoundedCornerShape(
-            topStart = (topStartPx / density).dp,
-            topEnd = (topEndPx / density).dp,
-            bottomEnd = (bottomEndPx / density).dp,
-            bottomStart = (bottomStartPx / density).dp,
+        RemoteRoundedClipShape(
+            topStart = topStartPx,
+            topEnd = topEndPx,
+            bottomEnd = bottomEndPx,
+            bottomStart = bottomStartPx,
         )
     )
 }
+
+internal data class RemoteRoundedClipShape(
+    val topStart: State<Float>,
+    val topEnd: State<Float>,
+    val bottomEnd: State<Float>,
+    val bottomStart: State<Float>,
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val minDimension = size.minDimension
+        val fallback = minDimension / 2f
+        val topStartRadius = topStart.value.componentRelativeRadius(fallback, minDimension)
+        val topEndRadius = topEnd.value.componentRelativeRadius(fallback, minDimension)
+        val bottomEndRadius = bottomEnd.value.componentRelativeRadius(fallback, minDimension)
+        val bottomStartRadius = bottomStart.value.componentRelativeRadius(fallback, minDimension)
+
+        return Outline.Rounded(
+            RoundRect(
+                rect = Rect(0f, 0f, size.width, size.height),
+                topLeft = CornerRadius(topStartRadius),
+                topRight = CornerRadius(topEndRadius),
+                bottomRight = CornerRadius(bottomEndRadius),
+                bottomLeft = CornerRadius(bottomStartRadius),
+            )
+        )
+    }
+}
+
+internal fun Float.componentRelativeRadius(fallback: Float, minDimension: Float): Float =
+    when {
+        !isFinite() -> fallback
+        // Percent corner sizes can arrive as 0..1 fractions before the component-size expression
+        // has settled into pixels.
+        this > 0f && this <= 1f -> this * minDimension
+        else -> this
+    }
