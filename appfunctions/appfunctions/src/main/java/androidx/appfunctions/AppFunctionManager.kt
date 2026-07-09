@@ -41,9 +41,13 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -459,34 +463,7 @@ public constructor(
                 val callbackRequests =
                     requests.map { request ->
                         val callbackAppFunction =
-                            CallbackAppFunction { executeRequest, cancellationSignal, callback ->
-                                val job = launch {
-                                    try {
-                                        val response =
-                                            request.appFunction.executeAppFunction(executeRequest)
-                                        callback.accept(response)
-                                    } catch (t: CancellationSignalTriggeredException) {
-                                        callback.accept(
-                                            ExecuteAppFunctionResponse.Error(
-                                                AppFunctionCancelledException(t.message)
-                                            )
-                                        )
-                                    } catch (t: AppFunctionException) {
-                                        callback.accept(ExecuteAppFunctionResponse.Error(t))
-                                    } catch (t: Throwable) {
-                                        callback.accept(
-                                            ExecuteAppFunctionResponse.Error(
-                                                AppFunctionAppUnknownException(t.message)
-                                            )
-                                        )
-                                        throw t
-                                    }
-                                }
-                                cancellationSignal.setOnCancelListener {
-                                    job.cancel(CancellationSignalTriggeredException())
-                                }
-                            }
-
+                            request.appFunction.toCallbackAppFunction(this@coroutineScope)
                         RegisterAppFunctionRequest(
                             request.functionIdentifier,
                             executor,
@@ -614,5 +591,54 @@ public constructor(
          */
         private class CancellationSignalTriggeredException(message: String? = null) :
             CancellationException(message)
+    }
+
+    /**
+     * Wraps this [SuspendingAppFunction] into a [CallbackAppFunction].
+     *
+     * This bridges the suspending execution model into the callback-based execution model required
+     * by the platform API. It handles launching the coroutine, mapping exceptions to the
+     * corresponding [ExecuteAppFunctionResponse.Error], and bridging the
+     * [android.os.CancellationSignal] into coroutine cancellation.
+     *
+     * Any unhandled exceptions that are not an [AppFunctionException] will be sent back as an
+     * [AppFunctionAppUnknownException] and then re-thrown.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun SuspendingAppFunction.toCallbackAppFunction(
+        coroutineScope: CoroutineScope
+    ): CallbackAppFunction {
+        return CallbackAppFunction { executeRequest, cancellationSignal, callback ->
+            // ATOMIC guarantees the block executes even if cancelled before dispatch, preventing a
+            // hanging callback. Inside, ensureActive() acts as the first suspension point,
+            // immediately throwing if cancelled to safely route the error to the catch block.
+            val job =
+                coroutineScope.launch(start = CoroutineStart.ATOMIC) {
+                    try {
+                        ensureActive()
+                        val response = this@toCallbackAppFunction.executeAppFunction(executeRequest)
+                        callback.accept(response)
+                    } catch (t: CancellationSignalTriggeredException) {
+                        callback.accept(
+                            ExecuteAppFunctionResponse.Error(
+                                AppFunctionCancelledException(t.message)
+                            )
+                        )
+                    } catch (t: AppFunctionException) {
+                        callback.accept(ExecuteAppFunctionResponse.Error(t))
+                    } catch (t: Throwable) {
+                        callback.accept(
+                            ExecuteAppFunctionResponse.Error(
+                                AppFunctionAppUnknownException(t.message)
+                            )
+                        )
+                        throw t
+                    }
+                }
+            cancellationSignal.setOnCancelListener {
+                job.cancel(CancellationSignalTriggeredException())
+            }
+        }
     }
 }

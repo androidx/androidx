@@ -30,8 +30,10 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.RegisterAppFunctionRequest
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 /** Extension functions to adapt platform AppFunction types. */
@@ -55,11 +57,21 @@ internal fun CallbackAppFunction.toPlatformAppFunction(
             // We use GlobalScope here because CallbackAppFunction is a callback-based API with no
             // parent coroutine context or lifecycle scope to bind to. This is safe because the
             // metadata fetch is a short-lived operation.
+            //
+            // We use CoroutineStart.ATOMIC to guarantee the coroutine actually starts executing
+            // its block even if it gets cancelled while queued. This ensures the OutcomeReceiver
+            // is never dropped silently, preventing OS-level memory leaks. ensureActive()
+            // triggers the CancellationException immediately if it was already cancelled.
+            //
             // Consider using a separate executor in case there are performance issues with querying
             // metadata on the provided executor.
             val executionJob =
-                GlobalScope.launch(executor.asCoroutineDispatcher()) {
+                GlobalScope.launch(
+                    executor.asCoroutineDispatcher(),
+                    start = CoroutineStart.ATOMIC,
+                ) {
                     try {
+                        ensureActive()
                         val functionMetadata =
                             appFunctionReader.getAppFunctionMetadata(
                                 request.functionIdentifier,
