@@ -29,7 +29,6 @@ import org.gradle.api.provider.ValueSourceParameters
 
 fun Project.configureVSCodeTask(task: ManagedIdeTask) {
     task.ideName.convention("VSCode")
-    task.requiresProjectList.convention(false)
 
     val vsCodeConfigBaseDir =
         layout.dir(providers.environmentVariable("HOME").map { File(it, ".VSCodeAndroidX") })
