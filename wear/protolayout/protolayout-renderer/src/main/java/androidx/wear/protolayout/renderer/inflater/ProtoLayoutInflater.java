@@ -1840,11 +1840,19 @@ public final class ProtoLayoutInflater {
         }
 
         if (transformation.hasScaleX()) {
-            handleProp(transformation.getScaleX(), view::setScaleX, posId, pipelineMaker);
+            handleProp(
+                    transformation.getScaleX(),
+                    scaleX -> view.setScaleX(Float.isFinite(scaleX) ? scaleX : 1f),
+                    posId,
+                    pipelineMaker);
         }
 
         if (transformation.hasScaleY()) {
-            handleProp(transformation.getScaleY(), view::setScaleY, posId, pipelineMaker);
+            handleProp(
+                    transformation.getScaleY(),
+                    scaleY -> view.setScaleY(Float.isFinite(scaleY) ? scaleY : 1f),
+                    posId,
+                    pipelineMaker);
         }
 
         if (transformation.hasRotation()) {

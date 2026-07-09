@@ -103,8 +103,12 @@ public class AnimationsHelper {
                 case CUBIC_BEZIER:
                     if (easing.hasCubicBezier()) {
                         CubicBezierEasing cbe = easing.getCubicBezier();
-                        interpolator = new PathInterpolator(cbe.getX1(), cbe.getY1(), cbe.getX2(),
-                                cbe.getY2());
+                        try {
+                            interpolator = new PathInterpolator(
+                                    cbe.getX1(), cbe.getY1(), cbe.getX2(), cbe.getY2());
+                        } catch (IllegalArgumentException e) {
+                            interpolator = DEFAULT_ANIM_INTERPOLATOR;
+                        }
                     }
                     break;
                 case INNER_NOT_SET:
