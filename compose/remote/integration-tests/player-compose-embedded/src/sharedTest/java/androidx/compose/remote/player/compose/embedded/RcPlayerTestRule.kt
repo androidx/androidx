@@ -58,6 +58,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
      */
     fun setRemoteContent(
         autoUpdate: Boolean = false,
+        customPlugins: CustomPluginRegistry? = null,
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
             createCreationDisplayInfo(
                 context = ApplicationProvider.getApplicationContext(),
@@ -101,7 +102,11 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
                     override fun Play(coreDocument: CoreDocument, size: Size) {
-                        RcPlayer(document = coreDocument, autoUpdate = autoUpdate)
+                        RcPlayer(
+                            document = coreDocument,
+                            autoUpdate = autoUpdate,
+                            customPlugins = customPlugins,
+                        )
                     }
                 },
             size =

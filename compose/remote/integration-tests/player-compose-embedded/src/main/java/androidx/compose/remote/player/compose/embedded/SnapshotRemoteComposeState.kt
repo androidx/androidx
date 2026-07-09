@@ -151,12 +151,16 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     }
 
     override fun updateData(id: Int, item: Any) {
-        super.updateData(id, item)
         // Mirror into the snapshot-backed map like cacheData/overrideData: loadText (and any
         // other update of an *existing* data id) goes through here, and without the mirror the
         // stale snapshot entry keeps being served and nothing recomposes — the update would not
         // be visible until some unrelated write refreshed the id.
-        data[id] = item
+        val old = data[id]
+        super.updateData(id, item)
+        val new = super.getFromId(id)
+        if (new != old && new != null) {
+            data[id] = new
+        }
     }
 
     override fun updateObject(id: Int, item: Any) {
