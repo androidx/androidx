@@ -18,21 +18,21 @@ package androidx.xr.compose.subspace.node
 
 import androidx.xr.compose.subspace.layout.DelegatableSubspaceNode
 import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
+import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.onGloballyPositioned
 import androidx.xr.compose.unit.IntVolumeSize
 
 /**
  * A [DelegatableSubspaceNode] whose [onPlaced] callback is invoked when the layout coordinates of
  * the layout node may have changed.
  *
- * @see [androidx.xr.compose.subspace.layout.onGloballyPositioned]
+ * @see [onGloballyPositioned]
  */
 public interface SubspaceLayoutAwareModifierNode : SubspaceMeasuredSizeAwareModifierNode {
     /**
-     * [onPlaced] is called after the parent [androidx.xr.compose.subspace.layout.SubspaceModifier]
-     * and parent layout has been placed and before child
-     * [androidx.xr.compose.subspace.layout.SubspaceModifier] is placed. This allows child
-     * [androidx.xr.compose.subspace.layout.SubspaceModifier] to adjust its own placement based on
-     * where the parent is.
+     * [onPlaced] is called after the parent [SubspaceModifier] and parent layout has been placed
+     * and before child [SubspaceModifier] is placed. This allows child [SubspaceModifier] to adjust
+     * its own placement based on where the parent is.
      *
      * @param coordinates The layout coordinates of the node.
      */
