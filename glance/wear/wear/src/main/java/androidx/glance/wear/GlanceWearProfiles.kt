@@ -288,7 +288,7 @@ public object GlanceWearProfiles {
      * Creates a Profile for Wear Widgets, based on the allowed operations for widgets using only
      * the supported Host operations from the list.
      *
-     * If `supportedOperations` is not specified or null, all allowed operations are used.
+     * If `supportedOperations` is not specified, null or empty, all allowed operations are used.
      *
      * @param supportedOperations The set of operations that are supported by the host. If null, all
      *   allowed operations can be used.
@@ -296,7 +296,7 @@ public object GlanceWearProfiles {
     @Suppress("PrimitiveInCollection")
     public fun wearWidgets(supportedOperations: IntSet? = null): Profile {
         val operationsToUse =
-            supportedOperations?.let {
+            if (supportedOperations != null && supportedOperations.isNotEmpty()) {
                 buildIntSet {
                     supportedOperations.forEach {
                         if (WEAR_WIDGETS_ALLOWED_OPERATIONS.contains(it)) {
@@ -304,7 +304,9 @@ public object GlanceWearProfiles {
                         }
                     }
                 }
-            } ?: WEAR_WIDGETS_ALLOWED_OPERATIONS
+            } else {
+                WEAR_WIDGETS_ALLOWED_OPERATIONS
+            }
         return Profile(
             CoreDocument.DOCUMENT_API_LEVEL,
             RcProfiles.PROFILE_WEAR_WIDGETS,
