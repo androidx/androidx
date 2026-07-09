@@ -62,7 +62,8 @@ value class TouchBoundsExpansion internal constructor(private val packedValue: L
         }
 
         /** Constant that represents no touch bounds expansion. */
-        val None = TouchBoundsExpansion(0)
+        val None
+            get() = TouchBoundsExpansion(0)
 
         internal fun pack(
             start: Int,

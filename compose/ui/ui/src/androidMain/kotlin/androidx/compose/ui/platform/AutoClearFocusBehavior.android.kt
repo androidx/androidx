@@ -31,7 +31,8 @@ package androidx.compose.ui.platform
 value class AutoClearFocusBehavior private constructor(private val value: Int) {
     companion object {
         /** Interacting with this [ComposeView] won't automatically clear focus. */
-        val None = AutoClearFocusBehavior(0)
+        val None
+            get() = AutoClearFocusBehavior(0)
 
         /**
          * When interacting with this [ComposeView] with a cursor-based input device, a pointer down
@@ -41,7 +42,8 @@ value class AutoClearFocusBehavior private constructor(private val value: Int) {
          * currently focused item will clear focus, even if that item is focusable in touch mode.
          * This does _not_ apply to stylus input.
          */
-        val CursorBased = AutoClearFocusBehavior(1)
+        val CursorBased
+            get() = AutoClearFocusBehavior(1)
 
         /**
          * The default [AutoClearFocusBehavior]. This value is currently [CursorBased], but this is
