@@ -399,6 +399,10 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         /** Unique ID used by semantics libraries. */
         override val semanticsId: Int = generateSemanticsId()
 
+        /** The density of this node. */
+        override val density: Density
+            get() = this@SubspaceLayoutNode.density
+
         /**
          * The tail node of [SubspaceModifierNodeChain].
          *

@@ -16,8 +16,8 @@
 
 package androidx.xr.compose.testing
 
-import android.content.res.Resources
 import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.xr.compose.unit.DpVolumeSize
@@ -237,11 +237,14 @@ public fun SubspaceSemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
     tolerance: Dp = Dp(.5f),
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve the node.")
-    (node.poseInRoot.translation.x.toDp() - node.size.width.toDp() / 2.0f).assertIsEqualTo(
-        expectedLeft,
-        "left",
-        tolerance,
-    )
+    with(node.density) {
+        (node.poseInRoot.translation.x.toDp() - node.size.width.toDp() / 2.0f).assertIsEqualTo(
+            expectedLeft,
+            "left",
+            tolerance,
+        )
+    }
+
     return this
 }
 
@@ -281,11 +284,14 @@ public fun SubspaceSemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     tolerance: Dp = Dp(.5f),
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve the node.")
-    (node.poseInRoot.translation.y.toDp() + node.size.height.toDp() / 2.0f).assertIsEqualTo(
-        expectedTop,
-        "top",
-        tolerance,
-    )
+    with(node.density) {
+        (node.poseInRoot.translation.y.toDp() + node.size.height.toDp() / 2.0f).assertIsEqualTo(
+            expectedTop,
+            "top",
+            tolerance,
+        )
+    }
+
     return this
 }
 
@@ -452,6 +458,7 @@ public fun SubspaceSemanticsNodeInteraction.assertRotationIsEqualTo(
 public fun SubspaceSemanticsNodeInteraction.getSize(): DpVolumeSize {
     lateinit var size: DpVolumeSize
     withSize { size = it }
+
     return size
 }
 
@@ -463,6 +470,7 @@ public fun SubspaceSemanticsNodeInteraction.getSize(): DpVolumeSize {
 public fun SubspaceSemanticsNodeInteraction.getPosition(): Vector3 {
     lateinit var position: Vector3
     withPosition { position = it }
+
     return position
 }
 
@@ -474,6 +482,7 @@ public fun SubspaceSemanticsNodeInteraction.getPosition(): Vector3 {
 public fun SubspaceSemanticsNodeInteraction.getPositionInRoot(): Vector3 {
     lateinit var position: Vector3
     withPositionInRoot { position = it }
+
     return position
 }
 
@@ -485,6 +494,7 @@ public fun SubspaceSemanticsNodeInteraction.getPositionInRoot(): Vector3 {
 public fun SubspaceSemanticsNodeInteraction.getRotation(): Quaternion {
     lateinit var rotation: Quaternion
     withRotation { rotation = it }
+
     return rotation
 }
 
@@ -496,34 +506,41 @@ public fun SubspaceSemanticsNodeInteraction.getRotation(): Quaternion {
 public fun SubspaceSemanticsNodeInteraction.getRotationInRoot(): Quaternion {
     lateinit var rotation: Quaternion
     withRotationInRoot { rotation = it }
+
     return rotation
 }
 
 @CanIgnoreReturnValue
 private fun SubspaceSemanticsNodeInteraction.withSize(
-    assertion: (DpVolumeSize) -> Unit
+    assertion: Density.(DpVolumeSize) -> Unit
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve size of the node.")
-    val size = node.size.let { DpVolumeSize(it.width.toDp(), it.height.toDp(), it.depth.toDp()) }
-    assertion.invoke(size)
+    with(node.density) {
+        val size =
+            node.size.let { DpVolumeSize(it.width.toDp(), it.height.toDp(), it.depth.toDp()) }
+        assertion(size)
+    }
+
     return this
 }
 
 @CanIgnoreReturnValue
 private fun SubspaceSemanticsNodeInteraction.withPosition(
-    assertion: (Vector3) -> Unit
+    assertion: Density.(Vector3) -> Unit
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve position of the node.")
-    assertion.invoke(node.pose.translation)
+    node.density.assertion(node.pose.translation)
+
     return this
 }
 
 @CanIgnoreReturnValue
 private fun SubspaceSemanticsNodeInteraction.withPositionInRoot(
-    assertion: (Vector3) -> Unit
+    assertion: Density.(Vector3) -> Unit
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve position of the node.")
-    assertion.invoke(node.poseInRoot.translation)
+    node.density.assertion(node.poseInRoot.translation)
+
     return this
 }
 
@@ -532,7 +549,8 @@ private fun SubspaceSemanticsNodeInteraction.withRotation(
     assertion: (Quaternion) -> Unit
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve rotation of the node.")
-    assertion.invoke(node.pose.rotation)
+    assertion(node.pose.rotation)
+
     return this
 }
 
@@ -541,7 +559,8 @@ private fun SubspaceSemanticsNodeInteraction.withRotationInRoot(
     assertion: (Quaternion) -> Unit
 ): SubspaceSemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve rotation of the node.")
-    assertion.invoke(node.poseInRoot.rotation)
+    assertion(node.poseInRoot.rotation)
+
     return this
 }
 
@@ -597,14 +616,4 @@ internal fun Dp.assertIsAtLeast(expected: Dp, subject: String, tolerance: Dp = D
             "Actual $subject is $this, expected at least $expected (tolerance: $tolerance)"
         )
     }
-}
-
-/** Converts a float to a [Dp] value. */
-private fun Float.toDp(): Dp {
-    return Dp(this / Resources.getSystem().displayMetrics.density)
-}
-
-/** Converts an integer to a [Dp] value. */
-private fun Int.toDp(): Dp {
-    return Dp(this.toFloat() / Resources.getSystem().displayMetrics.density)
 }

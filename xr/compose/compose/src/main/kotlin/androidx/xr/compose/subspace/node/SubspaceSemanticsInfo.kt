@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.node
 
+import androidx.compose.ui.unit.Density
 import androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
@@ -36,6 +37,9 @@ public sealed interface SubspaceSemanticsInfo {
 
     /** The dimensions of the 3D bounding box for this node. */
     public val size: IntVolumeSize
+
+    /** The density of this node. */
+    public val density: Density
 
     /** The pose of this node relative to its parent layout node in the Compose hierarchy. */
     public val pose: Pose
