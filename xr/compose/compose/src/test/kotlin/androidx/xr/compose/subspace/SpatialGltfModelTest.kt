@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:kotlin.OptIn(ExperimentalSpatialGltfModelApi::class)
 
 package androidx.xr.compose.subspace
 

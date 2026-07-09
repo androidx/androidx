@@ -90,6 +90,7 @@ import kotlinx.coroutines.CancellationException
  */
 @Composable
 @SubspaceComposable
+@ExperimentalSpatialGltfModelApi
 public fun SpatialGltfModel(
     state: SpatialGltfModelState,
     modifier: SubspaceModifier = SubspaceModifier,
@@ -116,9 +117,11 @@ public fun SpatialGltfModel(
  * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.
  */
 @Composable
+@ExperimentalSpatialGltfModelApi
 public fun rememberSpatialGltfModelState(source: SpatialGltfModelSource): SpatialGltfModelState =
     remember(source) { SpatialGltfModelStateHolder(SpatialGltfModelState(source)) }.state
 
+@kotlin.OptIn(ExperimentalSpatialGltfModelApi::class)
 private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : RememberObserver {
     override fun onRemembered() {}
 
@@ -143,6 +146,7 @@ private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : Re
  *
  * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.
  */
+@ExperimentalSpatialGltfModelApi
 public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) : AutoCloseable {
 
     internal var modelSize by mutableStateOf(IntVolumeSize.Zero)
@@ -207,13 +211,14 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
  * An object that describes and contains information relevant to the current loading state of the
  * glTF model.
  */
+@ExperimentalSpatialGltfModelApi
 public abstract class SpatialGltfModelStatus private constructor() {
 
     /** The glTF model is fully loaded and ready to be displayed. */
-    public object Loaded : SpatialGltfModelStatus()
+    @ExperimentalSpatialGltfModelApi public object Loaded : SpatialGltfModelStatus()
 
     /** The glTF model is currently loading and is not ready to be displayed. */
-    public object Loading : SpatialGltfModelStatus()
+    @ExperimentalSpatialGltfModelApi public object Loading : SpatialGltfModelStatus()
 
     /**
      * The glTF model has failed to load properly.
@@ -222,6 +227,7 @@ public abstract class SpatialGltfModelStatus private constructor() {
      *
      * @param exception thrown when the glTF model tried to load.
      */
+    @ExperimentalSpatialGltfModelApi
     public class Failed(public val exception: Throwable) : SpatialGltfModelStatus() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -243,6 +249,7 @@ public abstract class SpatialGltfModelStatus private constructor() {
  *
  * Instances of [SpatialGltfModelSource] are created using [fromPath] or [fromUri].
  */
+@ExperimentalSpatialGltfModelApi
 public interface SpatialGltfModelSource {
 
     /**
@@ -253,6 +260,7 @@ public interface SpatialGltfModelSource {
      */
     public suspend fun createModel(session: Session): GltfModel
 
+    @ExperimentalSpatialGltfModelApi
     public companion object {
         /**
          * Creates a [SpatialGltfModelSource] that loads a `glTF` model from a [Path] relative to
@@ -267,6 +275,7 @@ public interface SpatialGltfModelSource {
          * @throws IllegalArgumentException if [path] is an absolute path.
          */
         @JvmStatic
+        @ExperimentalSpatialGltfModelApi
         public fun fromPath(path: Path): SpatialGltfModelSource = PathGltfModelSource(path)
 
         private data class PathGltfModelSource(private val path: Path) : SpatialGltfModelSource {
@@ -286,7 +295,9 @@ public interface SpatialGltfModelSource {
          * @return A [SpatialGltfModelSource] that can be used with the [SpatialGltfModel]
          *   composable.
          */
-        @JvmStatic public fun fromUri(uri: Uri): SpatialGltfModelSource = UriGltfModelSource(uri)
+        @JvmStatic
+        @ExperimentalSpatialGltfModelApi
+        public fun fromUri(uri: Uri): SpatialGltfModelSource = UriGltfModelSource(uri)
 
         private data class UriGltfModelSource(private val uri: Uri) : SpatialGltfModelSource {
             override suspend fun createModel(session: Session): GltfModel =
@@ -304,6 +315,7 @@ public interface SpatialGltfModelSource {
          *   composable.
          */
         @JvmStatic
+        @ExperimentalSpatialGltfModelApi
         public fun fromResource(context: Context, @RawRes resId: Int): SpatialGltfModelSource =
             ResourceGltfModelSource(context.applicationContext, resId)
 
