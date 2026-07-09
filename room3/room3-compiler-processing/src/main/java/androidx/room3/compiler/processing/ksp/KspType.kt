@@ -200,7 +200,6 @@ internal abstract class KspType(
             emptyList()
         } else {
             val typeArguments = ksType.arguments.map { env.wrap(it) }
-            println()
             if (ksType.isSuspendFunctionType || typeElement?.isValueClass() == true) {
                 // For inline value and suspend function types the Java and Kotlin TypeName isn't
                 // guaranteed to be the same shape. For example, SuspendFunction1<P1, R> translates
