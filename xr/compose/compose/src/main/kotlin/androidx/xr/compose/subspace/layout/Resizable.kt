@@ -44,10 +44,13 @@ import kotlinx.coroutines.asExecutor
 public sealed interface ResizePolicy {
 
     public companion object {
+        /** The default system-handled resize policy. */
+        public val Default: ResizePolicy = system()
+
         /**
-         * Default resizing policy where the system automatically handles the resize gesture and
-         * applies the new dimensions to the content under the hood. This policy will not update the
-         * layout size of the object inside its parent. For instance, if used on an object inside a
+         * Resize policy where the system automatically handles the resize gesture and applies the
+         * new dimensions to the content under the hood. This policy will not update the layout size
+         * of the object inside its parent. For instance, if used on an object inside a
          * [androidx.xr.compose.subspace.SpatialRow], the object size will change but the row size
          * will not, potentially resulting in 3D object overlaps, unless the object is also paired
          * with a [movable] modifier. Removing a modifier using this policy will reset the user
@@ -57,14 +60,14 @@ public sealed interface ResizePolicy {
          *   resize events. Since the system automatically applies the resize, this callback is
          *   strictly for monitoring changes and should not be used to update the content size.
          */
-        public fun default(onResize: ((SpatialResizeEvent) -> Unit) = {}): ResizePolicy =
-            DefaultResizePolicy(onResize)
+        public fun system(onResize: (SpatialResizeEvent) -> Unit = {}): ResizePolicy =
+            SystemResizePolicy(onResize)
 
         /**
          * Custom resizing policy where the developer is fully responsible for applying the new
          * dimensions to the content (e.g., by updating a state that backs [width]/[height]). This
          * is necessary for situations where the overall layout should be readjusted after the
-         * resize event. Using this policy has higher latency than [default].
+         * resize event. Using this policy has higher latency than [system].
          *
          * @param onResize Callback invoked during the interaction containing the calculated target
          *   size.
@@ -74,8 +77,7 @@ public sealed interface ResizePolicy {
     }
 }
 
-internal data class DefaultResizePolicy(val onResize: ((SpatialResizeEvent) -> Unit)?) :
-    ResizePolicy
+internal data class SystemResizePolicy(val onResize: (SpatialResizeEvent) -> Unit) : ResizePolicy
 
 internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Unit) : ResizePolicy
 
@@ -95,7 +97,7 @@ internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Uni
  *   during resizing. If `false`, individual dimensions can be changed independently. Defaults to
  *   `false`.
  * @param resizePolicy The policy that determines how the size change is applied. Defaults to
- *   [ResizePolicy.default()] which automatically handles resizing under the hood.
+ *   [ResizePolicy.Default] which automatically handles resizing under the hood.
  * @sample androidx.xr.compose.samples.BasicResizableSample
  * @sample androidx.xr.compose.samples.ResizableWithStateSample
  */
@@ -104,7 +106,7 @@ public fun SubspaceModifier.resizable(
     minimumSize: DpVolumeSize = DpVolumeSize.Zero,
     maximumSize: DpVolumeSize = DpVolumeSize(Dp.Infinity, Dp.Infinity, Dp.Infinity),
     maintainAspectRatio: Boolean = false,
-    resizePolicy: ResizePolicy = ResizePolicy.default(),
+    resizePolicy: ResizePolicy = ResizePolicy.Default,
 ): SubspaceModifier =
     this.then(
         ResizableElement(
@@ -350,7 +352,7 @@ internal class ResizableNode(
                 }
                 ResizeEvent.ResizeState.ONGOING -> SpatialResizeEventType.Resizing
                 ResizeEvent.ResizeState.END -> {
-                    if (policy is DefaultResizePolicy) {
+                    if (policy is SystemResizePolicy) {
                         val nextSize = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
                         userSize = nextSize
                         invalidateMeasurement()
@@ -364,7 +366,7 @@ internal class ResizableNode(
         val event = SpatialResizeEvent(eventType, size)
 
         when (policy) {
-            is DefaultResizePolicy -> policy.onResize?.invoke(event)
+            is SystemResizePolicy -> policy.onResize.invoke(event)
             is CustomResizePolicy -> policy.onResize.invoke(event)
         }
     }
@@ -373,7 +375,7 @@ internal class ResizableNode(
         measurable: SubspaceMeasurable,
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
-        val isSystemHandled = resizePolicy is DefaultResizePolicy
+        val isSystemHandled = resizePolicy is SystemResizePolicy
         val userSize = userSize
 
         val placeable =
