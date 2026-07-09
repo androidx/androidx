@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 /**
@@ -37,7 +37,7 @@ import androidx.xr.compose.subspace.layout.SpatialShape
 @Immutable
 public class HorizontalOrbiterProperties(
     public val offset: Dp,
-    public val offsetType: OrbiterOffsetType,
+    public val offsetType: OrbiterEdgeOffsetType,
     public val position: ContentEdge.Horizontal,
     public val alignment: Alignment.Horizontal,
     public val shape: SpatialShape,
@@ -49,7 +49,7 @@ public class HorizontalOrbiterProperties(
      */
     public fun copy(
         offset: Dp? = null,
-        offsetType: OrbiterOffsetType? = null,
+        offsetType: OrbiterEdgeOffsetType? = null,
         position: ContentEdge.Horizontal? = null,
         alignment: Alignment.Horizontal? = null,
         shape: SpatialShape? = null,
@@ -107,7 +107,7 @@ public class HorizontalOrbiterProperties(
 @Immutable
 public class VerticalOrbiterProperties(
     public val offset: Dp,
-    public val offsetType: OrbiterOffsetType,
+    public val offsetType: OrbiterEdgeOffsetType,
     public val position: ContentEdge.Vertical,
     public val alignment: Alignment.Vertical,
     public val shape: SpatialShape,
@@ -119,7 +119,7 @@ public class VerticalOrbiterProperties(
      */
     public fun copy(
         offset: Dp? = null,
-        offsetType: OrbiterOffsetType? = null,
+        offsetType: OrbiterEdgeOffsetType? = null,
         position: ContentEdge.Vertical? = null,
         alignment: Alignment.Vertical? = null,
         shape: SpatialShape? = null,
@@ -157,6 +157,7 @@ public class VerticalOrbiterProperties(
     override fun toString(): String {
         return "VerticalOrbiterProperties(" +
             "offset=$offset, " +
+            "offsetType=$offsetType, " +
             "position=$position, " +
             "alignment=$alignment, " +
             "shape=$shape" +
@@ -174,7 +175,7 @@ internal fun VerticalOrbiter(
     Orbiter(
         position = properties.position,
         offset = properties.offset,
-        offsetType = properties.offsetType,
+        offsetType = properties.offsetType.toDeprecatedType(),
         alignment = properties.alignment,
         shape = properties.shape,
         content = content,
@@ -191,9 +192,18 @@ internal fun HorizontalOrbiter(
     Orbiter(
         position = properties.position,
         offset = properties.offset,
-        offsetType = properties.offsetType,
+        offsetType = properties.offsetType.toDeprecatedType(),
         alignment = properties.alignment,
         shape = properties.shape,
         content = content,
     )
 }
+
+@Suppress("DEPRECATION")
+private fun OrbiterEdgeOffsetType.toDeprecatedType():
+    androidx.xr.compose.spatial.OrbiterOffsetType =
+    when (this) {
+        OrbiterEdgeOffsetType.OuterEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.OuterEdge
+        OrbiterEdgeOffsetType.InnerEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.InnerEdge
+        else -> androidx.xr.compose.spatial.OrbiterOffsetType.Overlap
+    }

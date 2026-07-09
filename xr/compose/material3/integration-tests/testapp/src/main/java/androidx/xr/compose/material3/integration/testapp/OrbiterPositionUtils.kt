@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.integration.testapp.OrbiterTokens.NavigationBarOrbiterDefaultHeight
 import androidx.xr.compose.material3.integration.testapp.OrbiterTokens.NavigationRailOrbiterDefaultWidth
 import androidx.xr.compose.material3.integration.testapp.OrbiterTokens.NavigationSuiteOrbiterDefaultSpacing
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 
-internal fun OrbiterPosition.getOffsetType(): OrbiterOffsetType =
+internal fun OrbiterPosition.getOffsetType(): OrbiterEdgeOffsetType =
     when (this) {
-        OrbiterPosition.Outside -> OrbiterOffsetType.InnerEdge
-        OrbiterPosition.Overlapping -> OrbiterOffsetType.OuterEdge
-        OrbiterPosition.Inside -> OrbiterOffsetType.Overlap
+        OrbiterPosition.Outside -> OrbiterEdgeOffsetType.InnerEdge
+        OrbiterPosition.Overlapping -> OrbiterEdgeOffsetType.OuterEdge
+        OrbiterPosition.Inside -> OrbiterEdgeOffsetType.None
     }
 
 internal fun NavigationSuiteType?.calculateOffsetForPosition(position: OrbiterPosition): Dp {

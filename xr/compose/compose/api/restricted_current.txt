@@ -118,98 +118,191 @@ package androidx.xr.compose.spatial {
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFollowingSubspaceApi {
   }
 
-  public abstract sealed nonexhaustive class OrbiterAnchorPoint {
+  public abstract sealed exhaustive class OrbiterAlignment {
   }
 
-  public abstract static sealed nonexhaustive class OrbiterAnchorPoint.Absolute extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+  public static final class OrbiterAlignment.BottomCenter extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.BottomCenter(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomCenter(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomCenter(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.BottomLeft extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.BottomLeft INSTANCE;
+  public static final class OrbiterAlignment.BottomEnd extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.BottomEnd(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.BottomRight extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.BottomRight INSTANCE;
+  public static final class OrbiterAlignment.BottomLeft extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.BottomLeft(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.Left extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.Left INSTANCE;
+  public static final class OrbiterAlignment.BottomRight extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.BottomRight(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomRight(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomRight(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.LeftBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.LeftBottom INSTANCE;
+  public static final class OrbiterAlignment.BottomStart extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.BottomStart(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomStart(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.BottomStart(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.LeftTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.LeftTop INSTANCE;
+  public static final class OrbiterAlignment.Center extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor public OrbiterAlignment.Center();
+    ctor public OrbiterAlignment.Center(optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.Center(androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.Right extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.Right INSTANCE;
+  public static final class OrbiterAlignment.CenterEnd extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.CenterEnd(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.RightBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.RightBottom INSTANCE;
+  public static final class OrbiterAlignment.CenterLeft extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.CenterLeft(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.RightTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.RightTop INSTANCE;
+  public static final class OrbiterAlignment.CenterRight extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.CenterRight(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterRight(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterRight(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.TopLeft extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.TopLeft INSTANCE;
+  public static final class OrbiterAlignment.CenterStart extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.CenterStart(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterStart(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.CenterStart(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Absolute.TopRight extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.TopRight INSTANCE;
+  public static final class OrbiterAlignment.TopCenter extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.TopCenter(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.TopCenter(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.TopCenter(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.Bottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Bottom INSTANCE;
+  public static final class OrbiterAlignment.TopEnd extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.TopEnd(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.TopEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.TopEnd(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.BottomEnd extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.BottomEnd INSTANCE;
+  public static final class OrbiterAlignment.TopLeft extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.TopLeft(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.TopLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.TopLeft(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.BottomStart extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.BottomStart INSTANCE;
+  public static final class OrbiterAlignment.TopRight extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.TopRight(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.TopRight(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.TopRight(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.End extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.End INSTANCE;
+  public static final class OrbiterAlignment.TopStart extends androidx.xr.compose.spatial.OrbiterAlignment {
+    ctor @KotlinOnly public OrbiterAlignment.TopStart(optional androidx.xr.compose.spatial.OrbiterEdgeOffsetType edgeOffsetType, optional androidx.xr.compose.unit.DpVolumeOffset offset);
+    ctor @BytecodeOnly public OrbiterAlignment.TopStart(int, androidx.xr.compose.unit.DpVolumeOffset!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public OrbiterAlignment.TopStart(int, androidx.xr.compose.unit.DpVolumeOffset!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public static final class OrbiterAnchorPoint.EndBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.EndBottom INSTANCE;
+  @Deprecated public abstract sealed nonexhaustive class OrbiterAnchorPoint {
   }
 
-  public static final class OrbiterAnchorPoint.EndTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.EndTop INSTANCE;
+  @Deprecated public abstract static sealed nonexhaustive class OrbiterAnchorPoint.Absolute extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
   }
 
-  public static final class OrbiterAnchorPoint.Start extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Start INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.BottomLeft extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.BottomLeft INSTANCE;
   }
 
-  public static final class OrbiterAnchorPoint.StartBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.StartBottom INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.BottomRight extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.BottomRight INSTANCE;
   }
 
-  public static final class OrbiterAnchorPoint.StartTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.StartTop INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.Left extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.Left INSTANCE;
   }
 
-  public static final class OrbiterAnchorPoint.Top extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Top INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.LeftBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.LeftBottom INSTANCE;
   }
 
-  public static final class OrbiterAnchorPoint.TopEnd extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.TopEnd INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.LeftTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.LeftTop INSTANCE;
   }
 
-  public static final class OrbiterAnchorPoint.TopStart extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
-    field public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.TopStart INSTANCE;
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.Right extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.Right INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.RightBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.RightBottom INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.RightTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.RightTop INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.TopLeft extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.TopLeft INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Absolute.TopRight extends androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Absolute.TopRight INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Bottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Bottom INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.BottomEnd extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.BottomEnd INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.BottomStart extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.BottomStart INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.End extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.End INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.EndBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.EndBottom INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.EndTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.EndTop INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Start extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Start INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.StartBottom extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.StartBottom INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.StartTop extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.StartTop INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.Top extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.Top INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.TopEnd extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.TopEnd INSTANCE;
+  }
+
+  @Deprecated public static final class OrbiterAnchorPoint.TopStart extends androidx.xr.compose.spatial.OrbiterAnchorPoint {
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterAnchorPoint.TopStart INSTANCE;
   }
 
   public final class OrbiterDefaults {
@@ -220,30 +313,47 @@ package androidx.xr.compose.spatial {
     field public static final androidx.xr.compose.spatial.OrbiterDefaults INSTANCE;
   }
 
+  @kotlin.jvm.JvmInline public final value class OrbiterEdgeOffsetType {
+    method @BytecodeOnly public static androidx.xr.compose.spatial.OrbiterEdgeOffsetType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.xr.compose.spatial.OrbiterEdgeOffsetType.Companion Companion;
+  }
+
+  public static final class OrbiterEdgeOffsetType.Companion {
+    method @BytecodeOnly public int getInnerEdge-vY9CUhA();
+    method @BytecodeOnly public int getNone-vY9CUhA();
+    method @BytecodeOnly public int getOuterEdge-vY9CUhA();
+    property public androidx.xr.compose.spatial.OrbiterEdgeOffsetType InnerEdge;
+    property public androidx.xr.compose.spatial.OrbiterEdgeOffsetType None;
+    property public androidx.xr.compose.spatial.OrbiterEdgeOffsetType OuterEdge;
+  }
+
   public final class OrbiterKt {
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.ContentEdge.Horizontal position, optional androidx.compose.ui.unit.Dp offset, optional androidx.xr.compose.spatial.OrbiterOffsetType offsetType, optional androidx.compose.ui.Alignment.Horizontal alignment, optional androidx.xr.compose.subspace.layout.SpatialShape shape, optional androidx.compose.ui.unit.Dp elevation, optional boolean shouldRenderInNonSpatial, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.ContentEdge.Vertical position, optional androidx.compose.ui.unit.Dp offset, optional androidx.xr.compose.spatial.OrbiterOffsetType offsetType, optional androidx.compose.ui.Alignment.Vertical alignment, optional androidx.xr.compose.subspace.layout.SpatialShape shape, optional androidx.compose.ui.unit.Dp elevation, optional boolean shouldRenderInNonSpatial, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAnchorPoint anchorPoint, optional androidx.xr.compose.unit.DpVolumeOffset offset, optional androidx.xr.compose.subspace.layout.SpatialShape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAnchorPoint, androidx.xr.compose.unit.DpVolumeOffset?, androidx.xr.compose.subspace.layout.SpatialShape?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterPoseProvider poseProvider, optional androidx.xr.compose.subspace.layout.SpatialShape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterPoseProvider, androidx.xr.compose.subspace.layout.SpatialShape?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAlignment alignment, optional androidx.xr.compose.subspace.layout.SpatialShape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAlignment, androidx.xr.compose.subspace.layout.SpatialShape?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAnchorPoint anchorPoint, optional androidx.xr.compose.unit.DpVolumeOffset offset, optional androidx.xr.compose.subspace.layout.SpatialShape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterAnchorPoint, androidx.xr.compose.unit.DpVolumeOffset?, androidx.xr.compose.subspace.layout.SpatialShape?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterPoseProvider poseProvider, optional androidx.xr.compose.subspace.layout.SpatialShape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter(androidx.xr.compose.spatial.OrbiterPoseProvider, androidx.xr.compose.subspace.layout.SpatialShape?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter-K8oyVJY(androidx.xr.compose.spatial.ContentEdge.Horizontal, float, int, androidx.compose.ui.Alignment.Horizontal?, androidx.xr.compose.subspace.layout.SpatialShape?, float, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Orbiter-K8oyVJY(androidx.xr.compose.spatial.ContentEdge.Vertical, float, int, androidx.compose.ui.Alignment.Vertical?, androidx.xr.compose.subspace.layout.SpatialShape?, float, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @kotlin.jvm.JvmInline public final value class OrbiterOffsetType {
-    method @BytecodeOnly public static androidx.xr.compose.spatial.OrbiterOffsetType! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.xr.compose.spatial.OrbiterOffsetType.Companion Companion;
+  @Deprecated @kotlin.jvm.JvmInline public final value class OrbiterOffsetType {
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.spatial.OrbiterOffsetType! box-impl(int);
+    method @BytecodeOnly @Deprecated public int unbox-impl();
+    field @Deprecated public static final androidx.xr.compose.spatial.OrbiterOffsetType.Companion Companion;
   }
 
-  public static final class OrbiterOffsetType.Companion {
-    method @BytecodeOnly public int getInnerEdge-daoJdME();
-    method @BytecodeOnly public int getOuterEdge-daoJdME();
-    method @BytecodeOnly public int getOverlap-daoJdME();
-    property public androidx.xr.compose.spatial.OrbiterOffsetType InnerEdge;
-    property public androidx.xr.compose.spatial.OrbiterOffsetType OuterEdge;
-    property public androidx.xr.compose.spatial.OrbiterOffsetType Overlap;
+  @Deprecated public static final class OrbiterOffsetType.Companion {
+    method @BytecodeOnly @Deprecated public int getInnerEdge-daoJdME();
+    method @BytecodeOnly @Deprecated public int getOuterEdge-daoJdME();
+    method @BytecodeOnly @Deprecated public int getOverlap-daoJdME();
+    property @Deprecated public androidx.xr.compose.spatial.OrbiterOffsetType InnerEdge;
+    property @Deprecated public androidx.xr.compose.spatial.OrbiterOffsetType OuterEdge;
+    property @Deprecated public androidx.xr.compose.spatial.OrbiterOffsetType Overlap;
   }
 
   public fun interface OrbiterPoseProvider {
