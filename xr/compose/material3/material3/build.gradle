@@ -49,6 +49,7 @@ dependencies {
     testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0-beta02")
     testImplementation("androidx.compose.ui:ui-test-manifest:1.11.0-beta02")
     testImplementation(project(":xr:compose:compose-testing"))
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
 }
 
 android {
