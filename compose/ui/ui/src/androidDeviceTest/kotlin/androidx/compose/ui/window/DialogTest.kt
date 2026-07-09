@@ -226,7 +226,7 @@ class DialogTest {
         textInteraction.assertIsDisplayed()
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = 25)
     @Test
     fun dialogTest_isNotDismissed_whenPressOutside_releaseInside() {
         setupDialogTest(dialogProperties = DialogProperties())
@@ -249,7 +249,7 @@ class DialogTest {
         textInteraction.assertIsDisplayed()
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = 25)
     @Test
     fun dialogTest_isNotDismissed_whenPressOutside_releaseInside_decorFitsFalse() {
         setupDialogTest(dialogProperties = DialogProperties(decorFitsSystemWindows = false))
