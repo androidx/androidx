@@ -82,7 +82,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * For a detailed list of supported types and the rules governing their serialization, see
  * [androidx.appfunctions.AppFunctionSerializable].
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 public annotation class AppFunctionSignature(
     /**
