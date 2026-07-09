@@ -4,6 +4,9 @@ When investigating this codebase or performing tasks, you MUST recursively searc
 
 ## Documentation Map
 
+### General
+- [TESTING.md](TESTING.md): Best practices and guidelines for testing Remote Compose.
+
 ### Core Engine (`remote-core/doc/`)
 - `REMOTE_COMPOSE_ARCHITECTURE.md`: High-level system design and data flow.
 - `PROTOCOL_SPEC.md`: Binary format, opcodes, and field layouts.
