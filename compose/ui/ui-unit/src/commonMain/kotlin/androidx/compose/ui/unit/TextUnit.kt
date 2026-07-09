@@ -212,7 +212,9 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
          * Notice that performing arithmetic operations on [Unspecified] may result in an
          * [IllegalArgumentException].
          */
-        @Stable val Unspecified = pack(UNIT_TYPE_UNSPECIFIED, Float.NaN)
+        @Stable
+        val Unspecified
+            get() = pack(UNIT_TYPE_UNSPECIFIED, Float.NaN)
     }
 
     /**
