@@ -28,8 +28,6 @@ import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.scale
 
 @Composable
 internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
@@ -52,10 +50,7 @@ internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
         // earlier in the pass would see the previous frame's value, and writing snapshot state
         // during draw re-invalidates the frame.
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val density = remoteContext.density
-            scale(density, density, pivot = Offset.Zero) {
-                executeOperations(operations, remoteContext, graph = graph)
-            }
+            executeOperations(operations, remoteContext, graph = graph)
         }
     }
 }
