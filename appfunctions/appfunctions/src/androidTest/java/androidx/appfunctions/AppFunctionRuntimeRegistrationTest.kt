@@ -21,6 +21,7 @@ import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.CancellationSignal
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
@@ -28,6 +29,7 @@ import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import kotlin.coroutines.coroutineContext
 import kotlin.test.assertFailsWith
@@ -44,6 +46,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume.assumeNotNull
 import org.junit.Before
@@ -705,6 +708,183 @@ class AppFunctionRuntimeRegistrationTest {
         }
     }
 
+    @Test
+    fun testHandleAppFunction_cancelledBeforeDispatch_doesNotHang() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val executor =
+            Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "my-custom-test-executor-thread")
+            }
+        val customDispatcher = executor.asCoroutineDispatcher()
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val suspendAppFunction = SuspendingAppFunction { _ ->
+                createReturnStringResponse("success")
+            }
+
+            val handleJob =
+                launch(customDispatcher) {
+                    activityAppFunctionManager.handleAppFunction(
+                        HandleAppFunctionRequest(
+                            functionIdentifier = functionId,
+                            appFunction = suspendAppFunction,
+                        )
+                    )
+                }
+
+            metadataTestHelper.awaitAppFunctionEnabled(activityAppFunctionManager, functionId)
+
+            try {
+                // Block the single-thread dispatcher
+                val blockingLatch = CountDownLatch(1)
+                val taskEnqueuedLatch = CountDownLatch(1)
+                executor.execute {
+                    taskEnqueuedLatch.countDown()
+                    blockingLatch.await()
+                }
+
+                // Wait to make sure the blocking task is running
+                taskEnqueuedLatch.await()
+
+                val request =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val responseDeferred = CompletableDeferred<ExecuteAppFunctionResponse>()
+                val executionJob =
+                    launch(Dispatchers.Default) {
+                        try {
+                            val response = appFunctionManager.executeAppFunction(request)
+                            responseDeferred.complete(response)
+                        } catch (e: Throwable) {
+                            responseDeferred.completeExceptionally(e)
+                        }
+                    }
+
+                // Wait for the execution coroutine to be queued onto the blocked customDispatcher.
+                delay(WAIT_FOR_COROUTINE_ENQUEUE_DELAY_MS)
+
+                // Cancel the handleJob while the coroutine is queued but not yet dispatched.
+                handleJob.cancel()
+
+                // Unblock the dispatcher.
+                blockingLatch.countDown()
+
+                val response = withTimeout(EXECUTION_TIMEOUT_MS) { responseDeferred.await() }
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+                val errorResponse = response as ExecuteAppFunctionResponse.Error
+                assertIs<AppFunctionAppUnknownException>(errorResponse.error)
+            } finally {
+                handleJob.cancel()
+                executor.shutdown()
+            }
+        }
+    }
+
+    @Test
+    fun testRegisterAppFunction_cancelledBeforeDispatch_doesNotHang() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val executor =
+            Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "my-custom-test-executor-thread")
+            }
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse("success"))
+            }
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    executor,
+                    callbackAppFunction,
+                )
+
+            try {
+                // We use the platform AppFunctionManager directly to independently trigger
+                // the CancellationSignal. The Jetpack executeAppFunction() API immediately aborts
+                // and drops its OutcomeReceiver on cancellation, which would prevent us from
+                // verifying if the provider actually finishes or hangs.
+                val platformManager =
+                    context.getSystemService(
+                        android.app.appfunctions.AppFunctionManager::class.java
+                    )!!
+
+                val platformRequest =
+                    android.app.appfunctions.ExecuteAppFunctionRequest.Builder(
+                            context.packageName,
+                            functionId,
+                        )
+                        .build()
+
+                val responseDeferred =
+                    CompletableDeferred<android.app.appfunctions.ExecuteAppFunctionResponse>()
+
+                // Block the single-thread dispatcher
+                val blockingLatch = CountDownLatch(1)
+                val taskEnqueuedLatch = CountDownLatch(1)
+                executor.execute {
+                    taskEnqueuedLatch.countDown()
+                    blockingLatch.await()
+                }
+
+                // Wait to make sure the blocking task is running
+                taskEnqueuedLatch.await()
+
+                val cancellationSignal = android.os.CancellationSignal()
+
+                platformManager.executeAppFunction(
+                    platformRequest,
+                    context.mainExecutor,
+                    cancellationSignal,
+                    object :
+                        android.os.OutcomeReceiver<
+                            android.app.appfunctions.ExecuteAppFunctionResponse,
+                            android.app.appfunctions.AppFunctionException,
+                        > {
+                        override fun onResult(
+                            result: android.app.appfunctions.ExecuteAppFunctionResponse
+                        ) {
+                            responseDeferred.complete(result)
+                        }
+
+                        override fun onError(error: android.app.appfunctions.AppFunctionException) {
+                            responseDeferred.completeExceptionally(error)
+                        }
+                    },
+                )
+
+                // Wait for the execution coroutine to be queued onto the blocked executor.
+                delay(WAIT_FOR_COROUTINE_ENQUEUE_DELAY_MS)
+
+                // Cancel the execution via CancellationSignal.
+                // This triggers the provider's CancellationSignal listener,
+                // which cancels the provider's execution coroutine before it gets dispatched.
+                cancellationSignal.cancel()
+
+                // Unblock the dispatcher.
+                blockingLatch.countDown()
+
+                // Verify we receive the AppFunctionException.
+                // Without CoroutineStart.ATOMIC, the OutcomeReceiver is silently dropped and this
+                // await() would hang until timeout.
+                val error =
+                    assertFailsWith<android.app.appfunctions.AppFunctionException> {
+                        withTimeout(EXECUTION_TIMEOUT_MS) { responseDeferred.await() }
+                    }
+            } finally {
+                registration.unregister()
+                executor.shutdown()
+            }
+        }
+    }
+
     private fun runWithActivityAppFunctionManager(
         block:
             suspend CoroutineScope.(
@@ -764,5 +944,10 @@ class AppFunctionRuntimeRegistrationTest {
                 .setString(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, returnValue)
                 .build()
         return ExecuteAppFunctionResponse.Success(responseData)
+    }
+
+    companion object {
+        private const val EXECUTION_TIMEOUT_MS = 30000L
+        private const val WAIT_FOR_COROUTINE_ENQUEUE_DELAY_MS = 1000L
     }
 }
