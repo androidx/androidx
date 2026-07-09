@@ -524,7 +524,8 @@ abstract class Placeable : Measured {
 /** Block on [GraphicsLayerScope] which applies the default layer parameters. */
 private val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}
 
-private val DefaultConstraints = Constraints()
+private val DefaultConstraints
+    get() = Constraints()
 
 internal fun PlacementScope(
     lookaheadCapablePlaceable: LookaheadCapablePlaceable
