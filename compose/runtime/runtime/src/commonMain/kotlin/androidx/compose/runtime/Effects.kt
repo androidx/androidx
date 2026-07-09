@@ -438,12 +438,12 @@ internal class LaunchedEffectImpl(
     }
 
     override fun onForgotten() {
-        job?.cancel(LeftCompositionCancellationException())
+        job?.cancel(ExitedCompositionCancellationException())
         job = null
     }
 
     override fun onAbandoned() {
-        job?.cancel(LeftCompositionCancellationException())
+        job?.cancel(ExitedCompositionCancellationException())
         job = null
     }
 
@@ -537,8 +537,19 @@ public fun LaunchedEffect(
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
 
-private class LeftCompositionCancellationException :
-    PlatformOptimizedCancellationException("The coroutine scope left the composition")
+/**
+ * A subclass of [kotlinx.coroutines.CancellationException] that will be thrown to cancel
+ * composition-bound coroutines. Specifically, this exception is thrown to cancel coroutines
+ * launched by [LaunchedEffect] and [Job]s associated with CoroutineScopes created by
+ * [rememberCoroutineScope].
+ *
+ * This exception is thrown when the effect/job is canceled because the effect or coroutineScope was
+ * removed from the composition, possibly because of changed keys.
+ */
+private class ExitedCompositionCancellationException :
+    PlatformOptimizedCancellationException(
+        "The coroutine was canceled because it left the composition"
+    )
 
 /**
  * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
@@ -580,7 +591,7 @@ internal class CompositionScopedCoroutineScopeCanceller(val coroutineScope: Coro
         if (coroutineScope is RememberedCoroutineScope) {
             coroutineScope.cancelIfCreated()
         } else {
-            coroutineScope.cancel(LeftCompositionCancellationException())
+            coroutineScope.cancel(ExitedCompositionCancellationException())
         }
     }
 
@@ -589,7 +600,7 @@ internal class CompositionScopedCoroutineScopeCanceller(val coroutineScope: Coro
         if (coroutineScope is RememberedCoroutineScope) {
             coroutineScope.cancelIfCreated()
         } else {
-            coroutineScope.cancel(LeftCompositionCancellationException())
+            coroutineScope.cancel(ExitedCompositionCancellationException())
         }
     }
 }
@@ -600,9 +611,6 @@ private class CancelledCoroutineContext : CoroutineContext.Element {
 
     companion object Key : CoroutineContext.Key<CancelledCoroutineContext>
 }
-
-private class ForgottenCoroutineScopeException :
-    PlatformOptimizedCancellationException("rememberCoroutineScope left the composition")
 
 internal class RememberedCoroutineScope(
     private val parentContext: CoroutineContext,
@@ -659,7 +667,7 @@ internal class RememberedCoroutineScope(
                         val parentContext = parentContext
                         val cancelledChildJob =
                             Job(parentContext[Job]).apply {
-                                cancel(ForgottenCoroutineScopeException())
+                                cancel(ExitedCompositionCancellationException())
                             }
                         localCoroutineContext =
                             parentContext + cancelledChildJob + overlayContext + exceptionHandler
@@ -687,7 +695,7 @@ internal class RememberedCoroutineScope(
             } else {
                 // Ignore optimizing the case where we might be cancelling an already cancelled job;
                 // only internal callers such as RememberObservers will invoke this method.
-                context.cancel(ForgottenCoroutineScopeException())
+                context.cancel(ExitedCompositionCancellationException())
             }
         }
     }
