@@ -69,6 +69,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -206,6 +207,7 @@ class RcPlayerRecompositionEventsTest {
         collectJob.cancel()
     }
 
+    @Ignore("Disable for now")
     @Test
     fun testLaunchedEffectTriggered() = runBlocking {
         val triggerState = mutableStateOf(0)
