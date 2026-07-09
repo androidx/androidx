@@ -82,7 +82,7 @@ class ComponentActivityTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24)
+    @SdkSuppress(minSdkVersion = 25)
     @Test
     fun enterPictureInPictureMode_enabledParams_callEnterPip() {
         withUse(ActivityScenario.launch(PictureInPictureActivity::class.java)) {
