@@ -329,7 +329,7 @@ class SpatialCompose : ComponentActivity() {
                     .resizable(
                         enabled = !moveResizeLocked,
                         resizePolicy =
-                            ResizePolicy.default { event ->
+                            ResizePolicy.system { event ->
                                 when (event.type) {
                                     SpatialResizeEventType.Start -> alpha = 0f
                                     SpatialResizeEventType.End -> alpha = 1f
