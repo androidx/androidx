@@ -31,15 +31,16 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.unit.DpVolumeOffset
 
 class MainPanelFragment : Fragment() {
     override fun onCreateView(
@@ -58,11 +59,12 @@ class MainPanelFragment : Fragment() {
                         modifier =
                             SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
                     )
-                    @Suppress("DEPRECATION")
                     Orbiter(
-                        position = ContentEdge.Top,
-                        offsetType = OrbiterOffsetType.InnerEdge,
-                        offset = 10.dp,
+                        alignment =
+                            OrbiterAlignment.TopCenter(
+                                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                                offset = DpVolumeOffset(x = 0.dp, y = 10.dp, z = 0.dp),
+                            )
                     ) {
                         Button(onClick = { parentFragmentManager.popBackStack() }) { Text("Back") }
                     }

@@ -45,7 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 
 /**
@@ -175,7 +175,7 @@ public val DefaultWideNavigationRailOrbiterProperties: VerticalOrbiterProperties
     VerticalOrbiterProperties(
         position = ContentEdge.Vertical.Start,
         offset = XrNavigationRailTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterVertically,
         shape = SpatialRoundedCornerShape(CornerSize(50)),
     )

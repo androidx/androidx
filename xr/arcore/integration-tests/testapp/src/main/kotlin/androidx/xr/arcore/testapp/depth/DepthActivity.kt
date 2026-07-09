@@ -45,14 +45,15 @@ import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.depth.rendering.DepthRenderer
 import androidx.xr.arcore.testapp.depth.rendering.DepthTextureHandler
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.movable
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
@@ -190,10 +191,12 @@ class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
                     factory = { _ -> surfaceView },
                 )
                 Orbiter(
-                    position = ContentEdge.Top,
-                    offset = 8.dp,
+                    alignment =
+                        OrbiterAlignment.TopCenter(
+                            edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                            offset = DpVolumeOffset(x = 0.dp, y = 8.dp, z = 0.dp),
+                        ),
                     shape = SpatialRoundedCornerShape(CornerSize(16.dp)),
-                    offsetType = OrbiterOffsetType.InnerEdge,
                 ) {
                     Row(modifier = Modifier) {
                         BackToMainActivityButton()

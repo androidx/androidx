@@ -79,9 +79,9 @@ import androidx.compose.ui.unit.dp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.SpatialDialog
 import androidx.xr.compose.spatial.SpatialElevation
 import androidx.xr.compose.spatial.SpatialElevationLevel
@@ -93,6 +93,7 @@ import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.Purple80
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.scenecore.scene
 import kotlinx.coroutines.launch
 
@@ -103,7 +104,6 @@ class SpatialElevation : ComponentActivity() {
         setContent { IntegrationTestsAppTheme { SpatialElevationApp() } }
     }
 
-    @Suppress("DEPRECATION")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun SpatialElevationApp() {
@@ -115,9 +115,11 @@ class SpatialElevation : ComponentActivity() {
         var showPopup by remember { mutableStateOf(false) }
 
         Orbiter(
-            position = ContentEdge.Start,
-            offset = 8.dp,
-            offsetType = OrbiterOffsetType.Overlap,
+            alignment =
+                OrbiterAlignment.CenterStart(
+                    edgeOffsetType = OrbiterEdgeOffsetType.None,
+                    offset = DpVolumeOffset(x = (-8).dp, y = 0.dp, z = 0.dp),
+                )
         ) {
             NavigationRail(
                 modifier =
@@ -159,9 +161,11 @@ class SpatialElevation : ComponentActivity() {
             }
         }
         Orbiter(
-            position = ContentEdge.End,
-            offset = 80.dp,
-            offsetType = OrbiterOffsetType.OuterEdge,
+            alignment =
+                OrbiterAlignment.CenterEnd(
+                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    offset = DpVolumeOffset(x = 80.dp, y = 0.dp, z = 0.dp),
+                )
         ) {
             Row(
                 modifier = Modifier.animateContentSize(),
