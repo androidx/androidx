@@ -1,0 +1,1383 @@
+{
+  "header": {
+    "apiLevel": 8,
+    "profiles": 513,
+    "orderedResources": true
+  },
+  "root": [
+    {
+      "global": [
+        {
+          "resources": {
+            "order": [
+              "colors"
+            ],
+            "colors": [
+              {
+                "color.system_accent2_800": "#FF0000"
+              },
+              {
+                "color.system_accent2_50": "#113311"
+              },
+              {
+                "background": {
+                  "light": "@colors.color.system_accent2_50",
+                  "dark": "@colors.color.system_accent2_800",
+                  "export": false
+                }
+              },
+              {
+                "color.system_on_surface_light": "#113311"
+              },
+              {
+                "color.system_on_surface_dark": "#FF9966"
+              },
+              {
+                "textColor": {
+                  "light": "@colors.color.system_on_surface_light",
+                  "dark": "@colors.color.system_on_surface_dark",
+                  "export": false
+                }
+              },
+              {
+                "color.system_accent3_600": "#113311"
+              },
+              {
+                "color.system_accent3_100": "#FF9966"
+              },
+              {
+                "dotColor": {
+                  "light": "@colors.color.system_accent3_600",
+                  "dark": "@colors.color.system_accent3_100",
+                  "export": false
+                }
+              },
+              {
+                "color.system_accent2_10": "#113311"
+              },
+              {
+                "color.system_accent2_900": "#FF9966"
+              },
+              {
+                "panels": {
+                  "light": "@colors.color.system_accent2_10",
+                  "dark": "@colors.color.system_accent2_900",
+                  "export": false
+                }
+              },
+              {
+                "color.system_accent1_200": "#222222"
+              },
+              {
+                "followText": {
+                  "light": "@colors.color.system_accent2_800",
+                  "dark": "@colors.color.system_accent1_200",
+                  "export": false
+                }
+              },
+              {
+                "color.system_neutral2_800": "#113311"
+              },
+              {
+                "color.system_neutral2_400": "#FF9966"
+              },
+              {
+                "stockName": {
+                  "light": "@colors.color.system_neutral2_800",
+                  "dark": "@colors.color.system_neutral2_400",
+                  "export": false
+                }
+              },
+              {
+                "color.system_accent1_900": "#113311"
+              },
+              {
+                "color.system_accent1_50": "#FF9966"
+              },
+              {
+                "stockPrice": {
+                  "light": "@colors.color.system_accent1_900",
+                  "dark": "@colors.color.system_accent1_50",
+                  "export": false
+                }
+              },
+              {
+                "arrowColor": {
+                  "light": "@colors.color.system_accent1_50",
+                  "dark": "@colors.color.system_accent1_900",
+                  "export": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "variable": {
+            "name": "system.font_size",
+            "value": 37.0,
+            "export": true
+          }
+        },
+        {
+          "variable": {
+            "name": "head1",
+            "value": "42.0 * (@system.font_size / 37.0)"
+          }
+        },
+        {
+          "variable": {
+            "name": "priceDollars",
+            "value": "64.0 * (@system.font_size / 37.0)"
+          }
+        },
+        {
+          "variable": {
+            "name": "priceCents",
+            "value": "48.0 * (@system.font_size / 37.0)"
+          }
+        },
+        {
+          "variable": {
+            "name": "nameFontSize",
+            "value": "32.0 * (@system.font_size / 37.0)"
+          }
+        },
+        {
+          "variable": {
+            "name": "defaultFontSize",
+            "value": "32.0 * (@system.font_size / 37.0)"
+          }
+        }
+      ]
+    },
+    {
+      "column": {
+        "modifiers": [
+          "fillMaxWidth",
+          {
+            "background": "@colors.background"
+          }
+        ],
+        "children": [
+          {
+            "row": {
+              "modifiers": [
+                {
+                  "padding": 32.0
+                }
+              ],
+              "children": [
+                {
+                  "text": {
+                    "value": "Watchlist",
+                    "fontSize": "@head1",
+                    "color": "@colors.textColor",
+                    "modifiers": [
+                      {
+                        "padding": 24.0
+                      }
+                    ]
+                  }
+                },
+                {
+                  "spacer": {}
+                },
+                {
+                  "canvas": {
+                    "modifiers": [
+                      {
+                        "width": 64.0
+                      },
+                      {
+                        "height": 64.0
+                      }
+                    ],
+                    "commands": [
+                      {
+                        "paint": {
+                          "color": "@colors.textColor"
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "refreshPath",
+                          "value": "M480,800Q346,800 253,707Q160,614 160,480Q160,346 253,253Q346,160 480,160Q549,160 612,188.5Q675,217 720,270L720,160L800,160L800,440L520,440L520,360L688,360Q656,304 600.5,272Q545,240 480,240Q380,240 310,310Q240,380 240,480Q240,580 310,650Q380,720 480,720Q557,720 619,676Q681,632 706,560L790,560Q762,666 676,733Q590,800 480,800Z",
+                          "vtype": "path",
+                          "named": false
+                        }
+                      },
+                      {
+                        "scale": {
+                          "sx": 0.06666667,
+                          "sy": 0.06666667
+                        }
+                      },
+                      {
+                        "drawPath": "refreshPath"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "box": {
+              "modifiers": [
+                "fillMaxWidth"
+              ],
+              "children": [
+                {
+                  "column": {
+                    "horizontalAlignment": "center",
+                    "modifiers": [
+                      "fillMaxSize",
+                      {
+                        "id": 4343
+                      },
+                      {
+                        "verticalScroll": 0.0
+                      }
+                    ],
+                    "children": [
+                      {
+                        "column": {
+                          "horizontalAlignment": "center",
+                          "children": [
+                            {
+                              "column": {
+                                "modifiers": [
+                                  {
+                                    "padding": [
+                                      32.0,
+                                      40.0,
+                                      48.0,
+                                      1.0
+                                    ]
+                                  }
+                                ],
+                                "children": [
+                                  {
+                                    "row": [
+                                      {
+                                        "column": [
+                                          {
+                                            "row": {
+                                              "verticalAlignment": "bottom",
+                                              "children": [
+                                                {
+                                                  "text": {
+                                                    "textFromFloat": {
+                                                      "value": 47739.32,
+                                                      "whole": 8,
+                                                      "decimal": 0,
+                                                      "flags": 22
+                                                    },
+                                                    "color": "@colors.stockPrice",
+                                                    "fontSize": "@priceDollars"
+                                                  }
+                                                },
+                                                {
+                                                  "text": {
+                                                    "textFromFloat": {
+                                                      "value": 47739.32,
+                                                      "whole": 0,
+                                                      "decimal": 2,
+                                                      "flags": 22
+                                                    },
+                                                    "color": "@colors.stockName",
+                                                    "fontSize": "@priceCents"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "row": {
+                                              "modifiers": [
+                                                {
+                                                  "padding": {
+                                                    "top": 16.0
+                                                  }
+                                                }
+                                              ],
+                                              "children": [
+                                                {
+                                                  "text": {
+                                                    "value": "Dow Jones",
+                                                    "fontSize": "@nameFontSize",
+                                                    "color": "@colors.stockName"
+                                                  }
+                                                },
+                                                {
+                                                  "text": {
+                                                    "value": "-0.45%",
+                                                    "fontSize": "@nameFontSize",
+                                                    "color": "@colors.dotColor",
+                                                    "modifiers": [
+                                                      {
+                                                        "padding": {
+                                                          "start": 8.0
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "spacer": {}
+                                      },
+                                      {
+                                        "box": {
+                                          "horizontalAlignment": "center",
+                                          "verticalAlignment": "center",
+                                          "modifiers": [
+                                            {
+                                              "width": 120.0
+                                            },
+                                            {
+                                              "height": 120.0
+                                            },
+                                            {
+                                              "padding": 16.0
+                                            },
+                                            {
+                                              "clip": {
+                                                "type": "roundRect",
+                                                "radius": 60.0
+                                              }
+                                            },
+                                            {
+                                              "background": "@colors.dotColor"
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "text": {
+                                                "value": "\u2193",
+                                                "fontSize": 48.0,
+                                                "color": "@colors.arrowColor"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "canvas": {
+                                      "modifiers": [
+                                        {
+                                          "height": 260.0
+                                        },
+                                        "fillMaxWidth"
+                                      ],
+                                      "commands": [
+                                        {
+                                          "variable": {
+                                            "name": "w",
+                                            "value": "width",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "h",
+                                            "value": "height",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "cx",
+                                            "value": "@w / 2.0",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "cy",
+                                            "value": "@h / 2.0",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "rad",
+                                            "value": "min(@cx, @cy)",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "stockValues",
+                                            "value": [
+                                              115.0,
+                                              149.97,
+                                              204.7,
+                                              278.8,
+                                              371.69,
+                                              482.57,
+                                              610.5,
+                                              754.35,
+                                              912.82,
+                                              1084.48,
+                                              1267.78,
+                                              1461.02,
+                                              1662.43,
+                                              1870.14,
+                                              2082.23,
+                                              2296.73,
+                                              2511.64,
+                                              2724.97,
+                                              2934.74,
+                                              3139.0,
+                                              3335.86,
+                                              3523.5,
+                                              3700.2,
+                                              3864.34,
+                                              4014.44,
+                                              4149.13,
+                                              4267.23,
+                                              4367.71,
+                                              4449.71,
+                                              4512.56,
+                                              4555.78,
+                                              4579.1,
+                                              4582.42,
+                                              4565.87,
+                                              4529.76,
+                                              4474.61,
+                                              4401.1,
+                                              4310.14,
+                                              4202.76,
+                                              4080.21,
+                                              3943.85,
+                                              3795.2,
+                                              3635.88,
+                                              3467.65,
+                                              3292.33,
+                                              3111.82,
+                                              2928.08,
+                                              2743.1,
+                                              2558.86,
+                                              2377.37,
+                                              2200.59,
+                                              2030.43,
+                                              1868.74,
+                                              1717.28,
+                                              1577.73,
+                                              1451.62,
+                                              1340.37,
+                                              1245.23,
+                                              1167.31,
+                                              1107.53,
+                                              1066.65,
+                                              1045.22,
+                                              1043.6,
+                                              1061.96,
+                                              1100.27,
+                                              1158.3,
+                                              1235.61,
+                                              1331.58,
+                                              1445.4,
+                                              1576.09,
+                                              1722.48,
+                                              1883.28,
+                                              2057.01,
+                                              2242.1,
+                                              2436.84,
+                                              2639.44,
+                                              2848.02,
+                                              3060.66,
+                                              3275.37,
+                                              3490.15,
+                                              3703.03,
+                                              3912.0,
+                                              4115.15,
+                                              4310.58,
+                                              4496.5,
+                                              4671.2,
+                                              4833.08,
+                                              4980.68,
+                                              5112.66,
+                                              5227.86,
+                                              5325.29,
+                                              5404.11,
+                                              5463.68,
+                                              5503.58,
+                                              5523.53,
+                                              5523.5,
+                                              5503.63,
+                                              5464.28,
+                                              5405.99,
+                                              5329.48,
+                                              5235.68
+                                            ],
+                                            "vtype": "floatArrays"
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "margin",
+                                            "value": "@rad * 0.3",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "lineBottom",
+                                            "value": "@h - @margin",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "pathCreate": {
+                                            "id": "graphPath",
+                                            "x": "@margin",
+                                            "y": "@lineBottom"
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "maxValue",
+                                            "value": "arrayMax(@stockValues)",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "minValue",
+                                            "value": "arrayMin(@stockValues) - 100.0",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "variable": {
+                                            "name": "xEnd",
+                                            "value": "@w - @margin",
+                                            "commit": true
+                                          }
+                                        },
+                                        {
+                                          "loop": {
+                                            "from": "@margin",
+                                            "step": 1.0,
+                                            "until": "@xEnd",
+                                            "index": "index",
+                                            "commands": [
+                                              {
+                                                "variable": {
+                                                  "name": "pos",
+                                                  "value": "(@index - @margin) / (@w - @margin * 2.0)",
+                                                  "commit": true
+                                                }
+                                              },
+                                              {
+                                                "variable": {
+                                                  "name": "v",
+                                                  "value": "(arraySpline(@stockValues, @pos) - @minValue) / (@maxValue - @minValue)",
+                                                  "commit": true
+                                                }
+                                              },
+                                              {
+                                                "variable": {
+                                                  "name": "y",
+                                                  "value": "@lineBottom - @v * (@lineBottom - @margin)",
+                                                  "commit": true
+                                                }
+                                              },
+                                              {
+                                                "pathAppendLineTo": {
+                                                  "path": "graphPath",
+                                                  "x": "@index",
+                                                  "y": "@y"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "pathAppendLineTo": {
+                                            "path": "graphPath",
+                                            "x": "@xEnd",
+                                            "y": "@lineBottom"
+                                          }
+                                        },
+                                        {
+                                          "pathAppendClose": {
+                                            "path": "graphPath"
+                                          }
+                                        },
+                                        {
+                                          "paint": {
+                                            "ops": [
+                                              {
+                                                "style": "fill"
+                                              },
+                                              {
+                                                "linearGradient": {
+                                                  "x1": 0.0,
+                                                  "y1": 0.0,
+                                                  "x2": 0.0,
+                                                  "y2": "@lineBottom",
+                                                  "colors": [
+                                                    "@colors.dotColor",
+                                                    0
+                                                  ],
+                                                  "tileMode": 0
+                                                }
+                                              },
+                                              {
+                                                "pathEffect": null
+                                              },
+                                              {
+                                                "color": "#000000"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "save": {}
+                                        },
+                                        {
+                                          "clipRect": {
+                                            "left": "@margin + 5.0",
+                                            "top": "@margin + 5.0",
+                                            "right": "@xEnd - 5.0",
+                                            "bottom": "@lineBottom - 5.0"
+                                          }
+                                        },
+                                        {
+                                          "drawPath": "graphPath"
+                                        },
+                                        {
+                                          "paint": {
+                                            "ops": [
+                                              {
+                                                "shader": 0
+                                              },
+                                              {
+                                                "color": "@colors.dotColor"
+                                              },
+                                              {
+                                                "style": "stroke"
+                                              },
+                                              {
+                                                "width": 6.0
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "drawPath": "graphPath"
+                                        },
+                                        {
+                                          "restore": {}
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "flow": {
+                                "modifiers": [
+                                  "fillMaxWidth"
+                                ],
+                                "children": [
+                                  {
+                                    "row": {
+                                      "modifiers": [
+                                        {
+                                          "padding": [
+                                            32.0,
+                                            0.0,
+                                            32.0,
+                                            28.0
+                                          ]
+                                        },
+                                        {
+                                          "clip": {
+                                            "type": "roundRect",
+                                            "radius": 48.0
+                                          }
+                                        },
+                                        {
+                                          "background": "@colors.panels"
+                                        },
+                                        {
+                                          "weight": 1.0
+                                        },
+                                        {
+                                          "widthIn": [
+                                            120.0,
+                                            3.4028235e+38
+                                          ]
+                                        },
+                                        {
+                                          "padding": 24.0
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "column": [
+                                            {
+                                              "row": {
+                                                "verticalAlignment": "bottom",
+                                                "children": [
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 6846.51,
+                                                        "whole": 8,
+                                                        "decimal": 0,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceDollars",
+                                                      "color": "@colors.stockPrice"
+                                                    }
+                                                  },
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 6846.51,
+                                                        "whole": 0,
+                                                        "decimal": 2,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceCents",
+                                                      "color": "@colors.stockName"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "row": [
+                                                {
+                                                  "column": [
+                                                    {
+                                                      "text": {
+                                                        "value": "S&P 500",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.stockName"
+                                                      }
+                                                    },
+                                                    {
+                                                      "text": {
+                                                        "value": "-0.35%",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.dotColor"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "spacer": {}
+                                                },
+                                                {
+                                                  "box": {
+                                                    "horizontalAlignment": "center",
+                                                    "verticalAlignment": "center",
+                                                    "modifiers": [
+                                                      {
+                                                        "width": 120.0
+                                                      },
+                                                      {
+                                                        "height": 120.0
+                                                      },
+                                                      {
+                                                        "padding": 16.0
+                                                      },
+                                                      {
+                                                        "clip": {
+                                                          "type": "roundRect",
+                                                          "radius": 60.0
+                                                        }
+                                                      },
+                                                      {
+                                                        "background": "@colors.dotColor"
+                                                      }
+                                                    ],
+                                                    "children": [
+                                                      {
+                                                        "text": {
+                                                          "value": "\u2193",
+                                                          "fontSize": 48.0,
+                                                          "color": "@colors.arrowColor"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "row": {
+                                      "modifiers": [
+                                        {
+                                          "padding": [
+                                            32.0,
+                                            0.0,
+                                            32.0,
+                                            28.0
+                                          ]
+                                        },
+                                        {
+                                          "clip": {
+                                            "type": "roundRect",
+                                            "radius": 48.0
+                                          }
+                                        },
+                                        {
+                                          "background": "@colors.panels"
+                                        },
+                                        {
+                                          "weight": 1.0
+                                        },
+                                        {
+                                          "widthIn": [
+                                            120.0,
+                                            3.4028235e+38
+                                          ]
+                                        },
+                                        {
+                                          "padding": 24.0
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "column": [
+                                            {
+                                              "row": {
+                                                "verticalAlignment": "bottom",
+                                                "children": [
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 23545.9,
+                                                        "whole": 8,
+                                                        "decimal": 0,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceDollars",
+                                                      "color": "@colors.stockPrice"
+                                                    }
+                                                  },
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 23545.9,
+                                                        "whole": 0,
+                                                        "decimal": 2,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceCents",
+                                                      "color": "@colors.stockName"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "row": [
+                                                {
+                                                  "column": [
+                                                    {
+                                                      "text": {
+                                                        "value": "Nasdaq",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.stockName"
+                                                      }
+                                                    },
+                                                    {
+                                                      "text": {
+                                                        "value": "-0.14%",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.dotColor"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "spacer": {}
+                                                },
+                                                {
+                                                  "box": {
+                                                    "horizontalAlignment": "center",
+                                                    "verticalAlignment": "center",
+                                                    "modifiers": [
+                                                      {
+                                                        "width": 120.0
+                                                      },
+                                                      {
+                                                        "height": 120.0
+                                                      },
+                                                      {
+                                                        "padding": 16.0
+                                                      },
+                                                      {
+                                                        "clip": {
+                                                          "type": "roundRect",
+                                                          "radius": 60.0
+                                                        }
+                                                      },
+                                                      {
+                                                        "background": "@colors.dotColor"
+                                                      }
+                                                    ],
+                                                    "children": [
+                                                      {
+                                                        "text": {
+                                                          "value": "\u2193",
+                                                          "fontSize": 48.0,
+                                                          "color": "@colors.arrowColor"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "row": {
+                                      "modifiers": [
+                                        {
+                                          "padding": [
+                                            32.0,
+                                            0.0,
+                                            32.0,
+                                            28.0
+                                          ]
+                                        },
+                                        {
+                                          "clip": {
+                                            "type": "roundRect",
+                                            "radius": 48.0
+                                          }
+                                        },
+                                        {
+                                          "background": "@colors.panels"
+                                        },
+                                        {
+                                          "weight": 1.0
+                                        },
+                                        {
+                                          "widthIn": [
+                                            120.0,
+                                            3.4028235e+38
+                                          ]
+                                        },
+                                        {
+                                          "padding": 24.0
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "column": [
+                                            {
+                                              "row": {
+                                                "verticalAlignment": "bottom",
+                                                "children": [
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 2520.98,
+                                                        "whole": 8,
+                                                        "decimal": 0,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceDollars",
+                                                      "color": "@colors.stockPrice"
+                                                    }
+                                                  },
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 2520.98,
+                                                        "whole": 0,
+                                                        "decimal": 2,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceCents",
+                                                      "color": "@colors.stockName"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "row": [
+                                                {
+                                                  "column": [
+                                                    {
+                                                      "text": {
+                                                        "value": "Russell",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.stockName"
+                                                      }
+                                                    },
+                                                    {
+                                                      "text": {
+                                                        "value": "-0.020%",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.dotColor"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "spacer": {}
+                                                },
+                                                {
+                                                  "box": {
+                                                    "horizontalAlignment": "center",
+                                                    "verticalAlignment": "center",
+                                                    "modifiers": [
+                                                      {
+                                                        "width": 120.0
+                                                      },
+                                                      {
+                                                        "height": 120.0
+                                                      },
+                                                      {
+                                                        "padding": 16.0
+                                                      },
+                                                      {
+                                                        "clip": {
+                                                          "type": "roundRect",
+                                                          "radius": 60.0
+                                                        }
+                                                      },
+                                                      {
+                                                        "background": "@colors.dotColor"
+                                                      }
+                                                    ],
+                                                    "children": [
+                                                      {
+                                                        "text": {
+                                                          "value": "\u2193",
+                                                          "fontSize": 48.0,
+                                                          "color": "@colors.arrowColor"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "row": {
+                                      "modifiers": [
+                                        {
+                                          "padding": [
+                                            32.0,
+                                            0.0,
+                                            32.0,
+                                            28.0
+                                          ]
+                                        },
+                                        {
+                                          "clip": {
+                                            "type": "roundRect",
+                                            "radius": 48.0
+                                          }
+                                        },
+                                        {
+                                          "background": "@colors.panels"
+                                        },
+                                        {
+                                          "weight": 1.0
+                                        },
+                                        {
+                                          "widthIn": [
+                                            120.0,
+                                            3.4028235e+38
+                                          ]
+                                        },
+                                        {
+                                          "padding": 24.0
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "column": [
+                                            {
+                                              "row": {
+                                                "verticalAlignment": "bottom",
+                                                "children": [
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 21703.2,
+                                                        "whole": 8,
+                                                        "decimal": 0,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceDollars",
+                                                      "color": "@colors.stockPrice"
+                                                    }
+                                                  },
+                                                  {
+                                                    "text": {
+                                                      "textFromFloat": {
+                                                        "value": 21703.2,
+                                                        "whole": 0,
+                                                        "decimal": 2,
+                                                        "flags": 22
+                                                      },
+                                                      "fontSize": "@priceCents",
+                                                      "color": "@colors.stockName"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "row": [
+                                                {
+                                                  "column": [
+                                                    {
+                                                      "text": {
+                                                        "value": "NYA",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.stockName"
+                                                      }
+                                                    },
+                                                    {
+                                                      "text": {
+                                                        "value": "-0.49%",
+                                                        "fontSize": "@defaultFontSize",
+                                                        "color": "@colors.dotColor"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "spacer": {}
+                                                },
+                                                {
+                                                  "box": {
+                                                    "horizontalAlignment": "center",
+                                                    "verticalAlignment": "center",
+                                                    "modifiers": [
+                                                      {
+                                                        "width": 120.0
+                                                      },
+                                                      {
+                                                        "height": 120.0
+                                                      },
+                                                      {
+                                                        "padding": 16.0
+                                                      },
+                                                      {
+                                                        "clip": {
+                                                          "type": "roundRect",
+                                                          "radius": 60.0
+                                                        }
+                                                      },
+                                                      {
+                                                        "background": "@colors.dotColor"
+                                                      }
+                                                    ],
+                                                    "children": [
+                                                      {
+                                                        "text": {
+                                                          "value": "\u2193",
+                                                          "fontSize": 48.0,
+                                                          "color": "@colors.arrowColor"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "box": {
+                                "horizontalAlignment": "center",
+                                "verticalAlignment": "center",
+                                "modifiers": [
+                                  {
+                                    "padding": 8.0
+                                  },
+                                  {
+                                    "height": 100.0
+                                  },
+                                  {
+                                    "clip": {
+                                      "type": "roundRect",
+                                      "radius": 48.0
+                                    }
+                                  },
+                                  {
+                                    "background": "@colors.followText"
+                                  },
+                                  {
+                                    "padding": 4.0
+                                  },
+                                  {
+                                    "clip": {
+                                      "type": "roundRect",
+                                      "radius": 48.0
+                                    }
+                                  },
+                                  {
+                                    "background": "@colors.background"
+                                  },
+                                  {
+                                    "padding": 16.0
+                                  }
+                                ],
+                                "children": [
+                                  {
+                                    "row": {
+                                      "verticalAlignment": "center",
+                                      "children": [
+                                        {
+                                          "text": {
+                                            "value": "+ ",
+                                            "color": "@colors.followText",
+                                            "fontSize": 48.0
+                                          }
+                                        },
+                                        {
+                                          "text": {
+                                            "value": "Follow investments",
+                                            "color": "@colors.followText",
+                                            "fontSize": "@defaultFontSize"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "variable": {
+                                "name": "sHeight",
+                                "value": "height",
+                                "commit": true
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "canvas": {
+                    "modifiers": [
+                      "fillMaxSize"
+                    ],
+                    "commands": [
+                      {
+                        "variable": {
+                          "name": "w",
+                          "value": "width",
+                          "commit": true
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "h",
+                          "value": "height",
+                          "commit": true
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "alpha",
+                          "value": {
+                            "value": "sign(max(0.0, touchTime - animationTime + 0.1))",
+                            "anim": 1.2
+                          },
+                          "commit": true
+                        }
+                      },
+                      {
+                        "paint": {
+                          "ops": [
+                            {
+                              "color": "@colors.stockName"
+                            },
+                            {
+                              "alpha": "@alpha"
+                            },
+                            {
+                              "width": 10.0
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "safeSize",
+                          "value": "max(1.0, sHeight)",
+                          "commit": true
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "len",
+                          "value": "h * h / @safeSize",
+                          "commit": true
+                        }
+                      },
+                      {
+                        "variable": {
+                          "name": "off",
+                          "value": "h * 0.0 / @safeSize",
+                          "commit": true
+                        }
+                      },
+                      {
+                        "drawLine": {
+                          "x1": "@w - 5.0",
+                          "y1": "@off",
+                          "x2": "@w - 5.0",
+                          "y2": "@off + @len"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1687,6 +1687,11 @@ public class RemoteComposeWriter {
      * @param path Android Path object
      * @return id of the path object to be used by drawPath, etc.
      */
+    public int addPathData(float @NonNull [] pathData) {
+        int id = mState.cacheData(pathData);
+        return mBuffer.addPathData(id, pathData);
+    }
+
     public int addPathData(RcPlatformServices.@NonNull RcPathArrayCreator path) {
         float[] pathData = mPlatform.pathToFloatArray(path);
         int id = mState.cacheData(path);

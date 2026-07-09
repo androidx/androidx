@@ -34,6 +34,7 @@ fun rcJsonGraphs2(
             "width": 500,
             "height": 500,
             "contentDescription": "Simple Timer",
+            "fps": 120,
             "apiLevel": 7,
             "profiles": 512
           },
