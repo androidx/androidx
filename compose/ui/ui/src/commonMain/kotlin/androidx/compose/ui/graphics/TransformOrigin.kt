@@ -68,6 +68,7 @@ value class TransformOrigin internal constructor(@PublishedApi internal val pack
          * [TransformOrigin] constant to indicate that the center of the content should be used for
          * rotation and scale transformations
          */
-        val Center = TransformOrigin(0.5f, 0.5f)
+        val Center
+            get() = TransformOrigin(0.5f, 0.5f)
     }
 }

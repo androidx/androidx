@@ -77,7 +77,9 @@ value class ScaleFactor(val packedValue: Long) {
          * value used to initialize a non-null parameter. Access to scaleX or scaleY on an
          * unspecified size is not allowed
          */
-        @Stable val Unspecified = ScaleFactor(Float.NaN, Float.NaN)
+        @Stable
+        val Unspecified
+            get() = ScaleFactor(Float.NaN, Float.NaN)
     }
 }
 
