@@ -16,14 +16,11 @@
 
 package androidx.build.intellij
 
+import androidx.build.BuildEnvironment
 import androidx.build.ProjectLayoutType
 import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
-import androidx.build.studio.StudioTask.Companion.platformSpecificEnvironmentProperties
-import androidx.build.studio.StudioTask.Companion.setupSymlinksIfNeeded
-import androidx.build.studio.StudioTask.Companion.validateEnvironment
-import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -104,7 +101,7 @@ abstract class IntelliJTask : DefaultTask() {
 
     @TaskAction
     fun intellijw() {
-        validateEnvironment("IntelliJ")
+        BuildEnvironment.validateEnvironment("IntelliJ")
         install()
         writeAndroidSdkPath()
         launch()
@@ -139,7 +136,7 @@ abstract class IntelliJTask : DefaultTask() {
     private fun launch() {
         if (checkLicenseAgreement(services)) {
             // This seems like as good a time as any to set up SDK symlinks...
-            setupSymlinksIfNeeded(localSdkPath)
+            BuildEnvironment.setupSymlinksIfNeeded(localSdkPath)
 
             println("Launching intellij...")
             launchIntelliJ()
@@ -196,15 +193,7 @@ abstract class IntelliJTask : DefaultTask() {
                     // configuration.
                     "IDEA_PROPERTIES" to ideaProperties.canonicalPath,
                     "IDEA_VM_OPTIONS" to vmOptions.canonicalPath,
-                    // This environment variable prevents IntelliJ from showing IDE inspection
-                    // warnings for nullability issues, if the context is deprecated. This
-                    // environment variable is consumed by InteroperabilityDetector.kt
-                    "ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED" to "true",
-                    // This environment variable is read by AndroidXRootImplPlugin to ensure that
-                    // IntelliJ-initiated Gradle tasks are run against the same version of AGP that
-                    // was used to start IntelliJ, which prevents version mismatch after repo sync.
-                    "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION,
-                ) + platformSpecificEnvironmentProperties()
+                ) + BuildEnvironment.ideEnvironment()
 
             // Append to the existing environment variables set by gradlew and the user.
             environment().putAll(additionalIntelliJEnvironmentProperties)

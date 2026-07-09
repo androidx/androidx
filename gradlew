@@ -11,18 +11,10 @@ set -e
 # --------- androidx specific code needed for build server. ------------------
 
 SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
-if [ -n "$OUT_DIR" ] ; then
-    mkdir -p "$OUT_DIR"
-    OUT_DIR="$(cd $OUT_DIR && pwd -P)"
-    export TMPDIR="$OUT_DIR/tmp"
-elif [[ $SCRIPT_PATH == /google/cog/* ]] ; then
-    export OUT_DIR="$HOME/androidxout"
-else
-    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
-    export OUT_DIR="$CHECKOUT_ROOT/out"
-fi
-export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-export KONAN_DATA_DIR="$OUT_DIR/.konan"
+
+# Establish build environment variables: OUT_DIR and the directories
+# derived from it, prebuilts JDK and SDK, and local.properties.
+. "$SCRIPT_PATH/development/build-environment/build-environment.sh"
 
 ORG_GRADLE_JVMARGS="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
 if [ -n "$DIST_DIR" ]; then
@@ -35,9 +27,6 @@ if [ -n "$DIST_DIR" ]; then
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
-
-# unset ANDROID_BUILD_TOP so that Lint doesn't think we're building the platform itself
-unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
@@ -74,11 +63,6 @@ case "`uname`" in
     msys=true
     ;;
 esac
-platform_suffix="x86"
-case "$(arch)" in
-  arm64* )
-    platform_suffix="arm64"
-esac
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"
@@ -96,37 +80,6 @@ SAVED="`pwd`"
 cd "`dirname \"$PRG\"`/" >/dev/null
 APP_HOME="`pwd -P`"
 cd "$SAVED" >/dev/null
-
-# --------- androidx specific code needed for lint and java. ------------------
-
-# Pick the correct fullsdk for this OS.
-if [ $darwin == "true" ]; then
-    plat="darwin"
-else
-    plat="linux"
-fi
-
-# Tests for lint checks default to using sdk defined by this variable. This removes a lot of
-# setup from each lint module.
-export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
-# override JAVA_HOME, because CI machines have it and it points to very old JDK
-export ANDROIDX_JDK21="$APP_HOME/../../prebuilts/jdk/jdk21/$plat-$platform_suffix"
-export JAVA_HOME=$ANDROIDX_JDK21
-export STUDIO_GRADLE_JDK=$JAVA_HOME
-
-# Warn developers if they try to build top level project without the full checkout
-[ ! -d "$JAVA_HOME" ] && echo "Failed to find: $JAVA_HOME
-
-Typically, this means either:
-1. You are using the standalone AndroidX checkout, e.g. GitHub, which only supports
-   building a subset of projects. See CONTRIBUTING.md for details.
-2. You are using the repo checkout, but the last repo sync failed. Use repo status
-   to check for projects which are partially-synced, e.g. showing ***NO BRANCH***." && exit -1
-
-# Creates/overwrites local.properties with sdk.dir and cmake.dir to avoid invalidating configuration cache
-$APP_HOME/development/write_sdk_path.sh
-
-# ----------------------------------------------------------------------------
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
@@ -452,7 +405,7 @@ function runGradle() {
   fi
 
   RETURN_VALUE=0
-  set -- "$@" -Dorg.gradle.projectcachedir="$OUT_DIR/gradle-project-cache"
+  set -- "$@" -Dorg.gradle.projectcachedir="$ANDROIDX_PROJECT_CACHE_DIR"
   # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
   if [[ " ${@} " =~ " --dependency-verification=" ]]; then
     VERIFICATION_ARGUMENT="" # already specified by caller
