@@ -16,13 +16,11 @@
 
 package androidx.build.studio
 
-import androidx.build.OperatingSystem
+import androidx.build.BuildEnvironment
 import androidx.build.ProjectLayoutType
-import androidx.build.getOperatingSystem
 import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
-import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -60,7 +58,7 @@ abstract class StudioTask : DefaultTask() {
     // TODO: support -y and --update-only options? Can use @Option for this
     @TaskAction
     fun studiow() {
-        validateEnvironment("Studio")
+        BuildEnvironment.validateEnvironment("Studio")
         install()
         installKtfmtPlugin()
         writeAndroidSdkPath()
@@ -214,25 +212,12 @@ abstract class StudioTask : DefaultTask() {
     /** Launches Studio if the user accepts / has accepted the license agreement. */
     private fun launch() {
         if (checkLicenseAgreement(services)) {
-            if (
-                requiresProjectList &&
-                    !System.getenv().containsKey("ANDROIDX_PROJECTS") &&
-                    !System.getenv().containsKey("PROJECT_PREFIX")
-            ) {
-                throw GradleException(
-                    """
-                    Please specify which set of projects you'd like to open in studio
-                    with ANDROIDX_PROJECTS=MAIN ./gradlew studio
-                    or PROJECT_PREFIX=:room3: ./gradlew studio
-
-                    For possible options see settings.gradle
-                    """
-                        .trimIndent()
-                )
+            if (requiresProjectList) {
+                BuildEnvironment.requireProjectScope(ide = "studio", launchTask = "studio")
             }
 
             // This seems like as good a time as any to set up SDK symlinks...
-            setupSymlinksIfNeeded(localSdkPath)
+            BuildEnvironment.setupSymlinksIfNeeded(localSdkPath)
 
             println("Launching studio...")
             launchStudio()
@@ -265,18 +250,7 @@ abstract class StudioTask : DefaultTask() {
                     // configuration.
                     "STUDIO_PROPERTIES" to ideaProperties.canonicalPath,
                     "STUDIO_VM_OPTIONS" to vmOptions.canonicalPath,
-                    // This environment variable prevents Studio from showing IDE inspection
-                    // warnings
-                    // for nullability issues, if the context is deprecated. This environment
-                    // variable
-                    // is consumed by InteroperabilityDetector.kt
-                    "ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED" to "true",
-                    // This environment variable is read by AndroidXRootImplPlugin to ensure that
-                    // Studio-initiated Gradle tasks are run against the same version of AGP that
-                    // was
-                    // used to start Studio, which prevents version mismatch after repo sync.
-                    "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION,
-                ) + additionalEnvironmentProperties + platformSpecificEnvironmentProperties()
+                ) + BuildEnvironment.ideEnvironment() + additionalEnvironmentProperties
 
             // Append to the existing environment variables set by gradlew and the user.
             environment().putAll(additionalStudioEnvironmentProperties)
@@ -384,74 +358,6 @@ abstract class StudioTask : DefaultTask() {
                     ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
                 }
             tasks.register(STUDIO_TASK, studioTask)
-        }
-
-        /** Ensure that we can launch IDE without issue. */
-        fun validateEnvironment(ide: String) {
-            if (
-                System.getenv().containsKey("SSH_CLIENT") && !System.getenv().containsKey("DISPLAY")
-            ) {
-                throw GradleException(
-                    """
-                $ide must be run from a graphical session.
-
-                Could not read DISPLAY environment variable.  If you are using SSH into a remote
-                machine, consider using either ssh -X or switching to Chrome Remote Desktop.
-                """
-                        .trimIndent()
-                )
-            }
-        }
-
-        fun platformSpecificEnvironmentProperties(): Map<String, String> {
-            return if (System.getenv("QT_QPA_PLATFORM") == "wayland") {
-                // Emulators don't work on Wayland natively, make them go through XWayland
-                mapOf("QT_QPA_PLATFORM" to "xcb")
-            } else {
-                emptyMap()
-            }
-        }
-
-        /**
-         * Attempts to symlink the system-images and emulator SDK directories to a canonical SDK.
-         */
-        fun setupSymlinksIfNeeded(localSdkPath: File) {
-            val paths = listOf("system-images", "emulator")
-            if (!localSdkPath.canonicalFile.exists()) {
-                // We probably got the support root folder wrong. Fail gracefully.
-                return
-            }
-
-            val relativeSdkPath =
-                when (val osType = getOperatingSystem()) {
-                    OperatingSystem.MAC -> "Library/Android/sdk"
-                    OperatingSystem.LINUX -> "Android/Sdk"
-                    else -> {
-                        println(
-                            "Failed to locate canonical SDK, unsupported operating system: $osType"
-                        )
-                        return
-                    }
-                }
-
-            val canonicalSdkPath = File(System.getenv("HOME"), relativeSdkPath)
-            if (!canonicalSdkPath.exists()) {
-                // In the future, we might want to try a little harder to locate a canonical SDK
-                // path.
-                println("Failed to locate canonical SDK, not found at: $canonicalSdkPath")
-                return
-            }
-
-            paths.forEach { path ->
-                val link = File(localSdkPath.canonicalFile, path)
-                val target = File(canonicalSdkPath, path)
-                if (!target.exists()) {
-                    println("Skipping canonical SDK symlink creation, not found at: $target")
-                } else if (!link.exists()) {
-                    println("Creating canonical SDK symlink for $target...")
-                    Files.createSymbolicLink(link.toPath(), target.toPath())
-                }
-            }
         }
     }
 }
