@@ -238,11 +238,8 @@ private const val MEDIUM_PHONE_33 = "MediumPhone.arm,version=33"
 private const val MEDIUM_PHONE_30 = "MediumPhone.arm,version=30"
 private const val MEDIUM_PHONE_28 = "MediumPhone.arm,version=28"
 private const val MEDIUM_PHONE_26 = "MediumPhone.arm,version=26"
+private const val NEXUS5X_24 = "Nexus5X,version=24"
 private const val NEXUS5_23 = "Nexus5.gce_x86,version=23"
-private const val PIXEL2_33 = "Pixel2.arm,version=33"
-private const val PIXEL2_30 = "Pixel2.arm,version=30"
-private const val PIXEL2_28 = "Pixel2.arm,version=28"
-private const val PIXEL2_26 = "Pixel2.arm,version=26"
 
 private val API_TO_MODEL_MAP =
     mapOf(
@@ -253,6 +250,7 @@ private val API_TO_MODEL_MAP =
         30 to MEDIUM_PHONE_30,
         28 to MEDIUM_PHONE_28,
         26 to MEDIUM_PHONE_26,
+        24 to NEXUS5X_24,
         23 to NEXUS5_23,
     )
 
@@ -268,12 +266,9 @@ private val devicesToRunOn =
         "ftlmediumphoneapi30" to listOf(MEDIUM_PHONE_30),
         "ftlmediumphoneapi28" to listOf(MEDIUM_PHONE_28),
         "ftlmediumphoneapi26" to listOf(MEDIUM_PHONE_26),
+        "ftlnexus5xapi24" to listOf(NEXUS5X_24),
         "ftlnexus5api23" to listOf(NEXUS5_23),
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
-        "ftlpixel2api33" to listOf(PIXEL2_33),
-        "ftlpixel2api30" to listOf(PIXEL2_30),
-        "ftlpixel2api28" to listOf(PIXEL2_28),
-        "ftlpixel2api26" to listOf(PIXEL2_26),
     )
 
 internal fun Project.registerRunner(
