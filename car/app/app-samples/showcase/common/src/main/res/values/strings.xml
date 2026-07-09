@@ -515,6 +515,9 @@
   <string name="latest_feature_title">Latest Features</string>
   <string name="loading_toggle_enabled">Loading enabled</string>
   <string name="loading_toggle_disabled">Loading disabled</string>
+  <string name="app_theme_title">Use App Theme</string>
+  <string name="app_theme_enabled">App Theme enabled</string>
+  <string name="app_theme_disabled">App Theme disabled</string>
   <string name="loading_screen">Loading screen</string>
   <string name="vector_toggle_details">Toggle to add/remove color</string>
     <string name="map_template_toggle_demo_title">Map Template with Toggles</string>
