@@ -18,13 +18,6 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
-import androidx.compose.remote.core.RemoteContext.FLOAT_DAY_OF_MONTH
-import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
-import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -40,7 +33,7 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
     public val time: RemoteTime = RemoteTime()
 
     /** Access to remote component information. */
-    public val component: RemoteComponent = RemoteComponent()
+    public val component: RemoteComponent = RemoteComponent(scope)
 
     /** Wraps a constant value as a [RemoteFloat]. */
     public fun value(v: Float): RemoteFloat = RemoteFloat(v)
@@ -92,41 +85,5 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
         content: RemoteDrawScope.(RemoteFloat) -> Unit,
     ) {
         loop(until.toFloat(), from.toFloat(), step.toFloat(), content)
-    }
-
-    /** A class that provides access to remote time information. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public inner class RemoteTime {
-        public fun Hour(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_HR)
-
-        public fun Minutes(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_MIN)
-
-        public fun Seconds(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_SEC)
-
-        public fun ContinuousSec(): RemoteFloat = RemoteFloat(FLOAT_CONTINUOUS_SEC)
-
-        public fun UtcOffset(): RemoteFloat = RemoteFloat(FLOAT_OFFSET_TO_UTC)
-
-        public fun DayOfWeek(): RemoteFloat = RemoteFloat(FLOAT_WEEK_DAY)
-
-        public fun DayOfMonth(): RemoteFloat = RemoteFloat(FLOAT_DAY_OF_MONTH)
-    }
-
-    /** A class that provides access to remote component information. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public inner class RemoteComponent {
-        private val context = RemoteFloatContext(scope.remoteComposeCreationState)
-
-        public val width: RemoteFloat
-            get() = context.componentWidth()
-
-        public val height: RemoteFloat
-            get() = context.componentHeight()
-
-        public val centerX: RemoteFloat
-            get() = context.componentCenterX()
-
-        public val centerY: RemoteFloat
-            get() = context.componentCenterY()
     }
 }
