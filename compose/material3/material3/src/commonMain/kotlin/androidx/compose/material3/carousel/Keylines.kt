@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.Density
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -42,7 +41,6 @@ import kotlin.math.min
  * @param minSmallItemSize the minimum allowable size of small items in pixels
  * @param maxSmallItemSize the maximum allowable size of small items in pixels
  */
-@OptIn(ExperimentalMaterial3Api::class)
 internal fun multiBrowseKeylineList(
     density: Density,
     carouselMainAxisSize: Float,
@@ -157,7 +155,6 @@ internal fun multiBrowseKeylineList(
  * @param itemSize the size of large items, in pixels, in the main scrolling axis
  * @param itemSpacing the spacing between items in pixels
  */
-@OptIn(ExperimentalMaterial3Api::class)
 internal fun uncontainedKeylineList(
     density: Density,
     carouselMainAxisSize: Float,
@@ -211,7 +208,6 @@ internal fun uncontainedKeylineList(
  * @param minSmallItemSize the minimum allowable size of small items in pixels
  * @param maxSmallItemSize the maximum allowable size of small items in pixels
  */
-@OptIn(ExperimentalMaterial3Api::class)
 internal fun heroKeylineList(
     density: Density,
     carouselMainAxisSize: Float,
@@ -338,7 +334,6 @@ internal fun createCenterAlignedKeylineList(
  * and arbitrarily chooses a size small enough such that there is a size disparity between the
  * medium and large sizes, but large enough to have a sufficient percentage cut off.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private fun calculateMediumChildSize(
     minimumMediumSize: Float,
     largeItemSize: Float,
