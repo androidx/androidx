@@ -1,0 +1,146 @@
+{
+  "header": {
+    "width": 360,
+    "height": 360,
+    "profiles": 512,
+    "contentDescription": "Smart Climate Dial with AGSL Thermal Glow Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#0B0F19"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 24
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.x, iResolution.y);\n    float dist = length(uv);\n    float t = iTime * 1.5;\n    float heat = sin(dist * 16.0 - t) * 0.5 + 0.5;\n    float3 coldColor = float3(0.08, 0.35, 0.85);\n    float3 warmColor = float3(0.95, 0.35, 0.08);\n    float3 col = mix(coldColor, warmColor, heat);\n    float alpha = smoothstep(0.46, 0.42, dist) * smoothstep(0.18, 0.24, dist);\n    return half4(col, alpha * 0.85);\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 20
+          }
+        ],
+        "horizontalAlignment": "center",
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "CLIMATE CONTROL",
+                "fontSize": 14,
+                "fontWeight": 700,
+                "color": "#FB923C"
+              },
+              {
+                "type": "text",
+                "value": "Living Room \u2022 Heating",
+                "fontSize": 12,
+                "color": "#94A3B8"
+              }
+            ]
+          },
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "72\u00b0F",
+                "fontSize": 52,
+                "fontWeight": 700,
+                "color": "#FFFFFF"
+              },
+              {
+                "type": "text",
+                "value": "TARGET 74\u00b0F",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#F97316"
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_around",
+            "children": [
+              {
+                "type": "text",
+                "value": "\u2744\ufe0f COOL",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#38BDF8"
+              },
+              {
+                "type": "text",
+                "value": "\ud83d\udd25 HEAT",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#F97316"
+              },
+              {
+                "type": "text",
+                "value": "\ud83c\udf43 ECO",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#4ADE80"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

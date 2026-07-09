@@ -31,7 +31,6 @@ fun rcJsonMacroDemo(
         """
         {
           "header": {
-            "apiLevel": 7,
             "profiles": 513
           },
           "root": [
@@ -57,8 +56,7 @@ fun rcJsonMacroDemo(
                           "text": {
                             "value": "@label",
                             "fontSize": "@fontSize",
-                            "color": "#FFFFFF",
-                            "textAlign": "left"
+                            "color": "#FFFFFF"
                           }
                         }
                       ]

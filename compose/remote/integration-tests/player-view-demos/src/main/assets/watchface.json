@@ -1,0 +1,598 @@
+{
+  "header": {
+    "apiLevel": 7,
+    "width": 500,
+    "height": 500,
+    "contentDescription": "Sleek WatchFace Demo",
+    "fps": 60,
+    "profiles": 769,
+    "debug": 0
+  },
+  "root": {
+    "box": {
+      "horizontalAlignment": "center",
+      "verticalAlignment": "center",
+      "modifiers": [
+        "fillMaxWidth",
+        "fillMaxHeight"
+      ],
+      "children": [
+        {
+          "canvas": {
+            "modifiers": [
+              "fillMaxWidth",
+              "fillMaxHeight"
+            ],
+            "commands": [
+              {
+                "variable": {
+                  "name": "w",
+                  "value": "componentWidth()",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "h",
+                  "value": "componentHeight()",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "cx",
+                  "value": "componentWidth() / 2.0",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "cy",
+                  "value": "componentHeight() / 2.0",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "rad",
+                  "value": "min(componentWidth() / 2.0, componentHeight() / 2.0)",
+                  "commit": true
+                }
+              },
+              {
+                "paint": {
+                  "color": "#1A1A2E",
+                  "style": "fill"
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": "@vars.rad"
+                }
+              },
+              {
+                "paint": {
+                  "color": "#E94560",
+                  "style": "stroke",
+                  "strokeWidth": 6.0
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": "@vars.rad - 4.0"
+                }
+              },
+              {
+                "paint": {
+                  "color": "#16213E",
+                  "style": "fill"
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": "@vars.rad - 12.0"
+                }
+              },
+              {
+                "variable": {
+                  "name": "top",
+                  "value": "componentHeight() / 2.0 - min(componentWidth() / 2.0, componentHeight() / 2.0)",
+                  "commit": true
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 0.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 6.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 36.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 30.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 60.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 90.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 6.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 36.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 120.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 150.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 180.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 6.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 36.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 210.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 240.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 270.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 6.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 36.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 300.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": 330.0,
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 3.0
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.top + 20.0",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.top + 28.0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "hrAngle",
+                  "value": "timeInHr() * 30.0 + timeInMin() * 0.5",
+                  "commit": true
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": "@vars.hrAngle",
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#FFFFFF",
+                        "style": "stroke",
+                        "strokeWidth": 12.0,
+                        "strokeCap": "round"
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.cy",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.cy - @vars.rad * 0.45"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "minAngle",
+                  "value": "timeInMin() * 6.0",
+                  "commit": true
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": "@vars.minAngle",
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#00FFF0",
+                        "style": "stroke",
+                        "strokeWidth": 8.0,
+                        "strokeCap": "round"
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.cy",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.cy - @vars.rad * 0.68"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "secAngle",
+                  "value": "continuousSec() * 6.0",
+                  "commit": true
+                }
+              },
+              {
+                "save": {
+                  "commands": [
+                    {
+                      "rotate": {
+                        "angle": "@vars.secAngle",
+                        "pivotX": "@vars.cx",
+                        "pivotY": "@vars.cy"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#E94560",
+                        "style": "stroke",
+                        "strokeWidth": 4.0,
+                        "strokeCap": "round"
+                      }
+                    },
+                    {
+                      "drawLine": {
+                        "x1": "@vars.cx",
+                        "y1": "@vars.cy + @vars.rad * 0.15",
+                        "x2": "@vars.cx",
+                        "y2": "@vars.cy - @vars.rad * 0.8"
+                      }
+                    },
+                    {
+                      "paint": {
+                        "color": "#E94560",
+                        "style": "fill"
+                      }
+                    },
+                    {
+                      "drawCircle": {
+                        "cx": "@vars.cx",
+                        "cy": "@vars.cy - @vars.rad * 0.6",
+                        "radius": 6.0
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "paint": {
+                  "color": "#FFFFFF",
+                  "style": "fill"
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": 10.0
+                }
+              },
+              {
+                "paint": {
+                  "color": "#E94560",
+                  "style": "fill"
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": 5.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

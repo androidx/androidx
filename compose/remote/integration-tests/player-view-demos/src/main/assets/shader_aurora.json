@@ -1,0 +1,91 @@
+{
+  "header": {
+    "width": 500,
+    "height": 500,
+    "profiles": 512,
+    "contentDescription": "AGSL Aurora Shader Demo"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      { "fillMaxSize": 1.0 },
+      { "background": "#0F172A" },
+      { "padding": 24 }
+    ],
+    "children": [
+      {
+        "type": "column",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "center",
+        "modifiers": [
+          { "fillMaxSize": 1.0 }
+        ],
+        "children": [
+          {
+            "type": "box",
+            "modifiers": [
+              { "fillMaxWidth": 1.0 },
+              { "height": 340 },
+              { "clipRect": 24 }
+            ],
+            "children": [
+              {
+                "type": "canvas",
+                "modifiers": [
+                  { "fillMaxSize": 1.0 }
+                ],
+                "commands": [
+                  {
+                    "paint": {
+                      "style": "fill",
+                      "shader": {
+                        "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.x, iResolution.y);\n    float t = iTime * 0.8;\n    float col1 = sin(uv.x * 6.0 + t) + cos(uv.y * 6.0 - t);\n    float col2 = sin(length(uv) * 8.0 - t * 1.5);\n    float r = 0.5 + 0.5 * sin(col1 + t);\n    float g = 0.3 + 0.5 * cos(col2 + t);\n    float b = 0.8 + 0.2 * sin(t * 2.0);\n    return half4(r, g, b, 1.0);\n}",
+                        "uniforms": {
+                          "iResolution": ["componentWidth()", "componentHeight()"],
+                          "iTime": "continuousSec()"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "drawRect": {
+                      "left": 0,
+                      "top": 0,
+                      "right": "componentWidth()",
+                      "bottom": "componentHeight()"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "column",
+                "horizontalAlignment": "center",
+                "verticalAlignment": "center",
+                "modifiers": [
+                  { "fillMaxSize": 1.0 },
+                  { "padding": 24 }
+                ],
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "AGSL AURORA",
+                    "fontSize": 28,
+                    "fontWeight": 700,
+                    "color": "#FFFFFF"
+                  },
+                  {
+                    "type": "text",
+                    "value": "Real-time AGSL Shader in JSON",
+                    "fontSize": 14,
+                    "color": "#F1F5F9",
+                    "modifiers": [ { "padding": [0, 8, 0, 0] } ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
