@@ -232,12 +232,12 @@ class ResizableModifierTest {
     }
 
     @Test
-    fun resizable_defaultPolicy_componentIsNotNull() {
+    fun resizable_systemPolicy_componentIsNotNull() {
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
-                        .resizable(resizePolicy = ResizePolicy.default())
+                        .resizable(resizePolicy = ResizePolicy.system())
                 ) {
                     Text(text = "Panel")
                 }
@@ -248,13 +248,13 @@ class ResizableModifierTest {
     }
 
     @Test
-    fun resizable_defaultPolicy_modifierMaxSizeIsSet() {
+    fun resizable_systemPolicy_modifierMaxSizeIsSet() {
         val maxSize = DpVolumeSize(600.dp, 600.dp, 600.dp)
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
-                        .resizable(maximumSize = maxSize, resizePolicy = ResizePolicy.default())
+                        .resizable(maximumSize = maxSize, resizePolicy = ResizePolicy.system())
                 ) {}
             }
         }
@@ -394,10 +394,11 @@ class ResizableModifierTest {
 
     @Test
     fun resizableModifier_policyEquality() {
-        val defaultPolicy1 = ResizePolicy.default()
-        val defaultPolicy2 = ResizePolicy.default()
-        assertEquals(defaultPolicy1, defaultPolicy2)
-        assertEquals(defaultPolicy1.hashCode(), defaultPolicy2.hashCode())
+        assertEquals(ResizePolicy.Default, ResizePolicy.system())
+        val systemPolicy1 = ResizePolicy.system()
+        val systemPolicy2 = ResizePolicy.system()
+        assertEquals(systemPolicy1, systemPolicy2)
+        assertEquals(systemPolicy1.hashCode(), systemPolicy2.hashCode())
 
         val lambda = { _: SpatialResizeEvent -> }
         val customPolicy1 = ResizePolicy.custom(lambda)
