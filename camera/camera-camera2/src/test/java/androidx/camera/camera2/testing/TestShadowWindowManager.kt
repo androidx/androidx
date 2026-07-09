@@ -43,7 +43,12 @@ public class TestShadowWindowManager {
     @Implementation
     protected fun getMaximumWindowMetrics(): WindowMetrics {
         val context = ReflectionHelpers.getField<Context>(windowManagerImpl, "mContext")
-        val display = context.display
+        val displayId = context.display?.displayId ?: android.view.Display.DEFAULT_DISPLAY
+        val appContext = context.applicationContext
+        val displayManager =
+            appContext.getSystemService(Context.DISPLAY_SERVICE)
+                as android.hardware.display.DisplayManager
+        val display = displayManager.getDisplay(displayId)
         val displaySize = Point()
         display.getRealSize(displaySize)
         val rect = Rect(0, 0, displaySize.x, displaySize.y)
