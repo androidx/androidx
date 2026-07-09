@@ -16,6 +16,8 @@
 
 package androidx.wear.widget
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -32,6 +34,8 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -282,6 +286,54 @@ class CurvedTextViewTest {
                 },
             ),
         )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testFontWeightAdjustment() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val overrideConfig =
+            Configuration(context.resources.configuration).apply { fontWeightAdjustment = 300 }
+        val adjustedContext = context.createConfigurationContext(overrideConfig)
+        val textView = CurvedTextView(adjustedContext)
+
+        textView.setTypeface(Typeface.DEFAULT)
+
+        val adjustedTypeface = textView.typeface
+        assertNotNull(adjustedTypeface)
+        assertEquals(Typeface.DEFAULT.weight + 300, adjustedTypeface!!.weight)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testFontWeightAdjustmentWithStyle() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val overrideConfig =
+            Configuration(context.resources.configuration).apply { fontWeightAdjustment = 300 }
+        val adjustedContext = context.createConfigurationContext(overrideConfig)
+        val textView = CurvedTextView(adjustedContext)
+
+        textView.setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+
+        val adjustedTypeface = textView.typeface
+        assertNotNull(adjustedTypeface)
+        assertEquals(1000, adjustedTypeface!!.weight)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testFontWeightNoAdjustment() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val overrideConfig =
+            Configuration(context.resources.configuration).apply { fontWeightAdjustment = 0 }
+        val adjustedContext = context.createConfigurationContext(overrideConfig)
+        val textView = CurvedTextView(adjustedContext)
+
+        textView.setTypeface(Typeface.DEFAULT)
+
+        val adjustedTypeface = textView.typeface
+        assertNotNull(adjustedTypeface)
+        assertEquals(Typeface.DEFAULT.weight, adjustedTypeface!!.weight)
     }
 
     companion object {
