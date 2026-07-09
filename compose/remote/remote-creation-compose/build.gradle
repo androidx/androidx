@@ -38,7 +38,10 @@ android {
     defaultConfig {
         minSdk { version = release(29) }
     }
+    buildTypes.configureEach {
+        pseudoLocalesEnabled = true
     }
+}
 
 dependencies {
     lintChecks(project(":compose:remote:remote-lint"))
