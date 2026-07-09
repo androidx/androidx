@@ -36,7 +36,8 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          * Otherwise, each point is drawn as an axis-aligned square with sides of length
          * [Paint.strokeWidth], filled as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Points = PointMode(0)
+        val Points
+            get() = PointMode(0)
 
         /**
          * Draw each sequence of two points as a line segment.
@@ -45,14 +46,16 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          *
          * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Lines = PointMode(1)
+        val Lines
+            get() = PointMode(1)
 
         /**
          * Draw the entire sequence of point as one line.
          *
          * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Polygon = PointMode(2)
+        val Polygon
+            get() = PointMode(2)
     }
 
     override fun toString() =

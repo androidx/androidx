@@ -24,16 +24,19 @@ import androidx.compose.runtime.Immutable
 value class StrokeCap internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** Begin and end contours with a flat edge and no extension. */
-        val Butt = StrokeCap(0)
+        val Butt
+            get() = StrokeCap(0)
 
         /** Begin and end contours with a semi-circle extension. */
-        val Round = StrokeCap(1)
+        val Round
+            get() = StrokeCap(1)
 
         /**
          * Begin and end contours with a half square extension. This is similar to extending each
          * contour by half the stroke width (as given by [Paint.strokeWidth]).
          */
-        val Square = StrokeCap(2)
+        val Square
+            get() = StrokeCap(2)
     }
 
     override fun toString() =

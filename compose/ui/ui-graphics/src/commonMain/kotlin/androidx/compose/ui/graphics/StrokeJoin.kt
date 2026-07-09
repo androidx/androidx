@@ -29,16 +29,19 @@ import androidx.compose.runtime.Immutable
 value class StrokeJoin internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** Joins between line segments form sharp corners. */
-        val Miter = StrokeJoin(0)
+        val Miter
+            get() = StrokeJoin(0)
 
         /** Joins between line segments are semi-circular. */
-        val Round = StrokeJoin(1)
+        val Round
+            get() = StrokeJoin(1)
 
         /**
          * Joins between line segments connect the corners of the butt ends of the line segments to
          * give a beveled appearance.
          */
-        val Bevel = StrokeJoin(2)
+        val Bevel
+            get() = StrokeJoin(2)
     }
 
     override fun toString() =

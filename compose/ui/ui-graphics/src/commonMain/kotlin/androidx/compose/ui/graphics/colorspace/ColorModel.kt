@@ -54,25 +54,29 @@ internal constructor(
          * The RGB model is a color model with 3 components that refer to the three additive
          * primiaries: red, green and blue.
          */
-        val Rgb = ColorModel(packInts(3, 0))
+        val Rgb
+            get() = ColorModel(packInts(3, 0))
 
         /**
          * The XYZ model is a color model with 3 components that are used to model human color
          * vision on a basic sensory level.
          */
-        val Xyz = ColorModel(packInts(3, 1))
+        val Xyz
+            get() = ColorModel(packInts(3, 1))
 
         /**
          * The Lab model is a color model with 3 components used to describe a color space that is
          * more perceptually uniform than XYZ.
          */
-        val Lab = ColorModel(packInts(3, 2))
+        val Lab
+            get() = ColorModel(packInts(3, 2))
 
         /**
          * The CMYK model is a color model with 4 components that refer to four inks used in color
          * printing: cyan, magenta, yellow and black (or key). CMYK is a subtractive color model.
          */
-        val Cmyk = ColorModel(packInts(4, 3))
+        val Cmyk
+            get() = ColorModel(packInts(4, 3))
     }
 
     override fun toString() =

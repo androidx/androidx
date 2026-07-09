@@ -28,10 +28,12 @@ import androidx.compose.runtime.Immutable
 value class ClipOp internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /** Subtract the new region from the existing region. */
-        val Difference = ClipOp(0)
+        val Difference
+            get() = ClipOp(0)
 
         /** Intersect the new region from the existing region. */
-        val Intersect = ClipOp(1)
+        val Intersect
+            get() = ClipOp(1)
     }
 
     override fun toString() =
