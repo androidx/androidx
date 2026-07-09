@@ -622,10 +622,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a == b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isEqualTo instead", ReplaceWith("isEqualTo(other)"))
-    public infix fun eq(other: RemoteFloat): RemoteBoolean = isEqualTo(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to the value of
      * this [RemoteFloat] or `false` otherwise.
@@ -650,10 +646,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a != b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isNotEqualTo instead", ReplaceWith("isNotEqualTo(other)"))
-    public infix fun ne(other: RemoteFloat): RemoteBoolean = isNotEqualTo(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than the value of this
      * [RemoteFloat] or `false` otherwise.
@@ -676,10 +668,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         ) { a, b ->
             a < b
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThan instead", ReplaceWith("isLessThan(other)"))
-    public infix fun lt(other: RemoteFloat): RemoteBoolean = isLessThan(other)
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
@@ -704,10 +692,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a <= b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThanOrEqual instead", ReplaceWith("isLessThanOrEqual(other)"))
-    public infix fun le(other: RemoteFloat): RemoteBoolean = isLessThanOrEqual(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than the value of
      * this [RemoteFloat] or `false` otherwise.
@@ -731,10 +715,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a > b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThan instead", ReplaceWith("isGreaterThan(other)"))
-    public infix fun gt(other: RemoteFloat): RemoteBoolean = isGreaterThan(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
      * value of this [RemoteFloat] or `false` otherwise.
@@ -757,10 +737,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         ) { a, b ->
             a >= b
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThanOrEqual instead", ReplaceWith("isGreaterThanOrEqual(other)"))
-    public infix fun ge(other: RemoteFloat): RemoteBoolean = isGreaterThanOrEqual(other)
 
     public companion object {
         internal fun formatAnimationType(type: Int): String =

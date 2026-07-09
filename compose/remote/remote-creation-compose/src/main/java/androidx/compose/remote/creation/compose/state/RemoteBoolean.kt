@@ -342,10 +342,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      */
     public fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue.isEqualTo(other.intValue)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isEqualTo instead", ReplaceWith("isEqualTo(other)"))
-    public infix fun eq(other: RemoteBoolean): RemoteBoolean = isEqualTo(other)
-
     /**
      * Inequality operator for [RemoteBoolean]s.
      *
@@ -357,10 +353,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      */
     public fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean =
         intValue.isNotEqualTo(other.intValue)
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isNotEqualTo instead", ReplaceWith("isNotEqualTo(other)"))
-    public infix fun ne(other: RemoteBoolean): RemoteBoolean = isNotEqualTo(other)
 
     /**
      * Logical OR operator for [RemoteBoolean]s.
