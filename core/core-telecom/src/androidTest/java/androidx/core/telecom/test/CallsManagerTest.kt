@@ -38,12 +38,15 @@ import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.ALL_CALL_CAPABILITIES
 import androidx.core.telecom.test.utils.TestUtils.OUTGOING_NAME
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.GrantPermissionRule
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -569,6 +572,123 @@ class CallsManagerTest : BaseTelecomTest() {
                 Log.i(TAG, " flowsJob.cancel()")
             }
         }
+    }
+
+    @SmallTest
+    @Test
+    fun testAddCallRejectedWhenSetupInFlight() = runBlocking {
+        try {
+            mCallsManager.mIsCallSetupInFlight.set(true)
+            val exception =
+                assertThrows(androidx.core.telecom.CallException::class.java) {
+                    runBlocking {
+                        mCallsManager.addCall(
+                            TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                            TestUtils.mOnAnswerLambda,
+                            TestUtils.mOnDisconnectLambda,
+                            TestUtils.mOnSetActiveLambda,
+                            TestUtils.mOnSetInActiveLambda,
+                        ) {}
+                    }
+                }
+            assertEquals(
+                androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME,
+                exception.code,
+            )
+        } finally {
+            mCallsManager.mIsCallSetupInFlight.set(false)
+        }
+    }
+
+    @SmallTest
+    @Test
+    fun testSetupInFlightIsFalseDuringActiveSession() = runBlocking {
+        assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            launch {
+                assertFalse(mCallsManager.mIsCallSetupInFlight.get())
+                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+            }
+        }
+        assertFalse(mCallsManager.mIsCallSetupInFlight.get())
+    }
+
+    @LargeTest
+    @Test
+    fun testConcurrentAddCallThrowsCallExceptionForSecondCall() = runBlocking {
+        val completedCalls = java.util.concurrent.atomic.AtomicInteger(0)
+        val rejectedCalls = java.util.concurrent.atomic.AtomicInteger(0)
+
+        Log.i(TAG, "testConcurrentAddCallThrowsCallExceptionForSecondCall: starting call1 async")
+        val call1 = async {
+            Log.i(TAG, "call1: entering addCall")
+            try {
+                mCallsManager.addCall(
+                    TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    Log.i(
+                        TAG,
+                        "call1: inside CallControlScope block, completing and disconnecting...",
+                    )
+                    completedCalls.incrementAndGet()
+                    launch { disconnect(DisconnectCause(DisconnectCause.LOCAL)) }
+                }
+                Log.i(TAG, "call1: addCall finished cleanly")
+            } catch (e: androidx.core.telecom.CallException) {
+                Log.i(TAG, "call1: addCall threw an exception. code=${e.code}")
+                if (
+                    e.code ==
+                        androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME
+                ) {
+                    rejectedCalls.incrementAndGet()
+                } else throw e
+            }
+        }
+
+        Log.i(TAG, "testConcurrentAddCallThrowsCallExceptionForSecondCall: starting call2 async")
+        val call2 = async {
+            Log.i(TAG, "call2: entering addCall")
+            try {
+                mCallsManager.addCall(
+                    TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    Log.i(
+                        TAG,
+                        "call2: inside CallControlScope block, completing and disconnecting...",
+                    )
+                    completedCalls.incrementAndGet()
+                    launch { disconnect(DisconnectCause(DisconnectCause.LOCAL)) }
+                }
+                Log.i(TAG, "call2: addCall finished cleanly")
+            } catch (e: androidx.core.telecom.CallException) {
+                Log.i(TAG, "call2: addCall threw an exception. code=${e.code}")
+                if (
+                    e.code ==
+                        androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME
+                ) {
+                    rejectedCalls.incrementAndGet()
+                } else throw e
+            }
+        }
+
+        Log.i(
+            TAG,
+            "testConcurrentAddCallThrowsCallExceptionForSecondCall: awaiting both calls (awaitAll)",
+        )
+        awaitAll(call1, call2)
+        Log.i(TAG, "testConcurrentAddCallThrowsCallExceptionForSecondCall: awaitAll completed")
+
+        // Only one call should succeed and fully connect, the precise overlapping
+        // invocation should fast-fail and be rejected during transitory setup.
+        assertEquals(1, completedCalls.get())
+        assertEquals(1, rejectedCalls.get())
     }
 
     private fun setTestBuildVersion(sdk: Int) {
