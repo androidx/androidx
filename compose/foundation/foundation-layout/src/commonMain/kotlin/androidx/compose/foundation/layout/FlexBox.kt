@@ -1651,7 +1651,8 @@ internal constructor(@PublishedApi internal val packedValue: Long) {
          *
          * This is the default value.
          */
-        val Auto = FlexBasis(TypeAuto shl TypeShift)
+        val Auto
+            get() = FlexBasis(TypeAuto shl TypeShift)
 
         /**
          * Use a fixed size in [androidx.compose.ui.unit.Dp] as the basis.

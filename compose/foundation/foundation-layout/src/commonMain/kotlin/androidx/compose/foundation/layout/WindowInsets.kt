@@ -129,10 +129,17 @@ value class WindowInsetsSides private constructor(private val value: Int) {
         //    Start  = 1001
         //    End    = 0110
 
-        internal val AllowLeftInLtr = WindowInsetsSides(1 shl 3)
-        internal val AllowRightInLtr = WindowInsetsSides(1 shl 2)
-        internal val AllowLeftInRtl = WindowInsetsSides(1 shl 1)
-        internal val AllowRightInRtl = WindowInsetsSides(1 shl 0)
+        internal val AllowLeftInLtr
+            get() = WindowInsetsSides(1 shl 3)
+
+        internal val AllowRightInLtr
+            get() = WindowInsetsSides(1 shl 2)
+
+        internal val AllowLeftInRtl
+            get() = WindowInsetsSides(1 shl 1)
+
+        internal val AllowRightInRtl
+            get() = WindowInsetsSides(1 shl 0)
 
         /**
          * Indicates a [WindowInsets] start side, which is left or right depending on
@@ -141,7 +148,8 @@ value class WindowInsetsSides private constructor(private val value: Int) {
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
-        val Start = AllowLeftInLtr + AllowRightInRtl
+        val Start
+            get() = AllowLeftInLtr + AllowRightInRtl
 
         /**
          * Indicates a [WindowInsets] end side, which is left or right depending on
@@ -150,34 +158,41 @@ value class WindowInsetsSides private constructor(private val value: Int) {
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
-        val End = AllowRightInLtr + AllowLeftInRtl
+        val End
+            get() = AllowRightInLtr + AllowLeftInRtl
 
         /** Indicates a [WindowInsets] top side. */
-        val Top = WindowInsetsSides(1 shl 4)
+        val Top
+            get() = WindowInsetsSides(1 shl 4)
 
         /** Indicates a [WindowInsets] bottom side. */
-        val Bottom = WindowInsetsSides(1 shl 5)
+        val Bottom
+            get() = WindowInsetsSides(1 shl 5)
 
         /**
          * Indicates a [WindowInsets] left side. Most layouts will prefer using [Start] or [End] to
          * account for [LayoutDirection].
          */
-        val Left = AllowLeftInLtr + AllowLeftInRtl
+        val Left
+            get() = AllowLeftInLtr + AllowLeftInRtl
 
         /**
          * Indicates a [WindowInsets] right side. Most layouts will prefer using [Start] or [End] to
          * account for [LayoutDirection].
          */
-        val Right = AllowRightInLtr + AllowRightInRtl
+        val Right
+            get() = AllowRightInLtr + AllowRightInRtl
 
         /**
          * Indicates a [WindowInsets] horizontal sides. This is a combination of [Left] and [Right]
          * sides, or [Start] and [End] sides.
          */
-        val Horizontal = Left + Right
+        val Horizontal
+            get() = Left + Right
 
         /** Indicates a [WindowInsets] [Top] and [Bottom] sides. */
-        val Vertical = Top + Bottom
+        val Vertical
+            get() = Top + Bottom
     }
 }
 

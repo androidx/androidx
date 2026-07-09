@@ -717,16 +717,19 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
         }
 
         /** A track that sizes itself to fit the minimum intrinsic size of its contents. */
-        val MinContent = pack(TypeMinContent, 0f)
+        val MinContent
+            get() = pack(TypeMinContent, 0f)
 
         /** A track that sizes itself to fit the maximum intrinsic size of its contents. */
-        val MaxContent = pack(TypeMaxContent, 0f)
+        val MaxContent
+            get() = pack(TypeMaxContent, 0f)
 
         /**
          * A track that behaves as minmax(min-content, max-content). It occupies at least its
          * minimum content size, and grows to fit its maximum content size if space is available.
          */
-        val Auto = pack(TypeAuto, 0f)
+        val Auto
+            get() = pack(TypeAuto, 0f)
 
         private fun packMinMax(min: Float, max: Float): GridTrackSize {
             require(min >= 0f && max >= 0f) { "minmax values must be non-negative" }
