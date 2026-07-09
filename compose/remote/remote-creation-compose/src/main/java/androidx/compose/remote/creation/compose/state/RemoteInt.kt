@@ -564,10 +564,6 @@ internal constructor(
             if (a == b) 1 else 0
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isEqualTo instead", ReplaceWith("isEqualTo(other)"))
-    public infix fun eq(other: RemoteInt): RemoteBoolean = isEqualTo(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to the value of
      * this [RemoteInt] or `false` otherwise.
@@ -581,10 +577,6 @@ internal constructor(
         ) { a, b ->
             if (a != b) 1 else 0
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isNotEqualTo instead", ReplaceWith("isNotEqualTo(other)"))
-    public infix fun ne(other: RemoteInt): RemoteBoolean = isNotEqualTo(other)
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than the value of this
@@ -600,10 +592,6 @@ internal constructor(
             if (a < b) 1 else 0
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThan instead", ReplaceWith("isLessThan(other)"))
-    public infix fun lt(other: RemoteInt): RemoteBoolean = isLessThan(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
      * value of this [RemoteInt] or `false` otherwise.
@@ -617,10 +605,6 @@ internal constructor(
         ) { a, b ->
             if (a <= b) 1 else 0
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThanOrEqual instead", ReplaceWith("isLessThanOrEqual(other)"))
-    public infix fun le(other: RemoteInt): RemoteBoolean = isLessThanOrEqual(other)
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than the value of
@@ -636,10 +620,6 @@ internal constructor(
             if (a > b) 1 else 0
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThan instead", ReplaceWith("isGreaterThan(other)"))
-    public infix fun gt(other: RemoteInt): RemoteBoolean = isGreaterThan(other)
-
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
      * value of this [RemoteInt] or `false` otherwise.
@@ -653,10 +633,6 @@ internal constructor(
         ) { a, b ->
             if (a >= b) 1 else 0
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThanOrEqual instead", ReplaceWith("isGreaterThanOrEqual(other)"))
-    public infix fun ge(other: RemoteInt): RemoteBoolean = isGreaterThanOrEqual(other)
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] shifted left by the

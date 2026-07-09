@@ -132,8 +132,9 @@ fun DogeCalendar(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
             val easedProgress = interpolateRemoteFloat(progress, 0f.rf, 1f.rf, CUBIC_DECELERATE)
 
             // Check if we should be visible: current time is within [start, start + interval]
-            @Suppress("DEPRECATION")
-            val isVisible = (loopTime ge start.rf) and (loopTime lt (start + interval).rf)
+            val isVisible =
+                loopTime.isGreaterThanOrEqual(start.rf) and
+                    loopTime.isLessThan((start + interval).rf)
             val icon = icons[index % icons.size]
 
             DogeSlot(
