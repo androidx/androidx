@@ -2019,6 +2019,190 @@ class RecordingCanvasTest {
         assertThat(calls)
             .containsExactly("addMatrixSave", "addMatrixTranslate(10.0, 20.0)", "addMatrixRestore")
     }
+
+    @Test
+    fun testTransformPoppingAndReinstatementAroundConditionalDraw() {
+        // 1. Push an initial transform on RecordingCanvas: call save() and translate(-87f, -87f).
+        recordingCanvas.save()
+        recordingCanvas.translate(-87f, -87f)
+        assertThat(recordingCanvas.saveCount).isEqualTo(1)
+
+        // 2. Temporarily pop transforms before a conditional draw: call restore().
+        recordingCanvas.restore()
+        assertThat(recordingCanvas.saveCount).isEqualTo(0)
+
+        // 3. Call drawConditionally(condition) { drawBitmap(...) } where condition is dynamic.
+        val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+        val bitmap = RemoteImageBitmap.createForId(42)
+        recordingCanvas.drawConditionally(condition) {
+            recordingCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint())
+        }
+        assertThat(recordingCanvas.saveCount).isEqualTo(0)
+
+        // 4. Reinstate transforms after the conditional draw: call save() and translate(-87f,
+        // -87f).
+        recordingCanvas.save()
+        recordingCanvas.translate(-87f, -87f)
+        assertThat(recordingCanvas.saveCount).isEqualTo(1)
+
+        // 5. Call flush() and verify the recorded operations on the underlying buffer.
+        recordingCanvas.flush()
+        assertThat(recordingCanvas.saveCount).isEqualTo(1)
+
+        // Verify operation ordering and no reordering or dropping
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addMatrixSave",
+                "addMatrixTranslate(-87.0, -87.0)",
+                "addMatrixRestore",
+                "setNamedVariable(42, \"USER:cond\", 4)",
+                "addConditionalOperations(1, ID(42), 0.0)",
+                "addPaint",
+                "textData(43, \"\")",
+                "addDrawBitmap(42)",
+                "endConditionalOperations",
+                "addContainerEnd",
+                "addMatrixSave",
+                "addMatrixTranslate(-87.0, -87.0)",
+                "addMatrixRestore",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testTransformPoppingAndReinstatementAroundConditionalDraw_optimized() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            // 1. Push an initial transform on RecordingCanvas: call save() and translate(-87f,
+            // -87f).
+            canvas.save()
+            canvas.translate(-87f, -87f)
+            assertThat(canvas.saveCount).isEqualTo(1)
+
+            // 2. Temporarily pop transforms before a conditional draw: call restore().
+            canvas.restore()
+            assertThat(canvas.saveCount).isEqualTo(0)
+
+            // 3. Call drawConditionally(condition) { drawBitmap(...) } where condition is dynamic.
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val bitmap = RemoteImageBitmap.createForId(42)
+            canvas.drawConditionally(condition) { canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint()) }
+            assertThat(canvas.saveCount).isEqualTo(0)
+
+            // 4. Reinstate transforms after the conditional draw: call save() and translate(-87f,
+            // -87f).
+            canvas.save()
+            canvas.translate(-87f, -87f)
+            assertThat(canvas.saveCount).isEqualTo(1)
+
+            // 5. Call flush() and verify the recorded operations on the underlying buffer.
+            canvas.flush()
+            assertThat(canvas.saveCount).isEqualTo(1)
+            canvas.document.encodeToByteArray()
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_doesNotLeakLastRenderingOp() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            val prevLastOp = canvas.buffer.lastRenderingOp
+            assertThat(prevLastOp).isNotNull()
+
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.drawConditionally(condition) { canvas.translate(10f, 10f) }
+
+            val opAfterCond = canvas.buffer.lastRenderingOp
+            assertThat(opAfterCond).isEqualTo(prevLastOp)
+        }
+    }
+
+    @Test
+    fun testDrawToOffscreenBitmap_doesNotLeakLastRenderingOp() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            val prevLastOp = canvas.buffer.lastRenderingOp
+            assertThat(prevLastOp).isNotNull()
+
+            val offscreenBitmap = RemoteImageBitmap.createForId(42)
+            canvas.drawToOffscreenBitmap(offscreenBitmap) { canvas.translate(5f, 5f) }
+
+            val opAfterOffscreen = canvas.buffer.lastRenderingOp
+            assertThat(opAfterOffscreen).isEqualTo(prevLastOp)
+        }
+    }
+
+    @Test
+    fun testLoop_doesNotLeakLastRenderingOp() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            val prevLastOp = canvas.buffer.lastRenderingOp
+            assertThat(prevLastOp).isNotNull()
+
+            val from = 0f.rf
+            val until = 10f.rf
+            val step = 1f.rf
+            canvas.loop(from, until, step) { canvas.translate(5f, 5f) }
+
+            val opAfterLoop = canvas.buffer.lastRenderingOp
+            assertThat(opAfterLoop).isEqualTo(prevLastOp)
+        }
+    }
+
+    @Test
+    fun testTransformPoppingAndReinstatement_preservesWireOrderAndSaveStack() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            // Step 1: Push initial group transform (simulating ancestor group translation)
+            canvas.save()
+            canvas.translate(-87f, -87f)
+            // Add a draw call so optimizing canvas preserves this transform block
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            assertThat(canvas.saveCounter).isEqualTo(1)
+
+            // Step 2: Temporarily pop transforms before drawing span
+            canvas.restore()
+            assertThat(canvas.saveCounter).isEqualTo(0)
+
+            // Step 3: Draw span inside a conditional (using a dynamic boolean condition)
+            val dynamicCondition = RemoteBoolean.createNamedRemoteBoolean("test", true)
+            canvas.drawConditionally(dynamicCondition) {
+                val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
+                canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, null)
+            }
+
+            // Step 4: Reinstate group transform after conditional span
+            canvas.save()
+            canvas.translate(-87f, -87f)
+            // Add a draw call so optimizing canvas preserves this reinstated transform block
+            canvas.drawRect(20f, 20f, 30f, 30f, Paint())
+            canvas.restore()
+            assertThat(canvas.saveCounter).isEqualTo(0)
+
+            // Step 4b: Draw something after the reinstated transform so the save block is preserved
+            // by elision pass
+            canvas.drawRect(40f, 40f, 50f, 50f, Paint())
+
+            // Step 5: Flush buffer and inspect wire command ordering after optimization and
+            // topological sort
+            canvas.flush()
+
+            // Verify exact wire order in emitted buffer commands
+            val restoreIdx = buffer.calls.indexOfFirst { it.contains("Restore", ignoreCase = true) }
+            val condIdx =
+                buffer.calls.indexOfFirst { it.contains("Conditional", ignoreCase = true) }
+            val saveIdx = buffer.calls.indexOfLast { it.contains("Save", ignoreCase = true) }
+            val translateIdx =
+                buffer.calls.indexOfLast { it.contains("Translate", ignoreCase = true) }
+
+            assertThat(restoreIdx).isNotEqualTo(-1)
+            assertThat(condIdx).isNotEqualTo(-1)
+            assertThat(saveIdx).isNotEqualTo(-1)
+            assertThat(translateIdx).isNotEqualTo(-1)
+
+            assertThat(restoreIdx).isLessThan(condIdx)
+            assertThat(condIdx).isLessThan(saveIdx)
+            assertThat(saveIdx).isLessThan(translateIdx)
+        }
+    }
 }
 
 private fun formatFloat(f: Float): String {
@@ -2119,6 +2303,16 @@ private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>
     override fun addLoopEnd() {
         calls.add("addLoopEnd")
         super.addLoopEnd()
+    }
+
+    override fun addConditionalOperations(type: Byte, a: Float, b: Float) {
+        calls.add("addConditionalOperations($type, ${formatFloat(a)}, ${formatFloat(b)})")
+        super.addConditionalOperations(type, a, b)
+    }
+
+    override fun endConditionalOperations() {
+        calls.add("endConditionalOperations")
+        super.endConditionalOperations()
     }
 }
 

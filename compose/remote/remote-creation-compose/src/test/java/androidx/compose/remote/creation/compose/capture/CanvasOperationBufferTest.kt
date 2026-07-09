@@ -20,6 +20,7 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.ui.geometry.Size
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -51,5 +52,30 @@ class CanvasOperationBufferTest {
             // timeout/recursion
             throw e
         }
+    }
+
+    @Test
+    fun testParentChildSpanRenderingDependencyOrderPreserved() {
+        val buffer = CanvasOperationBuffer()
+        val op1 = buffer.recordRenderingOp(CanvasOp.Draw {}) // Parent op 1
+
+        // Simulate recordInChildSpan behavior
+        val childSpan = buffer.createChildSpan()
+        val prevInsertPoint = buffer.insertPoint
+        val prevLastOp = buffer.lastRenderingOp
+        buffer.insertPoint = childSpan
+        val childOp = buffer.recordRenderingOp(CanvasOp.Draw {})
+        buffer.insertPoint = prevInsertPoint
+        buffer.lastRenderingOp = prevLastOp
+
+        val op2 = buffer.recordRenderingOp(CanvasOp.Draw {}) // Parent op 2
+
+        // Verify intra-span dependency edges are strictly preserved
+        assertThat(childOp.deps).containsExactly(op1)
+        assertThat(op2.deps).containsExactly(op1)
+
+        val platform = RcPlatformServices.None
+        val creationState = RemoteComposeCreationState(platform, Size(100f, 100f))
+        buffer.flush(creationState)
     }
 }

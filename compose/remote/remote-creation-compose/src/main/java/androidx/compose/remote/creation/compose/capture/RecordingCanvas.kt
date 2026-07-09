@@ -225,6 +225,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val childSpan = buffer.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
         val prevSaveNode = currentSaveNode
+        val prevLastRenderingOp = buffer.lastRenderingOp
         buffer.insertPoint = childSpan
         currentSaveNode = null
         try {
@@ -232,6 +233,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         } finally {
             buffer.insertPoint = prevInsertPoint
             currentSaveNode = prevSaveNode
+            buffer.lastRenderingOp = prevLastRenderingOp
         }
         return childSpan
     }
