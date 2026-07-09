@@ -110,6 +110,7 @@ dependencies {
     testImplementation(project(":compose:remote:remote-creation"))
     testImplementation(project(":compose:remote:remote-creation-compose"))
     testImplementation(project(":compose:remote:remote-testing"))
+    testImplementation(project(":lifecycle:lifecycle-runtime-compose"))
     testImplementation(project(":wear:compose:remote:remote-material3"))
     testImplementation(project(":wear:compose:remote:remote-material3-samples"))
     testImplementation(libs.robolectric)
