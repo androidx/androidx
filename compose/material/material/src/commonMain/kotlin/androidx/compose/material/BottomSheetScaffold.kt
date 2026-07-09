@@ -595,6 +595,9 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
 
-private val FabSpacing = 16.dp
-private val BottomSheetScaffoldPositionalThreshold = 56.dp
-private val BottomSheetScaffoldVelocityThreshold = 125.dp
+private val FabSpacing
+    get() = 16.dp
+private val BottomSheetScaffoldPositionalThreshold
+    get() = 56.dp
+private val BottomSheetScaffoldVelocityThreshold
+    get() = 125.dp

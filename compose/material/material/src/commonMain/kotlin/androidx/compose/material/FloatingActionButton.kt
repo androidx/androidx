@@ -391,7 +391,11 @@ private class FloatingActionButtonElevationAnimatable(
     fun asState(): State<Dp> = animatable.asState()
 }
 
-private val FabSize = 56.dp
-private val ExtendedFabSize = 48.dp
-private val ExtendedFabIconPadding = 12.dp
-private val ExtendedFabTextPadding = 20.dp
+private val FabSize
+    get() = 56.dp
+private val ExtendedFabSize
+    get() = 48.dp
+private val ExtendedFabIconPadding
+    get() = 12.dp
+private val ExtendedFabTextPadding
+    get() = 20.dp

@@ -1186,7 +1186,8 @@ internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValue
         }
     }
 
-private val OutlinedTextFieldInnerPadding = 4.dp
+private val OutlinedTextFieldInnerPadding
+    get() = 4.dp
 
 /**
  * In the focused state, the top half of the label sticks out above the text field. This default
@@ -1194,6 +1195,7 @@ private val OutlinedTextFieldInnerPadding = 4.dp
  * it. It is sufficient when the label is a single line and developers do not override the label's
  * font size/style. Otherwise, developers will need to add additional padding themselves.
  */
-internal val OutlinedTextFieldTopPadding = 8.sp
+internal val OutlinedTextFieldTopPadding
+    get() = 8.sp
 
 internal const val BorderId = "border"

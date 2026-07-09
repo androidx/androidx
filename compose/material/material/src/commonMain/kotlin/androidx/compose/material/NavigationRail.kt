@@ -421,26 +421,32 @@ private val NavigationRailAnimationSpec =
     TweenSpec<Float>(durationMillis = 300, easing = FastOutSlowInEasing)
 
 /** Size of a regular [NavigationRailItem]. */
-private val NavigationRailItemSize = 72.dp
+private val NavigationRailItemSize
+    get() = 72.dp
 
 /** Size of a compact [NavigationRailItem]. */
-private val NavigationRailItemCompactSize = 56.dp
+private val NavigationRailItemCompactSize
+    get() = 56.dp
 
 /** Padding at the top and the bottom of the [NavigationRail] */
-private val NavigationRailPadding = 8.dp
+private val NavigationRailPadding
+    get() = 8.dp
 
 /**
  * Padding at the bottom of the [NavigationRail]'s header [Composable]. This padding will only be
  * added when the header is not null.
  */
-private val HeaderPadding = 8.dp
+private val HeaderPadding
+    get() = 8.dp
 
 /** The space between the text label's baseline and the bottom of the container. */
-private val ItemLabelBaselineBottomOffset = 16.dp
+private val ItemLabelBaselineBottomOffset
+    get() = 16.dp
 
 /**
  * The space between the icon and the top of the container when an item contains a label and icon.
  */
-private val ItemIconTopOffset = 14.dp
+private val ItemIconTopOffset
+    get() = 14.dp
 
 private val ZeroInsets = WindowInsets(0.dp)

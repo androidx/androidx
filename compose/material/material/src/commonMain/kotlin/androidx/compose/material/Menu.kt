@@ -267,13 +267,20 @@ object MenuDefaults {
 internal expect val DefaultMenuProperties: PopupProperties
 
 // Size defaults.
-private val MenuElevation = 8.dp
-internal val MenuVerticalMargin = 48.dp
-private val DropdownMenuItemHorizontalPadding = 16.dp
-internal val DropdownMenuVerticalPadding = 8.dp
-private val DropdownMenuItemDefaultMinWidth = 112.dp
-private val DropdownMenuItemDefaultMaxWidth = 280.dp
-private val DropdownMenuItemDefaultMinHeight = 48.dp
+private val MenuElevation
+    get() = 8.dp
+internal val MenuVerticalMargin
+    get() = 48.dp
+private val DropdownMenuItemHorizontalPadding
+    get() = 16.dp
+internal val DropdownMenuVerticalPadding
+    get() = 8.dp
+private val DropdownMenuItemDefaultMinWidth
+    get() = 112.dp
+private val DropdownMenuItemDefaultMaxWidth
+    get() = 280.dp
+private val DropdownMenuItemDefaultMinHeight
+    get() = 48.dp
 
 // Menu open/close animation.
 internal const val InTransitionDuration = 120

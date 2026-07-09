@@ -223,4 +223,5 @@ private fun getDismissDirection(from: DismissValue, to: DismissValue): DismissDi
     }
 }
 
-private val DISMISS_THRESHOLD = 56.dp
+private val DISMISS_THRESHOLD
+    get() = 56.dp
