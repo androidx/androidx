@@ -112,7 +112,7 @@ class SearchAppFunctionIntegrationTest {
 
         val aggregatedFunctionCount = 22
         val multiServiceFunctionCount = 6
-        val dynamicFunctionsCount = 1
+        val dynamicFunctionsCount = 5
         if (Build.VERSION.SDK_INT >= 37) {
             assertThat(appFunctions)
                 .hasSize(

@@ -38,6 +38,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -282,6 +283,9 @@ class AppFunctionSignatureProcessor(
 
         // TODO(b/524139557): Consider making this public for callback based implementations.
         return FunSpec.builder(AppFunctionAdapterClass.WithExtractedArgumentsMethod.METHOD_NAME)
+            .addAnnotation(
+                AnnotationSpec.builder(Suppress::class).addMember("%S", "UNCHECKED_CAST").build()
+            )
             .addModifiers(KModifier.PRIVATE, KModifier.INLINE)
             .addTypeVariable(rTypeVar)
             .addParameter(requestParam)
