@@ -53,6 +53,37 @@ public class A2uiDataPath(public val path: String) {
         return "A2uiDataPath(path='$path', normalizedPath='$normalizedPath', isAbsolute=$isAbsolute)"
     }
 
+    /**
+     * Appends a relative path segment [other] to this path.
+     *
+     * If [other] starts with `/`, it is treated as an absolute path and replaces this path.
+     *
+     * @param other segment to append
+     */
+    public operator fun div(other: String): A2uiDataPath {
+        return when {
+            other.startsWith("/") -> A2uiDataPath(other)
+            other.isEmpty() -> this
+            path.endsWith("/") -> A2uiDataPath("$path$other")
+            else -> A2uiDataPath("$path/$other")
+        }
+    }
+
+    /**
+     * Appends another [A2uiDataPath] to this path.
+     *
+     * If [other] is absolute, it replaces this path.
+     *
+     * @param other path to append
+     */
+    public operator fun div(other: A2uiDataPath): A2uiDataPath {
+        return if (other.isAbsolute) {
+            other
+        } else {
+            this / other.path
+        }
+    }
+
     private companion object {
         private fun normalize(path: String): String {
             if (path.isEmpty() || path == "/") return ""

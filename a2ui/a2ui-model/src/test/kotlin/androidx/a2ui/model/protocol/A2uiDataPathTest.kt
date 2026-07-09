@@ -20,7 +20,7 @@ import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 
-class A2UiDataPathTest {
+class A2uiDataPathTest {
 
     @Test
     fun constructor_rawPath_isPreservedUnmodified() {
@@ -158,5 +158,63 @@ class A2UiDataPathTest {
         val path = A2uiDataPath("/foo/bar")
         assertThat(path.toString())
             .isEqualTo("A2uiDataPath(path='/foo/bar', normalizedPath='/foo/bar', isAbsolute=true)")
+    }
+
+    @Test
+    fun div_rootPathAndRelativePathString_appendsCorrectly() {
+        val root = A2uiDataPath("/")
+        assertThat((root / "foo").path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_absolutePathAndRelativePathString_appendsCorrectly() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "bar").path).isEqualTo("/foo/bar")
+    }
+
+    @Test
+    fun div_relativePathAndRelativePathString_appendsCorrectly() {
+        val relative = A2uiDataPath("foo")
+        assertThat((relative / "bar").path).isEqualTo("foo/bar")
+    }
+
+    @Test
+    fun div_absolutePathAndAbsolutePathString_overridesPath() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "/baz").path).isEqualTo("/baz")
+    }
+
+    @Test
+    fun div_absolutePathAndEmptyString_doesNotChangePath() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "").path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_absolutePathAndRelativeDataPath_appendsCorrectly() {
+        val path1 = A2uiDataPath("/foo")
+        val path2 = A2uiDataPath("bar/baz")
+        assertThat((path1 / path2).path).isEqualTo("/foo/bar/baz")
+    }
+
+    @Test
+    fun div_absolutePathAndAbsoluteDataPath_overridesPath() {
+        val path1 = A2uiDataPath("/foo")
+        val absolutePath = A2uiDataPath("/baz")
+        assertThat((path1 / absolutePath).path).isEqualTo("/baz")
+    }
+
+    @Test
+    fun div_rootPathAndRelativeDataPath_appendsCorrectly() {
+        val root = A2uiDataPath("/")
+        val path2 = A2uiDataPath("foo")
+        assertThat((root / path2).path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_relativePathAndRelativeDataPath_appendsCorrectly() {
+        val relative = A2uiDataPath("foo")
+        val path2 = A2uiDataPath("bar")
+        assertThat((relative / path2).path).isEqualTo("foo/bar")
     }
 }
