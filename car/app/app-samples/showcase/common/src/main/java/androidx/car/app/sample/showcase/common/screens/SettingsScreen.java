@@ -44,6 +44,7 @@ import org.jspecify.annotations.NonNull;
 public final class SettingsScreen extends Screen {
 
     private boolean mLoadingToggleState;
+    private boolean mAppThemeToggleState;
 
     private final @NonNull ShowcaseSession mShowcaseSession;
 
@@ -51,6 +52,10 @@ public final class SettingsScreen extends Screen {
             @NonNull ShowcaseSession showcaseSession) {
         super(carContext);
         mShowcaseSession = showcaseSession;
+        mAppThemeToggleState =
+                carContext
+                        .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
+                        .getBoolean(ShowcaseService.APP_THEME_KEY, false);
     }
 
     @Override
@@ -58,18 +63,34 @@ public final class SettingsScreen extends Screen {
         Toggle mLoadingToggle = new Toggle.Builder((checked) -> {
             if (checked) {
                 makeCarToast(R.string.loading_toggle_enabled);
-                setLoadingKeyValue(true);
+                setBooleanKeyValue(ShowcaseService.LOADING_KEY, true);
             } else {
                 makeCarToast(R.string.loading_toggle_disabled);
-                setLoadingKeyValue(false);
+                setBooleanKeyValue(ShowcaseService.LOADING_KEY, false);
             }
             mLoadingToggleState = !mLoadingToggleState;
         }).setChecked(mLoadingToggleState).build();
+
+        Toggle mAppThemeToggle =
+                new Toggle.Builder(
+                        (checked) -> {
+                            if (checked) {
+                                makeCarToast(R.string.app_theme_enabled);
+                            } else {
+                                makeCarToast(R.string.app_theme_disabled);
+                            }
+                            setBooleanKeyValue(ShowcaseService.APP_THEME_KEY, checked);
+                            getCarContext().finishCarApp();
+                        })
+                        .setChecked(mAppThemeToggleState)
+                        .build();
 
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         listBuilder.addItem(buildRowForTemplate(new LatestFeatures(getCarContext()),
                 R.string.latest_feature_title));
+
+        listBuilder.addItem(buildRowForTemplate(R.string.app_theme_title, mAppThemeToggle));
 
         listBuilder.addItem(buildRowForTemplate(R.string.loading_demo_title, mLoadingToggle));
 
@@ -113,14 +134,14 @@ public final class SettingsScreen extends Screen {
                 LENGTH_LONG).show();
     }
 
-    private void setLoadingKeyValue(boolean val) {
+    private void setBooleanKeyValue(String key, boolean val) {
         getCarContext()
                 .getSharedPreferences(
                         ShowcaseService.SHARED_PREF_KEY,
                         Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean(
-                        ShowcaseService.LOADING_KEY, val)
+                        key, val)
                 .apply();
     }
 }
