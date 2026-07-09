@@ -44,8 +44,11 @@ internal object Api24Compat {
 internal object Api30Compat {
     @JvmStatic
     fun getDisplaySize(context: Context, display: Display): Size {
-        val displayContext = context.createDisplayContext(display)
-        val windowManager = displayContext.getSystemService(WindowManager::class.java)
+        val windowContext =
+            context
+                .createDisplayContext(display)
+                .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null)
+        val windowManager = windowContext.getSystemService(WindowManager::class.java)
         val bounds =
             checkNotNull(windowManager) { "WindowManager is not available." }
                 .maximumWindowMetrics
