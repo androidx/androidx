@@ -616,7 +616,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     }
 
     override fun getAccessibilityClassName(): CharSequence {
-        return javaClass.name
+        return "androidx.compose.ui.platform.ComposeView"
     }
 
     /**
