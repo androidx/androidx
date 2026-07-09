@@ -38,11 +38,22 @@ public interface PdfAnnotationsManager {
     public suspend fun getAnnotations(pageNum: Int): List<KeyedPdfAnnotation>
 
     /**
-     * Retrieves all local modifications made to the document annotations.
+     * Retrieves all local modifications made to the document annotations, sorted by page number.
      *
      * @return A [EditsDraft] representing the current state of all modified items.
      */
     public suspend fun getAnnotationModifications(): EditsDraft
+
+    /**
+     * Clears successfully applied operations from the session state.
+     *
+     * Removes the first [appliedCount] operations from the pending set, matching the deterministic
+     * order in which they were returned by [getAnnotationModifications]. The assumption is that
+     * operations are processed in sequential order.
+     *
+     * @param appliedCount The number of successfully applied operations to remove.
+     */
+    public suspend fun clearAppliedEdits(appliedCount: Int)
 
     /**
      * Adds a new keyed annotation.

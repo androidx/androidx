@@ -58,7 +58,31 @@ internal class PdfDocumentAnnotationsManager(
     override suspend fun getAnnotationModifications(): EditsDraft {
         val draftModificationsSnapshot = draftState.getModificationsSnapshot()
         val persistedModificationsSnapshot = operationsTracker.getModificationsSnapshot()
-        return persistedModificationsSnapshot + draftModificationsSnapshot
+        return (persistedModificationsSnapshot + draftModificationsSnapshot).sortedByPage()
+    }
+
+    override suspend fun clearAppliedEdits(appliedCount: Int) {
+        val (persisted, drafts) =
+            operationsTracker.getSnapshot().partition {
+                handleRegistry.getSourceId(it.keyedAnnotation.key) != null
+            }
+
+        // Clear the successfully processed operations from the session state.
+        (persisted + drafts)
+            .sortedBy { it.keyedAnnotation.annotation.pageNum }
+            .take(appliedCount)
+            .forEach { operation ->
+                val handleId = operation.keyedAnnotation.key
+                val pageNum = operation.keyedAnnotation.annotation.pageNum
+
+                if (draftState.getDraftAnnotation(pageNum, handleId) != null) {
+                    draftState.removeAnnotation(pageNum, handleId)
+                }
+
+                operationsTracker.removeEntry(handleId)
+            }
+
+        annotationsRepository.clear()
     }
 
     override fun addAnnotation(annotation: PdfAnnotation): String {

@@ -85,6 +85,10 @@ internal class SessionAnnotationOperationsTracker(
         }
     }
 
+    override fun removeEntry(key: String) {
+        synchronized(operationsMap) { operationsMap.remove(key) }
+    }
+
     override fun getModificationsSnapshot(): EditsDraft {
         val mutableEditsDraft = MutableEditsDraft()
         operationsMap.forEach { (_, operation) ->

@@ -584,6 +584,41 @@ class EditableDocumentViewModelTest {
             .contains("Document not available")
     }
 
+    @Test
+    fun applyDraftEdits_partialFailure_retriesSuccessfully() = runTest {
+        val a1 = createAnnotation(pageNum = 0, bounds = RectF(0f, 0f, 10f, 10f))
+        val a2 = createAnnotation(pageNum = 0, bounds = RectF(10f, 10f, 20f, 20f))
+        val a3 = createAnnotation(pageNum = 0, bounds = RectF(20f, 20f, 30f, 30f))
+
+        annotationsViewModel.addDraftAnnotation(a1)
+        annotationsViewModel.addDraftAnnotation(a2)
+        annotationsViewModel.addDraftAnnotation(a3)
+
+        // 1. First attempt: Fail at second edit (index 1)
+        fakeDocument.failAtIndex = 1
+        annotationsViewModel.applyDraftEdits()
+        testScheduler.advanceUntilIdle()
+
+        assertThat(annotationsViewModel.applyEditsStatus.value)
+            .isInstanceOf(ApplyEditsState.Failure::class.java)
+        // Verify only first edit was applied to document
+        assertThat(fakeDocument.getAnnotationsForPage(0)).hasSize(1)
+        assertThat(fakeDocument.getAnnotationsForPage(0).first().annotation).isEqualTo(a1)
+
+        // 2. Second attempt: Succeed
+        fakeDocument.failAtIndex = null
+        annotationsViewModel.applyDraftEdits()
+        testScheduler.advanceUntilIdle()
+
+        assertThat(annotationsViewModel.applyEditsStatus.value)
+            .isInstanceOf(ApplyEditsState.Success::class.java)
+        // Verify all 3 edits are now in document, but a1 is not duplicated
+        val finalAnnotations = fakeDocument.getAnnotationsForPage(0)
+        assertThat(finalAnnotations).hasSize(3)
+        val finalAnnos = finalAnnotations.map { it.annotation }
+        assertThat(finalAnnos).containsExactly(a1, a2, a3).inOrder()
+    }
+
     // --- Tool Selection Tests ---
 
     @Test
