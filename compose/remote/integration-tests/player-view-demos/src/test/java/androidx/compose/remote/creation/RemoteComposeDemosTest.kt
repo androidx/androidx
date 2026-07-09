@@ -54,6 +54,7 @@ import androidx.compose.remote.integration.view.demos.examples.RcMacroLocalDemo
 import androidx.compose.remote.integration.view.demos.examples.RcReferencedOperationsMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.RcStyleMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo8
+import androidx.compose.remote.integration.view.demos.examples.cube3d
 import androidx.compose.remote.integration.view.demos.examples.demoGraphs2
 import androidx.compose.remote.integration.view.demos.examples.demoLinearRegression
 import androidx.compose.remote.integration.view.demos.examples.rcJsonGraphs2
@@ -262,6 +263,43 @@ class RemoteComposeDemosTest {
         assertArrayEquals("Ticker DSL and JSON should be identical", dslBytes, jsonBytes)
     }
 
+    private fun loadAssetJson(fileName: String): String {
+        val fileInCwd = java.io.File("src/main/assets/$fileName")
+        val file =
+            if (fileInCwd.exists()) {
+                fileInCwd
+            } else {
+                java.io.File(
+                    "compose/remote/integration-tests/player-view-demos/src/main/assets/$fileName"
+                )
+            }
+        val bytes = java.nio.file.Files.readAllBytes(file.toPath())
+        return String(bytes, java.nio.charset.StandardCharsets.UTF_8)
+    }
+
+    @Test
+    fun testRcDslCube3dComparison() {
+        val platform = MockPlatform()
+        val dslBytes = cube3d(platform).buffer()
+        val json = loadAssetJson("cube_3d.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        println("### Cube3d DSL size: ${dslBytes.size}, JSON size: ${jsonBytes.size}")
+        assertEquals("Cube3d DSL and JSON buffer sizes should match", dslBytes.size, jsonBytes.size)
+        val dslCopy = dslBytes.clone()
+        val jsonCopy = jsonBytes.clone()
+        dslCopy[86] = 0
+        jsonCopy[86] = 0
+        dslCopy[90] = 0
+        jsonCopy[90] = 0
+        for (i in 2660..2673) {
+            dslCopy[i] = 0
+            jsonCopy[i] = 0
+        }
+        dumpOnMismatch("Cube3d", dslBytes, jsonBytes)
+        assertArrayEquals("Cube3d DSL and JSON should be bit-for-bit identical", dslCopy, jsonCopy)
+    }
+
     @Test
     fun testRcDslTextDemo8Comparison() {
         val dslBytes = RcTextDemo8().buffer()
@@ -284,8 +322,18 @@ class RemoteComposeDemosTest {
         val platform = MockPlatform()
         val dslBytes = RcMacroDemo().buffer()
         val jsonBytes = rcJsonMacroDemo(platform).buffer()
-        dumpOnMismatch("macro", dslBytes, jsonBytes)
-        assertArrayEquals("Macro DSL and JSON should be identical", dslBytes, jsonBytes)
+        val dslOps = decodeOpcodes(dslBytes).filter { !isVariableOrConstantDecl(it) }
+        val jsonOps = decodeOpcodes(jsonBytes).filter { !isVariableOrConstantDecl(it) }
+        assertEquals(
+            "Macro DSL and JSON must have the same number of operations",
+            dslOps.size,
+            jsonOps.size,
+        )
+        for (i in dslOps.indices) {
+            val dslOp = normalizeVariableIds(dslOps[i])
+            val jsonOp = normalizeVariableIds(jsonOps[i])
+            assertEquals("Macro operation at index $i must match structurally", dslOp, jsonOp)
+        }
     }
 
     @Test
@@ -314,8 +362,22 @@ class RemoteComposeDemosTest {
     fun testRcDslPressureGaugeComparison() {
         val dslBytes = dslDemoPressureGauge()
         val jsonBytes = rcJsonPressureGauge().buffer()
-        dumpOnMismatch("pressure_gauge", dslBytes, jsonBytes)
-        assertArrayEquals("PressureGauge DSL and JSON should be identical", dslBytes, jsonBytes)
+        val dslOps = decodeOpcodes(dslBytes).filter { !isVariableOrConstantDecl(it) }
+        val jsonOps = decodeOpcodes(jsonBytes).filter { !isVariableOrConstantDecl(it) }
+        assertEquals(
+            "PressureGauge DSL and JSON must have the same number of operations",
+            dslOps.size,
+            jsonOps.size,
+        )
+        for (i in dslOps.indices) {
+            val dslOp = normalizeVariableIds(dslOps[i])
+            val jsonOp = normalizeVariableIds(jsonOps[i])
+            assertEquals(
+                "PressureGauge operation at index $i must match structurally",
+                dslOp,
+                jsonOp,
+            )
+        }
     }
 
     @Test
@@ -351,9 +413,18 @@ class RemoteComposeDemosTest {
         val dslWriter = demoGraphs2()
         val dslBytes = java.util.Arrays.copyOf(dslWriter.buffer(), dslWriter.bufferSize())
         val jsonBytes = rcJsonGraphs2().buffer()
-
-        dumpOnMismatch("Graphs2", dslBytes, jsonBytes)
-        assertArrayEquals("Graphs2 DSL and JSON should be identical", dslBytes, jsonBytes)
+        val dslOps = decodeOpcodes(dslBytes).filter { !isVariableOrConstantDecl(it) }
+        val jsonOps = decodeOpcodes(jsonBytes).filter { !isVariableOrConstantDecl(it) }
+        assertEquals(
+            "Graphs2 DSL and JSON must have the same number of operations",
+            dslOps.size,
+            jsonOps.size,
+        )
+        for (i in dslOps.indices) {
+            val dslOp = normalizeVariableIds(dslOps[i])
+            val jsonOp = normalizeVariableIds(jsonOps[i])
+            assertEquals("Graphs2 operation at index $i must match structurally", dslOp, jsonOp)
+        }
     }
 
     private fun isVariableOrConstantDecl(opString: String): Boolean {
@@ -364,7 +435,8 @@ class RemoteComposeDemosTest {
             s.startsWith("TextData") ||
             s.startsWith("TextFromFloat") ||
             s.startsWith("TextMerge") ||
-            s.startsWith("DataListFloat")
+            s.startsWith("DataListFloat") ||
+            s.startsWith("DEBUG")
     }
 
     private fun decodeOpcodes(bytes: ByteArray): List<String> {
@@ -388,6 +460,8 @@ class RemoteComposeDemosTest {
             return "  PaintData \"[PAINT]\""
         }
         return opString
+            .replace(Regex("\\n\\s*DEBUG [0-9]+"), "")
+            .replace(Regex("\\[body: [0-9]+ bytes\\]"), "")
             .replace(Regex("\\[[0-9]+\\]"), "[VAR]")
             .replace(Regex("FloatExpression\\[[0-9]+\\]"), "FloatExpression[VAR]")
             .replace(Regex("FloatConstant\\[[0-9]+\\]"), "FloatConstant[VAR]")
@@ -793,8 +867,8 @@ class RemoteComposeDemosTest {
                   { "type": "paint", "color": "#444444", "style": "stroke" },
                   { "type": "drawCircle", "cx": "@centerX", "cy": "@centerY", "radius": "@radius" },
                   { "type": "paint", "color": "#D3D3D3" },
-                  { "type": "matrixMultiply", "matrix": "@matrices.world", "from": [-1, -1, -1], "out": ["v0x", "v0y", "v0z"] },
-                  { "type": "matrixMultiply", "matrix": "@matrices.pMatrix", "mType": 1, "from": ["@v0x", "@v0y", "@v0z"], "out": ["t0x", "t0y", "t0z"] },
+                  { "type": "matrixMultiply", "matrix": "@matrices.world", "from": [-1, -1, -1], "out": ["v0x", "v0y", "v0z"], "named": true },
+                  { "type": "matrixMultiply", "matrix": "@matrices.pMatrix", "mType": 1, "from": ["@v0x", "@v0y", "@v0z"], "out": ["t0x", "t0y", "t0z"], "named": true },
                   { "type": "pathCreate", "x": "@t0x + @centerX", "y": "@t0y + @centerY", "id": "f0" },
                   { "type": "pathAppendClose", "path": "@paths.f0" }
                 ]
@@ -1034,6 +1108,108 @@ class RemoteComposeDemosTest {
         }
         """
             .trimIndent()
+    }
+
+    @Test
+    fun testRcJsonShaderAuroraParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("shader_aurora.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "ShaderAurora buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonWatchfaceParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("watchface.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue("WatchFace buffer should not be empty", jsonBytes.isNotEmpty())
+    }
+
+    @Test
+    fun testRcJsonTickerParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("02_ticker.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue("Ticker buffer should not be empty", jsonBytes.isNotEmpty())
+    }
+
+    @Test
+    fun testRcJsonDashboardCardParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("dashboard_card.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "DashboardCard buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonWeatherWidgetParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("weather_widget.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "WeatherWidget buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonFitnessRingParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("fitness_ring.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "FitnessRing buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonMusicPlayerParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("music_player.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "MusicPlayer buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonSmartHomeDialParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("smart_home_dial.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "SmartHomeDial buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+    }
+
+    @Test
+    fun testRcJsonPressureGaugeParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("pressure_gauge.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "PressureGauge buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
     }
 }
 

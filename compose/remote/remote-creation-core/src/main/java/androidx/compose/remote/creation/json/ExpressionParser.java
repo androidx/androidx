@@ -269,6 +269,10 @@ class ExpressionParser {
         if (mParser.mDeferredVariables.containsKey(token)) return true;
         if (mParser.mEmittedVariables.containsKey(token)) return true;
         return token.equals("time") || token.equals("seconds")
+                || token.equals("timeInHr") || token.equals("timeInHr()")
+                || token.equals("timeInMin") || token.equals("timeInMin()")
+                || token.equals("timeInSec") || token.equals("timeInSec()")
+                || token.equals("continuousSec") || token.equals("continuousSec()")
                 || token.equals("width") || token.equals("height")
                 || token.equals("windowWidth") || token.equals("windowHeight")
                 || token.equals("windowWidth()") || token.equals("windowHeight()")
@@ -291,8 +295,20 @@ class ExpressionParser {
             case "a[0]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 70);
             case "a[1]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 71);
             case "a[2]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);
-            case "time": return Utils.asNan(1 /* ID_CONTINUOUS_SEC */);
-            case "seconds": return Utils.asNan(2 /* FLOAT_TIME_IN_SEC */);
+            case "time":
+            case "continuousSec":
+            case "continuousSec()":
+                return RemoteContext.FLOAT_CONTINUOUS_SEC;
+            case "seconds":
+            case "timeInSec":
+            case "timeInSec()":
+                return RemoteContext.FLOAT_TIME_IN_SEC;
+            case "timeInMin":
+            case "timeInMin()":
+                return RemoteContext.FLOAT_TIME_IN_MIN;
+            case "timeInHr":
+            case "timeInHr()":
+                return RemoteContext.FLOAT_TIME_IN_HR;
             case "windowWidth":
             case "windowWidth()":
                 return Utils.asNan(5 /* Rc.System.WINDOW_WIDTH */);

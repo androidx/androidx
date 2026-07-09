@@ -1,0 +1,923 @@
+{
+  "header": {
+    "apiLevel": 7,
+    "width": 400,
+    "height": 400,
+    "contentDescription": "Cube",
+    "fps": 120,
+    "profiles": 769,
+    "debug": 0
+  },
+  "root": {
+    "box": {
+      "horizontalAlignment": "center",
+      "verticalAlignment": "center",
+      "modifiers": [
+        "fillMaxWidth",
+        "fillMaxHeight"
+      ],
+      "children": [
+        {
+          "canvas": {
+            "modifiers": [
+              "fillMaxWidth",
+              "fillMaxHeight"
+            ],
+            "commands": [
+              {
+                "variable": {
+                  "name": "width",
+                  "value": "componentWidth()",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "height",
+                  "value": "componentHeight()",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "cx",
+                  "value": "componentWidth() / 2.0",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "cy",
+                  "value": "componentHeight() / 2.0",
+                  "commit": true
+                }
+              },
+              {
+                "paint": {
+                  "color": "#444444",
+                  "style": "fill"
+                }
+              },
+              {
+                "variable": {
+                  "name": "radius",
+                  "value": "min(componentWidth() / 2.0, componentHeight() / 2.0)",
+                  "commit": true
+                }
+              },
+              {
+                "drawCircle": {
+                  "cx": "@vars.cx",
+                  "cy": "@vars.cy",
+                  "radius": "@vars.radius"
+                }
+              },
+              {
+                "variable": {
+                  "name": "rot",
+                  "value": "(time * 2.0 * 20.0) % 360.0",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "rotX",
+                  "value": "@vars.rot * sign((round(time * 2.0 / 18.0) + 1.0) % 3.0)",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "rotY",
+                  "value": "@vars.rot * sign(round(time * 2.0 / 18.0) % 3.0)",
+                  "commit": true
+                }
+              },
+              {
+                "matrixConstant": {
+                  "name": "world",
+                  "values": [
+                    6.0,
+                    "matrix:TRANSLATE_Z",
+                    "@vars.rotX",
+                    "matrix:ROT_X",
+                    "@vars.rotY",
+                    "matrix:ROT_Y"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "sx",
+                  "value": "@vars.cx * 0.4",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "sy",
+                  "value": "@vars.cx * -0.4",
+                  "commit": true
+                }
+              },
+              {
+                "matrixConstant": {
+                  "name": "pMatrix",
+                  "values": [
+                    60.0,
+                    1.0,
+                    0.1,
+                    100.0,
+                    "matrix:PROJECTION",
+                    "@vars.sx",
+                    "@vars.sy",
+                    "matrix:SCALE2"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    -1.0,
+                    -1.0,
+                    -1.0
+                  ],
+                  "out": [
+                    "x1_0",
+                    "y1_0",
+                    "z1_0"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_0",
+                    "@vars.y1_0",
+                    "@vars.z1_0"
+                  ],
+                  "out": [
+                    "px_0",
+                    "py_0",
+                    "pz_0"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv0x",
+                  "value": "@vars.px_0 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv0y",
+                  "value": "@vars.py_0 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    1.0,
+                    -1.0,
+                    -1.0
+                  ],
+                  "out": [
+                    "x1_1",
+                    "y1_1",
+                    "z1_1"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_1",
+                    "@vars.y1_1",
+                    "@vars.z1_1"
+                  ],
+                  "out": [
+                    "px_1",
+                    "py_1",
+                    "pz_1"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv1x",
+                  "value": "@vars.px_1 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv1y",
+                  "value": "@vars.py_1 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    1.0,
+                    1.0,
+                    -1.0
+                  ],
+                  "out": [
+                    "x1_2",
+                    "y1_2",
+                    "z1_2"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_2",
+                    "@vars.y1_2",
+                    "@vars.z1_2"
+                  ],
+                  "out": [
+                    "px_2",
+                    "py_2",
+                    "pz_2"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv2x",
+                  "value": "@vars.px_2 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv2y",
+                  "value": "@vars.py_2 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    -1.0,
+                    1.0,
+                    -1.0
+                  ],
+                  "out": [
+                    "x1_3",
+                    "y1_3",
+                    "z1_3"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_3",
+                    "@vars.y1_3",
+                    "@vars.z1_3"
+                  ],
+                  "out": [
+                    "px_3",
+                    "py_3",
+                    "pz_3"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv3x",
+                  "value": "@vars.px_3 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv3y",
+                  "value": "@vars.py_3 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    -1.0,
+                    -1.0,
+                    1.0
+                  ],
+                  "out": [
+                    "x1_4",
+                    "y1_4",
+                    "z1_4"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_4",
+                    "@vars.y1_4",
+                    "@vars.z1_4"
+                  ],
+                  "out": [
+                    "px_4",
+                    "py_4",
+                    "pz_4"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv4x",
+                  "value": "@vars.px_4 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv4y",
+                  "value": "@vars.py_4 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    1.0,
+                    -1.0,
+                    1.0
+                  ],
+                  "out": [
+                    "x1_5",
+                    "y1_5",
+                    "z1_5"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_5",
+                    "@vars.y1_5",
+                    "@vars.z1_5"
+                  ],
+                  "out": [
+                    "px_5",
+                    "py_5",
+                    "pz_5"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv5x",
+                  "value": "@vars.px_5 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv5y",
+                  "value": "@vars.py_5 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "out": [
+                    "x1_6",
+                    "y1_6",
+                    "z1_6"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_6",
+                    "@vars.y1_6",
+                    "@vars.z1_6"
+                  ],
+                  "out": [
+                    "px_6",
+                    "py_6",
+                    "pz_6"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv6x",
+                  "value": "@vars.px_6 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv6y",
+                  "value": "@vars.py_6 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.world",
+                  "mType": 0,
+                  "from": [
+                    -1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "out": [
+                    "x1_7",
+                    "y1_7",
+                    "z1_7"
+                  ]
+                }
+              },
+              {
+                "matrixMultiply": {
+                  "matrix": "@matrices.pMatrix",
+                  "mType": 1,
+                  "from": [
+                    "@vars.x1_7",
+                    "@vars.y1_7",
+                    "@vars.z1_7"
+                  ],
+                  "out": [
+                    "px_7",
+                    "py_7",
+                    "pz_7"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv7x",
+                  "value": "@vars.px_7 + @vars.cx",
+                  "commit": true
+                }
+              },
+              {
+                "variable": {
+                  "name": "tv7y",
+                  "value": "@vars.py_7 + @vars.cy",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f0",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv0x",
+                    "@vars.tv0y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv1x",
+                    "@vars.tv1y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv2x",
+                    "@vars.tv2y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv3x",
+                    "@vars.tv3y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_0",
+                  "value": "(@vars.tv0x - @vars.tv1x) * (@vars.tv2y - @vars.tv1y) - (@vars.tv0y - @vars.tv1y) * (@vars.tv2x - @vars.tv1x)",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f1",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv1x",
+                    "@vars.tv1y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv5x",
+                    "@vars.tv5y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv6x",
+                    "@vars.tv6y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv2x",
+                    "@vars.tv2y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_1",
+                  "value": "(@vars.tv1x - @vars.tv5x) * (@vars.tv6y - @vars.tv5y) - (@vars.tv1y - @vars.tv5y) * (@vars.tv6x - @vars.tv5x)",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f2",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv5x",
+                    "@vars.tv5y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv4x",
+                    "@vars.tv4y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv7x",
+                    "@vars.tv7y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv6x",
+                    "@vars.tv6y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_2",
+                  "value": "(@vars.tv5x - @vars.tv4x) * (@vars.tv7y - @vars.tv4y) - (@vars.tv5y - @vars.tv4y) * (@vars.tv7x - @vars.tv4x)",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f3",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv4x",
+                    "@vars.tv4y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv0x",
+                    "@vars.tv0y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv3x",
+                    "@vars.tv3y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv7x",
+                    "@vars.tv7y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_3",
+                  "value": "(@vars.tv4x - @vars.tv0x) * (@vars.tv3y - @vars.tv0y) - (@vars.tv4y - @vars.tv0y) * (@vars.tv3x - @vars.tv0x)",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f4",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv3x",
+                    "@vars.tv3y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv2x",
+                    "@vars.tv2y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv6x",
+                    "@vars.tv6y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv7x",
+                    "@vars.tv7y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_4",
+                  "value": "(@vars.tv3x - @vars.tv2x) * (@vars.tv6y - @vars.tv2y) - (@vars.tv3y - @vars.tv2y) * (@vars.tv6x - @vars.tv2x)",
+                  "commit": true
+                }
+              },
+              {
+                "pathData": {
+                  "id": "f5",
+                  "data": [
+                    "path:MOVE",
+                    "@vars.tv4x",
+                    "@vars.tv4y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv5x",
+                    "@vars.tv5y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv1x",
+                    "@vars.tv1y",
+                    "path:LINE",
+                    0.0,
+                    0.0,
+                    "@vars.tv0x",
+                    "@vars.tv0y",
+                    "path:CLOSE"
+                  ]
+                }
+              },
+              {
+                "variable": {
+                  "name": "dir_5",
+                  "value": "(@vars.tv4x - @vars.tv5x) * (@vars.tv1y - @vars.tv5y) - (@vars.tv4y - @vars.tv5y) * (@vars.tv1x - @vars.tv5x)",
+                  "commit": true
+                }
+              },
+              {
+                "paint": {
+                  "shader": 0,
+                  "color": "#CCCCCC",
+                  "style": "fill"
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_0",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#FF0000"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_1",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#00FF00"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f1"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_2",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#0000FF"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f2"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_3",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#FFFF00"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f3"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_4",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#FF00FF"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f4"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_5",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "paint": {
+                        "color": "#00FFFF"
+                      }
+                    },
+                    {
+                      "drawPath": {
+                        "path": "@paths.f5"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "paint": {
+                  "color": "#000000",
+                  "strokeJoin": "round",
+                  "strokeWidth": 5.0,
+                  "style": "stroke"
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_0",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f0"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_1",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f1"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_2",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f2"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_3",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f3"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_4",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f4"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "conditionalOperations": {
+                  "condition": "gt",
+                  "v1": "@vars.dir_5",
+                  "v2": 0.0,
+                  "commands": [
+                    {
+                      "drawPath": {
+                        "path": "@paths.f5"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
