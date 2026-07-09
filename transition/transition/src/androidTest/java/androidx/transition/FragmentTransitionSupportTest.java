@@ -46,7 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-@SdkSuppress(minSdkVersion = 24) // b/457498205
+@SdkSuppress(minSdkVersion = 25) // b/457498205
 @MediumTest
 @RunWith(Parameterized.class)
 public class FragmentTransitionSupportTest extends BaseTest {
