@@ -1020,6 +1020,75 @@ class DeferredAnimatedContentTest {
     }
 
     @Test
+    fun animatedContent_previewScaleTransforms_handoffUsesTweenSpec() {
+        val state = DeferredTransitionState("A")
+        var previewing by mutableStateOf(false)
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    // Use a long tween animation spec so we can easily measure intermediate values
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    if (previewing && targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "B") {
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Defer to B, set scale to 0.5f
+        rule.runOnIdle {
+            previewing = true
+            state.defer("B")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        // 2. Commit transition to B (handoff phase starts)
+        rule.runOnIdle {
+            previewing = false
+            state.animateTo("B")
+        }
+        rule.mainClock.advanceTimeByFrame() // Transition start frame
+        rule.waitForIdle()
+
+        // 3. Advance clock by 500 ms (exactly half of 1000 ms duration).
+        // Since we are transitioning from 0.5f (forcedInitialValue) to 1.0f (targetState value)
+        // using a linear tween(1000), at 500 ms the scale should be exactly:
+        // 0.5f + (1.0f - 0.5f) * 0.5 = 0.75f.
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+
+        // Assert that the scale is 0.75f (width is 75% of full width)
+        val fullWidth = with(rule.density) { 100.dp.toPx() }
+        val expectedWidth = fullWidth * 0.75f
+        assertEquals(expectedWidth, measuredWidth, 2f) // allowance of 2 pixels
+    }
+
+    @Test
     fun animatedContent_interruption_during_deferred_phase_uses_correct_spec() {
         val state = DeferredTransitionState("A")
         var exitSpecForA: ExitTransition? = null
