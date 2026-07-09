@@ -27,7 +27,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -170,7 +172,7 @@ fun LegacyThreeLineListItemWithExtendedSupporting() {
 @Sampled
 @Composable
 fun StandardListItems() {
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
 
         ListItem(
@@ -214,7 +216,10 @@ fun SegmentedListItems() {
     val count = 4
     val colors =
         ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
         SegmentedListItem(
             shapes = ListItemDefaults.segmentedShapes(index = 0, count = count),
             colors = colors,
@@ -253,7 +258,7 @@ fun SegmentedListItems() {
 @Sampled
 @Composable
 fun ClickableListItemSample() {
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
 
         repeat(3) { idx ->
@@ -275,7 +280,7 @@ fun ClickableListItemSample() {
 @Sampled
 @Composable
 fun ClickableListItemWithClickableChildSample() {
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
 
         repeat(3) { idx ->
@@ -300,7 +305,7 @@ fun ClickableListItemWithClickableChildSample() {
 @Sampled
 @Composable
 fun SingleSelectionListItemSample() {
-    Column(Modifier.selectableGroup()) {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
         HorizontalDivider()
 
         var selectedIndex: Int? by rememberSaveable { mutableStateOf(null) }
@@ -324,7 +329,7 @@ fun SingleSelectionListItemSample() {
 @Sampled
 @Composable
 fun MultiSelectionListItemSample() {
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
 
         repeat(3) { idx ->
@@ -347,7 +352,7 @@ fun MultiSelectionListItemSample() {
 @Sampled
 @Composable
 fun ListItemWithModeChangeOnLongClickSample() {
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
 
         var inClickMode by rememberSaveable { mutableStateOf(true) }
@@ -396,7 +401,7 @@ fun SingleSelectionSegmentedListItemSample() {
     val colors =
         ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     Column(
-        modifier = Modifier.selectableGroup(),
+        modifier = Modifier.verticalScroll(rememberScrollState()).selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
     ) {
         var selectedIndex: Int? by rememberSaveable { mutableStateOf(null) }
@@ -423,7 +428,10 @@ fun MultiSelectionSegmentedListItemSample() {
     val count = 4
     val colors =
         ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
         repeat(count) { idx ->
             var checked by rememberSaveable { mutableStateOf(false) }
             SegmentedListItem(
@@ -453,10 +461,10 @@ fun SegmentedListItemWithExpansionSample() {
         ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
     ) {
-        Spacer(Modifier.height(100.dp))
+        Spacer(Modifier.height(50.dp))
         SegmentedListItem(
             onClick = { expanded = !expanded },
             modifier =
