@@ -897,10 +897,12 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
 
     companion object {
         /** Displays the Time picker with a horizontal layout. Should be used in landscape mode. */
-        val Horizontal = TimePickerLayoutType(0)
+        val Horizontal
+            get() = TimePickerLayoutType(0)
 
         /** Displays the Time picker with a vertical layout. Should be used in portrait mode. */
-        val Vertical = TimePickerLayoutType(1)
+        val Vertical
+            get() = TimePickerLayoutType(1)
     }
 
     override fun toString() =
@@ -1032,8 +1034,11 @@ fun TimePickerState(initialHour: Int, initialMinute: Int, is24Hour: Boolean): Ti
 @JvmInline
 value class TimePickerSelectionMode private constructor(val value: Int) {
     companion object {
-        val Hour = TimePickerSelectionMode(0)
-        val Minute = TimePickerSelectionMode(1)
+        val Hour
+            get() = TimePickerSelectionMode(0)
+
+        val Minute
+            get() = TimePickerSelectionMode(1)
     }
 
     override fun toString(): String =

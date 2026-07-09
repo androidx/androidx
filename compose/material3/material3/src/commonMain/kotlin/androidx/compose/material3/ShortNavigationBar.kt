@@ -156,14 +156,16 @@ value class ShortNavigationBarArrangement private constructor(private val value:
          *
          * This configuration is recommended for small width screens.
          */
-        val EqualWeight = ShortNavigationBarArrangement(0)
+        val EqualWeight
+            get() = ShortNavigationBarArrangement(0)
 
         /*
          * The items are centered on the Short Navigation Bar.
          *
          * This configuration is recommended for medium width screens.
          */
-        val Centered = ShortNavigationBarArrangement(1)
+        val Centered
+            get() = ShortNavigationBarArrangement(1)
     }
 
     override fun toString() =

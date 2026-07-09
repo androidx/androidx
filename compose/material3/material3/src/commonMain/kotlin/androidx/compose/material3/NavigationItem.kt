@@ -84,10 +84,12 @@ import kotlin.math.roundToInt
 value class NavigationItemIconPosition private constructor(private val value: Int) {
     companion object {
         /* The icon is positioned on top of the label. */
-        val Top = NavigationItemIconPosition(0)
+        val Top
+            get() = NavigationItemIconPosition(0)
 
         /* The icon is positioned at the start of the label. */
-        val Start = NavigationItemIconPosition(1)
+        val Start
+            get() = NavigationItemIconPosition(1)
     }
 
     override fun toString() =
