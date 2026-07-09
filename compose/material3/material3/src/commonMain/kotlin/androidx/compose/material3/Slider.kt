@@ -857,7 +857,7 @@ private fun SliderImpl(
 
     val reverseDirection =
         (state.orientation == Horizontal && state.isRtl) ||
-            (state.orientation == Vertical && state.reverseVerticalDirection)
+            (state.isVertical && state.reverseVerticalDirection)
     val press = Modifier.sliderTapModifier(state, interactionSource, enabled)
     val drag =
         Modifier.draggable(
@@ -870,7 +870,7 @@ private fun SliderImpl(
             state = state,
         )
     val thumbModifier =
-        if (state.orientation == Vertical) {
+        if (state.isVertical) {
             Modifier.layoutId(SliderComponents.THUMB).wrapContentHeight()
         } else {
             Modifier.layoutId(SliderComponents.THUMB).wrapContentWidth()
@@ -922,8 +922,8 @@ private fun SliderImpl(
             modifier
                 .minimumInteractiveComponentSize()
                 .requiredSizeIn(
-                    minWidth = if (state.orientation == Vertical) TrackHeight else ThumbWidth,
-                    minHeight = if (state.orientation == Vertical) ThumbWidth else TrackHeight,
+                    minWidth = if (state.isVertical) TrackHeight else ThumbWidth,
+                    minHeight = if (state.isVertical) ThumbWidth else TrackHeight,
                 )
                 .sliderSemantics(state, enabled)
                 .focusable(enabled, interactionSource)
@@ -942,7 +942,7 @@ private fun SliderImpl(
                     },
                     state.onValueChangeFinished,
                     state.isRtl,
-                    state.orientation == Vertical,
+                    state.isVertical,
                 )
                 .then(press)
                 .then(drag),
@@ -955,7 +955,7 @@ private fun SliderImpl(
 
         val trackMeasurable = measurables.fastFirst { it.layoutId == SliderComponents.TRACK }
         val trackPlaceable =
-            if (state.orientation == Vertical) {
+            if (state.isVertical) {
                 trackMeasurable.measure(
                     constraints
                         .offset(vertical = -(thumbPlaceable.height - 2 * trackPadding))
@@ -987,7 +987,7 @@ private fun SliderImpl(
         val thumbCoreWidth = thumbPlaceable.width - 2 * trackPadding
         val thumbCoreHeight = thumbPlaceable.height - 2 * trackPadding
 
-        if (state.orientation == Vertical) {
+        if (state.isVertical) {
             sliderWidth = max(trackPlaceable.width, thumbCoreWidth)
             sliderHeight = thumbCoreHeight + trackPlaceable.height
             trackOffsetX = (sliderWidth - trackPlaceable.width) / 2
@@ -1740,7 +1740,7 @@ object SliderDefaults {
         "Maintained for binary compatibility. Use the overload that takes isVertical instead.",
         replaceWith =
             ReplaceWith(
-                "Thumb(interactionSource, isVertical, modifier, colors, enabled, thumbSize)"
+                "Thumb(interactionSource, sliderState.isVertical, modifier, colors, enabled, thumbSize)"
             ),
         level = DeprecationLevel.WARNING,
     )
@@ -1756,7 +1756,7 @@ object SliderDefaults {
     ) =
         Thumb(
             interactionSource = interactionSource,
-            isVertical = sliderState.orientation == Vertical,
+            isVertical = sliderState.isVertical,
             modifier = modifier,
             colors = colors,
             enabled = enabled,
@@ -2050,7 +2050,7 @@ object SliderDefaults {
         val focusPadding =
             if (isInsetFocusRing && sliderState.isFocused) insetFocusRingPadding else 0.dp
         Canvas(
-            if (sliderState.orientation == Vertical) {
+            if (sliderState.isVertical) {
                     modifier.width(TrackHeight).fillMaxHeight().let {
                         if (sliderState.reverseVerticalDirection) it.scale(1f, -1f) else it
                     }
@@ -2062,7 +2062,7 @@ object SliderDefaults {
                         val placeable = measurable.measure(constraints)
                         val cornerSize =
                             if (trackCornerSize == Dp.Unspecified) {
-                                if (sliderState.orientation == Vertical) {
+                                if (sliderState.isVertical) {
                                     placeable.width / 2
                                 } else {
                                     placeable.height / 2
@@ -2082,7 +2082,7 @@ object SliderDefaults {
         ) {
             val cornerSize: Float =
                 if (trackCornerSize == Dp.Unspecified) {
-                    if (sliderState.orientation == Vertical) {
+                    if (sliderState.isVertical) {
                         size.width / 2
                     } else {
                         size.height / 2
@@ -2825,7 +2825,7 @@ private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modi
             )
         }
         .then(
-            if (state.orientation == Vertical) {
+            if (state.isVertical) {
                 IncreaseVerticalSemanticsBounds
             } else {
                 IncreaseHorizontalSemanticsBounds
@@ -3405,7 +3405,7 @@ class SliderState(
     override fun dispatchRawDelta(delta: Float) {
         val maxPx: Float
         val minPx: Float
-        if (orientation == Vertical) {
+        if (isVertical) {
             maxPx = max(totalHeight - thumbHeight / 2f, 0f)
             minPx = min(thumbHeight / 2f, maxPx)
         } else {
@@ -3439,6 +3439,11 @@ class SliderState(
     internal var thumbWidth by mutableIntStateOf(0)
     internal var thumbHeight by mutableIntStateOf(0)
     internal var orientation = Horizontal
+
+    /** Whether the slider is vertical. */
+    val isVertical: Boolean
+        get() = orientation == Vertical
+
     internal var reverseVerticalDirection = false
 
     /** The fraction of the track that the thumb currently is in. */
@@ -3467,7 +3472,7 @@ class SliderState(
 
     internal fun onPress(pos: Offset) {
         val to =
-            if (orientation == Vertical) {
+            if (isVertical) {
                 if (reverseVerticalDirection) totalHeight - pos.y else pos.y
             } else {
                 if (isRtl) totalWidth - pos.x else pos.x
