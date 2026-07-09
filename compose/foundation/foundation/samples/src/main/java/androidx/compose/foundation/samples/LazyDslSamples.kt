@@ -250,3 +250,19 @@ fun LazyListCustomScrollUsingLazyLayoutScrollScopeSample() {
         }
     }
 }
+
+@Sampled
+@Preview
+@Composable
+fun LazyColumnWithLazyRowsSample() {
+    LazyColumn {
+        items(100) { row ->
+            val color = if (row % 2 == 0) Color.Red else Color.Blue
+            LazyRow(modifier = Modifier.background(color).padding(2.dp)) {
+                items(20) { column ->
+                    Box(Modifier.size(64.dp).padding(2.dp)) { Text("row=$row column=$column") }
+                }
+            }
+        }
+    }
+}
