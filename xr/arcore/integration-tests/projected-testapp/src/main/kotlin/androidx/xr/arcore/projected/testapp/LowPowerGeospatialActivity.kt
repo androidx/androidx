@@ -24,7 +24,6 @@ import android.util.Log
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,9 +63,8 @@ import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
+import androidx.xr.projected.ProjectedActivityCompat
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
-import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
@@ -76,11 +74,13 @@ import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LowPowerGeospatialActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LowPowerGeospatialActivity"
+        private const val PERMISSION_REQUEST_CODE = 1234
     }
 
     private var targetModeState by mutableStateOf(GeospatialMode.SPATIAL)
@@ -100,12 +100,6 @@ class LowPowerGeospatialActivity : ComponentActivity() {
     private var sessionInstance by mutableStateOf<Session?>(null)
     private var geospatialInstance by mutableStateOf<Geospatial?>(null)
     private var arDeviceInstance by mutableStateOf<ArDevice?>(null)
-    @OptIn(ExperimentalProjectedApi::class)
-    private val requestPermissionLauncher:
-        ActivityResultLauncher<List<ProjectedPermissionsRequestParams>> =
-        registerForActivityResult(ProjectedPermissionsResultContract()) { results ->
-            tryCreateAndConfigureSession()
-        }
 
     @OptIn(ExperimentalProjectedApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,12 +116,13 @@ class LowPowerGeospatialActivity : ComponentActivity() {
         if (hasAllPermissions) {
             tryCreateAndConfigureSession()
         } else {
-            val params =
-                ProjectedPermissionsRequestParams(
-                    permissions = permissionsRequired,
-                    rationale = "Location permissions are required in projected mode.",
+            lifecycleScope.launch(Dispatchers.Default) {
+                ProjectedActivityCompat.requestPermissions(
+                    this@LowPowerGeospatialActivity,
+                    permissionsRequired.toTypedArray(),
+                    PERMISSION_REQUEST_CODE,
                 )
-            requestPermissionLauncher.launch(listOf(params))
+            }
         }
         setContent {
             GlimmerTheme {
@@ -148,6 +143,17 @@ class LowPowerGeospatialActivity : ComponentActivity() {
                 }
                 GeospatialDashboard(geospatial, arDevice)
             }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray,
+        deviceId: Int,
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            tryCreateAndConfigureSession()
         }
     }
 
