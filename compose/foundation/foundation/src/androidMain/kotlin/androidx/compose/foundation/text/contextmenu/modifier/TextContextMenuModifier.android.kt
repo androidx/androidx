@@ -17,13 +17,20 @@
 package androidx.compose.foundation.text.contextmenu.modifier
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 
 internal fun Modifier.addTextContextMenuComponentsWithContext(
@@ -59,8 +66,33 @@ private class AddTextContextMenuDataComponentsWithContextElement(
 
 private class AddTextContextMenuDataComponentsWithContextNode(
     var builder: TextContextMenuBuilderScope.(Context) -> Unit
-) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+) : DelegatingNode(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
+
+    private var configuration by mutableStateOf<Configuration?>(null)
+    private var context by mutableStateOf<Context?>(null)
+
     init {
-        delegate(AddTextContextMenuDataComponentsNode { builder(currentValueOf(LocalContext)) })
+        delegate(
+            AddTextContextMenuDataComponentsNode {
+                configuration
+                builder(context ?: currentValueOf(LocalContext))
+            }
+        )
+    }
+
+    override fun onAttach() {
+        super.onAttach()
+        updateLocals()
+    }
+
+    override fun onObservedReadsChanged() {
+        updateLocals()
+    }
+
+    private fun updateLocals() {
+        observeReads {
+            configuration = currentValueOf(LocalConfiguration)
+            context = currentValueOf(LocalContext)
+        }
     }
 }
