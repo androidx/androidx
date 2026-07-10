@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -35,9 +33,10 @@ import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteContentPreview
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
@@ -70,9 +69,9 @@ private fun RcPaddingPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteBox(
-                modifier = RemoteModifier.size(160.rdp).background(Color(BLUE)).padding(24.rdp)
+                modifier = RemoteModifier.size(160.rdp).background(Color(BLUE).rc).padding(24.rdp)
             ) {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color(AMBER)))
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color(AMBER).rc))
             }
         }
     }
@@ -86,10 +85,10 @@ private fun RcBoxAlignTopStartPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteBox(
-                modifier = RemoteModifier.size(170.rdp).background(Color(DARK)),
+                modifier = RemoteModifier.size(170.rdp).background(Color(DARK).rc),
                 contentAlignment = RemoteAlignment.TopStart,
             ) {
-                RemoteBox(modifier = RemoteModifier.size(56.rdp).background(Color(RED)))
+                RemoteBox(modifier = RemoteModifier.size(56.rdp).background(Color(RED).rc))
             }
         }
     }
@@ -103,10 +102,10 @@ private fun RcBoxAlignBottomEndPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteBox(
-                modifier = RemoteModifier.size(170.rdp).background(Color(DARK)),
+                modifier = RemoteModifier.size(170.rdp).background(Color(DARK).rc),
                 contentAlignment = RemoteAlignment.BottomEnd,
             ) {
-                RemoteBox(modifier = RemoteModifier.size(56.rdp).background(Color(RED)))
+                RemoteBox(modifier = RemoteModifier.size(56.rdp).background(Color(RED).rc))
             }
         }
     }
@@ -120,9 +119,9 @@ private fun RcColumnSpacedPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteColumn(verticalArrangement = RemoteArrangement.spacedBy(14.rdp)) {
-                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(RED)))
-                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(GREEN)))
-                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(BLUEISH)))
+                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(RED).rc))
+                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(GREEN).rc))
+                RemoteBox(RemoteModifier.size(120.rdp, 28.rdp).background(Color(BLUEISH).rc))
             }
         }
     }
@@ -139,9 +138,9 @@ private fun RcRowSpaceBetweenPreview(
                 modifier = RemoteModifier.size(190.rdp, 44.rdp),
                 horizontalArrangement = RemoteArrangement.SpaceBetween,
             ) {
-                RemoteBox(RemoteModifier.size(44.rdp).background(Color(RED)))
-                RemoteBox(RemoteModifier.size(44.rdp).background(Color(GREEN)))
-                RemoteBox(RemoteModifier.size(44.rdp).background(Color(BLUEISH)))
+                RemoteBox(RemoteModifier.size(44.rdp).background(Color(RED).rc))
+                RemoteBox(RemoteModifier.size(44.rdp).background(Color(GREEN).rc))
+                RemoteBox(RemoteModifier.size(44.rdp).background(Color(BLUEISH).rc))
             }
         }
     }
@@ -159,9 +158,9 @@ private fun RcColumnCenterAlignPreview(
                 verticalArrangement = RemoteArrangement.spacedBy(12.rdp),
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
-                RemoteBox(RemoteModifier.size(60.rdp, 30.rdp).background(Color(RED)))
-                RemoteBox(RemoteModifier.size(140.rdp, 30.rdp).background(Color(GREEN)))
-                RemoteBox(RemoteModifier.size(30.rdp, 30.rdp).background(Color(BLUEISH)))
+                RemoteBox(RemoteModifier.size(60.rdp, 30.rdp).background(Color(RED).rc))
+                RemoteBox(RemoteModifier.size(140.rdp, 30.rdp).background(Color(GREEN).rc))
+                RemoteBox(RemoteModifier.size(30.rdp, 30.rdp).background(Color(BLUEISH).rc))
             }
         }
     }
@@ -175,8 +174,8 @@ private fun RcTextStyledPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteText(
-                text = "Styled",
-                color = RemoteColor(Color(0xFF6200EE)),
+                text = "Styled".rs,
+                color = Color(0xFF6200EE).rc,
                 fontSize = 30.rsp,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold,
@@ -196,10 +195,10 @@ private fun RcBorderPreview(
                 modifier =
                     RemoteModifier.size(140.rdp)
                         .clip(RemoteRoundedCornerShape(20.rdp))
-                        .background(Color(0xFFEEEEEE))
+                        .background(Color(0xFFEEEEEE).rc)
                         .border(
                             width = 6.rdp,
-                            color = RemoteColor(Color(0xFF009688)),
+                            color = Color(0xFF009688).rc,
                             shape = RemoteRoundedCornerShape(20.rdp),
                         )
             )
@@ -218,7 +217,7 @@ private fun RcOffsetPreview(
                 modifier =
                     RemoteModifier.offset(x = 28.rdp, y = 18.rdp)
                         .size(96.rdp)
-                        .background(Color(0xFFFF5722))
+                        .background(Color(0xFFFF5722).rc)
             )
         }
     }
@@ -232,7 +231,8 @@ private fun RcAlphaPreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Frame {
             RemoteBox(
-                modifier = RemoteModifier.size(120.rdp).alpha(0.4f.rf).background(Color(0xFF000000))
+                modifier =
+                    RemoteModifier.size(120.rdp).alpha(0.4f.rf).background(Color(0xFF000000).rc)
             )
         }
     }

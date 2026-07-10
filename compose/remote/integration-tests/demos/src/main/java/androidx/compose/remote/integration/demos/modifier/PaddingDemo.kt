@@ -35,13 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
 @Composable
 fun PaddingDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { PaddingDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 @RemoteComposable
-@SuppressLint("RestrictedApiAndroidX")
+@SuppressLint("RestrictedApiAndroidX") // Referring to RemotePaint, background, drawCircle, drawLine
 fun AnimatedChangesDemo() {
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),

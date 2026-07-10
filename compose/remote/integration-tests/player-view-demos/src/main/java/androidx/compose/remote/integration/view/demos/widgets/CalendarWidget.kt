@@ -23,7 +23,7 @@ import androidx.compose.remote.creation.compose.widgets.RemoteComposeWidget
 import androidx.compose.remote.integration.view.demos.examples.calendarDayAgenda
 import androidx.compose.remote.integration.view.demos.examples.readTodayEvents
 
-@SuppressLint("RestrictedApiAndroidX")
+@SuppressLint("RestrictedApiAndroidX") // Referring to RemoteComposeWidget, remote-creation
 class CalendarWidget : RemoteComposeWidget(false) {
     override fun ProceduralContent(context: Context, widgetId: Int): RemoteComposeContext? {
         val events = readTodayEvents(context)

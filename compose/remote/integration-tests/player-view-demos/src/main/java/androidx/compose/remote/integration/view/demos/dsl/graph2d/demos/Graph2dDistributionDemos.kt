@@ -54,7 +54,6 @@ private fun gaussian(n: Int, mean: Float, sd: Float, seed: Int): List<Double> {
 private val heights = gaussian(220, 172f, 8f, 7)
 
 /** Histogram of a numeric sample. */
-@Suppress("RestrictedApiAndroidX")
 @SuppressLint("PrimitiveInCollection", "deprecation", "UnknownNullness")
 fun graph2dHistogram(): ByteArray =
     graph2dDoc(800, 500, "Height Distribution") {
@@ -62,14 +61,12 @@ fun graph2dHistogram(): ByteArray =
     }
 
 /** Kernel density estimate. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dDensity(): ByteArray =
     graph2dDoc(800, 500, "Height Density") {
         densityPlot(heights, title = "Height Density (KDE)", xTitle = "Height (cm)")
     }
 
 /** Empirical cumulative distribution. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dEcdf(): ByteArray =
     graph2dDoc(800, 500, "Height ECDF") {
         ecdfPlot(heights, title = "Height ECDF", xTitle = "Height (cm)")
@@ -83,21 +80,18 @@ private fun groups(): List<Pair<String, List<Number>>> =
     )
 
 /** Box-and-whisker comparison across groups. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dBoxPlot(): ByteArray =
     graph2dDoc(800, 520, "Response by Treatment") {
         boxPlot(groups(), title = "Response by Treatment", yTitle = "Score")
     }
 
 /** Violin (mirrored KDE) comparison across groups. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dViolin(): ByteArray =
     graph2dDoc(800, 520, "Response Distribution") {
         violinPlot(groups(), title = "Response Distribution", yTitle = "Score")
     }
 
 /** Strip plot: raw observations per group. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dStrip(): ByteArray =
     graph2dDoc(800, 520, "Raw Observations") {
         stripPlot(groups(), title = "Raw Observations", yTitle = "Score", theme = GraphTheme.Light)

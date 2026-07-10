@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to FitBox, RemoteCollapsibleColumn, RemoteCollapsibleRow, RemoteText, background
 
 package androidx.compose.remote.integration.view.demos.examples
 

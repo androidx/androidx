@@ -44,7 +44,7 @@ private class ReusableByteArrayStream(initialSize: Int) : ByteArrayOutputStream(
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteCreationDisplayInfo
 @Composable
 fun RemoteComposeDumper(
     sample: DumperSample,

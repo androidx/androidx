@@ -52,7 +52,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteText, background, rememberRemoteScrollState, remote-player-view,
+// verticalScroll
 class ListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +84,10 @@ class ListActivity : ComponentActivity() {
 
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteText, background, rememberRemoteScrollState, remote-player-view,
+// verticalScroll
 fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
     val scrollState = rememberRemoteScrollState()
     RemoteColumn(
@@ -110,7 +116,10 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteText, background, rememberRemoteScrollState, remote-player-view,
+// verticalScroll
 @Preview
 @Composable
 fun ScrollableListPreview() {

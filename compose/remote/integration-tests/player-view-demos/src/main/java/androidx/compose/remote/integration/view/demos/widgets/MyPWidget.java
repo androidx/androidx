@@ -26,6 +26,7 @@ import androidx.compose.remote.integration.view.demos.examples.PieChartKt;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+// Referring to RemoteComposeWidget, remote-creation
 @SuppressLint("RestrictedApiAndroidX")
 public class MyPWidget extends RemoteComposeWidget {
     public MyPWidget() {

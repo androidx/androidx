@@ -37,13 +37,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
 @Composable
 fun RotateDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { RotateDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
@@ -66,7 +66,7 @@ private fun RotateDemoContent() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
 @Composable
 @RemoteComposable
 private fun Content(testModifier: RemoteModifier) {

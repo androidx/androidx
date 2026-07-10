@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
@@ -27,7 +26,6 @@ import androidx.compose.remote.integration.view.demos.examples.demoJson1
 import androidx.compose.remote.integration.view.demos.examples.shaderFireworks
 import androidx.compose.remote.integration.view.demos.utils.RCDoc
 
-@SuppressLint("RestrictedApiAndroidX")
 fun getRemoteComposable(context: Context): ArrayList<RCDoc> {
     return arrayListOf(
         getComposeDoc(context, "Compose/JSON") { demoJson1() },
