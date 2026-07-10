@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -342,6 +343,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
                         .fillMaxWidth()
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
+                        .zIndex(0f)
             ) {
                 for (uuid in uuidsState.value) {
                     Row(
@@ -377,7 +379,8 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 Modifier.background(color = Color.LightGray)
                     .fillMaxHeight()
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 20.dp)
+                    .zIndex(2f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -461,7 +464,8 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 Modifier.background(color = Color.White)
                     .fillMaxHeight()
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 20.dp)
+                    .zIndex(1f),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
