@@ -89,9 +89,8 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val aidlFrameworkProvider: RegularFileProperty
 
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val aidlExecutable: RegularFileProperty
+    // Not an input as it differs between Mac and Linux and aidlVersion below captures that.
+    @get:Internal abstract val aidlExecutable: RegularFileProperty
 
     @get:Input abstract val aidlVersion: Property<String>
 
