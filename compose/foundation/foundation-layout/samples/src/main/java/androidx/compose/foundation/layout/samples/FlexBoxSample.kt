@@ -183,6 +183,23 @@ fun FlexBoxWrapSample() {
 @OptIn(ExperimentalFlexBoxApi::class)
 @Sampled
 @Composable
+fun FlexBoxMaxItemsInEachLineSample() {
+    // Can be extracted to a top-level FlexBoxConfig
+    val ThreePerLineRow = FlexBoxConfig {
+        direction(FlexDirection.Row)
+        wrap(FlexWrap.Wrap)
+        // Force a line break after every 3 items, even if more would fit.
+        maxItemsInEachLine(3)
+    }
+
+    FlexBox(modifier = Modifier.fillMaxWidth(), config = ThreePerLineRow) {
+        repeat(10) { Box(Modifier.size(60.dp).background(Color.Blue)) }
+    }
+}
+
+@OptIn(ExperimentalFlexBoxApi::class)
+@Sampled
+@Composable
 fun FlexBoxJustifyContentSample() {
     // Can be extracted to a top-level FlexBoxConfig
     val SpaceBetweenRow = FlexBoxConfig {

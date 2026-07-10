@@ -318,6 +318,7 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly public long getConstraints-msEJaDk();
     method @KotlinOnly public void justifyContent(androidx.compose.foundation.layout.FlexJustifyContent value);
     method @BytecodeOnly public void justifyContent-q3qUS_E(int);
+    method public void maxItemsInEachLine(@IntRange(from=1L) int value);
     method @KotlinOnly public void rowGap(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public void rowGap-0680j_4(float);
     method @KotlinOnly public void wrap(androidx.compose.foundation.layout.FlexWrap value);

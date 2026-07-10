@@ -444,6 +444,42 @@ class FlexBoxTest {
         }
     }
 
+    @SuppressLint("Range")
+    @Test
+    fun invalidMaxItemsInEachLine_zero() {
+        assertThrows(IllegalArgumentException::class.java) {
+            rule.setContent { FlexBox(config = { maxItemsInEachLine(0) }) { Box(Modifier) } }
+        }
+    }
+
+    @Test
+    fun maxItemsInEachLine_maxIntrinsicWidth_reportsLargestCappedLine() {
+        var width = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.width(IntrinsicSize.Max)) {
+                    FlexBox(
+                        modifier = Modifier.onSizeChanged { width = it.width },
+                        config = {
+                            direction(FlexDirection.Row)
+                            wrap(FlexWrap.Wrap)
+                            maxItemsInEachLine(2)
+                        },
+                    ) {
+                        Box(Modifier.size(20.dp))
+                        Box(Modifier.size(30.dp))
+                        Box(Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Lines break after every 2 items: (20 + 30) and (40). The widest line is 50.
+        Truth.assertThat(width).isEqualTo(50)
+    }
+
     @OptIn(ExperimentalFlexBoxApi::class)
     @Test
     fun testFlexBox_wrap_maxIntrinsicWidth_reportsSumOfChildren() {
