@@ -20,7 +20,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalFlexBoxApi
 import androidx.compose.foundation.layout.FlexBox
 import androidx.compose.foundation.layout.FlexDirection
 import androidx.compose.foundation.layout.FlexJustifyContent
@@ -88,7 +87,6 @@ fun FlexBoxJustifyContentDemo() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowJustifyContentStartSample() {
     FlexBox(
         config = {
@@ -112,7 +110,6 @@ private fun FlexBoxRowJustifyContentStartSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowJustifyContentCenterSample() {
     FlexBox(
         config = {
@@ -136,7 +133,6 @@ private fun FlexBoxRowJustifyContentCenterSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowJustifyContentSpaceAroundSample() {
     FlexBox(
         config = {
@@ -160,7 +156,6 @@ private fun FlexBoxRowJustifyContentSpaceAroundSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowJustifyContentSpaceBetweenSample() {
     FlexBox(
         config = {
@@ -184,7 +179,6 @@ private fun FlexBoxRowJustifyContentSpaceBetweenSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowJustifyContentEndSample() {
     FlexBox(
         config = {
@@ -208,7 +202,6 @@ private fun FlexBoxRowJustifyContentEndSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnJustifyContentStartSample() {
     FlexBox(
         config = {
@@ -232,7 +225,6 @@ private fun FlexBoxColumnJustifyContentStartSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnJustifyContentCenterSample() {
     FlexBox(
         config = {
@@ -256,7 +248,6 @@ private fun FlexBoxColumnJustifyContentCenterSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnJustifyContentSpaceAroundSample() {
     FlexBox(
         config = {
@@ -280,7 +271,6 @@ private fun FlexBoxColumnJustifyContentSpaceAroundSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnJustifyContentSpaceBetweenSample() {
     FlexBox(
         config = {
@@ -304,7 +294,6 @@ private fun FlexBoxColumnJustifyContentSpaceBetweenSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnJustifyContentEndSample() {
     FlexBox(
         config = {

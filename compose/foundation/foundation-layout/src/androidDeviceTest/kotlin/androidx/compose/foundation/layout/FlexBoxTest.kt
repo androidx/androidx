@@ -54,7 +54,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFlexBoxApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FlexBoxTest {
@@ -480,7 +479,6 @@ class FlexBoxTest {
         Truth.assertThat(width).isEqualTo(50)
     }
 
-    @OptIn(ExperimentalFlexBoxApi::class)
     @Test
     fun testFlexBox_wrap_maxIntrinsicWidth_reportsSumOfChildren() {
         var width = 0
@@ -508,7 +506,6 @@ class FlexBoxTest {
         Truth.assertThat(width).isEqualTo(90)
     }
 
-    @OptIn(ExperimentalFlexBoxApi::class)
     @Test
     fun testFlexBox_wrap_minIntrinsicWidth_reportsMaxChildWidth() {
         var width = 0

@@ -133,7 +133,6 @@ import kotlin.math.roundToInt
  * @see FlexBoxScope
  */
 @Composable
-@ExperimentalFlexBoxApi
 inline fun FlexBox(
     modifier: Modifier = Modifier,
     config: FlexBoxConfig = FlexBoxConfig,
@@ -154,7 +153,6 @@ inline fun FlexBox(
  */
 @PublishedApi
 @Composable
-@ExperimentalFlexBoxApi
 internal fun flexMultiContentMeasurePolicy(
     flexBoxConfigState: State<FlexBoxConfig>
 ): MeasurePolicy {
@@ -163,7 +161,6 @@ internal fun flexMultiContentMeasurePolicy(
     }
 }
 
-@OptIn(ExperimentalFlexBoxApi::class)
 private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBoxConfig>) :
     MeasurePolicy {
 
@@ -1253,7 +1250,6 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
 @LayoutScopeMarker
 @Immutable
 @JvmDefaultWithCompatibility
-@ExperimentalFlexBoxApi
 interface FlexBoxScope {
     /**
      * Configures the flex properties of this element within the [FlexBox] using the provided
@@ -1282,7 +1278,6 @@ interface FlexBoxScope {
 }
 
 @PublishedApi
-@ExperimentalFlexBoxApi
 internal object FlexBoxScopeInstance : FlexBoxScope {
     @Stable
     override fun Modifier.flex(flexConfig: FlexConfig): Modifier {
@@ -1291,7 +1286,6 @@ internal object FlexBoxScopeInstance : FlexBoxScope {
 }
 
 /** ModifierNodeElement for flex item config. */
-@OptIn(ExperimentalFlexBoxApi::class)
 internal class FlexBoxChildElement(val config: FlexConfig) :
     ModifierNodeElement<FlexBoxChildDataNode>() {
 
@@ -1315,7 +1309,6 @@ internal class FlexBoxChildElement(val config: FlexConfig) :
     }
 }
 
-@OptIn(ExperimentalFlexBoxApi::class)
 internal class FlexBoxChildDataNode(var config: FlexConfig) :
     ParentDataModifierNode, FillModifierParentData, Modifier.Node() {
 
@@ -1343,7 +1336,6 @@ internal class FlexBoxChildDataNode(var config: FlexConfig) :
  * @see FlexBoxConfigScope.direction
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexDirection @PublishedApi internal constructor(private val bits: Int) {
     override fun toString() =
         when (bits) {
@@ -1400,7 +1392,6 @@ value class FlexDirection @PublishedApi internal constructor(private val bits: I
  * @see FlexBoxConfigScope.wrap
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexWrap @PublishedApi internal constructor(private val bits: Int) {
     override fun toString(): String =
         when (bits) {
@@ -1449,7 +1440,6 @@ value class FlexWrap @PublishedApi internal constructor(private val bits: Int) {
  * @see FlexAlignSelf
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexAlignItems @PublishedApi internal constructor(private val bits: Int) {
     override fun toString(): String =
         when (bits) {
@@ -1498,7 +1488,6 @@ value class FlexAlignItems @PublishedApi internal constructor(private val bits: 
  * @see FlexAlignItems
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexAlignSelf @PublishedApi internal constructor(private val bits: Int) {
     override fun toString(): String =
         when (bits) {
@@ -1553,7 +1542,6 @@ value class FlexAlignSelf @PublishedApi internal constructor(private val bits: I
  * @see FlexBoxConfigScope.alignContent
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexAlignContent @PublishedApi internal constructor(private val bits: Int) {
     override fun toString(): String =
         when (bits) {
@@ -1620,7 +1608,6 @@ value class FlexAlignContent @PublishedApi internal constructor(private val bits
  * @see FlexBoxConfigScope.justifyContent
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexJustifyContent @PublishedApi internal constructor(private val bits: Int) {
     override fun toString(): String =
         when (bits) {
@@ -1687,7 +1674,6 @@ value class FlexJustifyContent @PublishedApi internal constructor(private val bi
  * @see FlexConfigScope.basis
  */
 @JvmInline
-@ExperimentalFlexBoxApi
 value class FlexBasis
 @PublishedApi
 internal constructor(@PublishedApi internal val packedValue: Long) {
@@ -1781,7 +1767,6 @@ internal constructor(@PublishedApi internal val packedValue: Long) {
  * @see FlexBox
  */
 @Stable
-@ExperimentalFlexBoxApi
 fun interface FlexBoxConfig {
     /**
      * Applies the configuration to the given [FlexBoxConfigScope]. This method is invoked by the
@@ -1826,7 +1811,6 @@ fun interface FlexBoxConfig {
  *
  * @see FlexBoxConfig
  */
-@ExperimentalFlexBoxApi
 sealed interface FlexBoxConfigScope : Density {
 
     /**
@@ -2016,7 +2000,6 @@ sealed interface FlexBoxConfigScope : Density {
     fun gap(row: Dp, column: Dp)
 }
 
-@OptIn(ExperimentalFlexBoxApi::class)
 internal class ResolvedFlexBoxConfig : FlexBoxConfigScope {
 
     private var _density: Density = DefaultDensity
@@ -2204,7 +2187,6 @@ internal class ResolvedFlexBoxConfig : FlexBoxConfigScope {
  * @see FlexBoxScope.flex
  */
 @Stable
-@ExperimentalFlexBoxApi
 fun interface FlexConfig {
 
     /**
@@ -2243,7 +2225,6 @@ fun interface FlexConfig {
  * @sample androidx.compose.foundation.layout.samples.FlexConfigScopeSample
  * @see FlexConfig
  */
-@ExperimentalFlexBoxApi
 sealed interface FlexConfigScope : Density {
 
     /**
@@ -2409,7 +2390,6 @@ sealed interface FlexConfigScope : Density {
     fun basis(@FloatRange(from = 0.0, to = 1.0) value: Float)
 }
 
-@OptIn(ExperimentalFlexBoxApi::class)
 internal class ResolvedFlexItemInfo : FlexConfigScope {
     var baselineAlignmentLine: AlignmentLine? = null
         private set
@@ -2598,14 +2578,12 @@ private class FlexLine {
  * Combine two [FlexBoxConfig] objects together. Configs further "to the right" will override
  * properties to the left of them, on a per-property basis.
  */
-@ExperimentalFlexBoxApi
 fun FlexBoxConfig(first: FlexBoxConfig, second: FlexBoxConfig): FlexBoxConfig = first then second
 
 /**
  * Combine three [FlexBoxConfig] objects together. Configs further "to the right" will override
  * properties to the left of them, on a per-property basis.
  */
-@ExperimentalFlexBoxApi
 fun FlexBoxConfig(
     first: FlexBoxConfig,
     second: FlexBoxConfig,
@@ -2637,7 +2615,6 @@ fun FlexBoxConfig(
  *
  * @sample androidx.compose.foundation.layout.samples.FlexBoxConfigCombineSample
  */
-@ExperimentalFlexBoxApi
 fun FlexBoxConfig(vararg configs: FlexBoxConfig): FlexBoxConfig =
     if (configs.isEmpty()) {
         FlexBoxConfig
@@ -2674,7 +2651,6 @@ fun FlexBoxConfig(vararg configs: FlexBoxConfig): FlexBoxConfig =
  * @property configs the flattened array of configs to apply in order. Later entries override
  *   earlier entries on a per-property basis.
  */
-@ExperimentalFlexBoxApi
 internal class CombinedFlexBoxConfig(vararg val configs: FlexBoxConfig) : FlexBoxConfig {
     override fun FlexBoxConfigScope.configure() {
         configs.forEach { config -> with(config) { configure() } }
@@ -2693,14 +2669,12 @@ internal class CombinedFlexBoxConfig(vararg val configs: FlexBoxConfig) : FlexBo
  * Combine two [FlexConfig] objects together. Configs further "to the right" will override
  * properties to the left of them, on a per-property basis.
  */
-@ExperimentalFlexBoxApi
 fun FlexConfig(first: FlexConfig, second: FlexConfig): FlexConfig = first then second
 
 /**
  * Combine three [FlexConfig] objects together. Configs further "to the right" will override
  * properties to the left of them, on a per-property basis.
  */
-@ExperimentalFlexBoxApi
 fun FlexConfig(first: FlexConfig, second: FlexConfig, third: FlexConfig): FlexConfig =
     when {
         first === FlexConfig -> FlexConfig(second, third)
@@ -2728,7 +2702,6 @@ fun FlexConfig(first: FlexConfig, second: FlexConfig, third: FlexConfig): FlexCo
  *
  * @sample androidx.compose.foundation.layout.samples.FlexConfigCombineSample
  */
-@ExperimentalFlexBoxApi
 fun FlexConfig(vararg configs: FlexConfig): FlexConfig =
     if (configs.isEmpty()) {
         FlexConfig
@@ -2752,7 +2725,6 @@ fun FlexConfig(vararg configs: FlexConfig): FlexConfig =
         CombinedFlexConfig(*configs)
     }
 
-@OptIn(ExperimentalFlexBoxApi::class)
 internal class CombinedFlexConfig(vararg val configs: FlexConfig) : FlexConfig {
     override fun FlexConfigScope.configure() {
         configs.forEach { config -> with(config) { configure() } }
