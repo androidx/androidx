@@ -55,4 +55,7 @@
     <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"без отметка"</string>
     <string name="one_handed_gesture_primary_action_accessibility_text" msgid="2122419773237007989">"Жестът за събиране на пръсти два пъти е зададен за действието „%s“"</string>
     <string name="one_handed_gesture_dismiss_action_accessibility_text" msgid="8288713291513299429">"Жестът за завъртане на китката е зададен за действието „%s“"</string>
+    <string name="one_handed_gesture_alert_dialog_dismiss_action_accessibility_text" msgid="7126315562625092176">"отхвърляне"</string>
+    <string name="one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text" msgid="8406889962733668861">"потвърждаване"</string>
+    <string name="one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text" msgid="372111398123161696">"превъртане надолу"</string>
 </resources>
