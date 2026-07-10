@@ -648,8 +648,9 @@ class SandboxedPdfDocumentTest {
                     editablePdfDocument.applyEdits(draft.toEditsDraft())
                 }
 
-            assertThat(thrownException.failureIndex).isEqualTo(0)
-            assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
+            // The failure should occur at the index of the invalid annotation.
+            assertThat(thrownException.failureIndex).isEqualTo(1)
+            assertThat(thrownException.appliedEditIds.size).isEqualTo(1)
             assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
         }
     }
@@ -657,7 +658,7 @@ class SandboxedPdfDocumentTest {
     // This is a long running test the payload is approx 1MB and it takes time to propagate all the
     // the annotations over IPC.
     @Test
-    fun applyEdits_addAnnotations_multipleBatches__singleInvalidAnnotation_throwsException() =
+    fun applyEdits_addAnnotations_multipleBatches_singleInvalidAnnotation_throwsException() =
         runTest {
             if (!isAnnotationsFeatureAvailable()) return@runTest
 
@@ -677,8 +678,9 @@ class SandboxedPdfDocumentTest {
                         editablePdfDocument.applyEdits(draft.toEditsDraft())
                     }
 
-                assertThat(thrownException.failureIndex).isEqualTo(0)
-                assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
+                // The failure should occur at the index of the invalid annotation.
+                assertThat(thrownException.failureIndex).isEqualTo(numAnnots)
+                assertThat(thrownException.appliedEditIds.size).isEqualTo(numAnnots)
                 assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
             }
         }
