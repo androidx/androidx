@@ -28,8 +28,8 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation(project(":core:core"))
-    implementation(project(":core:core-ktx"))
+    implementation("androidx.core:core:1.19.0")
+    implementation("androidx.core:core-ktx:1.19.0")
     implementation("androidx.core:core-i18n:1.0.0")
     implementation(libs.kotlinSerializationJson)
 
