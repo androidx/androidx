@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX") // Referring to RemotePaint, drawCircle, drawLine, drawOval
+@file:Suppress("RestrictedApiAndroidX") // Referring to drawCircle, drawLine, drawOval
 
 package androidx.wear.compose.remote.material3.previews
 

@@ -18,8 +18,8 @@
     "RestrictedApiAndroidX"
 ) // Referring to CUBIC_DECELERATE, FitBox, RemoteComposeCreationState, RemoteMatrix3x3,
 
-// RemotePaint, RemoteShader, RemoteText, asRemoteDp, background, clamp, interpolateRemoteFloat,
-// remote-core, remote-creation
+// RemoteShader, RemoteText, asRemoteDp, background, clamp, interpolateRemoteFloat, remote-core,
+// remote-creation
 
 package androidx.compose.remote.integration.view.demos.examples
 
