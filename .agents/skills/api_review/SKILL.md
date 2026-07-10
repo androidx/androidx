@@ -1,7 +1,7 @@
 ---
 name: api_review
 description: A skill to review pending work for API design compliance in the
-AndroidX support project
+    AndroidX support project
 ---
 
 # API Review Skill
