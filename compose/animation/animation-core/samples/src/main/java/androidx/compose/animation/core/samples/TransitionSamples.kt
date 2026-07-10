@@ -21,7 +21,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
-import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.SeekableTransitionState
@@ -218,7 +217,6 @@ fun AnimateFloatSample() {
     }
 }
 
-@OptIn(ExperimentalTransitionApi::class)
 @Sampled
 fun InitialStateSample() {
     // This composable enters the composition with a custom enter transition. This is achieved by
@@ -372,7 +370,6 @@ fun DoubleTapToLikeSample() {
 @Sampled
 fun CreateChildTransitionSample() {
     // enum class DialerState { DialerMinimized, NumberPad }
-    @OptIn(ExperimentalTransitionApi::class)
     @Composable
     fun DialerButton(visibilityTransition: Transition<Boolean>, modifier: Modifier) {
         val scale by visibilityTransition.animateFloat { visible -> if (visible) 1f else 2f }
@@ -386,7 +383,6 @@ fun CreateChildTransitionSample() {
         // Create animations using the provided Transition for visibility change here...
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Composable
     fun childTransitionSample() {
         var dialerState by remember { mutableStateOf(DialerState.NumberPad) }
@@ -442,7 +438,6 @@ enum class DialerState {
 }
 
 @Sampled
-@OptIn(ExperimentalTransitionApi::class)
 @Composable
 fun TransitionStateIsIdleSample() {
     @Composable
@@ -456,7 +451,6 @@ fun TransitionStateIsIdleSample() {
         }
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Composable
     fun ItemsSample(selectedId: Int) {
         Column {

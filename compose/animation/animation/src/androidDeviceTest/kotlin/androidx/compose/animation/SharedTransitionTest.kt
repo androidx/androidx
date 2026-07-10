@@ -768,7 +768,6 @@ class SharedTransitionTest {
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testOnlyVisibleContentShowingInSharedElement() {
         var visible by mutableStateOf(false)
@@ -1074,7 +1073,6 @@ class SharedTransitionTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testBoundsTransform() {
         var transitionScope: SharedTransitionScope? = null
@@ -1267,7 +1265,6 @@ class SharedTransitionTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun testRenderInOverlayEqualsFalse() {

@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -145,7 +144,6 @@ fun AnimateContentSizeOption(state: MutableState<Boolean>) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HorizontalTransition(visible: Boolean, content: @Composable () -> Unit) {
     AnimatedVisibility(
@@ -170,7 +168,6 @@ fun HorizontalTransition(visible: Boolean, content: @Composable () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SlideTransition(visible: Boolean, content: @Composable () -> Unit) {
     AnimatedVisibility(
@@ -197,7 +194,6 @@ fun SlideTransition(visible: Boolean, content: @Composable () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FadeTransition(visible: Boolean, content: @Composable () -> Unit) {
     AnimatedVisibility(

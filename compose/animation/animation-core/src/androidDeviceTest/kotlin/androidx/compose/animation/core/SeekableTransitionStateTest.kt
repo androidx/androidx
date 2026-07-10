@@ -17,7 +17,6 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -1012,7 +1011,7 @@ class SeekableTransitionStateTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun delayedTransition() {
         rule.mainClock.autoAdvance = false
@@ -2319,7 +2318,6 @@ class SeekableTransitionStateTest {
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateAfterSeekToZero() {
         rule.mainClock.autoAdvance = false
@@ -2616,7 +2614,6 @@ class SeekableTransitionStateTest {
         assertFalse(isObserving())
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Test
     fun quickAddAndRemove() {
         @Stable

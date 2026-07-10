@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.visualinspection
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedContentWithInterruptions() {
     var count by remember { mutableIntStateOf(0) }
