@@ -3845,6 +3845,7 @@ package androidx.compose.material3 {
     method @InaccessibleFromKotlin public float getValue();
     method @InaccessibleFromKotlin public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
     method @InaccessibleFromKotlin public boolean isDragging();
+    method @InaccessibleFromKotlin public boolean isVertical();
     method @InaccessibleFromKotlin public void setOnValueChange(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>?);
     method @InaccessibleFromKotlin public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
     method @InaccessibleFromKotlin public void setShouldAutoSnap(boolean);
@@ -3852,6 +3853,7 @@ package androidx.compose.material3 {
     method @InaccessibleFromKotlin public boolean shouldAutoSnap();
     property public float coercedValueAsFraction;
     property public boolean isDragging;
+    property public boolean isVertical;
     property public kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit>? onValueChange;
     property public kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
     property public boolean shouldAutoSnap;
