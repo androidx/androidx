@@ -373,6 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Latest Features"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Loading enabled"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Loading disabled"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Use App Theme"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"App Theme enabled"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"App Theme disabled"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Loading screen"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Toggle to add/remove color"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Map Template with Toggles"</string>
@@ -385,4 +388,5 @@
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Map With Message Template Demo"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Map With Grid Template Demo"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"Banner Demo"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Enhanced Header Demo"</string>
 </resources>
