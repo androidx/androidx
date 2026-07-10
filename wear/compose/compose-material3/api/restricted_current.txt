@@ -2463,20 +2463,30 @@ package androidx.wear.compose.material3.onehandedgesture {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalOneHandedGestureEnabled;
   }
 
-  @androidx.compose.runtime.Stable public final class OneHandedGestureConfiguration {
-    ctor @KotlinOnly public OneHandedGestureConfiguration(androidx.wear.compose.material3.onehandedgesture.GestureAction action, String key, optional androidx.wear.compose.material3.onehandedgesture.GesturePriority priority);
+  public final class OneHandedGestureClickIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureClickIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState state, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize gestureIndicatorSize, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureClickIndicator-RGoPF04(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState, androidx.compose.ui.Modifier?, float, long, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Stable public final class OneHandedGestureClickIndicatorState {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public OneHandedGestureClickIndicatorState();
+    method public suspend Object? showIndicator(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @androidx.compose.runtime.Immutable public final class OneHandedGestureConfiguration {
+    ctor @KotlinOnly public OneHandedGestureConfiguration(androidx.wear.compose.material3.onehandedgesture.GestureAction action, String gestureId, optional androidx.wear.compose.material3.onehandedgesture.GesturePriority priority);
     ctor @BytecodeOnly public OneHandedGestureConfiguration(int, String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public OneHandedGestureConfiguration(int, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public int getAction-9hHQOGg();
-    method @InaccessibleFromKotlin public String getKey();
+    method @InaccessibleFromKotlin public String getGestureId();
     method @BytecodeOnly public int getPriority-l6JjU2o();
     property public androidx.wear.compose.material3.onehandedgesture.GestureAction action;
-    property public String key;
+    property public String gestureId;
     property public androidx.wear.compose.material3.onehandedgesture.GesturePriority priority;
   }
 
   public final class OneHandedGestureConfigurationKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration rememberOneHandedGestureConfiguration(androidx.wear.compose.material3.onehandedgesture.GestureAction action, optional String? key, optional androidx.wear.compose.material3.onehandedgesture.GesturePriority priority);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration rememberOneHandedGestureConfiguration(androidx.wear.compose.material3.onehandedgesture.GestureAction action, optional String? gestureId, optional androidx.wear.compose.material3.onehandedgesture.GesturePriority priority);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration rememberOneHandedGestureConfiguration-UDi8HCo(int, String?, int, androidx.compose.runtime.Composer?, int, int);
   }
 
@@ -2506,29 +2516,33 @@ package androidx.wear.compose.material3.onehandedgesture {
     field public static final androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Stable public final class OneHandedGestureIndicatorState {
-    ctor @androidx.compose.runtime.annotation.RememberInComposition public OneHandedGestureIndicatorState();
-    method @InaccessibleFromKotlin public boolean isIndicatorActive();
-    method @InaccessibleFromKotlin public void setIndicatorActive(boolean);
-    property public boolean isIndicatorActive;
-  }
-
-  public final class OneHandedGestureIndicatorsKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureHorizontalPageIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState indicatorState, androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color selectedColor, optional androidx.compose.ui.graphics.Color unselectedColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureHorizontalPageIndicator-sDKtq54(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState, androidx.wear.compose.foundation.pager.PagerState, androidx.compose.ui.Modifier?, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState indicatorState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize gestureIndicatorSize, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureIndicator-RGoPF04(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState, androidx.compose.ui.Modifier?, float, long, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState indicatorState, androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ScrollIndicatorColors scrollIndicatorColors, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState indicatorState, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ScrollIndicatorColors scrollIndicatorColors, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator-dNgdfXs(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState, androidx.wear.compose.foundation.lazy.ScalingLazyListState, androidx.compose.ui.Modifier?, androidx.wear.compose.material3.ScrollIndicatorColors?, long, long, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator-dNgdfXs(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, androidx.compose.ui.Modifier?, androidx.wear.compose.material3.ScrollIndicatorColors?, long, long, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureVerticalPageIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState indicatorState, androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color selectedColor, optional androidx.compose.ui.graphics.Color unselectedColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureVerticalPageIndicator-sDKtq54(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState, androidx.wear.compose.foundation.pager.PagerState, androidx.compose.ui.Modifier?, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
-  }
-
   public final class OneHandedGestureModifierKt {
     method public static androidx.compose.ui.Modifier oneHandedGesture(androidx.compose.ui.Modifier, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, String? onGestureLabel, optional boolean enabledInAmbient, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onGestureAvailable, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onGesture);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! oneHandedGesture$default(androidx.compose.ui.Modifier!, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration!, String!, boolean, androidx.compose.foundation.interaction.MutableInteractionSource!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class OneHandedGesturePageIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureHorizontalPageIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState indicatorState, androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color selectedColor, optional androidx.compose.ui.graphics.Color unselectedColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureHorizontalPageIndicator-sDKtq54(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState, androidx.wear.compose.foundation.pager.PagerState, androidx.compose.ui.Modifier?, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureVerticalPageIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState indicatorState, androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color selectedColor, optional androidx.compose.ui.graphics.Color unselectedColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureVerticalPageIndicator-sDKtq54(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState, androidx.wear.compose.foundation.pager.PagerState, androidx.compose.ui.Modifier?, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Stable public final class OneHandedGesturePageIndicatorState {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public OneHandedGesturePageIndicatorState();
+    method public suspend Object? showIndicator(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public final class OneHandedGestureScrollIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState indicatorState, androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ScrollIndicatorColors scrollIndicatorColors, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState indicatorState, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ScrollIndicatorColors scrollIndicatorColors, optional androidx.compose.ui.graphics.Color gestureIndicatorTint, optional androidx.compose.ui.graphics.Color gestureIndicatorBackgroundColor, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator-dNgdfXs(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState, androidx.wear.compose.foundation.lazy.ScalingLazyListState, androidx.compose.ui.Modifier?, androidx.wear.compose.material3.ScrollIndicatorColors?, long, long, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void OneHandedGestureScrollIndicator-dNgdfXs(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, androidx.compose.ui.Modifier?, androidx.wear.compose.material3.ScrollIndicatorColors?, long, long, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Stable public final class OneHandedGestureScrollIndicatorState {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public OneHandedGestureScrollIndicatorState();
+    method public suspend Object? showIndicator(kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
 }

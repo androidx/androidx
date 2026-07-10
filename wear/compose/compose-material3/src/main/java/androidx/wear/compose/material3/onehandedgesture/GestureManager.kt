@@ -134,19 +134,20 @@ internal interface GestureManager {
     fun invalidateGestures(view: View)
 
     /**
-     * Determines whether the specified gesture indicator should be displayed to the user.
+     * Tells the gesture manager what kind of indicator is being used for this configuration
      *
-     * @param gestureConfiguration The [OneHandedGestureConfiguration] used to determine if this
-     *   indicator should be shown.
-     * @param isOverlay True if the indicator draws outside the boundary of its associated UI
+     * @param gestureConfiguration The [OneHandedGestureConfiguration] used to coordinate between
+     *   the gesture manager and the indicator.
+     * @param isFloating True if the indicator draws outside the boundary of its associated UI
      *   element (e.g., scroll indicator hints rendered adjacent to the track). False if the
      *   indicator is completely contained within the element's layout bounds (e.g., button hints).
-     * @return True if the conditions are met to display the gesture indicator, false otherwise.
+     * @param duration The duration of the gesture indicator animation.
      */
-    fun shouldShowGestureIndicator(
+    fun registerGestureIndicator(
         gestureConfiguration: OneHandedGestureConfiguration,
-        isOverlay: Boolean,
-    ): Boolean
+        isFloating: Boolean,
+        duration: kotlin.time.Duration,
+    )
 
     /**
      * Notifies the manager that a gesture indicator has been successfully displayed to the user.
@@ -158,6 +159,16 @@ internal interface GestureManager {
      *   presented.
      */
     fun notifyIndicatorShown(gestureConfiguration: OneHandedGestureConfiguration)
+
+    /**
+     * Retrieves the gesture indicator data for the specified [OneHandedGestureConfiguration].
+     *
+     * @param gestureConfiguration The [OneHandedGestureConfiguration] to look up.
+     * @return The registered indicator duration, or null if not found.
+     */
+    fun getRegisteredGestureIndicator(
+        gestureConfiguration: OneHandedGestureConfiguration
+    ): RegisteredIndicator?
 }
 
 internal class GestureManagerImpl(
@@ -167,6 +178,10 @@ internal class GestureManagerImpl(
 
     /** Map of registered gestures per View */
     private val gestureRegistries = mutableMapOf<View, GestureRegistry>()
+
+    /** Map of registered gesture configuration to RegisteredIndicator values */
+    private val indicatorRegistry =
+        mutableMapOf<OneHandedGestureConfiguration, RegisteredIndicator>()
 
     override fun registerGesture(
         view: View,
@@ -182,7 +197,17 @@ internal class GestureManagerImpl(
         val gestureRegistry =
             gestureRegistries.getOrPut(
                 key = view,
-                defaultValue = { GestureRegistry(view, haptic, scope, gestureInputManager) },
+                defaultValue = {
+                    GestureRegistry(
+                        view,
+                        haptic,
+                        scope,
+                        gestureInputManager,
+                        isOverlayProvider = { config ->
+                            indicatorRegistry[config]?.isFloating ?: false
+                        },
+                    )
+                },
             )
 
         gestureRegistry.register(
@@ -229,26 +254,35 @@ internal class GestureManagerImpl(
         )
     }
 
+    override fun registerGestureIndicator(
+        gestureConfiguration: OneHandedGestureConfiguration,
+        isFloating: Boolean,
+        duration: kotlin.time.Duration,
+    ) {
+        val newValue = RegisteredIndicator(isFloating, duration)
+
+        val current = indicatorRegistry.getOrPut(gestureConfiguration) { newValue }
+
+        require(current == newValue) {
+            "Incompatible Gesture Indicators registered for the same OneHandedGestureConfiguration - see $gestureConfiguration"
+        }
+    }
+
     override fun invalidateGestures(view: View) {
         gestureRegistries[view]?.invalidate()
     }
 
-    override fun shouldShowGestureIndicator(
-        gestureConfiguration: OneHandedGestureConfiguration,
-        isOverlay: Boolean,
-    ): Boolean {
-        return gestureInputManager.shouldShowIndicator(
-            gestureConfiguration.key,
+    override fun notifyIndicatorShown(gestureConfiguration: OneHandedGestureConfiguration) {
+        gestureInputManager.notifyIndicatorShown(
+            gestureConfiguration.gestureId,
             toSdkGestureAction(gestureConfiguration.action),
-            isOverlay,
         )
     }
 
-    override fun notifyIndicatorShown(gestureConfiguration: OneHandedGestureConfiguration) {
-        gestureInputManager.notifyIndicatorShown(
-            gestureConfiguration.key,
-            toSdkGestureAction(gestureConfiguration.action),
-        )
+    override fun getRegisteredGestureIndicator(
+        gestureConfiguration: OneHandedGestureConfiguration
+    ): RegisteredIndicator? {
+        return indicatorRegistry[gestureConfiguration]
     }
 }
 
@@ -257,6 +291,7 @@ internal class GestureRegistry(
     private val haptic: HapticFeedback,
     private val scope: CoroutineScope,
     private val gestureInputManager: SdkGestureInputManager,
+    private val isOverlayProvider: (OneHandedGestureConfiguration) -> Boolean,
 ) {
     val numberOfRegisteredGestures: Int
         get() = registeredGestures.size
@@ -283,6 +318,7 @@ internal class GestureRegistry(
                 onGesture,
                 isActive,
                 size,
+                isOverlayProvider,
             )
         )
         registeredGestures.sortWith { gesture1, gesture2 ->
@@ -366,12 +402,28 @@ internal class GestureRegistry(
                             ?.priority
 
                     snapshot.fastForEach { gesture ->
+                        val gestureConfig = gesture.gestureConfiguration
                         if (
-                            gesture.gestureConfiguration.priority == priority &&
-                                gesture.gestureConfiguration.action == gestureAction &&
+                            gestureConfig.priority == priority &&
+                                gestureConfig.action == gestureAction &&
                                 gesture.isActive()
                         ) {
-                            gesture.onGestureAvailable()
+                            // Check whether to show the indicator, based on whether it is an
+                            // overlay(goes outside the bounds of the component) and frequency
+                            // settings.
+                            if (
+                                gestureInputManager.shouldShowIndicator(
+                                    gestureConfig.gestureId,
+                                    toSdkGestureAction(gestureConfig.action),
+                                    isOverlayProvider(gestureConfig),
+                                )
+                            ) {
+                                // In this callback, the developer should call
+                                // state.onShowIndicator()
+                                // We only call this when the GestureInputManager confirms that
+                                // the indicator should be shown.
+                                gesture.onGestureAvailable()
+                            }
 
                             gestureAccessibilityAnnouncer.announce(
                                 gesture.gestureConfiguration,
@@ -479,7 +531,7 @@ internal class GestureRegistry(
 
                     gesture.onGesture(gesture.size().center.toOffset())
                     gestureInputManager.notifyGestureConsumed(
-                        gesture.gestureConfiguration.key,
+                        gesture.gestureConfiguration.gestureId,
                         toSdkGestureAction(gesture.gestureConfiguration.action),
                     )
                 }
@@ -511,7 +563,7 @@ internal class GestureRegistry(
     private val gestureActionIsAmbientEnabled: MutableIntObjectMap<Boolean> =
         mutableIntObjectMapOf()
 
-    private data class RegisteredGesture(
+    private class RegisteredGesture(
         val gestureConfiguration: OneHandedGestureConfiguration,
         val enabledInAmbient: Boolean,
         val onGestureLabel: String?,
@@ -519,8 +571,14 @@ internal class GestureRegistry(
         val onGesture: suspend (centerOffset: Offset) -> Unit,
         val isActive: () -> Boolean,
         val size: () -> IntSize,
-    )
+        private val isOverlayProvider: (OneHandedGestureConfiguration) -> Boolean,
+    ) {
+        val isOverlay: Boolean
+            get() = isOverlayProvider(gestureConfiguration)
+    }
 }
+
+internal data class RegisteredIndicator(val isFloating: Boolean, val duration: kotlin.time.Duration)
 
 internal interface SdkGestureInputManager {
     fun isAvailable(context: Context): Boolean
@@ -534,11 +592,11 @@ internal interface SdkGestureInputManager {
 
     fun unsubscribeFromSdkGestureAction(view: View, sdkGestureAction: Int)
 
-    fun notifyGestureConsumed(key: String, sdkGestureAction: Int)
+    fun notifyGestureConsumed(gestureId: String, sdkGestureAction: Int)
 
-    fun shouldShowIndicator(key: String, sdkGestureAction: Int, isOverlay: Boolean): Boolean
+    fun shouldShowIndicator(gestureId: String, sdkGestureAction: Int, isOverlay: Boolean): Boolean
 
-    fun notifyIndicatorShown(key: String, sdkGestureAction: Int)
+    fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int)
 }
 
 internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
@@ -551,8 +609,8 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
         return gestureInputManager != null
     }
 
-    override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {
-        gestureInputManager?.notifyGestureConsumed(key, sdkGestureAction)
+    override fun notifyGestureConsumed(gestureId: String, sdkGestureAction: Int) {
+        gestureInputManager?.notifyGestureConsumed(gestureId, sdkGestureAction)
     }
 
     override fun subscribeToSdkGestureAction(
@@ -599,8 +657,9 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
         }
     }
 
+    /** Determines whether the specified gesture indicator should be displayed to the user. */
     override fun shouldShowIndicator(
-        key: String,
+        gestureId: String,
         sdkGestureAction: Int,
         isOverlay: Boolean,
     ): Boolean {
@@ -610,15 +669,16 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
         if (WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_0)) {
             val flags = if (isOverlay) GestureInputManager.FLAG_HINT_STYLE_OVERLAY else 0
             return isEnabled &&
-                gestureInputManager?.shouldShowHint(key, sdkGestureAction, flags) == true
+                gestureInputManager?.shouldShowHint(gestureId, sdkGestureAction, flags) == true
         } else {
-            return isEnabled && gestureInputManager?.shouldShowHint(key, sdkGestureAction) == true
+            return isEnabled &&
+                gestureInputManager?.shouldShowHint(gestureId, sdkGestureAction) == true
         }
     }
 
-    override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {
+    override fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int) {
         if (gestureInputManager?.isActionSupported(sdkGestureAction) == true) {
-            gestureInputManager?.notifyHintShown(key, sdkGestureAction)
+            gestureInputManager?.notifyHintShown(gestureId, sdkGestureAction)
         }
     }
 

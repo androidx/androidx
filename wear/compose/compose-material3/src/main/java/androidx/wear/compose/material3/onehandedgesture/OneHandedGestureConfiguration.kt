@@ -17,7 +17,7 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 
@@ -30,10 +30,10 @@ import androidx.compose.runtime.remember
  * actioned simultaneously.
  *
  * @param action The gesture action to handle.
- * @param key A unique identifier for this gesture instance. This ID allows the system to track user
- *   interactions - for example, to mute gesture indicators that have been frequently shown or
- *   successfully performed, in accordance with user preferences. If the same key is reused across
- *   multiple gestures, they will share a common interaction history (such as frequency-based
+ * @param gestureId A unique identifier for this gesture instance. This ID allows the system to
+ *   track user interactions - for example, to mute gesture indicators that have been frequently
+ *   shown or successfully performed, in accordance with user preferences. If the same ID is reused
+ *   across multiple gestures, they will share a common interaction history (such as frequency-based
  *   gesture indicator display logic). Note that this only affects the presentation of the UI; the
  *   underlying logic and handling remain independent for each instance.
  * @param priority The priority value; higher values take precedence if multiple handlers are
@@ -43,41 +43,48 @@ import androidx.compose.runtime.remember
 @Composable
 public fun rememberOneHandedGestureConfiguration(
     action: GestureAction,
-    key: String? = null,
+    gestureId: String? = null,
     priority: GesturePriority = GesturePriority.Unspecified,
 ): OneHandedGestureConfiguration {
     val compositeKey = currentCompositeKeyHashCode
-    val finalKey =
-        remember(key, compositeKey, action, priority) {
-            key
+    val finalGestureId =
+        remember(gestureId, compositeKey, action, priority) {
+            gestureId
                 ?: (compositeKey.toString(MaxSupportedRadix) +
                     action.value.toString().padStart(2, '0') +
                     priority.value.toString().padStart(3, '0'))
         }
 
-    return remember(action, key, priority) {
-        OneHandedGestureConfiguration(action, finalKey, priority)
+    return remember(action, gestureId, priority) {
+        OneHandedGestureConfiguration(action, finalGestureId, priority)
     }
 }
 
 /**
  * Represents the persistent specification for a one-handed gesture.
  *
+ * When creating [OneHandedGestureConfiguration] outside of tests, it is recommended to use the
+ * [rememberOneHandedGestureConfiguration] function.
+ *
+ * **Note:** It is not recommended to register multiple gestures for the same action and priority.
+ * If multiple gestures are registered with identical actions and priorities, all of them will be
+ * actioned simultaneously.
+ *
  * @property action The [GestureAction] associated with this gesture specification.
- * @property key A unique identifier for this gesture instance. This ID allows the system to track
- *   user interactions - for example, to mute gesture indicators that have been frequently shown or
- *   successfully performed, in accordance with user preferences. If the same key is reused across
- *   multiple gestures, they will share a common interaction history (such as frequency-based
+ * @property gestureId A unique identifier for this gesture instance. This ID allows the system to
+ *   track user interactions - for example, to mute gesture indicators that have been frequently
+ *   shown or successfully performed, in accordance with user preferences. If the same ID is reused
+ *   across multiple gestures, they will share a common interaction history (such as frequency-based
  *   gesture indicator display logic). Note that this only affects the presentation of the UI; the
  *   underlying logic and handling remain independent for each instance.
  * @property priority The priority value; higher values take precedence if multiple handlers are
  *   registered for the same [action]. It is not recommended to register multiple gestures for the
  *   same action and priority (but if that is the case, all of them will be actioned).
  */
-@Stable
+@Immutable
 public class OneHandedGestureConfiguration(
     public val action: GestureAction,
-    public val key: String,
+    public val gestureId: String,
     public val priority: GesturePriority = GesturePriority.Unspecified,
 ) {
 
@@ -86,7 +93,7 @@ public class OneHandedGestureConfiguration(
         if (other == null || other !is OneHandedGestureConfiguration) return false
 
         if (action != other.action) return false
-        if (key != other.key) return false
+        if (gestureId != other.gestureId) return false
         if (priority != other.priority) return false
 
         return true
@@ -94,7 +101,7 @@ public class OneHandedGestureConfiguration(
 
     override fun hashCode(): Int {
         var result = action.hashCode()
-        result = 31 * result + key.hashCode()
+        result = 31 * result + gestureId.hashCode()
         result = 31 * result + priority.hashCode()
         return result
     }
