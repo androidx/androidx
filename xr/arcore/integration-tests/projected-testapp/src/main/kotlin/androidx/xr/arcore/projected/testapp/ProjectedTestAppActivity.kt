@@ -24,7 +24,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.ArDevice
@@ -39,9 +38,8 @@ import androidx.xr.arcore.VpsAvailabilityNotAuthorized
 import androidx.xr.arcore.VpsAvailabilityResourceExhausted
 import androidx.xr.arcore.VpsAvailabilityResult
 import androidx.xr.arcore.VpsAvailabilityUnavailable
+import androidx.xr.projected.ProjectedActivityCompat
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
-import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
@@ -107,32 +105,6 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private val permissionsRequired =
         listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
 
-    @OptIn(ExperimentalProjectedApi::class)
-    private val requestPermissionLauncher:
-        ActivityResultLauncher<List<ProjectedPermissionsRequestParams>> =
-        registerForActivityResult(ProjectedPermissionsResultContract()) { results ->
-            if (
-                results[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
-                    results[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-            ) {
-                onPermissionGranted()
-            }
-            var permissionDeniedText = ""
-            for (permission in permissionsRequired) {
-                if (results[permission] == true) {
-                    Log.i("JetpackXR", "$permission is granted")
-                } else {
-                    Log.w("JetpackXR", "$permission is not granted")
-                    permissionDeniedText += "Please grant $permission permission.\n"
-                }
-            }
-            if (permissionDeniedText.isNotEmpty()) {
-                runOnUiThread {
-                    textView.text = "\n\n\n Cannot start Session.\n$permissionDeniedText"
-                }
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("JetpackXR", "onCreate")
@@ -177,12 +149,13 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
     @OptIn(ExperimentalProjectedApi::class)
     private fun requestPermissions() {
-        val params =
-            ProjectedPermissionsRequestParams(
-                permissions = permissionsRequired,
-                rationale = "Location permission is required to determine your geospatial pose.",
+        lifecycleScope.launch(Dispatchers.Default) {
+            ProjectedActivityCompat.requestPermissions(
+                this@ProjectedTestAppActivity,
+                permissionsRequired.toTypedArray(),
+                PERMISSION_REQUEST_CODE,
             )
-        requestPermissionLauncher.launch(listOf(params))
+        }
     }
 
     override fun onPause() {
@@ -203,6 +176,40 @@ class ProjectedTestAppActivity : ComponentActivity() {
     override fun onRestart() {
         super.onRestart()
         Log.i("JetpackXR", "onRestart")
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray,
+        deviceId: Int,
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            val results =
+                permissions
+                    .zip(grantResults.map { it == PackageManager.PERMISSION_GRANTED })
+                    .toMap()
+            if (
+                results[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
+                    results[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            ) {
+                onPermissionGranted()
+            }
+            var permissionDeniedText = ""
+            for (permission in permissionsRequired) {
+                if (results[permission] == true) {
+                    Log.i("JetpackXR", "$permission is granted")
+                } else {
+                    Log.w("JetpackXR", "$permission is not granted")
+                    permissionDeniedText += "Please grant $permission permission.\n"
+                }
+            }
+            if (permissionDeniedText.isNotEmpty()) {
+                runOnUiThread {
+                    textView.text = "\n\n\n Cannot start Session.\n$permissionDeniedText"
+                }
+            }
+        }
     }
 
     private fun update() {
@@ -485,5 +492,9 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 .getDeclaredConstructor(Int::class.javaPrimitiveType!!)
         constructor.isAccessible = true
         return constructor.newInstance(2)
+    }
+
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 1234
     }
 }
