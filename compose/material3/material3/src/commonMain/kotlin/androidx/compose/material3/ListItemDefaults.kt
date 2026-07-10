@@ -650,7 +650,38 @@ class ListItemColors(
     val draggedOverlineContentColor: Color,
     val draggedSupportingContentColor: Color,
 ) {
-    @Deprecated("Use overload with parameters for selected and dragged colors")
+    @Deprecated(
+        "Use overload with parameters for selected and dragged colors",
+        ReplaceWith(
+            "ListItemColors(" +
+                "containerColor = containerColor, " +
+                "contentColor = headlineColor, " +
+                "leadingContentColor = leadingIconColor, " +
+                "trailingContentColor = trailingIconColor, " +
+                "overlineContentColor = overlineColor, " +
+                "supportingContentColor = supportingTextColor, " +
+                "disabledContainerColor = Color.Unspecified, " +
+                "disabledContentColor = disabledHeadlineColor, " +
+                "disabledLeadingContentColor = disabledLeadingIconColor, " +
+                "disabledTrailingContentColor = disabledTrailingIconColor, " +
+                "disabledOverlineContentColor = Color.Unspecified, " +
+                "disabledSupportingContentColor = Color.Unspecified, " +
+                "selectedContainerColor = Color.Unspecified, " +
+                "selectedContentColor = Color.Unspecified, " +
+                "selectedLeadingContentColor = Color.Unspecified, " +
+                "selectedTrailingContentColor = Color.Unspecified, " +
+                "selectedOverlineContentColor = Color.Unspecified, " +
+                "selectedSupportingContentColor = Color.Unspecified, " +
+                "draggedContainerColor = Color.Unspecified, " +
+                "draggedContentColor = Color.Unspecified, " +
+                "draggedLeadingContentColor = Color.Unspecified, " +
+                "draggedTrailingContentColor = Color.Unspecified, " +
+                "draggedOverlineContentColor = Color.Unspecified, " +
+                "draggedSupportingContentColor = Color.Unspecified" +
+                ")",
+            "androidx.compose.ui.graphics.Color",
+        ),
+    )
     constructor(
         containerColor: Color,
         headlineColor: Color,
