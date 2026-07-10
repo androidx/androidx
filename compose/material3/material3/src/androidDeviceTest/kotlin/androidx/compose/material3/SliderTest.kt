@@ -107,6 +107,14 @@ class SliderTest {
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
     }
 
+    @Test
+    fun sliderState_isVertical_getter() {
+        val state = SliderState(0f)
+        Truth.assertThat(state.isVertical).isFalse()
+        state.orientation = Orientation.Vertical
+        Truth.assertThat(state.isVertical).isTrue()
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun sliderPosition_stepsThrowWhenLessThanZero() {
         rule.setContent { Slider(SliderState(value = 0f, steps = -1)) }
