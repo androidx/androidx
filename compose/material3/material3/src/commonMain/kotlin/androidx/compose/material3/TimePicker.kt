@@ -1779,7 +1779,7 @@ private fun ClockDisplayNumbers(
     val isPortrait = defaultTimePickerLayoutType() == TimePickerLayoutType.Vertical
 
     val richSelectorWidth =
-        if (isPortrait) {
+        if (isPortrait && state.is24hour) {
             RichTimeFieldWidthPortrait
         } else {
             RichTimeFieldWidth
