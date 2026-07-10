@@ -25,17 +25,21 @@ import androidx.work.Logger
 import androidx.work.multiprocess.ListenableWorkerImplClient.TAG
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.suspendCancellableCoroutine
 
+@JvmOverloads
 internal fun <T : IInterface> execute(
     executor: Executor,
     iInterface: ListenableFuture<T>,
     dispatcher: RemoteDispatcher<T>,
+    isCancellable: Boolean = false,
 ): ListenableFuture<ByteArray> {
     return launchFuture(executor.asCoroutineDispatcher() + Job(), launchUndispatched = false) {
         val worker =
@@ -47,35 +51,41 @@ internal fun <T : IInterface> execute(
                 }
                 throw throwable
             }
-        execute(worker, dispatcher)
+        execute(worker, dispatcher, isCancellable)
     }
 }
 
 internal suspend fun <T : IInterface> execute(
     iInterface: T,
     dispatcher: RemoteDispatcher<T>,
+    isCancellable: Boolean = false,
 ): ByteArray {
     var deathRecipient: DeathRecipient? = null
     val binder = iInterface.asBinder()
+    val block: (Continuation<ByteArray>) -> Unit = { continuation ->
+        val localRecipient = DeathRecipient {
+            continuation.resumeWithException(RuntimeException("Binder died"))
+        }
+        deathRecipient = localRecipient
+        binder.linkToDeath(localRecipient, 0)
+        dispatcher.execute(
+            iInterface,
+            object : IWorkManagerImplCallback.Stub() {
+
+                override fun onSuccess(response: ByteArray) = continuation.resume(response)
+
+                override fun onFailure(error: String?) =
+                    continuation.resumeWithException(RuntimeException(error))
+
+                override fun getInterfaceVersion(): Int = VERSION
+            },
+        )
+    }
     return try {
-        suspendCoroutine { continuation ->
-            val localRecipient = DeathRecipient {
-                continuation.resumeWithException(RuntimeException("Binder died"))
-            }
-            deathRecipient = localRecipient
-            binder.linkToDeath(localRecipient, 0)
-            dispatcher.execute(
-                iInterface,
-                object : IWorkManagerImplCallback.Stub() {
-
-                    override fun onSuccess(response: ByteArray) = continuation.resume(response)
-
-                    override fun onFailure(error: String?) =
-                        continuation.resumeWithException(RuntimeException(error))
-
-                    override fun getInterfaceVersion(): Int = VERSION
-                },
-            )
+        if (isCancellable) {
+            suspendCancellableCoroutine(block)
+        } else {
+            suspendCoroutine(block)
         }
     } catch (throwable: Throwable) {
         if (throwable !is CancellationException) {
