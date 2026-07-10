@@ -234,7 +234,7 @@ internal open class AndroidViewHolder(
         get() = isAttachedToWindow
 
     override fun getAccessibilityClassName(): CharSequence {
-        return javaClass.name
+        return "androidx.compose.ui.viewinterop.AndroidViewHolder"
     }
 
     override fun onReuse() {
