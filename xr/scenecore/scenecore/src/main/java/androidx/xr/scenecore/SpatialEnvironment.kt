@@ -35,10 +35,10 @@ import java.util.function.Consumer
  * instance of this class managed by each [androidx.xr.runtime.Session] and it is accessible through
  * Session.scene.
  *
- * The SpatialEnvironment is a composite of a [glTF](https://www.khronos.org/Gltf)-specified
- * geometry along with image-based lighting. Applications are encouraged to supply glTFs with a
- * skybox texture baked-in for ground and horizon visibility. The image-based lighting contributes
- * to the overall illumination and reflections within the scene.
+ * The SpatialEnvironment is a composite of geometry specified by
+ * [glTF](https://www.khronos.org/gltf/) along with image-based lighting. Applications are
+ * encouraged to supply glTFs with a skybox texture baked-in for ground and horizon visibility. The
+ * image-based lighting contributes to the overall illumination and reflections within the scene.
  *
  * The XR background can be set to display one of three configurations:
  * 1) A combination of image based lighting and glTF geometry which should contain a skybox texture.
