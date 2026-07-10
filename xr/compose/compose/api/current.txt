@@ -438,7 +438,7 @@ package androidx.xr.compose.subspace {
   @Deprecated public abstract class DragPolicy {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialGltfAnimationApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialGltfModelApi {
   }
 
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract sealed nonexhaustive class FollowBehavior {
@@ -576,28 +576,28 @@ package androidx.xr.compose.subspace {
     method public void onSurfaceDestroyed(kotlin.jvm.functions.Function1<? super android.view.Surface,kotlin.Unit> onSurfaceDestroyed);
   }
 
-  public final class SpatialGltfModelKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void SpatialGltfModel(androidx.xr.compose.subspace.SpatialGltfModelState state, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void SpatialGltfModel(androidx.xr.compose.subspace.SpatialGltfModelState, androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.xr.compose.subspace.SpatialGltfModelState rememberSpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource source);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.compose.subspace.SpatialGltfModelState rememberSpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource, androidx.compose.runtime.Composer?, int);
+  @SuppressCompatibility public final class SpatialGltfModelKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi @androidx.xr.compose.subspace.SubspaceComposable public static void SpatialGltfModel(androidx.xr.compose.subspace.SpatialGltfModelState state, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi @androidx.xr.compose.subspace.SubspaceComposable public static void SpatialGltfModel(androidx.xr.compose.subspace.SpatialGltfModelState, androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static androidx.xr.compose.subspace.SpatialGltfModelState rememberSpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource source);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static androidx.xr.compose.subspace.SpatialGltfModelState rememberSpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource, androidx.compose.runtime.Composer?, int);
   }
 
-  public interface SpatialGltfModelSource {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public interface SpatialGltfModelSource {
     method public suspend Object? createModel(androidx.xr.runtime.Session session, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.GltfModel>);
-    method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
-    method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
-    method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
-    field public static final androidx.xr.compose.subspace.SpatialGltfModelSource.Companion Companion;
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
+    field @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static final androidx.xr.compose.subspace.SpatialGltfModelSource.Companion Companion;
   }
 
-  public static final class SpatialGltfModelSource.Companion {
-    method public androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
-    method public androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
-    method public androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static final class SpatialGltfModelSource.Companion {
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
   }
 
-  public final class SpatialGltfModelState implements java.lang.AutoCloseable {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public final class SpatialGltfModelState implements java.lang.AutoCloseable {
     ctor public SpatialGltfModelState(androidx.xr.compose.subspace.SpatialGltfModelSource source);
     method public void close();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.GltfModelNode> getNodes();
@@ -606,20 +606,20 @@ package androidx.xr.compose.subspace {
     property public androidx.xr.compose.subspace.SpatialGltfModelStatus status;
   }
 
-  public abstract class SpatialGltfModelStatus {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public abstract class SpatialGltfModelStatus {
   }
 
-  public static final class SpatialGltfModelStatus.Failed extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static final class SpatialGltfModelStatus.Failed extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
     ctor public SpatialGltfModelStatus.Failed(Throwable exception);
     method @InaccessibleFromKotlin public Throwable getException();
     property public Throwable exception;
   }
 
-  public static final class SpatialGltfModelStatus.Loaded extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static final class SpatialGltfModelStatus.Loaded extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
     field public static final androidx.xr.compose.subspace.SpatialGltfModelStatus.Loaded INSTANCE;
   }
 
-  public static final class SpatialGltfModelStatus.Loading extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
+  @SuppressCompatibility @androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi public static final class SpatialGltfModelStatus.Loading extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
     field public static final androidx.xr.compose.subspace.SpatialGltfModelStatus.Loading INSTANCE;
   }
 

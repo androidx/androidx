@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:kotlin.OptIn(androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi::class)
+
 package androidx.xr.compose.testapp.accessibility
 
 import android.content.Intent

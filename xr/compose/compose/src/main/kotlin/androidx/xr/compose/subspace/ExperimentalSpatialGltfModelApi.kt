@@ -17,13 +17,13 @@
 package androidx.xr.compose.subspace
 
 /**
- * Marks the SpatialGltfModel animation APIs as experimental. These APIs may change or be removed in
- * the future.
+ * Marks the SpatialGltfModel APIs as experimental. These APIs may change or be removed in the
+ * future.
  *
- * Any usage of a declaration annotated with `@ExperimentalSpatialGltfAnimationApi` must be accepted
- * either by annotating that usage with `@OptIn(ExperimentalSpatialGltfAnimationApi::class)` or by
+ * Any usage of a declaration annotated with `@ExperimentalSpatialGltfModelApi` must be accepted
+ * either by annotating that usage with `@OptIn(ExperimentalSpatialGltfModelApi::class)` or by
  * propagating the annotation to the containing declaration.
  */
 @RequiresOptIn(message = "This is an experimental API. It may be changed or removed in the future.")
 @Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalSpatialGltfAnimationApi
+public annotation class ExperimentalSpatialGltfModelApi
