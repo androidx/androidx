@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"ngemizuzu"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"ngehora"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Shintshela kumodi yokufaka umbhalo"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Shintshela kumodi yokuskrola"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Shintshela kumodi yewashi"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Khetha Isikhathi"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Khetha Isikhathi"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Faka Isikhathi"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Umzuzu ube ngu-0–59"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Ihora libe ngu-1–12"</string>
