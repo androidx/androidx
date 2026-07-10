@@ -159,7 +159,8 @@ open class BasePagerTest(private val config: ParamConfig) :
         flingBehavior: TargetedFlingBehavior? = null,
         prefetchScheduler: PrefetchScheduler? = null,
         userLookahead: Boolean = config.useLookahead,
-        bringIntoViewSpec: BringIntoViewSpec = DefaultBringIntoViewSpec,
+        localBringIntoViewSpec: BringIntoViewSpec = DefaultBringIntoViewSpec,
+        bringIntoViewSpec: BringIntoViewSpec? = null,
         prefetchEnabled: Boolean = true,
         pageContent: @Composable PagerScope.(page: Int) -> Unit = {
             DisposableEffect(it) {
@@ -197,7 +198,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 focusManager = LocalFocusManager.current
                 CompositionLocalProvider(
                     LocalLayoutDirection provides config.layoutDirection,
-                    LocalBringIntoViewSpec provides bringIntoViewSpec,
+                    LocalBringIntoViewSpec provides localBringIntoViewSpec,
                 ) {
                     val resolvedFlingBehavior =
                         flingBehavior
@@ -226,6 +227,8 @@ open class BasePagerTest(private val config: ParamConfig) :
                             pageContent = pageContent,
                             snapPosition = snapPosition,
                             key = key,
+                            bringIntoViewSpec =
+                                bringIntoViewSpec ?: PagerDefaults.bringIntoViewSpec(state),
                         )
                     }
                 }
@@ -357,6 +360,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         pageSpacing: Dp = 0.dp,
         key: ((index: Int) -> Any)? = null,
         snapPosition: SnapPosition = config.snapPosition.first,
+        bringIntoViewSpec: BringIntoViewSpec = PagerDefaults.bringIntoViewSpec(state),
         pageContent: @Composable PagerScope.(pager: Int) -> Unit,
     ) {
         ConfigurableLookaheadScope(useLookahead = config.useLookahead) {
@@ -374,6 +378,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                     pageSpacing = pageSpacing,
                     key = key,
                     snapPosition = snapPosition,
+                    bringIntoViewSpec = bringIntoViewSpec,
                     pageContent = pageContent,
                 )
             } else {
@@ -390,6 +395,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                     pageSpacing = pageSpacing,
                     key = key,
                     snapPosition = snapPosition,
+                    bringIntoViewSpec = bringIntoViewSpec,
                     pageContent = pageContent,
                 )
             }
