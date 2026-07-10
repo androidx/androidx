@@ -21,6 +21,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class IntMap<T> {
     /** Clear the map */
     public void clear() {
         Arrays.fill(mKeys, NOT_PRESENT);
-        mValues.clear();
+        Collections.fill(mValues, null);
         mSize = 0;
     }
 

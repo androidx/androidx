@@ -1107,4 +1107,9 @@ public class MockRemoteContext extends RemoteContext {
                 .append("\n");
         super.setRootContentBehavior(scroll, alignment, sizing, mode);
     }
+
+    @Override
+    public void clearVariables() {
+        varNamesMap.clear();
+    }
 }

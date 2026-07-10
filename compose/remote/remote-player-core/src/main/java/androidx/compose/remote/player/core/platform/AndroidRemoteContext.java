@@ -209,6 +209,11 @@ public class AndroidRemoteContext extends RemoteContext {
 
     HashMap<String, ArrayList<VarName>> mVarNameHashMap = new HashMap<>();
 
+    @Override
+    public void clearVariables() {
+        mVarNameHashMap.clear();
+    }
+
     /**
      * Returns the id of a variable
      *
