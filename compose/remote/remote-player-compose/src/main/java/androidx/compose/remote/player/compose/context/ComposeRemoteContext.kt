@@ -40,6 +40,10 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
     private var haptic: HapticFeedback? = null
     private var varNameHashMap: HashMap<String, VarName?> = HashMap<String, VarName?>()
 
+    override fun clearVariables() {
+        varNameHashMap.clear()
+    }
+
     public val documentRevision = mutableIntStateOf(0)
     public val animationFrame = mutableLongStateOf(0L)
 

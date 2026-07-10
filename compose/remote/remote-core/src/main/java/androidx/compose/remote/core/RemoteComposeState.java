@@ -29,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -455,6 +456,30 @@ public class RemoteComposeState implements CollectionsAccess {
     public void reset() {
         mIntWrittenMap.clear();
         mDataIntMap.clear();
+        mIntDataMap.clear();
+        mFloatMap.clear();
+        mIntegerMap.clear();
+        mColorMap.clear();
+        mDataMapMap.clear();
+        mObjectMap.clear();
+        mPathMap.clear();
+        mPathData.clear();
+        mPathWinding.clear();
+        mColorOverride.clear();
+        mCollectionMap.clear();
+        Arrays.fill(mDataOverride, false);
+        Arrays.fill(mIntegerOverride, false);
+        Arrays.fill(mFloatOverride, false);
+        mVarListeners.clear();
+        mAllVarListeners.clear();
+        mNextId = START_ID;
+        mNextLocalId = 0x4000;
+        mIdMaps[0] = START_ID;
+        mIdMaps[1] = NanMap.START_VAR;
+        mIdMaps[2] = NanMap.START_ARRAY;
+        mRepaintSeconds = Float.NaN;
+        mLastRepaint = Float.NaN;
+        mRemoteContext = null;
     }
 
     /**
