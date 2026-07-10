@@ -1556,6 +1556,8 @@ final class androidx.compose.material3/SliderState : androidx.compose.foundation
 
     final val coercedValueAsFraction // androidx.compose.material3/SliderState.coercedValueAsFraction|{}coercedValueAsFraction[0]
         final fun <get-coercedValueAsFraction>(): kotlin/Float // androidx.compose.material3/SliderState.coercedValueAsFraction.<get-coercedValueAsFraction>|<get-coercedValueAsFraction>(){}[0]
+    final val isVertical // androidx.compose.material3/SliderState.isVertical|{}isVertical[0]
+        final fun <get-isVertical>(): kotlin/Boolean // androidx.compose.material3/SliderState.isVertical.<get-isVertical>|<get-isVertical>(){}[0]
     final val steps // androidx.compose.material3/SliderState.steps|{}steps[0]
         final fun <get-steps>(): kotlin/Int // androidx.compose.material3/SliderState.steps.<get-steps>|<get-steps>(){}[0]
     final val valueRange // androidx.compose.material3/SliderState.valueRange|{}valueRange[0]
