@@ -112,7 +112,9 @@ public class ListenableWorkerImplClient {
     public @NonNull ListenableFuture<byte[]> execute(
             @NonNull ListenableFuture<IListenableWorkerImpl> session,
             final @NonNull RemoteDispatcher<IListenableWorkerImpl> dispatcher) {
-        return RemoteExecuteKt.execute(mExecutor, session, dispatcher);
+        boolean isCancellable = RemoteWorkManagerInfo.getInstance(mContext)
+                .getConfiguration().isRemoteCancellationPropagationFixEnabled();
+        return RemoteExecuteKt.execute(mExecutor, session, dispatcher, isCancellable);
     }
 
     /**
