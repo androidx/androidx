@@ -722,6 +722,7 @@ package androidx.compose.remote.creation.compose.state {
     method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean or(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean select(androidx.compose.remote.creation.compose.state.RemoteBoolean ifTrue, androidx.compose.remote.creation.compose.state.RemoteBoolean ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteColor select(androidx.compose.remote.creation.compose.state.RemoteColor ifTrue, androidx.compose.remote.creation.compose.state.RemoteColor ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteDp select(androidx.compose.remote.creation.compose.state.RemoteDp ifTrue, androidx.compose.remote.creation.compose.state.RemoteDp ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteFloat select(androidx.compose.remote.creation.compose.state.RemoteFloat ifTrue, androidx.compose.remote.creation.compose.state.RemoteFloat ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteInt select(androidx.compose.remote.creation.compose.state.RemoteInt ifTrue, androidx.compose.remote.creation.compose.state.RemoteInt ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteString select(androidx.compose.remote.creation.compose.state.RemoteString ifTrue, androidx.compose.remote.creation.compose.state.RemoteString ifFalse);
@@ -791,8 +792,26 @@ package androidx.compose.remote.creation.compose.state {
 
   @androidx.compose.runtime.Stable public final class RemoteDp extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.unit.Dp> {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp-lG28NQ4(String, float, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteFloat div(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(androidx.compose.remote.creation.compose.state.RemoteFloat other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(androidx.compose.remote.creation.compose.state.RemoteInt other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(float other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(int other);
     method @BytecodeOnly public androidx.compose.ui.unit.Dp? getConstantValueOrNull-lTKBWiU();
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThan(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThan(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp minus(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp plus(androidx.compose.remote.creation.compose.state.RemoteDp other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(androidx.compose.remote.creation.compose.state.RemoteFloat other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(androidx.compose.remote.creation.compose.state.RemoteInt other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(float other);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(int other);
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
+    method public operator androidx.compose.remote.creation.compose.state.RemoteDp unaryMinus();
     property public androidx.compose.ui.unit.Dp? constantValueOrNull;
     field public static final androidx.compose.remote.creation.compose.state.RemoteDp.Companion Companion;
   }
@@ -809,6 +828,8 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteDp asRemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(float);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(int);
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp max(androidx.compose.remote.creation.compose.state.RemoteDp a, androidx.compose.remote.creation.compose.state.RemoteDp b);
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp min(androidx.compose.remote.creation.compose.state.RemoteDp a, androidx.compose.remote.creation.compose.state.RemoteDp b);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteDp rememberNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.remote.creation.compose.state.RemoteDp> value);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteDp rememberNamedRemoteDp(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<androidx.compose.remote.creation.compose.state.RemoteDp!>, androidx.compose.runtime.Composer?, int, int);
     property public static androidx.compose.remote.creation.compose.state.RemoteDp int.rdp;

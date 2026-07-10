@@ -95,68 +95,61 @@ internal constructor(
     }
 
     /** Add two [RemoteDp]s together. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun plus(other: RemoteDp): RemoteDp = RemoteDp(this.value + other.value)
 
     /** Subtract a [RemoteDp] from another one. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun minus(other: RemoteDp): RemoteDp = RemoteDp(this.value - other.value)
 
     /** This is the same as multiplying the Dp by -1.0. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun unaryMinus(): RemoteDp = RemoteDp(-this.value)
 
     /** Divide a [RemoteDp] by a scalar. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun div(other: Float): RemoteDp = RemoteDp(this.value / other)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Divide a [RemoteDp] by a scalar. */
     public operator fun div(other: Int): RemoteDp = RemoteDp(this.value / other.toFloat())
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Divide a [RemoteDp] by a [RemoteFloat]. */
     public operator fun div(other: RemoteFloat): RemoteDp = RemoteDp(this.value / other)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Divide a [RemoteDp] by a [RemoteInt]. */
     public operator fun div(other: RemoteInt): RemoteDp =
         RemoteDp(this.value / other.toRemoteFloat())
 
     /** Divide by another [RemoteDp] to get a scalar. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun div(other: RemoteDp): RemoteFloat = this.value / other.value
 
     /** Multiply a [RemoteDp] by a scalar. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun times(other: Float): RemoteDp = RemoteDp(this.value * other)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Multiply a [RemoteDp] by a scalar. */
     public operator fun times(other: Int): RemoteDp = RemoteDp(this.value * other.toFloat())
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Multiply a [RemoteDp] by a [RemoteFloat]. */
     public operator fun times(other: RemoteFloat): RemoteDp = RemoteDp(this.value * other)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Multiply a [RemoteDp] by a [RemoteInt]. */
     public operator fun times(other: RemoteInt): RemoteDp =
         RemoteDp(this.value * other.toRemoteFloat())
 
-    /** Compare [RemoteDp] with other [RemoteDp]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Check if this [RemoteDp] is less than [other]. */
     public fun isLessThan(other: RemoteDp): RemoteBoolean = this.value.isLessThan(other.value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun isLessThanOrEqual(other: RemoteDp): RemoteBoolean =
+    /** Check if this [RemoteDp] is less than or equal to [other]. */
+    public fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isLessThanOrEqualTo(other.value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Check if this [RemoteDp] is greater than [other]. */
     public fun isGreaterThan(other: RemoteDp): RemoteBoolean = this.value.isGreaterThan(other.value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun isGreaterThanOrEqual(other: RemoteDp): RemoteBoolean =
+    /** Check if this [RemoteDp] is greater than or equal to [other]. */
+    public fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isGreaterThanOrEqualTo(other.value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Check if this [RemoteDp] is equal to [other]. */
     public fun isEqualTo(other: RemoteDp): RemoteBoolean = this.value.isEqualTo(other.value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Check if this [RemoteDp] is not equal to [other]. */
     public fun isNotEqualTo(other: RemoteDp): RemoteBoolean = this.value.isNotEqualTo(other.value)
 
     public companion object {
@@ -275,9 +268,7 @@ public fun rememberNamedRemoteDp(
 }
 
 /** Returns the smaller of two [RemoteDp] values. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(min(a.value, b.value))
 
 /** Returns the greater of two [RemoteDp] values. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(max(a.value, b.value))
