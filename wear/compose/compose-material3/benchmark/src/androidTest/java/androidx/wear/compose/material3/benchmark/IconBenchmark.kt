@@ -19,12 +19,6 @@ package androidx.wear.compose.material3.benchmark
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
-import androidx.compose.testutils.benchmark.benchmarkDrawPerf
-import androidx.compose.testutils.benchmark.benchmarkFirstCompose
-import androidx.compose.testutils.benchmark.benchmarkFirstDraw
-import androidx.compose.testutils.benchmark.benchmarkFirstLayout
-import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
-import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -57,36 +51,6 @@ class IconBenchmark(private val iconType: IconType) {
     @Test
     fun first_pixel() {
         benchmarkRule.benchmarkToFirstPixel(iconCaseFactory)
-    }
-
-    @Test
-    fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(iconCaseFactory)
-    }
-
-    @Test
-    fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(iconCaseFactory)
-    }
-
-    @Test
-    fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(iconCaseFactory)
-    }
-
-    @Test
-    fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(iconCaseFactory)
-    }
-
-    @Test
-    fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(iconCaseFactory)
-    }
-
-    @Test
-    fun draw() {
-        benchmarkRule.benchmarkDrawPerf(iconCaseFactory)
     }
 }
 
