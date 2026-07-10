@@ -93,6 +93,22 @@ internal constructor(
         }
 
         /**
+         * Creates a [RemoteImageBitmap] from a URL.
+         *
+         * @param url The URL of the image.
+         * @return A [RemoteImageBitmap] representing the image from the URL.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public operator fun invoke(url: String): RemoteImageBitmap {
+            return MutableRemoteImageBitmap(
+                constantValueOrNull = null,
+                cacheKey = RemoteConstantCacheKey(url),
+            ) { creationState ->
+                creationState.document.addBitmapUrl(url)
+            }
+        }
+
+        /**
          * Creates a [RemoteImageBitmap] referencing a remote ID.
          *
          * @param id The remote ID.
@@ -215,14 +231,7 @@ public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableR
  */
 @Composable
 public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
-    return remember(url) {
-        MutableRemoteImageBitmap(
-            constantValueOrNull = null,
-            cacheKey = RemoteConstantCacheKey(url),
-        ) { creationState ->
-            creationState.document.addBitmapUrl(url)
-        }
-    }
+    return remember(url) { RemoteImageBitmap(url) }
 }
 
 /**
