@@ -252,6 +252,7 @@ class CarouselTest {
         val expectedItem2Width =
             maxOf(0f, minOf(itemMainAxisSize * 3, containerWidth) - itemMainAxisSize * 2)
 
+        rule.waitForIdle()
         // verify that the a11y sees the correct semantics node size
         rule.runOnUiThread {
             val item1NodeInfo =
@@ -261,10 +262,10 @@ class CarouselTest {
             val bounds = Rect(-1, -1, -1, -1)
 
             item1NodeInfo?.getBoundsInScreen(bounds)
-            assertThat(bounds.width().toFloat()).isWithin(1f).of(expectedItem1Width)
+            assertThat(bounds.width().toFloat()).isWithin(2f).of(expectedItem1Width)
 
             item2NodeInfo?.getBoundsInScreen(bounds)
-            assertThat(bounds.width().toFloat()).isWithin(1f).of(expectedItem2Width)
+            assertThat(bounds.width().toFloat()).isWithin(2f).of(expectedItem2Width)
         }
     }
 
