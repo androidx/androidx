@@ -23,6 +23,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.runtime.CompositionLocalProvider
@@ -261,5 +262,23 @@ class TextFieldSizeModifierTest {
             assertThat(size.width).isGreaterThan(0)
             assertThat(size.height).isGreaterThan(0)
         }
+    }
+
+    @Test
+    fun btf1_maxLinesOne_softWrapTrue_doesNotForceInfiniteWidth() {
+        var lineCount = 0
+
+        rule.setContent {
+            BasicTextField(
+                value = "a ".repeat(50),
+                onValueChange = {},
+                textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY),
+                maxLines = 1,
+                onTextLayout = { lineCount = it.lineCount },
+                modifier = Modifier.requiredWidth(100.dp),
+            )
+        }
+
+        rule.runOnIdle { assertThat(lineCount).isGreaterThan(1) }
     }
 }

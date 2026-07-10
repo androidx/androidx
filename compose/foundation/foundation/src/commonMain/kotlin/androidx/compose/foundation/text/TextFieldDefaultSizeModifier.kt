@@ -59,13 +59,29 @@ import androidx.compose.ui.util.fastCoerceIn
  * text to avoid clipping of the tall glyphs (caused by the fact that such height is calculated for
  * a default "H" character). This is not an issue for multiline text field because the text can be
  * scrolled vertically.
+ *
+ * Note on [useSingleLineHeightProvider] and [unboundedWidth]: In BTF1, maxLines, singleLine, and
+ * softWrap are independent parameters. To strictly preserve legacy behavior, what was previously a
+ * single singleLine flag is split into two distinct functional parameters:
+ * - [useSingleLineHeightProvider]: Controls whether vertical sizing uses [singleLineHeightProvider]
+ *   to dynamically adjust height and prevent tall glyph and emoji clipping. In legacy code,
+ *   single-line height was calculated whenever `maxLines == 1` rather than strictly on single-line
+ *   configuration.
+ * - [unboundedWidth]: Controls whether maxWidth is set to [Constraints.Infinity]. True single-line
+ *   fields scroll horizontally and require unbounded horizontal width. However, if `maxLines == 1`
+ *   is used alongside softWrap enabled, setting infinite maxWidth would prevent horizontal soft
+ *   wrapping and break vertical scrolling and cursor visibility. Therefore, unbounded width is
+ *   applied strictly when true single-line horizontal scrolling is active. In BTF2, both parameters
+ *   always receive the same value since single-line configuration strictly implies both dynamic
+ *   single-line height adjustment and unbounded horizontal width.
  */
 internal fun Modifier.textFieldSize(
     textStyle: TextStyle,
     singleLineHeightProvider: HeightForSingleLineFieldProvider,
     minLines: Int,
     maxLines: Int,
-    singleLine: Boolean,
+    useSingleLineHeightProvider: Boolean,
+    unboundedWidth: Boolean,
 ): Modifier {
     validateMinMaxLines(minLines, maxLines)
     return this then
@@ -73,7 +89,8 @@ internal fun Modifier.textFieldSize(
             textStyle,
             minLines,
             maxLines,
-            singleLine,
+            useSingleLineHeightProvider,
+            unboundedWidth,
             singleLineHeightProvider,
         )
 }
@@ -82,7 +99,8 @@ private class TextFieldSizeConstrainerElement(
     private val textStyle: TextStyle,
     private val minLines: Int,
     private val maxLines: Int,
-    private val singleLine: Boolean,
+    private val useSingleLineHeightProvider: Boolean,
+    private val unboundedWidth: Boolean,
     private val singleLineHeightProvider: HeightForSingleLineFieldProvider,
 ) : ModifierNodeElement<TextFieldSizeConstrainerNode>() {
 
@@ -91,19 +109,28 @@ private class TextFieldSizeConstrainerElement(
             textStyle,
             minLines,
             maxLines,
-            singleLine,
+            useSingleLineHeightProvider,
+            unboundedWidth,
             singleLineHeightProvider,
         )
 
     override fun update(node: TextFieldSizeConstrainerNode) {
-        node.update(textStyle, minLines, maxLines, singleLine, singleLineHeightProvider)
+        node.update(
+            textStyle,
+            minLines,
+            maxLines,
+            useSingleLineHeightProvider,
+            unboundedWidth,
+            singleLineHeightProvider,
+        )
     }
 
     override fun hashCode(): Int {
         var result = textStyle.hashCode()
         result = 31 * result + minLines
         result = 31 * result + maxLines
-        result = 31 * result + singleLine.hashCode()
+        result = 31 * result + useSingleLineHeightProvider.hashCode()
+        result = 31 * result + unboundedWidth.hashCode()
         result = 31 * result + singleLineHeightProvider.hashCode()
         return result
     }
@@ -114,7 +141,8 @@ private class TextFieldSizeConstrainerElement(
         if (textStyle != other.textStyle) return false
         if (minLines != other.minLines) return false
         if (maxLines != other.maxLines) return false
-        if (singleLine != other.singleLine) return false
+        if (useSingleLineHeightProvider != other.useSingleLineHeightProvider) return false
+        if (unboundedWidth != other.unboundedWidth) return false
         if (singleLineHeightProvider != other.singleLineHeightProvider) return false
         return true
     }
@@ -123,7 +151,8 @@ private class TextFieldSizeConstrainerElement(
         name = "combinedTextFieldSize"
         properties["minLines"] = minLines
         properties["maxLines"] = maxLines
-        properties["singleLine"] = singleLine
+        properties["useSingleLineHeightProvider"] = useSingleLineHeightProvider
+        properties["unboundedWidth"] = unboundedWidth
         properties["textStyle"] = textStyle
         properties["textLayoutState"] = singleLineHeightProvider
     }
@@ -133,7 +162,8 @@ private class TextFieldSizeConstrainerNode(
     private var textStyle: TextStyle,
     private var minLines: Int,
     private var maxLines: Int,
-    private var singleLine: Boolean,
+    private var useSingleLineHeightProvider: Boolean,
+    private var unboundedWidth: Boolean,
     private var singleLineHeightProvider: HeightForSingleLineFieldProvider,
 ) : Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
 
@@ -189,13 +219,14 @@ private class TextFieldSizeConstrainerNode(
         computeDefaultSizeIfNeeded(requireFontResolutionState().value)
 
         val computedConstraints =
-            if (singleLine) { // single line
+            if (useSingleLineHeightProvider) { // single line
                 // correction for tall glyph clipping in single line
                 val height = singleLineHeightProvider.heightForSingleLineField
                 val heightPx = height.roundToPx()
+                val maxWidthPx = if (unboundedWidth) Constraints.Infinity else constraints.maxWidth
                 Constraints(
-                    minWidth = precomputedMinWidth,
-                    maxWidth = Constraints.Infinity,
+                    minWidth = precomputedMinWidth.fastCoerceAtMost(maxWidthPx),
+                    maxWidth = maxWidthPx,
                     minHeight =
                         if (height == 0.dp) {
                             precomputedMinLinesHeight
@@ -314,7 +345,8 @@ private class TextFieldSizeConstrainerNode(
         textStyle: TextStyle,
         minLines: Int,
         maxLines: Int,
-        singleLine: Boolean,
+        useSingleLineHeightProvider: Boolean,
+        unboundedWidth: Boolean,
         singleLineHeightProvider: HeightForSingleLineFieldProvider,
     ) {
         if (this.textStyle != textStyle) {
@@ -327,13 +359,15 @@ private class TextFieldSizeConstrainerNode(
         if (
             this.minLines != minLines ||
                 this.maxLines != maxLines ||
-                this.singleLine != singleLine ||
+                this.useSingleLineHeightProvider != useSingleLineHeightProvider ||
+                this.unboundedWidth != unboundedWidth ||
                 this.singleLineHeightProvider.heightForSingleLineField !=
                     singleLineHeightProvider.heightForSingleLineField
         ) {
             this.minLines = minLines
             this.maxLines = maxLines
-            this.singleLine = singleLine
+            this.useSingleLineHeightProvider = useSingleLineHeightProvider
+            this.unboundedWidth = unboundedWidth
             this.singleLineHeightProvider = singleLineHeightProvider
             dirty = true
         }
