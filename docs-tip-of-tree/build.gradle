@@ -413,6 +413,7 @@ dependencies {
     docs(project(":xr:glimmer:glimmer"))
     docs(project(":xr:glimmer:glimmer-google-fonts"))
     docs(project(":xr:runtime:runtime"))
+    docs(project(":xr:runtime:runtime-projected"))
     docs(project(":xr:runtime:runtime-interfaces"))
     docs(project(":xr:runtime:runtime-manifest"))
     docs(project(":xr:runtime:runtime-openxr"))
