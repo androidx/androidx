@@ -73,7 +73,7 @@ class SplitButtonTest {
     @Test
     fun filledSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -108,7 +108,7 @@ class SplitButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             var trailingButtonChecked by remember { mutableStateOf(false) }
 
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -143,7 +143,7 @@ class SplitButtonTest {
     @Test
     fun filledSplitButton_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -177,7 +177,7 @@ class SplitButtonTest {
     @Test
     fun filledSplitButton_disabledSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -213,7 +213,7 @@ class SplitButtonTest {
     @Test
     fun TonalSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.TonalLeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -244,7 +244,7 @@ class SplitButtonTest {
     @Test
     fun ElevatedSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.ElevatedLeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -275,7 +275,7 @@ class SplitButtonTest {
     @Test
     fun OutlinedSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.OutlinedLeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -310,7 +310,7 @@ class SplitButtonTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             density = LocalDensity.current
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -397,7 +397,7 @@ class SplitButtonTest {
         val size = SplitButtonDefaults.ExtraSmallContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -458,7 +458,7 @@ class SplitButtonTest {
         val size = SplitButtonDefaults.SmallContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -519,7 +519,7 @@ class SplitButtonTest {
         val size = SplitButtonDefaults.MediumContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -580,7 +580,7 @@ class SplitButtonTest {
         val size = SplitButtonDefaults.LargeContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -641,7 +641,7 @@ class SplitButtonTest {
         val size = SplitButtonDefaults.ExtraLargeContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButtonLayout(
+            SplitButton(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -703,7 +703,7 @@ class SplitButtonTest {
         // it handles the width correctly
         rule.setMaterialContent(lightColorScheme()) {
             Row(Modifier.horizontalScroll(rememberScrollState())) {
-                SplitButtonLayout(
+                SplitButton(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
