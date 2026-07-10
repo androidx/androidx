@@ -2281,6 +2281,10 @@ final object androidx.compose.material3/BottomAppBarDefaults { // androidx.compo
         final fun <get-bottomAppBarFabColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3/BottomAppBarDefaults.bottomAppBarFabColor.<get-bottomAppBarFabColor>|<get-bottomAppBarFabColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     final val containerColor // androidx.compose.material3/BottomAppBarDefaults.containerColor|{}containerColor[0]
         final fun <get-containerColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3/BottomAppBarDefaults.containerColor.<get-containerColor>|<get-containerColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    final val flingAnimationSpec // androidx.compose.material3/BottomAppBarDefaults.flingAnimationSpec|{}flingAnimationSpec[0]
+        final fun <get-flingAnimationSpec>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation.core/DecayAnimationSpec<kotlin/Float> // androidx.compose.material3/BottomAppBarDefaults.flingAnimationSpec.<get-flingAnimationSpec>|<get-flingAnimationSpec>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    final val snapAnimationSpec // androidx.compose.material3/BottomAppBarDefaults.snapAnimationSpec|{}snapAnimationSpec[0]
+        final fun <get-snapAnimationSpec>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation.core/AnimationSpec<kotlin/Float> // androidx.compose.material3/BottomAppBarDefaults.snapAnimationSpec.<get-snapAnimationSpec>|<get-snapAnimationSpec>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     final val windowInsets // androidx.compose.material3/BottomAppBarDefaults.windowInsets|{}windowInsets[0]
         final fun <get-windowInsets>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.material3/BottomAppBarDefaults.windowInsets.<get-windowInsets>|<get-windowInsets>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 }
