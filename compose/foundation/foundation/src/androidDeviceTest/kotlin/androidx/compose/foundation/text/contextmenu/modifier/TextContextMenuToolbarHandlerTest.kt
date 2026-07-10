@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.contextmenu.modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuProvider
@@ -33,7 +34,11 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFailsWith
@@ -43,6 +48,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -285,6 +291,50 @@ class TextContextMenuToolbarHandlerTest {
         toolbarRequester.hide()
         assertCancels { fakeProvider.previousJob }
         assertThat(callCount).isEqualTo(1)
+    }
+
+    @Ignore("b/520540939")
+    @Test
+    fun whenConfigurationChanges_contextMenuDataUpdates() {
+        val toolbarRequester = ToolbarRequesterImpl()
+        var localeList by mutableStateOf(LocaleList(Locale("en")))
+        lateinit var dataProvider: TextContextMenuDataProvider
+
+        val fakeProvider = TestTextContextMenuProvider { dataProvider = it }
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.Locales(localeList)) {
+                CompositionLocalProvider(
+                    LocalTextContextMenuToolbarProvider provides fakeProvider
+                ) {
+                    Box(
+                        Modifier.addTextContextMenuComponentsWithContext { context ->
+                                item(
+                                    key = 1,
+                                    label = context.resources.getString(android.R.string.copy),
+                                ) {}
+                            }
+                            .textContextMenuToolbarHandler(
+                                requester = toolbarRequester,
+                                computeContentBounds = { DefaultRect },
+                            )
+                    )
+                }
+            }
+        }
+
+        toolbarRequester.show()
+        rule.waitForIdle()
+
+        val initialItem = dataProvider.data().components.first() as TextContextMenuItem
+        assertThat(initialItem.label).isEqualTo("Copy")
+
+        // Simulate in-app locale change to Spanish
+        localeList = LocaleList(Locale("es"))
+        rule.waitForIdle()
+
+        val updatedItem = dataProvider.data().components.first() as TextContextMenuItem
+        assertThat(updatedItem.label).isEqualTo("Copiar")
     }
 
     private fun assertCompletesSuccessfully(jobBlock: () -> Job?) {
