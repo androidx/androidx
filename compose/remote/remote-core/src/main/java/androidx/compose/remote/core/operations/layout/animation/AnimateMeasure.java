@@ -104,10 +104,10 @@ public class AnimateMeasure {
      */
     public void update(long currentTime) {
         long elapsed = currentTime - mStartTime;
-        float motionProgress = elapsed / (float) mDuration;
-        float visibilityProgress = elapsed / (float) mDurationVisibilityChange;
-        mP = mMotionEasing.get(motionProgress);
-        mVp = mVisibilityEasing.get(visibilityProgress);
+        float motionTimeInSeconds = elapsed / 1000f;
+        float visibilityTimeInSeconds = elapsed / 1000f;
+        mP = mMotionEasing.get(motionTimeInSeconds);
+        mVp = mVisibilityEasing.get(visibilityTimeInSeconds);
     }
 
     @NonNull public PaintBundle paint = new PaintBundle();
@@ -137,6 +137,7 @@ public class AnimateMeasure {
 
     /** Paint the transition animation for the component owned */
     public void paint(@NonNull PaintContext context) {
+        apply(context.getContext());
         if (mOriginal.getVisibility() != mTarget.getVisibility()) {
             if (mTarget.isGone()) {
                 switch (mExitAnimation) {
@@ -323,6 +324,10 @@ public class AnimateMeasure {
 
         if (mP >= 1f && mVp >= 1f) {
             mComponent.mVisibility = mTarget.getVisibility();
+            mComponent.setX(mTarget.getX());
+            mComponent.setY(mTarget.getY());
+            mComponent.setWidth(mTarget.getW());
+            mComponent.setHeight(mTarget.getH());
         }
     }
 
@@ -411,5 +416,11 @@ public class AnimateMeasure {
 
     public @NonNull ComponentMeasure getTarget() {
         return mTarget;
+    }
+
+    @Override
+    public String toString() {
+        return "AnimateMeasure{isDone=" + isDone() + " origX=" + mOriginal.getX()
+                + " targetX=" + mTarget.getX() + " mP=" + mP + "}";
     }
 }

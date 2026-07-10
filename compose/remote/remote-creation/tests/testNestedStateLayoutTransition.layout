@@ -1,0 +1,969 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: IntegerExpression
+        id: 43
+        mask: 21
+        srcValues:
+        - {type: Variable, id: 42}
+        - {type: Value, value: 1}
+        - {type: Instruction, instruction: +}
+        - {type: Value, value: 2}
+        - {type: Instruction, instruction: '%'}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: STATE_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+          - type: ROW
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+            spacedBy: 0.0
+          - type: ROW
+            id: -10
+            x: 0.0
+            y: 0.0
+            width: 0.0
+            height: 100.0
+            visibility: GONE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -12
+              x: 0.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0,
+                  height: 0.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: END
+            spacedBy: 0.0
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          indexId: 42
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 100.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: IntegerExpression
+        id: 43
+        mask: 21
+        srcValues:
+        - {type: Variable, id: 42}
+        - {type: Value, value: 1}
+        - {type: Instruction, instruction: +}
+        - {type: Value, value: 2}
+        - {type: Instruction, instruction: '%'}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: STATE_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+          - type: ROW
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+            spacedBy: 0.0
+          - type: ROW
+            id: -10
+            x: 0.0
+            y: 0.0
+            width: 0.0
+            height: 100.0
+            visibility: GONE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -12
+              x: 0.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0,
+                  height: 0.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: END
+            spacedBy: 0.0
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          indexId: 42
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 100.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Apply Click
+  command: {x: 50.0, y: 150.0}
+  result: {}
+- description: Animated State at 5
+  command: Capture
+  originX: 0.0
+  originY: 0.0
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: IntegerExpression
+        id: 43
+        mask: 21
+        srcValues:
+        - {type: Variable, id: 42}
+        - {type: Value, value: 1}
+        - {type: Instruction, instruction: +}
+        - {type: Value, value: 2}
+        - {type: Instruction, instruction: '%'}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: STATE_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+          - type: ROW
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: GONE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -9
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+            spacedBy: 0.0
+          - type: ROW
+            id: -10
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -12
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: END
+            spacedBy: 0.0
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          indexId: 42
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 100.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Animated State at 155
+  command: Capture
+  originX: 0.0
+  originY: 0.0
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: IntegerExpression
+        id: 43
+        mask: 21
+        srcValues:
+        - {type: Variable, id: 42}
+        - {type: Value, value: 1}
+        - {type: Instruction, instruction: +}
+        - {type: Value, value: 2}
+        - {type: Instruction, instruction: '%'}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: STATE_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+          - type: ROW
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: GONE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -9
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+            spacedBy: 0.0
+          - type: ROW
+            id: -10
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -12
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: END
+            spacedBy: 0.0
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          indexId: 42
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 100.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Animated State at 455
+  command: Capture
+  originX: 0.0
+  originY: 0.0
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 42, value: 0}
+      - type: IntegerExpression
+        id: 43
+        mask: 21
+        srcValues:
+        - {type: Variable, id: 42}
+        - {type: Value, value: 1}
+        - {type: Instruction, instruction: +}
+        - {type: Value, value: 2}
+        - {type: Instruction, instruction: '%'}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: STATE_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+          - type: ROW
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: GONE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -9
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+            spacedBy: 0.0
+          - type: ROW
+            id: -10
+            x: 0.0
+            y: 0.0
+            width: 1000.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Variable, id: 0, value: !!float 'NaN'}
+                dimensionModifierType: FILL
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            - type: BOX
+              id: -12
+              x: 950.0
+              y: 0.0
+              width: 50.0
+              height: 50.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers:
+                - type: WidthModifierOperation
+                  width: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - type: HeightModifierOperation
+                  height: {type: Value, value: 50.0}
+                  dimensionModifierType: EXACT
+                - {type: AnimationSpec, animationId: 100, motionDuration: 300.0, motionEasingType: CUBIC_STANDARD,
+                  visibilityDuration: 300.0, visibilityEasingType: CUBIC_STANDARD,
+                  enterAnimation: FADE_IN, exitAnimation: FADE_OUT}
+                - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0,
+                  height: 50.0, color: '0xffff0000', shapeType: RECTANGLE}
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              verticalPositioning: CENTER
+              horizontalPositioning: CENTER
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: END
+            spacedBy: 0.0
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          indexId: 42
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 100.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

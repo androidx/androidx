@@ -78,6 +78,9 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.dsl.dslClock
 import androidx.compose.remote.integration.view.demos.dsl.dslDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayout3StatesDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutRowToColumnDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutToggleDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslTicker
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths.pathTest
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo1
@@ -123,6 +126,8 @@ import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendar
 import androidx.compose.remote.integration.view.demos.examples.SimplePath
 import androidx.compose.remote.integration.view.demos.examples.SlantedButtonDemo
+import androidx.compose.remote.integration.view.demos.examples.StateLayoutRowToColumnDemo
+import androidx.compose.remote.integration.view.demos.examples.StateLayoutToggleDemo
 import androidx.compose.remote.integration.view.demos.examples.SwitchWidgetDemo
 import androidx.compose.remote.integration.view.demos.examples.TestDrawContentDemo
 import androidx.compose.remote.integration.view.demos.examples.WeatherDemo
@@ -341,9 +346,14 @@ class ExperimentActivity : ComponentActivity() {
                     get("Simple Clock") { RcSimpleClock1() },
                     get("Switch Widget") { SwitchWidgetDemo() },
                     get("Calendar") { ScrollViewDemo() },
+                    get("StateLayout Row") { StateLayoutToggleDemo() },
+                    get("StateLayout Row to Column") { StateLayoutRowToColumnDemo() },
                 ),
             "Procedural..." to
                 listOf(
+                    getb("DSL StateLayout Row") { dslRcStateLayoutToggleDemo() },
+                    getb("DSL StateLayout Row to Column") { dslRcStateLayoutRowToColumnDemo() },
+                    getb("DSL StateLayout 3-States") { dslRcStateLayout3StatesDemo() },
                     getpc("JSON Stock") { rcJsonTicker() },
                     getpc("JSON Graphs 2") { rcJsonGraphs2() },
                     getp("Demo Graphs 2") { demoGraphs2() },
@@ -922,7 +932,9 @@ private fun DocumentView(
             update = {
                 it.setTheme(playbackTheme)
                 it.setDebug(debugMode)
-                if (currentDocument.value != null) {
+                if (
+                    currentDocument.value != null && it.document?.document != currentDocument.value
+                ) {
                     it.setDocument(RemoteDocument(currentDocument.value!!))
                 }
             },
@@ -1041,7 +1053,10 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
                 },
                 update = {
                     it.setTheme(playbackTheme)
-                    if (currentDocument.value != null) {
+                    if (
+                        currentDocument.value != null &&
+                            it.document?.document != currentDocument.value
+                    ) {
                         it.setDocument(RemoteDocument(currentDocument.value!!))
                     }
                     it.setDebug(debugMode)
@@ -1150,7 +1165,10 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
                 },
                 update = {
                     it.setTheme(playbackTheme)
-                    if (currentDocument.value != null) {
+                    if (
+                        currentDocument.value != null &&
+                            it.document?.document != currentDocument.value
+                    ) {
                         it.setDocument(RemoteDocument(currentDocument.value!!))
                     }
                     it.setDebug(debugMode)
@@ -1216,7 +1234,10 @@ fun DisplayMain(
                         update = {
                             it.setTheme(playbackTheme)
                             it.setDebug(debugMode)
-                            if (currentDocument.value != null) {
+                            if (
+                                currentDocument.value != null &&
+                                    it.document?.document != currentDocument.value
+                            ) {
                                 it.setDocument(RemoteDocument(currentDocument.value!!))
                             }
                         },

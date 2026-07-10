@@ -70,9 +70,9 @@ public class AnimationSpec extends Operation implements ModifierOperation {
     public AnimationSpec() {
         this(
                 -1,
-                600,
+                300,
                 GeneralEasing.CUBIC_STANDARD,
-                500,
+                300,
                 GeneralEasing.CUBIC_STANDARD,
                 ANIMATION.FADE_IN,
                 ANIMATION.FADE_OUT);
