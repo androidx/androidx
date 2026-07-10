@@ -1036,4 +1036,7 @@ public abstract class RemoteContext {
     public void clearLastOpCount() {
         mOpCount = 0;
     }
+
+    /** Clear variables registered in the context */
+    public void clearVariables() {}
 }

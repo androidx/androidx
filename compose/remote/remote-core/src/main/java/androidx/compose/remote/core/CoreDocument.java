@@ -1549,6 +1549,7 @@ public class CoreDocument implements Serializable {
      */
     public void initializeContext(
             @NonNull RemoteContext context, @Nullable Map<Integer, Object> bitmapMap) {
+        context.clearVariables();
         mRemoteComposeState.reset();
         mRemoteComposeState.setContext(context);
         mClickAreas.clear();
