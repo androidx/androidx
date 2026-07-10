@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -48,11 +49,11 @@ import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -86,6 +87,7 @@ public class RemoteListenableWorkerTest {
                 .setExecutor(mExecutor)
                 .setTaskExecutor(mExecutor)
                 .setWorkerFactory(workerFactory)
+                .setRemoteCancellationPropagationFixEnabled(true)
                 .build()
         mTaskExecutor =
             object : TaskExecutor {
@@ -148,17 +150,55 @@ public class RemoteListenableWorkerTest {
 
     @Test
     @MediumTest
-    public fun testRemoteStopWorker() = runBlocking {
+    public fun testRemoteStopWorker() = runTest {
         val request = buildRequest<RemoteStopWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.launch()
+        val future = wrapper.launch()
         val remote = workerFactory.awaitRemote(request.id) as RemoteStopWorker
         remote.startRemoteDeferred.await()
         wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)
-        val reason =
-            withTimeoutOrNull(2000) { remote.stopDeferred.await() }
-                ?: throw AssertionError("Stop wasn't called")
+        val reason = remote.stopDeferred.await()
         assertEquals(STOP_REASON_CONSTRAINT_CONNECTIVITY, reason)
+        future.await()
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+        assertEquals(WorkInfo.State.ENQUEUED, workSpec.state)
+    }
+
+    @Test
+    @MediumTest
+    public fun testRemoteCoroutineStopWorker() = runTest {
+        val request = buildRequest<RemoteCoroutineStopWorker>()
+        val wrapper = buildWrapper(request)
+        val future = wrapper.launch()
+
+        val remote = workerFactory.awaitRemote(request.id) as RemoteCoroutineStopWorker
+        remote.startRemoteDeferred.await()
+
+        wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)
+
+        val reason = remote.stopDeferred.await()
+        assertEquals(STOP_REASON_CONSTRAINT_CONNECTIVITY, reason)
+
+        future.await()
+
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+        assertEquals(WorkInfo.State.ENQUEUED, workSpec.state)
+    }
+
+    @Test
+    @MediumTest
+    public fun testRemoteCoroutineSelfCancellingWorker() = runTest {
+        val request = buildRequest<RemoteCoroutineSelfCancellingWorker>()
+        val wrapper = buildWrapper(request)
+        val future = wrapper.launch()
+
+        val remote = workerFactory.awaitRemote(request.id) as RemoteCoroutineSelfCancellingWorker
+        remote.startRemoteDeferred.await()
+
+        future.await()
+
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+        assertEquals(WorkInfo.State.FAILED, workSpec.state)
     }
 
     @Test
@@ -189,7 +229,7 @@ public class RemoteListenableWorkerTest {
 
     @Test
     @MediumTest
-    public fun testUnbindService_cancelFuture_doesNotLeakConnection() = runBlocking {
+    public fun testUnbindService_cancelFuture_doesNotLeakConnection() = runTest {
         val delegatingWorker = buildDelegatingWorker<RemoteStopWorker>()
         val future = delegatingWorker.startWork()
         val connection = delegatingWorker.client.connection
@@ -201,10 +241,8 @@ public class RemoteListenableWorkerTest {
         future.cancel(true)
 
         // Wait for cancellation to propagate and cleanup to happen
-        withTimeoutOrNull(1000) {
-            while (delegatingWorker.client.connection != null) {
-                delay(100)
-            }
+        while (delegatingWorker.client.connection != null) {
+            delay(100)
         }
 
         assertNull(
@@ -300,5 +338,34 @@ public class RemoteStopWorker(context: Context, parameters: WorkerParameters) :
     override fun onStopped() {
         super.onStopped()
         stopDeferred.complete(stopReason)
+    }
+}
+
+public class RemoteCoroutineStopWorker(context: Context, parameters: WorkerParameters) :
+    RemoteCoroutineWorker(context, parameters) {
+
+    val startRemoteDeferred = CompletableDeferred<Unit>()
+    val stopDeferred = CompletableDeferred<Int>()
+
+    @SuppressLint("NewApi")
+    override suspend fun doRemoteWork(): Result {
+        startRemoteDeferred.complete(Unit)
+        try {
+            delay(Long.MAX_VALUE)
+        } finally {
+            stopDeferred.complete(stopReason)
+        }
+        return Result.success()
+    }
+}
+
+public class RemoteCoroutineSelfCancellingWorker(context: Context, parameters: WorkerParameters) :
+    RemoteCoroutineWorker(context, parameters) {
+
+    val startRemoteDeferred = CompletableDeferred<Unit>()
+
+    override suspend fun doRemoteWork(): Result {
+        startRemoteDeferred.complete(Unit)
+        throw CancellationException("Self cancelled")
     }
 }

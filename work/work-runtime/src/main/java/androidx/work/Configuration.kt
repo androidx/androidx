@@ -148,6 +148,14 @@ public class Configuration internal constructor(builder: Builder) {
     /** @return `true` If the default task [Executor] is being used */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isUsingDefaultTaskExecutor: Boolean
 
+    /**
+     * @return `true` if remote worker cancellation propagation is enabled. Note: This flag guards
+     *   the cancellation propagation fix to allow running it experimentally to verify that
+     *   reliability metrics remain stable before removing the flag permanently.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val isRemoteCancellationPropagationFixEnabled: Boolean
+
     // Note: public experimental properties are not allowed because the accessors will not appear
     // experimental to Java clients. There is a public accessor for this property below.
     @property:ExperimentalConfigurationApi
@@ -259,6 +267,7 @@ public class Configuration internal constructor(builder: Builder) {
         tracer = builder.tracer ?: createDefaultTracer()
         enableRepresentativeJobs = builder.enableRepresentativeJobs
         enableGreedyScheduler = builder.enableGreedyScheduler
+        isRemoteCancellationPropagationFixEnabled = builder.remoteCancellationPropagationFixEnabled
     }
 
     /** A Builder for [Configuration]s. */
@@ -287,6 +296,7 @@ public class Configuration internal constructor(builder: Builder) {
         internal var tracer: Tracer? = null
         internal var enableRepresentativeJobs: Boolean = false
         internal var enableGreedyScheduler: Boolean = true
+        internal var remoteCancellationPropagationFixEnabled: Boolean = false
 
         /** Creates a new [Configuration.Builder]. */
         public constructor()
@@ -325,6 +335,8 @@ public class Configuration internal constructor(builder: Builder) {
             tracer = configuration.tracer
             enableRepresentativeJobs = configuration.isRepresentativeJobsEnabled()
             enableGreedyScheduler = configuration.isGreedySchedulerEnabled()
+            remoteCancellationPropagationFixEnabled =
+                configuration.isRemoteCancellationPropagationFixEnabled
         }
 
         /**
@@ -692,6 +704,22 @@ public class Configuration internal constructor(builder: Builder) {
         @ExperimentalConfigurationApi
         public fun setGreedySchedulerEnabled(enabled: Boolean): Builder {
             this.enableGreedyScheduler = enabled
+            return this
+        }
+
+        /**
+         * Specifies whether remote worker cancellation propagation is enabled.
+         *
+         * Note: This flag guards the cancellation propagation fix to allow running it
+         * experimentally to verify that reliability metrics remain stable before removing the flag
+         * permanently.
+         *
+         * @param enabled `true` to enable remote worker cancellation propagation
+         * @return This [Builder] instance
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setRemoteCancellationPropagationFixEnabled(enabled: Boolean): Builder {
+            this.remoteCancellationPropagationFixEnabled = enabled
             return this
         }
 
