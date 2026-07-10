@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinCoroutinesCore)
-    api(project(":xr:runtime:runtime"))
+    api(project(":xr:runtime:runtime-interfaces"))
 
     implementation(project(":xr:projected:projected-binding"))
     implementation("androidx.collection:collection:1.5.0")
