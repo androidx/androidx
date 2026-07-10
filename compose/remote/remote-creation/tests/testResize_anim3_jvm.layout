@@ -1,0 +1,202 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+        - type: BOX
+          id: -5
+          x: 450.0
+          y: 312.5
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: ROW
+          id: -6
+          x: 0.0
+          y: 412.5
+          width: 1000.0
+          height: 75.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+          - type: BOX
+            id: -8
+            x: 412.5
+            y: 12.5
+            width: 50.0
+            height: 50.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 50.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 50.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0, height: 50.0,
+                color: '0xffffff00', shapeType: RECTANGLE}
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -9
+            x: 462.5
+            y: 0.0
+            width: 75.0
+            height: 75.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 75.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 75.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 75.0, height: 75.0,
+                color: '0xffffff00', shapeType: RECTANGLE}
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -10
+            x: 537.5
+            y: 12.5
+            width: 50.0
+            height: 50.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 50.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 50.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 50.0, height: 50.0,
+                color: '0xffffff00', shapeType: RECTANGLE}
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+          spacedBy: 0.0
+        - type: BOX
+          id: -11
+          x: 450.0
+          y: 487.5
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -12
+          x: 450.0
+          y: 587.5
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+        spacedBy: 0.0

@@ -1,0 +1,40 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 984.0, height: 984.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER

@@ -994,6 +994,7 @@ public class MockRemoteContext extends RemoteContext {
     public void overrideInteger(int id, int value) {
         stringBuilder.append("overrideInteger(").append(id).append(")").append(value).append("\n");
         integerCache.put(id, value);
+        mRemoteComposeState.overrideInteger(id, value);
         warnListeners(id);
     }
 
