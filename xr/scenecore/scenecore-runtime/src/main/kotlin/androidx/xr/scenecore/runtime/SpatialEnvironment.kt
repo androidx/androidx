@@ -130,10 +130,10 @@ public interface SpatialEnvironment {
     /**
      * A class that represents the user's preferred spatial environment.
      *
-     * @param geometry the preferred geometry for the environment based on a pre-loaded glTF model.
-     *   If null, there will be no geometry if no other geometry entity is passed.
      * @param skybox the preferred skybox for the environment based on a pre-loaded EXR Image. If
      *   null, it will be all black.
+     * @param geometry the preferred geometry for the environment based on a pre-loaded glTF model.
+     *   If null, there will be no geometry if no other geometry entity is passed.
      * @param geometryEntity the preferred geometry Entity for the environment. If null, there will
      *   be no geometry if no other geometry resource is passed.
      */
