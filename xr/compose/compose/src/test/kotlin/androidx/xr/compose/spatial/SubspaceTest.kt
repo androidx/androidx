@@ -76,11 +76,11 @@ import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
+import androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertDepthIsAtLeast
 import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertDepthIsNotEqualTo
-import androidx.xr.compose.testing.assertEntityIsDescendantOf
 import androidx.xr.compose.testing.assertHeightIsAtLeast
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsNotEqualTo
@@ -90,6 +90,8 @@ import androidx.xr.compose.testing.assertWidthIsAtLeast
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsNotEqualTo
 import androidx.xr.compose.testing.configureFakeSession
+import androidx.xr.compose.testing.hasAnyAncestor
+import androidx.xr.compose.testing.onSubspaceNode
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.VolumeConstraints
@@ -261,6 +263,42 @@ class SubspaceTest {
     private fun assertExistenceAndGetNodeWorldPose(testTag: String): Pose {
         val node = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
         return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.ACTIVITY)
+    }
+
+    /**
+     * Asserts that the Entity associated with the current Subspace layout node is a descendant of
+     * the [expectedAncestor] Entity.
+     *
+     * This function is kept private to this test file to support validation of low-level Entity
+     * hierarchies (e.g., checking alignment with non-Compose entities like AnchorSpace or custom
+     * root containers).
+     *
+     * NOTE: For standard Semantics Hierarchy Validation (i.e., verifying relationships between
+     * Compose nodes), do NOT use this function. Instead, use higher-level semantics matchers like
+     * [hasAnyAncestor] combined with [onSubspaceNode].
+     *
+     * @param expectedAncestor the ancestor entity that is expected to be found in the current
+     *   hierarchy.
+     * @throws AssertionError if no entity is found or the expected ancestor is not in the current
+     *   entities' hierarchy.
+     */
+    private fun SubspaceSemanticsNodeInteraction.assertEntityIsDescendantOf(
+        expectedAncestor: Entity
+    ): SubspaceSemanticsNodeInteraction {
+        val entity =
+            fetchSemanticsNode().semanticsEntity
+                ?: throw AssertionError("Did not find an associated entity for $this.")
+
+        var current: Entity? = entity
+        while (current != null) {
+            if (current == expectedAncestor) {
+                return this // Found the ancestor
+            }
+            current = current.parent
+        }
+        throw AssertionError(
+            "Entity $entity of $this is not a descendant of the expected ancestor $expectedAncestor."
+        )
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -896,7 +934,8 @@ class SubspaceTest {
 
     @Test
     fun subspace_whenSwitchingModesFromHomeSpace_retainsState() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpace()
+        val session = composeTestRule.configureFakeSession()
+        session.scene.requestHomeSpace()
 
         composeTestRule.setContent {
             CompositionLocalProvider {
@@ -931,7 +970,7 @@ class SubspaceTest {
         assertStateIs(0)
 
         // Switch to full space mode and verify state is preserved.
-        composeTestRule.session!!.scene.requestFullSpace()
+        session.scene.requestFullSpace()
         assertStateIs(0)
 
         // Increment the counter and verify the new state.
@@ -939,16 +978,16 @@ class SubspaceTest {
         assertStateIs(3)
 
         // Switch to home space mode and verify state is preserved.
-        composeTestRule.session!!.scene.requestHomeSpace()
+        session.scene.requestHomeSpace()
         assertStateIs(3)
 
         // Switch back to full space, increment again, and verify.
-        composeTestRule.session!!.scene.requestFullSpace()
+        session.scene.requestFullSpace()
         clickIncrement(2)
         assertStateIs(5)
 
         // Switch to home space one last time and.
-        composeTestRule.session!!.scene.requestHomeSpace()
+        session.scene.requestHomeSpace()
         assertStateIs(5)
     }
 
@@ -957,11 +996,12 @@ class SubspaceTest {
         var testNode: Entity? = null
 
         composeTestRule.setContent {
+            val session = checkNotNull(LocalSession.current)
             testNode =
                 Entity.create(
-                    session = LocalSession.current!!,
+                    session = session,
                     name = "TestRoot",
-                    parent = LocalSession.current!!.scene.activitySpace,
+                    parent = session.scene.activitySpace,
                 )
             CompositionLocalProvider(LocalSubspaceRootNode provides testNode) {
                 Subspace { SpatialBox(modifier = SubspaceModifier.testTag("Box")) {} }
