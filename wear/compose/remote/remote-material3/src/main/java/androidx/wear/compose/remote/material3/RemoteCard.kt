@@ -322,7 +322,7 @@ internal fun RemoteCardImpl(
                     shape = shape,
                     color = colors.containerColor,
                     borderColor = borderColor,
-                    borderStrokeWidth = border?.value,
+                    borderStrokeWidth = border,
                 )
                 drawContent()
             }
@@ -350,13 +350,13 @@ private fun RemoteDrawScope.drawShapedBackground(
     shape: RemoteShape,
     color: RemoteColor,
     borderColor: RemoteColor?,
-    borderStrokeWidth: RemoteFloat?,
+    borderStrokeWidth: RemoteDp?,
 ) {
     drawSolidColorShape(shape, width, height, color)
 
     // Draw border if specified
     if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth, shape, width, height)
+        drawBorder(borderColor, borderStrokeWidth.value, shape, width, height)
     }
 }
 

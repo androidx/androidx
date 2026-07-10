@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
@@ -147,13 +146,9 @@ public object RemoteIconButtonDefaults {
      * @param buttonSize The size of the icon button
      */
     public fun iconSizeFor(buttonSize: RemoteDp): RemoteDp =
-        buttonSize.value
-            .isGreaterThan(LargeButtonSize.value)
-            .select(
-                ifTrue = LargeIconSize.value,
-                ifFalse = max(SmallIconSize.value, buttonSize.value / 2f.rf),
-            )
-            .asRemoteDp()
+        buttonSize
+            .isGreaterThan(LargeButtonSize)
+            .select(ifTrue = LargeIconSize, ifFalse = max(SmallIconSize, buttonSize / 2f.rf))
 
     /**
      * The recommended size of an icon when used inside an icon button with size [SmallButtonSize]
