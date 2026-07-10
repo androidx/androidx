@@ -23,16 +23,6 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="false"
             tools:targetApi="35" />
-        <activity android:name="androidx.xr.projected.permissions.RequestPermissionsOnHostActivity"
-            android:label="@string/request_permission_on_host_activity_label"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:exported="false">
-        </activity>
-        <activity
-            android:name="androidx.xr.projected.permissions.GoToHostProjectedActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:requiredDisplayCategory="xr_projected" />
     </application>
 
     <queries>
