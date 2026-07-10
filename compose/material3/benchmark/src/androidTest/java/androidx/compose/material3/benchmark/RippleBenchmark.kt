@@ -16,8 +16,10 @@
 
 package androidx.compose.material3.benchmark
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
@@ -36,6 +38,7 @@ import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.unit.Dp
@@ -199,15 +202,126 @@ class RippleBenchmark {
             }
         }
     }
+
+    /**
+     * Cost of emitting a [FocusInteraction] for the first time and then rendering a frame after
+     * that, using default opacity focus configuration (without inset focus rings).
+     */
+    @Test
+    fun initialEmitFocusInteraction_opacity() {
+        val focus = FocusInteraction.Focus()
+
+        with(benchmarkRule) {
+            runBenchmarkFor({ RippleInteractionTestCase() }) {
+                measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
+
+                    runBlocking { getTestCase().emitInteraction(focus) }
+                    doFrame()
+
+                    runWithMeasurementDisabled { disposeContent() }
+                }
+            }
+        }
+    }
+
+    /**
+     * Cost of emitting another [FocusInteraction] and rendering a frame after we have already
+     * emitted one, using default opacity focus configuration (without inset focus rings).
+     */
+    @Test
+    fun additionalEmitFocusInteraction_opacity() {
+        val focus1 = FocusInteraction.Focus()
+        val unfocus1 = FocusInteraction.Unfocus(focus1)
+        val focus2 = FocusInteraction.Focus()
+
+        with(benchmarkRule) {
+            runBenchmarkFor({ RippleInteractionTestCase() }) {
+                measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                        runBlocking {
+                            getTestCase().emitInteraction(focus1)
+                            getTestCase().emitInteraction(unfocus1)
+                        }
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
+
+                    runBlocking { getTestCase().emitInteraction(focus2) }
+                    doFrame()
+
+                    runWithMeasurementDisabled { disposeContent() }
+                }
+            }
+        }
+    }
+
+    /**
+     * Cost of emitting a [FocusInteraction] for the first time and then rendering a frame after
+     * that, using an inset focus ring configuration.
+     */
+    @Test
+    fun initialEmitFocusInteraction_insetFocusRing() {
+        val focus = FocusInteraction.Focus()
+
+        with(benchmarkRule) {
+            runBenchmarkFor({ RippleInteractionTestCase(TestRippleWithInsetFocusRing) }) {
+                measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
+
+                    runBlocking { getTestCase().emitInteraction(focus) }
+                    doFrame()
+
+                    runWithMeasurementDisabled { disposeContent() }
+                }
+            }
+        }
+    }
+
+    /**
+     * Cost of emitting another [FocusInteraction] and rendering a frame after we have already
+     * emitted one, using an inset focus ring configuration.
+     */
+    @Test
+    fun additionalEmitFocusInteraction_insetFocusRing() {
+        val focus1 = FocusInteraction.Focus()
+        val unfocus1 = FocusInteraction.Unfocus(focus1)
+        val focus2 = FocusInteraction.Focus()
+
+        with(benchmarkRule) {
+            runBenchmarkFor({ RippleInteractionTestCase(TestRippleWithInsetFocusRing) }) {
+                measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                        runBlocking {
+                            getTestCase().emitInteraction(focus1)
+                            getTestCase().emitInteraction(unfocus1)
+                        }
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
+
+                    runBlocking { getTestCase().emitInteraction(focus2) }
+                    doFrame()
+
+                    runWithMeasurementDisabled { disposeContent() }
+                }
+            }
+        }
+    }
 }
 
 /** Test case a ripple that allows emitting [Interaction]s with [emitInteraction]. */
-private class RippleInteractionTestCase : LayeredComposeTestCase() {
+private class RippleInteractionTestCase(private val ripple: IndicationNodeFactory = TestRipple) :
+    LayeredComposeTestCase() {
     private val interactionSource = MutableInteractionSource()
 
     @Composable
     override fun MeasuredContent() {
-        Box(Modifier.size(100.dp).indication(interactionSource, TestRipple))
+        Box(Modifier.size(100.dp).indication(interactionSource, ripple))
     }
 
     suspend fun emitInteraction(interaction: Interaction) {
@@ -255,6 +369,31 @@ private val TestRippleNodeConfiguration =
         color = { TestRippleColor },
         pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
         focusConfiguration = RippleNodeConfiguration.FocusConfiguration.Opacity(0.2f),
+        hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.Opacity(0.3f),
+        dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+    )
+
+private val TestRippleWithInsetFocusRing =
+    TestIndicationNodeFactory({ TestRippleWithInsetFocusRingNodeConfiguration })
+
+private val TestRippleWithInsetFocusRingNodeConfiguration =
+    RippleNodeConfiguration(
+        isBounded = true,
+        radius = Dp.Unspecified,
+        color = { TestRippleColor },
+        pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+        focusConfiguration =
+            RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                shape = RectangleShape,
+                outerStrokeInset = 0.dp,
+                outerStrokeWidth = 2.dp,
+                outerStrokeColor = { Color.Blue },
+                innerStrokeInset = 2.dp,
+                innerStrokeWidth = 2.dp,
+                innerStrokeColor = { Color.Green },
+                focusingAnimationSpec = tween(durationMillis = 15),
+                unfocusingAnimationSpec = tween(durationMillis = 15),
+            ),
         hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.Opacity(0.3f),
         dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
     )
