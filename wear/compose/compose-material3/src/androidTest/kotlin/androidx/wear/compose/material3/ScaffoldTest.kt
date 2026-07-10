@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Alignment
@@ -536,6 +537,48 @@ class ScaffoldTest {
     @Test
     fun some_room_for_edge_button_after_scroll_reversed_lc() = check_edge_button_reversed_lc(50.dp)
 
+    @Test
+    fun test_edge_button_added_dynamically() {
+        val edgeButtonTag = "EB_TAG"
+        val showEdgeButton = mutableStateOf(false)
+        rule.setContentWithTheme {
+            AppScaffold {
+                val scrollState = rememberTransformingLazyColumnState()
+                ScreenScaffold(
+                    scrollState = scrollState,
+                    edgeButton = {
+                        if (showEdgeButton.value) {
+                            EdgeButton(onClick = {}, Modifier.testTag(edgeButtonTag)) { Text("EB") }
+                        }
+                    },
+                ) { padding ->
+                    TransformingLazyColumn(
+                        state = scrollState,
+                        modifier =
+                            Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
+                        contentPadding = padding,
+                    ) {
+                        items(10) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
+                    }
+                }
+            }
+        }
+
+        repeat(3) {
+            rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+            rule.waitForIdle()
+        }
+
+        rule.onNodeWithTag(edgeButtonTag).assertDoesNotExist()
+        showEdgeButton.value = true
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(edgeButtonTag).assertIsDisplayed()
+    }
+
     /*
      * Setup a  AppScaffold + ScreenScaffold(with a EdgeButton slot) + LazyColumn
      * Check that when we scroll all the way down, there is no space for the edge button, and when
@@ -631,7 +674,7 @@ class ScaffoldTest {
             ) {
                 ScalingLazyColumn(
                     state = scrollState,
-                    contentPadding = PaddingValues(horizontal = 0.dp),
+                    contentPadding = PaddingValues(0.dp),
                     modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
                 ) {
                     items(itemsCount) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
