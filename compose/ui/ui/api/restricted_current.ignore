@@ -1,3 +1,7 @@
 // Baseline format: 1.0
-AddedInterface: androidx.compose.ui.platform.AndroidClipboard:
-    Added class androidx.compose.ui.platform.AndroidClipboard
+RemovedClass: androidx.compose.ui.graphics.MeshGradientPainter:
+    Binary breaking change: Removed class androidx.compose.ui.graphics.MeshGradientPainter
+
+
+RemovedInterface: androidx.compose.ui.graphics.MeshGradientScope:
+    Binary breaking change: Removed class androidx.compose.ui.graphics.MeshGradientScope
