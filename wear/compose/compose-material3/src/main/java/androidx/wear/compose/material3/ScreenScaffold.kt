@@ -611,11 +611,7 @@ public fun ScreenScaffold(
                                         }
                                     }
                                 ) {
-                                    if (scrollInfoProvider.isScrollInProgress) {
-                                        currentEdgeButtonTargetHeight
-                                    } else {
-                                        edgeButtonAnimatedHeight.value
-                                    }
+                                    edgeButtonAnimatedHeight.value
                                 },
                         )
                     }
@@ -662,31 +658,27 @@ public fun ScreenScaffold(
                     }
                     .collectLatest { (isScrollInProgress, edgeButtonTargetHeight) ->
                         if (isScrollInProgress) {
-                            if (edgeButtonAnimatedHeight.isRunning) {
-                                edgeButtonAnimatedHeight.stop()
+                            // During a scroll, we add no animations, just keep the animated height
+                            // updated with the target.
+                            edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
+                        } else if (
+                            // Start an animation if we are far off the required target, or retarget
+                            // an animation if we have one already in progress, to ensure we end
+                            // where we need.
+                            abs(edgeButtonTargetHeight - edgeButtonAnimatedHeight.value) >
+                                edgeButtonHeightAnimationThresholdPx ||
+                                edgeButtonAnimatedHeight.isRunning
+                        ) {
+                            launch {
+                                edgeButtonAnimatedHeight.animateTo(
+                                    targetValue = edgeButtonTargetHeight,
+                                    animationSpec = DEFAULT_EDGE_BUTTON_ANIMATION_SPEC,
+                                )
                             }
-                            if (edgeButtonAnimatedHeight.value != edgeButtonTargetHeight) {
-                                edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
-                            }
-                        } else {
-                            if (
-                                abs(edgeButtonTargetHeight - edgeButtonAnimatedHeight.value) >
-                                    edgeButtonHeightAnimationThresholdPx
-                            ) {
-                                launch {
-                                    edgeButtonAnimatedHeight.animateTo(
-                                        targetValue = edgeButtonTargetHeight,
-                                        animationSpec = DEFAULT_EDGE_BUTTON_ANIMATION_SPEC,
-                                    )
-                                }
-                            } else {
-                                if (
-                                    edgeButtonAnimatedHeight.value != edgeButtonTargetHeight &&
-                                        !edgeButtonAnimatedHeight.isRunning
-                                ) {
-                                    edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
-                                }
-                            }
+                        } else if (edgeButtonAnimatedHeight.value != edgeButtonTargetHeight) {
+                            // We are close enough, and no animation is running, just snap to the
+                            // target value.
+                            edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
                         }
                     }
             }
@@ -847,7 +839,7 @@ private class DynamicHeightElement(
         node.heightState = heightState
         node.onIntrinsicHeightMeasured = onIntrinsicHeightMeasured
         // Ensure we reset this if the node is reused in a different part of the tree.
-        node.lastMeasureHeight = null
+        node.lastMeasuredIntrinsicHeight = -1
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -866,20 +858,21 @@ private class DynamicHeightNode(
     var onIntrinsicHeightMeasured: (Float) -> Unit,
     var heightState: () -> Float,
 ) : LayoutModifierNode, Modifier.Node() {
+    var lastMeasuredIntrinsicHeight: Int = -1
 
-    var lastMeasureHeight: Int? = null
-
+    // This modifier is similar to .fillMaxWidth().height(heightState.value) but we observe the
+    // state in the measurement pass, not on Composition.
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
-        // Similar to .fillMaxWidth().height(heightState.value) but we observe the state in the
-        // measurement pass, not on Composition.
-        val height = heightState().roundToInt()
-        if (lastMeasureHeight == null || height > 0 && lastMeasureHeight != height) {
-            onIntrinsicHeightMeasured(measurable.maxIntrinsicHeight(constraints.maxWidth).toFloat())
-            lastMeasureHeight = height
+        val intrinsicHeight = measurable.maxIntrinsicHeight(constraints.maxWidth)
+        if (lastMeasuredIntrinsicHeight != intrinsicHeight) {
+            onIntrinsicHeightMeasured(intrinsicHeight.toFloat())
+            lastMeasuredIntrinsicHeight = intrinsicHeight
         }
+
+        val height = heightState().roundToInt()
         val wrappedConstraints =
             Constraints(constraints.maxWidth, constraints.maxWidth, height, height)
         val placeable = measurable.measure(wrappedConstraints)
