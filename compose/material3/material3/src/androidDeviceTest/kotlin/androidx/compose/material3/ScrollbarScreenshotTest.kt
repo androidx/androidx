@@ -74,7 +74,7 @@ class ScrollbarScreenshotTest(
     }
 
     @Test
-    fun scrollbar_isDrawn() {
+    fun nonInteractiveScrollbar_isDrawn() {
         composeTestRule.setContent {
             ScrollbarTestContainer(
                 state = TestScrollState(0, 200, 100),
@@ -89,7 +89,7 @@ class ScrollbarScreenshotTest(
     }
 
     @Test
-    fun scrollbar_customColorsAndThickness() {
+    fun nonInteractiveScrollbar_customColorsAndThickness() {
         composeTestRule.setContent {
             ScrollbarTestContainer(
                 state = TestScrollState(0, 200, 100),
@@ -107,7 +107,7 @@ class ScrollbarScreenshotTest(
     }
 
     @Test
-    fun scrollbar_customTrackInsets() {
+    fun nonInteractiveScrollbar_customTrackInsets() {
         composeTestRule.setContent {
             ScrollbarTestContainer(
                 state = TestScrollState(0, 200, 100),
@@ -140,7 +140,7 @@ class ScrollbarScreenshotTest(
             Box(
                 Modifier.size(100.dp)
                     .testTag(Tag)
-                    .scrollbar(
+                    .nonInteractiveScrollbar(
                         state = state,
                         orientation = orientation,
                         thumbColor = thumbColor,

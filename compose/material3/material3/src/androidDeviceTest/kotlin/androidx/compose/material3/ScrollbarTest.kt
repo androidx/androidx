@@ -87,7 +87,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_fadeAnimation() {
+    fun nonInteractiveScrollbar_fadeAnimation() {
         val offsetState = mutableStateOf(0)
         val state =
             object : ScrollIndicatorState {
@@ -154,7 +154,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_fadeAnimation_whenSystemDisablesAnimations() {
+    fun nonInteractiveScrollbar_fadeAnimation_whenSystemDisablesAnimations() {
         motionDurationScale.scaleFactor = 0f
         val offsetState = mutableStateOf(0)
         val state =
@@ -236,7 +236,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_updatesOnScroll() {
+    fun nonInteractiveScrollbar_updatesOnScroll() {
         val offsetState = mutableStateOf(0)
         val state =
             object : ScrollIndicatorState {
@@ -298,7 +298,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_hidesWhenContentFitsViewport() {
+    fun nonInteractiveScrollbar_hidesWhenContentFitsViewport() {
         val viewportSizeState = mutableStateOf(100)
         val state =
             object : ScrollIndicatorState {
@@ -369,7 +369,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_coercesToMinThumbLength() {
+    fun nonInteractiveScrollbar_coercesToMinThumbLength() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -410,7 +410,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_coercesToMaxThumbLength() {
+    fun nonInteractiveScrollbar_coercesToMaxThumbLength() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -454,7 +454,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_hidesWhenTrackTooSmallForMinThumbLength() {
+    fun nonInteractiveScrollbar_hidesWhenTrackTooSmallForMinThumbLength() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -498,7 +498,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbar_respectsTrackInsets() {
+    fun nonInteractiveScrollbar_respectsTrackInsets() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -571,7 +571,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbarModifier_inspectableProperties() {
+    fun nonInteractiveScrollbarModifier_inspectableProperties() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -581,7 +581,7 @@ class ScrollbarTest(
 
         rule.setContent {
             val modifier =
-                Modifier.scrollbar(
+                Modifier.nonInteractiveScrollbar(
                     state = state,
                     orientation = orientation,
                     thumbColor = Color.Red,
@@ -597,7 +597,7 @@ class ScrollbarTest(
                 ) as? InspectableValue
 
             assertNotNull(modifier)
-            assertEquals("scrollbar", modifier?.nameFallback)
+            assertEquals("nonInteractiveScrollbar", modifier?.nameFallback)
 
             val properties = modifier?.inspectableElements?.associate { it.name to it.value }
             assertNotNull(properties)
@@ -617,7 +617,7 @@ class ScrollbarTest(
     }
 
     @Test
-    fun scrollbarModifier_equals() {
+    fun nonInteractiveScrollbarModifier_equals() {
         val state =
             object : ScrollIndicatorState {
                 override val scrollOffset: Int = 0
@@ -627,11 +627,23 @@ class ScrollbarTest(
 
         rule.setContent {
             val modifier1 =
-                Modifier.scrollbar(state = state, orientation = orientation, thickness = 10.dp)
+                Modifier.nonInteractiveScrollbar(
+                    state = state,
+                    orientation = orientation,
+                    thickness = 10.dp,
+                )
             val modifier2 =
-                Modifier.scrollbar(state = state, orientation = orientation, thickness = 10.dp)
+                Modifier.nonInteractiveScrollbar(
+                    state = state,
+                    orientation = orientation,
+                    thickness = 10.dp,
+                )
             val modifier3 =
-                Modifier.scrollbar(state = state, orientation = orientation, thickness = 5.dp)
+                Modifier.nonInteractiveScrollbar(
+                    state = state,
+                    orientation = orientation,
+                    thickness = 5.dp,
+                )
 
             assertEquals(modifier1, modifier2)
             assertEquals(modifier1.hashCode(), modifier2.hashCode())
@@ -748,7 +760,7 @@ private fun ScrollbarTestContainer(
     trackColor: Color = ScrollbarTrackColor,
     thickness: Dp = ScrollbarThickness,
     thumbMinLength: Dp = 24.dp,
-    thumbMaxLengthFraction: Float = ScrollbarDefaults.ThumbMaxLengthFraction,
+    thumbMaxLengthFraction: Float = NonInteractiveScrollbarDefaults.ThumbMaxLengthFraction,
     isFadeEnabled: Boolean = true,
     mainAxisTrackInset: Dp = 0.dp,
     crossAxisTrackInset: Dp = 0.dp,
@@ -761,7 +773,7 @@ private fun ScrollbarTestContainer(
             modifier
                 .size(ScrollableContainerSize)
                 .background(backgroundColor)
-                .scrollbar(
+                .nonInteractiveScrollbar(
                     state = state,
                     orientation = orientation,
                     thumbColor = thumbColor,
