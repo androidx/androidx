@@ -734,6 +734,8 @@ public class ColorScheme(
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultFloatingToolbarVibrantColorsCached: FloatingToolbarColors? = null
 
+    internal var defaultInteractiveScrollbarColorsCached: InteractiveScrollbarColors? = null
+
     @Deprecated(
         level = DeprecationLevel.WARNING,
         message = "Use constructor with additional 'surfaceContainer' roles.",

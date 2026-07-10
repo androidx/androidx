@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollIndicatorState
@@ -34,10 +35,12 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtLeast
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -47,9 +50,11 @@ import kotlinx.coroutines.withTimeoutOrNull
  * A visual-only scrollbar that represents the current scroll position of a scrolling component.
  *
  * This scrollbar cannot be interacted with to scroll the component, it is a visual only
- * representation of the scroll position. It is drawn at the end edge (respecting layout direction)
- * for a vertically scrollable component, and at the bottom edge for a horizontally scrollable
- * component.
+ * representation of the scroll position. For a scrollbar that responds to user input (such as thumb
+ * dragging and track pressing), see [interactiveScrollbar].
+ *
+ * It is drawn at the end edge (respecting layout direction) for a vertically scrollable component,
+ * and at the bottom edge for a horizontally scrollable component.
  *
  * The scrollbar is only visible if the content size is strictly greater than the viewport size. By
  * default, the scrollbar is shown when scrolling is active and fades out after a delay when
@@ -70,9 +75,10 @@ import kotlinx.coroutines.withTimeoutOrNull
  * @param trackColor the color of the scrollbar track.
  * @param thickness the thickness of the scrollbar.
  * @param thumbMinLength the minimum length of the scrollbar thumb. Note that the scrollbar will not
- *   be shown if the available track length is less than this minimum length.
+ *   be shown if the available track length is less than this minimum length. Takes precedence over
+ *   [thumbMaxLengthFraction].
  * @param thumbMaxLengthFraction the maximum length of the scrollbar thumb as a fraction of the
- *   viewport length. This should be between 0f and 1f.
+ *   track length. This should be between 0f and 1f. Clamped to at least [thumbMinLength].
  * @param isFadeEnabled whether the fade behavior is enabled. If enabled, the scrollbar will be
  *   shown when scrolling is active, and fades out after a delay when scrolling is idle. If
  *   disabled, the scrollbar remains always visible.
@@ -80,6 +86,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * @param fadeDelayMillis the delay before the scrollbar fades out in milliseconds.
  * @param mainAxisTrackInset the inset to apply to the scrollbar track along the main axis.
  * @param crossAxisTrackInset the inset to apply to the scrollbar track along the cross axis.
+ * @see interactiveScrollbar
  */
 @Composable
 public fun Modifier.nonInteractiveScrollbar(
@@ -137,7 +144,7 @@ public object NonInteractiveScrollbarDefaults {
     /** Default minimum height for the scrollbar thumb. */
     public val ThumbMinLength: Dp = 24.dp
 
-    /** Default maximum length for the scrollbar thumb as a fraction of the viewport length. */
+    /** Default maximum length for the scrollbar thumb as a fraction of the track length. */
     public val ThumbMaxLengthFraction: Float = 0.9f
 
     /** Default main axis inset for the scrollbar track. */
@@ -349,7 +356,7 @@ internal class NonInteractiveScrollbarNodeWrapper(
  * @param thumbMinLength the minimum length of the scrollbar thumb. Note that the scrollbar will not
  *   be shown if the available track length is less than this minimum length.
  * @param thumbMaxLengthFraction the maximum length of the scrollbar thumb as a fraction of the
- *   viewport length. This should be between 0f and 1f.
+ *   track length. This should be between 0f and 1f.
  * @param isFadeEnabled whether the fade behavior is enabled. If enabled, the scrollbar will be
  *   shown when scrolling is active, and fades out after a delay when scrolling is idle. If
  *   disabled, the scrollbar remains always visible.
@@ -388,6 +395,77 @@ internal fun createNonInteractiveScrollbarModifierNode(
         crossAxisTrackInset,
     )
 
+/**
+ * Abstract base node for scrollbars that manages the shared alpha state and coroutine lifecycle for
+ * fade animations. Subclasses handle the specific drawing and pointer interactions.
+ */
+internal abstract class AbstractScrollbarNode(
+    protected val isFadeEnabled: Boolean,
+    protected val fadeAnimationSpec: FiniteAnimationSpec<Float>,
+    protected val fadeDelayMillis: Int,
+) : Modifier.Node() {
+
+    /**
+     * Fade alpha for the scrollbar when [isFadeEnabled] is `true`, reset in [onDetach]/[onAttach]
+     * so a reattached node starts hidden (`0f`).
+     */
+    protected var alpha: Animatable<Float, AnimationVector1D>? = null
+        private set
+
+    protected var fadeJob: Job? = null
+    private var scrollEvents: Channel<Unit>? = null
+
+    override fun onAttach() {
+        if (isFadeEnabled) {
+            alpha = Animatable(0f)
+        }
+    }
+
+    override fun onDetach() {
+        fadeJob?.cancel()
+        fadeJob = null
+        scrollEvents?.close()
+        scrollEvents = null
+        alpha = null
+    }
+
+    protected fun scheduleFadeOut() {
+        val currentAlpha = alpha ?: return
+        if (!isFadeEnabled || !isAttached) return
+
+        var events = scrollEvents
+        if (events == null) {
+            events = Channel(1)
+            scrollEvents = events
+        }
+        events.trySend(Unit)
+
+        // Launch a single coroutine loop that persists throughout the active scroll session.
+        if (currentAlpha.targetValue == 0f || fadeJob == null || fadeJob?.isActive == false) {
+            fadeJob?.cancel()
+            fadeJob = coroutineScope.launch {
+                currentAlpha.snapTo(1f)
+
+                while (true) {
+                    // Consume any pending events before starting the wait
+                    events.tryReceive()
+
+                    // Suspend until a new scroll event comes in, OR the timeout is reached.
+                    val interrupted =
+                        withTimeoutOrNull(fadeDelayMillis.toLong()) { events.receive() }
+
+                    // Timeout completed without being interrupted by a scroll.
+                    if (interrupted == null) {
+                        break
+                    }
+                }
+
+                currentAlpha.animateTo(0f, fadeAnimationSpec)
+            }
+        }
+    }
+}
+
 private class NonInteractiveScrollbarNode(
     private val state: ScrollIndicatorState,
     private val orientation: Orientation,
@@ -396,31 +474,22 @@ private class NonInteractiveScrollbarNode(
     private val thickness: Dp,
     private val thumbMinLength: Dp,
     private val thumbMaxLengthFraction: Float,
-    private val isFadeEnabled: Boolean,
-    private val fadeAnimationSpec: FiniteAnimationSpec<Float>,
-    private val fadeDelayMillis: Int,
+    isFadeEnabled: Boolean,
+    fadeAnimationSpec: FiniteAnimationSpec<Float>,
+    fadeDelayMillis: Int,
     private val mainAxisTrackInset: Dp,
     private val crossAxisTrackInset: Dp,
-) : DelegatingNode(), DrawModifierNode {
-    private val alpha = Animatable(if (isFadeEnabled) 0f else 1f)
+) : AbstractScrollbarNode(isFadeEnabled, fadeAnimationSpec, fadeDelayMillis), DrawModifierNode {
     private var cachedThicknessPx = -1f
     private var cachedCornerRadius = CornerRadius.Zero
     private var lastOffset = -1
-    private var fadeJob: Job? = null
-    private var scrollEvents: Channel<Unit>? = null
 
     override fun onAttach() {
         super.onAttach()
-        // Baseline the initial offset on node re-attach
         lastOffset = state.scrollOffset
-    }
-
-    override fun onDetach() {
-        fadeJob?.cancel()
-        fadeJob = null
-        scrollEvents?.close()
-        scrollEvents = null
-        super.onDetach()
+        // Needed for node reuse: onReuse() skips draw invalidation when inputs are unchanged, and
+        // replacing alpha in onAttach() doesn't invalidate the previous draw pass.
+        if (isFadeEnabled) invalidateDraw()
     }
 
     override fun ContentDrawScope.draw() {
@@ -438,40 +507,10 @@ private class NonInteractiveScrollbarNode(
         val currentOffset = state.scrollOffset
         if (isFadeEnabled && currentOffset != lastOffset) {
             lastOffset = currentOffset
-
-            var events = scrollEvents
-            if (events == null) {
-                events = Channel(1)
-                scrollEvents = events
-            }
-            events.trySend(Unit)
-
-            // Launch a single coroutine loop that persists throughout the active scroll session.
-            if (alpha.targetValue == 0f || fadeJob == null || fadeJob?.isActive == false) {
-                fadeJob?.cancel()
-                fadeJob = coroutineScope.launch {
-                    alpha.snapTo(1f)
-
-                    while (true) {
-                        // Consume any pending events before starting the wait
-                        events.tryReceive()
-
-                        // Suspend until a new scroll event comes in, OR the timeout is reached.
-                        val interrupted =
-                            withTimeoutOrNull(fadeDelayMillis.toLong()) { events.receive() }
-
-                        // Timeout completed without being interrupted by a scroll.
-                        if (interrupted == null) {
-                            break
-                        }
-                    }
-
-                    alpha.animateTo(0f, fadeAnimationSpec)
-                }
-            }
+            scheduleFadeOut()
         }
 
-        val currentAlpha = if (isFadeEnabled) alpha.value else 1f
+        val currentAlpha = alpha?.value ?: 1f
         val currentThumbColor = thumbColor()
         val currentTrackColor = trackColor()
         val resolvedThumbColor =
@@ -507,7 +546,8 @@ private class NonInteractiveScrollbarNode(
             return
         }
 
-        val maxThumbLengthPx = trackLengthPx * thumbMaxLengthFraction
+        val maxThumbLengthPx =
+            (trackLengthPx * thumbMaxLengthFraction).fastCoerceAtLeast(minThumbLengthPx)
 
         val thicknessPx = thickness.toPx()
         val thumbLengthFraction = viewportSize / contentSize

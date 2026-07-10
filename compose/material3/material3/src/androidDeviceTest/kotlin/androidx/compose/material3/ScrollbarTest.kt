@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -739,6 +740,143 @@ class ScrollbarTest(
             assertEquals(modifier1, modifier2)
             assertEquals(modifier1.hashCode(), modifier2.hashCode())
             assertNotEquals(modifier1, modifier3)
+        }
+    }
+
+    @Test
+    fun nonInteractiveScrollbar_maxThumbLengthSmallerThanMinThumbLength_usesMinThumbLength() {
+        // Container of 200.dp with 0.dp insets gives a 200.dp track, so maxThumbLength
+        // (200.dp * 0.5f = 100.dp) is smaller than thumbMinLength (120.dp); min should win.
+        val containerSize = 200.dp
+        val minLength = 120.dp
+        val maxFractionState = mutableStateOf(0.5f)
+        val state =
+            object : ScrollIndicatorState {
+                override val scrollOffset: Int = 0
+                override val contentSize: Int = 105
+                override val viewportSize: Int = 100
+            }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Box(
+                    Modifier.testTag(ScrollableContainerTestTag)
+                        .size(containerSize)
+                        .background(TestContainerBackgroundColor)
+                        .nonInteractiveScrollbar(
+                            state = state,
+                            orientation = orientation,
+                            thumbColor = ScrollbarThumbColor,
+                            trackColor = Color.Transparent,
+                            thumbMinLength = minLength,
+                            thumbMaxLengthFraction = maxFractionState.value,
+                            mainAxisTrackInset = 0.dp,
+                            crossAxisTrackInset = 0.dp,
+                            isFadeEnabled = false,
+                        )
+                )
+            }
+        }
+
+        val expectedLengthPx = with(rule.density) { minLength.toPx() }
+        val firstBounds =
+            findColorBounds(
+                rule.onNodeWithTag(ScrollableContainerTestTag).captureToImage().toPixelMap(),
+                ScrollbarThumbColor,
+            )
+        val firstLength =
+            if (orientation == Orientation.Vertical) firstBounds.height else firstBounds.width
+        assertEquals(expectedLengthPx, firstLength, 2f)
+
+        // Also verify thumbMaxLengthFraction = 0f clamps to thumbMinLength without crashing.
+        rule.runOnIdle { maxFractionState.value = 0f }
+        val zeroFractionBounds =
+            findColorBounds(
+                rule.onNodeWithTag(ScrollableContainerTestTag).captureToImage().toPixelMap(),
+                ScrollbarThumbColor,
+            )
+        val zeroFractionLength =
+            if (orientation == Orientation.Vertical) zeroFractionBounds.height
+            else zeroFractionBounds.width
+        assertEquals(expectedLengthPx, zeroFractionLength, 2f)
+    }
+
+    @Test
+    fun nonInteractiveScrollbar_detachedWhileVisible_resetsAlphaOnReattach() {
+        // If a scrollbar node with fade enabled is detached while visible (cancelling fadeJob) and
+        // later reattached, alpha should reset to 0f synchronously rather than staying visible.
+        val scrollOffsetState = mutableStateOf(0)
+        val isActiveState = mutableStateOf(true)
+        val state =
+            object : ScrollIndicatorState {
+                override val scrollOffset: Int
+                    get() = scrollOffsetState.value
+
+                override val contentSize: Int = 200
+                override val viewportSize: Int = 100
+            }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            ReusableContentHost(active = isActiveState.value) {
+                ScrollbarTestContainer(
+                    state = state,
+                    orientation = orientation,
+                    layoutDirection = layoutDirection,
+                    isFadeEnabled = true,
+                    fadeDelayMillis = 5000,
+                    backgroundColor = TestContainerBackgroundColor,
+                    modifier = Modifier.testTag(ScrollableContainerTestTag),
+                )
+            }
+        }
+
+        with(rule.density) {
+            val thicknessPx = ScrollbarThickness.roundToPx()
+            val viewportWidthPx = ScrollableContainerSize.roundToPx()
+            val viewportHeightPx = ScrollableContainerSize.roundToPx()
+
+            // Scroll to make the scrollbar visible (alpha = 1f) while fadeDelayMillis (5000ms)
+            // keeps it visible.
+            rule.runOnIdle { scrollOffsetState.value = 50 }
+            rule.mainClock.advanceTimeBy(32L)
+            rule.mainClock.scheduler.runCurrent()
+
+            val visibleColors =
+                computeScrollbarTestColors(
+                    pixelMap =
+                        rule
+                            .onNodeWithTag(ScrollableContainerTestTag)
+                            .captureToImage()
+                            .toPixelMap(),
+                    thicknessPx = thicknessPx,
+                    viewportWidthPx = viewportWidthPx,
+                    viewportHeightPx = viewportHeightPx,
+                )
+            assertNotEquals(TestContainerBackgroundColor, visibleColors.thumbColor)
+
+            // Deactivate (detaching the Modifier.Node without disposing it), then reactivate
+            // (reattaching the same node instance) without scrolling.
+            rule.runOnIdle { isActiveState.value = false }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            rule.runOnIdle { isActiveState.value = true }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+
+            val reattachedColors =
+                computeScrollbarTestColors(
+                    pixelMap =
+                        rule
+                            .onNodeWithTag(ScrollableContainerTestTag)
+                            .captureToImage()
+                            .toPixelMap(),
+                    thicknessPx = thicknessPx,
+                    viewportWidthPx = viewportWidthPx,
+                    viewportHeightPx = viewportHeightPx,
+                )
+            assertEquals(TestContainerBackgroundColor, reattachedColors.thumbColor)
         }
     }
 
