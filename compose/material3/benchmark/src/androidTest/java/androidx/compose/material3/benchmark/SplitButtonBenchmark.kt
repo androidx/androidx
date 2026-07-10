@@ -25,8 +25,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SplitButton
 import androidx.compose.material3.SplitButtonDefaults
-import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -98,7 +98,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
     override fun MeasuredContent() {
         when (type) {
             SplitButtonType.Filled ->
-                SplitButtonLayout(
+                SplitButton(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
@@ -114,7 +114,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                     },
                 )
             SplitButtonType.Tonal ->
-                SplitButtonLayout(
+                SplitButton(
                     leadingButton = {
                         SplitButtonDefaults.TonalLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
@@ -130,7 +130,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                     },
                 )
             SplitButtonType.Elevated ->
-                SplitButtonLayout(
+                SplitButton(
                     leadingButton = {
                         SplitButtonDefaults.ElevatedLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
@@ -146,7 +146,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                     },
                 )
             SplitButtonType.Outlined ->
-                SplitButtonLayout(
+                SplitButton(
                     leadingButton = {
                         SplitButtonDefaults.OutlinedLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
