@@ -28,7 +28,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.scrollbar
+import androidx.compose.material3.nonInteractiveScrollbar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +36,15 @@ import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
-fun ScrollbarWithLazyColumnSample() {
+fun NonInteractiveScrollbarWithLazyColumnSample() {
     val state = rememberLazyListState()
     val scrollIndicatorState = state.scrollIndicatorState
     val scrollbarModifier =
         if (scrollIndicatorState != null) {
-            Modifier.scrollbar(scrollIndicatorState, orientation = Orientation.Vertical)
+            Modifier.nonInteractiveScrollbar(
+                scrollIndicatorState,
+                orientation = Orientation.Vertical,
+            )
         } else {
             Modifier
         }
@@ -58,12 +61,15 @@ fun ScrollbarWithLazyColumnSample() {
 
 @Sampled
 @Composable
-fun ScrollbarWithVerticalScrollSample() {
+fun NonInteractiveScrollbarWithVerticalScrollSample() {
     val state = rememberScrollState()
     val scrollIndicatorState = state.scrollIndicatorState
     val scrollbarModifier =
         if (scrollIndicatorState != null) {
-            Modifier.scrollbar(scrollIndicatorState, orientation = Orientation.Vertical)
+            Modifier.nonInteractiveScrollbar(
+                scrollIndicatorState,
+                orientation = Orientation.Vertical,
+            )
         } else {
             Modifier
         }
