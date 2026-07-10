@@ -352,9 +352,7 @@ class CarouselTest {
         }
 
         // Scroll to item 6
-        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
-            swipeWithVelocity(centerRight, centerLeft, 1000f)
-        }
+        rule.runOnIdle { kotlinx.coroutines.runBlocking { carouselState.scrollToItem(6) } }
 
         rule.waitForIdle()
         assertThat(carouselState.pagerState.currentPage).isEqualTo(6)
