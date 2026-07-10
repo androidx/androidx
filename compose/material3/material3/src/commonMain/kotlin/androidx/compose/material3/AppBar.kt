@@ -2551,6 +2551,20 @@ object BottomAppBarDefaults {
     val FlexibleFixedHorizontalArrangement: Arrangement.Horizontal =
         Arrangement.spacedBy(DockedToolbarTokens.ContainerMaxSpacing, Alignment.CenterHorizontally)
 
+    /**
+     * Default [AnimationSpec] that defines how the bottom app bar snaps to either fully collapsed
+     * or fully extended state when a fling or a drag scrolled it into an intermediate position.
+     */
+    val snapAnimationSpec: AnimationSpec<Float>
+        @Composable get() = MotionSchemeKeyTokens.FastSpatial.value()
+
+    /**
+     * Default [DecayAnimationSpec] that defines how to fling the bottom app bar when the user
+     * flings the app bar itself, or the scrollable content.
+     */
+    val flingAnimationSpec: DecayAnimationSpec<Float>
+        @Composable get() = rememberSplineBasedDecay()
+
     // TODO: note that this scroll behavior may impact assistive technologies making the component
     //  inaccessible. See @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBar on how
     //  to disable scrolling when touch exploration is enabled.
@@ -2579,8 +2593,8 @@ object BottomAppBarDefaults {
     fun exitAlwaysScrollBehavior(
         state: BottomAppBarState = rememberBottomAppBarState(),
         canScroll: () -> Boolean = { true },
-        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.FastSpatial.value(),
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        snapAnimationSpec: AnimationSpec<Float>? = BottomAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = BottomAppBarDefaults.flingAnimationSpec,
     ): BottomAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
             ExitAlwaysScrollBehavior(
