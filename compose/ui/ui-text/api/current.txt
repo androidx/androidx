@@ -1973,7 +1973,9 @@ package androidx.compose.ui.text.style {
     ctor @KotlinOnly public LineHeightStyle.Alignment(float topRatio);
     method @BytecodeOnly public static androidx.compose.ui.text.style.LineHeightStyle.Alignment! box-impl(float);
     method @BytecodeOnly public static float constructor-impl(float);
+    method @InaccessibleFromKotlin public float getTopRatio();
     method @BytecodeOnly public float unbox-impl();
+    property public float topRatio;
     field public static final androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion Companion;
   }
 
@@ -2010,6 +2012,10 @@ package androidx.compose.ui.text.style {
 
   @kotlin.jvm.JvmInline public static final value class LineHeightStyle.Trim {
     method @BytecodeOnly public static androidx.compose.ui.text.style.LineHeightStyle.Trim! box-impl(int);
+    method @KotlinOnly public boolean isTrimFirstLineTop();
+    method @BytecodeOnly public static boolean isTrimFirstLineTop-impl(int);
+    method @KotlinOnly public boolean isTrimLastLineBottom();
+    method @BytecodeOnly public static boolean isTrimLastLineBottom-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion Companion;
   }
